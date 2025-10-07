@@ -4,7 +4,7 @@ export const navigation = [
     menu: [
       {
         title: "Dashboard",
-        url: "/dashboard",
+        url: "/",
         iconPath: "/icons/home-2.svg",
       },
       {

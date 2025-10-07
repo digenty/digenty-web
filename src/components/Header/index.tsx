@@ -31,7 +31,7 @@ export const Header = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" className="hidden h-7 rounded-full border border-dashed px-2! py-0.5! md:flex">
+        <Button variant="ghost" className="border-default-transparent/15 hidden h-7 rounded-full border border-dashed px-2! py-0.5! md:flex">
           <Image src="/icons/question-fill.svg" width={16} height={16} alt="Close button" />
           <p className="text-sm font-medium">Help</p>
         </Button>
