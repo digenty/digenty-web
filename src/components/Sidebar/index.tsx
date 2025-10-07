@@ -79,9 +79,9 @@ export const Sidebar = () => {
 
       {/* Mobile */}
 
-      {/* <Sheet open={isCollapsed} onOpenChange={setIsCollapsed}>
+      <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
         <SheetOverlay className="block md:hidden" />
-        <SheetContent side="left" className="flex h-screen w-69 2xs:w-81  bg-zinc-50 p-4 text-left md:hidden text-zinc-600">
+        <SheetContent side="left" className="2xs:w-81 flex h-screen w-69 bg-zinc-50 p-4 text-left text-zinc-600 md:hidden">
           <VisuallyHidden>
             <SheetHeader className="space-y-3 px-4">
               <SheetTitle>Sidebar</SheetTitle>
@@ -94,7 +94,7 @@ export const Sidebar = () => {
               <p className="text-sm font-medium text-zinc-950">Digenty</p>
             </div>
 
-            <Button variant="ghost" onClick={() => setIsCollapsed(false)} className="p-0">
+            <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
               <Image src="/icons/close-large.svg" width={20} height={20} alt="Close button" />
             </Button>
           </div>
@@ -102,10 +102,10 @@ export const Sidebar = () => {
             {navigation.map((nav: NavigationType) => {
               return (
                 <div key={nav.menu[0].title}>
-                    <p className="text-xs leading-4 font-medium">{nav.title}</p>
+                  <p className="text-xs leading-4 font-medium">{nav.title}</p>
 
                   {nav.menu.map(menu => (
-                    <nav key={menu.title} className={cn("flex cursor-pointer  gap-[11px] py-2")}>
+                    <nav key={menu.title} className={cn("flex cursor-pointer gap-[11px] py-2")}>
                       <Image src={menu.iconPath} width={18} height={18} alt={menu.title} />
                       <p className="text-sm leading-5 font-medium">{menu.title}</p>
                     </nav>
@@ -120,7 +120,7 @@ export const Sidebar = () => {
             <p className="text-sm leading-5 font-medium">Sign out</p>
           </nav>
         </SheetContent>
-      </Sheet> */}
+      </Sheet>
     </>
   );
 };
