@@ -11,6 +11,8 @@
   --color-zinc-50: #fafafa;
   --color-zinc-600: #4e4e55;
   --color-zinc-950: #111115;
+
+  --breakpoint-2xs: 480px;
 }
 
 @media (prefers-color-scheme: dark) {
