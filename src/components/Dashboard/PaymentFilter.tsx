@@ -11,7 +11,7 @@ export const PaymentFilter = () => {
       <p className="text-xs font-medium text-zinc-950">Class Payment Completion</p>
 
       <Select value={selected} onValueChange={setSelected}>
-        <SelectTrigger className="border-default-transparent/15 w-[181px] border focus-visible:ring-0 h-8!">
+        <SelectTrigger className="border-default-transparent/15 h-8! w-[181px] border focus-visible:ring-0">
           <SelectValue className="text-default-transparent flex font-medium">
             <Calendar className="size-4 text-zinc-500" />
             <p className="text-sm">{selected}</p>
