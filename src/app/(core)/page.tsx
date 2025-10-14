@@ -1,7 +1,9 @@
-export default function Dashboard({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return <div className="">{children}</div>;
+import { Dashboard } from "@/components/Dashboard";
+
+export default function DashboardPage() {
+  return (
+    <div className="">
+      <Dashboard />
+    </div>
+  );
 }
