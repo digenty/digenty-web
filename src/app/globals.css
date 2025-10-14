@@ -9,10 +9,14 @@
   --color-default: #ffffff;
   --color-default-transparent: #27272a;
   --color-zinc-50: #fafafa;
+  --color-zinc-500: #6f6f77;
   --color-zinc-600: #4e4e55;
   --color-zinc-950: #111115;
+  --color-card-bg: #ffffff;
 
   --breakpoint-2xs: 480px;
+  --shadow-sm: 0 12px 12px -6px rgba(0, 0, 0, 0.04);
+  --radius-2xs: 2px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,8 +25,10 @@
     --color-default: #18181b;
     --color-default-transparent: #ffffff;
     --color-zinc-50: #18181b;
+    --color-zinc-500: #ffffff80;
     --color-zinc-600: #ffffffb3;
     --color-zinc-950: #ffffff;
+    --color-card-bg: #222225;
   }
 }
 
@@ -235,4 +241,8 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.recharts-surface:focus {
+  outline: none;
 }

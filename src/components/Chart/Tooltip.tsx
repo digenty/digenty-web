@@ -1,47 +1,40 @@
-// CustomTooltip.tsx
 import { TooltipProps } from "recharts";
 import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
 export const Tooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload && payload.length) {
-    // The data for the current bar is in payload[0].payload
     const dataPoint = payload[0].payload;
 
     const paidValue = dataPoint.paid_abs;
     const unpaidValue = dataPoint.unpaid_abs;
-    // const totalValue = dataPoint.Total;
 
-    const paidPercent = dataPoint.paid.toFixed(0); // Use the calculated percentage
+    const paidPercent = dataPoint.paid.toFixed(0);
     const unpaidPercent = dataPoint.unpaid.toFixed(0);
-
-    // Calculate percentages (as done in the design, 50% for JSS 1)
-    // const paidPercent = ((paidValue / totalValue) * 100).toFixed(0);
-    // const unpaidPercent = ((unpaidValue / totalValue) * 100).toFixed(0);
 
     // Format currency
     const formatCurrency = (value: number) => `₦${value.toLocaleString()}`;
 
     return (
-      <div className="rounded-lg border bg-white p-3 text-sm shadow-lg transition-all duration-300 ease-in-out">
-        <p className="mb-1 font-bold">{label}</p>
-        <hr className="mb-2" />
+      <div className="border-default-transparent/10 bg-card-bg rounded-lg border p-3 text-xs shadow-lg transition-all duration-300 ease-in-out">
+        <p className="mb-1 font-bold text-zinc-950">{label}</p>
+        <hr className="border-default-transparent/10 mb-2" />
         {/* Paid Row */}
         <div className="flex items-center justify-between space-x-4">
-          <span className="flex items-center">
-            <span className="mr-2 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
+          <span className="flex items-center text-zinc-600">
+            <span className="rounded-2xs mr-2 inline-block size-3 bg-blue-500"></span>
             Paid
           </span>
-          <span className="text-right font-semibold">
+          <span className="text-right font-normal text-zinc-500">
             {paidPercent}% · {formatCurrency(paidValue)}
           </span>
         </div>
         {/* Unpaid Row */}
         <div className="flex items-center justify-between space-x-4">
-          <span className="flex items-center">
-            <span className="mr-2 inline-block h-2 w-2 rounded-full bg-gray-300"></span>
+          <span className="flex items-center text-zinc-600">
+            <span className="rounded-2xs mr-2 inline-block size-3 bg-gray-300"></span>
             Unpaid
           </span>
-          <span className="text-right font-semibold">
+          <span className="text-right font-normal text-zinc-500">
             {unpaidPercent}% · {formatCurrency(unpaidValue)}
           </span>
         </div>

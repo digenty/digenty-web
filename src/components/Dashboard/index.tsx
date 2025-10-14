@@ -1,9 +1,9 @@
-import { StackedBarChart } from "../Chart/StackedBarChart";
+import { Chart } from "./Chart";
 
 export const Dashboard = () => {
   return (
     <div>
-      <StackedBarChart />
+      <Chart />
     </div>
   );
 };
