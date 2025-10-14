@@ -2,17 +2,21 @@
 import { TooltipProps } from "recharts";
 import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
-const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+export const Tooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload && payload.length) {
     // The data for the current bar is in payload[0].payload
     const dataPoint = payload[0].payload;
-    const paidValue = dataPoint.Paid;
-    const unpaidValue = dataPoint.Unpaid;
-    const totalValue = dataPoint.Total;
+
+    const paidValue = dataPoint.paid_abs;
+    const unpaidValue = dataPoint.unpaid_abs;
+    // const totalValue = dataPoint.Total;
+
+    const paidPercent = dataPoint.paid.toFixed(0); // Use the calculated percentage
+    const unpaidPercent = dataPoint.unpaid.toFixed(0);
 
     // Calculate percentages (as done in the design, 50% for JSS 1)
-    const paidPercent = ((paidValue / totalValue) * 100).toFixed(0);
-    const unpaidPercent = ((unpaidValue / totalValue) * 100).toFixed(0);
+    // const paidPercent = ((paidValue / totalValue) * 100).toFixed(0);
+    // const unpaidPercent = ((unpaidValue / totalValue) * 100).toFixed(0);
 
     // Format currency
     const formatCurrency = (value: number) => `₦${value.toLocaleString()}`;
@@ -47,5 +51,3 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
 
   return null;
 };
-
-export default CustomTooltip;
