@@ -1,9 +1,9 @@
 "use client";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Tooltip as CustomTooltip } from "./Tooltip";
-import { data } from "./data";
+import { ChartData } from "./types";
 
-export const StackedBarChart = () => {
+export const StackedBarChart = ({ data }: { data: ChartData[] }) => {
   return (
     <div className="bg-default-transparent/0.01 h-[500px] w-full">
       <ResponsiveContainer width="100%" height="100%">
