@@ -17,10 +17,16 @@ export const PaymentFilter = () => {
             <p className="text-sm">{selected}</p>
           </SelectValue>
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="24/25 Third Term">24/25 Third Term</SelectItem>
-          <SelectItem value="24/25 Second Term">24/25 Second Term</SelectItem>
-          <SelectItem value="24/25 First Term">24/25 First Term</SelectItem>
+        <SelectContent className="bg-card-bg border-default-transparent/15">
+          <SelectItem className="text-default-transparent" value="24/25 Third Term">
+            24/25 Third Term
+          </SelectItem>
+          <SelectItem className="text-default-transparent" value="24/25 Second Term">
+            24/25 Second Term
+          </SelectItem>
+          <SelectItem className="text-default-transparent" value="24/25 First Term">
+            24/25 First Term
+          </SelectItem>
         </SelectContent>
       </Select>
     </div>

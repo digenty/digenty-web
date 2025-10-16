@@ -8,6 +8,7 @@
 
   --color-default: #ffffff;
   --color-default-transparent: #27272a;
+  --color-zinc-00: #ffffff;
   --color-zinc-50: #fafafa;
   --color-zinc-500: #6f6f77;
   --color-zinc-600: #4e4e55;
@@ -24,6 +25,7 @@
     /* Dark theme */
     --color-default: #18181b;
     --color-default-transparent: #ffffff;
+    --color-zinc-00: #ffffff0a;
     --color-zinc-50: #18181b;
     --color-zinc-500: #ffffff80;
     --color-zinc-600: #ffffffb3;

@@ -19,7 +19,7 @@ export const ChartToggle: React.FC<ToggleGroupProps> = ({ options, selected, onC
           key={option}
           onClick={() => handleSelect(option)}
           className={`flex-1 rounded-full px-6 py-0.5 text-sm font-medium whitespace-nowrap transition-all duration-300 ${
-            selected === option ? "bg-white text-zinc-950 shadow-sm" : "text-zinc-500 hover:text-gray-200"
+            selected === option ? "bg-zinc-00 text-zinc-950 shadow-sm" : "text-zinc-500 hover:text-gray-200"
           }`}
         >
           {option}
