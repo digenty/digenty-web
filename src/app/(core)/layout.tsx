@@ -7,7 +7,7 @@ export default function CoreLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="bg-default flex h-screen leading-5 text-zinc-600">
+    <div className="bg-bg-default flex h-screen leading-5 text-zinc-600">
       <Sidebar />
       <div className="flex-1">
         <Header />
