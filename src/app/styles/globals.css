@@ -1,28 +1,28 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
   /* Light theme */
 
-  --color-default: #ffffff;
+  /* --color-default: #ffffff;
   --color-default-transparent: #27272a;
   --color-zinc-00: #ffffff;
   --color-zinc-50: #fafafa;
   --color-zinc-500: #6f6f77;
   --color-zinc-600: #4e4e55;
   --color-zinc-950: #111115;
-  --color-card-bg: #ffffff;
+  --color-card-bg: #ffffff; */
 
   --breakpoint-2xs: 480px;
   --shadow-sm: 0 12px 12px -6px rgba(0, 0, 0, 0.04);
   --radius-2xs: 2px;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
-    /* Dark theme */
     --color-default: #18181b;
     --color-default-transparent: #ffffff;
     --color-zinc-00: #ffffff0a;
@@ -32,7 +32,7 @@
     --color-zinc-950: #ffffff;
     --color-card-bg: #222225;
   }
-}
+} */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
