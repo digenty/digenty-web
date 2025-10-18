@@ -19,13 +19,12 @@ export const Sidebar = () => {
   useEffect(() => {
     setActiveNav(pathname.split("/")[1]);
   }, [pathname, setActiveNav]);
-  console.log(activeNav, pathname);
 
   return (
     <>
       <div
         className={cn(
-          "border-default-transparent/10 hidden w-69 space-y-4 border-r bg-zinc-50 p-4 md:block md:space-y-8",
+          "border-border-default bg-bg-sidebar-subtle hidden w-69 space-y-4 border-r p-4 md:block md:space-y-8",
           !isSidebarOpen && "w-auto",
         )}
       >
@@ -65,7 +64,7 @@ export const Sidebar = () => {
                 {!isSidebarOpen && nav.title ? ( // Exclude divider and title for  groups without title
                   <Image src="/icons/Line.svg" width={40} height={0} alt="Line" />
                 ) : (
-                  <p className="text-xs leading-4 font-medium">{nav.title}</p>
+                  <p className="text-text-subtle text-xs leading-4 font-medium">{nav.title}</p>
                 )}
 
                 {nav.menu.map(menu => {
@@ -76,12 +75,12 @@ export const Sidebar = () => {
                       className={cn(
                         "flex cursor-pointer items-center gap-[11px] px-2 py-2",
                         !isSidebarOpen && "justify-center px-0",
-                        isActive && "bg-default-transparent/6 rounded-sm",
+                        isActive && "bg-bg-state-soft rounded-sm",
                       )}
                       onClick={() => router.push(menu.url)}
                     >
                       <Image src={menu.iconPath} width={18} height={18} alt={menu.title} />
-                      {isSidebarOpen && <p className="text-sm leading-5 font-medium">{menu.title}</p>}
+                      {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
                     </nav>
                   );
                 })}
@@ -92,7 +91,7 @@ export const Sidebar = () => {
 
         <nav className={cn("flex cursor-pointer items-center gap-[11px] py-2", !isSidebarOpen && "justify-center")}>
           <Image src="/icons/logout.svg" width={18} height={18} alt="Logout button" />
-          {isSidebarOpen && <p className="text-sm leading-5 font-medium">Sign out</p>}
+          {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">Sign out</p>}
         </nav>
       </div>
 
