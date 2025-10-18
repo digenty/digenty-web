@@ -1,3 +1,5 @@
+import BankCard from "../Icons/BankCard";
+
 export const navigation = [
   {
     title: "",
@@ -41,6 +43,7 @@ export const navigation = [
         title: "Expenses",
         url: "/expense",
         iconPath: "/icons/bank-card.svg",
+        // iconPath: BankCard,
       },
       {
         title: "Stock",

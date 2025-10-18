@@ -6,9 +6,10 @@ export const Breadcrumb = ({ className }: { className?: string }) => {
     <BreadcrumbComponent className={cn(className)}>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink className="text-sm font-medium">Dashboard</BreadcrumbLink>
+          <BreadcrumbLink className="text-text-muted text-sm font-medium">Dashboard</BreadcrumbLink>
         </BreadcrumbItem>
 
+        {/* Make dyna,mic for subpages. Add text color for the last item on the breadcrumb */}
         {/* <BreadcrumbSeparator /> */}
       </BreadcrumbList>
     </BreadcrumbComponent>

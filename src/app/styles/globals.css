@@ -916,11 +916,12 @@
   }
 }
 
+/* Shadcn Defined */
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
+  /* --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 4px); */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -954,6 +955,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Shadcn Defined */
 .dark {
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
@@ -988,6 +990,7 @@
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
+/* Shadcn Defined */
 @layer base {
   * {
     @apply border-border outline-ring/50;

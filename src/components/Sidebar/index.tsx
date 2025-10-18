@@ -9,6 +9,7 @@ import { Button } from "../ui/button";
 import { navigation } from "./constants";
 import { NavigationType } from "./types";
 import { usePathname, useRouter } from "next/navigation";
+import BankCard from "../Icons/BankCard";
 
 export const Sidebar = () => {
   const pathname = usePathname();
@@ -31,8 +32,8 @@ export const Sidebar = () => {
         <div className={cn("flex", isSidebarOpen ? "justify-between" : "justify-center")}>
           {isSidebarOpen && (
             <div className="flex items-center gap-2">
-              <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
-              <p className="text-sm font-medium text-zinc-950/70">Digenty</p>
+              <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" className="text-icon-default-subtle" />
+              <p className="text-text-default text-sm font-medium">Digenty</p>
             </div>
           )}
 
@@ -75,11 +76,12 @@ export const Sidebar = () => {
                       className={cn(
                         "flex cursor-pointer items-center gap-[11px] px-2 py-2",
                         !isSidebarOpen && "justify-center px-0",
-                        isActive && "bg-bg-state-soft rounded-sm",
+                        isActive && "bg-bg-state-soft rounded-md",
                       )}
                       onClick={() => router.push(menu.url)}
                     >
-                      <Image src={menu.iconPath} width={18} height={18} alt={menu.title} />
+                      {/* <Image src={menu.iconPath} width={18} height={18} alt={menu.title} /> */}
+                      <BankCard fill="var(--color-icon-default-subtle)" />
                       {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
                     </nav>
                   );
