@@ -1,4 +1,18 @@
 import BankCard from "../Icons/BankCard";
+import Bill from "../Icons/Bill";
+import CalendarCheck from "../Icons/CalendarCheck";
+import ColorFilter from "../Icons/ColorFilter";
+import FileList3 from "../Icons/FileList3";
+import Global from "../Icons/Global";
+import GraduationCap from "../Icons/GraduationCap";
+import Group from "../Icons/Group";
+import Home2 from "../Icons/Home2";
+import LineChart from "../Icons/LineChart";
+import Macbook from "../Icons/Macbook";
+import Megaphone from "../Icons/Megaphone";
+import Settings4 from "../Icons/Settings4";
+import Store3 from "../Icons/Store3";
+import Wallet from "../Icons/Wallet";
 
 export const navigation = [
   {
@@ -7,22 +21,22 @@ export const navigation = [
       {
         title: "Dashboard",
         url: "/",
-        iconPath: "/icons/home-2.svg",
+        icon: Home2,
       },
       {
         title: "Student & Parent Record",
         url: "/student-and-parent-record",
-        iconPath: "/icons/group.svg",
+        icon: Group,
       },
       {
         title: "Classes & Subjects",
         url: "/classes-and-subjects",
-        iconPath: "/icons/graduation-cap.svg",
+        icon: GraduationCap,
       },
       {
         title: "Attendance",
         url: "/attendance",
-        iconPath: "/icons/calendar-check.svg",
+        icon: CalendarCheck,
       },
     ],
   },
@@ -32,33 +46,32 @@ export const navigation = [
       {
         title: "Invoices",
         url: "/invoices",
-        iconPath: "/icons/file-list-3.svg",
+        icon: FileList3,
       },
       {
         title: "Fees",
         url: "/fees",
-        iconPath: "/icons/bill.svg",
+        icon: Bill,
       },
       {
         title: "Expenses",
         url: "/expense",
-        iconPath: "/icons/bank-card.svg",
-        // iconPath: BankCard,
+        icon: BankCard,
       },
       {
         title: "Stock",
         url: "/stock",
-        iconPath: "/icons/store3.svg",
+        icon: Store3,
       },
       {
         title: "Fee Collection",
         url: "/fee-collection",
-        iconPath: "/icons/wallet.svg",
+        icon: Wallet
       },
       {
         title: "Finance Report",
         url: "/finance-report",
-        iconPath: "/icons/line-chart.svg",
+        icon: LineChart,
       },
     ],
   },
@@ -68,22 +81,22 @@ export const navigation = [
       {
         title: "Communications",
         url: "/communications",
-        iconPath: "/icons/megaphone.svg",
+        icon: Megaphone,
       },
       {
         title: "Portal Overview",
         url: "/portal-overview",
-        iconPath: "/icons/macbook.svg",
+        icon:  Macbook,
       },
       {
         title: "Portal Customization",
         url: "/portal-customization",
-        iconPath: "/icons/color-filter.svg",
+        icon: ColorFilter,
       },
       {
         title: "Domain",
         url: "/domain",
-        iconPath: "/icons/global.svg",
+        icon: Global,
       },
     ],
   },
@@ -93,7 +106,7 @@ export const navigation = [
       {
         title: "Settings",
         url: "/settings",
-        iconPath: "/icons/settings4.svg",
+        icon: Settings4,
       },
     ],
   },

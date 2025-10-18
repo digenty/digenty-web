@@ -4,12 +4,14 @@ import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/store";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Logout from "../Icons/Logout";
 import { Button } from "../ui/button";
 import { navigation } from "./constants";
 import { NavigationType } from "./types";
-import { usePathname, useRouter } from "next/navigation";
-import BankCard from "../Icons/BankCard";
+import CloseLarge from "../Icons/CloseLarge";
+
 
 export const Sidebar = () => {
   const pathname = usePathname();
@@ -80,8 +82,7 @@ export const Sidebar = () => {
                       )}
                       onClick={() => router.push(menu.url)}
                     >
-                      {/* <Image src={menu.iconPath} width={18} height={18} alt={menu.title} /> */}
-                      <BankCard fill="var(--color-icon-default-subtle)" />
+                      <menu.icon fill="var(--color-icon-default-subtle)" />
                       {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
                     </nav>
                   );
@@ -103,7 +104,7 @@ export const Sidebar = () => {
         <SheetOverlay className="block md:hidden" />
         <SheetContent
           side="left"
-          className="2xs:w-81 border-default-transparent/10 flex h-screen w-69 bg-zinc-50 p-4 text-left text-zinc-600 md:hidden"
+          className="2xs:w-81 border-border-default flex h-screen w-69 bg-bg-sidebar-subtle p-4 text-left text-text-subtle md:hidden"
         >
           <VisuallyHidden>
             <SheetHeader className="space-y-3 px-4">
@@ -118,7 +119,7 @@ export const Sidebar = () => {
             </div>
 
             <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
-              <Image src="/icons/close-large.svg" width={20} height={20} alt="Close button" />
+              <CloseLarge fill="var(--color-icon-default-subtle)" />
             </Button>
           </div>
           <div className="space-y-5 md:space-y-6">
@@ -129,7 +130,7 @@ export const Sidebar = () => {
 
                   {nav.menu.map(menu => (
                     <nav key={menu.title} className={cn("flex cursor-pointer gap-[11px] py-2")}>
-                      <Image src={menu.iconPath} width={18} height={18} alt={menu.title} />
+                      <menu.icon fill="var(--color-icon-default-subtle)" />
                       <p className="text-sm leading-5 font-medium">{menu.title}</p>
                     </nav>
                   ))}
@@ -139,7 +140,7 @@ export const Sidebar = () => {
           </div>
 
           <nav className={cn("flex cursor-pointer gap-[11px] py-2 pr-2")}>
-            <Image src="/icons/logout.svg" width={18} height={18} alt="Logout button" />
+            <Logout fill="var(--color-icon-default-subtle)" />
             <p className="text-sm leading-5 font-medium">Sign out</p>
           </nav>
         </SheetContent>
