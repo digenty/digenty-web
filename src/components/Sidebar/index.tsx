@@ -11,7 +11,8 @@ import { Button } from "../ui/button";
 import { navigation } from "./constants";
 import { NavigationType } from "./types";
 import CloseLarge from "../Icons/CloseLarge";
-
+import LeadIcon from "../Icons/LeadIcon";
+import Line from "../Icons/Line";
 
 export const Sidebar = () => {
   const pathname = usePathname();
@@ -41,7 +42,7 @@ export const Sidebar = () => {
 
           {isSidebarOpen ? (
             <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
-              <Image src="/icons/lead-icon.svg" width={24} height={24} alt="Close button" />
+              <LeadIcon fill="var(--color-icon-default-subtle)" />
             </Button>
           ) : (
             <Button
@@ -54,7 +55,7 @@ export const Sidebar = () => {
               {showLogo ? (
                 <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
               ) : (
-                <Image src="/icons/lead-icon.svg" width={24} height={24} alt="Close button" />
+                <LeadIcon fill="var(--color-icon-default-subtle)" />
               )}
             </Button>
           )}
@@ -65,7 +66,7 @@ export const Sidebar = () => {
             return (
               <div key={nav.menu[0].title}>
                 {!isSidebarOpen && nav.title ? ( // Exclude divider and title for  groups without title
-                  <Image src="/icons/Line.svg" width={40} height={0} alt="Line" />
+                  <Line fill="var(--color-icon-default-subtle)" />
                 ) : (
                   <p className="text-text-subtle text-xs leading-4 font-medium">{nav.title}</p>
                 )}
@@ -93,7 +94,7 @@ export const Sidebar = () => {
         </div>
 
         <nav className={cn("flex cursor-pointer items-center gap-[11px] py-2", !isSidebarOpen && "justify-center")}>
-          <Image src="/icons/logout.svg" width={18} height={18} alt="Logout button" />
+          <Logout fill="var(--color-icon-default-subtle)" />
           {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">Sign out</p>}
         </nav>
       </div>
@@ -104,7 +105,7 @@ export const Sidebar = () => {
         <SheetOverlay className="block md:hidden" />
         <SheetContent
           side="left"
-          className="2xs:w-81 border-border-default flex h-screen w-69 bg-bg-sidebar-subtle p-4 text-left text-text-subtle md:hidden"
+          className="2xs:w-81 border-border-default bg-bg-sidebar-subtle text-text-subtle flex h-screen w-69 p-4 text-left md:hidden"
         >
           <VisuallyHidden>
             <SheetHeader className="space-y-3 px-4">

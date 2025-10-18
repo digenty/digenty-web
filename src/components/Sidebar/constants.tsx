@@ -66,7 +66,7 @@ export const navigation = [
       {
         title: "Fee Collection",
         url: "/fee-collection",
-        icon: Wallet
+        icon: Wallet,
       },
       {
         title: "Finance Report",
@@ -86,7 +86,7 @@ export const navigation = [
       {
         title: "Portal Overview",
         url: "/portal-overview",
-        icon:  Macbook,
+        icon: Macbook,
       },
       {
         title: "Portal Customization",

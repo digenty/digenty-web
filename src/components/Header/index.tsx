@@ -4,6 +4,9 @@ import { Breadcrumb } from "./Breadcrumb";
 import { Button } from "../ui/button";
 import { useSidebarStore } from "@/store";
 import { Avatar } from "../Avatar";
+import Notification2 from "../Icons/Notification2";
+import QuestionFill from "../Icons/QuestionFill";
+import Menu2 from "../Icons/Menu2";
 
 export const Header = () => {
   const { setIsSidebarOpen } = useSidebarStore();
@@ -20,7 +23,7 @@ export const Header = () => {
             setIsSidebarOpen(true);
           }}
         >
-          <Image src="/icons/menu-2.svg" width={20} height={20} alt="Menu" />
+          <Menu2 fill="var(--color-icon-default-subtle)" />
         </Button>
 
         <div className="flex items-center gap-2">
@@ -31,12 +34,12 @@ export const Header = () => {
 
       <div className="flex items-center gap-4">
         <Button variant="ghost" className="border-border-darker hidden h-7 rounded-full border border-dashed px-2! py-0.5! md:flex">
-          <Image src="/icons/question-fill.svg" width={16} height={16} alt="Close button" />
+          <QuestionFill fill="var(--color-icon-default-subtle)" />
           <p className="text-text-default text-sm font-medium">Help</p>
         </Button>
 
         <Button variant="ghost" className="p-0!">
-          <Image src="/icons/notification-2.svg" width={16} height={16} alt="Close button" />
+          <Notification2 fill="var(--color-icon-default-subtle)" />
         </Button>
 
         <div className="border-border-darker rounded-full">
