@@ -8,23 +8,23 @@ export const PaymentFilter = () => {
   const [selected, setSelected] = useState(filterValues[0]);
   return (
     <div className="space-y-3">
-      <p className="text-xs font-medium text-zinc-950">Class Payment Completion</p>
+      <p className="text-text-default text-xs font-medium">Class Payment Completion</p>
 
       <Select value={selected} onValueChange={setSelected}>
-        <SelectTrigger className="border-default-transparent/15 h-8! w-[181px] border focus-visible:ring-0">
-          <SelectValue className="text-default-transparent flex font-medium">
-            <Calendar className="size-4 text-zinc-500" />
-            <p className="text-sm">{selected}</p>
+        <SelectTrigger className="border-border-darker h-8! w-[181px] border focus-visible:ring-0">
+          <SelectValue className="text-text-default flex font-medium">
+            <Calendar className="text-icon-black-muted size-4" />
+            <p className="text-text-default text-sm">{selected}</p>
           </SelectValue>
         </SelectTrigger>
-        <SelectContent className="bg-card-bg border-default-transparent/15">
-          <SelectItem className="text-default-transparent" value="24/25 Third Term">
+        <SelectContent className="bg-bg-card border-border-default">
+          <SelectItem className="text-text-default" value="24/25 Third Term">
             24/25 Third Term
           </SelectItem>
-          <SelectItem className="text-default-transparent" value="24/25 Second Term">
+          <SelectItem className="text-text-default" value="24/25 Second Term">
             24/25 Second Term
           </SelectItem>
-          <SelectItem className="text-default-transparent" value="24/25 First Term">
+          <SelectItem className="text-text-default" value="24/25 First Term">
             24/25 First Term
           </SelectItem>
         </SelectContent>

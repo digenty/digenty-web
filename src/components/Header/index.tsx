@@ -23,7 +23,7 @@ export const Header = () => {
             setIsSidebarOpen(true);
           }}
         >
-          <Menu2 fill="var(--color-icon-default-subtle)" />
+          <Menu2 fill="var(--color-icon-default-subtle)" className="size-5" />
         </Button>
 
         <div className="flex items-center gap-2">

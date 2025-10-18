@@ -42,7 +42,7 @@ export const Sidebar = () => {
 
           {isSidebarOpen ? (
             <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
-              <LeadIcon fill="var(--color-icon-default-subtle)" />
+              <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5" />
             </Button>
           ) : (
             <Button
@@ -55,7 +55,7 @@ export const Sidebar = () => {
               {showLogo ? (
                 <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
               ) : (
-                <LeadIcon fill="var(--color-icon-default-subtle)" />
+                <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5" />
               )}
             </Button>
           )}
