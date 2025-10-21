@@ -1,7 +1,10 @@
 export default function AlertIcons({ color = "currentColor" }: { color?: string }) {
   return (
-    <svg width={20} height={20} fill="none" viewBox="0 0 24 24">
-      <path d="M12 2a7 7 0 0 1 7 7v5l1.29 2.58A1 1 0 0 1 19.42 18H4.58a1 1 0 0 1-.87-1.42L5 14V9a7 7 0 0 1 7-7z" fill={color} />
+    <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M11.3333 13.3333H0.666667C0.29848 13.3333 0 13.0349 0 12.6667V0.666667C0 0.29848 0.29848 0 0.666667 0H11.3333C11.7015 0 12 0.29848 12 0.666667V12.6667C12 13.0349 11.7015 13.3333 11.3333 13.3333ZM10.6667 12V1.33333H1.33333V12H10.6667ZM3.33333 4.66667H8.66667V6H3.33333V4.66667ZM3.33333 7.33333H8.66667V8.66667H3.33333V7.33333Z"
+        fill="#2D766F"
+      />
     </svg>
   );
 }
