@@ -2,54 +2,65 @@
 
 import Image from "next/image";
 import React from "react";
+import { Listbox } from "@headlessui/react";
+import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
+
+const termsOptions = [
+  { value: "Term 1", label: "24/25 Third Term", icon: "/icons/Vector (3).svg" },
+  { value: "Term 2", label: "24/25 Second Term", icon: "/icons/home-2.svg" },
+  { value: "Term 3", label: "24/25 First Term", icon: "/icons/home-2.svg" },
+];
+
+const branches = [
+  { value: "All Branches", label: "All Branches", icon: "/icons/Vector (4).svg" },
+  { value: "Lawanson", label: "Lawanson", icon: "/icons/Vector (4).svg" },
+  { value: "Ilasamaja", label: "Ilasamaja", icon: "/icons/Vector (4).svg" },
+];
 
 export default function OverviewHeader() {
-  const [openFilterModal, setOpenFilterModal] = React.useState(false);
-
-  const termsOptions = [
-    { value: "Term 1", label: "24/25 Third Term", icon: "/icons/home-2.svg" },
-    { value: "Term 2", label: "24/25  Second Term", icon: "/icons/home-2.svg" },
-    { value: "Term 3", label: "24/25 First Term", icon: "/icons/home-2.svg" },
-  ];
-  const branches = [
-    { value: "All Branches", label: "All Branches" },
-    { value: "Lawanson", label: "Lawanson" },
-    { value: "Ilasamaja", label: "Ilasamaja" },
-  ];
+  const [termSelected, setTermSelected] = React.useState(termsOptions[0]);
+  const [branchSelected, setBranchSelected] = React.useState(branches[0]);
 
   return (
     <div>
-      <div className="flex justify-between p-4 align-middle text-zinc-950">
-        <h2 className="text-2xl font-bold">Overview</h2>
-        {/* big screen view */}
+      <div className="flex w-full justify-between p-4 align-middle">
+        <h2 className="text-text-default text-3xl font-bold">Overview</h2>
 
+        {/* Desktop filter options */}
         <div className="hidden gap-2 align-middle md:flex">
-          <div className="flex items-center gap-2 rounded-md border border-zinc-300 bg-white px-2 py-2">
-            <Image src={termsOptions[0].icon} width={20} height={20} alt="term icon" />
+          <div className="border-border-default text-text-default flex items-center gap-2 rounded-md border px-2 py-2">
+            <Image src={termsOptions[0].icon} width={15} height={15} alt="term icon" />
             <select
               name="terms"
-              id="terms"
-              className="border-none bg-transparent text-sm font-bold focus:ring-0 focus:outline-none"
+              className="border-border-default text-text-default border-none text-sm font-bold focus:ring-0 focus:outline-none"
               defaultValue={termsOptions[0].value}
             >
               {termsOptions.map(term => (
-                <option key={term.value} value={term.value}>
+                <option
+                  key={term.value}
+                  value={term.value}
+                  className="border-border-darker bg-bg-default hover:text-text-muted font-bold text-zinc-500"
+                >
                   {term.label}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="flex items-center gap-2 rounded-md border border-zinc-300 bg-white px-2 py-2">
-            <Image src={termsOptions[0].icon} width={20} height={20} alt="term icon" />
+          <div className="border-border-default text-text-default flex items-center gap-2 rounded-md border px-2 py-2">
+            <Image src={branches[0].icon} width={15} height={15} alt="branch icon" />
             <select
               name="branches"
               id="branches"
-              className="border-none bg-transparent text-sm font-bold focus:ring-0 focus:outline-none"
+              className="border-border-default text-text-default border-none text-sm font-bold focus:ring-0 focus:outline-none"
               defaultValue="All Branches"
             >
               {branches.map(branch => (
-                <option key={branch.value} value={branch.value}>
+                <option
+                  key={branch.value}
+                  value={branch.value}
+                  className="border-border-darker bg-bg-default hover:text-text-muted px-2 font-bold text-zinc-500"
+                >
                   {branch.label}
                 </option>
               ))}
@@ -57,52 +68,85 @@ export default function OverviewHeader() {
           </div>
         </div>
 
-        <button className="block rounded-sm bg-gray-100 p-1 md:hidden">
-          <Image src="/icons/menu-2.svg" alt="filter icon" width={20} height={20} onClick={() => setOpenFilterModal(true)} />
-        </button>
+        {/* Mobile Drawer Trigger */}
+        <Drawer>
+          <DrawerTrigger asChild>
+            <button className="bg-bg-state-soft block rounded-sm px-2 md:hidden">
+              <Image src="/icons/Vector (5).svg" alt="filter icon" width={20} height={20} />
+            </button>
+          </DrawerTrigger>
 
-        {/* Mobile Filter Modal */}
-        {openFilterModal && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60">
-            <div className="m-3 w-full max-w-md rounded-[10px] bg-white pb-2 shadow-lg">
-              <div className="border-default-transparent/5 mb-4 flex items-center justify-between rounded-t-[10px] border-b-1 bg-zinc-100 px-2 py-4">
-                <h4 className="text-lg font-semibold">Filter</h4>
-                <button className="text-xl font-bold text-zinc-500" onClick={() => setOpenFilterModal(false)}>
-                  ×
-                </button>
+          <DrawerContent className="bg-bg-default w-full max-w-full rounded-t-[12px] pb-3 shadow-lg">
+            <DrawerHeader className="bg-bg-state-soft flex items-center justify-between rounded-t-[12px] border-b border-zinc-200 px-4 py-3">
+              <DrawerTitle className="text-text-default text-lg font-semibold">Filter</DrawerTitle>
+              <DrawerClose asChild>
+                <button className="text-text-default text-xl font-bold">×</button>
+              </DrawerClose>
+            </DrawerHeader>
+
+            <div className="mb-4 flex w-full flex-col gap-4 p-4">
+              {/* Period Section */}
+              <div className="flex items-center gap-2">
+                <Image src={termsOptions[0].icon} width={15} height={15} alt="term icon" />
+                <label className="text-text-default text-sm font-medium">Period</label>
               </div>
-              <div className="mb-4 flex flex-col gap-4 p-2">
-                <label className="mb-1 text-sm font-bold text-zinc-900">Period</label>
-                <select name="terms" id="terms" className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-bold" defaultValue="Term 1">
-                  {termsOptions.map(term => (
-                    <option key={term.value} value={term.value}>
-                      {term.label}
-                    </option>
-                  ))}
-                </select>
-                <label className="mb-1 text-sm font-bold text-zinc-900">Branch</label>
-                <select
-                  name="branches"
-                  id="branches"
-                  className="rounded-md border border-zinc-300 px-3 py-2 text-sm font-bold"
-                  defaultValue="All Branches"
-                >
-                  {branches.map(branch => (
-                    <option key={branch.value} value={branch.value}>
-                      {branch.label}
-                    </option>
-                  ))}
-                </select>
+
+              <Listbox value={termSelected} onChange={setTermSelected}>
+                <div className="relative">
+                  <Listbox.Button className="bg-bg-state-soft text-text-default w-full rounded-md px-3 py-2 text-left text-sm font-semibold">
+                    {termSelected.label}
+                  </Listbox.Button>
+                  <Listbox.Options className="bg-bg-default text-text-default absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-zinc-200 shadow-lg">
+                    {termsOptions.map(term => (
+                      <Listbox.Option
+                        key={term.value}
+                        value={term}
+                        className="hover:bg-bg-state-secondary text-text-default w-full max-w-full rounded-md px-3 py-2 text-sm font-bold"
+                      >
+                        {term.label}
+                      </Listbox.Option>
+                    ))}
+                  </Listbox.Options>
+                </div>
+              </Listbox>
+
+              {/* Branch Section */}
+              <div className="flex items-center gap-2">
+                <Image src={branches[0].icon} width={15} height={15} alt="branch icon" />
+                <label className="text-text-default text-sm font-medium">Branch</label>
               </div>
-              <div className="flex justify-between p-1">
-                <button onClick={() => setOpenFilterModal(false)} className="rounded-md bg-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-600">
-                  Cancel
-                </button>
+
+              <Listbox value={branchSelected} onChange={setBranchSelected}>
+                <div className="relative">
+                  <Listbox.Button className="bg-bg-state-soft text-text-default w-full rounded-md px-3 py-2 text-left text-sm font-semibold">
+                    {branchSelected.label}
+                  </Listbox.Button>
+                  <Listbox.Options className="bg-bg-default absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-zinc-200 shadow-lg">
+                    {branches.map(branch => (
+                      <Listbox.Option
+                        key={branch.value}
+                        value={branch}
+                        className="text-text-default hover:bg-bg-state-secondary w-full max-w-full rounded-md px-3 py-2 text-sm font-bold"
+                      >
+                        {branch.label}
+                      </Listbox.Option>
+                    ))}
+                  </Listbox.Options>
+                </div>
+              </Listbox>
+            </div>
+
+            <DrawerFooter>
+              <div className="flex justify-between">
+                <DrawerClose asChild>
+                  <button className="bg-bg-state-soft text-text-default rounded-md px-4 py-2 text-sm font-semibold">Cancel</button>
+                </DrawerClose>
+
                 <button className="rounded-md bg-blue-500 px-4 py-2 text-sm tracking-[0.1rem] text-white">Apply Filter</button>
               </div>
-            </div>
-          </div>
-        )}
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
       </div>
     </div>
   );
