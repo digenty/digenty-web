@@ -13,7 +13,7 @@ export const ChartToggle: React.FC<ToggleGroupProps> = ({ options, selected, onC
   };
 
   return (
-    <div className="bg-bg-state-soft flex w-full justify-evenly rounded-full p-1">
+    <div className="bg-bg-state-soft flex w-full justify-evenly rounded-full">
       {options.map(option => (
         <button
           key={option}

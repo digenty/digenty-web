@@ -15,8 +15,8 @@ export default function OverviewHeader() {
 
   return (
     <div>
-      <div className="flex w-full justify-between p-4 align-middle">
-        <h2 className="text-text-default text-3xl font-bold">Overview</h2>
+      <div className="flex w-full justify-between align-middle">
+        <h2 className="text-text-default text-lg font-semibold md:text-2xl">Overview</h2>
 
         <div className="hidden gap-2 align-middle md:flex">
           <Select value={termSelected} onValueChange={setTermSelected}>
@@ -58,10 +58,8 @@ export default function OverviewHeader() {
 
         {/* Mobile Drawer */}
         <Drawer>
-          <DrawerTrigger asChild>
-            <button className="bg-bg-state-soft block h-[20px] w-[20px] rounded-sm p-1 md:hidden">
-              <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={16} height={16} />
-            </button>
+          <DrawerTrigger asChild className="bg-bg-state-soft block size-7 rounded-xs p-1.5 md:hidden">
+            <Image src="/icons/Vector (5).svg" alt="filter icon" width={20} height={20} />
           </DrawerTrigger>
 
           <DrawerContent className="bg-bg-default w-full max-w-full rounded-t-[12px] pb-3 shadow-lg">

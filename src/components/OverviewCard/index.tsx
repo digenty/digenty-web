@@ -22,7 +22,7 @@ export const OverviewCard = ({ title, icon, value, color, percentage, iconBg }: 
         : iconBg;
 
   return (
-    <div className="border-border-default box flex w-full flex-col gap-5 rounded-md border p-6">
+    <div className="border-border-default box flex w-full flex-col gap-5 rounded-md border px-3 py-4 md:p-6">
       <div className="flex items-center gap-3">
         <div
           className="w-6 rounded-xs border-2 p-1"
@@ -33,7 +33,7 @@ export const OverviewCard = ({ title, icon, value, color, percentage, iconBg }: 
         >
           {icon}
         </div>
-        <div className="text-text-muted text-sm capitalize">{title}</div>
+        <div className="text-text-muted text-xs font-medium capitalize">{title}</div>
       </div>
 
       <div className="flex items-center gap-3">

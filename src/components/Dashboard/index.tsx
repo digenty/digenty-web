@@ -1,14 +1,15 @@
 import Image from "next/image";
 import Alerts from "../Alert/Alerts";
 import { Chart } from "./Chart";
-import { OverviewCard } from "../OverviewHead/OverviewCard";
-import OverviewHeader from "../OverviewHead/OverviewHeader";
+import { OverviewCard } from "../OverviewCard";
+import OverviewHeader from "./OverviewHeader";
 
 export const Dashboard = () => {
   return (
-    <div>
+    <div className="space-y-6 px-4 py-6 md:space-y-8 md:px-8">
       <OverviewHeader />
-      <div className="grid w-full grid-cols-2 gap-3 p-4 md:grid-cols-3 lg:grid-cols-4">
+
+      <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
         <OverviewCard
           title="Fees collected"
           icon={<Image src="/icons/cash-fill.svg" width={17} height={17} alt="Icon" />}
@@ -43,7 +44,7 @@ export const Dashboard = () => {
           iconBg="var(--pink-100)"
         />
       </div>
-      <div className=":grid-cols-[1fr] grid items-start gap-3 p-4 md:grid-cols-[1fr_430px]">
+      <div className="flex flex-col md:flex-row">
         <Chart />
         <Alerts />
       </div>
