@@ -3,6 +3,7 @@
 import { ColumnDef, flexRender, getCoreRowModel, Row, useReactTable } from "@tanstack/react-table";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 // import Pagination from "./Pagination";
 
 interface DataTableProps<TData, TValue> {
@@ -41,12 +42,12 @@ export const DataTable = <TData, TValue>({
     <div className="space-y-12">
       <div className="overflow-hidden rounded-md">
         <Table className="w-full">
-          <TableHeader className="bg-orange-xfaint font-poppins border-border-default border-y">
+          <TableHeader className="border-border-default border-y">
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id} className="border-border-default border-b">
                 {headerGroup.headers.map(header => {
                   return (
-                    <TableHead key={header.id} className="px-7.5">
+                    <TableHead key={header.id} className="pr-7.5">
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
@@ -60,10 +61,15 @@ export const DataTable = <TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="bg-orange-light border-border-default border-y text-base"
+                  className="border-border-default data-[state=selected]:bg-bg-basic-gray-subtle border-y text-sm"
                 >
                   {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id} className="px-7.5" onClick={cell.column.id === "actions" ? () => clickHandler(row) : undefined}>
+                    <TableCell
+                      style={{ width: cell.column.getSize() }}
+                      key={cell.id}
+                      className="pr-7.5"
+                      onClick={cell.column.id === "actions" ? () => clickHandler(row) : undefined}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

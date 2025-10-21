@@ -6,5 +6,5 @@ export interface Student {
   admissionNumber: string;
   dob: string;
   branch: string;
-  tags?: { label: string; color?: "blue" | "purple" | "gray" }[];
+  tags?: { label: string; color?: "bg-basic-cyan-strong" | "bg-basic-violet-strong"; bgColor?: "bg-badge-cyan" | "bg-badge-violet" }[];
 }

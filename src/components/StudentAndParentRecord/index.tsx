@@ -1,8 +1,7 @@
 "use client";
-import React, { useState } from "react";
 import { DataTable } from "@/components/DataTable";
-import { ColumnDef } from "@tanstack/react-table";
 import { Student } from "@/components/DataTable/types";
+import { useState } from "react";
 import { columns } from "./Columns";
 
 const students: Student[] = Array.from({ length: 60 }).map(() => ({
@@ -13,7 +12,7 @@ const students: Student[] = Array.from({ length: 60 }).map(() => ({
   admissionNumber: "GFA/2023/10145",
   dob: "18/05/2007",
   branch: "Lawanson",
-  tags: Math.random() > 0.5 ? [{ label: "Prefect", color: "blue" }] : [{ label: "Scholarship", color: "purple" }],
+  tags: [{ label: "Prefect", color: "bg-basic-cyan-strong", bgColor: "bg-badge-cyan" }],
 }));
 
 // const columns: ColumnDef<Student>[] = [
@@ -44,7 +43,7 @@ const StudentAndParentRecord = () => {
 
   return (
     <div className="p-6">
-      <DataTable<Student>
+      <DataTable
         columns={columns}
         data={students}
         totalCount={students.length}
