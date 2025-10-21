@@ -1,24 +1,16 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { ColumnDef, Row, Table } from "@tanstack/react-table";
 import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { useState } from "react";
 import { Avatar } from "../Avatar";
 import { Student } from "../DataTable/types";
-import { Button } from "../ui/button";
+import DeleteBin from "../Icons/DeleteBin";
 import Edit from "../Icons/Edit";
 import UserMinus from "../Icons/UserMinus";
-import DeleteBin from "../Icons/DeleteBin";
-import { useState } from "react";
 
 const RenderOptions = (row: Row<Student>) => {
   return (
@@ -166,6 +158,6 @@ export const columns: ColumnDef<Student>[] = [
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
     cell: ({ row }) => RenderOptions(row),
-    size: 150,
+    // size: 150,
   },
 ];

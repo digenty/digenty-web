@@ -4,6 +4,7 @@ import { ColumnDef, flexRender, getCoreRowModel, Row, useReactTable } from "@tan
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { Pagination } from "./Pagination";
 // import Pagination from "./Pagination";
 
 interface DataTableProps<TData, TValue> {
@@ -39,7 +40,7 @@ export const DataTable = <TData, TValue>({
   });
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-4 pb-12.5">
       <div className="overflow-hidden rounded-md">
         <Table className="w-full">
           <TableHeader className="border-border-default border-y">
@@ -61,13 +62,13 @@ export const DataTable = <TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="border-border-default data-[state=selected]:bg-bg-basic-gray-subtle border-y text-sm"
+                  className="border-border-default data-[state=selected]:bg-bg-basic-gray-alpha-2 hover:bg-bg-basic-gray-alpha-2 border-y text-sm"
                 >
                   {row.getVisibleCells().map(cell => (
                     <TableCell
                       style={{ width: cell.column.getSize() }}
                       key={cell.id}
-                      className="pr-7.5"
+                      className={cn("pr-7.5", cell.column.id === "actions" && "text-right")}
                       onClick={cell.column.id === "actions" ? () => clickHandler(row) : undefined}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -86,7 +87,7 @@ export const DataTable = <TData, TValue>({
         </Table>
       </div>
 
-      {/* <Pagination table={table} currentPage={page} totalPages={Math.ceil(totalCount / pageSize)} setCurrentPage={setCurrentPage} /> */}
+      <Pagination table={table} currentPage={page} totalPages={Math.ceil(totalCount / pageSize)} setCurrentPage={setCurrentPage} />
     </div>
   );
 };

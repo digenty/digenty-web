@@ -25,10 +25,10 @@ export const Sidebar = () => {
   }, [pathname, setActiveNav]);
 
   return (
-    <aside>
+    <aside className="h-screen">
       <div
         className={cn(
-          "border-border-default bg-bg-sidebar-subtle hidden w-69 space-y-4 border-r p-4 md:block md:space-y-8",
+          "border-border-default bg-bg-sidebar-subtle hidden h-full w-69 space-y-4 border-r p-4 md:block md:space-y-8",
           !isSidebarOpen && "w-auto",
         )}
       >
