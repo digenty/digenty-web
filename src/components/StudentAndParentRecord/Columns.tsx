@@ -1,11 +1,84 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { ColumnDef } from "@tanstack/react-table";
-import { PencilLineIcon } from "lucide-react";
-import { Student } from "../DataTable/types";
-import { Avatar } from "../Avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { ColumnDef, Row, Table } from "@tanstack/react-table";
+import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { Avatar } from "../Avatar";
+import { Student } from "../DataTable/types";
+import { Button } from "../ui/button";
+import Edit from "../Icons/Edit";
+import UserMinus from "../Icons/UserMinus";
+import DeleteBin from "../Icons/DeleteBin";
+import { useState } from "react";
+
+const RenderOptions = (row: Row<Student>) => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="focus-visible:ring-0 focus-visible:outline-none">
+        <MoreHorizontalIcon className="text-icon-default-muted size-4" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
+        <DropdownMenuItem className="gap-2.5 px-3">
+          <EyeIcon className="text-icon-default-subtle size-4" />
+          <span>View student profile</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="gap-2.5 px-3">
+          <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
+          <span>Edit student profile</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="border-border-default bg-border-default" />
+        <DropdownMenuItem className="gap-2.5 px-3">
+          <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />
+          <span>Withdraw student</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="gap-2.5 px-3">
+          <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+          <span className="text-icon-destructive">Delete student profile</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+const filters = [{ value: "descending" }, { value: "ascending" }];
+
+const RenderDOBHeader = (table: Table<Student>) => {
+  const [activeFilter, setActiveFilter] = useState("descending");
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="flex cursor-pointer items-center gap-1.5 focus-visible:ring-0 focus-visible:outline-none">
+        <span className="text-text-muted text-sm font-medium">Date of Birth</span>
+        <ChevronsUpDownIcon className="text-icon-default-muted size-4" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="bg-bg-card border-border-default text-text-default px-3 py-2.5 shadow-sm">
+        {filters.map((filter, index) => (
+          <DropdownMenuItem
+            key={index}
+            className={cn("gap-2 px-0", activeFilter === filter.value ? "font-medium" : "font-normal")}
+            onClick={() => setActiveFilter(filter.value)}
+          >
+            <div className="w-1/4">{activeFilter === filter.value && <CheckIcon className="text-icon-default-subtle size-4" />}</div>
+
+            <div className="flex flex-1 items-center gap-1">
+              <span>{filter.value === "descending" ? "Oldest" : "Youngest"}</span>
+              <ArrowRightIcon className={"text-text-default"} />
+              <span>{filter.value === "descending" ? "Youngest" : "Oldest"}</span>
+            </div>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 export const columns: ColumnDef<Student>[] = [
   {
@@ -36,7 +109,7 @@ export const columns: ColumnDef<Student>[] = [
     accessorKey: "name",
     header: () => <div className="text-text-muted text-sm font-medium">Name</div>,
     cell: ({ row }) => (
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
           <Avatar username="Damilare John" className="size-5" url="" />
           <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.name}</span>
@@ -56,7 +129,7 @@ export const columns: ColumnDef<Student>[] = [
         )}
       </div>
     ),
-    size: 900,
+    size: 600,
   },
   {
     accessorKey: "gender",
@@ -78,7 +151,7 @@ export const columns: ColumnDef<Student>[] = [
   },
   {
     accessorKey: "dob",
-    header: () => <div className="text-text-muted text-sm font-medium">Date of Birth</div>,
+    header: table => RenderDOBHeader(table),
     // cell: ({ row }) => <span className="cursor-pointer text-sm font-normal text-text-muted">{formatDate(row.original.dob)}</span>,
     cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.dob}</span>,
     size: 150,
@@ -92,18 +165,7 @@ export const columns: ColumnDef<Student>[] = [
   {
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
-    cell: ({ row }) => {
-      return (
-        <div className="flex items-center">
-          {/* <Link href={`admin?tab=roles-and-permissions&action=edit&id=${row.original.id}`} className="cursor-pointer focus-visible:ring-0">
-            <span className="sr-only">Edit</span> */}
-          <PencilLineIcon className="text-white-faded size-4" />
-          {/* </Link> */}
-
-          {/* <RenderDelete row={row} /> */}
-        </div>
-      );
-    },
+    cell: ({ row }) => RenderOptions(row),
     size: 150,
   },
 ];
