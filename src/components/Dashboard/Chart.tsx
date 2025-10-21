@@ -15,7 +15,7 @@ export const Chart = () => {
   const filteredData = useMemo(() => data.filter(item => item.group === selected), [selected]);
 
   return (
-    <div className="border-border-default bg-bg-default space-y-4 rounded-md border py-6 md:pt-5 md:pb-0">
+    <div className="space-y-4 py-6 md:pt-5 md:pb-0">
       <div className="flex flex-col justify-between gap-3.5 px-3 md:flex-row md:items-center md:px-5">
         <PaymentFilter />
         <Legend />

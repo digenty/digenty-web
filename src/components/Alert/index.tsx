@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import AlertList from "./AlertList";
-import AlertIcons from "./AlertIcons";
-import ReportIcon from "./ReportIcon";
-import CalendarIcon from "./CalendarIcon";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import Image from "next/image";
+import { useState } from "react";
+import { Alert } from "./Alert";
+import AlertIcons from "./AlertIcons";
+import CalendarIcon from "./CalendarIcon";
+import ReportIcon from "./ReportIcon";
 
 const alertData = [
   {
@@ -32,18 +33,27 @@ const alertData = [
     label: "Review Attendance",
     iconColor: "var(--color-warning)",
   },
+  {
+    id: 3,
+    title: "Multiple Unmarked Attendance in SS1",
+    description: "There are several unmarked attendances for today's class in SS1.",
+    icon: CalendarIcon,
+    label: "Review Attendance",
+    iconColor: "var(--color-warning)",
+  },
+  {
+    id: 4,
+    title: "Multiple Unmarked Attendance in SS1",
+    description: "There are several unmarked attendances for today's class in SS1.",
+    icon: CalendarIcon,
+    label: "Review Attendance",
+    iconColor: "var(--color-warning)",
+  },
 ];
 
-export default function Alerts() {
-  const [isMobile, setIsMobile] = useState(false);
+export const Alerts = () => {
+  const isMobile = useIsMobile();
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
 
   // handlers
   const handleNext = () => {
@@ -54,15 +64,16 @@ export default function Alerts() {
     setCurrentIndex(prev => (prev - 1 + alertData.length) % alertData.length);
   };
 
-  if (isMobile) {
-    const currentAlert = alertData[currentIndex];
-    return (
-      <div className="border-border-default bg-bg-default relative h-full w-full rounded-md border p-4 text-zinc-800">
-        <h3 className="text-text-default mb-6 ml-4 text-2xl font-semibold">Alerts</h3>
+  const currentAlert = alertData[currentIndex];
+  return (
+    <div className="relative h-full space-y-6 overflow-hidden p-3 md:space-y-5 md:p-5">
+      <h3 className="text-text-default text-xs font-semibold">Alerts</h3>
 
+      {/* mobile */}
+      <div className="block min-[920px]:hidden">
         {/* Active alert */}
-        <div className="m-4 flex h-auto flex-col gap-4">
-          <AlertList item={currentAlert} />
+        <div className="flex h-auto flex-col gap-4">
+          <Alert activeAlert={currentAlert} />
         </div>
 
         {/* Controls */}
@@ -80,7 +91,7 @@ export default function Alerts() {
             {alertData.map((_, index) => (
               <span
                 key={index}
-                className={`h-2 w-2 rounded-full transition-all duration-200 ${index === currentIndex ? "bg-bg-basic-gray-accent w-3" : "bg-bg-basic-gray-subtle2"}`}
+                className={`h-2 w-2 rounded-full transition-all duration-200 ${index === currentIndex ? "bg-bg-basic-gray-accent" : "bg-bg-basic-gray-subtle2"}`}
               />
             ))}
           </div>
@@ -93,18 +104,12 @@ export default function Alerts() {
           </button>
         </div>
       </div>
-    );
-  }
 
-  // Desktop version
-  return (
-    <div className="border-border-default bg-bg-default rounded-md border p-4">
-      <h3 className="text-text-default mb-6 ml-2 text-2xl font-semibold">Alerts</h3>
-      <ul className="flex flex-col gap-3">
-        {alertData.map(item => (
-          <AlertList key={item.id} item={item} />
+      <div className="hidden h-full flex-col gap-3 overflow-y-auto min-[920px]:flex">
+        {alertData.map(alert => (
+          <Alert key={alert.id} activeAlert={alert} />
         ))}
-      </ul>
+      </div>
     </div>
   );
-}
+};

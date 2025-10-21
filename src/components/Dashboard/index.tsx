@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Alerts from "../Alert/Alerts";
+import { Alerts } from "../Alert";
 import { Chart } from "./Chart";
 import { OverviewCard } from "../OverviewCard";
 import OverviewHeader from "./OverviewHeader";
@@ -44,9 +44,14 @@ export const Dashboard = () => {
           iconBg="var(--pink-100)"
         />
       </div>
-      <div className="flex flex-col md:flex-row">
-        <Chart />
-        <Alerts />
+
+      <div className="flex flex-col gap-3 min-[920px]:flex-row">
+        <div className="border-border-default bg-bg-default w-full rounded-md border min-[920px]:w-[65%]">
+          <Chart />
+        </div>
+        <div className="border-border-default bg-bg-default h-full w-full overflow-hidden rounded-md border min-[920px]:w-[35%]">
+          <Alerts />
+        </div>
       </div>
     </div>
   );
