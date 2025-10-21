@@ -43,7 +43,7 @@ const StudentAndParentRecord = () => {
   const pageSize = 50;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="p-6">
       <DataTable<Student>
         columns={columns}
         data={students}

@@ -39,11 +39,11 @@ export const DataTable = <TData, TValue>({
 
   return (
     <div className="space-y-12">
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden rounded-md">
         <Table className="w-full">
-          <TableHeader className="bg-orange-xfaint font-poppins">
+          <TableHeader className="bg-orange-xfaint font-poppins border-border-default border-y">
             {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-border-default border-b">
                 {headerGroup.headers.map(header => {
                   return (
                     <TableHead key={header.id} className="px-7.5">
@@ -54,10 +54,14 @@ export const DataTable = <TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="text-gray-normal">
+          <TableBody className="border-border-default border-t">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className="bg-orange-light text-base">
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className="bg-orange-light border-border-default border-y text-base"
+                >
                   {row.getVisibleCells().map(cell => (
                     <TableCell key={cell.id} className="px-7.5" onClick={cell.column.id === "actions" ? () => clickHandler(row) : undefined}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
