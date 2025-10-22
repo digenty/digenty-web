@@ -1005,3 +1005,7 @@
 .recharts-surface:focus {
   outline: none;
 }
+
+[data-vaul-drawer][data-vaul-drawer-direction="bottom"]::after {
+  position: relative !important;
+}
