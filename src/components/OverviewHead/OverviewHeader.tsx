@@ -1,78 +1,66 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
-import { Listbox } from "@headlessui/react";
+import React, { useState } from "react";
 import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "lucide-react";
 
-const termsOptions = [
-  { value: "Term 1", label: "24/25 Third Term", icon: "/icons/Vector (3).svg" },
-  { value: "Term 2", label: "24/25 Second Term", icon: "/icons/home-2.svg" },
-  { value: "Term 3", label: "24/25 First Term", icon: "/icons/home-2.svg" },
-];
-
-const branches = [
-  { value: "All Branches", label: "All Branches", icon: "/icons/Vector (4).svg" },
-  { value: "Lawanson", label: "Lawanson", icon: "/icons/Vector (4).svg" },
-  { value: "Ilasamaja", label: "Ilasamaja", icon: "/icons/Vector (4).svg" },
-];
+const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
+const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 
 export default function OverviewHeader() {
-  const [termSelected, setTermSelected] = React.useState(termsOptions[0]);
-  const [branchSelected, setBranchSelected] = React.useState(branches[0]);
+  const [termSelected, setTermSelected] = useState(termsOptions[0]);
+  const [branchSelected, setBranchSelected] = useState(branches[0]);
 
   return (
     <div>
       <div className="flex w-full justify-between p-4 align-middle">
         <h2 className="text-text-default text-3xl font-bold">Overview</h2>
 
-        {/* Desktop filter options */}
         <div className="hidden gap-2 align-middle md:flex">
-          <div className="border-border-default text-text-default flex items-center gap-2 rounded-md border px-2 py-2">
-            <Image src={termsOptions[0].icon} width={15} height={15} alt="term icon" />
-            <select
-              name="terms"
-              className="border-border-default text-text-default border-none text-sm font-bold focus:ring-0 focus:outline-none"
-              defaultValue={termsOptions[0].value}
-            >
+          <Select value={termSelected} onValueChange={setTermSelected}>
+            <SelectTrigger className="border-border-darker h-8 w-[181px] border focus-visible:ring-0">
+              <SelectValue>
+                <div className="flex items-center gap-2">
+                  <Calendar className="text-icon-black-muted size-4" />
+                  <span className="text-text-default text-sm font-semibold">{termSelected}</span>
+                </div>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-bg-card border-border-default">
               {termsOptions.map(term => (
-                <option
-                  key={term.value}
-                  value={term.value}
-                  className="border-border-darker bg-bg-default hover:text-text-muted font-bold text-zinc-500"
-                >
-                  {term.label}
-                </option>
+                <SelectItem key={term} value={term} className="text-text-default text-sm font-semibold">
+                  {term}
+                </SelectItem>
               ))}
-            </select>
-          </div>
+            </SelectContent>
+          </Select>
 
-          <div className="border-border-default text-text-default flex items-center gap-2 rounded-md border px-2 py-2">
-            <Image src={branches[0].icon} width={15} height={15} alt="branch icon" />
-            <select
-              name="branches"
-              id="branches"
-              className="border-border-default text-text-default border-none text-sm font-bold focus:ring-0 focus:outline-none"
-              defaultValue="All Branches"
-            >
+          <Select value={branchSelected} onValueChange={setBranchSelected}>
+            <SelectTrigger className="border-border-darker h-8 w-[181px] border focus-visible:ring-0">
+              <SelectValue>
+                <div className="flex items-center gap-2">
+                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                  <span className="text-text-default text-sm font-semibold">{branchSelected}</span>
+                </div>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-bg-card border-border-default">
               {branches.map(branch => (
-                <option
-                  key={branch.value}
-                  value={branch.value}
-                  className="border-border-darker bg-bg-default hover:text-text-muted px-2 font-bold text-zinc-500"
-                >
-                  {branch.label}
-                </option>
+                <SelectItem key={branch} value={branch} className="text-text-default text-sm font-semibold">
+                  {branch}
+                </SelectItem>
               ))}
-            </select>
-          </div>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Mobile Drawer Trigger */}
+        {/* Mobile Drawer */}
         <Drawer>
           <DrawerTrigger asChild>
-            <button className="bg-bg-state-soft block rounded-sm px-2 md:hidden">
-              <Image src="/icons/Vector (5).svg" alt="filter icon" width={20} height={20} />
+            <button className="bg-bg-state-soft block h-[20px] w-[20px] rounded-sm p-1 md:hidden">
+              <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={16} height={16} />
             </button>
           </DrawerTrigger>
 
@@ -80,60 +68,55 @@ export default function OverviewHeader() {
             <DrawerHeader className="bg-bg-state-soft flex items-center justify-between rounded-t-[12px] border-b border-zinc-200 px-4 py-3">
               <DrawerTitle className="text-text-default text-lg font-semibold">Filter</DrawerTitle>
               <DrawerClose asChild>
-                <button className="text-text-default text-xl font-bold">×</button>
+                <button className="text-text-muted w-[ 10.61px] text-xl font-bold">×</button>
               </DrawerClose>
             </DrawerHeader>
 
+            {/* Mobile Filter  */}
             <div className="mb-4 flex w-full flex-col gap-4 p-4">
-              {/* Period Section */}
+              {/* Period */}
               <div className="flex items-center gap-2">
-                <Image src={termsOptions[0].icon} width={15} height={15} alt="term icon" />
+                <Calendar className="text-icon-black-muted size-4" />
                 <label className="text-text-default text-sm font-medium">Period</label>
               </div>
+              <Select value={termSelected} onValueChange={setTermSelected}>
+                <SelectTrigger className="bg-bg-state-soft w-full rounded-md border border-zinc-200 px-3 py-2 text-left text-sm font-semibold">
+                  <SelectValue>
+                    <div>
+                      <span className="text-text-default text-sm font-semibold">{termSelected}</span>
+                    </div>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-bg-default border-border-default">
+                  {termsOptions.map(term => (
+                    <SelectItem key={term} value={term} className="text-text-default text-sm font-semibold">
+                      {term}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-              <Listbox value={termSelected} onChange={setTermSelected}>
-                <div className="relative">
-                  <Listbox.Button className="bg-bg-state-soft text-text-default w-full rounded-md px-3 py-2 text-left text-sm font-semibold">
-                    {termSelected.label}
-                  </Listbox.Button>
-                  <Listbox.Options className="bg-bg-default text-text-default absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-zinc-200 shadow-lg">
-                    {termsOptions.map(term => (
-                      <Listbox.Option
-                        key={term.value}
-                        value={term}
-                        className="hover:bg-bg-state-secondary text-text-default w-full max-w-full rounded-md px-3 py-2 text-sm font-bold"
-                      >
-                        {term.label}
-                      </Listbox.Option>
-                    ))}
-                  </Listbox.Options>
-                </div>
-              </Listbox>
-
-              {/* Branch Section */}
+              {/* Branch */}
               <div className="flex items-center gap-2">
-                <Image src={branches[0].icon} width={15} height={15} alt="branch icon" />
+                <Image src="/icons/Vector (4).svg" alt="branch" width={14} height={14} />
                 <label className="text-text-default text-sm font-medium">Branch</label>
               </div>
-
-              <Listbox value={branchSelected} onChange={setBranchSelected}>
-                <div className="relative">
-                  <Listbox.Button className="bg-bg-state-soft text-text-default w-full rounded-md px-3 py-2 text-left text-sm font-semibold">
-                    {branchSelected.label}
-                  </Listbox.Button>
-                  <Listbox.Options className="bg-bg-default absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-zinc-200 shadow-lg">
-                    {branches.map(branch => (
-                      <Listbox.Option
-                        key={branch.value}
-                        value={branch}
-                        className="text-text-default hover:bg-bg-state-secondary w-full max-w-full rounded-md px-3 py-2 text-sm font-bold"
-                      >
-                        {branch.label}
-                      </Listbox.Option>
-                    ))}
-                  </Listbox.Options>
-                </div>
-              </Listbox>
+              <Select value={branchSelected} onValueChange={setBranchSelected}>
+                <SelectTrigger className="bg-bg-state-soft w-full rounded-md border border-zinc-200 px-3 py-2 text-left text-sm font-semibold">
+                  <SelectValue>
+                    <div className="">
+                      <span className="text-text-default text-sm font-semibold">{branchSelected}</span>
+                    </div>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-bg-default border-border-default">
+                  {branches.map(branch => (
+                    <SelectItem key={branch} value={branch} className="text-text-default text-sm font-semibold">
+                      {branch}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <DrawerFooter>

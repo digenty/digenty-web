@@ -71,7 +71,7 @@ export default function Alerts() {
             onClick={handlePrev}
             className="bg-bg-state-soft text-text-default flex items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold active:scale-95"
           >
-            <Image src="/icons/Vector (9).svg" alt="next icon" width={13} height={13} />
+            <Image src="/icons/ArrowLeft.svg" alt="next icon" width={13} height={13} />
             Prev
           </button>
 
@@ -89,7 +89,7 @@ export default function Alerts() {
             onClick={handleNext}
             className="bg-bg-state-soft text-text-default flex items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold active:scale-95"
           >
-            Next <Image src="/icons/Vector (10).svg" alt="next icon" width={13} height={13} />
+            Next <Image src="/icons/ArrowRight.svg" alt="next icon" width={13} height={13} />
           </button>
         </div>
       </div>
