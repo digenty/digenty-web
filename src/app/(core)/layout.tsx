@@ -11,7 +11,7 @@ export default function CoreLayout({
       <Sidebar />
       <div className="flex-1 overflow-hidden">
         <Header />
-        <div className="h-screen overflow-y-auto pb-16">{children}</div>
+        <div className="h-screen overflow-y-auto pb-12">{children}</div>
       </div>
     </div>
   );

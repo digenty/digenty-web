@@ -7,6 +7,8 @@ import { Alert } from "./Alert";
 import AlertIcons from "./AlertIcons";
 import CalendarIcon from "./CalendarIcon";
 import ReportIcon from "./ReportIcon";
+import { Button } from "../ui/button";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 
 const alertData = [
   {
@@ -66,25 +68,25 @@ export const Alerts = () => {
 
   const currentAlert = alertData[currentIndex];
   return (
-    <div className="relative h-full space-y-6 overflow-hidden p-3 md:space-y-5 md:p-5">
+    <div className="relative h-full space-y-6 overflow-hidden px-5 pt-5 min-[920px]:pb-12 md:space-y-5">
       <h3 className="text-text-default text-xs font-semibold">Alerts</h3>
 
       {/* mobile */}
-      <div className="block min-[920px]:hidden">
+      <div className="block space-y-3 min-[920px]:hidden">
         {/* Active alert */}
         <div className="flex h-auto flex-col gap-4">
           <Alert activeAlert={currentAlert} />
         </div>
 
         {/* Controls */}
-        <div className="mt-6 flex items-center justify-between">
-          <button
+        <div className="flex items-center justify-between">
+          <Button
             onClick={handlePrev}
             className="bg-bg-state-soft text-text-default flex items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold active:scale-95"
           >
-            <Image src="/icons/ArrowLeft.svg" alt="next icon" width={13} height={13} />
+            <ArrowLeftIcon className="text-icon-default-muted size-4" />
             Prev
-          </button>
+          </Button>
 
           {/* Dots */}
           <div className="flex items-center justify-center gap-2">
@@ -96,12 +98,13 @@ export const Alerts = () => {
             ))}
           </div>
 
-          <button
+          <Button
             onClick={handleNext}
             className="bg-bg-state-soft text-text-default flex items-center gap-2 rounded-md px-3 py-1 text-sm font-semibold active:scale-95"
           >
-            Next <Image src="/icons/ArrowRight.svg" alt="next icon" width={13} height={13} />
-          </button>
+            Next
+            <ArrowRightIcon className="text-icon-default-muted size-4" />
+          </Button>
         </div>
       </div>
 

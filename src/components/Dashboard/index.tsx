@@ -49,7 +49,7 @@ export const Dashboard = () => {
         <div className="border-border-default bg-bg-default w-full rounded-md border min-[920px]:w-[65%]">
           <Chart />
         </div>
-        <div className="border-border-default bg-bg-default h-full w-full overflow-hidden rounded-md border min-[920px]:w-[35%]">
+        <div className="border-border-default bg-bg-default w-full overflow-hidden rounded-md border min-[920px]:h-111 min-[920px]:w-[35%]">
           <Alerts />
         </div>
       </div>
