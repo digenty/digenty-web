@@ -3,9 +3,9 @@ import { twMerge } from "tailwind-merge";
 
 export const MOBILE_VIEWPORT = 768;
 
-export function cn(...inputs: ClassValue[]) {
+export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
-}
+};
 
 const simpleHash = (text: string) => {
   let hash = 0;
@@ -42,4 +42,15 @@ export const generateRandomColor = (text: string) => {
   ];
 
   return tailwindColors[simpleHash(text)];
+};
+
+export const formatDate = (dateInput: string | number | Date) => {
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return ""; // handle invalid dates safely
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
 };

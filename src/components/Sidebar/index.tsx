@@ -25,10 +25,10 @@ export const Sidebar = () => {
   }, [pathname, setActiveNav]);
 
   return (
-    <>
+    <aside className="h-screen">
       <div
         className={cn(
-          "border-border-default bg-bg-sidebar-subtle hidden w-69 space-y-4 border-r p-4 md:block md:space-y-8",
+          "border-border-default bg-bg-sidebar-subtle hidden h-full w-69 space-y-4 border-r p-4 md:block md:space-y-8",
           !isSidebarOpen && "w-auto",
         )}
       >
@@ -116,7 +116,7 @@ export const Sidebar = () => {
           <div className="flex justify-between">
             <div className="flex items-center gap-2">
               <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
-              <p className="text-sm font-medium text-zinc-950">Digenty</p>
+              <p className="text-text-default text-sm font-medium">Digenty</p>
             </div>
 
             <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
@@ -129,12 +129,24 @@ export const Sidebar = () => {
                 <div key={nav.menu[0].title}>
                   <p className="text-xs leading-4 font-medium">{nav.title}</p>
 
-                  {nav.menu.map(menu => (
-                    <nav key={menu.title} className={cn("flex cursor-pointer gap-[11px] py-2")}>
-                      <menu.icon fill="var(--color-icon-default-subtle)" />
-                      <p className="text-sm leading-5 font-medium">{menu.title}</p>
-                    </nav>
-                  ))}
+                  {nav.menu.map(menu => {
+                    const isActive = activeNav === menu.url || (!activeNav && menu.title === "Dashboard");
+
+                    return (
+                      <nav
+                        key={menu.title}
+                        className={cn(
+                          "flex cursor-pointer gap-[11px] p-2",
+                          !isSidebarOpen && "justify-center px-0",
+                          isActive && "bg-bg-state-soft rounded-md",
+                        )}
+                        onClick={() => router.push(menu.url)}
+                      >
+                        <menu.icon fill="var(--color-icon-default-subtle)" />
+                        <p className="text-sm leading-5 font-medium">{menu.title}</p>
+                      </nav>
+                    );
+                  })}
                 </div>
               );
             })}
@@ -146,6 +158,6 @@ export const Sidebar = () => {
           </nav>
         </SheetContent>
       </Sheet>
-    </>
+    </aside>
   );
 };
