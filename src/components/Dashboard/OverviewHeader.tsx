@@ -59,7 +59,7 @@ export default function OverviewHeader() {
         {/* Mobile Drawer */}
         <Drawer>
           <DrawerTrigger asChild className="bg-bg-state-soft block size-7 rounded-xs p-1.5 md:hidden">
-            <Image src="/icons/Vector (5).svg" alt="filter icon" width={20} height={20} />
+            <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
           </DrawerTrigger>
 
           <DrawerContent className="bg-bg-default w-full max-w-full rounded-t-[12px] pb-3 shadow-lg">
