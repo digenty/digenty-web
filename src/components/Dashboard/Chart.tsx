@@ -11,7 +11,7 @@ import { PaymentFilter } from "./PaymentFilter";
 export const Chart = () => {
   // Data fetching happens here
   const isMobile = useIsMobile();
-  const [selected, setSelected] = useState<SchoolOption>("Primary");
+  const [selected, setSelected] = useState<SchoolOption>("Primary School");
   const filteredData = useMemo(() => data.filter(item => item.group === selected), [selected]);
 
   return (
@@ -24,7 +24,7 @@ export const Chart = () => {
       <StackedBarChart data={isMobile ? filteredData : data} />
 
       <div className="block px-3 md:hidden">
-        <ChartToggle options={["Primary", "Secondary", "Tertiary"]} selected={selected} onChange={value => setSelected(value)} />
+        <ChartToggle options={["Primary School", "Secondary School"]} selected={selected} onChange={value => setSelected(value)} />
       </div>
     </div>
   );

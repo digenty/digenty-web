@@ -25,7 +25,7 @@ export const OverviewCard = ({ title, icon, value, color, percentage, iconBg }: 
     <div className="border-border-default box flex w-full flex-col gap-5 rounded-md border px-3 py-4 md:p-6">
       <div className="flex items-center gap-3">
         <div
-          className="w-6 rounded-xs border-2 p-1"
+          className="w-6 rounded-xs border p-1"
           style={{
             backgroundColor: iconBg || "transparent",
             borderColor: borderFromBg || "var(--border-default)",
@@ -37,9 +37,9 @@ export const OverviewCard = ({ title, icon, value, color, percentage, iconBg }: 
       </div>
 
       <div className="flex items-center gap-3">
-        <h3 className={`text-2xl font-semibold ${isZeroValue ? "text-text-muted" : "text-text-default"}`}>{value}</h3>
+        <h3 className={`text-lg font-medium md:text-2xl md:font-semibold ${isZeroValue ? "text-text-muted" : "text-text-default"}`}>{value}</h3>
 
-        {percentage && (
+        {/* {percentage && (
           <small
             className="border-border-default rounded-sm border px-1.5 py-0.5 text-xs"
             style={{
@@ -49,7 +49,7 @@ export const OverviewCard = ({ title, icon, value, color, percentage, iconBg }: 
           >
             {percentage}
           </small>
-        )}
+        )} */}
       </div>
     </div>
   );

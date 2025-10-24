@@ -3,6 +3,7 @@ import { Alerts } from "../Alert";
 import { Chart } from "./Chart";
 import { OverviewCard } from "../OverviewCard";
 import OverviewHeader from "./OverviewHeader";
+import { QuickActions } from "./QuickActions";
 
 export const Dashboard = () => {
   return (
@@ -44,6 +45,8 @@ export const Dashboard = () => {
           iconBg="var(--pink-100)"
         />
       </div>
+
+      <QuickActions />
 
       <div className="flex flex-col gap-3 min-[920px]:flex-row">
         <div className="border-border-default bg-bg-default w-full rounded-md border min-[920px]:w-[65%]">

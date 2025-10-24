@@ -1,14 +1,12 @@
 "use client";
 
-import { useIsMobile } from "@/hooks/useIsMobile";
-import Image from "next/image";
-import { useState } from "react";
-import { Alert } from "./Alert";
-import AlertIcons from "./AlertIcons";
-import CalendarIcon from "./CalendarIcon";
-import ReportIcon from "./ReportIcon";
-import { Button } from "../ui/button";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import { useState } from "react";
+import AlertIcons from "../Icons/AlertIcons";
+import CalendarIcon from "../Icons/CalendarIcon";
+import ReportIcon from "../Icons/ReportIcon";
+import { Button } from "../ui/button";
+import { Alert } from "./Alert";
 
 const alertData = [
   {
@@ -54,7 +52,6 @@ const alertData = [
 ];
 
 export const Alerts = () => {
-  const isMobile = useIsMobile();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // handlers
@@ -68,17 +65,15 @@ export const Alerts = () => {
 
   const currentAlert = alertData[currentIndex];
   return (
-    <div className="relative h-full space-y-6 overflow-hidden px-5 pt-5 min-[920px]:pb-12 md:space-y-5">
+    <div className="relative h-full space-y-6 overflow-hidden px-5 py-5 min-[920px]:pb-12 md:space-y-5">
       <h3 className="text-text-default text-xs font-semibold">Alerts</h3>
 
       {/* mobile */}
-      <div className="block space-y-3 min-[920px]:hidden">
-        {/* Active alert */}
+      {/* <div className="block space-y-3 min-[920px]:hidden">
         <div className="flex h-auto flex-col gap-4">
           <Alert activeAlert={currentAlert} />
         </div>
 
-        {/* Controls */}
         <div className="flex items-center justify-between">
           <Button
             onClick={handlePrev}
@@ -88,7 +83,6 @@ export const Alerts = () => {
             Prev
           </Button>
 
-          {/* Dots */}
           <div className="flex items-center justify-center gap-2">
             {alertData.map((_, index) => (
               <span
@@ -106,9 +100,9 @@ export const Alerts = () => {
             <ArrowRightIcon className="text-icon-default-muted size-4" />
           </Button>
         </div>
-      </div>
+      </div> */}
 
-      <div className="hidden h-full flex-col gap-3 overflow-y-auto min-[920px]:flex">
+      <div className="flex h-full flex-col gap-3 overflow-y-auto">
         {alertData.map(alert => (
           <Alert key={alert.id} activeAlert={alert} />
         ))}

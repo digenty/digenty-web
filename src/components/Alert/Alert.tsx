@@ -14,7 +14,7 @@ type AlertListProps = {
 export const Alert = ({ activeAlert }: AlertListProps) => {
   const Icon = activeAlert.icon;
   return (
-    <li className="border-border-default flex items-start gap-3 rounded-md border px-3 py-6">
+    <li className="border-border-default flex items-start gap-3 rounded-md border px-3 py-4">
       <div className="bg-bg-state-soft flex size-7 items-center justify-center rounded-full p-1">
         <Icon color={activeAlert.iconColor} />
       </div>

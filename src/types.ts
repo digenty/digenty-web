@@ -1,1 +1,1 @@
-export type SchoolOption = "Primary" | "Secondary" | "Tertiary";
+export type SchoolOption = "Primary School" | "Secondary School";

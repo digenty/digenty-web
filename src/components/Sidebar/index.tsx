@@ -13,6 +13,7 @@ import { NavigationType } from "./types";
 import CloseLarge from "../Icons/CloseLarge";
 import LeadIcon from "../Icons/LeadIcon";
 import Line from "../Icons/Line";
+import { Tooltip } from "../Tooltip";
 
 export const Sidebar = () => {
   const pathname = usePathname();
@@ -45,19 +46,24 @@ export const Sidebar = () => {
               <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5" />
             </Button>
           ) : (
-            <Button
-              variant="ghost"
-              onClick={() => setIsSidebarOpen(true)}
-              onMouseEnter={() => setShowLogo(false)}
-              onMouseLeave={() => setShowLogo(true)}
-              className="p-0"
-            >
-              {showLogo ? (
-                <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
-              ) : (
-                <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5" />
-              )}
-            </Button>
+            <Tooltip
+              description="Expand"
+              Trigger={
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsSidebarOpen(true)}
+                  onMouseEnter={() => setShowLogo(false)}
+                  onMouseLeave={() => setShowLogo(true)}
+                  className="p-0"
+                >
+                  {showLogo ? (
+                    <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
+                  ) : (
+                    <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5" />
+                  )}
+                </Button>
+              }
+            />
           )}
         </div>
 
@@ -74,18 +80,24 @@ export const Sidebar = () => {
                 {nav.menu.map(menu => {
                   const isActive = activeNav === menu.url || (!activeNav && menu.title === "Dashboard");
                   return (
-                    <nav
+                    <Tooltip
                       key={menu.title}
-                      className={cn(
-                        "flex cursor-pointer items-center gap-[11px] px-2 py-2",
-                        !isSidebarOpen && "justify-center px-0",
-                        isActive && "bg-bg-state-soft rounded-md",
-                      )}
-                      onClick={() => router.push(menu.url)}
-                    >
-                      <menu.icon fill="var(--color-icon-default-subtle)" />
-                      {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
-                    </nav>
+                      description={menu.title}
+                      Trigger={
+                        <nav
+                          // key={menu.title}
+                          className={cn(
+                            "flex cursor-pointer items-center gap-[11px] px-2 py-2",
+                            !isSidebarOpen && "justify-center px-0",
+                            isActive && "bg-bg-state-soft rounded-md",
+                          )}
+                          onClick={() => router.push(menu.url)}
+                        >
+                          <menu.icon fill="var(--color-icon-default-subtle)" />
+                          {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
+                        </nav>
+                      }
+                    />
                   );
                 })}
               </div>
