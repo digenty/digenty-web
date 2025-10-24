@@ -15,15 +15,16 @@ export const Chart = () => {
   const filteredData = useMemo(() => data.filter(item => item.group === selected), [selected]);
 
   return (
-    <div>
-      <div className="flex flex-col justify-between gap-3.5 px-10 md:flex-row md:items-center">
+    <div className="space-y-4 rounded-md py-6 md:pt-5 md:pb-0">
+      <div className="flex flex-col justify-between gap-3.5 px-3 md:flex-row md:items-center md:px-5">
         <PaymentFilter />
         <Legend />
       </div>
+
       <StackedBarChart data={isMobile ? filteredData : data} />
 
-      <div className="block md:hidden">
-        <ChartToggle options={["Primary School", "Secondary School", "Tertiary School"]} selected={selected} onChange={value => setSelected(value)} />
+      <div className="block px-3 md:hidden">
+        <ChartToggle options={["Primary School", "Secondary School"]} selected={selected} onChange={value => setSelected(value)} />
       </div>
     </div>
   );
