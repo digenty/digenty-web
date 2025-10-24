@@ -1,14 +1,14 @@
 "use client";
 
-import Image from "next/image";
-import React, { useState } from "react";
-import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
+import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Image from "next/image";
+import { useState } from "react";
+import Calendar from "../Icons/Calendar";
+import School from "../Icons/School";
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import Calendar from "../Icons/Calendar";
-import School from "../Icons/School";
 
 const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
