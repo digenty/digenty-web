@@ -1,48 +1,55 @@
-import Image from "next/image";
 import { Alerts } from "../Alert";
-import { Chart } from "./Chart";
+import AlertFill from "../Icons/AlertFill";
+import CashFill from "../Icons/CashFill";
+import IndeterminateCircleFill from "../Icons/IndeterminateCircleFill";
+import UserFill from "../Icons/UserFill";
 import { OverviewCard } from "../OverviewCard";
-import OverviewHeader from "./OverviewHeader";
+import { Chart } from "./Chart";
+import DashboardHeader from "./DashboardHeader";
 import { QuickActions } from "./QuickActions";
 
 export const Dashboard = () => {
   return (
     <div className="space-y-6 px-4 py-6 md:space-y-8 md:px-8">
-      <OverviewHeader />
+      <DashboardHeader />
 
       <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
         <OverviewCard
           title="Fees collected"
-          icon={<Image src="/icons/cash-fill.svg" width={17} height={17} alt="Icon" />}
+          Icon={() => (
+            <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex w-6 items-center justify-center rounded-xs border p-1">
+              <CashFill fill="var(--color-icon-default)" className="size-[10px]" />
+            </div>
+          )}
           value="₦200,280"
-          color="var(--color-green-500)"
-          iconBg="var(--teal-100)"
-          percentage="+58%"
         />
         <OverviewCard
           title="outstanding fees"
-          icon={<Image src="/icons/alert-fill.svg" width={17} height={17} alt="Icon" />}
+          Icon={() => (
+            <div className="bg-bg-basic-yellow-subtle border-bg-basic-yellow-accent flex w-6 items-center justify-center rounded-xs border p-1">
+              <AlertFill fill="var(--color-icon-default)" className="size-[10px]" />
+            </div>
+          )}
           value="₦50,000"
-          color="var(--color-green-500)"
-          percentage="+100%"
-          iconBg="var(--yellow-100)"
         />
         <OverviewCard
           title="students"
-          icon={<Image src="/icons/user-fill.svg" width={10} height={10} alt="Icon" style={{ textAlign: "center", display: "flex" }} />}
+          Icon={() => (
+            <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex w-6 items-center justify-center rounded-xs border p-1">
+              <UserFill fill="var(--color-icon-default)" className="size-[10px]" />
+            </div>
+          )}
           value="₦50,000"
-          color="var(--red-500)"
-          percentage="-10%"
-          iconBg="var(--sky-100)"
         />
 
         <OverviewCard
           title="Expenses"
-          icon={<Image src="/icons/indeterminate-circle-fill.svg" width={17} height={17} alt="Icon" />}
+          Icon={() => (
+            <div className="bg-bg-basic-pink-subtle border-bg-basic-pink-accent flex w-6 items-center justify-center rounded-xs border p-1">
+              <IndeterminateCircleFill fill="var(--color-icon-default)" className="size-[10px]" />
+            </div>
+          )}
           value="₦0"
-          color=""
-          percentage=""
-          iconBg="var(--pink-100)"
         />
       </div>
 

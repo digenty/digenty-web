@@ -1,11 +1,9 @@
 "use client";
 
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { useState } from "react";
 import AlertIcons from "../Icons/AlertIcons";
 import CalendarIcon from "../Icons/CalendarIcon";
 import ReportIcon from "../Icons/ReportIcon";
-import { Button } from "../ui/button";
 import { Alert } from "./Alert";
 
 const alertData = [
