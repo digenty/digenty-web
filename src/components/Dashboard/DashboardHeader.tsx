@@ -1,19 +1,19 @@
 "use client";
 
-import Image from "next/image";
-import React, { useState } from "react";
-import { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
+import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Image from "next/image";
+import { useState } from "react";
+import Calendar from "../Icons/Calendar";
+import School from "../Icons/School";
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import Calendar from "../Icons/Calendar";
-import School from "../Icons/School";
 
 const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 
-export default function OverviewHeader() {
+export default function DashboardHeader() {
   const [termSelected, setTermSelected] = useState(termsOptions[0]);
   const [branchSelected, setBranchSelected] = useState(branches[0]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -23,9 +23,9 @@ export default function OverviewHeader() {
       <div className="flex w-full justify-between align-middle">
         <h2 className="text-text-default text-lg font-semibold md:text-2xl">Overview</h2>
 
-        <div className="hidden gap-2 align-middle md:flex">
+        <div className="hidden gap-1 align-middle md:flex">
           <Select value={termSelected} onValueChange={setTermSelected}>
-            <SelectTrigger className="border-border-darker h-8 w-auto border focus-visible:ring-0">
+            <SelectTrigger className="border-border-darker h-8 w-auto border">
               <SelectValue>
                 <div className="flex items-center gap-2">
                   <Calendar fill="var(--color-icon-black-muted )" className="size-4" />
@@ -43,7 +43,7 @@ export default function OverviewHeader() {
           </Select>
 
           <Select value={branchSelected} onValueChange={setBranchSelected}>
-            <SelectTrigger className="border-border-darker h-8 w-auto border focus-visible:ring-0">
+            <SelectTrigger className="border-border-darker h-8 w-auto border">
               <SelectValue>
                 <div className="flex items-center gap-2">
                   <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
@@ -66,7 +66,7 @@ export default function OverviewHeader() {
         </Button>
 
         <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
-          <div className="flex w-full flex-col gap-4 p-4">
+          <div className="flex w-full flex-col gap-4 px-3 py-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Calendar fill="var(--color-icon-black-muted)" className="size-4" />

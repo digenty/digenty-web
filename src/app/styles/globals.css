@@ -1018,4 +1018,5 @@
 
 [data-vaul-drawer][data-vaul-drawer-direction="bottom"]::after {
   position: relative !important;
+  height: 0px;
 }
