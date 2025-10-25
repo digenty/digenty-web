@@ -25,7 +25,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
 
         {isOptionsOpen && (
           <MobileDrawer open={isOptionsOpen} setIsOpen={setIsOptionsOpen} title="Actions">
-            <div className="flex flex-col gap-2 p-4">
+            <div className="flex flex-col gap-2 px-3 py-4">
               <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
                 <EyeIcon className="text-icon-default-muted size-4" />
                 <span>View Student Profile</span>

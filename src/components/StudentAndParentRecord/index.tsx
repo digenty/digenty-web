@@ -15,6 +15,7 @@ import { Button } from "../ui/button";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 import { RecordHeader } from "./RecordHeader";
+import { MobileDrawer } from "../MobileDrawer";
 
 const students: Student[] = Array.from({ length: 60 }).map(() => ({
   id: Math.random().toString(36).substring(2, 9),
@@ -32,6 +33,7 @@ const tabs = ["Students", "Parents"];
 const StudentAndParentRecord = () => {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState(tabs[0]);
+  const [isActionsOpen, setIsActionsOpen] = useState(false);
   const pageSize = 50;
 
   return (
@@ -118,12 +120,27 @@ const StudentAndParentRecord = () => {
               <span className="text-text-white-default font-medium">Add Student</span>
             </Button>
 
-            <Button className="bg-bg-state-soft flex h-8 rounded-md px-2! md:hidden">
+            <Button onClick={() => setIsActionsOpen(true)} className="bg-bg-state-soft flex h-8 rounded-md px-2! md:hidden">
               <MoreHorizontal className="text-icon-default-subtle size-4" />
             </Button>
           </div>
         </div>
       </div>
+
+      {isActionsOpen && (
+        <MobileDrawer open={isActionsOpen} setIsOpen={setIsActionsOpen} title="Actions">
+          <div className="flex flex-col gap-2 px-3 py-4">
+            <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
+              <span>Export</span>
+            </Button>
+            <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Import fill="var(--color-icon-default-muted)" className="size-4" />
+              <span>Import</span>
+            </Button>
+          </div>
+        </MobileDrawer>
+      )}
 
       <div className="hidden md:block">
         <DataTable

@@ -66,7 +66,7 @@ export default function DashboardHeader() {
         </Button>
 
         <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
-          <div className="flex w-full flex-col gap-4 p-4">
+          <div className="flex w-full flex-col gap-4 px-3 py-4">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
