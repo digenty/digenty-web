@@ -13,7 +13,7 @@ export const Avatar = ({
   return (
     <AvatarComponent className={cn(className)}>
       <AvatarImage src={url} />
-      <AvatarFallback className={generateRandomColor(username)}>{username.slice(0, 1).toUpperCase()}</AvatarFallback>
+      <AvatarFallback className={cn("text-xs", generateRandomColor(username))}>{username.slice(0, 1).toUpperCase()}</AvatarFallback>
     </AvatarComponent>
   );
 };

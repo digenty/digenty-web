@@ -28,7 +28,7 @@ export const Header = () => {
 
         <div className="flex items-center gap-2">
           <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
-          <p className="text-sm font-medium text-zinc-950">Digenty</p>
+          <p className="text-text-default text-sm font-medium">Digenty</p>
         </div>
       </div>
 

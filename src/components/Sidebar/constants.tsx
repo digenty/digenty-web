@@ -25,17 +25,17 @@ export const navigation = [
       },
       {
         title: "Student & Parent Record",
-        url: "/student-and-parent-record",
+        url: "student-and-parent-record",
         icon: Group,
       },
       {
         title: "Classes & Subjects",
-        url: "/classes-and-subjects",
+        url: "classes-and-subjects",
         icon: GraduationCap,
       },
       {
         title: "Attendance",
-        url: "/attendance",
+        url: "attendance",
         icon: CalendarCheck,
       },
     ],
@@ -45,32 +45,32 @@ export const navigation = [
     menu: [
       {
         title: "Invoices",
-        url: "/invoices",
+        url: "invoices",
         icon: FileList3,
       },
       {
         title: "Fees",
-        url: "/fees",
+        url: "fees",
         icon: Bill,
       },
       {
         title: "Expenses",
-        url: "/expense",
+        url: "expense",
         icon: BankCard,
       },
       {
         title: "Stock",
-        url: "/stock",
+        url: "stock",
         icon: Store3,
       },
       {
         title: "Fee Collection",
-        url: "/fee-collection",
+        url: "fee-collection",
         icon: Wallet,
       },
       {
         title: "Finance Report",
-        url: "/finance-report",
+        url: "finance-report",
         icon: LineChart,
       },
     ],
@@ -80,22 +80,22 @@ export const navigation = [
     menu: [
       {
         title: "Communications",
-        url: "/communications",
+        url: "communications",
         icon: Megaphone,
       },
       {
         title: "Portal Overview",
-        url: "/portal-overview",
+        url: "portal-overview",
         icon: Macbook,
       },
       {
         title: "Portal Customization",
-        url: "/portal-customization",
+        url: "portal-customization",
         icon: ColorFilter,
       },
       {
         title: "Domain",
-        url: "/domain",
+        url: "domain",
         icon: Global,
       },
     ],
@@ -105,7 +105,7 @@ export const navigation = [
     menu: [
       {
         title: "Settings",
-        url: "/settings",
+        url: "settings",
         icon: Settings4,
       },
     ],
