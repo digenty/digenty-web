@@ -104,7 +104,7 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <Label className="text-text-default text-sm font-medium">Branch</Label>
               </div>
               <Select value={branchSelected} onValueChange={setBranchSelected}>
-                <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
                   <SelectValue>
                     <span className="text-text-default text-sm">{branchSelected}</span>
                   </SelectValue>
@@ -125,7 +125,7 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <Label className="text-text-default text-sm font-medium">Class</Label>
               </div>
               <Select value={classSelected} onValueChange={setClassSelected}>
-                <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
                   <SelectValue>
                     <span className="text-text-default text-sm">{classSelected}</span>
                   </SelectValue>
@@ -146,7 +146,7 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <Label className="text-text-default text-sm font-medium">Department</Label>
               </div>
               <Select value={departmentSelected} onValueChange={setDepartmentSelected}>
-                <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
                   <SelectValue>
                     <span className="text-text-default text-sm">{departmentSelected}</span>
                   </SelectValue>
@@ -167,7 +167,7 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <Label className="text-text-default text-sm font-medium">Arm</Label>
               </div>
               <Select value={armSelected} onValueChange={setArmSelected}>
-                <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
                   <SelectValue>
                     <span className="text-text-default text-sm">{classSelected}</span>
                   </SelectValue>
@@ -188,7 +188,7 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <Label className="text-text-default text-sm font-medium">Student Status</Label>
               </div>
               <Select value={statusSelected} onValueChange={setStatusSelected}>
-                <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
                   <SelectValue>
                     <span className="text-text-default text-sm">{statusSelected}</span>
                   </SelectValue>
