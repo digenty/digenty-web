@@ -34,10 +34,13 @@ const StudentAndParentRecord = () => {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [rowSelection, setRowSelection] = useState({});
+  const [selectedRows, setSelectedRows] = useState<Student[]>([]);
   const pageSize = 50;
 
   return (
-    <div className="space-y-6 px-4 py-6 md:space-y-8 md:px-8">
+    <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
+      {/* Tabs */}
       <div className="border-border-default flex w-auto max-w-105 items-center gap-3 border-b">
         {tabs.map(tab => {
           const isActive = activeTab === tab;
@@ -54,6 +57,7 @@ const StudentAndParentRecord = () => {
         })}
       </div>
 
+      {/* Title and Filter buttons */}
       <div className="space-y-4">
         <RecordHeader tab={activeTab} />
 
@@ -101,21 +105,22 @@ const StudentAndParentRecord = () => {
           </div>
         )}
 
+        {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
           <SearchInput className="border-border-default bg-bg-input-soft h-8 rounded-lg border md:w-70.5" />
 
           <div className="flex items-center gap-1">
-            <Button className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-[14px]! md:flex">
+            <Button className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex">
               <ShareBox fill="var(--color-icon-default-muted)" className="size-[15px]" />
               <span className="text-text-default font-medium">Export</span>
             </Button>
 
-            <Button className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-[14px]! md:flex">
+            <Button className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex">
               <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />
               <span className="text-text-default font-medium">Import</span>
             </Button>
 
-            <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! shadow-xlight h-8 gap-2 rounded-md px-[14px]!">
+            <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! shadow-xlight h-8 gap-2 rounded-md px-2.5!">
               <PlusIcon className="text-icon-white-default size-4" />
               <span className="text-text-white-default font-medium">Add Student</span>
             </Button>
@@ -142,6 +147,26 @@ const StudentAndParentRecord = () => {
         </MobileDrawer>
       )}
 
+      {/* Row manipulation */}
+      {selectedRows.length > 0 && (
+        <div className="mb-4 hidden items-center gap-1 md:flex">
+          <div className="bg-bg-state-soft text-text-default flex h-7 items-center justify-center gap-1 rounded-md px-2.5 text-sm font-medium">
+            <span> {selectedRows.length}</span>
+            <span>Selected Items</span>
+          </div>
+
+          <Button className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium">
+            <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
+            <span>Withdraw students</span>
+          </Button>
+
+          <Button className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium">
+            <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
+            <span>Delete students</span>
+          </Button>
+        </div>
+      )}
+
       <div className="hidden md:block">
         <DataTable
           columns={columns}
@@ -154,6 +179,9 @@ const StudentAndParentRecord = () => {
             // setIsDetailsOpen(true);
             // setSelectedRole(row.original);
           }}
+          rowSelection={rowSelection}
+          setRowSelection={setRowSelection}
+          onSelectRows={setSelectedRows}
         />
       </div>
 
