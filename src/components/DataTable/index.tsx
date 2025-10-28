@@ -4,8 +4,8 @@ import { ColumnDef, flexRender, getCoreRowModel, Row, useReactTable } from "@tan
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 import { Pagination } from "./Pagination";
-// import Pagination from "./Pagination";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -15,6 +15,9 @@ interface DataTableProps<TData, TValue> {
   setCurrentPage: (page: number) => void;
   clickHandler: (row: Row<TData>) => void;
   pageSize: number;
+  rowSelection: Record<string, boolean>;
+  setRowSelection: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  onSelectRows: (data: TData[]) => void;
 }
 
 export const DataTable = <TData, TValue>({
@@ -25,12 +28,20 @@ export const DataTable = <TData, TValue>({
   page,
   setCurrentPage,
   pageSize,
+  rowSelection,
+  setRowSelection,
+  onSelectRows,
 }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
     data,
     columns,
+    state: {
+      rowSelection, // ✅ tell the table which rows are selected
+    },
     rowCount: totalCount,
     getCoreRowModel: getCoreRowModel(),
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     manualPagination: true,
     initialState: {
       columnVisibility: {
@@ -38,6 +49,11 @@ export const DataTable = <TData, TValue>({
       },
     },
   });
+
+  useEffect(() => {
+    const selected = table.getSelectedRowModel().flatRows.map(r => r.original);
+    onSelectRows(selected);
+  }, [table, rowSelection, onSelectRows]);
 
   return (
     <div className="space-y-4 pb-12.5">
