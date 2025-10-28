@@ -2,23 +2,25 @@
 import { DataTable } from "@/components/DataTable";
 import { Student } from "@/components/DataTable/types";
 import { cn } from "@/lib/utils";
+import { useBreadcrumbStore } from "@/store/breadcrumb";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import DeleteBin from "../Icons/DeleteBin";
 import GraduationCap from "../Icons/GraduationCap";
 import Import from "../Icons/Import";
 import ShareBox from "../Icons/ShareBox";
 import UserFill from "../Icons/UserFill";
 import UserMinus from "../Icons/UserMinus";
+import { MobileDrawer } from "../MobileDrawer";
+import { Modal } from "../Modal";
 import { OverviewCard } from "../OverviewCard";
 import { SearchInput } from "../SearchInput";
 import { Button } from "../ui/button";
+import { Spinner } from "../ui/spinner";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 import { RecordHeader } from "./RecordHeader";
-import { MobileDrawer } from "../MobileDrawer";
-import DeleteBin from "../Icons/DeleteBin";
-import { Modal } from "../Modal";
-import { Spinner } from "../ui/spinner";
 import { TableExportFilter } from "./TableExportFilter";
 
 const students: Student[] = Array.from({ length: 60 }).map(() => ({
@@ -35,13 +37,24 @@ const students: Student[] = Array.from({ length: 60 }).map(() => ({
 const tabs = ["Students", "Parents"];
 
 const StudentAndParentRecord = () => {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [openExportFilter, setOpenExportFilter] = useState(false);
-  const [activeTab, setActiveTab] = useState(tabs[0]);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
+  const { setBreadcrumbs } = useBreadcrumbStore();
   const pageSize = 50;
+  const params = useSearchParams();
+  const activeTab = params.get("tab") ?? "Students";
+
+  useEffect(() => {
+    router.push(`/student-and-parent-record?tab=${activeTab}`);
+    setBreadcrumbs([
+      { label: "Student & Parent Record", url: "/student-and-parent-record" },
+      { label: activeTab, url: `/student-and-parent-record?tab=${activeTab}` },
+    ]);
+  }, [activeTab, router, setBreadcrumbs]);
 
   return (
     <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
@@ -75,7 +88,14 @@ const StudentAndParentRecord = () => {
           return (
             <div
               role="button"
-              onClick={() => setActiveTab(tab)}
+              onClick={() => {
+                router.push(`/student-and-parent-record?tab=${tab}`);
+                //  setBreadcrumbs((prev: Crumb[]) => [...prev, { label: tab, url: `/student-and-parent-record?tab=${tab}` }])
+                setBreadcrumbs([
+                  { label: "Student & Parent Record", url: "/student-and-parent-record" },
+                  { label: tab, url: `/student-and-parent-record?tab=${tab}` },
+                ]);
+              }}
               key={tab}
               className={cn("w-1/2 cursor-pointer py-2.5 text-center", isActive && "border-border-informative border-b-[1.5px]")}
             >

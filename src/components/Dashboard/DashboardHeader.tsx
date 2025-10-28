@@ -3,20 +3,26 @@
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Calendar from "../Icons/Calendar";
 import School from "../Icons/School";
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { useBreadcrumbStore } from "@/store/breadcrumb";
 
 const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 
 export default function DashboardHeader() {
+  const { setBreadcrumbs } = useBreadcrumbStore();
   const [termSelected, setTermSelected] = useState(termsOptions[0]);
   const [branchSelected, setBranchSelected] = useState(branches[0]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  useEffect(() => {
+    setBreadcrumbs([{ label: "Dashboard", url: "/" }]);
+  }, [setBreadcrumbs]);
 
   return (
     <div>
