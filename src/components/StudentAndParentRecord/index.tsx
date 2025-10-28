@@ -17,6 +17,9 @@ import { MobileCard } from "./MobileCard";
 import { RecordHeader } from "./RecordHeader";
 import { MobileDrawer } from "../MobileDrawer";
 import DeleteBin from "../Icons/DeleteBin";
+import { Modal } from "../Modal";
+import { Spinner } from "../ui/spinner";
+import { TableExportFilter } from "./TableExportFilter";
 
 const students: Student[] = Array.from({ length: 60 }).map(() => ({
   id: Math.random().toString(36).substring(2, 9),
@@ -33,6 +36,7 @@ const tabs = ["Students", "Parents"];
 
 const StudentAndParentRecord = () => {
   const [page, setPage] = useState(1);
+  const [openExportFilter, setOpenExportFilter] = useState(false);
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
@@ -41,6 +45,29 @@ const StudentAndParentRecord = () => {
 
   return (
     <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
+      {openExportFilter && (
+        <Modal
+          open={openExportFilter}
+          setOpen={setOpenExportFilter}
+          title={
+            <span className="flex items-center gap-2">
+              <span className="bg-bg-state-soft flex size-8 items-center justify-center rounded-full">
+                <ShareBox fill="var(--color-icon-default-subtle)" className="size-4" />
+              </span>
+              <span>Export Students</span>
+            </span>
+          }
+          ActionButton={
+            <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1">
+              {true ? <Spinner /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
+              <span className="text-sm font-medium">Export Students</span>
+            </Button>
+          }
+        >
+          <TableExportFilter />
+        </Modal>
+      )}
+
       {/* Tabs */}
       <div className="border-border-default flex w-auto max-w-105 items-center gap-3 border-b">
         {tabs.map(tab => {
@@ -111,7 +138,10 @@ const StudentAndParentRecord = () => {
           <SearchInput className="border-border-default bg-bg-input-soft h-8 rounded-lg border md:w-70.5" />
 
           <div className="flex items-center gap-1">
-            <Button className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex">
+            <Button
+              onClick={() => setOpenExportFilter(true)}
+              className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
+            >
               <ShareBox fill="var(--color-icon-default-muted)" className="size-[15px]" />
               <span className="text-text-default font-medium">Export</span>
             </Button>
