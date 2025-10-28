@@ -54,17 +54,17 @@ const StudentAndParentRecord = () => {
               <span className="bg-bg-state-soft flex size-8 items-center justify-center rounded-full">
                 <ShareBox fill="var(--color-icon-default-subtle)" className="size-4" />
               </span>
-              <span>Export Students</span>
+              <span>{activeTab === "Students" ? "Export Students" : "Export Parents"}</span>
             </span>
           }
           ActionButton={
             <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1">
               {true ? <Spinner /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
-              <span className="text-sm font-medium">Export Students</span>
+              <span className="text-sm font-medium">{activeTab === "Students" ? "Export Students" : "Export Parents"}</span>
             </Button>
           }
         >
-          <TableExportFilter />
+          <TableExportFilter tab={activeTab} />
         </Modal>
       )}
 
