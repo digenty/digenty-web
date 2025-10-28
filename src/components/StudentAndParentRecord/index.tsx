@@ -152,7 +152,7 @@ const StudentAndParentRecord = () => {
         <div className="mb-4 hidden items-center gap-1 md:flex">
           <div className="bg-bg-state-soft text-text-default flex h-7 items-center justify-center gap-1 rounded-md px-2.5 text-sm font-medium">
             <span> {selectedRows.length}</span>
-            <span>Selected Items</span>
+            <span>Selected Item{selectedRows.length !== 1 && "s"}</span>
           </div>
 
           <Button className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium">
