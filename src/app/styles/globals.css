@@ -1002,6 +1002,16 @@
   }
 }
 
+.recharts-surface {
+  margin-left: -25px;
+}
+
+@media (min-width: 768px) {
+  .recharts-surface {
+    margin-left: -20px;
+  }
+}
+
 .recharts-surface:focus {
   outline: none;
 }
