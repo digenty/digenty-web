@@ -16,6 +16,7 @@ import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 import { RecordHeader } from "./RecordHeader";
 import { MobileDrawer } from "../MobileDrawer";
+import DeleteBin from "../Icons/DeleteBin";
 
 const students: Student[] = Array.from({ length: 60 }).map(() => ({
   id: Math.random().toString(36).substring(2, 9),
@@ -156,12 +157,12 @@ const StudentAndParentRecord = () => {
           </div>
 
           <Button className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium">
-            <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
+            <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />
             <span>Withdraw students</span>
           </Button>
 
           <Button className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium">
-            <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
+            <DeleteBin fill="var(--color-bg-basic-red-accent)" className="size-4" />
             <span>Delete students</span>
           </Button>
         </div>
