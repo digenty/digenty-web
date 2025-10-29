@@ -13,7 +13,7 @@ import WarningIcon from "../Icons/WarningIcon";
 import { Checkbox } from "../ui/checkbox";
 import StudentTabs from "./StudentTabs";
 
-export default function StudentProfile() {
+export const Profile = () => {
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [isChecked, setIsChecked] = useState(false);
 
@@ -36,13 +36,13 @@ export default function StudentProfile() {
           <div className="border-border-default base:p-none base:border-none flex items-center gap-1 border-t pt-3">
             <Button
               onClick={() => setOpenModal("student")}
-              className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border-1 text-sm"
+              className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border-1 text-sm"
             >
               <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />
             </Button>
             <Button
               onClick={() => setOpenModal("delete student")}
-              className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border-1 text-sm"
+              className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border-1 text-sm"
             >
               <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />
             </Button>
@@ -166,4 +166,4 @@ export default function StudentProfile() {
       <StudentTabs />
     </div>
   );
-}
+};

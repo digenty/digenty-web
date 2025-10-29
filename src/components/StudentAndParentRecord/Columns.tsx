@@ -3,16 +3,17 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { ColumnDef, Row, Table } from "@tanstack/react-table";
+import { ColumnDef, Table } from "@tanstack/react-table";
 import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "../Avatar";
-import { Student } from "../DataTable/types";
 import DeleteBin from "../Icons/DeleteBin";
 import Edit from "../Icons/Edit";
 import UserMinus from "../Icons/UserMinus";
+import { Student } from "./types";
 
-const RenderOptions = (row: Row<Student>) => {
+const RenderOptions = () => {
+  // Pass row: Row<Student> as a parameter
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus-visible:ring-0 focus-visible:outline-none">

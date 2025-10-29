@@ -1,12 +1,12 @@
 "use client";
 
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
+import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
 import { useState } from "react";
-import StudentIcon from "../Icons/StudentIcon";
-import ClassIcon from "../Icons/ClassIcon";
 import BookOpen from "../Icons/BookOpen";
+import ClassIcon from "../Icons/ClassIcon";
+import StudentIcon from "../Icons/StudentIcon";
 
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 const classes = ["JSS1", "JSS2", "JSS3", "SS1", "SS2", "SS3"];
