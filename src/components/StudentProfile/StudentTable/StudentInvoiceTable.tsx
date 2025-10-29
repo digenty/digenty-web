@@ -1,13 +1,13 @@
 import { DataTable } from "@/components/DataTable";
+import Printer from "@/components/Icons/Printer";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { Calendar, Check, CheckCheck, Ellipsis, Eye, Trash2, TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
-import { columns } from "./InvoiceColumns";
-import Printer from "@/components/Icons/Printer";
-import { Button } from "@/components/ui/button";
 import { Invoice } from "../types";
+import { columns } from "./InvoiceColumns";
 
 const invoices = [
   { id: 0, title: "INV-2025-1001", issueDate: "30/5/2024", status: "Paid" },

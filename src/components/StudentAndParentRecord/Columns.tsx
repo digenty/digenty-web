@@ -3,7 +3,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { ColumnDef, Table } from "@tanstack/react-table";
+import { ColumnDef, Row, Table } from "@tanstack/react-table";
 import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "../Avatar";
@@ -12,8 +12,8 @@ import Edit from "../Icons/Edit";
 import UserMinus from "../Icons/UserMinus";
 import { Student } from "./types";
 
-const RenderOptions = () => {
-  // Pass row: Row<Student> as a parameter
+const RenderOptions = (row: Row<Student>) => {
+  console.log(row);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus-visible:ring-0 focus-visible:outline-none">
@@ -45,6 +45,7 @@ const RenderOptions = () => {
 const filters = [{ value: "descending" }, { value: "ascending" }];
 
 const RenderDOBHeader = (table: Table<Student>) => {
+  console.log(table);
   const [activeFilter, setActiveFilter] = useState("descending");
   return (
     <DropdownMenu>
