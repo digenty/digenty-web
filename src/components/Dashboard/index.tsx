@@ -55,11 +55,11 @@ export const Dashboard = () => {
 
       <QuickActions />
 
-      <div className="flex flex-col gap-3 min-[920px]:flex-row">
-        <div className="border-border-default bg-bg-default w-full rounded-md border min-[920px]:w-[65%]">
+      <div className="base:flex-row flex flex-col gap-3">
+        <div className="border-border-default bg-bg-default base:w-[65%] w-full rounded-md border">
           <Chart />
         </div>
-        <div className="border-border-default bg-bg-default w-full overflow-hidden rounded-md border min-[920px]:h-111 min-[920px]:w-[35%]">
+        <div className="border-border-default bg-bg-default base:h-111 base:w-[35%] w-full overflow-hidden rounded-md border">
           <Alerts />
         </div>
       </div>

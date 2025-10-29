@@ -7,7 +7,6 @@ import Map from "@/components/Icons/Map";
 import PhoneFill from "@/components/Icons/PhoneFill";
 import RedPacket from "@/components/Icons/RedPacket";
 import User from "@/components/Icons/User";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Phone } from "lucide-react";
 
 const biodata = [
@@ -21,35 +20,25 @@ const biodata = [
   { bio: "Nationality", detail: "Nigerian", icon: <Flag fill="var(--color-icon-default-muted)" /> },
   { bio: "State of Origin", detail: "Ogun State", icon: <Flag fill="var(--color-icon-default-muted)" /> },
   { bio: "Address", detail: "56, Olumiyiwa Street, Isolo, Lagos", icon: <Map fill="var(--color-icon-default-muted)" /> },
-  { bio: "Email Address", detail: "damilarejohn@gmail.com", icon: <Mail fill="var(--color-icon-default-muted)" /> },
+  { bio: "Email Address", detail: "damilarejohn@gmail.comncvjdssmndfbsdbf,mb,fmbm,bfmfaf", icon: <Mail fill="var(--color-icon-default-muted)" /> },
   { bio: "Primary Phone Number", detail: "07040000000", icon: <Phone size={16} /> },
   { bio: "Secondary Phone Number", detail: "07040000000", icon: <PhoneFill fill="var(--color-icon-default-muted)" /> },
 ];
 
-export function BiodataTable() {
-  const isNumber = (val: string) => /^\d+(\.\d+)?$/.test(val.trim());
-
+export const Biodata = () => {
   return (
-    <div className="bg-bg-muted mb-20 w-full overflow-hidden rounded-md p-[24px]">
-      <Table>
-        <TableBody>
-          {biodata.map(item => {
-            const numeric = isNumber(item.detail.replace(/[₦,]/g, ""));
-            return (
-              <TableRow key={item.bio} className="border-border-default border-b">
-                <TableCell className="text-text-muted flex items-center gap-2 py-4 font-medium">
-                  <div className="text-muted-foreground">{item.icon}</div>
-                  {item.bio}
-                </TableCell>
-
-                <TableCell className={`text-right text-sm font-semibold ${numeric ? "font-semibold text-blue-600" : "text-text-default"}`}>
-                  {item.detail}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+    <div className="bg-bg-muted border-border-default w-full overflow-hidden rounded-md border p-6">
+      {biodata.map(item => {
+        return (
+          <div key={item.bio} className="border-border-default flex items-center justify-between gap-2 border-b py-2.5 last:border-none">
+            <div className="flex flex-1 items-center gap-2">
+              {item.icon}
+              <span className="text-text-muted text-sm font-medium">{item.bio}</span>
+            </div>
+            <span className="text-text-default max-w-1/3 truncate text-right text-sm font-medium">{item.detail}</span>
+          </div>
+        );
+      })}
     </div>
   );
-}
+};

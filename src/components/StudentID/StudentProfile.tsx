@@ -2,51 +2,52 @@
 
 import { useState } from "react";
 import { Avatar } from "../Avatar";
-import StatusBadge from "./StatusBadge";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "../ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import StatusBadge from "./StatusBadge";
 
-import StudentTabs from "./StudentTabs";
-import StudentProfileIcon from "../Icons/StudentProfileIcon";
-import Delete from "../Icons/Delete";
-import EditStudent from "../Icons/EditStudent";
+import DeleteBin from "../Icons/DeleteBin";
+import Edit from "../Icons/Edit";
+import UserMinus from "../Icons/UserMinus";
 import WarningIcon from "../Icons/WarningIcon";
 import { Checkbox } from "../ui/checkbox";
+import StudentTabs from "./StudentTabs";
 
 export default function StudentProfile() {
   const [openModal, setOpenModal] = useState<string | null>(null);
   const [isChecked, setIsChecked] = useState(false);
 
   return (
-    <div className="">
+    <div className="mb-5">
       <div>
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-0">
-          <div className="flex gap-3">
-            <Avatar username="Damilare John" className="size-18" />
+        <div className="base:flex-row base:items-center base:justify-between base:gap-0 mb-8 flex flex-col gap-4">
+          <div className="flex items-center gap-3.5">
+            <Avatar username="Damilare John" className="size-12 md:size-26.5" />
             <div>
-              <h2 className="text-text-default text-lg font-semibold">
-                Damilare John <StatusBadge status="Perfect" />
-              </h2>
+              <div className="text-text-default flex items-center gap-2 text-lg font-semibold md:font-bold">
+                <span>Damilare John</span>
+                <StatusBadge status="Prefect" />
+              </div>
               <p className="text-text-subtle text-sm font-normal">JSS 1 A</p>
               <div className="text-text-subtle text-sm font-normal">GFA/2023/01045</div>
             </div>
           </div>
 
-          <div className="border-border-default md:p-none flex items-center gap-1 border-t-2 pt-4 md:border-none">
+          <div className="border-border-default base:p-none base:border-none flex items-center gap-1 border-t pt-3">
             <Button
               onClick={() => setOpenModal("student")}
-              className="bg-bg-state-secondary border-border-darker text-text-default rounded border-1 text-sm"
+              className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border-1 text-sm"
             >
-              <StudentProfileIcon />
+              <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />
             </Button>
             <Button
               onClick={() => setOpenModal("delete student")}
-              className="bg-bg-state-secondary border-border-darker text-text-default rounded border-1 text-sm"
+              className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border-1 text-sm"
             >
-              <Delete />
+              <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />
             </Button>
-            <Button className="bg-bg-state-secondary border-border-darker text-text-default rounded border-1 text-sm">
-              <EditStudent /> Edit Student Information
+            <Button className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border-1 text-sm">
+              <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Student Information
             </Button>
           </div>
         </div>
@@ -142,24 +143,26 @@ export default function StudentProfile() {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="flex flex-col gap-[24px] md:flex-row md:items-center">
-        <div className="itmes-center border-border-default flex gap-3 border-b-2 pb-4 md:border-none md:p-0">
-          <p className="text-text-subtle text-sm font-semibold">Status:</p> <StatusBadge status="Active" />
+
+      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="itmes-center border-border-default flex gap-2 border-b pb-4 md:border-none md:p-0">
+          <p className="text-text-subtle text-sm font-medium">Status:</p> <StatusBadge status="Active" />
         </div>
         <div>
-          <div className="flex items-center gap-3">
-            <p className="text-text-subtle text-sm font-semibold">Linked Parents:</p>
-            <div className="bg-bg-state-secondary border-border-default text-text-default flex h-[24px] items-center gap-1 rounded-sm border-1 p-1 text-sm">
+          <div className="flex items-center gap-2">
+            <p className="text-text-subtle text-sm font-medium">Linked Parents:</p>
+            <div className="bg-bg-state-secondary border-border-default shadow-light text-text-default flex h-6 items-center justify-center gap-1 rounded-md border-1 p-1 text-sm">
               <Avatar username="Damilare John" className="size-4" />
-              <span className="text-[10px] md:text-sm">Damilare John</span>
+              <span className="text-2xs xs:text-xs font-medium">Damilare John</span>
             </div>
-            <div className="bg-bg-state-secondary border-border-default text-text-default flex h-[24px] items-center gap-1 rounded-sm border-1 p-1 text-sm">
+            <div className="bg-bg-state-secondary border-border-default shadow-light text-text-default flex h-6 items-center justify-center gap-1 rounded-md border-1 p-1 text-sm">
               <Avatar username="Damilare John" className="size-4" />
-              <span className="text-[10px] md:text-sm">Damilare John</span>
+              <span className="text-2xs xs:text-xs font-medium">Damilare John</span>
             </div>
           </div>
         </div>
       </div>
+
       <StudentTabs />
     </div>
   );

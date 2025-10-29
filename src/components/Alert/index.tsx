@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import AlertIcons from "../Icons/AlertIcons";
 import CalendarIcon from "../Icons/CalendarIcon";
 import ReportIcon from "../Icons/ReportIcon";
@@ -50,24 +49,12 @@ const alertData = [
 ];
 
 export const Alerts = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  // handlers
-  const handleNext = () => {
-    setCurrentIndex(prev => (prev + 1) % alertData.length);
-  };
-
-  const handlePrev = () => {
-    setCurrentIndex(prev => (prev - 1 + alertData.length) % alertData.length);
-  };
-
-  const currentAlert = alertData[currentIndex];
   return (
-    <div className="relative h-full space-y-6 overflow-hidden px-5 py-5 min-[920px]:pb-12 md:space-y-5">
+    <div className="base:pb-12 relative h-full space-y-6 overflow-hidden px-5 py-5 md:space-y-5">
       <h3 className="text-text-default text-xs font-semibold">Alerts</h3>
 
       {/* mobile */}
-      {/* <div className="block space-y-3 min-[920px]:hidden">
+      {/* <div className="block space-y-3 base:hidden">
         <div className="flex h-auto flex-col gap-4">
           <Alert activeAlert={currentAlert} />
         </div>
