@@ -1,28 +1,26 @@
-type ActiveAlert = {
-  id: number;
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ color?: string }>;
-  label: string;
-  iconColor?: string;
-};
+import Bill from "../Icons/Bill";
+import CalendarCheck from "../Icons/CalendarCheck";
+import FileList3 from "../Icons/FileList3";
+import { Button } from "../ui/button";
+import { ActiveAlert } from "./type";
 
 type AlertListProps = {
-  activeAlert: ActiveAlert;
+  alert: ActiveAlert;
 };
 
-export const Alert = ({ activeAlert }: AlertListProps) => {
-  const Icon = activeAlert.icon;
+export const Alert = ({ alert }: AlertListProps) => {
   return (
     <li className="border-border-default flex items-start gap-3 rounded-md border px-3 py-4">
       <div className="bg-bg-state-soft flex size-7 items-center justify-center rounded-full p-1">
-        <Icon color={activeAlert.iconColor} />
+        {alert.type === "results" && <FileList3 fill="var(--color-bg-basic-sky-strong)" className="size-4" />}
+        {alert.type === "fees" && <Bill fill="var(--color-bg-basic-teal-strong)" className="size-4" />}
+        {alert.type === "attendance" && <CalendarCheck fill="var(--color-bg-basic-yellow-strong)" className="size-4" />}
       </div>
 
       <div className="flex flex-1 flex-col gap-2">
-        <p className="text-text-default text-sm font-medium">{activeAlert.title}</p>
-        <p className="text-text-subtle text-sm font-normal">{activeAlert.description}</p>
-        <span className="bg-bg-state-soft text-text-subtle w-fit rounded-md px-1.5 py-1 text-xs">{activeAlert.label}</span>
+        <p className="text-text-default text-sm font-medium">{alert.title}</p>
+        <p className="text-text-subtle text-sm font-normal">{alert.description}</p>
+        <Button className="bg-bg-state-soft hover:bg-bg-state-soft-hover text-text-subtle h-6 w-fit rounded-md px-1.5 text-xs">{alert.action}</Button>
       </div>
     </li>
   );

@@ -18,6 +18,7 @@ interface DataTableProps<TData, TValue> {
   rowSelection: Record<string, boolean>;
   setRowSelection: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   onSelectRows: (data: TData[]) => void;
+  showPagination?: boolean;
 }
 
 export const DataTable = <TData, TValue>({
@@ -31,6 +32,7 @@ export const DataTable = <TData, TValue>({
   rowSelection,
   setRowSelection,
   onSelectRows,
+  showPagination = true,
 }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
     data,
@@ -51,8 +53,10 @@ export const DataTable = <TData, TValue>({
   });
 
   useEffect(() => {
-    const selected = table.getSelectedRowModel().flatRows.map(r => r.original);
-    onSelectRows(selected);
+    if (onSelectRows) {
+      const selected = table.getSelectedRowModel().flatRows.map(r => r.original);
+      onSelectRows(selected);
+    }
   }, [table, rowSelection, onSelectRows]);
 
   return (
@@ -85,7 +89,8 @@ export const DataTable = <TData, TValue>({
                       style={{ width: cell.column.getSize() }}
                       key={cell.id}
                       className={cn("pr-7.5", cell.column.id === "actions" && "text-right")}
-                      onClick={cell.column.id === "actions" ? () => clickHandler(row) : undefined}
+                      // onClick={cell.column.id === "actions" ? () => clickHandler(row) : undefined}
+                      onClick={() => clickHandler(row)}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
@@ -103,7 +108,9 @@ export const DataTable = <TData, TValue>({
         </Table>
       </div>
 
-      <Pagination table={table} currentPage={page} totalPages={Math.ceil(totalCount / pageSize)} setCurrentPage={setCurrentPage} />
+      {showPagination && (
+        <Pagination table={table} currentPage={page} totalPages={Math.ceil(totalCount / pageSize)} setCurrentPage={setCurrentPage} />
+      )}
     </div>
   );
 };

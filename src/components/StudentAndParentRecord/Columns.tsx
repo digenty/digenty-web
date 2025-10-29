@@ -7,12 +7,13 @@ import { ColumnDef, Row, Table } from "@tanstack/react-table";
 import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "../Avatar";
-import { Student } from "../DataTable/types";
 import DeleteBin from "../Icons/DeleteBin";
 import Edit from "../Icons/Edit";
 import UserMinus from "../Icons/UserMinus";
+import { Student } from "./types";
 
 const RenderOptions = (row: Row<Student>) => {
+  console.log(row);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus-visible:ring-0 focus-visible:outline-none">

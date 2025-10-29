@@ -1,6 +1,5 @@
 "use client";
 import { DataTable } from "@/components/DataTable";
-import { Student } from "@/components/DataTable/types";
 import { cn } from "@/lib/utils";
 import { useBreadcrumbStore } from "@/store/breadcrumb";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
@@ -18,6 +17,7 @@ import { OverviewCard } from "../OverviewCard";
 import { SearchInput } from "../SearchInput";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
+import { Student } from "@/components/StudentAndParentRecord/types";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 import { RecordHeader } from "./RecordHeader";
@@ -227,8 +227,8 @@ const StudentAndParentRecord = () => {
           setCurrentPage={setPage}
           pageSize={pageSize}
           clickHandler={row => {
-            // setIsDetailsOpen(true);
-            // setSelectedRole(row.original);
+            console.log("clicked", row);
+            router.push(`/student-and-parent-record/${row.original.id}`);
           }}
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}
