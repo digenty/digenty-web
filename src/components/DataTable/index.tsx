@@ -81,7 +81,7 @@ export const DataTable = <TData, TValue>({
               table.getRowModel().rows.map(row => (
                 <TableRow
                   key={row.id}
-                  // data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && "selected"}
                   className="border-border-default data-[state=selected]:bg-bg-basic-gray-alpha-2 hover:bg-bg-basic-gray-alpha-2 border-y text-sm"
                 >
                   {row.getVisibleCells().map(cell => (
@@ -89,7 +89,8 @@ export const DataTable = <TData, TValue>({
                       style={{ width: cell.column.getSize() }}
                       key={cell.id}
                       className={cn("pr-7.5", cell.column.id === "actions" && "text-right")}
-                      onClick={cell.column.id === "actions" ? () => clickHandler(row) : undefined}
+                      // onClick={cell.column.id === "actions" ? () => clickHandler(row) : undefined}
+                      onClick={() => clickHandler(row)}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>

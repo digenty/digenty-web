@@ -45,7 +45,6 @@ const RenderOptions = (row: Row<Student>) => {
 const filters = [{ value: "descending" }, { value: "ascending" }];
 
 const RenderDOBHeader = (table: Table<Student>) => {
-  console.log(table);
   const [activeFilter, setActiveFilter] = useState("descending");
   return (
     <DropdownMenu>
