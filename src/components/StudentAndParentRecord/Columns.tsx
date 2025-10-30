@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { ColumnDef, Row, Table } from "@tanstack/react-table";
-import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon, Rows2 } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "../Avatar";
 import DeleteBin from "../Icons/DeleteBin";
@@ -13,10 +13,11 @@ import UserMinus from "../Icons/UserMinus";
 import { Student } from "./types";
 
 const RenderOptions = (row: Row<Student>) => {
-  console.log(row);
+  console.log(Rows2);
+  const [open, setOpen] = useState(false);
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="focus-visible:ring-0 focus-visible:outline-none">
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger onClick={evt => evt.stopPropagation()} className="focus-visible:ring-0 focus-visible:outline-none">
         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">

@@ -227,7 +227,6 @@ const StudentAndParentRecord = () => {
           setCurrentPage={setPage}
           pageSize={pageSize}
           clickHandler={row => {
-            console.log("clicked", row);
             router.push(`/student-and-parent-record/${row.original.id}`);
           }}
           rowSelection={rowSelection}

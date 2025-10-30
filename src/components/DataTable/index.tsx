@@ -19,6 +19,18 @@ interface DataTableProps<TData, TValue> {
   setRowSelection: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   onSelectRows: (data: TData[]) => void;
   showPagination?: boolean;
+  fullBorder?: boolean;
+  clasNames?: {
+    tableWrapper?: string;
+    table?: string;
+    tableHead?: string;
+    tableBody?: string;
+    tableRow?: string;
+    tableHeadRow?: string;
+    tableHeadCell?: string;
+    tableBodyRow?: string;
+    tableBodyCell?: string;
+  };
 }
 
 export const DataTable = <TData, TValue>({
@@ -33,6 +45,8 @@ export const DataTable = <TData, TValue>({
   setRowSelection,
   onSelectRows,
   showPagination = true,
+  fullBorder = false,
+  clasNames,
 }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
     data,
@@ -60,15 +74,15 @@ export const DataTable = <TData, TValue>({
   }, [table, rowSelection, onSelectRows]);
 
   return (
-    <div className="space-y-4 pb-12.5">
-      <div className="overflow-hidden rounded-md">
+    <div className="space-y-4">
+      <div className={cn("overflow-hidden rounded-md", clasNames?.tableWrapper)}>
         <Table className="w-full">
-          <TableHeader className="border-border-default border-y">
+          <TableHeader className={cn("border-border-default border-y", fullBorder && "border")}>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id} className="border-border-default border-b">
                 {headerGroup.headers.map(header => {
                   return (
-                    <TableHead key={header.id} className="pr-7.5">
+                    <TableHead key={header.id} className={cn("pr-7.5", fullBorder && "border-border-default border-r")}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
@@ -76,21 +90,20 @@ export const DataTable = <TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className="border-border-default border-t">
+          <TableBody className={cn("border-border-default border-t", fullBorder && "border")}>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="border-border-default data-[state=selected]:bg-bg-basic-gray-alpha-2 hover:bg-bg-basic-gray-alpha-2 border-y text-sm"
+                  onClick={() => clickHandler(row)}
                 >
                   {row.getVisibleCells().map(cell => (
                     <TableCell
                       style={{ width: cell.column.getSize() }}
                       key={cell.id}
-                      className={cn("pr-7.5", cell.column.id === "actions" && "text-right")}
-                      // onClick={cell.column.id === "actions" ? () => clickHandler(row) : undefined}
-                      onClick={() => clickHandler(row)}
+                      className={cn("pr-7.5", cell.column.id === "actions" && "text-right", fullBorder && "border-border-default border-r")}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>

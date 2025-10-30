@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { Biodata } from "./StudentTable/Biodata";
-import StudentAcademiRecord from "./StudentTable/StudentAcademiRecord";
+import StudentAcademicRecord from "./StudentTable/StudentAcademicRecord";
 import StudentInvoiceTable from "./StudentTable/StudentInvoiceTable";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +48,7 @@ export default function StudentTabs() {
       <div className="mt-4 md:mt-6">
         {activeTab === "biodata" && <Biodata />}
         {activeTab === "invoices" && <StudentInvoiceTable />}
-        {activeTab === "academic-records" && <StudentAcademiRecord />}
+        {activeTab === "academic-records" && <StudentAcademicRecord />}
       </div>
     </div>
   );

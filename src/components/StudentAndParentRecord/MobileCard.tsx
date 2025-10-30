@@ -7,26 +7,44 @@ import Edit from "../Icons/Edit";
 import UserMinus from "../Icons/UserMinus";
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 export const MobileCard = ({ student }: { student: Student }) => {
+  const router = useRouter();
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   return (
-    <div className="bg-bg-subtle border-border-default rounded-sm border text-sm font-medium">
+    <div
+      role="button"
+      className="bg-bg-subtle border-border-default rounded-sm border text-sm font-medium"
+      onClick={() => router.push(`/student-and-parent-record/${student.id}`)}
+    >
       <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
         <div className="flex gap-2">
           <Avatar username="Damilare John" className="size-5" url="" />
           <p className="text-text-default">{student.name}</p>
         </div>
 
-        <Button variant="ghost" onClick={() => setIsOptionsOpen(true)}>
+        <Button
+          variant="ghost"
+          onClick={evt => {
+            evt.stopPropagation();
+            setIsOptionsOpen(true);
+          }}
+        >
           <MoreHorizontalIcon className="text-icon-default size-5" />
         </Button>
 
         {isOptionsOpen && (
           <MobileDrawer open={isOptionsOpen} setIsOpen={setIsOptionsOpen} title="Actions">
             <div className="flex flex-col gap-2 px-3 py-4">
-              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Button
+                onClick={evt => {
+                  evt.stopPropagation();
+                  router.push(`/student-and-parent-record/${student.id}`);
+                }}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+              >
                 <EyeIcon className="text-icon-default-muted size-4" />
                 <span>View Student Profile</span>
               </Button>
