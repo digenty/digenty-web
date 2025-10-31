@@ -1,4 +1,4 @@
-import { Student } from "@/components/StudentAndParentRecord/types";
+import { Student } from "@/components/StudentAndParent/types";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "../Avatar";

@@ -1,9 +1,5 @@
-import StudentAndParentRecord from "@/components/StudentAndParentRecord";
+import StudentAndParentRecord from "@/components/StudentAndParent";
 
 export default function StudentAndParentRecordPage() {
-  return (
-    <div className="">
-      <StudentAndParentRecord />
-    </div>
-  );
+  return <StudentAndParentRecord />;
 }

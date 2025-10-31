@@ -17,7 +17,7 @@ import { OverviewCard } from "../OverviewCard";
 import { SearchInput } from "../SearchInput";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
-import { Student } from "@/components/StudentAndParentRecord/types";
+import { Student } from "@/components/StudentAndParent/types";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 import { RecordHeader } from "./RecordHeader";
@@ -171,7 +171,10 @@ const StudentAndParentRecord = () => {
               <span className="text-text-default font-medium">Import</span>
             </Button>
 
-            <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! shadow-xlight h-8 gap-2 rounded-md px-2.5!">
+            <Button
+              onClick={() => router.push("student-and-parent-record/add-student")}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! shadow-xlight h-8 gap-2 rounded-md px-2.5!"
+            >
               <PlusIcon className="text-icon-white-default size-4" />
               <span className="text-text-white-default font-medium">Add Student</span>
             </Button>
