@@ -1,12 +1,12 @@
 import { Student } from "@/components/DataTable/types";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
-import { Avatar } from "../Avatar";
-import DeleteBin from "../Icons/DeleteBin";
-import Edit from "../Icons/Edit";
-import UserMinus from "../Icons/UserMinus";
-import { MobileDrawer } from "../MobileDrawer";
-import { Button } from "../ui/button";
+import { Avatar } from "../../Avatar";
+import DeleteBin from "../../Icons/DeleteBin";
+import Edit from "../../Icons/Edit";
+import UserMinus from "../../Icons/UserMinus";
+import { MobileDrawer } from "../../MobileDrawer";
+import { Button } from "../../ui/button";
 
 export const MobileCard = ({ student }: { student: Student }) => {
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
