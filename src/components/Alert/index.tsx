@@ -3,7 +3,7 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { useState } from "react";
 import AlertIcons from "../Icons/AlertIcons";
-import CalendarIcon from "../Icons/CalendarIcon";
+import CalendarColorIcon from "../Icons/CalendarColorIcon";
 import ReportIcon from "../Icons/ReportIcon";
 import { Button } from "../ui/button";
 import { Alert } from "./Alert";
@@ -29,7 +29,7 @@ const alertData = [
     id: 2,
     title: "Multiple Unmarked Attendance in SS1",
     description: "There are several unmarked attendances for today's class in SS1.",
-    icon: CalendarIcon,
+    icon: CalendarColorIcon,
     label: "Review Attendance",
     iconColor: "var(--color-warning)",
   },
@@ -37,7 +37,7 @@ const alertData = [
     id: 3,
     title: "Multiple Unmarked Attendance in SS1",
     description: "There are several unmarked attendances for today's class in SS1.",
-    icon: CalendarIcon,
+    icon: CalendarColorIcon,
     label: "Review Attendance",
     iconColor: "var(--color-warning)",
   },
@@ -45,7 +45,7 @@ const alertData = [
     id: 4,
     title: "Multiple Unmarked Attendance in SS1",
     description: "There are several unmarked attendances for today's class in SS1.",
-    icon: CalendarIcon,
+    icon: CalendarColorIcon,
     label: "Review Attendance",
     iconColor: "var(--color-warning)",
   },

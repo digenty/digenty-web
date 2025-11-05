@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import Calendar from "../Icons/Calendar";
+
 import School from "../Icons/School";
+import { Calendar } from "../Icons/Calendar";
 
 const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];

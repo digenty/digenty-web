@@ -1,5 +1,6 @@
 import Building from "@/components/Icons/Building";
-import Calendar from "@/components/Icons/Calendar";
+import { Calendar } from "@/components/Icons/Calendar";
+
 import FirstAidKit from "@/components/Icons/FirstAidKit";
 import Flag from "@/components/Icons/Flag";
 import Mail from "@/components/Icons/Mail";

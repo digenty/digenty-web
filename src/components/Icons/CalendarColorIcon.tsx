@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function CalendarIcon({ color = "currentColor" }: { color?: string }) {
+export default function CalendarColorIcon({ color = "currentColor" }: { color?: string }) {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
