@@ -16,7 +16,7 @@ export const TableExportFilter = ({ tab }: { tab: string }) => {
   const [armSelected, setArmSelected] = useState(arms[0]);
 
   return (
-    <div className="flex w-full flex-col gap-5">
+    <div className="flex w-full flex-col gap-5 px-6 py-5">
       <p className="text-text-default text-sm font-bold">Filter Selection</p>
       <div className="space-y-2">
         <div className="flex items-center gap-2">

@@ -6,17 +6,20 @@ import DeleteBin from "../../Icons/DeleteBin";
 import { Button } from "../../ui/button";
 import { AcademicInformation } from "./AcademicInformation";
 import { ContactInformation } from "./ContactInformation";
+import { LinkEntity } from "./LinkEntity";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
 import { Tags } from "./Tags";
 
 export const AddStudent = () => {
   const [date, setDate] = useState<Date>(new Date());
-
+  const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
 
   return (
     <div className="pb-12.5">
+      <LinkEntity entity="Parents" open={open} setOpen={setOpen} />
+
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">
           Add <span className="hidden md:inline">New</span> Student
@@ -55,7 +58,7 @@ export const AddStudent = () => {
             </div>
 
             <Button
-              onClick={() => {}}
+              onClick={() => setOpen(true)}
               className="text-text-default border-border-darker bg-bg-state-secondary h-10 w-full border border-dashed! text-sm font-medium"
             >
               <PlusIcon className="text-icon-default-muted" />

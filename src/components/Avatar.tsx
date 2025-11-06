@@ -13,7 +13,7 @@ export const Avatar = ({
   return (
     <AvatarComponent className={cn(className)}>
       <AvatarImage src={url} />
-      <AvatarFallback className="bg-bg-basic-gray-accent border-border-default text-text-white-default border text-sm font-medium">
+      <AvatarFallback className="bg-bg-basic-gray-accent border-border-default text-text-white-default border text-xs font-medium">
         {username.slice(0, 1).toUpperCase()}
       </AvatarFallback>
     </AvatarComponent>

@@ -103,7 +103,7 @@ export const DataTable = <TData, TValue>({
                       style={{ width: cell.column.getSize() }}
                       key={cell.id}
                       className={cn("pr-7.5", cell.column.id === "actions" && "text-right", fullBorder && "border-border-default border-r")}
-                      onClick={() => clickHandler(row)}
+                      onClick={cell.column.id === "actions" || cell.column.id === "select" ? undefined : () => clickHandler(row)}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
