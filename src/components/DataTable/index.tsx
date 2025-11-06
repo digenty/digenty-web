@@ -97,13 +97,13 @@ export const DataTable = <TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="border-border-default data-[state=selected]:bg-bg-basic-gray-alpha-2 hover:bg-bg-basic-gray-alpha-2 border-y text-sm"
-                  onClick={() => clickHandler(row)}
                 >
                   {row.getVisibleCells().map(cell => (
                     <TableCell
                       style={{ width: cell.column.getSize() }}
                       key={cell.id}
                       className={cn("pr-7.5", cell.column.id === "actions" && "text-right", fullBorder && "border-border-default border-r")}
+                      onClick={() => clickHandler(row)}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>

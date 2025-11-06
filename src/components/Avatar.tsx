@@ -1,5 +1,5 @@
-import { cn, generateRandomColor } from "@/lib/utils";
-import { Avatar as AvatarComponent, AvatarImage, AvatarFallback } from "./ui/avatar";
+import { cn } from "@/lib/utils";
+import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export const Avatar = ({
   username,
@@ -13,7 +13,9 @@ export const Avatar = ({
   return (
     <AvatarComponent className={cn(className)}>
       <AvatarImage src={url} />
-      <AvatarFallback className={cn("text-xs", generateRandomColor(username))}>{username.slice(0, 1).toUpperCase()}</AvatarFallback>
+      <AvatarFallback className="bg-bg-basic-gray-accent border-border-default text-text-white-default border text-sm font-medium">
+        {username.slice(0, 1).toUpperCase()}
+      </AvatarFallback>
     </AvatarComponent>
   );
 };
