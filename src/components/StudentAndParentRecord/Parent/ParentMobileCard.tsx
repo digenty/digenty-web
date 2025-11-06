@@ -1,0 +1,88 @@
+import { Avatar } from "@/components/Avatar";
+import { Parent } from "../types";
+import DeleteBin from "@/components/Icons/DeleteBin";
+import Edit from "@/components/Icons/Edit";
+
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { Button } from "@/components/ui/button";
+import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import React, { useState } from "react";
+
+export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+
+  return (
+    <div className="bg-bg-subtle border-border-default rounded-sm border text-sm font-medium">
+      <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
+        <div className="flex gap-2">
+          <Avatar username="Damilare John" className="size-5" url="" />
+          <p className="text-text-default">{parent.name}</p>
+        </div>
+
+        <Button variant="ghost" onClick={() => setIsOptionsOpen(true)}>
+          <MoreHorizontalIcon className="text-icon-default size-5" />
+        </Button>
+
+        {isOptionsOpen && (
+          <MobileDrawer open={isOptionsOpen} setIsOpen={setIsOptionsOpen} title="Actions">
+            <div className="flex flex-col gap-2 p-4">
+              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+                <EyeIcon className="text-icon-default-muted size-4" />
+                <span>View Parent Profile</span>
+              </Button>
+              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+                <Edit fill="var(--color-icon-default-muted)" className="size-4" />
+                <span>Edit Parent Profile</span>
+              </Button>
+
+              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+                <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+                <span className="text-icon-destructive">Delete Parent Profile</span>
+              </Button>
+            </div>
+          </MobileDrawer>
+        )}
+      </div>
+
+      <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
+        <div className="">
+          <p className="text-text-muted">Tag</p>
+        </div>
+
+        <Button variant="ghost">
+          <span className={`rounded px-2 py-1 text-xs font-medium ${parent.tags[0]?.bgColor} ${parent.tags[0].color}`}>{parent.tags[0].label}</span>
+        </Button>
+      </div>
+
+      <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
+        <div className="">
+          <p className="text-text-muted">Phone Number</p>
+        </div>
+
+        <Button variant="ghost">
+          <p className="text-text-default">{parent.phoneNumber}</p>
+        </Button>
+      </div>
+
+      <div className="flex h-9.5 items-center justify-between px-3">
+        <div className="">
+          <p className="text-text-muted">Email Address</p>
+        </div>
+
+        <Button variant="ghost">
+          <p className="text-text-default">{parent.emailAddress}</p>
+        </Button>
+      </div>
+
+      <div className="border-border-default flex h-9.5 items-center justify-between border-t px-3">
+        <div className="">
+          <p className="text-text-muted">Branch</p>
+        </div>
+
+        <Button variant="ghost">
+          <p className="text-text-default">{parent.branch}</p>
+        </Button>
+      </div>
+    </div>
+  );
+};

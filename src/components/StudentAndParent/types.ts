@@ -16,5 +16,5 @@ export interface Parent {
   phoneNumber: string;
   emailAddress: string;
   branch: string;
-  tags: { label: string }[];
+  tags: { label: string; color?: "bg-basic-fuchsia-strong" | "bg-basic-violet-strong"; bgColor?: "bg-badge-fuchsia" | "bg-badge-violet" }[];
 }
