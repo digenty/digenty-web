@@ -50,7 +50,9 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
         </div>
 
         <Button variant="ghost">
-          <span className={`rounded px-2 py-1 text-xs font-medium ${parent.tags[0]?.bgColor} ${parent.tags[0].color}`}>{parent.tags[0].label}</span>
+          <span className="border-border-default bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong rounded-md border px-2 text-xs font-medium">
+            {parent.tags[0].label}
+          </span>
         </Button>
       </div>
 

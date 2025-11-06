@@ -17,11 +17,14 @@ import { OverviewCard } from "../OverviewCard";
 import { SearchInput } from "../SearchInput";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
-import { Student } from "@/components/StudentAndParent/types";
+import { Student, Parent } from "@/components/StudentAndParent/types";
+// import { Parent, Student } from "@/components/StudentAndParentRecord/types";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 import { RecordHeader } from "./RecordHeader";
 import { TableExportFilter } from "./TableExportFilter";
+import { parentColumns } from "./Parent/ParentColumns";
+import { ParentsMobileCard } from "./Parent/ParentMobileCard";
 
 const students: Student[] = Array.from({ length: 60 }).map(() => ({
   id: Math.random().toString(36).substring(2, 9),
@@ -32,6 +35,16 @@ const students: Student[] = Array.from({ length: 60 }).map(() => ({
   dob: "18/05/2007",
   branch: "Lawanson",
   tags: [{ label: "Prefect", color: "bg-basic-cyan-strong", bgColor: "bg-badge-cyan" }],
+}));
+
+const parents: Parent[] = Array.from({ length: 60 }).map(() => ({
+  id: Math.random().toString(36).substring(2, 9),
+  name: "Damilare John",
+  gender: "Male",
+  phoneNumber: "0701 234 5678",
+  emailAddress: "damilare.john@yopmail.com",
+  branch: "Ijesha",
+  tags: [{ label: "VIP" }],
 }));
 
 const tabs = ["Students", "Parents"];
@@ -155,7 +168,7 @@ const StudentAndParentRecord = () => {
 
         {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
-          <SearchInput className="border-border-default bg-bg-input-soft h-8 rounded-lg border md:w-70.5" />
+          <SearchInput className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5" />
 
           <div className="flex items-center gap-1">
             <Button
@@ -222,27 +235,52 @@ const StudentAndParentRecord = () => {
       )}
 
       <div className="hidden md:block">
-        <DataTable
-          columns={columns}
-          data={students}
-          totalCount={students.length}
-          page={page}
-          setCurrentPage={setPage}
-          pageSize={pageSize}
-          clickHandler={row => {
-            router.push(`/student-and-parent-record/${row.original.id}`);
-          }}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          onSelectRows={setSelectedRows}
-        />
+        {activeTab === "Students" ? (
+          <DataTable
+            columns={columns}
+            data={students}
+            totalCount={students.length}
+            page={page}
+            setCurrentPage={setPage}
+            pageSize={pageSize}
+            clickHandler={row => {
+              router.push(`/student-and-parent-record/${row.original.id}`);
+            }}
+            rowSelection={rowSelection}
+            setRowSelection={setRowSelection}
+            onSelectRows={setSelectedRows}
+          />
+        ) : (
+          <DataTable
+            columns={parentColumns}
+            data={parents}
+            totalCount={parents.length}
+            page={page}
+            setCurrentPage={setPage}
+            pageSize={pageSize}
+            clickHandler={row => {
+              router.push(`/student-and-parent-record/${row.original.id}`);
+            }}
+            rowSelection={rowSelection}
+            setRowSelection={setRowSelection}
+            onSelectRows={setSelectedRows}
+          />
+        )}
       </div>
 
-      <div className="flex flex-col gap-4 pb-16 md:hidden">
-        {students.map(student => (
-          <MobileCard key={student.id} student={student} />
-        ))}
-      </div>
+      {activeTab === "Students" ? (
+        <div className="flex flex-col gap-4 pb-16 md:hidden">
+          {students.map(student => (
+            <MobileCard key={student.id} student={student} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4 pb-16 md:hidden">
+          {parents.map(parent => (
+            <ParentsMobileCard key={parent.id} parent={parent} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
