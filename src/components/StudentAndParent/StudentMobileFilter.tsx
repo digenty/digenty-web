@@ -23,8 +23,8 @@ export default function StudentFiltersDrawer({ isOpen, onClose }: { isOpen: bool
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="bg-bg-default overflow-y:scroll w-full max-w-full rounded-t-[12px] pb-3 shadow-lg">
-        <DrawerHeader className="bg-bg-state-soft border-border-default rounded-t-[12px] border-b px-[16px] py-[12px]">
+      <DrawerContent className="bg-bg-default overflow-y:scroll rounded-t-2 w-full max-w-full pb-3 shadow-lg">
+        <DrawerHeader className="bg-bg-state-soft border-border-default rounded-t-2 border-b px-3 py-2">
           <div className="flex items-center justify-between">
             <DrawerTitle className="text-md text-text-default font-semibold">Filter</DrawerTitle>
 
@@ -140,7 +140,7 @@ export default function StudentFiltersDrawer({ isOpen, onClose }: { isOpen: bool
         </div>
 
         <DrawerFooter>
-          <div className="mt-[20px] flex justify-between">
+          <div className="mt-4 flex justify-between">
             <DrawerClose asChild>
               <button onClick={onClose} className="bg-bg-state-soft text-text-default rounded-md px-4 py-2 text-sm font-semibold">
                 Cancel
