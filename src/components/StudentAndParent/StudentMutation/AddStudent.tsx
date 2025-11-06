@@ -17,7 +17,7 @@ export const AddStudent = () => {
   const [tags, setTags] = useState<string[]>([]);
 
   return (
-    <div className="pb-12.5">
+    <div className="">
       <LinkEntity entity="Parents" open={open} setOpen={setOpen} />
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">

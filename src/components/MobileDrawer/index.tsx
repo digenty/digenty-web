@@ -1,4 +1,4 @@
-import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerOverlay, DrawerTitle } from "@/components/ui/drawer";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { XIcon } from "lucide-react";
 import { Button } from "../ui/button";
@@ -16,6 +16,7 @@ export const MobileDrawer = ({
 }) => {
   return (
     <Drawer open={open} onOpenChange={setIsOpen}>
+      {open && <DrawerOverlay />}
       <DrawerContent className="bg-bg-card border-border-darker m-4 block rounded-xl md:hidden">
         <VisuallyHidden>
           <DrawerHeader>
