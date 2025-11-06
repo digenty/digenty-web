@@ -25,7 +25,7 @@ export const Modal = ({
             <DialogDescription>{title}</DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        <div className="px-6 py-4">{children}</div>
+        <div className="px-6 py-5">{children}</div>
         <DialogFooter className="border-border-default justify-between border-t p-4">
           <DialogClose asChild>
             <Button

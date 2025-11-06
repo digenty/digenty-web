@@ -17,7 +17,7 @@ export const PaymentFilter = () => {
             <p className="text-text-default text-sm">{selected}</p>
           </SelectValue>
         </SelectTrigger>
-        <SelectContent className="bg-bg-card border-border-default">
+        <SelectContent className="bg-bg-card border-border-default border">
           <SelectItem className="text-text-default" value="24/25 Third Term">
             24/25 Third Term
           </SelectItem>
