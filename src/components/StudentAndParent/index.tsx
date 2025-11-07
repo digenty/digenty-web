@@ -18,7 +18,6 @@ import { SearchInput } from "../SearchInput";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { Student, Parent } from "@/components/StudentAndParent/types";
-// import { Parent, Student } from "@/components/StudentAndParentRecord/types";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 import { RecordHeader } from "./RecordHeader";
@@ -179,7 +178,10 @@ const StudentAndParentRecord = () => {
               <span className="text-text-default font-medium">Export</span>
             </Button>
 
-            <Button className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex">
+            <Button
+              onClick={() => router.push("student-and-parent-record/upload-students")}
+              className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
+            >
               <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />
               <span className="text-text-default font-medium">Import</span>
             </Button>
@@ -189,7 +191,7 @@ const StudentAndParentRecord = () => {
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! shadow-xlight h-8 gap-2 rounded-md px-2.5!"
             >
               <PlusIcon className="text-icon-white-default size-4" />
-              <span className="text-text-white-default font-medium">Add Student</span>
+              <span className="text-text-white-default font-medium">Add {activeTab === "Parents" ? "Parent" : "Student"}</span>
             </Button>
 
             <Button onClick={() => setIsActionsOpen(true)} className="bg-bg-state-soft flex h-8 rounded-md px-2! md:hidden">
