@@ -1,5 +1,5 @@
-import { StudentsUpload } from "@/components/StudentAndParent/BulkUpload";
+import { ParentsUpload } from "@/components/StudentAndParent/Parent/ParentsUpload";
 
 export default function page() {
-  return <StudentsUpload />;
+  return <ParentsUpload />;
 }

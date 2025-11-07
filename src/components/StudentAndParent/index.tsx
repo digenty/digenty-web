@@ -179,7 +179,7 @@ const StudentAndParentRecord = () => {
             </Button>
 
             <Button
-              onClick={() => router.push("student-and-parent-record/upload-students")}
+              onClick={() => router.push(`student-and-parent-record/upload-${activeTab === "Parents" ? "parents" : "students"}`)}
               className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
             >
               <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />

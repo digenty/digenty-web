@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
-import { CSVUploadProgress } from "./CSVUploadProgress";
-import { Step } from "./types";
-import { CSVUpload } from "./CSVUpload";
+import { CSVUploadProgress } from "./BulkUpload/CSVUploadProgress";
+import { Step } from "./BulkUpload/types";
+import { CSVUpload } from "./BulkUpload/CSVUpload";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
-import { ConfirmUpload } from "./ConfirmUpload";
+import { ConfirmUpload } from "./BulkUpload/ConfirmUpload";
 
 const steps: Step[] = [
   { id: 1, label: "Upload Students", completed: false },
