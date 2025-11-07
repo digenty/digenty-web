@@ -71,7 +71,7 @@ export const Profile = () => {
             </Button>
           }
         >
-          <div className="space-y-5">
+          <div className="space-y-5 px-6 py-5">
             <DialogDescription className="text-text-subtle text-sm font-normal">
               Are you sure you want to withdraw <span className="font-normal">Damilare John</span>{" "}
             </DialogDescription>
@@ -100,7 +100,7 @@ export const Profile = () => {
             </Button>
           }
         >
-          <div className="space-y-5">
+          <div className="space-y-5 px-6 py-5">
             <DialogDescription className="text-text-subtle text-sm font-normal">
               Are you sure you want to permanently delete this student’s profile? This action cannot be undone.
             </DialogDescription>

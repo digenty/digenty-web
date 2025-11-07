@@ -12,27 +12,27 @@ export const QuickActions = () => {
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8 lg:grid-cols-5">
         <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-[14px]!">
-          <FileList3Fill fill="var(--color-icon-default-muted)" className="size-[15px]" />
+          <FileList3Fill fill="var(--color-icon-default-muted)" className="size-4.5" />
           <span className="text-text-default font-medium">Create Invoice</span>
         </Button>
 
         <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-[14px]!">
-          <Notification2Fill fill="var(--color-icon-default-muted)" className="size-[15px]" />
+          <Notification2Fill fill="var(--color-icon-default-muted)" className="size-4.5" />
           <span className="text-text-default font-medium">Send Reminders</span>
         </Button>
 
         <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-[14px]!">
-          <UserFill fill="var(--color-icon-default-muted)" className="size-[15px]" />
+          <UserFill fill="var(--color-icon-default-muted)" className="size-4.5" />
           <span className="text-text-default font-medium">Add Student</span>
         </Button>
 
         <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-[14px]!">
-          <IndeterminateCircleFill fill="var(--color-icon-default-muted)" className="size-[15px]" />
+          <IndeterminateCircleFill fill="var(--color-icon-default-muted)" className="size-4.5" />
           <span className="text-text-default font-medium">Add Expense</span>
         </Button>
 
         <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-[14px]!">
-          <SendPlaneFill fill="var(--color-icon-default-muted)" className="size-[15px]" />
+          <SendPlaneFill fill="var(--color-icon-default-muted)" className="size-4.5" />
           <span className="text-text-default font-medium">Send Campaign</span>
         </Button>
       </div>

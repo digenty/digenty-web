@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { ReactNode } from "react";
 
@@ -9,23 +10,27 @@ export const Modal = ({
   title,
   ActionButton,
   children,
+  className,
 }: {
   open: boolean;
   setOpen: (bool: boolean) => void;
   title: ReactNode | string;
   ActionButton: ReactNode;
   children: ReactNode;
+  className?: string;
 }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="bg-bg-card hidden border-none p-0 shadow-sm sm:max-w-[554px] md:block">
-        <DialogHeader className="bg-bg-card-subtle border-border-default rounded-t-xl border-b px-4 py-3">
+      <DialogContent className={cn("bg-bg-card hidden border-none p-0 shadow-sm sm:max-w-[554px] md:block", className)}>
+        <DialogHeader className="bg-bg-card-subtle border-border-default rounded-t-xl border-b px-4 py-3 text-left">
           <DialogTitle className="text-text-default text-base font-semibold">{title}</DialogTitle>
           <VisuallyHidden>
             <DialogDescription>{title}</DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
-        <div className="px-6 py-5">{children}</div>
+
+        <div className="">{children}</div>
+
         <DialogFooter className="border-border-default justify-between border-t p-4">
           <DialogClose asChild>
             <Button
