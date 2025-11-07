@@ -6,13 +6,13 @@ import ViewComfyAlt from "@/components/Icons/ViewComfyAlt";
 import { Button } from "@/components/ui/button";
 import { XIcon } from "lucide-react";
 
-export const CSVUpload = () => {
+export const CSVUpload = ({ entity }: { entity: "Students" | "Parents" }) => {
   return (
     <div className="w-full space-y-6">
       <div className="flex flex-col items-center justify-center">
-        <h3 className="text-text-default text-lg font-semibold">Upload Student List</h3>
+        <h3 className="text-text-default text-lg font-semibold">Upload {entity} List</h3>
         <p className="text-text-subtle max-w-100 text-center text-xs">
-          Upload your student records in CSV format to quickly add them into the system.
+          Upload your {entity.toLowerCase()} records in CSV format to quickly add them into the system.
         </p>
       </div>
 
@@ -62,12 +62,14 @@ export const CSVUpload = () => {
         </Button>
       </div>
 
-      <div className="bg-bg-badge-blue border-border-default shadow-light flex items-center gap-2.5 rounded-md border px-3 py-2.5">
-        <Information fill="var(--color-icon-informative)" className="size-10" />
-        <p className="text-text-subtle text-xs">
-          For a smoother import, make sure parent records are uploaded first so students can be linked automatically.
-        </p>
-      </div>
+      {entity === "Students" && (
+        <div className="bg-bg-badge-blue border-border-default shadow-light flex items-center gap-2.5 rounded-md border px-3 py-2.5">
+          <Information fill="var(--color-icon-informative)" className="size-6" />
+          <p className="text-text-subtle text-xs">
+            For a smoother import, make sure parent records are uploaded first so students can be linked automatically.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

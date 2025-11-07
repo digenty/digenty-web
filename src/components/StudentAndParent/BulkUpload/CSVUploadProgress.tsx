@@ -3,7 +3,17 @@ import { Step } from "./types";
 import Loader2Fill from "@/components/Icons/Loader2Fill";
 import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
 
-export const CSVUploadProgress = ({ className, currentStep, steps }: { className?: string; currentStep: number; steps: Step[] }) => {
+export const CSVUploadProgress = ({
+  className,
+  currentStep,
+  steps,
+  completedSteps,
+}: {
+  className?: string;
+  currentStep: number;
+  steps: Step[];
+  completedSteps: number[];
+}) => {
   return (
     <div
       className={cn(
@@ -17,7 +27,7 @@ export const CSVUploadProgress = ({ className, currentStep, steps }: { className
           <div className="after:border-border-darker flex items-center after:mx-1 after:w-full after:border-t">
             {currentStep === step.id ? (
               <Loader2Fill fill="var(--color-icon-informative)" className="size-6" />
-            ) : step.completed ? (
+            ) : completedSteps.includes(step.id) ? (
               <CheckboxCircleFill fill="var(--color-icon-success)" />
             ) : (
               <div className="bg-bg-subtle border-border-darker text-text-default flex aspect-square size-6 items-center justify-center rounded-full border text-xs font-semibold">
