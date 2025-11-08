@@ -1,15 +1,18 @@
+import { cn } from "@/lib/utils";
+
 type OverviewCardProps = {
   title: string;
   Icon: () => React.ReactNode;
   value: string;
+  className?: string;
 };
 
-export const OverviewCard = ({ title, Icon, value }: OverviewCardProps) => {
+export const OverviewCard = ({ title, Icon, value, className }: OverviewCardProps) => {
   const isZeroValue = value === "₦0" || value === "0";
 
   return (
-    <div className="border-border-default box flex w-full flex-col gap-4 rounded-md border px-3 py-4 md:gap-5 md:p-6">
-      <div className="flex items-center gap-3">
+    <div className={cn("border-border-default box flex w-full flex-col gap-4 rounded-md border px-3 py-4 md:gap-5 md:p-6", className)}>
+      <div className="flex items-center gap-2">
         <Icon />
         <div className="text-text-muted text-xs font-medium capitalize">{title}</div>
       </div>

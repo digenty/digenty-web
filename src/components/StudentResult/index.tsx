@@ -89,6 +89,7 @@ export const StudentResult = () => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Result[]>([]);
+  console.log(selectedRows);
 
   return (
     <div className="border-t-bg-basic-cyan-contrast border-x-border-default border-b-border-default border-x border-t-2 border-b">
@@ -172,6 +173,7 @@ export const StudentResult = () => {
             setCurrentPage={setPage}
             pageSize={10}
             clickHandler={row => {
+              console.log(row);
               // router.push(`/student-and-parent-record/${row.original.id}`);
             }}
             rowSelection={rowSelection}

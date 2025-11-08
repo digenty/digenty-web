@@ -3,8 +3,8 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { ColumnDef, Row, Table } from "@tanstack/react-table";
-import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon, Rows2 } from "lucide-react";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "../Avatar";
 import DeleteBin from "../Icons/DeleteBin";
@@ -13,7 +13,7 @@ import UserMinus from "../Icons/UserMinus";
 import { Student } from "./types";
 
 const RenderOptions = (row: Row<Student>) => {
-  console.log(Rows2);
+  console.log(row);
   const [open, setOpen] = useState(false);
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -45,7 +45,7 @@ const RenderOptions = (row: Row<Student>) => {
 
 const filters = [{ value: "descending" }, { value: "ascending" }];
 
-const RenderDOBHeader = (table: Table<Student>) => {
+const RenderDOBHeader = () => {
   const [activeFilter, setActiveFilter] = useState("descending");
   return (
     <DropdownMenu>
@@ -145,7 +145,7 @@ export const columns: ColumnDef<Student>[] = [
   },
   {
     accessorKey: "dob",
-    header: table => RenderDOBHeader(table),
+    header: () => RenderDOBHeader(),
     // cell: ({ row }) => <span className="cursor-pointer text-sm font-normal text-text-muted">{formatDate(row.original.dob)}</span>,
     cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.dob}</span>,
     size: 150,

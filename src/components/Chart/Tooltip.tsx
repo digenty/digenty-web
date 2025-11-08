@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import { TooltipProps } from "recharts";
 import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 

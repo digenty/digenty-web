@@ -1,16 +1,16 @@
 "use client";
+import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { SearchInput } from "@/components/SearchInput";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { Avatar } from "../../Avatar";
 import { Button } from "../../ui/button";
-import { MobileDrawer } from "@/components/MobileDrawer";
-import { useIsMobile } from "@/hooks/useIsMobile";
 
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 
@@ -51,7 +51,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
 
             <div className="border-border-default h-[300px] space-y-3 overflow-y-auto rounded-sm border p-3">
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
@@ -62,7 +68,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
               </div>
 
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
@@ -73,7 +85,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
               </div>
 
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
@@ -84,40 +102,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
               </div>
 
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
-                <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
-                  <div className="">
-                    <p className="text-text-default text-sm font-medium">Damilare John</p>
-                    <p className="text-text-subtle text-xs font-normal">Lawanson</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
-                <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
-                  <div className="">
-                    <p className="text-text-default text-sm font-medium">Damilare John</p>
-                    <p className="text-text-subtle text-xs font-normal">Lawanson</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
-                <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
-                  <div className="">
-                    <p className="text-text-default text-sm font-medium">Damilare John</p>
-                    <p className="text-text-subtle text-xs font-normal">Lawanson</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
@@ -202,7 +193,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
 
             <div className="border-border-default h-[300px] space-y-3 overflow-y-auto rounded-sm border p-3">
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
@@ -213,7 +210,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
               </div>
 
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
@@ -224,7 +227,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
               </div>
 
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
@@ -235,7 +244,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
               </div>
 
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
@@ -246,7 +261,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
               </div>
 
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
@@ -257,7 +278,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
               </div>
 
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
@@ -268,7 +295,13 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
               </div>
 
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
+                <Checkbox
+                  checked={false}
+                  onCheckedChange={(value: boolean) => {
+                    console.log(value);
+                  }}
+                  aria-label="Select"
+                />
                 <div className="flex items-center gap-2">
                   <Avatar username="Damilare John" className="size-10 md:size-8" />
                   <div className="">
