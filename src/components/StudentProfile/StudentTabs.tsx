@@ -26,23 +26,19 @@ export default function StudentTabs() {
 
   return (
     <div className="mt-6 w-full md:mt-10">
-      <div className="border-border-default relative w-full border-b">
-        <div className="flex items-center justify-start">
-          {tabs.map(tab => (
-            <div
-              onClick={() => router.push(`?tab=${tab.value}`)}
-              key={tab.value}
-              className={cn(
-                "relative cursor-pointer px-4 py-2 text-sm font-medium capitalize transition-all duration-200",
-                activeTab === tab.value ? "text-text-informative" : "text-text-muted",
-              )}
-            >
-              {tab.label}
-
-              <div className={cn(activeTab === tab.value && "border-border-informative absolute right-0 -bottom-[1px] left-0 w-full border-b-2")} />
-            </div>
-          ))}
-        </div>
+      <div className="border-border-default relative flex w-full border-b">
+        {tabs.map(tab => (
+          <div
+            onClick={() => router.push(`?tab=${tab.value}`)}
+            key={tab.value}
+            className={cn(
+              "relative cursor-pointer px-4 py-2 text-sm font-medium capitalize transition-all duration-150",
+              activeTab === tab.value ? "text-text-informative border-border-informative border-b-[1.5px]" : "text-text-muted",
+            )}
+          >
+            {tab.label}
+          </div>
+        ))}
       </div>
 
       <div className="mt-4 md:mt-6">

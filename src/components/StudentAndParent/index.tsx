@@ -112,7 +112,10 @@ const StudentAndParentRecord = () => {
                 ]);
               }}
               key={tab}
-              className={cn("w-1/2 cursor-pointer py-2.5 text-center", isActive && "border-border-informative border-b-[1.5px]")}
+              className={cn(
+                "w-1/2 cursor-pointer py-2.5 text-center transition-all duration-150",
+                isActive && "border-border-informative border-b-[1.5px]",
+              )}
             >
               <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{tab}</span>
             </div>

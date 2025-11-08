@@ -79,7 +79,7 @@ const attendanceUpdates = [
 export default function AttendanceCards() {
   return (
     <div className="space-y-4 md:space-y-5">
-      <SearchInput className="bg-bg-input-soft border-border-default w-full md:w-80" />
+      <SearchInput className="bg-bg-input-soft! w-full border-none md:w-80" />
 
       <ul className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3">
         {attendanceUpdates.map(att => (
