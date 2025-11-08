@@ -58,6 +58,7 @@ export const Profile = () => {
 
         <Modal
           open={openWithdraw}
+          className="block"
           setOpen={setOpenWithdraw}
           title="Withdraw Student?"
           ActionButton={
@@ -73,7 +74,7 @@ export const Profile = () => {
         >
           <div className="space-y-5 px-6 py-5">
             <DialogDescription className="text-text-subtle text-sm font-normal">
-              Are you sure you want to withdraw <span className="font-normal">Damilare John</span>{" "}
+              Are you sure you want to withdraw <span className="font-normal">Damilare John?</span>{" "}
             </DialogDescription>
             <div className="bg-bg-basic-orange-subtle shadow-light border-border-default text-text-subtle rounded-sm border px-2.5 py-2.5 text-sm font-normal">
               <p>
@@ -89,6 +90,7 @@ export const Profile = () => {
           open={openDelete}
           setOpen={setOpenDelete}
           title="Delete Student?"
+          className="block"
           ActionButton={
             <Button
               disabled={!isChecked}
