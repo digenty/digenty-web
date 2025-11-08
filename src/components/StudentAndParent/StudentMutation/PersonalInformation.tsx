@@ -115,6 +115,7 @@ export const PersonalInformation = ({ date, setDate }: { date: Date; setDate: Re
                   after: new Date(),
                 }}
                 mode="single"
+                required
                 selected={date}
                 onSelect={setDate}
                 captionLayout="dropdown"

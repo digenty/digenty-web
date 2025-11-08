@@ -55,10 +55,13 @@ const StudentAndParentRecord = () => {
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
+  const [selectedParentsRows, setSelectedParentsRows] = useState<Parent[]>([]);
   const { setBreadcrumbs } = useBreadcrumbStore();
   const pageSize = 50;
   const params = useSearchParams();
   const activeTab = params.get("tab") ?? "Students";
+
+  console.log(selectedParentsRows);
 
   useEffect(() => {
     router.push(`/student-and-parent-record?tab=${activeTab}`);
@@ -236,6 +239,7 @@ const StudentAndParentRecord = () => {
         </div>
       )}
 
+      {/* Separate the table components into two different files with their separate states, then render conditionally here */}
       <div className="hidden md:block">
         {activeTab === "Students" ? (
           <DataTable
@@ -265,7 +269,7 @@ const StudentAndParentRecord = () => {
             }}
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}
-            onSelectRows={setSelectedRows}
+            onSelectRows={setSelectedParentsRows}
           />
         )}
       </div>

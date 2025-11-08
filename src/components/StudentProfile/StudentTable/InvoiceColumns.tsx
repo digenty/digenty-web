@@ -53,6 +53,6 @@ export const columns: ColumnDef<Invoice>[] = [
   {
     id: "actions",
     header: () => <div />,
-    cell: ({ row }) => RenderOptions(row),
+    cell: () => RenderOptions(),
   },
 ];

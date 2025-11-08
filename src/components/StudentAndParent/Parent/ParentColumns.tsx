@@ -11,6 +11,7 @@ import Edit from "../../Icons/Edit";
 import { Parent } from "../types";
 
 const RenderOptions = (row: Row<Parent>) => {
+  console.log(row);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus-visible:ring-0 focus-visible:outline-none">
