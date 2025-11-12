@@ -2,10 +2,12 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RoundedCheckbox } from "../RoundedCheckbox";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { Textarea } from "@/components/ui/textarea";
 
 type RequestEditProps = {
   open: boolean;
@@ -24,13 +26,13 @@ export default function RequestEdit({ open, onOpenChange }: RequestEditProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <div className="flex justify-center">
-        <DialogContent className="border-border-default bg-bg-card fixed w-full rounded-md border p-0 shadow-sm md:w-133">
-          <div className="bg-bg-card-subtle border-border-default flex justify-between border-b px-4 py-3">
-            <h2 className="text-text-default text-md font-semibold">Request edit access</h2>
-          </div>
+        <DialogContent className="border-border-default bg-bg-card fixed w-full border p-0 shadow-sm md:w-133">
+          <DialogHeader className="bg-bg-card-subtle border-border-default rounded-t-xl border-b px-4 py-3 text-left">
+            <DialogTitle className="text-text-default text-base font-semibold">Request edit access</DialogTitle>
+          </DialogHeader>
 
           <div className="flex flex-col gap-5 px-6 py-4">
-            <DialogDescription className="text-text-subtle mt-2 text-sm font-normal">
+            <DialogDescription className="text-text-subtle text-sm font-normal">
               Select why you need to edit. You can add details if helpful.
             </DialogDescription>
 
@@ -55,7 +57,7 @@ export default function RequestEdit({ open, onOpenChange }: RequestEditProps) {
                   Input Reason <small className="text-text-destructive text-sm font-semibold">*</small>
                 </Label>
                 <Input
-                  className="bg-bg-input-soft border-border-default text-text-subtle h-9 w-full rounded-md border p-2 text-sm font-normal"
+                  className="bg-bg-input-soft text-text-subtle h-9 w-full rounded-md border-none p-2 text-sm font-normal"
                   placeholder="Input Reason"
                 />
               </div>
@@ -66,8 +68,8 @@ export default function RequestEdit({ open, onOpenChange }: RequestEditProps) {
                   <p className="text-text-muted text-sm font-normal">Optional</p>
                 </div>
 
-                <Input
-                  className="bg-bg-input-soft border-border-default text-text-subtle h-25 w-full rounded-md border p-2 text-sm font-normal"
+                <Textarea
+                  className="bg-bg-input-soft text-text-subtle flex h-18 w-full items-start rounded-md border-none p-2 text-sm font-normal"
                   placeholder="Add brief context"
                 />
               </div>
@@ -82,7 +84,10 @@ export default function RequestEdit({ open, onOpenChange }: RequestEditProps) {
             >
               Cancel
             </Button>
-            <Button onClick={() => onOpenChange(false)} className="text-text-white-default bg-bg-state-primary rounded-sm px-2 py-1 text-sm">
+            <Button
+              onClick={() => onOpenChange(false)}
+              className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! rounded-sm px-2 py-1 text-sm"
+            >
               Send Request
             </Button>
           </DialogFooter>
