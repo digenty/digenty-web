@@ -1,10 +1,11 @@
 "use client";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import Time from "../Icons/Time";
-import NumStudentIcon from "../Icons/NumStudentIcon";
+import { useRouter } from "next/navigation";
 import Approve from "../Icons/Approve";
 import ArrowOpenRight from "../Icons/ArrowOpenRight";
+import NumStudentIcon from "../Icons/NumStudentIcon";
+import { TimeFill } from "../Icons/TimeFill";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 
 interface CardProps {
   classname: string;
@@ -16,6 +17,7 @@ interface CardProps {
 }
 
 export function Card({ classname, totalStudents, teacherName, lastUpdate, attendancePercentage, viewLabel = "Open" }: CardProps) {
+  const router = useRouter();
   const updateStyles =
     lastUpdate === "Today"
       ? "bg-bg-badge-green text-bg-basic-green-strong"
@@ -44,7 +46,7 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
 
       <div className="flex items-center justify-between gap-4">
         <p className={`${updateStyles} border-border-default flex items-center gap-1 rounded-md border p-1 text-xs font-medium md:max-w-42`}>
-          <Time fill={updateIconColor} /> {lastUpdate ? `Last Updated ${lastUpdate}` : "No Attendance Record"}
+          <TimeFill fill={updateIconColor} /> {lastUpdate ? `Last Updated ${lastUpdate}` : "No Attendance Record"}
         </p>
 
         {lastUpdate && (
@@ -54,7 +56,10 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
         )}
       </div>
 
-      <Button className="border-border-darker bg-bg-state-secondary text-text-default flex h-7 items-center gap-2 rounded-md border p-2">
+      <Button
+        onClick={() => router.push(`/attendance/${classname.replace(/\s+/g, "-").toLowerCase()}`)}
+        className="border-border-darker bg-bg-state-secondary text-text-default flex h-7 items-center gap-2 rounded-md border p-2"
+      >
         <span className="text-sm font-medium">{viewLabel}</span>
         <ArrowOpenRight fill="var(--color-icon-default-muted)" className="size-3" />
       </Button>

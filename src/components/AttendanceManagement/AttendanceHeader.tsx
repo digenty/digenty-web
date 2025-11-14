@@ -19,37 +19,37 @@ export default function AttendanceHeader() {
   const [date, setDate] = React.useState<Date | undefined>(undefined);
   const [open, setOpen] = React.useState(false);
   return (
-    <div className="border-border-default flex w-full justify-between border-b-1 px-[12px] py-[12px] align-middle md:px-[32px]">
-      <h2 className="text-text-default text-lg font-semibold md:text-2xl">Attendance Management</h2>
+    <div className="border-border-default flex w-full items-center justify-between border-b-1 px-4 py-2 align-middle md:px-8 md:py-3">
+      <h2 className="text-text-default text-lg font-semibold md:text-xl">Attendance Management</h2>
 
       <div className="hidden gap-2 align-middle md:flex">
         <Select value={branchSelected} onValueChange={setBranchSelected}>
-          <SelectTrigger className="border-border-darker h-8 w-auto border focus-visible:ring-0">
+          <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
             <SelectValue>
               <div className="flex items-center gap-2">
-                <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                <span className="text-text-default text-sm font-semibold">{branchSelected}</span>
+                <School fill="var(--color-icon-default-muted)" className="size-3" />
+                <span className="text-text-default text-sm font-medium">{branchSelected}</span>
               </div>
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default">
             {branches.map(branch => (
-              <SelectItem key={branch} value={branch} className="text-text-default text-sm font-semibold">
+              <SelectItem key={branch} value={branch} className="text-text-default text-sm font-medium">
                 {branch}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <Select open={open} onOpenChange={setOpen} defaultValue="Today">
-          <SelectTrigger className="border-border-darker h-8 w-auto border focus-visible:ring-0">
+          <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
             <SelectValue>
               <div className="flex items-center gap-2">
-                <Calendar fill="var(--color-icon-black-muted )" className="size-4" />
-                <span className="text-text-default text-sm font-semibold"> {date ? date.toLocaleDateString() : "Today"}</span>
+                <Calendar fill="var(--color-icon-default-muted )" className="size-4" />
+                <span className="text-text-default text-sm font-medium"> {date ? date.toLocaleDateString() : "Today"}</span>
               </div>
             </SelectValue>
           </SelectTrigger>
-          <SelectContent className="bg-bg-card border-border-default">
+          <SelectContent className="bg-bg-card border-border-default border">
             <AttendanceCalendar
               className="text-text-default hidden md:block"
               mode="single"
