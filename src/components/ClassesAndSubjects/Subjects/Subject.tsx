@@ -5,12 +5,13 @@ import Eye from "@/components/Icons/Eye";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import { useState } from "react";
 import RequestEdit from "./RequestEdit";
 import RequestLoader from "@/components/Icons/RequestLoader";
+import { useRouter } from "next/navigation";
 
 export type ClassItem = {
-  id: string;
+  id: number;
   grade: string;
   subjectStatus: "Not Started" | "In Progress" | "Submitted" | "Request Edit Access";
 };
@@ -22,7 +23,7 @@ export type SubjectProps = {
 
 export default function Subject({ title, classes }: SubjectProps) {
   const [openRequest, setOpenRequest] = useState<boolean>(false);
-
+  const router = useRouter();
   const handleOpen = (): void => {
     setOpenRequest(!openRequest);
   };
@@ -57,7 +58,10 @@ export default function Subject({ title, classes }: SubjectProps) {
 
                   <div>
                     {cl.subjectStatus === "Not Started" ? (
-                      <Button className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1">
+                      <Button
+                        onClick={() => router.push(`/classes-and-subjects/${cl.id}/add-score?subject=${title}`)}
+                        className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
+                      >
                         Enter Score
                       </Button>
                     ) : (
@@ -65,7 +69,10 @@ export default function Subject({ title, classes }: SubjectProps) {
                     )}
 
                     {cl.subjectStatus === "In Progress" ? (
-                      <Button className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1">
+                      <Button
+                        onClick={() => router.push(`/classes-and-subjects/${cl.id}/add-score?subject=${title}`)}
+                        className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
+                      >
                         Enter Score
                       </Button>
                     ) : (
