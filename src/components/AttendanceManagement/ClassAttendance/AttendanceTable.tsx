@@ -24,7 +24,7 @@ export const AttendanceTable = () => {
   const pageSize = 10;
 
   return (
-    <div className="px-4 md:px-8">
+    <div className="px-4 pb-10 md:px-8">
       <DataTable
         columns={columns}
         data={students}

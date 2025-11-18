@@ -76,7 +76,7 @@ export const DataTable = <TData, TValue>({
   return (
     <div className="space-y-4">
       <div className={cn("overflow-hidden", clasNames?.tableWrapper)}>
-        <Table className="w-full rounded-md">
+        <Table className="w-full">
           <TableHeader className={cn("border-border-default border-y", fullBorder && "border")}>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id} className="border-border-default border-b">
@@ -85,7 +85,11 @@ export const DataTable = <TData, TValue>({
                     <TableHead
                       style={{ width: header.column.getSize() }}
                       key={header.id}
-                      className={cn("pr-7.5", fullBorder && "border-border-default border-r")}
+                      className={cn(
+                        "pr-7.5",
+                        header.column.id === "s/n" || (header.column.id === "attendance" && "text-center"),
+                        fullBorder && "border-border-default border-r",
+                      )}
                     >
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
@@ -107,7 +111,7 @@ export const DataTable = <TData, TValue>({
                       style={{ width: cell.column.getSize() }}
                       key={cell.id}
                       className={cn(
-                        "pr-7.5",
+                        "relative pr-7.5",
                         cell.column.id === "actions" && "text-right",
                         cell.column.id === "s/n" && "pr-4 text-center",
                         fullBorder && "border-border-default border-r",
