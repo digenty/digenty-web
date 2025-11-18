@@ -75,9 +75,9 @@ export const DataTable = <TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className={cn("overflow-hidden", clasNames?.tableWrapper)}>
+      <div className={cn("overflow-hidden rounded-md", clasNames?.tableWrapper)}>
         <Table className="w-full">
-          <TableHeader className={cn("border-border-default border-y", fullBorder && "border")}>
+          <TableHeader className={cn("border-border-default border", fullBorder && "border")}>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id} className="border-border-default border-b">
                 {headerGroup.headers.map(header => {
