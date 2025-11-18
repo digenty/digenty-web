@@ -33,7 +33,7 @@ const StudentsItem: TableProps[] = Array.from({ length: 12 }, (_, index) => ({
 }));
 
 export default function ScoreTable() {
-  const [openId, setOpenId] = useState<number>(1);
+  const [openId, setOpenId] = useState<number | null>(null);
   const handleToggle = (id: number) => setOpenId(prev => (prev == id ? null : id));
 
   return (
@@ -41,30 +41,30 @@ export default function ScoreTable() {
       <div className="hidden md:block">
         <Table className="border-border-default rounded-md border-b">
           <TableHeader className="border-border-default border-b">
-            <TableRow className="border-border-default text-text-muted bg-bg-subtle rounded-t-sm! border-1">
-              <TableHead className="border-border-default w-12 border-r-1 border-l-1 text-center">S/N</TableHead>
-              <TableHead className="border-border-default w-85 border-r-1 border-l-1">Student Name</TableHead>
-              <TableHead className="border-border-default w-27 border-r-1 border-l-1 text-center">CA 1</TableHead>
-              <TableHead className="border-border-default w-27 border-r-1 border-l-1 text-center">CA 2</TableHead>
-              <TableHead className="border-border-default w-27 border-r-1 border-l-1 text-center">Exam Score</TableHead>
-              <TableHead className="border-border-default w-27 border-r-1 border-l-1 text-center">Total</TableHead>
-              <TableHead className="border-border-default w-27 border-r-1 border-l-1 text-center">Grade</TableHead>
-              <TableHead className="border-border-default w-27 border-r-1 border-l-1 text-center">Remark</TableHead>
+            <TableRow className="border-border-default text-text-muted bg-bg-subtle rounded-t-sm! border">
+              <TableHead className="border-border-default w-12 border-r border-l text-center">S/N</TableHead>
+              <TableHead className="border-border-default w-85 border-r border-l">Student Name</TableHead>
+              <TableHead className="border-border-default w-27 border-r border-l text-center">CA 1</TableHead>
+              <TableHead className="border-border-default w-27 border-r border-l text-center">CA 2</TableHead>
+              <TableHead className="border-border-default w-27 border-r border-l text-center">Exam Score</TableHead>
+              <TableHead className="border-border-default w-27 border-r border-l text-center">Total</TableHead>
+              <TableHead className="border-border-default w-27 border-r border-l text-center">Grade</TableHead>
+              <TableHead className="border-border-default w-27 border-r border-l text-center">Remark</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {StudentsItem.map(student => (
               <TableRow key={student.id} className="border-border-default text-text-muted text-sm">
-                <TableCell className="border-border-default text-text-default border-r-1 border-l-1 text-center">{student.id}</TableCell>
+                <TableCell className="border-border-default text-text-default border-r border-l text-center">{student.id}</TableCell>
                 <TableCell className="text-text-default flex items-center gap-2">
                   <Avatar username="Damilare John" /> {student.studentName}
                 </TableCell>
-                <TableCell className="border-border-default border-r-1 border-l-1 text-center">{student.ca1Score}</TableCell>
-                <TableCell className="border-border-default border-r-1 border-l-1 text-center">{student.ca2Score}</TableCell>
-                <TableCell className="border-border-default border-r-1 border-l-1 text-center">{student.examScore}</TableCell>
-                <TableCell className="border-border-default border-r-1 border-l-1 text-center">{student.totalScore}</TableCell>
-                <TableCell className="border-border-default border-r-1 border-l-1 text-center">{student.grade}</TableCell>
-                <TableCell className="border-border-default border-r-1 border-l text-center">{student.remark}</TableCell>
+                <TableCell className="border-border-default border-r border-l text-center">{student.ca1Score}</TableCell>
+                <TableCell className="border-border-default border-r border-l text-center">{student.ca2Score}</TableCell>
+                <TableCell className="border-border-default border-r border-l text-center">{student.examScore}</TableCell>
+                <TableCell className="border-border-default border-r border-l text-center">{student.totalScore}</TableCell>
+                <TableCell className="border-border-default border-r border-l text-center">{student.grade}</TableCell>
+                <TableCell className="border-border-default border-r border-l text-center">{student.remark}</TableCell>
               </TableRow>
             ))}
           </TableBody>

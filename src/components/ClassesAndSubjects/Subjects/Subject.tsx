@@ -46,7 +46,7 @@ export default function Subject({ title, classes }: SubjectProps) {
                     : "bg-bg-badge-default text-text-subtle";
 
             return (
-              <li key={cl.id} className="border-border-default border-b-1">
+              <li key={cl.id} className="border-border-default border-b">
                 <div className="flex flex-col gap-4 px-3 py-4 md:flex-row md:items-center md:justify-between md:gap-2 md:p-2 md:px-6 md:py-3">
                   <div className="flex flex-col gap-2">
                     <p className="text-text-default text-md font-semibold">{cl.grade}</p>

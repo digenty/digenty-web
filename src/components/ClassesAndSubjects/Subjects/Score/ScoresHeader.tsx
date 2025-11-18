@@ -13,7 +13,7 @@ export default function ScoresHeader() {
   return (
     <>
       <SubmitScoreModal open={openModal} onOpenChange={setOpenModal} />
-      <div className="border-border-default border-b-1 md:p-0">
+      <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-3">
           <h2 className="text-text-default p-4 text-lg font-semibold md:p-0">JSS 1 A, {subject}</h2>
 
@@ -21,14 +21,14 @@ export default function ScoresHeader() {
             <div className="flex items-center gap-2 md:gap-1">
               <Button
                 size="sm"
-                className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-22 items-center gap-1 border-1 text-sm"
+                className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-22 items-center gap-1 border text-sm"
               >
                 <ShareBox fill="var(--color-icon-default-muted)" /> Export
               </Button>
 
               <Button
                 size="sm"
-                className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-33 items-center justify-between gap-1 border-1 text-sm"
+                className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-33 items-center justify-between gap-1 border text-sm"
               >
                 <Save fill="var(--color-icon-default-muted)" /> Save as Draft
               </Button>
