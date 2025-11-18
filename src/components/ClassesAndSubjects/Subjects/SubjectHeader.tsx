@@ -11,19 +11,19 @@ import { Label } from "@/components/ui/label";
 
 const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 
-export default function SubjectdHeader() {
+export default function SubjectHeader() {
   const [termSelected, setTermSelected] = useState(termsOptions[0]);
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
-    <div className="border-border-default border-b-1">
+    <div className="border-border-default border-b">
       <div className="flex w-full justify-between p-4 align-middle md:px-8 md:py-4">
         <h2 className="text-text-default text-lg font-semibold md:text-2xl">My Subjects</h2>
 
         <div className="hidden gap-1 align-middle md:flex">
           <Select value={termSelected} onValueChange={setTermSelected}>
-            <SelectTrigger className="border-border-darker h-8 w-auto border">
+            <SelectTrigger className="border-border-darker h-8! w-auto border">
               <SelectValue>
                 <div className="flex items-center gap-2">
                   <Calendar fill="var(--color-icon-black-muted )" className="size-4" />
