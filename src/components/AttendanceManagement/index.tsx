@@ -10,7 +10,7 @@ import AttendanceCards from "./AttendanceCards";
 import AttendanceHeader from "./AttendanceHeader";
 
 export const AttendanceManagement = () => {
-  useBreadcrumb({ label: "Attendance Management", url: "/attendance" });
+  useBreadcrumb([{ label: "Attendance Management", url: "/attendance" }]);
 
   return (
     <div className="flex flex-col">
