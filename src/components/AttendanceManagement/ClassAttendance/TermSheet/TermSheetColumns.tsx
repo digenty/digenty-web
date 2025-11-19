@@ -4,12 +4,35 @@ import { Avatar } from "@/components/Avatar";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { CheckIcon, XIcon } from "lucide-react";
-import { AttendanceWeek, StudentAttendance } from "./students";
+import { useState } from "react";
+import { AttendanceDay, AttendanceWeek, StudentAttendance } from "./students";
+
+const RenderCell = (row: Row<StudentAttendance>, week: string, day: AttendanceDay) => {
+  const studentWeek = row.original.weeks.find(wk => wk.week === week);
+
+  const record = studentWeek?.days.find(dy => dy.date === day.date);
+  const [isPresent, setIsPresent] = useState(record?.present);
+
+  const toggleAttendance = () => {
+    setIsPresent(prev => !prev);
+  };
+
+  return (
+    <div
+      role="button"
+      onClick={() => toggleAttendance()}
+      className="full-cell absolute top-0 bottom-0 flex h-full w-full cursor-pointer items-center justify-center"
+    >
+      {isPresent ? <CheckIcon className="text-bg-basic-emerald-strong size-4.5" /> : <XIcon className="text-icon-destructive size-4.5" />}
+    </div>
+  );
+};
 
 export const generateColumns = (weeks: AttendanceWeek[]): ColumnDef<StudentAttendance>[] => {
   return [
     {
       accessorKey: "name",
+
       header: () => (
         <div className="bg-bg-muted fill-header text-text-muted absolute -top-10 left-0 flex h-20 w-full flex-col justify-center pl-4 font-medium">
           <p>Student Name</p>
@@ -34,19 +57,7 @@ export const generateColumns = (weeks: AttendanceWeek[]): ColumnDef<StudentAtten
       columns: week.days.map(day => ({
         id: `${week.week}-${day.date}`,
         header: () => <span className="text-text-muted pl-6 text-center text-sm">{format(new Date(day.date), "MMMM d")}</span>,
-        cell: ({ row }: { row: Row<StudentAttendance> }) => {
-          const studentWeek = row.original.weeks.find(wk => wk.week === week.week);
-
-          const record = studentWeek?.days.find(dy => dy.date === day.date);
-
-          const isPresent = record?.present;
-
-          return (
-            <div className="full-cell absolute top-0 bottom-0 flex h-full w-full items-center justify-center">
-              {isPresent ? <CheckIcon className="text-bg-basic-emerald-strong size-4.5" /> : <XIcon className="text-icon-destructive size-4.5" />}
-            </div>
-          );
-        },
+        cell: ({ row }: { row: Row<StudentAttendance> }) => RenderCell(row, week.week, day),
       })),
     })),
 
