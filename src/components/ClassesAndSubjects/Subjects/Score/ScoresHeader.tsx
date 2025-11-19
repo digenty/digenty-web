@@ -12,7 +12,7 @@ export default function ScoresHeader() {
   const subject = searchParams.get("subject");
   return (
     <>
-      <SubmitScoreModal open={openModal} onOpenChange={setOpenModal} />
+      {openModal && <SubmitScoreModal open={openModal} onOpenChange={setOpenModal} />}
       <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-3">
           <h2 className="text-text-default p-4 text-lg font-semibold md:p-0">JSS 1 A, {subject}</h2>
