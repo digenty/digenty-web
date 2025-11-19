@@ -64,7 +64,7 @@ export const TermSheetHeader = ({ classname }: { classname: string }) => {
         </Button>
       </div>
 
-      <div className="border-border-default flex w-full gap-2 border-t px-4 pt-2 md:hidden md:px-8">{/* Loop thru weeks */}</div>
+      <div className="border-border-default flex w-full gap-2 border-t px-4 pt-2 md:hidden md:px-8">{/* Loop thru weeksfor mobile view  */}</div>
     </div>
   );
 };

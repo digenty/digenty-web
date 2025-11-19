@@ -33,7 +33,7 @@ export const TermSheet = () => {
     <div className="space-y-6">
       <TermSheetHeader classname={classGroup.replace("-", " ")} />
 
-      <div className="">
+      <div className="px-4 md:px-8">
         <DataTable
           columns={generateColumns(students[0].weeks)}
           data={students}

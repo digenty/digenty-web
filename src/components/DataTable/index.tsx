@@ -85,9 +85,11 @@ export const DataTable = <TData, TValue>({
                     <TableHead
                       style={{ width: header.column.getSize() }}
                       key={header.id}
+                      colSpan={header.colSpan}
                       className={cn(
-                        "pr-7.5",
+                        "relative pr-7.5",
                         header.column.id === "s/n" || (header.column.id === "attendance" && "text-center"),
+                        header.column.id === "totalAttendance" && "bg-bg-muted sticky right-0 z-5",
                         fullBorder && "border-border-default border-r",
                       )}
                     >
@@ -114,6 +116,7 @@ export const DataTable = <TData, TValue>({
                         "relative pr-7.5",
                         cell.column.id === "actions" && "text-right",
                         cell.column.id === "s/n" && "pr-4 text-center",
+                        cell.column.id === "totalAttendance" && "bg-bg-default border-border-default sticky right-0 z-5 border px-5.5 text-center",
                         fullBorder && "border-border-default border-r",
                       )}
                       onClick={cell.column.id === "actions" || cell.column.id === "select" ? undefined : () => clickHandler(row)}

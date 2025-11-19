@@ -107,4 +107,33 @@ export const students: StudentAttendance[] = [
     totalPresent: 9,
     totalDays: 10,
   },
+  {
+    id: "4",
+    name: "Taiwo Richards",
+    avatar: "/avatars/3.png",
+    weeks: [
+      {
+        week: "Week 1",
+        days: [
+          { date: "2025-06-30", present: true },
+          { date: "2025-07-01", present: true },
+          { date: "2025-07-02", present: true },
+          { date: "2025-07-03", present: true },
+          { date: "2025-07-04", present: true },
+        ],
+      },
+      {
+        week: "Week 2",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: false },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
+    ],
+    totalPresent: 9,
+    totalDays: 10,
+  },
 ];
