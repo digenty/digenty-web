@@ -1,22 +1,16 @@
+"use client";
+
 import { Avatar } from "@/components/Avatar";
 import ArrowDown from "@/components/Icons/ArrowDown";
 import ArrowUp from "@/components/Icons/ArrowUp";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import React, { useState } from "react";
+import { ScoreProps } from "./types";
 
-type TableProps = {
-  id: number;
-  studentName: string;
-  ca1Score: number;
-  ca2Score: number;
-  examScore: number;
-  totalScore: number;
-  grade: string;
-  remark: string;
-};
+import { scoreColumns } from "./ScoreColumns";
+import { DataTable } from "@/components/DataTable";
 
-const tableData: TableProps = {
+const tableData: ScoreProps = {
   id: 1,
   studentName: "Damilare John",
   ca1Score: 0,
@@ -27,48 +21,31 @@ const tableData: TableProps = {
   remark: "Fail",
 };
 
-const StudentsItem: TableProps[] = Array.from({ length: 12 }, (_, index) => ({
+const StudentsItem: ScoreProps[] = Array.from({ length: 12 }, (_, index) => ({
   ...tableData,
   id: index + 1,
 }));
 
 export default function ScoreTable() {
+  const [page, setPage] = useState(1);
   const [openId, setOpenId] = useState<number | null>(null);
   const handleToggle = (id: number) => setOpenId(prev => (prev == id ? null : id));
 
   return (
     <div className="md:py0 p-4 md:px-8">
       <div className="hidden md:block">
-        <Table className="border-border-default rounded-md border-b">
-          <TableHeader className="border-border-default border-b">
-            <TableRow className="border-border-default text-text-muted bg-bg-subtle rounded-t-sm! border">
-              <TableHead className="border-border-default w-12 border-r border-l text-center">S/N</TableHead>
-              <TableHead className="border-border-default w-85 border-r border-l">Student Name</TableHead>
-              <TableHead className="border-border-default w-27 border-r border-l text-center">CA 1</TableHead>
-              <TableHead className="border-border-default w-27 border-r border-l text-center">CA 2</TableHead>
-              <TableHead className="border-border-default w-27 border-r border-l text-center">Exam Score</TableHead>
-              <TableHead className="border-border-default w-27 border-r border-l text-center">Total</TableHead>
-              <TableHead className="border-border-default w-27 border-r border-l text-center">Grade</TableHead>
-              <TableHead className="border-border-default w-27 border-r border-l text-center">Remark</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {StudentsItem.map(student => (
-              <TableRow key={student.id} className="border-border-default text-text-muted text-sm">
-                <TableCell className="border-border-default text-text-default border-r border-l text-center">{student.id}</TableCell>
-                <TableCell className="text-text-default flex items-center gap-2">
-                  <Avatar username="Damilare John" /> {student.studentName}
-                </TableCell>
-                <TableCell className="border-border-default border-r border-l text-center">{student.ca1Score}</TableCell>
-                <TableCell className="border-border-default border-r border-l text-center">{student.ca2Score}</TableCell>
-                <TableCell className="border-border-default border-r border-l text-center">{student.examScore}</TableCell>
-                <TableCell className="border-border-default border-r border-l text-center">{student.totalScore}</TableCell>
-                <TableCell className="border-border-default border-r border-l text-center">{student.grade}</TableCell>
-                <TableCell className="border-border-default border-r border-l text-center">{student.remark}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataTable
+          pageSize={10}
+          clickHandler={() => {}}
+          rowSelection={{}}
+          setRowSelection={() => {}}
+          onSelectRows={() => {}}
+          columns={scoreColumns}
+          data={StudentsItem}
+          totalCount={StudentsItem.length}
+          page={page}
+          setCurrentPage={setPage}
+        />
       </div>
 
       <ul className="flex flex-col gap-3 md:hidden">
