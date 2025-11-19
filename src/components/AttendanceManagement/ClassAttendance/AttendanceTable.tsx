@@ -20,7 +20,7 @@ export const AttendanceTable = () => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
-  // console.log(selectedRows);
+  console.log(selectedRows);
   const pageSize = 10;
 
   return (

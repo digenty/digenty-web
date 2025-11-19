@@ -9,8 +9,12 @@ import { Calendar as AttendanceCalendar } from "../../ui/calendar";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "../../ui/select";
 import { format } from "date-fns";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { usePathname, useRouter } from "next/navigation";
 
 export const ClassAttendanceHeader = ({ classname }: { classname: string }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
   useBreadcrumb([
     { label: "Attendance Management", url: "/attendance" },
     { label: `${classname} Attendance`, url: "" },
@@ -37,7 +41,7 @@ export const ClassAttendanceHeader = ({ classname }: { classname: string }) => {
       </div>
 
       <div className="flex gap-2 px-4 py-2 align-middle md:px-8 md:py-0">
-        <Button className="border-border-darker flex h-8! items-center gap-2 border">
+        <Button onClick={() => router.push(`${pathname}/term-sheet`)} className="border-border-darker flex h-8! items-center gap-2 border">
           <ListCheck fill="var(--color-icon-default-muted)" className="size-3" />
           <span className="text-text-default text-sm font-medium">See Term Sheet</span>
         </Button>
