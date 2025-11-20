@@ -1,9 +1,10 @@
 "use client";
-import { usePathname } from "next/navigation";
-import { TermSheetHeader } from "./TermSheetHeader";
-import { useState } from "react";
 import { DataTable } from "@/components/DataTable";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { TermSheetCard } from "./TermSheetCard";
 import { generateColumns } from "./TermSheetColumns";
+import { TermSheetHeader } from "./TermSheetHeader";
 import { StudentAttendance, students } from "./students";
 
 export interface Student {
@@ -20,6 +21,7 @@ export const TermSheet = () => {
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<StudentAttendance[]>([]);
   const [activeWeek, setActiveWeek] = useState(students[0].weeks[0].week);
+  const [activeStudent, setActiveStudent] = useState<string>();
   console.log(selectedRows);
   const pageSize = 10;
 
@@ -48,7 +50,12 @@ export const TermSheet = () => {
         />
       </div>
 
-      <div className="block md:hidden">mobile</div>
+      <div className="block space-y-3 px-4 md:hidden">
+        {students.map((student: StudentAttendance) => {
+          const days = student.weeks.find(wk => wk.week === activeWeek)?.days;
+          return <TermSheetCard key={student.id} student={student} days={days} activeStudent={activeStudent} setActiveStudent={setActiveStudent} />;
+        })}
+      </div>
     </div>
   );
 };

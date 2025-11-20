@@ -40,7 +40,7 @@ export const TermSheetHeader = ({
         <h2 className="text-text-default text-lg font-semibold md:text-xl">{classname.toUpperCase()}</h2>
       </div>
 
-      <div className="flex gap-2 px-4 py-2 align-middle md:px-8 md:py-0">
+      <div className="scrollbar-hide flex w-full gap-2 overflow-x-auto px-4 py-2 align-middle md:w-auto md:overflow-visible md:px-8 md:py-0">
         <Button
           onClick={() => router.push(`${pathname}/term-sheet`)}
           className="border-border-darker bg-bg-state-secondary-press flex h-8! items-center gap-2 border"
