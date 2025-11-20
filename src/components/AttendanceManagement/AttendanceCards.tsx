@@ -44,7 +44,7 @@ const attendanceUpdates = [
   },
   {
     id: 5,
-    classname: "JSS 1C",
+    classname: "JSS 1D",
     totalStudents: "31 Students",
     teacherName: "Mrs. Adebayo • Main Campus",
     // lastUpdate: "None",
@@ -52,7 +52,7 @@ const attendanceUpdates = [
   },
   {
     id: 6,
-    classname: "JSS 1C",
+    classname: "JSS 2A",
     totalStudents: "31 Students",
     teacherName: "Mrs. Adebayo • Main Campus",
     lastUpdate: "Today",
@@ -60,7 +60,7 @@ const attendanceUpdates = [
   },
   {
     id: 7,
-    classname: "JSS 1C",
+    classname: "JSS 2B",
     totalStudents: "31 Students",
     teacherName: "Mrs. Adebayo • Main Campus",
     lastUpdate: "Yesterday",
@@ -68,10 +68,9 @@ const attendanceUpdates = [
   },
   {
     id: 8,
-    classname: "JSS 1C",
+    classname: "JSS 3A",
     totalStudents: "31 Students",
     teacherName: "Mrs. Adebayo • Main Campus",
-    // lastUpdate: "None",
     attendancePercentage: "0% Attendance",
   },
 ];

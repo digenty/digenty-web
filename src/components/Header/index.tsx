@@ -1,12 +1,12 @@
 "use client";
-import Image from "next/image";
-import { Breadcrumb } from "./Breadcrumb";
-import { Button } from "../ui/button";
 import { useSidebarStore } from "@/store";
+import Image from "next/image";
 import { Avatar } from "../Avatar";
+import Menu2 from "../Icons/Menu2";
 import Notification2 from "../Icons/Notification2";
 import QuestionFill from "../Icons/QuestionFill";
-import Menu2 from "../Icons/Menu2";
+import { Button } from "../ui/button";
+import { Breadcrumb } from "./Breadcrumb";
 
 export const Header = () => {
   const { setIsSidebarOpen } = useSidebarStore();
