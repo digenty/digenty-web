@@ -57,7 +57,7 @@ export const ClassAttendanceHeader = ({ classname }: { classname: string }) => {
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default">
             <AttendanceCalendar
-              className="text-text-default hidden md:block"
+              className="text-text-default"
               mode="single"
               selected={date}
               onSelect={date => {
