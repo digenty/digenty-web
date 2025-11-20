@@ -6,11 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Calendar as AttendanceCalendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
+import { AttendanceWeek } from "./students";
 
-export const TermSheetHeader = ({ classname }: { classname: string }) => {
+export const TermSheetHeader = ({
+  classname,
+  termWeeks,
+  activeWeek,
+  setActiveWeek,
+}: {
+  classname: string;
+  termWeeks: AttendanceWeek[];
+  activeWeek: string;
+  setActiveWeek: (week: string) => void;
+}) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -64,7 +76,21 @@ export const TermSheetHeader = ({ classname }: { classname: string }) => {
         </Button>
       </div>
 
-      <div className="border-border-default flex w-full gap-2 border-t px-4 pt-2 md:hidden md:px-8">{/* Loop thru weeksfor mobile view  */}</div>
+      <div className="border-border-default scrollbar-hide flex w-full gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
+        {termWeeks.map(week => (
+          <span
+            key={week.week}
+            role="button"
+            onClick={() => setActiveWeek(week.week)}
+            className={cn(
+              "bg-bg-state-soft text-text-subtle w-fit rounded-md px-2 py-1 text-sm text-nowrap",
+              activeWeek === week.week && "bg-bg-state-primary text-text-white-default",
+            )}
+          >
+            {week.week}
+          </span>
+        ))}
+      </div>
     </div>
   );
 };

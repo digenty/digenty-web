@@ -13,27 +13,21 @@ export interface Student {
   present: boolean;
 }
 
-// const students: Student[] = Array.from({ length: 15 }).map((_, i) => ({
-//   id: i + 1,
-//   name: "Damilare John",
-//   avatar: "/avatar.png", // your static image
-//   present: i === 1 ? false : true, // just to test ✓ and ✕
-// }));
-
 export const TermSheet = () => {
   const path = usePathname();
   const classGroup = path.split("/")[2] ?? "";
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<StudentAttendance[]>([]);
+  const [activeWeek, setActiveWeek] = useState(students[0].weeks[0].week);
   console.log(selectedRows);
   const pageSize = 10;
 
   return (
     <div className="space-y-6">
-      <TermSheetHeader classname={classGroup.replace("-", " ")} />
+      <TermSheetHeader classname={classGroup.replace("-", " ")} termWeeks={students[0].weeks} activeWeek={activeWeek} setActiveWeek={setActiveWeek} />
 
-      <div className="px-4 md:px-8">
+      <div className="hidden px-4 md:block md:px-8">
         <DataTable
           columns={generateColumns(students[0].weeks)}
           data={students}
@@ -53,6 +47,8 @@ export const TermSheet = () => {
           fullBorder
         />
       </div>
+
+      <div className="block md:hidden">mobile</div>
     </div>
   );
 };

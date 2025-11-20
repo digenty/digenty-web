@@ -43,6 +43,106 @@ export const students: StudentAttendance[] = [
           { date: "2025-07-11", present: true },
         ],
       },
+      {
+        week: "Week 3",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: true },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
+      {
+        week: "Week 4",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: true },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
+      {
+        week: "Week 5",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: true },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
+      {
+        week: "Week 6",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: true },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
+      {
+        week: "Week 7",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: true },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
+      {
+        week: "Week 8",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: true },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
+      {
+        week: "Week 9",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: true },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
+      {
+        week: "Week 10",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: true },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
+      {
+        week: "Week 11",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: true },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
+      {
+        week: "Week 12",
+        days: [
+          { date: "2025-07-07", present: true },
+          { date: "2025-07-08", present: true },
+          { date: "2025-07-09", present: true },
+          { date: "2025-07-10", present: true },
+          { date: "2025-07-11", present: true },
+        ],
+      },
     ],
     totalPresent: 9,
     totalDays: 10,
