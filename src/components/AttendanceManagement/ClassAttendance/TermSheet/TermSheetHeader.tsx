@@ -76,7 +76,7 @@ export const TermSheetHeader = ({
             role="button"
             onClick={() => setActiveWeek(week.week)}
             className={cn(
-              "bg-bg-state-soft text-text-subtle w-fit rounded-md px-2 py-1 text-sm text-nowrap",
+              "bg-bg-state-soft text-text-subtle h-7 w-fit rounded-md px-2 py-1 text-sm text-nowrap",
               activeWeek === week.week && "bg-bg-state-primary text-text-white-default",
             )}
           >
