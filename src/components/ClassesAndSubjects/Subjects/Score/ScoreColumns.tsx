@@ -5,7 +5,7 @@ import { Avatar } from "@/components/Avatar";
 
 export const scoreColumns: ColumnDef<ScoreProps>[] = [
   {
-    accessorKey: "S/N",
+    accessorKey: "s/n",
     header: () => <div className="text-text-muted text-sm font-medium">S/N</div>,
     cell: ({ row }) => <span className="text-text-default cursor-pointer text-center text-sm font-normal">{row.index + 1}</span>,
     size: 48,

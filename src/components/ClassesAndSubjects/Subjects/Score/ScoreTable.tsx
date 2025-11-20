@@ -45,6 +45,7 @@ export default function ScoreTable() {
           totalCount={StudentsItem.length}
           page={page}
           setCurrentPage={setPage}
+          fullBorder
         />
       </div>
 
