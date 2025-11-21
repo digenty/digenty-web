@@ -1,8 +1,8 @@
-import ClassesAndSubjects from "@/components/ClassesAndSubjects";
+import { ClassOverview } from "@/components/ClassesAndSubjects/Classes/ClassOverview";
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 
-export default function ClassOverviewPage() {
+export default function ClassesAndSubjectsPage() {
   return (
     <Suspense
       fallback={
@@ -11,7 +11,7 @@ export default function ClassOverviewPage() {
         </div>
       }
     >
-      <ClassesAndSubjects />
+      <ClassOverview />
     </Suspense>
   );
 }

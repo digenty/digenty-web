@@ -77,7 +77,7 @@ export const DataTable = <TData, TValue>({
     <div className="space-y-4">
       <div className={cn("overflow-hidden rounded-md", classNames?.tableWrapper)}>
         <Table className="w-full">
-          <TableHeader className={cn("border-border-default border", fullBorder && "border")}>
+          <TableHeader className={cn("border-border-default border-t", fullBorder && "border")}>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id} className="border-border-default border-b">
                 {headerGroup.headers.map(header => {
@@ -100,7 +100,7 @@ export const DataTable = <TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody className={cn("border-border-default border-t", fullBorder && "border")}>
+          <TableBody className={cn("border-border-default border-y", fullBorder && "border")}>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => (
                 <TableRow
