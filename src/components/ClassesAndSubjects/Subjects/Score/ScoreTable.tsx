@@ -32,7 +32,7 @@ export default function ScoreTable() {
   const handleToggle = (id: number) => setOpenId(prev => (prev == id ? null : id));
 
   return (
-    <div className="md:py0 p-4 md:px-8">
+    <div className="md:py0 p-4 md:px-8 pb-8">
       <div className="hidden md:block">
         <DataTable
           pageSize={10}
@@ -46,6 +46,10 @@ export default function ScoreTable() {
           page={page}
           setCurrentPage={setPage}
           fullBorder
+          showPagination={false}
+          classNames={{
+            tableBodyCell: "text-center"
+          }}
         />
       </div>
 
@@ -63,7 +67,7 @@ export default function ScoreTable() {
                 <div className="flex items-center gap-3">
                   <Avatar username={std.studentName} className="h-10 w-10" />
                   <div className="text-left">
-                    <div className="text-text-default text-text-default text-sm font-medium">{std.studentName}</div>
+                    <div className="text-text-default  text-sm font-medium">{std.studentName}</div>
                     <div className="flex items-center gap-2">
                       <div className="text-text-default text-sm font-normal">{std.totalScore}</div>
                       <Badge className="text-text-subtle border-border-default bg-bg-badge-default h-4 w-4 rounded-md py-2 text-sm font-medium">
