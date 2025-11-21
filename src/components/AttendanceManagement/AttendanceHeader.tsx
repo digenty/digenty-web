@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import School from "../Icons/School";
-import { Label } from "../ui/label";
 import Image from "next/image";
-import { Button } from "../ui/button";
-import { MobileDrawer } from "../MobileDrawer";
-import { DrawerClose, DrawerFooter } from "../ui/drawer";
+import React, { useState } from "react";
 import Calendar from "../Icons/Calendar";
+import School from "../Icons/School";
+import { MobileDrawer } from "../MobileDrawer";
+import { Button } from "../ui/button";
 import { Calendar as AttendanceCalendar } from "../ui/calendar";
+import { DrawerClose, DrawerFooter } from "../ui/drawer";
+import { Label } from "../ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const branches = ["Lawanson", "Ilasamaja"];
 
@@ -19,7 +19,7 @@ export default function AttendanceHeader() {
   const [date, setDate] = React.useState<Date | undefined>(undefined);
   const [open, setOpen] = React.useState(false);
   return (
-    <div className="border-border-default flex w-full items-center justify-between border-b-1 px-4 py-2 align-middle md:px-8 md:py-3">
+    <div className="border-border-default flex w-full items-center justify-between border-b px-4 py-2 align-middle md:px-8 md:py-3">
       <h2 className="text-text-default text-lg font-semibold md:text-xl">Attendance Management</h2>
 
       <div className="hidden gap-2 align-middle md:flex">

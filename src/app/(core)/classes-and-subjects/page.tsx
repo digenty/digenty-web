@@ -1,9 +1,9 @@
-import SubjectsSection from "@/components/ClassesAndSubjects/Subjects/SubjectsSection";
+import ClassesAndSubjects from "@/components/ClassesAndSubjects";
 
 export default function ClassesAndSubjectsPage() {
   return (
     <div>
-      <SubjectsSection />
+      <ClassesAndSubjects />
     </div>
   );
 }

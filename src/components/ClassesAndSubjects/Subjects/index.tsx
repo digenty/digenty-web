@@ -10,7 +10,7 @@ const mathClasses: ClassItem[] = [
   { id: 5, grade: "SS 3A", subjectStatus: "Submitted" },
 ];
 
-export default function SubjectsSection() {
+export const Subjects = () => {
   return (
     <div className="space-y-4 pb-10">
       <SubjectHeader />
@@ -21,4 +21,4 @@ export default function SubjectsSection() {
       </div>
     </div>
   );
-}
+};
