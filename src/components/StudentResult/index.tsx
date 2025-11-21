@@ -181,7 +181,7 @@ export const StudentResult = () => {
             onSelectRows={setSelectedRows}
             fullBorder
             showPagination={false}
-            clasNames={{
+            classNames={{
               tableWrapper: "rounded-none",
             }}
           />
