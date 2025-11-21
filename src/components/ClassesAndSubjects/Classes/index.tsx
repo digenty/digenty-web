@@ -28,7 +28,7 @@ export const MyClasses = () => {
 
                   <div>
                     <Button
-                      // onClick={() => router.push(`/classes-and-subjects/${cl.id}/add-score?subject=${cl.grade}`)}
+                      onClick={() => router.push(`/classes-and-subjects/classes/${cl.id}`)}
                       className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
                     >
                       View Class
