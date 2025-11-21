@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 export const ClassOverviewHeader = () => {
   return (
-    <div className="md:border-border-default flex w-full justify-between pb-3 align-middle md:border-b">
+    <div className="md:border-border-default flex w-full justify-between align-middle md:border-b md:pb-3">
       <h2 className="text-text-default text-lg font-semibold md:text-2xl">Class Overview</h2>
 
       <Button

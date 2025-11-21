@@ -4,6 +4,11 @@ import { ClassOverviewHeader } from "./ClassOverviewHeader";
 import { columns } from "./Columns";
 import { useEffect, useState } from "react";
 import { useBreadcrumbStore } from "@/store/breadcrumb";
+import { Button } from "@/components/ui/button";
+import Notification2 from "@/components/Icons/Notification2";
+import Eye from "@/components/Icons/Eye";
+import { cn } from "@/lib/utils";
+import { ClassOverviewCard } from "./ClassOverviewCard";
 
 export interface Subject {
   id: number;
@@ -60,7 +65,7 @@ export const ClassOverview = () => {
   }, [setBreadcrumbs]);
 
   return (
-    <div className="space-y-6 px-4 py-4 md:px-8">
+    <div className="space-y-6 px-4 py-6 pb-8 md:px-8 md:py-4">
       <ClassOverviewHeader />
 
       <h3 className="text-text-default hidden text-lg font-semibold md:inline">SS 1 Art A</h3>
@@ -81,6 +86,12 @@ export const ClassOverview = () => {
           onSelectRows={() => {}}
           showPagination={false}
         />
+      </div>
+
+      <div className="flex flex-col gap-4 md:hidden">
+        {subjects.map(subject => (
+          <ClassOverviewCard key={subject.id} subject={subject} />
+        ))}
       </div>
     </div>
   );
