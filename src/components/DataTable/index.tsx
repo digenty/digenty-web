@@ -118,7 +118,7 @@ export const DataTable = <TData, TValue>({
                         cell.column.id === "s/n" && "pr-4 text-center",
                         cell.column.id === "totalAttendance" && "bg-bg-default border-border-default sticky right-0 z-5 border px-5.5 text-center",
                         fullBorder && "border-border-default border-r",
-                        classNames?.tableBodyCell
+                        classNames?.tableBodyCell,
                       )}
                       onClick={cell.column.id === "actions" || cell.column.id === "select" ? undefined : () => clickHandler(row)}
                     >
