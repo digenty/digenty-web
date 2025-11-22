@@ -34,7 +34,7 @@ export const NotifyTeacher = () => {
             <div className="space-y-2">
               <Label className="text-text-default text-sm font-medium">Message</Label>
               <Textarea
-                className="bg-bg-input-soft! text-text-muted flex h-18 w-full items-start rounded-md border-none p-2 text-sm font-normal"
+                className="bg-bg-input-soft! focus-visible:border-ring focus-visible:ring-border-highlight text-text-muted flex h-18 w-full items-start rounded-md p-2 text-sm font-normal focus-visible:border-none! focus-visible:ring-2 focus-visible:ring-offset-2"
                 placeholder="Add message"
               />
             </div>
