@@ -26,7 +26,11 @@ const ClassesAndSubjects = () => {
 
   return (
     <div className="flex flex-col gap-4 px-4 py-4 md:px-8">
-      {/* Tabs */}
+      {/* Case 1: If user is a class teacher and  has subjects, show tabs */}
+      {/* Case 2: If user is a subject teacher without classes (not a class teacher),  show only subjects, not tabs*/}
+      {/* Case 3: If user is just a class teacher, no subjects, show only classes, no tabs */}
+
+      {/* Tabs for Case 1 */}
       <div className="border-border-default mb-0 flex w-auto max-w-105 items-center gap-3 border-b">
         {tabs.map(tab => {
           const isActive = activeTab === tab.id;
@@ -49,6 +53,15 @@ const ClassesAndSubjects = () => {
       </div>
 
       {activeTab === "classes" ? <MyClasses /> : <Subjects />}
+
+      {/*  Case 2  */}
+      {/* <Subjects /> */}
+
+      {/*  Case 3  */}
+      {/* <div className="flex flex-col gap-4 pb-10">
+        <h2 className="md:inline hidden text-text-default text-lg font-semibold md:text-2xl">My Classes</h2>
+        <MyClasses />
+      </div> */}
     </div>
   );
 };
