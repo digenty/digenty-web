@@ -2,7 +2,7 @@ import ClassesAndSubjects from "@/components/ClassesAndSubjects";
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 
-export default function ClassOverviewPage() {
+export default function ClassesAndSubjectsPage() {
   return (
     <Suspense
       fallback={
