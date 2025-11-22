@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Subject } from ".";
 import { Avatar } from "@/components/Avatar";
+import { useClassesStore } from "@/store/classes";
 
 export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
+  const { setOpenNotifyTeacher } = useClassesStore();
   return (
-    <div className="border-border-darker w-full rounded-md border text-sm">
+    <div className="border-border-darker bg-bg-subtle w-full rounded-md border text-sm">
       <div className="border-border-darker flex items-center justify-between border-b px-3 py-[8.5px]">
         <p className="text-text-muted font-medium">Subject</p>
         <p className="text-text-default font-medium">{subject?.title}</p>
@@ -43,7 +45,7 @@ export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
       <div className="flex justify-between gap-4 px-3 py-2">
         <Button
           className="border-border-darker bg-bg-state-secondary text-text-default h-8! flex-1 rounded-md border px-1.5! font-medium"
-          // onClick={() => setIsFilterOpen(true)}
+          onClick={() => setOpenNotifyTeacher(true)}
         >
           <Notification2 fill="var(--color-icon-default-muted)" className="size-4" />
           <span className="text-text-default">Notify Teacher</span>

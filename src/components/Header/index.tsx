@@ -12,7 +12,7 @@ export const Header = () => {
   const { setIsSidebarOpen } = useSidebarStore();
 
   return (
-    <header className="border-border-default flex h-16 w-full items-center justify-between border-b px-4 py-4 text-zinc-950 md:px-8">
+    <header className="border-border-default sticky flex h-16 w-full items-center justify-between border-b px-4 py-4 text-zinc-950 md:px-8">
       <Breadcrumb className="hidden md:block" />
 
       <div className="flex items-center gap-5 md:hidden">

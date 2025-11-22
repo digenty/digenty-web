@@ -9,6 +9,8 @@ import Notification2 from "@/components/Icons/Notification2";
 import Eye from "@/components/Icons/Eye";
 import { cn } from "@/lib/utils";
 import { ClassOverviewCard } from "./ClassOverviewCard";
+import { useClassesStore } from "@/store/classes";
+import { NotifyTeacher } from "./NotifyTeacher";
 
 export interface Subject {
   id: number;
@@ -51,6 +53,7 @@ const subjects: Subject[] = [
 ];
 export const ClassOverview = () => {
   const { setBreadcrumbs } = useBreadcrumbStore();
+  const { openNotifyTeacher } = useClassesStore();
 
   const pageSize = 10;
   const [page, setPage] = useState(1);
@@ -65,7 +68,8 @@ export const ClassOverview = () => {
   }, [setBreadcrumbs]);
 
   return (
-    <div className="space-y-6 px-4 py-6 pb-8 md:px-8 md:py-4">
+    <div className="space-y-6 px-4 py-6 md:px-8 md:py-4">
+      {openNotifyTeacher && <NotifyTeacher />}
       <ClassOverviewHeader />
 
       <h3 className="text-text-default hidden text-lg font-semibold md:inline">SS 1 Art A</h3>

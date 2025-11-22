@@ -8,14 +8,17 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { useState } from "react";
 import { Subject } from ".";
 import { Avatar } from "../../../Avatar";
+import { useClassesStore } from "@/store/classes";
 
 const RenderActions = (row: Row<Subject>) => {
-  const [open, setOpen] = useState(false);
+  console.log(row);
+  const { setOpenNotifyTeacher } = useClassesStore();
+
   return (
     <div className="flex justify-end gap-4">
       <Button
         className="border-border-darker bg-bg-state-secondary text-text-default h-6! rounded-md border px-1.5! font-medium"
-        // onClick={() => setIsFilterOpen(true)}
+        onClick={() => setOpenNotifyTeacher(true)}
       >
         <Notification2 fill="var(--color-icon-default-muted)" className="size-4" />
         <span className="text-xs">Notify Teacher</span>
