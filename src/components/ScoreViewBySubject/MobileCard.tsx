@@ -13,21 +13,23 @@ export const MobileCard = ({
   activeStudent?: number;
   setActiveStudent: React.Dispatch<React.SetStateAction<number | undefined>>;
 }) => {
+  const toggleCard = () => {
+    setActiveStudent(prev => (prev === student.id ? undefined : student.id));
+  };
   return (
-    <li key={student.id} className="border-border-default w-full rounded-md border">
-      <button
-        type="button"
-        onClick={() => setActiveStudent(student.id)}
+    <li key={student.id} className="border-border-default w-full rounded-sm border">
+      <div
+        onClick={toggleCard}
         aria-expanded={activeStudent === student.id}
-        className="bg-bg-basic-gray-subtle flex w-full items-center justify-between p-3"
+        className="bg-bg-subtle flex w-full items-center justify-between rounded-sm p-3"
       >
         <div className="flex items-center gap-3">
           <Avatar username={student.studentName} className="h-10 w-10" />
           <div className="text-left">
             <div className="text-text-default text-sm font-medium">{student.studentName}</div>
             <div className="flex items-center gap-2">
-              <div className="text-text-default text-sm font-normal">{student.totalScore}</div>
-              <Badge className="text-text-subtle border-border-default bg-bg-badge-default h-4 w-4 rounded-md py-2 text-sm font-medium">
+              <div className="text-text-default text-xs font-normal">{student.totalScore}</div>
+              <Badge className="text-text-subtle border-border-default bg-bg-badge-default h-4 w-4 rounded-md py-2 text-xs font-medium">
                 {student.grade}
               </Badge>
             </div>
@@ -36,35 +38,38 @@ export const MobileCard = ({
         <div>
           {activeStudent === student.id ? <ArrowUp fill="var(--color-icon-default-muted)" /> : <ArrowDown fill="var(--color-icon-default-muted)" />}
         </div>
-      </button>
+      </div>
       <div
-        className={`transition-all duration-200 ${activeStudent === student.id ? "border-border-default flex max-h-96 flex-col border opacity-100" : "max-h-0 opacity-0"}`}
+        className={`text-sm transition-all duration-200 ${activeStudent === student.id ? "border-border-default flex max-h-96 flex-col border-t" : "hidden"}`}
       >
-        <div className="border-border-default grid grid-cols-2 items-center border-b">
-          <span className="bg-bg-basic-gray-subtle text-text-muted border-border-default flex items-center justify-center border-r p-4">CA 1</span>
-          <span className="text-text-default flex items-center justify-center p-4">{student.ca1Score}</span>
+        <div className="border-border-default flex border-b">
+          <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r p-4">CA 1</span>
+          <span className="text-text-default flex flex-1 items-center justify-center p-4">{student.ca1Score}</span>
         </div>
-        <div className="border-border-default grid grid-cols-2 items-center border-b">
-          <span className="bg-bg-basic-gray-subtle text-text-muted border-border-default flex items-center justify-center border-r p-4">CA 2</span>
-          <span className="text-text-default flex items-center justify-center p-4">{student.ca2Score}</span>
+
+        <div className="border-border-default flex border-b">
+          <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r p-4">CA 2</span>
+          <span className="text-text-default flex flex-1 items-center justify-center p-4">{student.ca2Score}</span>
         </div>
-        <div className="border-border-default grid grid-cols-2 items-center border-b">
-          <span className="bg-bg-basic-gray-subtle text-text-muted border-border-default flex items-center justify-center border-r p-4">
-            Exam Score
-          </span>
-          <span className="text-text-default flex items-center justify-center p-4">{student.examScore}</span>
+
+        <div className="border-border-default flex border-b">
+          <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r p-4">Exam Score</span>
+          <span className="text-text-default flex flex-1 items-center justify-center p-4">{student.examScore}</span>
         </div>
-        <div className="border-border-default grid grid-cols-2 items-center border-b">
-          <span className="bg-bg-basic-gray-subtle text-text-muted border-border-default flex items-center justify-center border-r p-4">Total</span>
-          <span className="text-text-default flex items-center justify-center p-4">{student.totalScore}</span>
+
+        <div className="border-border-default flex border-b">
+          <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r p-4">Total</span>
+          <span className="text-text-default flex flex-1 items-center justify-center p-4">{student.totalScore}</span>
         </div>
-        <div className="border-border-default grid grid-cols-2 items-center border-b">
-          <span className="bg-bg-basic-gray-subtle text-text-muted border-border-default flex items-center justify-center border-r p-4">Grade</span>
-          <span className="text-text-default flex items-center justify-center p-4">{student.grade}</span>
+
+        <div className="border-border-default flex border-b">
+          <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r p-4">Grade</span>
+          <span className="text-text-default flex flex-1 items-center justify-center p-4">{student.grade}</span>
         </div>
-        <div className="border-border-default grid grid-cols-2 items-center border-b">
-          <span className="bg-bg-basic-gray-subtle text-text-muted border-border-default flex items-center justify-center border-r p-4">Remark</span>
-          <span className="text-text-default flex items-center justify-center p-4">{student.remark}</span>
+
+        <div className="flex">
+          <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r p-4">Remark</span>
+          <span className="text-text-default flex flex-1 items-center justify-center p-4">{student.remark}</span>
         </div>
       </div>
     </li>

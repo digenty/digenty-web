@@ -33,7 +33,7 @@ export const ScoreViewBySubject = ({ scores }: { scores: ScoreType[] }) => {
         />
       </div>
 
-      <ul className="flex flex-col gap-3 md:hidden">
+      <ul className="flex flex-col gap-3 pb-8 md:hidden">
         {scores.map(student => {
           return <MobileCard key={student.id} student={student} activeStudent={activeStudent} setActiveStudent={setActiveStudent} />;
         })}
