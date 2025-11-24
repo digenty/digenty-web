@@ -15,9 +15,9 @@ export default function ScoresHeader() {
       {openModal && <SubmitScoreModal open={openModal} onOpenChange={setOpenModal} />}
       <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
-          <h2 className="text-text-default px-4 py-2 text-lg font-semibold md:p-0">JSS 1 A, {subject}</h2>
+          <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">JSS 1 A, {subject}</h2>
 
-          <div className="border-border-default border-t px-4 py-2 md:border-none md:p-0">
+          <div className="border-border-default overflow-x-auto border-t px-4 py-2 md:border-none md:p-0">
             <div className="flex items-center gap-2 md:gap-1">
               <Button
                 size="sm"

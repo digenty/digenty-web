@@ -40,6 +40,8 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
     if (meta?.updateData) {
       meta.updateData(row.index, column.id, value);
     }
+
+    // Save updated data here
   };
 
   const cancel = () => {
@@ -49,11 +51,12 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
 
   if (isEditing && isEditable) {
     return (
+      // TODO: Restrict the input type to the type of data displayed in teh cell
       <Input
         ref={inputRef}
         value={value ?? ""}
         onChange={e => setValue(e.target.value)}
-        className="h-7! w-full max-w-11 rounded border px-2 py-1 outline-none"
+        className="text-text-muted bg-bg-input-soft! h-7! w-full max-w-11 rounded-md border border-none px-2 py-1 text-sm outline-none"
         onBlur={save}
         onKeyDown={e => {
           if (e.key === "Enter") save();
@@ -63,8 +66,12 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
     );
   }
 
+  // TODO: Add tooltip to tell user that he can't edit the cell if he clicks on it when isEditable is false
   return (
-    <div className={cn("text-text-muted text-sm font-normal", isEditable ? "cursor-text" : "cursor-pointer")} onClick={() => setIsEditing(true)}>
+    <div
+      className={cn("text-text-muted flex h-14 items-center justify-center text-sm font-normal", isEditable ? "cursor-text" : "cursor-pointer")}
+      onClick={() => setIsEditing(true)}
+    >
       <span className="max-w-2 truncate">{value}</span>
     </div>
   );

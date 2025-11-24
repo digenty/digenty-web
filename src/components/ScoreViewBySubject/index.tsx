@@ -13,7 +13,7 @@ export const ScoreViewBySubject = ({ scores, isEditable = false }: { scores: Sco
 
   return (
     <div>
-      <div className="hidden md:block">
+      <div className="hidden pb-8 md:block">
         <DataTable
           pageSize={10}
           clickHandler={() => {}}
@@ -35,7 +35,15 @@ export const ScoreViewBySubject = ({ scores, isEditable = false }: { scores: Sco
 
       <ul className="flex flex-col gap-3 pb-8 md:hidden">
         {scores.map(student => {
-          return <MobileCard key={student.id} student={student} activeStudent={activeStudent} setActiveStudent={setActiveStudent} />;
+          return (
+            <MobileCard
+              key={student.id}
+              student={student}
+              activeStudent={activeStudent}
+              setActiveStudent={setActiveStudent}
+              isEditable={isEditable}
+            />
+          );
         })}
       </ul>
     </div>
