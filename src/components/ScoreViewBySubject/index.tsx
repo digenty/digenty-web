@@ -7,7 +7,7 @@ import { DataTable } from "@/components/DataTable";
 import { scoreColumns } from "././Columns";
 import { MobileCard } from "./MobileCard";
 
-export const ScoreViewBySubject = ({ scores }: { scores: ScoreType[] }) => {
+export const ScoreViewBySubject = ({ scores, isEditable = false }: { scores: ScoreType[]; isEditable?: boolean }) => {
   const [page, setPage] = useState(1);
   const [activeStudent, setActiveStudent] = useState<number>();
 
@@ -20,7 +20,7 @@ export const ScoreViewBySubject = ({ scores }: { scores: ScoreType[] }) => {
           rowSelection={{}}
           setRowSelection={() => {}}
           onSelectRows={() => {}}
-          columns={scoreColumns}
+          columns={scoreColumns(isEditable)}
           data={scores}
           totalCount={scores.length}
           page={page}

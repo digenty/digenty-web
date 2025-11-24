@@ -1,9 +1,76 @@
-import { ColumnDef } from "@tanstack/react-table";
+import { CellContext, ColumnDef } from "@tanstack/react-table";
 
-import { ScoreType } from "./types";
 import { Avatar } from "@/components/Avatar";
+import { cn } from "@/lib/utils";
+import { useEffect, useRef, useState } from "react";
+import { Input } from "../ui/input";
+import { ScoreType } from "./types";
 
-export const scoreColumns: ColumnDef<ScoreType>[] = [
+type UpdateDataFn<T> = (rowIndex: number, columnId: string, value: unknown) => void;
+
+interface TableMeta<T> {
+  updateData: UpdateDataFn<T>;
+}
+
+interface EditableCellProps<T> {
+  isEditable: boolean;
+  cell: CellContext<T, unknown>;
+}
+
+const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
+  const { row, column, table, getValue } = cell;
+  const initialValue = getValue() as string | number | undefined;
+
+  const [value, setValue] = useState<string | number | undefined>(initialValue);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const meta = table.options.meta as TableMeta<T> | undefined;
+
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
+
+  const save = () => {
+    setIsEditing(false);
+    if (meta?.updateData) {
+      meta.updateData(row.index, column.id, value);
+    }
+  };
+
+  const cancel = () => {
+    setValue(initialValue);
+    setIsEditing(false);
+  };
+
+  if (isEditing && isEditable) {
+    return (
+      <Input
+        ref={inputRef}
+        value={value ?? ""}
+        onChange={e => setValue(e.target.value)}
+        className="h-7! w-full max-w-11 rounded border px-2 py-1 outline-none"
+        onBlur={save}
+        onKeyDown={e => {
+          if (e.key === "Enter") save();
+          if (e.key === "Escape") cancel();
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className={cn("text-text-muted text-sm font-normal", isEditable ? "cursor-text" : "cursor-pointer")} onClick={() => setIsEditing(true)}>
+      <span className="max-w-2 truncate">{value}</span>
+    </div>
+  );
+};
+
+export const scoreColumns = (isEditable: boolean): ColumnDef<ScoreType>[] => [
   {
     accessorKey: "s/n",
     header: () => <div className="text-text-muted w-0.5 text-sm font-medium">S/N</div>,
@@ -27,38 +94,44 @@ export const scoreColumns: ColumnDef<ScoreType>[] = [
   {
     accessorKey: "ca1Score",
     header: () => <div className="text-text-muted text-center text-sm font-medium">CA 1</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.ca1Score}</span>,
+    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
     size: 108,
+    maxSize: 108,
   },
   {
     accessorKey: "ca2Score",
     header: () => <div className="text-text-muted text-center text-sm font-medium">CA 2</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.ca2Score}</span>,
-    size: 150,
+    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
+    size: 108,
+    maxSize: 108,
   },
   {
     accessorKey: "examScore",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Exam Score</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.examScore}</span>,
+    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
     size: 108,
+    maxSize: 108,
   },
 
   {
     accessorKey: "totalScore",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Total</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.totalScore}</span>,
+    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
     size: 108,
+    maxSize: 108,
   },
   {
     accessorKey: "grade",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Grade</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.grade}</span>,
+    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
     size: 108,
+    maxSize: 108,
   },
   {
     accessorKey: "remark",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Remark</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.remark}</span>,
+    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
     size: 108,
+    maxSize: 108,
   },
 ];

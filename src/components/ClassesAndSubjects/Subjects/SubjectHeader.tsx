@@ -18,7 +18,7 @@ export default function SubjectHeader() {
 
   return (
     <div className="flex w-full justify-between align-middle">
-      <h2 className="text-text-default text-lg font-semibold md:text-2xl">My Subjects</h2>
+      <h2 className="text-text-default text-lg font-semibold md:text-xl">My Subjects</h2>
 
       <div className="hidden gap-1 align-middle md:flex">
         <Select value={termSelected} onValueChange={setTermSelected}>
