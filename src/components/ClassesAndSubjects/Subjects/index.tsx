@@ -1,3 +1,4 @@
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import Subject, { ClassItem } from "./Subject";
 import SubjectHeader from "./SubjectHeader";
 
@@ -11,6 +12,10 @@ const mathClasses: ClassItem[] = [
 ];
 
 export const Subjects = () => {
+  useBreadcrumb([
+    { label: "Classes and Subjects", url: "/classes-and-subjects" },
+    { label: "My Subjects", url: "/classes-and-subjects?tab=subjects" },
+  ]);
   return (
     <div className="space-y-4 pb-10">
       <SubjectHeader />

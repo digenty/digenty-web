@@ -51,32 +51,18 @@ export default function Subject({ title, classes }: SubjectProps) {
                   <div className="flex flex-col gap-1 md:gap-2">
                     <p className="text-text-default text-md font-semibold">{cl.grade}</p>
                     <Badge className={`border-border-default flex h-5 items-center gap-1 rounded-md border p-1 text-xs font-medium ${statusUpdate}`}>
-                      {cl.subjectStatus === "Request Edit Access" ? <RequestLoader fill="var(--color-bg-basic-orange-strong)" /> : null}{" "}
-                      {cl.subjectStatus}
+                      {cl.subjectStatus === "Request Edit Access" && <RequestLoader fill="var(--color-bg-basic-orange-strong)" />} {cl.subjectStatus}
                     </Badge>
                   </div>
 
                   <div>
-                    {cl.subjectStatus === "Not Started" ? (
+                    {(cl.subjectStatus === "Not Started" || cl.subjectStatus === "In Progress") && (
                       <Button
                         onClick={() => router.push(`/classes-and-subjects/${cl.id}/add-score?subject=${title}`)}
                         className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
                       >
                         Enter Score
                       </Button>
-                    ) : (
-                      ""
-                    )}
-
-                    {cl.subjectStatus === "In Progress" ? (
-                      <Button
-                        onClick={() => router.push(`/classes-and-subjects/${cl.id}/add-score?subject=${title}`)}
-                        className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
-                      >
-                        Enter Score
-                      </Button>
-                    ) : (
-                      ""
                     )}
 
                     {cl.subjectStatus === "Submitted" ? (
