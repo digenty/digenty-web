@@ -1,15 +1,11 @@
 "use client";
 import { DataTable } from "@/components/DataTable";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { useClassesStore } from "@/store/classes";
+import { useState } from "react";
+import { ClassOverviewCard } from "./ClassOverviewCard";
 import { ClassOverviewHeader } from "./ClassOverviewHeader";
 import { columns } from "./Columns";
-import { useEffect, useState } from "react";
-import { useBreadcrumbStore } from "@/store/breadcrumb";
-import { Button } from "@/components/ui/button";
-import Notification2 from "@/components/Icons/Notification2";
-import Eye from "@/components/Icons/Eye";
-import { cn } from "@/lib/utils";
-import { ClassOverviewCard } from "./ClassOverviewCard";
-import { useClassesStore } from "@/store/classes";
 import { NotifyTeacher } from "./NotifyTeacher";
 
 export interface Subject {
@@ -28,44 +24,41 @@ const subjects: Subject[] = [
   },
   {
     id: 2,
-    title: "Mathematics",
+    title: "English Language",
     teacher: "Mr. Obafemi",
     status: "Not Started",
   },
   {
     id: 3,
-    title: "Mathematics",
+    title: "History",
     teacher: "Mr. Obafemi",
     status: "Submitted",
   },
   {
     id: 4,
-    title: "Mathematics",
+    title: "Social Sciences",
     teacher: "Mr. Obafemi",
     status: "In Progress",
   },
   {
     id: 5,
-    title: "Mathematics",
+    title: "Foods and Nutrition",
     teacher: "Mr. Obafemi",
     status: "Not Started",
   },
 ];
 export const ClassOverview = () => {
-  const { setBreadcrumbs } = useBreadcrumbStore();
+  useBreadcrumb([
+    { label: "Classes and Subjects", url: "/classes-and-subjects" },
+    { label: "Classes", url: `/classes-and-subjects` },
+    { label: "My Class", url: "" },
+  ]);
   const { openNotifyTeacher } = useClassesStore();
 
   const pageSize = 10;
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
-
-  useEffect(() => {
-    setBreadcrumbs([
-      { label: "Classes and Subjects", url: "/classes-and-subjects" },
-      { label: "Classes", url: `/classes-and-subjects` },
-      { label: "Class Overview", url: "" },
-    ]);
-  }, [setBreadcrumbs]);
+  console.log(setRowSelection);
 
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 md:py-4">
@@ -83,6 +76,7 @@ export const ClassOverview = () => {
           setCurrentPage={setPage}
           pageSize={pageSize}
           clickHandler={row => {
+            console.log(row);
             //   router.push(`/student-and-parent-record/${row.original.id}`);
           }}
           rowSelection={rowSelection}

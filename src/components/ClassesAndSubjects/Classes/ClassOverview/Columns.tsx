@@ -4,14 +4,15 @@ import Eye from "@/components/Icons/Eye";
 import Notification2 from "@/components/Icons/Notification2";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useClassesStore } from "@/store/classes";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Subject } from ".";
 import { Avatar } from "../../../Avatar";
-import { useClassesStore } from "@/store/classes";
 
 const RenderActions = (row: Row<Subject>) => {
-  console.log(row);
+  const router = useRouter();
+  const pathname = usePathname();
   const { setOpenNotifyTeacher } = useClassesStore();
 
   return (
@@ -26,7 +27,7 @@ const RenderActions = (row: Row<Subject>) => {
 
       <Button
         className="border-border-darker bg-bg-state-secondary text-text-default h-6! rounded-md border px-1.5! font-medium"
-        // onClick={() => setIsFilterOpen(true)}
+        onClick={() => router.push(`${pathname}/${row.original.id}`)}
       >
         <Eye fill="var(--color-icon-default-muted)" className="size-4" />
         <span className="text-xs">View</span>

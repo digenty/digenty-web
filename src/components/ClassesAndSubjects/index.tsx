@@ -59,7 +59,7 @@ const ClassesAndSubjects = () => {
 
       {/*  Case 3  */}
       {/* <div className="flex flex-col gap-4 pb-10">
-        <h2 className="md:inline hidden text-text-default text-lg font-semibold md:text-2xl">My Classes</h2>
+        <h2 className="md:inline hidden text-text-default text-lg font-semibold md:text-xl">My Classes</h2>
         <MyClasses />
       </div> */}
     </div>
