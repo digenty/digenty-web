@@ -20,7 +20,7 @@ const RenderCell = ({ initialValue, isEditable }: { initialValue: string | numbe
   const save = (evt: React.TouchEvent<HTMLInputElement>) => {
     console.log("being called");
     setIsEditing(false);
-    setValue(evt.target.value);
+    setValue((evt.target as HTMLInputElement).value);
     // Save updated data here
   };
 

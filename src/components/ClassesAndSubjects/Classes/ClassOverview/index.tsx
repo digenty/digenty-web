@@ -58,6 +58,7 @@ export const ClassOverview = () => {
   const pageSize = 10;
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
+  console.log(setRowSelection);
 
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 md:py-4">
@@ -75,6 +76,7 @@ export const ClassOverview = () => {
           setCurrentPage={setPage}
           pageSize={pageSize}
           clickHandler={row => {
+            console.log(row);
             //   router.push(`/student-and-parent-record/${row.original.id}`);
           }}
           rowSelection={rowSelection}
