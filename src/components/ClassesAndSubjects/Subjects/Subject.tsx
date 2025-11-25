@@ -29,7 +29,7 @@ export default function Subject({ title, classes }: SubjectProps) {
   };
 
   return (
-    <div className="px-4 md:px-8">
+    <div className="">
       {openRequest && <RequestEdit open={openRequest} onOpenChange={setOpenRequest} />}
 
       <div className="flex-start bg-bg-muted flex w-full flex-col gap-1.5 rounded-lg pt-1 pr-1 pb-2 pl-1 md:max-w-219 md:gap-3 md:pt-1 md:pr-3 md:pb-3 md:pl-3">

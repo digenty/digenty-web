@@ -1,6 +1,8 @@
+"use client";
 import Approve from "../Icons/Approve";
 import BarChartIcon from "../Icons/BarChartIcon";
 
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import GraduationCapFill from "../Icons/GraduationCapFill";
 import NumStudentIcon from "../Icons/NumStudentIcon";
 import { OverviewCard } from "../OverviewCard";
@@ -8,6 +10,8 @@ import AttendanceCards from "./AttendanceCards";
 import AttendanceHeader from "./AttendanceHeader";
 
 export const AttendanceManagement = () => {
+  useBreadcrumb([{ label: "Attendance Management", url: "/attendance" }]);
+
   return (
     <div className="flex flex-col">
       <AttendanceHeader />

@@ -32,7 +32,7 @@ export default function SubmitScoreModal({ open, onOpenChange }: SubmitScoreModa
           </DialogDescription>
 
           <div className="border-border-default bg-bg-basic-blue-subtle rounded-sm border px-3 py-2">
-            <p className="text-text-sublte text-sm font-normal">
+            <p className="text-text-subtle text-sm font-normal">
               Once submitted, you will no longer be able to make changes. To edit later, you’ll need to request edit access from the class teacher or
               admin.
             </p>

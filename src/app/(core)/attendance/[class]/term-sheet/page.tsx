@@ -1,8 +1,8 @@
-import ClassesAndSubjects from "@/components/ClassesAndSubjects";
+import { TermSheet } from "@/components/AttendanceManagement/ClassAttendance/TermSheet";
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 
-export default function ClassesAndSubjectsPage() {
+export default function ClassTermSheetPage() {
   return (
     <Suspense
       fallback={
@@ -11,7 +11,7 @@ export default function ClassesAndSubjectsPage() {
         </div>
       }
     >
-      <ClassesAndSubjects />
+      <TermSheet />
     </Suspense>
   );
 }
