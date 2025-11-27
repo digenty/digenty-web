@@ -6,9 +6,13 @@ import { cn } from "@/lib/utils";
 import { Subject } from ".";
 import { Avatar } from "@/components/Avatar";
 import { useClassesStore } from "@/store/classes";
+import { usePathname, useRouter } from "next/navigation";
 
 export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
   const { setOpenNotifyTeacher } = useClassesStore();
+  const router = useRouter();
+  const pathname = usePathname();
+
   return (
     <div className="border-border-darker bg-bg-subtle w-full rounded-md border text-sm">
       <div className="border-border-darker flex items-center justify-between border-b px-3 py-[8.5px]">
@@ -53,7 +57,7 @@ export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
 
         <Button
           className="border-border-darker bg-bg-state-secondary text-text-default h-8! flex-1 rounded-md border px-1.5! font-medium"
-          // onClick={() => setIsFilterOpen(true)}
+          onClick={() => router.push(`${pathname}/subjects/${subject.id}`)}
         >
           <Eye fill="var(--color-icon-default-muted)" className="size-4" />
           <span className="text-text-default">View</span>

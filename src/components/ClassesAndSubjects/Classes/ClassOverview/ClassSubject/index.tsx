@@ -24,7 +24,7 @@ export const SubjectByClass = () => {
   useBreadcrumb([
     { label: "Classes and Subjects", url: "/classes-and-subjects" },
     { label: "Classes", url: `/classes-and-subjects` },
-    { label: "My Class", url: "" },
+    { label: "My Class", url: "/classes-and-subjects" },
     { label: "View Score", url: "" },
   ]);
 

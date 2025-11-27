@@ -40,7 +40,7 @@ export const ClassAttendanceHeader = ({ classname }: { classname: string }) => {
         </div>
       </div>
 
-      <div className="flex gap-2 px-4 py-2 align-middle md:px-8 md:py-0">
+      <div className="scollbar-hide flex w-full gap-2 overflow-x-auto px-4 py-2 align-middle md:w-auto md:overflow-x-visible md:px-8 md:py-0">
         <Button onClick={() => router.push(`${pathname}/term-sheet`)} className="border-border-darker flex h-8! items-center gap-2 border">
           <ListCheck fill="var(--color-icon-default-muted)" className="size-3" />
           <span className="text-text-default text-sm font-medium">See Term Sheet</span>
@@ -73,7 +73,7 @@ export const ClassAttendanceHeader = ({ classname }: { classname: string }) => {
         </Button>
       </div>
 
-      <div className="border-border-default flex w-full gap-2 border-t px-4 pt-2 md:hidden md:px-8">
+      <div className="border-border-default scollbar-hide flex w-full gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
         <Button className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
           <CheckIcon className="text-icon-default-muted size-4" />
           <span className="text-text-subtle text-sm font-medium">Mark All Present</span>
