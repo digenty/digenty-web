@@ -1,24 +1,31 @@
 import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
-import Save from "@/components/Icons/Save";
+import Question from "@/components/Icons/Question";
 import ShareBox from "@/components/Icons/ShareBox";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { StudentRow } from "./students";
 import { SubmitClassReportModal } from "./SubmitClassReportModal";
-import Question from "@/components/Icons/Question";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { StudentReport } from "./students";
-import { cn } from "@/lib/utils";
 // import RequestEdit from "../RequestEdit";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Calendar from "@/components/Icons/Calendar";
+
+const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 
 export const ClassReportHeader = ({
   students,
   activeFilter,
   setActiveFilter,
+  termSelected,
+  setTermSelected,
 }: {
-  students: StudentReport[];
+  students: StudentRow[];
   activeFilter: string;
   setActiveFilter: (filter: string) => void;
+  termSelected: string;
+  setTermSelected: (term: string) => void;
 }) => {
   const isMobile = useIsMobile();
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -36,7 +43,29 @@ export const ClassReportHeader = ({
 
       <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
-          <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">JSS 1 A</h2>
+          <div className="flex items-center justify-between gap-4 md:justify-start">
+            <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">JSS 1 A</h2>
+
+            <div className="flex gap-1 align-middle">
+              <Select value={termSelected} onValueChange={setTermSelected}>
+                <SelectTrigger className="border-border-darker h-8! w-auto border">
+                  <SelectValue>
+                    <div className="flex items-center gap-2">
+                      <Calendar fill="var(--color-icon-black-muted )" className="size-4" />
+                      <span className="text-text-default text-sm font-semibold">{termSelected}</span>
+                    </div>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-bg-card border-border-default">
+                  {termsOptions.map(term => (
+                    <SelectItem key={term} value={term} className="text-text-default text-sm font-semibold">
+                      {term}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
           <div className="border-border-default overflow-x-auto border-t px-4 py-2 md:border-none md:p-0">
             <div className="flex items-center gap-2 md:gap-1">

@@ -1,23 +1,35 @@
 "use client";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { ClassReportHeader } from "./ClassReportHeader";
-import { students } from "./students";
+import { StudentRow } from "./students";
 import { RefObject, useRef, useState } from "react";
 import { ClassReportFooter } from "./ClassReportFooter";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/DataTable";
+import { createColumns } from "./SpreadsheetColumns";
+import { students } from "./students";
+
+const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 
 export const ClassReport = () => {
   const isMobile = useIsMobile();
   const footerRef = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(1);
+  const [rowSelection, setRowSelection] = useState({});
+  const [selectedRows, setSelectedRows] = useState<StudentRow[]>([]);
+  // const [activeWeek, setActiveWeek] = useState(students[0].weeks[0].week);
+  const [activeStudent, setActiveStudent] = useState<string>();
+  const [termSelected, setTermSelected] = useState(termsOptions[0]);
+
+  const pageSize = 10;
 
   const scrollRight = () => {
     footerRef.current?.scrollBy?.({ left: 200, behavior: "smooth" });
   };
 
   const scrollLeft = () => {
-    console.log("scrolled");
     footerRef.current?.scrollBy?.({ left: -200, behavior: "smooth" });
   };
 
@@ -31,7 +43,41 @@ export const ClassReport = () => {
 
   return (
     <div className="relative">
-      <ClassReportHeader students={students} activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
+      <ClassReportHeader
+        students={students}
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+        termSelected={termSelected}
+        setTermSelected={setTermSelected}
+      />
+
+      <div className="hidden overflow-x-auto px-4 pt-4 pb-25 md:block md:px-8">
+        <DataTable
+          columns={createColumns(students, termSelected)}
+          data={students}
+          totalCount={students.length}
+          page={page}
+          setCurrentPage={setPage}
+          pageSize={pageSize}
+          clickHandler={row => {
+            console.log(row);
+            // setIsDetailsOpen(true);
+            // setSelectedRole(row.original);
+          }}
+          showPagination={false}
+          rowSelection={rowSelection}
+          setRowSelection={setRowSelection}
+          onSelectRows={setSelectedRows}
+          fullBorder
+          classNames={{
+            tableHead: "text-center pr-2 w-34",
+            tableBodyCell: "text-center pr-2 w-34",
+            tableRow: "h-14",
+            table: "table-fixed",
+          }}
+        />
+      </div>
+
       {!isMobile && <ClassReportFooter students={students} activeFilter={activeFilter} setActiveFilter={setActiveFilter} footerRef={footerRef} />}
 
       {/* Footer scroll buttons. Had to be kept outside cos of its fixed position also */}

@@ -9,7 +9,7 @@ export const ClassOverviewHeader = () => {
   const pathname = usePathname();
 
   return (
-    <div className="md:border-border-default flex w-full justify-between align-middle md:border-b md:pb-3">
+    <div className="md:border-border-default flex w-full items-center justify-between align-middle md:border-b md:pb-3">
       <h2 className="text-text-default text-lg font-semibold md:text-xl">Class Overview</h2>
 
       <Button

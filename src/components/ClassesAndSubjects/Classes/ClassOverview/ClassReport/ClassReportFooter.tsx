@@ -27,6 +27,7 @@ export const ClassReportFooter = ({
       >
         Spreadsheet
       </Button>
+      <div className="border-border-default h-7 border-r" />
       <Button
         onClick={() => setActiveFilter("promotion")}
         className={cn(
@@ -36,7 +37,7 @@ export const ClassReportFooter = ({
       >
         Promotion
       </Button>
-
+      <div className="border-border-default h-7 border-r" />
       {students.map(student => (
         <Button
           onClick={() => setActiveFilter(student.id)}
