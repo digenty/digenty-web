@@ -8,6 +8,7 @@ export interface TermResult {
   term: "24/25 First Term" | "24/25 Second Term" | "24/25 Third Term";
   subjects: SubjectScore[];
   totalPercentage: number; // 0–100
+  position: number;
 }
 
 export interface StudentRow {
@@ -26,16 +27,16 @@ const SUBJECTS: Omit<SubjectScore, "score">[] = [
   { subjectId: "sub5", subjectName: "Physics" },
   { subjectId: "sub6", subjectName: "Economics" },
   { subjectId: "sub7", subjectName: "Social Sciences" },
-  { subjectId: "sub8", subjectName: "Social Sciences" },
-  { subjectId: "sub9", subjectName: "Social Sciences" },
-  { subjectId: "sub10", subjectName: "Social Sciences" },
-  { subjectId: "sub10", subjectName: "Social Sciences" },
-  { subjectId: "sub10", subjectName: "Social Sciences" },
-  { subjectId: "sub10", subjectName: "Social Sciences" },
-  { subjectId: "sub10", subjectName: "Social Sciences" },
-  { subjectId: "sub10", subjectName: "Social Sciences" },
-  { subjectId: "sub10", subjectName: "Social Sciences" },
-  { subjectId: "sub10", subjectName: "Social Sciencesasfafafsfffwefew" },
+  // { subjectId: "sub8", subjectName: "Social Sciences" },
+  // { subjectId: "sub9", subjectName: "Social Sciences" },
+  // { subjectId: "sub10", subjectName: "Social Sciences" },
+  // { subjectId: "sub10", subjectName: "Social Sciences" },
+  // { subjectId: "sub10", subjectName: "Social Sciences" },
+  // { subjectId: "sub10", subjectName: "Social Sciences" },
+  // { subjectId: "sub10", subjectName: "Social Sciences" },
+  // { subjectId: "sub10", subjectName: "Social Sciences" },
+  // { subjectId: "sub10", subjectName: "Social Sciences" },
+  // { subjectId: "sub10", subjectName: "Social Sciencesasfafafsfffwefew" },
 ];
 
 const randomScore = () => Math.floor(Math.random() * 60) + 40;
@@ -58,6 +59,8 @@ export const students: StudentRow[] = Array.from({ length: 25 }).map((_, i) => {
       term,
       subjects: scoredSubjects,
       totalPercentage: calculatePercentage(scoredSubjects),
+      cumulative: calculatePercentage(scoredSubjects),
+      position: i + 1,
     };
   };
 

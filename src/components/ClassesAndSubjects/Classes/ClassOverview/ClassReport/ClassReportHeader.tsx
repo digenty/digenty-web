@@ -46,7 +46,7 @@ export const ClassReportHeader = ({
           <div className="flex items-center justify-between gap-4 md:justify-start">
             <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">JSS 1 A</h2>
 
-            <div className="flex gap-1 align-middle">
+            {activeFilter !== "promotion" && (
               <Select value={termSelected} onValueChange={setTermSelected}>
                 <SelectTrigger className="border-border-darker h-8! w-auto border">
                   <SelectValue>
@@ -64,7 +64,7 @@ export const ClassReportHeader = ({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            )}
           </div>
 
           <div className="border-border-default overflow-x-auto border-t px-4 py-2 md:border-none md:p-0">

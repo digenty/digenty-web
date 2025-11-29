@@ -1,8 +1,9 @@
 "use client";
 
 import { Avatar } from "@/components/Avatar";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { StudentRow } from "./students";
+import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
 
 export const createColumns = (data: StudentRow[], term: string): ColumnDef<StudentRow>[] => {
   const firstStudent = data[0];
@@ -24,6 +25,44 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
       return <span className="text-text-default text-sm">{score}</span>;
     },
   }));
+
+  const totalScoreColumn = {
+    id: "total",
+    header: () => <span className="text-text-muted truncate text-sm font-medium">Total</span>,
+    size: 136,
+    minSize: 136,
+    cell: ({ row }: { row: Row<StudentRow> }) => {
+      const student = data[row.index];
+      const subjects = student.terms.find(t => t.term === term)?.subjects ?? [];
+      const total = subjects.reduce((acc, s) => acc + s.score, 0);
+      return <span className="text-text-default text-sm">{total}</span>;
+    },
+  };
+
+  const percentage = {
+    id: "percentage",
+    header: () => <span className="text-text-muted truncate text-sm font-medium">Percentage</span>,
+    size: 136,
+    minSize: 136,
+    cell: ({ row }: { row: Row<StudentRow> }) => {
+      const student = data[row.index];
+      const subjects = student.terms.find(t => t.term === term)?.subjects ?? [];
+      const total = subjects.reduce((acc, s) => acc + s.score, 0);
+      return <span className="text-text-default text-sm">{(total / 500) * 100}</span>;
+    },
+  };
+
+  const position = {
+    id: "position",
+    header: () => <span className="text-text-muted truncate text-sm font-medium">Position</span>,
+    size: 136,
+    minSize: 136,
+    cell: ({ row }: { row: Row<StudentRow> }) => {
+      const student = data[row.index];
+      const position = student.terms.find(t => t.term === term)?.position ?? 0;
+      return <span className="text-text-default text-sm">{toOrdinal(position)}</span>;
+    },
+  };
 
   return [
     {
@@ -52,5 +91,8 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
     },
 
     ...subjectColumns,
+    totalScoreColumn,
+    percentage,
+    position,
   ];
 };

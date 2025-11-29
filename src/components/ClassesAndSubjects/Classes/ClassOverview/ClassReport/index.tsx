@@ -1,15 +1,15 @@
 "use client";
+import { DataTable } from "@/components/DataTable";
+import { Button } from "@/components/ui/button";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { ClassReportHeader } from "./ClassReportHeader";
-import { StudentRow } from "./students";
-import { RefObject, useRef, useState } from "react";
-import { ClassReportFooter } from "./ClassReportFooter";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/DataTable";
+import { useRef, useState } from "react";
+import { ClassReportFooter } from "./ClassReportFooter";
+import { ClassReportHeader } from "./ClassReportHeader";
 import { createColumns } from "./SpreadsheetColumns";
-import { students } from "./students";
+import { StudentRow, students } from "./students";
+import { createPromotionColumns } from "./PromotionColumn";
 
 const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 
@@ -19,7 +19,6 @@ export const ClassReport = () => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<StudentRow[]>([]);
-  // const [activeWeek, setActiveWeek] = useState(students[0].weeks[0].week);
   const [activeStudent, setActiveStudent] = useState<string>();
   const [termSelected, setTermSelected] = useState(termsOptions[0]);
 
@@ -52,30 +51,55 @@ export const ClassReport = () => {
       />
 
       <div className="hidden overflow-x-auto px-4 pt-4 pb-25 md:block md:px-8">
-        <DataTable
-          columns={createColumns(students, termSelected)}
-          data={students}
-          totalCount={students.length}
-          page={page}
-          setCurrentPage={setPage}
-          pageSize={pageSize}
-          clickHandler={row => {
-            console.log(row);
-            // setIsDetailsOpen(true);
-            // setSelectedRole(row.original);
-          }}
-          showPagination={false}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          onSelectRows={setSelectedRows}
-          fullBorder
-          classNames={{
-            tableHead: "text-center pr-2 w-34",
-            tableBodyCell: "text-center pr-2 w-34",
-            tableRow: "h-14",
-            table: "table-fixed",
-          }}
-        />
+        {activeFilter === "spreadsheet" ? (
+          <DataTable
+            columns={createColumns(students, termSelected)}
+            data={students}
+            totalCount={students.length}
+            page={page}
+            setCurrentPage={setPage}
+            pageSize={pageSize}
+            clickHandler={row => {
+              console.log(row);
+            }}
+            showPagination={false}
+            rowSelection={rowSelection}
+            setRowSelection={setRowSelection}
+            onSelectRows={setSelectedRows}
+            fullBorder
+            classNames={{
+              tableHead: "text-center pr-2 w-34",
+              tableBodyCell: "text-center pr-2 w-34",
+              tableRow: "h-14",
+              table: "table-fixed",
+            }}
+          />
+        ) : activeFilter === "promotion" ? (
+          <DataTable
+            columns={createPromotionColumns(students, termSelected)}
+            data={students}
+            totalCount={students.length}
+            page={page}
+            setCurrentPage={setPage}
+            pageSize={pageSize}
+            clickHandler={row => {
+              console.log(row);
+            }}
+            showPagination={false}
+            rowSelection={rowSelection}
+            setRowSelection={setRowSelection}
+            onSelectRows={setSelectedRows}
+            fullBorder
+            classNames={{
+              tableHead: "text-center pr-2 w-34",
+              tableBodyCell: "text-center pr-2 w-34",
+              tableRow: "h-14",
+              table: "table-fixed",
+            }}
+          />
+        ) : (
+          <div>Student report</div>
+        )}
       </div>
 
       {!isMobile && <ClassReportFooter students={students} activeFilter={activeFilter} setActiveFilter={setActiveFilter} footerRef={footerRef} />}
