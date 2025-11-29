@@ -5,7 +5,7 @@ export interface SubjectScore {
 }
 
 export interface TermResult {
-  term: "24/25 First Term" | "24/25 Second Term" | "24/25 Third Term";
+  term: "First Term" | "Second Term" | "Third Term";
   subjects: SubjectScore[];
   totalPercentage: number; // 0–100
   position: number;
@@ -52,7 +52,7 @@ export const students: StudentRow[] = Array.from({ length: 25 }).map((_, i) => {
   const generateTerm = (term: TermResult["term"]) => {
     const scoredSubjects: SubjectScore[] = SUBJECTS.map(sub => ({
       ...sub,
-      score: term === "24/25 First Term" ? 40 : term === "24/25 Second Term" ? 50 : 70,
+      score: term === "First Term" ? 40 : term === "Second Term" ? 50 : 70,
     }));
 
     return {
@@ -69,7 +69,7 @@ export const students: StudentRow[] = Array.from({ length: 25 }).map((_, i) => {
     serial: i + 1,
     name: "Damilare John",
     avatar: "/avatar.png",
-    terms: [generateTerm("24/25 First Term"), generateTerm("24/25 Second Term"), generateTerm("24/25 Third Term")],
+    terms: [generateTerm("First Term"), generateTerm("Second Term"), generateTerm("Third Term")],
   };
 });
 

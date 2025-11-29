@@ -12,7 +12,7 @@ import { SubmitClassReportModal } from "./SubmitClassReportModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Calendar from "@/components/Icons/Calendar";
 
-const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
+const termsOptions = ["Third Term", "Second Term", "First Term"];
 
 export const ClassReportHeader = ({
   students,

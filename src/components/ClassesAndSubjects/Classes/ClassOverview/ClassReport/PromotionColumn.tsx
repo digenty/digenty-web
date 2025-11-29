@@ -6,7 +6,7 @@ import { StudentRow } from "./students";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 
-const termsOptions = ["24/25 First Term", "24/25 Second Term", "24/25 Third Term"];
+const termsOptions = ["First Term", "Second Term", "Third Term"];
 const actions = ["Promote", "Repeat", "Double Promotion"];
 const RenderAction = (row: Row<StudentRow>) => {
   const [actionSelected, setActionSelected] = useState(actions[0]);
@@ -17,11 +17,11 @@ const RenderAction = (row: Row<StudentRow>) => {
         <SelectTrigger className="border-border-darker bg-bg-state-secondary! h-8! w-full border">
           <SelectValue>
             <div className="flex items-center gap-2">
-              <span className="text-text-default text-sm font-semibold">{actionSelected}</span>
+              <span className="text-text-default text-sm font-medium">{actionSelected}</span>
             </div>
           </SelectValue>
         </SelectTrigger>
-        <SelectContent className="bg-bg-card border-border-default w-56">
+        <SelectContent className="bg-bg-card border-border-default">
           {actions.map(action => (
             <SelectItem key={action} value={action} className="text-text-default text-sm">
               {action}
@@ -33,17 +33,16 @@ const RenderAction = (row: Row<StudentRow>) => {
   );
 };
 
-export const createPromotionColumns = (data: StudentRow[], term: string): ColumnDef<StudentRow>[] => {
+export const createPromotionColumns = (data: StudentRow[]): ColumnDef<StudentRow>[] => {
   const firstStudent = data[0];
 
   const termScores = termsOptions.map((term, index) => {
     const activeTerm = firstStudent.terms.find(t => t.term === term);
-    const termName = activeTerm?.term === "24/25 First Term" ? "First Term" : activeTerm?.term === "24/25 Second Term" ? "Second Term" : "Third Term";
     const percentageScoreForTerm = activeTerm?.totalPercentage ?? 0;
 
     return {
       id: `subject-${index}`,
-      header: () => <span className="text-text-muted truncate text-sm font-medium">{termName} %</span>,
+      header: () => <span className="text-text-muted truncate text-sm font-medium">{activeTerm?.term} %</span>,
       size: 136,
       minSize: 136,
       cell: () => {

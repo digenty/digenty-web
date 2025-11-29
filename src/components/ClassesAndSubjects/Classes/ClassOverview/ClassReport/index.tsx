@@ -10,8 +10,10 @@ import { ClassReportHeader } from "./ClassReportHeader";
 import { createColumns } from "./SpreadsheetColumns";
 import { StudentRow, students } from "./students";
 import { createPromotionColumns } from "./PromotionColumn";
+import { SpreadsheetMobileCard } from "./SpreadsheetMobileCard";
+import { PromotionMobileCard } from "./PromotionMobileCard";
 
-const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
+const termsOptions = ["Third Term", "Second Term", "First Term"];
 
 export const ClassReport = () => {
   const isMobile = useIsMobile();
@@ -20,6 +22,7 @@ export const ClassReport = () => {
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<StudentRow[]>([]);
   const [activeStudent, setActiveStudent] = useState<string>();
+  const [collapsedStudentId, setCollapsedStudentId] = useState<string>();
   const [termSelected, setTermSelected] = useState(termsOptions[0]);
 
   const pageSize = 10;
@@ -76,7 +79,7 @@ export const ClassReport = () => {
           />
         ) : activeFilter === "promotion" ? (
           <DataTable
-            columns={createPromotionColumns(students, termSelected)}
+            columns={createPromotionColumns(students)}
             data={students}
             totalCount={students.length}
             page={page}
@@ -122,6 +125,27 @@ export const ClassReport = () => {
           </Button>
         </div>
       )}
+
+      {/* Mobile View */}
+      <ul className="flex flex-col gap-3 px-4 py-6 pb-8 md:hidden">
+        {students.map(student => {
+          if (activeFilter === "spreadsheet") {
+            return (
+              <SpreadsheetMobileCard
+                key={student.id}
+                student={student}
+                activeStudent={collapsedStudentId}
+                setActiveStudent={setCollapsedStudentId}
+                termSelected={termSelected}
+              />
+            );
+          } else if (activeFilter === "promotion") {
+            return (
+              <PromotionMobileCard key={student.id} student={student} activeStudent={collapsedStudentId} setActiveStudent={setCollapsedStudentId} />
+            );
+          }
+        })}
+      </ul>
     </div>
   );
 };
