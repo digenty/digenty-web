@@ -12,6 +12,7 @@ import { StudentRow, students } from "./students";
 import { createPromotionColumns } from "./PromotionColumn";
 import { SpreadsheetMobileCard } from "./SpreadsheetMobileCard";
 import { PromotionMobileCard } from "./PromotionMobileCard";
+import { StudentResult } from "@/components/StudentResult";
 
 const termsOptions = ["Third Term", "Second Term", "First Term"];
 
@@ -53,55 +54,62 @@ export const ClassReport = () => {
         setTermSelected={setTermSelected}
       />
 
-      <div className="hidden overflow-x-auto px-4 pt-4 pb-25 md:block md:px-8">
+      <div className="px-4 md:px-8">
         {activeFilter === "spreadsheet" ? (
-          <DataTable
-            columns={createColumns(students, termSelected)}
-            data={students}
-            totalCount={students.length}
-            page={page}
-            setCurrentPage={setPage}
-            pageSize={pageSize}
-            clickHandler={row => {
-              console.log(row);
-            }}
-            showPagination={false}
-            rowSelection={rowSelection}
-            setRowSelection={setRowSelection}
-            onSelectRows={setSelectedRows}
-            fullBorder
-            classNames={{
-              tableHead: "text-center pr-2 w-34",
-              tableBodyCell: "text-center pr-2 w-34",
-              tableRow: "h-14",
-              table: "table-fixed",
-            }}
-          />
+          <div className="hidden overflow-x-auto md:block">
+            <DataTable
+              columns={createColumns(students, termSelected)}
+              data={students}
+              totalCount={students.length}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={pageSize}
+              clickHandler={row => {
+                console.log(row);
+              }}
+              showPagination={false}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              onSelectRows={setSelectedRows}
+              fullBorder
+              classNames={{
+                tableHead: "text-center pr-2 w-34",
+                tableBodyCell: "text-center pr-2 w-34",
+                tableRow: "h-14",
+                table: "table-fixed",
+              }}
+            />
+          </div>
         ) : activeFilter === "promotion" ? (
-          <DataTable
-            columns={createPromotionColumns(students)}
-            data={students}
-            totalCount={students.length}
-            page={page}
-            setCurrentPage={setPage}
-            pageSize={pageSize}
-            clickHandler={row => {
-              console.log(row);
-            }}
-            showPagination={false}
-            rowSelection={rowSelection}
-            setRowSelection={setRowSelection}
-            onSelectRows={setSelectedRows}
-            fullBorder
-            classNames={{
-              tableHead: "text-center pr-2 w-34",
-              tableBodyCell: "text-center pr-2 w-34",
-              tableRow: "h-14",
-              table: "table-fixed",
-            }}
-          />
+          <div className="hidden overflow-x-auto md:block">
+            <DataTable
+              columns={createPromotionColumns(students)}
+              data={students}
+              totalCount={students.length}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={pageSize}
+              clickHandler={row => {
+                console.log(row);
+              }}
+              showPagination={false}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              onSelectRows={setSelectedRows}
+              fullBorder
+              classNames={{
+                tableHead: "text-center pr-2 w-34",
+                tableBodyCell: "text-center pr-2 w-34",
+                tableRow: "h-14",
+                table: "table-fixed",
+              }}
+            />
+          </div>
         ) : (
-          <div>Student report</div>
+          <div className="max-w-[678px] pt-6">
+            {/* TODO: Pass active student here */}
+            <StudentResult />
+          </div>
         )}
       </div>
 

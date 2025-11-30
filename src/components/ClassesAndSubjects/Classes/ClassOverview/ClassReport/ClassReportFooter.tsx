@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { StudentReport } from "./students";
+import { StudentRow } from "./students";
 
 export const ClassReportFooter = ({
   students,
@@ -8,7 +8,7 @@ export const ClassReportFooter = ({
   setActiveFilter,
   footerRef,
 }: {
-  students: StudentReport[];
+  students: StudentRow[];
   activeFilter: string;
   setActiveFilter: (filter: string) => void;
   footerRef: React.RefObject<HTMLDivElement | null>;
@@ -16,7 +16,7 @@ export const ClassReportFooter = ({
   return (
     <div
       ref={footerRef}
-      className="bg-bg-card border-border-default scrollbar-hide fixed bottom-0 flex w-full items-center gap-2 overflow-x-auto border-t py-4 pr-50 pl-10"
+      className="bg-bg-card border-border-default scrollbar-hide fixed bottom-0 hidden w-full items-center gap-2 overflow-x-auto border-t py-4 pr-50 pl-10 md:flex"
     >
       <Button
         onClick={() => setActiveFilter("spreadsheet")}

@@ -192,17 +192,17 @@ export const StudentResult = () => {
           <div className="">
             <span>OVERALL PERCENTAGE:</span> <span className="font-medium">69%</span>
           </div>
-          <div className="flex gap-1">
+          <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
             <span className="text-text-subtle">Class Teacher&apos;s Comment: </span>{" "}
             <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">This is an Excellent result</span>
           </div>
 
-          <div className="flex gap-1">
+          <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
             <span className="text-text-subtle">Principal&apos;s Comment:</span>{" "}
             <span className="border-border-default inline-block min-w-[150px] flex-1 border-b"></span>
           </div>
 
-          <div className="flex gap-1">
+          <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
             <span className="text-text-subtle">Next Term Begins:</span>{" "}
             <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">15 June, 2025</span>
           </div>
