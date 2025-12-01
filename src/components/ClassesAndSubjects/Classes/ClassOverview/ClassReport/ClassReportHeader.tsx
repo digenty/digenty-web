@@ -110,8 +110,9 @@ export const ClassReportHeader = ({
             </div>
           </div>
 
+          {/* TODO: Separate this filter as a component and use same component  heere and in teh footer  */}
           {isMobile && (
-            <div className="border-border-default flex gap-2 overflow-x-auto border-t px-4 py-2 md:hidden">
+            <div className="border-border-default flex gap-2 overflow-x-auto border-t px-4 py-2">
               <Button
                 onClick={() => setActiveFilter("spreadsheet")}
                 className={cn(

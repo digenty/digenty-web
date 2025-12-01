@@ -56,7 +56,7 @@ export const ClassReport = () => {
 
       <div className="px-4 md:px-8">
         {activeFilter === "spreadsheet" ? (
-          <div className="hidden overflow-x-auto md:block">
+          <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
             <DataTable
               columns={createColumns(students, termSelected)}
               data={students}
@@ -81,7 +81,7 @@ export const ClassReport = () => {
             />
           </div>
         ) : activeFilter === "promotion" ? (
-          <div className="hidden overflow-x-auto md:block">
+          <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
             <DataTable
               columns={createPromotionColumns(students)}
               data={students}
