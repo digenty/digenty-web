@@ -73,7 +73,10 @@ export default function Subject({ title, classes }: SubjectProps) {
                         >
                           <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
                         </Button>
-                        <Button className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium">
+                        <Button
+                          onClick={() => router.push(`/classes-and-subjects/${cl.id}/add-score?subject=${title}&submitted=true`)}
+                          className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"
+                        >
                           <Eye fill="var(--color-icon-default-muted)" /> View
                         </Button>
                       </div>
@@ -83,7 +86,7 @@ export default function Subject({ title, classes }: SubjectProps) {
 
                     {cl.subjectStatus === "Request Edit Access" ? (
                       <Button
-                        onClick={() => router.push(`/classes-and-subjects/${cl.id}/add-score?subject=${title}`)}
+                        onClick={() => router.push(`/classes-and-subjects/${cl.id}/add-score?subject=${title}&requested=true`)}
                         className="border-border-darker text-text-default bg-bg-state-secondary shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"
                       >
                         <Eye fill="var(--color-icon-default-muted)" /> View

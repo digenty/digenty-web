@@ -76,10 +76,10 @@ export const DataTable = <TData, TValue>({
   return (
     <div className="space-y-4">
       <div className={cn("overflow-hidden rounded-md", classNames?.tableWrapper)}>
-        <Table className="w-full">
+        <Table className={cn("w-full", classNames?.table)}>
           <TableHeader className={cn("border-border-default border-t", fullBorder && "border")}>
             {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id} className="border-border-default border-b">
+              <TableRow key={headerGroup.id} className={cn("border-border-default border-b", classNames?.tableRow)}>
                 {headerGroup.headers.map(header => {
                   return (
                     <TableHead
@@ -91,6 +91,7 @@ export const DataTable = <TData, TValue>({
                         header.column.id === "s/n" || (header.column.id === "attendance" && "text-center"),
                         header.column.id === "totalAttendance" && "bg-bg-muted sticky right-0 z-5",
                         fullBorder && "border-border-default border-r",
+                        classNames?.tableHead,
                       )}
                     >
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
@@ -106,7 +107,10 @@ export const DataTable = <TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="border-border-default data-[state=selected]:bg-bg-basic-gray-alpha-2 hover:bg-bg-basic-gray-alpha-2 border-y text-sm"
+                  className={cn(
+                    "border-border-default data-[state=selected]:bg-bg-basic-gray-alpha-2 hover:bg-bg-basic-gray-alpha-2 border-y text-sm",
+                    classNames?.tableRow,
+                  )}
                 >
                   {row.getVisibleCells().map(cell => (
                     <TableCell

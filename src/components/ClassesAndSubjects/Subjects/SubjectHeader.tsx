@@ -19,7 +19,7 @@ export default function SubjectHeader() {
   return (
     <div className="flex w-full justify-between align-middle">
       <h2 className="text-text-default text-lg font-semibold md:text-xl">My Subjects</h2>
-
+      {/* 
       <div className="hidden gap-1 align-middle md:flex">
         <Select value={termSelected} onValueChange={setTermSelected}>
           <SelectTrigger className="border-border-darker h-8! w-auto border">
@@ -38,7 +38,7 @@ export default function SubjectHeader() {
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </div> */}
 
       <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
         <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />

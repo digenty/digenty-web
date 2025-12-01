@@ -27,7 +27,7 @@ const RenderActions = (row: Row<Subject>) => {
 
       <Button
         className="border-border-darker bg-bg-state-secondary text-text-default h-6! rounded-md border px-1.5! font-medium"
-        onClick={() => router.push(`${pathname}/${row.original.id}`)}
+        onClick={() => router.push(`${pathname}/subjects/${row.original.id}`)}
       >
         <Eye fill="var(--color-icon-default-muted)" className="size-4" />
         <span className="text-xs">View</span>
