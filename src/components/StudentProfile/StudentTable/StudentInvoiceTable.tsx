@@ -8,6 +8,7 @@ import { Calendar, Check, CheckCheck, Ellipsis, Eye, Trash2, TriangleAlert, X } 
 import { useState } from "react";
 import { Invoice } from "../types";
 import { columns } from "./InvoiceColumns";
+import { Draft } from "@/components/Icons/Draft";
 
 const invoices = [
   { id: 0, title: "INV-2025-1001", issueDate: "30/5/2024", status: "Paid" },
@@ -51,6 +52,13 @@ export const getBadge = (status: string) => {
         <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default rounded-md text-xs font-medium">
           <CheckCheck className="size-3" />
           <span>Fully Paid</span>
+        </Badge>
+      );
+    case "Draft":
+      return (
+        <Badge className="border-border-default bg-bg-badge-default text-text-subtle rounded-md text-xs font-medium">
+          <Draft className="size-3" fill="var(--color-icon-default-muted)" />
+          <span>Draft</span>
         </Badge>
       );
     default:
