@@ -2,21 +2,25 @@
 
 import Printer from "@/components/Icons/Printer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import DeleteBin from "../../Icons/DeleteBin";
 import { Invoice } from "../types";
 import { getBadge } from "./StudentInvoiceTable";
+import { useRouter } from "next/navigation";
 
-const RenderOptions = () => {
-  // Pass row: Row<Invoice> as a parameter
+const RenderOptions = (row: Row<Invoice>) => {
+  const router = useRouter()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="border-border-darker focus-visible:ring-0 focus-visible:outline-none">
         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default w-48 py-2.5 shadow-sm">
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={(evt) => {
+          evt.stopPropagation()
+          router.push(`/invoices/${row.original.id}`)}
+        } className="gap-2.5 px-3">
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View invoice</span>
         </DropdownMenuItem>
@@ -53,6 +57,6 @@ export const columns: ColumnDef<Invoice>[] = [
   {
     id: "actions",
     header: () => <div />,
-    cell: () => RenderOptions(),
+    cell: ({ row }) => RenderOptions(row),
   },
 ];

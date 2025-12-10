@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Invoice } from "../types";
 import { columns } from "./InvoiceColumns";
 import { Draft } from "@/components/Icons/Draft";
+import { useRouter } from "next/navigation";
 
 const invoices = [
   { id: 0, title: "INV-2025-1001", issueDate: "30/5/2024", status: "Paid" },
@@ -31,6 +32,13 @@ export const getBadge = (status: string) => {
         <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default rounded-md text-xs font-medium">
           <Check className="size-3" />
           <span>Paid</span>
+        </Badge>
+      );
+    case "Successful":
+      return (
+        <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default rounded-md text-xs font-medium">
+          <Check className="size-3" />
+          <span>Successful</span>
         </Badge>
       );
     case "Unpaid":
@@ -59,6 +67,12 @@ export const getBadge = (status: string) => {
         <Badge className="border-border-default bg-bg-badge-default text-text-subtle rounded-md text-xs font-medium">
           <Draft className="size-3" fill="var(--color-icon-default-muted)" />
           <span>Draft</span>
+          </Badge>
+      );
+    case "Required":
+      return (
+        <Badge className="bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong border-border-default rounded-md text-xs font-medium">
+          <span>Required</span>
         </Badge>
       );
     default:
@@ -77,6 +91,7 @@ export default function StudentInvoiceTable() {
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Invoice[]>([]);
   console.log(selectedRows);
+  const router = useRouter();
   const pageSize = 10;
 
   return (
@@ -138,7 +153,7 @@ export default function StudentInvoiceTable() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-bg-card border-border-default w-[192px] rounded-sm border shadow-sm">
-                    <DropdownMenuItem className="text-text-default hover:bg-bg-muted flex items-center gap-2 p-2 text-sm">
+                    <DropdownMenuItem onClick={() => router.push(`/invoices/${invoice.id}`)} className="text-text-default hover:bg-bg-muted flex items-center gap-2 p-2 text-sm">
                       <Eye className="size-4" /> View Invoice
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-text-default hover:bg-bg-muted flex items-center gap-2 p-2 text-sm">

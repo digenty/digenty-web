@@ -1,9 +1,9 @@
-import React, { SVGProps } from "react";
+import { SVGProps } from "react";
 
 export const AddFill = (props: SVGProps<SVGSVGElement>) => {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
-      <path d="M7.33317 7.33268V2.66602H8.6665V7.33268H13.3332V8.66602H8.6665V13.3327H7.33317V8.66602H2.6665V7.33268H7.33317Z" fill={props.fill} />
+    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none" {...props}>
+      <path d="M5.25 5.25V0H6.75V5.25H12V6.75H6.75V12H5.25V6.75H0V5.25H5.25Z" fill={props.fill} />
     </svg>
   );
 };
