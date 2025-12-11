@@ -32,6 +32,13 @@ export const getBadge = (status: string) => {
           <span>Paid</span>
         </Badge>
       );
+    case "Successful":
+      return (
+        <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default rounded-md text-xs font-medium">
+          <Check className="size-3" />
+          <span>Successful</span>
+        </Badge>
+      );
     case "Unpaid":
       return (
         <Badge className="bg-bg-badge-red text-bg-basic-red-strong border-border-default rounded-md text-xs font-medium">
@@ -51,6 +58,12 @@ export const getBadge = (status: string) => {
         <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default rounded-md text-xs font-medium">
           <CheckCheck className="size-3" />
           <span>Fully Paid</span>
+        </Badge>
+      );
+    case "Required":
+      return (
+        <Badge className="bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong border-border-default rounded-md text-xs font-medium">
+          <span>Required</span>
         </Badge>
       );
     default:
@@ -143,8 +156,8 @@ export default function StudentInvoiceTable() {
                 </DropdownMenu>
               </div>
 
-              <div className="border-border-default border-t-1">
-                <div className="border-border-default flex justify-between border-b-1 px-3 py-2 text-sm">
+              <div className="border-border-default border-t">
+                <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
                   <span className="text-text-muted font-medium">Issued Date:</span>
                   <span className="text-text-muted font-normal">{invoice.issueDate}</span>
                 </div>
