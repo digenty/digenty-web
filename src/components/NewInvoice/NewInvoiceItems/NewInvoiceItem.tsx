@@ -14,6 +14,8 @@ import { GroupFeesSheet } from "./GroupFeesSheet";
 import { FeesSheet } from "./FeesSheet";
 import { StockSheet } from "./StockSheet";
 import { NewInvoiceItemMobile } from "./NewInvoiceMobileItem";
+import { ArrowDownS } from "@/components/Icons/ArrowDownS";
+import { MobileDrawer } from "@/components/MobileDrawer";
 
 type ItemRow = {
   id: string;
@@ -24,6 +26,7 @@ type ItemRow = {
 };
 
 export const NewInvoiceItem = () => {
+  const [openMobileDrawer, setOpenMobileDrawer] = useState(false);
   const [items, setItems] = useState<ItemRow[]>([{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }]);
 
   const subtotal = items.reduce((acc, item) => acc + item.qty * item.price, 0);
@@ -44,12 +47,35 @@ export const NewInvoiceItem = () => {
     <div className="">
       <div className="">
         <div className="text-text-default text-normal mb-4 text-lg font-semibold">Invoice Items</div>
-        <div className="mb-6 flex flex-wrap gap-1">
-          <StockSheet />
+        <div className="mb-6">
+          <div className="hidden flex-wrap gap-1 md:flex">
+            <StockSheet />
 
-          <FeesSheet />
+            <FeesSheet />
 
-          <GroupFeesSheet />
+            <GroupFeesSheet />
+          </div>
+          <div className="flex md:hidden">
+            <Button
+              onClick={() => setOpenMobileDrawer(true)}
+              className="hover:bg-bg-none! border-border-darker text-text-muted flex items-center gap-2 border p-0 px-3 text-sm font-normal"
+            >
+              <span className="">Select from Fees</span>
+              <ArrowDownS fill="var(--color-icon-default-muted )" />
+            </Button>
+
+            {openMobileDrawer && (
+              <MobileDrawer title="Action" open={openMobileDrawer} setIsOpen={setOpenMobileDrawer}>
+                <div className="flex flex-col content-center p-4">
+                  <StockSheet />
+
+                  <FeesSheet />
+
+                  <GroupFeesSheet />
+                </div>
+              </MobileDrawer>
+            )}
+          </div>
         </div>
 
         <div className="border-border-darker hidden w-full overflow-hidden rounded-md border md:block">

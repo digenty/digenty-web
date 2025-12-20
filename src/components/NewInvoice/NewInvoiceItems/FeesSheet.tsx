@@ -47,9 +47,9 @@ export const FeesSheet = () => {
       <div className="flex w-full flex-col gap-2">
         <Sheet>
           <SheetTrigger asChild className="bg-bg-state-secondary! border-border-darker flex h-8 w-full cursor-pointer rounded-md border">
-            <div className="flex items-center gap-2 px-3">
+            <div className="flex items-center justify-center gap-2 px-3">
               <Button className="hover:bg-bg-none! text-text-muted border-none p-0 text-sm font-normal">Select from Fees</Button>{" "}
-              <ArrowDownS fill="var(--color-icon-default-muted )" />
+              <ArrowDownS fill="var(--color-icon-default-muted )" className="hidden md:block" />
             </div>
           </SheetTrigger>
 
