@@ -56,9 +56,9 @@ export const InvoiceSearchAndExport = () => {
     <>
       {openExport && <InvoiceExportModal open={openExport} setOpen={setOpenExport} />}
 
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-0">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
         <div className="flex items-center gap-1">
-          <SearchInput className="border-border-default border" />
+          <SearchInput className="border-border-default border text-sm" />
 
           <DropdownMenu open={openFilter} onOpenChange={setOpenFilter}>
             <DropdownMenuTrigger asChild>
@@ -123,7 +123,7 @@ export const InvoiceSearchAndExport = () => {
 
         {isMobile && (
           <MobileDrawer open={openFilter} setIsOpen={setOpenFilter} title="Filter">
-            <div className="flex w-full flex-col gap-4 px-6 py-4">
+            <div className="flex w-full flex-col gap-2 px-6 py-4">
               {filterItems.map((item, i) => (
                 <div key={i} className="flex flex-col items-center gap-2">
                   <div className="flex w-full items-center gap-2 p-2 text-sm">
@@ -137,10 +137,10 @@ export const InvoiceSearchAndExport = () => {
             <DrawerFooter className="border-border-default border-t">
               <div className="flex justify-between">
                 <DrawerClose asChild>
-                  <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-2 py-1 text-sm font-medium">Cancel</Button>
+                  <Button className="bg-bg-state-soft text-text-subtle h-8 rounded-md! px-2.5 py-1 text-sm font-medium">Cancel</Button>
                 </DrawerClose>
 
-                <Button className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7 rounded-md px-2 py-1 text-sm">
+                <Button className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-8 rounded-md px-2.5 py-1 text-sm">
                   Apply
                 </Button>
               </div>

@@ -185,14 +185,21 @@ export const InvoiceExportModal = ({ open, setOpen }: InvoiceModalProps) => {
         <Modal
           open={open}
           setOpen={setOpen}
-          title="Export Invoice"
+          title={
+            <span className="flex items-center gap-2">
+              <span className="bg-bg-state-soft flex size-8 items-center justify-center rounded-full">
+                <ShareBox fill="var(--color-icon-default-subtle)" className="size-4" />
+              </span>
+              <span>Export Invoice</span>
+            </span>
+          }
           ActionButton={
             <Button className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm">
               <ShareBox fill="var(--color-icon-white-default)" /> Export Invoice
             </Button>
           }
         >
-          <div className="flex w-full flex-col gap-4 px-3 py-4">
+          <div className="flex w-full flex-col gap-4 px-6 py-4">
             <h2 className="text-text-default text-sm font-bold">Filter Selection</h2>
 
             <div className="space-y-2">

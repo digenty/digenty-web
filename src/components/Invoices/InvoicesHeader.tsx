@@ -12,6 +12,7 @@ import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import Calendar from "../Icons/Calendar";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 const classes = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
@@ -27,6 +28,8 @@ export const InvoicesHeader = () => {
   const [departmentSelected, setDepartmentSelected] = useState(departments[0]);
   const [armSelected, setArmSelected] = useState(arms[0]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  useBreadcrumb([{ label: "Invoices", url: "/invoices" }]);
 
   return (
     <div>
@@ -176,6 +179,27 @@ export const InvoicesHeader = () => {
               <div className="flex items-center gap-2">
                 <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
                 <Label className="text-text-default text-sm font-medium">Period</Label>
+              </div>
+              <Select value={termSelected} onValueChange={setTermSelected}>
+                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                  <SelectValue>
+                    <span className="text-text-default text-sm">{termSelected}</span>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-bg-default border-border-default">
+                  {termsOptions.map(status => (
+                    <SelectItem key={status} value={status} className="text-text-default text-sm">
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
+                <Label className="text-text-default text-sm font-medium">Date Range</Label>
               </div>
               <Select value={termSelected} onValueChange={setTermSelected}>
                 <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
