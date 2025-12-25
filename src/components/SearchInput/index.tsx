@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 export const SearchInput = ({ className, placeholder = "Search" }: { className?: string; placeholder?: string }) => {
   return (
     <InputGroup className={cn("pr-1", className)}>
-      <InputGroupInput className="text-text-muted" placeholder={placeholder} />
+      <InputGroupInput className="text-text-muted text-sm" placeholder={placeholder} />
       <InputGroupAddon>
         <Search className="text-icon-default-muted" />
       </InputGroupAddon>

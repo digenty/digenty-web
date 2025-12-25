@@ -78,6 +78,7 @@ export const ClassReportHeader = ({
 
               {!isSubmitted && !isRequested && (
                 <div className="flex flex-1 items-center gap-2 md:flex-auto md:gap-1">
+                  {/* For Admin, Submit buttons would  Approve Result and Return Result  */}
                   <Button
                     onClick={() => setOpenModal(true)}
                     size="sm"

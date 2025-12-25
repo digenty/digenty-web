@@ -80,10 +80,10 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
 export const scoreColumns = (isEditable: boolean): ColumnDef<ScoreType>[] => [
   {
     accessorKey: "s/n",
-    header: () => <div className="text-text-muted w-0.5 text-sm font-medium">S/N</div>,
-    cell: ({ row }) => <span className="text-text-default h-14 w-0.5 cursor-pointer text-center text-sm font-normal">{row.index + 1}</span>,
-    size: 20,
-    maxSize: 20,
+    header: () => <div className="text-text-muted w-4 text-sm font-medium">S/N</div>,
+    cell: ({ row }) => <span className="text-text-default h-14 w-4 cursor-pointer text-center text-sm font-normal">{row.index + 1}</span>,
+    size: 50,
+    maxSize: 50,
   },
   {
     accessorKey: "studentName",
