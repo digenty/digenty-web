@@ -20,7 +20,7 @@ export const ClassHeader = () => {
       {openEdit && <EditModal openEditRequestModal={openEdit} setEditRequestModal={setOpenEdit} />}
       {openNotify && <NotifyTeacherModal openNotifyModal={openNotify} setOpenNotifyModal={setOpenNotify} />}
       <div className="border-border-default border-b">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:p-4">
+        <div className="flex flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-8">
           <div className="flex flex-col gap-1">
             <h2 className="border-border-default text-text-default border-b px-4 py-2 text-lg font-semibold md:border-none md:p-0">JSS 1A</h2>
             <div className="border-border-default flex items-center gap-1 border-b px-4 py-2 md:border-none md:p-0">

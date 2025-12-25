@@ -9,7 +9,7 @@ export const AllClassesMain = () => {
   return (
     <div className="flex flex-col">
       <AllClassesHeader />
-      <div className="grid w-full grid-cols-2 gap-3 px-4 py-3 lg:grid-cols-3">
+      <div className="mt-4 grid w-full grid-cols-2 gap-3 px-4 md:px-8 lg:grid-cols-3">
         <OverviewCard
           title="Total Classes"
           Icon={() => (

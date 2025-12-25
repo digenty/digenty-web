@@ -34,14 +34,13 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
             className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
             onClick={() => router.push(`/classes-and-subjects/all-classes/${row.original.id}`)}
           >
-            <Eye fill="var(--color-icon-default-subtle)" />
+            <Eye fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>View class</span>
           </DropdownMenuItem>
           <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3" onClick={() => setOpenApproveModal(true)}>
             <CheckboxCircle fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Approve submission</span>
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
           <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3" onClick={() => setOpenNotifyModal(true)}>
             <Notification fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Notify class teacher</span>
@@ -68,23 +67,23 @@ const RenderModals = (row: Row<ClassProps>) => {
       <div className="flex items-center gap-1">
         <Button
           onClick={() => setOpenEditMobile(true)}
-          className="bg-bg-state-secondary border-border-default text-text-default flex h-8 w-46 items-center gap-1 rounded-md border text-sm font-medium"
+          className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
         >
-          <Key fill="var(--color-icon-default)" />
+          <Key fill="var(--color-icon-default-muted)" />
           Manage Edit Request
         </Button>
         <Button
           onClick={() => setOpenNotifyMobile(true)}
-          className="bg-bg-state-secondary border-border-default text-text-default flex h-8 w-34 items-center gap-1 rounded-md border text-sm font-medium"
+          className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
         >
-          <Notification fill="var(--color-icon-default)" />
+          <Notification fill="var(--color-icon-default-muted)" />
           Notify Teacher
         </Button>
         <Button
           onClick={() => router.push(`/classes-and-subjects/all-classes/class-report`)}
-          className="bg-bg-state-secondary border-border-default text-text-default flex h-8 w-20 items-center gap-1 rounded-md border text-sm font-medium"
+          className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
         >
-          <Eye fill="var(--color-icon-default)" /> View
+          <Eye fill="var(--color-icon-default-muted)" /> View
         </Button>
       </div>
     </>
@@ -135,7 +134,7 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
   },
   {
     accessorKey: "editRequest",
-    header: () => <div className="text-text-muted text-sm font-medium">Edit Request</div>,
+    header: () => <div className="text-text-muted text-sm font-medium">Edit Requests</div>,
     cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.editRequest}</span>,
   },
 

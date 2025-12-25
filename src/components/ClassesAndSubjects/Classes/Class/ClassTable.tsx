@@ -29,7 +29,7 @@ export const ClassTable = () => {
   const [page, setPage] = useState(1);
   const [action, setAction] = useState(false);
   return (
-    <div className="px-4 py-3">
+    <div className="px-4 py-3 md:px-8">
       <div className="hidden md:block">
         <DataTable
           pageSize={10}

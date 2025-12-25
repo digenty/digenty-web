@@ -16,7 +16,7 @@ export const MobileDrawer = ({
 }) => {
   return (
     <Drawer open={open} onOpenChange={setIsOpen}>
-      {open && <DrawerOverlay />}
+      {open && <DrawerOverlay className="block md:hidden" />}
       <DrawerContent className="bg-bg-card border-border-darker m-4 block rounded-xl md:hidden">
         <VisuallyHidden>
           <DrawerHeader>

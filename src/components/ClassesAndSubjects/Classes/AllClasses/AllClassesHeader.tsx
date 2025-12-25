@@ -19,11 +19,11 @@ export const AllClassesHeader = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   return (
     <div className="border-border-default border-b">
-      <div className="flex w-full justify-between px-4 py-2 align-middle">
-        <h2 className="text-text-default text-lg font-semibold md:text-2xl">All Classes</h2>
+      <div className="flex w-full items-center justify-between px-4 py-2.5 md:px-8">
+        <h2 className="text-text-default text-lg font-semibold md:text-xl">All Classes</h2>
 
         <div className="flex items-center gap-2">
-          <Toggle label="Draft" checked={draft} onChange={e => setDraft(e.target.checked)} />
+          <Toggle label={draft ? "Published" : "Draft"} checked={draft} onChange={e => setDraft(e.target.checked)} />
           <div className="hidden gap-1 align-middle md:flex">
             <Select value={termSelected} onValueChange={setTermSelected}>
               <SelectTrigger className="border-border-darker h-8 w-auto border">
@@ -50,36 +50,23 @@ export const AllClassesHeader = () => {
 
         <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
           <div className="flex w-full flex-col gap-4 px-3 py-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
-                <Label className="text-text-default text-sm font-medium">Period</Label>
-              </div>
-              <Select value={termSelected} onValueChange={setTermSelected}>
-                <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{termSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {termsOptions.map(term => (
-                    <SelectItem key={term} value={term} className="text-text-default text-sm">
-                      {term}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-4">
+              {termsOptions.map(term => (
+                <p key={term} className="text-text-default px-3 pl-9 text-sm">
+                  {term}
+                </p>
+              ))}
             </div>
           </div>
 
           <DrawerFooter className="border-border-default border-t">
             <div className="flex justify-between">
               <DrawerClose asChild>
-                <Button className="bg-bg-state-soft text-text-subtle rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
+                <Button className="bg-bg-state-soft text-text-subtle h-8! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
               </DrawerClose>
 
-              <Button className="bg-bg-state-primary text-text-white-default rounded-md! px-4 py-2 text-sm tracking-[0.1rem]">
-                <span>Apply Filter</span>
+              <Button className="bg-bg-state-primary text-text-white-default h-8! rounded-md! px-4 py-2 text-sm tracking-[0.1rem]">
+                <span>Apply</span>
               </Button>
             </div>
           </DrawerFooter>
