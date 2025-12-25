@@ -11,6 +11,7 @@ export default function ClassesAndSubjectsPage() {
         </div>
       }
     >
+      {/* For admin screens visit 'classes-and-subjects/all-classes' */}
       <ClassesAndSubjects />
     </Suspense>
   );

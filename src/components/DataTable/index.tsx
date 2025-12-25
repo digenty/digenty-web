@@ -79,7 +79,7 @@ export const DataTable = <TData, TValue>({
         <Table className={cn("w-full", classNames?.table)}>
           <TableHeader className={cn("border-border-default border-t", fullBorder && "border")}>
             {table.getHeaderGroups().map(headerGroup => (
-              <TableRow key={headerGroup.id} className={cn("border-border-default border-b", classNames?.tableRow)}>
+              <TableRow key={headerGroup.id} className={cn("border-border-default border-b", classNames?.tableHead, classNames?.tableRow)}>
                 {headerGroup.headers.map(header => {
                   return (
                     <TableHead
@@ -88,10 +88,10 @@ export const DataTable = <TData, TValue>({
                       colSpan={header.colSpan}
                       className={cn(
                         "relative pr-7.5",
-                        header.column.id === "s/n" || (header.column.id === "attendance" && "text-center"),
+                        header.column.id === "attendance" && "text-center",
                         header.column.id === "totalAttendance" && "bg-bg-muted sticky right-0 z-5",
                         fullBorder && "border-border-default border-r",
-                        classNames?.tableHead,
+                        classNames?.tableHeadCell,
                       )}
                     >
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}

@@ -9,8 +9,10 @@ import { EditModal, NotifyTeacherModal } from "../AllClasses/AllClassesModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { MoreHorizontalIcon } from "lucide-react";
 import FileList2 from "@/components/Icons/FileList2";
+import { useRouter } from "next/navigation";
 
 export const ClassHeader = () => {
+  const router = useRouter();
   const [openNotify, setOpenNotify] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [open, setOpen] = useState(false);
@@ -42,7 +44,10 @@ export const ClassHeader = () => {
               <Notification fill="var(--color-icon-default)" />
               Notify Class Teacher
             </Button>
-            <Button className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-32.5">
+            <Button
+              onClick={() => router.push("/classes-and-subjects/classes/1/class-report")}
+              className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-32.5"
+            >
               {" "}
               <FileList2 fill="var(--color-icon-default)" /> Class Report
             </Button>

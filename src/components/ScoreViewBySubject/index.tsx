@@ -28,7 +28,9 @@ export const ScoreViewBySubject = ({ scores, isEditable = false }: { scores: Sco
           fullBorder
           showPagination={false}
           classNames={{
-            tableBodyCell: "text-center",
+            tableBodyCell: "text-center py-0 pr-2",
+            tableHeadCell: "pr-2",
+            tableHead: "bg-bg-subtle h-13.5",
           }}
         />
       </div>
