@@ -10,8 +10,10 @@ import DeleteBin from "../Icons/DeleteBin";
 import { getBadge } from "../StudentProfile/StudentTable/StudentInvoiceTable";
 import Notification2 from "../Icons/Notification2";
 import { BallPen } from "../Icons/BallPen";
+import { useRouter } from "next/navigation";
 
 const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -19,7 +21,13 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
-        <DropdownMenuItem className="hover:bg-bg-state-ghost-hover cursor-pointer gap-2.5 px-3">
+        <DropdownMenuItem
+          onClick={evt => {
+            evt.stopPropagation();
+            router.push(`/invoices/${row.original.id}`);
+          }}
+          className="hover:bg-bg-state-ghost-hover cursor-pointer gap-2.5 px-3"
+        >
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View invoice</span>
         </DropdownMenuItem>

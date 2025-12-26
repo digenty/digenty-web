@@ -2,14 +2,15 @@
 
 import Printer from "@/components/Icons/Printer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import DeleteBin from "../../Icons/DeleteBin";
 import { Invoice } from "../types";
 import { getBadge } from "./StudentInvoiceTable";
 
-const RenderOptions = () => {
-  // Pass row: Row<Invoice> as a parameter
+const RenderOptions = (row: Row<Invoice>) => {
+  console.log(row);
+  // const router = useRouter()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="border-border-darker focus-visible:ring-0 focus-visible:outline-none">
@@ -53,6 +54,6 @@ export const columns: ColumnDef<Invoice>[] = [
   {
     id: "actions",
     header: () => <div />,
-    cell: () => RenderOptions(),
+    cell: ({ row }) => RenderOptions(row),
   },
 ];
