@@ -143,10 +143,7 @@ export const InvoiceOverviewTable = () => {
                 <MobileDrawer open={isOpen} setIsOpen={setIsOpen} title="Actions">
                   <div className="flex w-full flex-col gap-4 px-3 py-4">
                     <div className="flex flex-col items-center gap-2">
-                      <div
-                        onClic
-                        className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                      >
+                      <div className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
                         <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Invoice
                       </div>
                       <div className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">

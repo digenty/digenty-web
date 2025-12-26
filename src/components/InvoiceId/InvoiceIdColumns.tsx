@@ -1,21 +1,21 @@
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { invoiceBreakdownType, paymentHistoryType } from "./invoiceIdTypes";
-import { getBadge } from "../StudentProfile/StudentTable/StudentInvoiceTable";
-import { Bank } from "../Icons/Bank";
-import { Cash } from "../Icons/Cash";
-import { Folder3 } from "../Icons/Folder3";
-import BankCard from "../Icons/BankCard";
-import { Avatar } from "../Avatar";
-import { useState } from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
-import Edit from "../Icons/Edit";
+import { useState } from "react";
+import { Avatar } from "../Avatar";
+import { Bank } from "../Icons/Bank";
+import BankCard from "../Icons/BankCard";
+import { Cash } from "../Icons/Cash";
 import DeleteBin from "../Icons/DeleteBin";
+import Edit from "../Icons/Edit";
+import { Folder3 } from "../Icons/Folder3";
+import { getBadge } from "../StudentProfile/StudentTable/StudentInvoiceTable";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { invoiceBreakdownType, paymentHistoryType } from "./invoiceIdTypes";
 
 import { useClassesStore } from "@/store/classes";
 import { DeletePaymentModal, PaymentDetailsModal } from "./InvoiceIdModals";
 
-const RenderOptions = (row: Row<invoiceBreakdownType>) => {
+const RenderOptions = (row: Row<paymentHistoryType>) => {
   console.log(row);
   const [open, setOpen] = useState(false);
   const { isPaymentDetailsOpen, setIsPaymentDetailsOpen, deletePayment, setDeletePayment } = useClassesStore();
