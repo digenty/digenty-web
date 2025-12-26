@@ -19,12 +19,12 @@ export const DashProgress: React.FC<DashProgressProps> = ({
   const activeSteps = Math.round((value / 100) * steps);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between gap-2">
       {Array.from({ length: steps }).map((_, i) => (
         <div
           key={i}
           className={clsx("h-1 w-7 rounded-full transition-colors duration-300", i < activeSteps ? activeColor : inactiveColor)}
-          style={{ width: "16px" }}
+          style={{ width: `${100 / steps}%` }}
         />
       ))}
     </div>

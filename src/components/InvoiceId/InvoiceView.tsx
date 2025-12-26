@@ -21,11 +21,11 @@ export const InvoiceView = () => {
     <div>
       {invoice.map(inv => (
         <div key={inv.id} className="grid grid-cols-2 md:grid-cols-4">
-          <div className="border-border-default rounded-tl-1 flex h-26 flex-col gap-4 border border-b-0 p-4 md:border-b md:p-8">
+          <div className="border-border-default rounded-tl-1 flex h-26 flex-col justify-center gap-4 border border-b-0 p-4 md:border-b md:p-8">
             <div className="text-text-muted text-xs font-medium">Status</div>
             <p className={`text-text-default text-md font-medium`}> {getBadge(inv.status)} </p>
           </div>
-          <div className="border-border-default flex h-26 flex-col gap-4 border border-b-0 border-l-0 p-4 md:border-b md:p-8">
+          <div className="border-border-default flex h-26 flex-col justify-center gap-4 border border-b-0 border-l-0 p-4 md:border-b md:p-8">
             <div className="text-text-muted text-xs font-medium">Issued Date</div>
             <p className="text-text-default text-md font-medium"> {inv.issuedDate}</p>
           </div>
@@ -35,28 +35,28 @@ export const InvoiceView = () => {
             <p className="text-text-default text-md font-medium">{inv.dueDate}</p>
           </div>
 
-          <div className="border-border-default flex h-26 flex-col gap-4 border border-l-0 p-4 md:p-8">
+          <div className="border-border-default flex h-26 flex-col justify-center gap-4 border border-l-0 p-4 md:p-8">
             <div className="text-text-muted text-xs font-medium">Issued To</div>
-            <p className="text-text-default text-md flex items-center gap-1 font-medium">
+            <p className="text-text-default text-md flex items-center gap-1 text-sm font-medium">
               <Avatar className="size-5" username={inv.issueTo} />
               {inv.issueTo}
             </p>
           </div>
 
-          <div className="border-border-default flex h-26 flex-col gap-4 border border-t-0 p-4 md:p-8">
+          <div className="border-border-default flex h-26 flex-col justify-center gap-4 border border-t-0 p-4 md:p-8">
             <div className="text-text-muted text-xs font-medium">Term & Session</div>
             <p className="text-text-default text-md font-medium">{inv.termSection}</p>
           </div>
-          <div className="border-border-default flex h-26 flex-col gap-4 border border-t-0 border-l-0 p-4 md:p-8">
+          <div className="border-border-default flex h-26 flex-col justify-center gap-4 border border-t-0 border-l-0 p-4 md:p-8">
             <div className="text-text-muted text-xs font-medium">Branch</div> <p className="text-text-default text-md font-medium">{inv.branch}</p>
           </div>
-          <div className="border-border-default flex h-26 flex-col gap-4 border border-t-0 p-4 md:border-l-0 md:p-8">
+          <div className="border-border-default flex h-26 flex-col justify-center gap-4 border border-t-0 p-4 md:border-l-0 md:p-8">
             <div className="text-text-muted text-xs font-medium">Last Updated</div>{" "}
             <p className="text-text-default text-md font-medium">{inv.lastUpdated}</p>
           </div>
-          <div className="border-border-default flex h-26 flex-col gap-4 border border-t-0 border-l-0 p-4 md:p-8">
+          <div className="border-border-default flex h-26 flex-col justify-center gap-4 border border-t-0 border-l-0 p-4 md:p-8">
             <div className="text-text-muted text-xs font-medium">Last Updated By </div>
-            <p className="text-text-default text-md flex items-center gap-1 font-medium">
+            <p className="text-text-default text-md flex items-center gap-1 text-sm font-medium">
               <Avatar className="size-5" username={inv.lastUpdatedBy} />
               {inv.lastUpdatedBy}
             </p>

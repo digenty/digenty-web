@@ -12,7 +12,7 @@ export const InvoicePaymentSummary = () => {
 
         <div className="mb-2 flex justify-between">
           <div className="text-text-default text-sm font-medium">Payment Progress</div>
-          <div className="text-text-muted"> {progress}%</div>
+          <div className="text-text-muted font-normal"> {progress}%</div>
         </div>
         <DashProgress value={progress} steps={10} />
       </div>
@@ -21,7 +21,7 @@ export const InvoicePaymentSummary = () => {
         <div className="text-text-subtle text-sm font-normal">Total Amount</div>
         <div className="text-text-default text-sm font-normal">₦50,000</div>
       </div>
-      <div className="mt-4 flex justify-between">
+      <div className="flex justify-between">
         <div className="text-text-subtle text-sm font-normal">Total Paid</div>
         <div className="text-text-success text-sm font-normal">₦50,000</div>
       </div>

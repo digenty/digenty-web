@@ -11,7 +11,7 @@ export const InvoiceDetail = () => {
       <div className="hidden flex-col gap-8 px-4 py-4 md:flex md:px-8">
         <InvoiceIdHeader />
         <InvoiceView />
-        <div className="flex w-full flex-col gap-6 lg:flex-row lg:gap-12">
+        <div className="flex w-full flex-col gap-6 lg:flex-row lg:gap-4">
           <InvoiceIdBreakDownTable />
           <InvoicePaymentSummary />
         </div>
@@ -26,7 +26,7 @@ export const InvoiceDetail = () => {
             {
               label: "Overview",
               content: (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-6 md:gap-8">
                   <InvoiceIdHeader />
                   <InvoiceView />
                   <InvoicePaymentSummary />
