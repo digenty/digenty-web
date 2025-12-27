@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Calendar as AttendanceCalendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { PopoverContent, PopoverTrigger, Popover } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,10 +14,21 @@ import { ArrowRightS } from "@/components/Icons/ArrowRightS";
 import { QuickReferenceAll } from "@/components/Icons/QuickReferenceAll";
 import { ResetLeft } from "@/components/Icons/ResetLeft";
 import { Bank } from "@/components/Icons/Bank";
+import { Cash } from "@/components/Icons/Cash";
+import BankCard from "@/components/Icons/BankCard";
+import { Folder3 } from "@/components/Icons/Folder3";
+import { useRouter } from "next/navigation";
 
-const payMethod = ["Bank Transfer", "Credit Card", "Cash"];
+const payMethod = [
+  { label: "Bank Transfer - Terminal", icon: Bank },
+  // { label: "Credit Card", icon: Cash },
+  { label: "Cash", icon: Cash },
+  { label: "POS", icon: BankCard },
+  { label: "Other Bank Transfer", icon: Folder3 },
+];
 
 export const AddPAyment = () => {
+  const router = useRouter();
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [open, setOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(payMethod[0]);
@@ -45,22 +56,22 @@ export const AddPAyment = () => {
                 <Button className="bg-bg-input-soft! hover:bg-bg-input-soft! flex h-9 w-full items-center justify-between rounded-md border-none">
                   <div className="flex w-full items-center justify-between gap-2">
                     <span className="text-text-default text-sm">
-                      {date ? date.toLocaleDateString() : <small className="text-text-muted">dd/ mm /yyyy</small>}
+                      {date ? date.toLocaleDateString() : <small className="text-text-muted text-sm">dd / mm / yyyy</small>}
                     </span>
                     <CalendarEventFill fill="var(--color-icon-default-muted)" className="size-4" />
                   </div>
                 </Button>
               </PopoverTrigger>
 
-              <PopoverContent className="bg-bg-card border-border-default border p-0">
-                <AttendanceCalendar
+              <PopoverContent className="bg-bg-card border-border-default w-full border p-0">
+                <Calendar
                   mode="single"
                   selected={date}
                   onSelect={d => {
                     setDate(d);
                     setOpen(false);
                   }}
-                  className="text-text-default w-full"
+                  className="text-text-default w-full text-sm!"
                 />
               </PopoverContent>
             </Popover>
@@ -70,19 +81,28 @@ export const AddPAyment = () => {
               Payment Method <span className="text-text-destructive">*</span>
             </Label>
 
-            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+            <Select
+              value={paymentMethod.label}
+              onValueChange={value => {
+                const selectedMethod = payMethod.find(method => method.label === value);
+                if (selectedMethod) {
+                  setPaymentMethod(selectedMethod);
+                }
+              }}
+            >
               <SelectTrigger className="bg-bg-input-soft! hover:bg-bg-input-soft! flex h-9 w-full border-none">
                 <SelectValue>
                   <div className="flex items-center gap-2">
                     <Bank fill="var(--color-icon-default-muted )" className="size-4" />
-                    <span className="text-text-default text-sm font-medium">{paymentMethod}</span>
+                    <span className="text-text-muted text-sm font-medium">{paymentMethod.label}</span>
                   </div>
                 </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default text-text-default border">
                 {payMethod.map(method => (
-                  <SelectItem key={method} className="hover:bg-bg-input-soft cursor-pointer p-2" value={method}>
-                    {method}
+                  <SelectItem key={method.label} className="hover:bg-bg-input-soft cursor-pointer p-2" value={method.label}>
+                    <method.icon fill="var(--color-icon-default-subtle )" className="size-4" />
+                    {method.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -160,8 +180,10 @@ export const AddPAyment = () => {
       <div className="border-border-default fixed bottom-0 w-screen overflow-hidden border-t p-4">
         <div className="flex items-center justify-center">
           <div className="relative flex w-full justify-between md:ml-[-65] md:max-w-150">
-            <Button className="bg-bg-state-soft text-text-subtle h-8 w-18 rounded-md px-2.5 py-1.5 text-sm">Close</Button>
-            <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover/90! text-text-white-default h-8 rounded-md px-2.5 py-1.5 text-sm">
+            <Button onClick={() => router.back()} className="bg-bg-state-soft text-text-subtle h-7 w-18 rounded-md px-2.5 py-1.5 text-sm">
+              Close
+            </Button>
+            <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover/90! text-text-white-default h-7 rounded-md px-2.5 py-1.5 text-sm">
               Add Payment
             </Button>
           </div>

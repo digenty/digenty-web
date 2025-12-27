@@ -1,4 +1,4 @@
-import { EditPayment } from "@/components/InvoicePayments/EditPayment";
+import { EditPayment } from "@/components/Invoices/EditPayment";
 import React from "react";
 
 function page() {

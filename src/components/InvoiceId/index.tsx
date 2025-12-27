@@ -8,15 +8,17 @@ import { Tabs } from "../Tabs";
 export const InvoiceDetail = () => {
   return (
     <div>
-      <div className="hidden flex-col gap-8 px-4 py-4 md:flex md:px-8">
+      <div className="hidden flex-col px-4 py-4 md:flex md:px-8">
         <InvoiceIdHeader />
-        <InvoiceView />
-        <div className="flex w-full flex-col gap-6 lg:flex-row lg:gap-4">
-          <InvoiceIdBreakDownTable />
-          <InvoicePaymentSummary />
-        </div>
-        <div>
-          <InvoiceIdPaymentHistoryTable />
+        <div className="mt-4.5 space-y-8">
+          <InvoiceView />
+          <div className="flex w-full flex-col gap-6 lg:flex-row lg:gap-4">
+            <InvoiceIdBreakDownTable />
+            <InvoicePaymentSummary />
+          </div>
+          <div>
+            <InvoiceIdPaymentHistoryTable />
+          </div>
         </div>
       </div>
 

@@ -14,8 +14,17 @@ import { ArrowRightS } from "@/components/Icons/ArrowRightS";
 import { QuickReferenceAll } from "@/components/Icons/QuickReferenceAll";
 import { ResetLeft } from "@/components/Icons/ResetLeft";
 import { Bank } from "@/components/Icons/Bank";
+import { Cash } from "@/components/Icons/Cash";
+import BankCard from "@/components/Icons/BankCard";
+import { Folder3 } from "@/components/Icons/Folder3";
 
-const payMethod = ["Bank Transfer", "Credit Card", "Cash"];
+const payMethod = [
+  { label: "Bank Transfer - Terminal", icon: Bank },
+  // { label: "Credit Card", icon: Cash },
+  { label: "Cash", icon: Cash },
+  { label: "POS", icon: BankCard },
+  { label: "Other Bank Transfer", icon: Folder3 },
+];
 
 export const EditPayment = () => {
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -70,19 +79,28 @@ export const EditPayment = () => {
               Payment Method <span className="text-text-destructive">*</span>
             </Label>
 
-            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+            <Select
+              value={paymentMethod.label}
+              onValueChange={value => {
+                const selectedMethod = payMethod.find(method => method.label === value);
+                if (selectedMethod) {
+                  setPaymentMethod(selectedMethod);
+                }
+              }}
+            >
               <SelectTrigger className="bg-bg-input-soft! hover:bg-bg-input-soft! flex h-9 w-full border-none">
                 <SelectValue>
                   <div className="flex items-center gap-2">
                     <Bank fill="var(--color-icon-default-muted )" className="size-4" />
-                    <span className="text-text-default text-sm font-medium">{paymentMethod}</span>
+                    <span className="text-text-default text-sm font-medium">{paymentMethod.label}</span>
                   </div>
                 </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default text-text-default border">
                 {payMethod.map(method => (
-                  <SelectItem key={method} className="hover:bg-bg-input-soft cursor-pointer p-2" value={method}>
-                    {method}
+                  <SelectItem key={method.label} className="hover:bg-bg-input-soft cursor-pointer p-2" value={method.label}>
+                    <method.icon fill="var(--color-icon-default-subtle )" className="size-4" />
+                    {method.label}
                   </SelectItem>
                 ))}
               </SelectContent>
