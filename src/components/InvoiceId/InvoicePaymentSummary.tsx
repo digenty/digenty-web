@@ -1,12 +1,16 @@
+"use client";
 import React from "react";
 import { DashProgress } from "../ProgressBar/DashProgress";
 import { Button } from "../ui/button";
 import { AddFill } from "../Icons/AddFill";
+import { useRouter } from "next/navigation";
 
 export const InvoicePaymentSummary = () => {
   const progress = 60;
+  const router = useRouter();
+
   return (
-    <div className="border-border-default flex w-full flex-col border p-6 lg:max-w-90">
+    <div className="border-border-default flex w-full flex-col border p-6 lg:w-1/4">
       <div>
         <div className="text-text-default text-md mb-5 font-semibold">Payment Summary</div>
 
@@ -31,7 +35,10 @@ export const InvoicePaymentSummary = () => {
       </div>
 
       <div className="mt-10">
-        <Button className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default mt-6 flex w-full items-center gap-1.5">
+        <Button
+          onClick={() => router.push("/invoices/add-payment")}
+          className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default mt-6 flex w-full items-center gap-1.5"
+        >
           <AddFill fill="var(--color-icon-white-default)" />
           Add Payment
         </Button>

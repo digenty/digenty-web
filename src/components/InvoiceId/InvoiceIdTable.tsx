@@ -78,7 +78,7 @@ export const InvoiceIdBreakDownTable = () => {
   const pageSize = 10;
 
   return (
-    <div>
+    <div className="w-full lg:w-3/4">
       <div className="border-border-default hidden h-full w-full border p-6 md:block">
         <div className="text-text-default text-md mb-6 font-semibold">Invoice Breakdown</div>
 

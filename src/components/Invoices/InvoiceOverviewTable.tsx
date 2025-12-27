@@ -146,7 +146,10 @@ export const InvoiceOverviewTable = () => {
                       <div className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
                         <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Invoice
                       </div>
-                      <div className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
+                      <div
+                        role="button"
+                        className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                      >
                         <Printer fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Invoice
                       </div>
 
