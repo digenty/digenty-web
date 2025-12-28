@@ -16,7 +16,7 @@ export const NewInvoice = () => {
   const stepIndex = INVOICE_STEPS.findIndex(s => s.key === step);
 
   return (
-    <div>
+    <div className="pb-10">
       <NewInvoiceHeader openPreview={openPreview} onPreviewToggle={setOpenPreview} />
       <div className={`grid ${openPreview ? "grid-cols-2" : "grid-cols-1"}`}>
         <div className="border-border-default mx-4 hidden h-fit flex-col gap-6 rounded-md border p-6 md:mx-8 md:flex">
