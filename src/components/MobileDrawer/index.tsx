@@ -2,6 +2,7 @@ import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerOverlay, 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { XIcon } from "lucide-react";
 import { Button } from "../ui/button";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export const MobileDrawer = ({
   open,
@@ -14,9 +15,10 @@ export const MobileDrawer = ({
   children: React.ReactNode;
   title: string;
 }) => {
+  const isMobile = useIsMobile();
   return (
     <Drawer open={open} onOpenChange={setIsOpen}>
-      {open && <DrawerOverlay className="block md:hidden" />}
+      {open && isMobile && <DrawerOverlay />}
       <DrawerContent className="bg-bg-card border-border-darker m-4 block rounded-xl md:hidden">
         <VisuallyHidden>
           <DrawerHeader>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -60,13 +60,13 @@ export const NewInvoiceItem = () => {
               onClick={() => setOpenMobileDrawer(true)}
               className="hover:bg-bg-none! border-border-darker text-text-muted flex items-center gap-2 border p-0 px-3 text-sm font-normal"
             >
-              <span className="">Select from Fees</span>
-              <ArrowDownS fill="var(--color-icon-default-muted )" />
+              <span className="">Select from Stock, Fees and Fee Groups</span>
+              <ChevronDown className="text-icon-default-muted size-4" />
             </Button>
 
             {openMobileDrawer && (
               <MobileDrawer title="Action" open={openMobileDrawer} setIsOpen={setOpenMobileDrawer}>
-                <div className="flex flex-col content-center p-4">
+                <div className="flex flex-col content-center gap-2 p-4">
                   <StockSheet />
 
                   <FeesSheet />
@@ -91,9 +91,9 @@ export const NewInvoiceItem = () => {
               </TableRow>
             </TableHeader>
 
-            <TableBody>
+            <TableBody className="[&_tr:first-child]:pt-5">
               {items.map(item => (
-                <TableRow key={item.id} className="flex w-full flex-row items-center gap-2 border-none p-4">
+                <TableRow key={item.id} className="flex w-full flex-row items-center gap-2 border-none px-4 py-2">
                   <td className="w-6 cursor-grab">
                     <Draggable fill="var(--color-icon-default-muted)" />
                   </td>
@@ -135,7 +135,7 @@ export const NewInvoiceItem = () => {
                       <div className="text-text-muted text-sm">{(item.qty * item.price).toLocaleString()}</div>
                     </div>
 
-                    <div className="h-8! pr-4">
+                    <div className="flex h-8! items-center pr-4">
                       <div className="flex items-center justify-between gap-3">
                         <Switch checked={item.required} onCheckedChange={v => updateItem(item.id, { required: v })} className="scale-90" />
                         <Badge
@@ -147,11 +147,9 @@ export const NewInvoiceItem = () => {
                           {item.required ? "Required" : "Optional"}
                         </Badge>
 
-                        <DeleteBin
-                          fill="var(--color-icon-default-subtle)"
-                          onClick={() => removeItem(item.id)}
-                          className="bg-bg-state-soft cursor-pointer rounded-sm p-1"
-                        />
+                        <div className="bg-bg-state-soft flex size-7 cursor-pointer items-center justify-center rounded-md">
+                          <DeleteBin fill="var(--color-icon-default-subtle)" onClick={() => removeItem(item.id)} className="size-4" />
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -168,7 +166,7 @@ export const NewInvoiceItem = () => {
               <Plus className="text-icon-default-muted size-4" /> Add Item
             </Button>
 
-            <div className="flex items-center justify-end gap-4 px-4 py-3 text-sm">
+            <div className="flex items-center justify-end gap-4 py-3 pr-8 pl-4 text-sm">
               <span className="text-text-subtle text-sm font-normal">Subtotal</span>
               <div className="text-text-default text-sm font-medium"> ₦{subtotal.toLocaleString()}</div>
             </div>

@@ -3,7 +3,8 @@ import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetOverlay, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetOverlay, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import React, { useState } from "react";
 
 const sheetFees = [
@@ -45,22 +46,25 @@ export const GroupFeesSheet = () => {
         <Sheet>
           <SheetTrigger asChild className="bg-bg-state-secondary! border-border-darker flex h-8 w-full cursor-pointer rounded-md border">
             <div className="flex items-center justify-center gap-2 px-3">
-              <Button className="hover:bg-bg-none! text-text-muted border-none p-0 text-sm font-normal">Select from Fee Groups</Button>{" "}
+              <Button className="hover:bg-bg-none! text-text-default border-none p-0 text-sm font-medium">Select from Fee Groups</Button>{" "}
               <ArrowDownS fill="var(--color-icon-default-muted )" className="hidden md:block" />
             </div>
           </SheetTrigger>
 
           <div className="">
             <SheetOverlay />
-            <SheetContent className="bg-bg-card border-border-default mt-1.5 mr-1.5 w-[97vw] overflow-y-scroll rounded-md border md:w-130">
+            <SheetContent className="bg-bg-card border-border-default my-4 mr-4 overflow-y-scroll rounded-md border md:min-w-130">
               <SheetHeader className="border-border-darker bg-bg-card-subtle rounded-t-md border-b px-4 py-3">
+                <VisuallyHidden>
+                  <SheetTitle>Select Fee Groups</SheetTitle>
+                </VisuallyHidden>
                 <div className="flex items-center justify-between">
                   {" "}
                   <div className="text-text-default text-md font-semibold">Select Fee Groups</div>
                 </div>
               </SheetHeader>
 
-              <div className="flex w-full flex-col gap-6 p-6">
+              <div className="flex w-full flex-col gap-6 px-6 pt-2 pb-6">
                 <SearchInput className="bg-bg-input-soft border-border-default border" placeholder="Search fee group" />
                 <div className="flex flex-col gap-4">
                   {sheetFees.map(sf => (
@@ -130,7 +134,7 @@ export const GroupFeesSheet = () => {
                       variant="outline"
                       className="bg-bg-state-soft! text-text-subtle hover:text-text-subtle! rounde-sm h-7 w-17 border-none px-2 py-1"
                     >
-                      Close
+                      Cancel
                     </Button>
                   </SheetClose>
                   <Button

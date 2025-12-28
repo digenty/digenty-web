@@ -17,9 +17,6 @@ export const EditInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps
         <div className="text-text-default text-xl font-semibold">Edit Invoice</div>
 
         <div className="hidden gap-1 md:flex md:justify-between">
-          <Button className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-fit items-center gap-1 border px-2.5 py-1.5 text-sm font-medium">
-            <X className="text-icon-default-muted" /> Canel
-          </Button>
           <Button
             onClick={() => onPreviewToggle(!openPreview)}
             className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-1/2 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium md:w-fit"
@@ -33,6 +30,9 @@ export const EditInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps
                 <EyeClose fill="var(--color-icon-default-muted)" /> Hide Preview
               </div>
             )}
+          </Button>
+          <Button className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-fit items-center gap-1 border px-2.5 py-1.5 text-sm font-medium">
+            <X className="text-icon-default-muted" /> Cancel
           </Button>
           <Button className="bg-bg-state-primary hover:bg-bg-state-primary/90! border-border-darker text-text-white-default hidden h-8 items-center gap-1 px-2.5 py-1.5 text-sm font-medium md:flex">
             <SendPlane fill="var(--color-icon-white-default)" /> Save Changes

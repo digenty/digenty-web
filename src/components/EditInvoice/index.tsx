@@ -40,7 +40,7 @@ export const EditInvoice = () => {
                 ),
               },
               {
-                label: "Payemnt",
+                label: "Payment",
                 content: (
                   <div className="mt-4">
                     <EditStatus />

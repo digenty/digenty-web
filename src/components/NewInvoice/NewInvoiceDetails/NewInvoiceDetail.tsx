@@ -21,14 +21,14 @@ export const NewInvoiceDetail = () => {
             </Label>
             <Input
               aria-required
-              className="bg-bg-input-soft! hover:bg-bg-input-soft! text-text-default placeholder:text-text-default h-8 border-none text-sm"
+              className="bg-bg-input-soft! hover:bg-bg-input-soft! text-text-default placeholder:text-text-default h-9 border-none text-sm"
               placeholder="Damilare John, Damilare John, Damilare John, Damilare John, Damilare John"
             />
           </div>
           <div className="flex flex-col gap-2">
             <Label className="text-text-default text-sm font-medium">Invoice ID</Label>
             <Input
-              className="bg-bg-input-soft! text-text-default hover:bg-bg-input-soft! placeholder:text-text-hint h-8 border-none text-sm"
+              className="bg-bg-input-soft! text-text-default hover:bg-bg-input-soft! placeholder:text-text-hint h-9 border-none text-sm"
               placeholder="INV-2024-033W21"
             />
           </div>

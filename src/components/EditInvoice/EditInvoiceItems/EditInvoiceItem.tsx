@@ -65,9 +65,9 @@ export const EditInvoiceItem = () => {
               </TableRow>
             </TableHeader>
 
-            <TableBody>
+            <TableBody className="[&_tr:first-child]:pt-5">
               {items.map(item => (
-                <TableRow key={item.id} className="flex w-full flex-row items-center gap-2 border-none p-4">
+                <TableRow key={item.id} className="flex w-full flex-row items-center gap-2 border-none px-4 py-2">
                   <td className="w-6 cursor-grab">
                     <Draggable fill="var(--color-icon-default-muted)" />
                   </td>
@@ -109,7 +109,7 @@ export const EditInvoiceItem = () => {
                       <div className="text-text-muted text-sm">{(item.qty * item.price).toLocaleString()}</div>
                     </div>
 
-                    <div className="h-8! pr-4">
+                    <div className="flex h-8! items-center pr-4">
                       <div className="flex items-center justify-between gap-3">
                         <Switch checked={item.required} onCheckedChange={v => updateItem(item.id, { required: v })} className="scale-90" />
                         <Badge
@@ -121,11 +121,9 @@ export const EditInvoiceItem = () => {
                           {item.required ? "Required" : "Optional"}
                         </Badge>
 
-                        <DeleteBin
-                          fill="var(--color-icon-default-subtle)"
-                          onClick={() => removeItem(item.id)}
-                          className="bg-bg-state-soft cursor-pointer rounded-sm p-1"
-                        />
+                        <div className="bg-bg-state-soft flex size-7 cursor-pointer items-center justify-center rounded-md">
+                          <DeleteBin fill="var(--color-icon-default-subtle)" onClick={() => removeItem(item.id)} className="size-4" />
+                        </div>
                       </div>
                     </div>
                   </td>

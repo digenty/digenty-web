@@ -28,9 +28,6 @@ export const NewInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps)
           {current}/{total}
         </Badge>
         <div className="hidden gap-1 md:flex md:justify-between">
-          <Button className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-1/2 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium md:w-34">
-            <Save fill="var(--color-icon-default-muted)" /> Save as Draft
-          </Button>
           <Button
             onClick={() => onPreviewToggle(!openPreview)}
             className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-1/2 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium md:w-fit"
@@ -45,12 +42,15 @@ export const NewInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps)
               </div>
             )}
           </Button>
+          <Button className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-1/2 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium md:w-34">
+            <Save fill="var(--color-icon-default-muted)" /> Save as Draft
+          </Button>
           <Button className="bg-bg-state-primary hover:bg-bg-state-primary/90! border-border-darker text-text-white-default hidden h-8 items-center gap-1 px-2.5 py-1.5 text-sm font-medium md:flex">
             <SendPlane fill="var(--color-icon-white-default)" /> Send Invoice
           </Button>
         </div>
       </div>
-      <div className="flex gap-2.5 px-4 py-2 md:hidden">
+      <div className="border-border-default flex gap-2.5 border-b px-4 py-2 md:hidden">
         <Button className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-1/2 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium md:w-34">
           <Save fill="var(--color-icon-default-muted)" /> Save as Draft
         </Button>

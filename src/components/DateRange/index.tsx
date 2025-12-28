@@ -33,7 +33,7 @@ export function DateRangePicker({ from, to, onChange, className }: DateRangePick
         </Label>
         <Popover>
           <PopoverTrigger asChild className="bg-bg-input-soft! max-w-full">
-            <Button variant="outline" className="h-8 justify-between gap-2 border-none px-3 text-sm font-medium">
+            <Button variant="outline" className="h-9 justify-between gap-2 border-none px-3 text-sm font-medium">
               <span> {formatDate(from)}</span> <CalendarEventFill fill="var(--color-icon-default-muted)" />
             </Button>
           </PopoverTrigger>
@@ -48,7 +48,7 @@ export function DateRangePicker({ from, to, onChange, className }: DateRangePick
         <Label className="text-text-default text-sm font-medium">Due Date</Label>
         <Popover>
           <PopoverTrigger asChild className="bg-bg-input-soft! max-w-full">
-            <Button variant="outline" className="h-8 justify-between gap-2 border-none px-3 text-sm font-medium">
+            <Button variant="outline" className="h-9 justify-between gap-2 border-none px-3 text-sm font-medium">
               <span> {formatDate(to)}</span>
               <CalendarEventFill fill="var(--color-icon-default-muted)" />
             </Button>
