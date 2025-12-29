@@ -5,8 +5,8 @@ import { EditInvoiceDetail } from "./EditInvoiceDetails/EditInvoiceDetail";
 import { EditInvoiceItem } from "./EditInvoiceItems/EditInvoiceItem";
 import { EditStatus } from "./EditInvoiceStatus";
 import { EditInvoiceHeader } from "./EditInvoiceHeader";
-import { Tabs } from "../Tab";
-import { Button } from "../ui/button";
+import { Tabs } from "@/components/Tab";
+import { Button } from "@/components/ui/button";
 
 export const EditInvoice = () => {
   const [openPreview, setOpenPreview] = useState(false);

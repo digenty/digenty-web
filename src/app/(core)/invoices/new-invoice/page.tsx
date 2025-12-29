@@ -1,4 +1,4 @@
-import { NewInvoice } from "@/components/NewInvoice";
+import { NewInvoice } from "@/components/Invoices/NewInvoice";
 
 export default function page() {
   return (

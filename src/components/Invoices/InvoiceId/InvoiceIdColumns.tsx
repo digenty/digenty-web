@@ -1,15 +1,15 @@
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
-import { Avatar } from "../Avatar";
-import { Bank } from "../Icons/Bank";
-import BankCard from "../Icons/BankCard";
-import { Cash } from "../Icons/Cash";
-import DeleteBin from "../Icons/DeleteBin";
-import Edit from "../Icons/Edit";
-import { Folder3 } from "../Icons/Folder3";
-import { getBadge } from "../StudentProfile/StudentTable/StudentInvoiceTable";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Avatar } from "@/components/Avatar";
+import { Bank } from "@/components/Icons/Bank";
+import BankCard from "@/components/Icons/BankCard";
+import { Cash } from "@/components/Icons/Cash";
+import DeleteBin from "@/components/Icons/DeleteBin";
+import Edit from "@/components/Icons/Edit";
+import { Folder3 } from "@/components/Icons/Folder3";
+import { getBadge } from "@/components/StudentProfile/StudentTable/StudentInvoiceTable";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { invoiceBreakdownType, paymentHistoryType } from "./invoiceIdTypes";
 
 import { useClassesStore } from "@/store/classes";

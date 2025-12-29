@@ -5,7 +5,7 @@ import { NoteEditor } from "./NoteEditor";
 import { useState } from "react";
 
 export const UnPaid = () => {
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState("Your note");
   return (
     <>
       <div className="flex flex-col gap-6">

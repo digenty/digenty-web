@@ -15,10 +15,10 @@ import { Switch } from "@/components/ui/switch";
 const payMethod = ["Bank Transfer", "Credit Card", "Cash"];
 export const Paid = () => {
   const [paymentMethod, setPaymentMethod] = useState(payMethod[0]);
-  const [note, setNote] = useState("");
+  const [note, setNote] = useState("Your note");
   return (
     <div className="mt-6 flex w-full flex-col gap-6">
-      <div className="flex w-full flex-col items-center gap-3 md:flex-row md:justify-between">
+      <div className="flex w-full flex-col items-center gap-6 md:flex-row md:justify-between md:gap-3">
         <div className="w-full">
           <Label className="text-text-default mb-2 text-sm font-medium">Payment Method</Label>
 

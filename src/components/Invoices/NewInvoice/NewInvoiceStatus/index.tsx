@@ -10,10 +10,11 @@ export const NewInvoiceStatus = () => {
       <div className="text-text-default mb-4 text-lg font-semibold">Payment Status</div>
       <Tabs
         items={[
-          { label: "UnPaid", content: <UnPaid /> },
+          { label: "Unpaid", content: <UnPaid /> },
           { label: "Paid", content: <Paid /> },
           { label: "Partially Paid", content: <PartiallyPaid /> },
         ]}
+        className="max-w-80 sm:max-w-full"
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { EditInvoice } from "@/components/EditInvoice";
+import { EditInvoice } from "@/components/Invoices/EditInvoice";
 import React from "react";
 
 export default function page() {

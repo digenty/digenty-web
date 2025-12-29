@@ -1,9 +1,10 @@
 import React from "react";
-import { Button } from "../ui/button";
-import Eye from "../Icons/Eye";
-import { SendPlane } from "../Icons/SendPlane";
-import { EyeClose } from "../Icons/EyeClose";
+import { Button } from "@/components/ui/button";
+import Eye from "@/components/Icons/Eye";
+import { SendPlane } from "@/components/Icons/SendPlane";
+import { EyeClose } from "@/components/Icons/EyeClose";
 import { X } from "lucide-react";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 type PreviewProps = {
   openPreview: boolean;
@@ -11,6 +12,10 @@ type PreviewProps = {
 };
 
 export const EditInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps) => {
+  useBreadcrumb([
+    { label: "Invoices", url: "/invoices" },
+    { label: "Edit Invoice", url: "" },
+  ]);
   return (
     <div className="mb-3">
       <div className="bg-bg-card-subtle border-border-default flex justify-between gap-3 border-b px-4 py-3 md:flex-row md:px-8">
@@ -39,7 +44,7 @@ export const EditInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps
           </Button>
         </div>
       </div>
-      <div className="flex gap-2.5 px-4 py-2 md:hidden">
+      <div className="border-border-default flex gap-2.5 border-b px-4 py-2 md:hidden">
         <Button
           onClick={() => onPreviewToggle(!openPreview)}
           className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-full items-center gap-1 border px-2.5 py-1.5 text-sm font-medium md:w-fit"

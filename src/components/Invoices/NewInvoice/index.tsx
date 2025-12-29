@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { ArrRight } from "../../Icons/ArrRight";
+import { Button } from "../../ui/button";
 import { NewInvoiceDetail } from "./NewInvoiceDetails/NewInvoiceDetail";
 import { NewInvoiceHeader } from "./NewInvoiceHeader";
 import { NewInvoiceItem } from "./NewInvoiceItems/NewInvoiceItem";
-import { NewInvoiceStatus } from "./NewInvoiceStatus";
 import { InvoicePreview } from "./NewInvoicePreview/InvoicePreview";
-import { Button } from "../ui/button";
+import { NewInvoiceStatus } from "./NewInvoiceStatus";
 import { INVOICE_STEPS, useInvoiceStep } from "./step";
-import { ArrRight } from "../Icons/ArrRight";
 
 export const NewInvoice = () => {
   const [openPreview, setOpenPreview] = useState(false);

@@ -10,10 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import DeleteBin from "@/components/Icons/DeleteBin";
-import { StockSheet } from "@/components/NewInvoice/NewInvoiceItems/StockSheet";
-import { FeesSheet } from "@/components/NewInvoice/NewInvoiceItems/FeesSheet";
-import { GroupFeesSheet } from "@/components/NewInvoice/NewInvoiceItems/GroupFeesSheet";
-import { NewInvoiceItemMobile } from "@/components/NewInvoice/NewInvoiceItems/NewInvoiceMobileItem";
+import { StockSheet } from "@/components/Invoices/NewInvoice/NewInvoiceItems/StockSheet";
+import { FeesSheet } from "@/components/Invoices/NewInvoice/NewInvoiceItems/FeesSheet";
+import { GroupFeesSheet } from "@/components/Invoices/NewInvoice/NewInvoiceItems/GroupFeesSheet";
+import { NewInvoiceItemMobile } from "@/components/Invoices/NewInvoice/NewInvoiceItems/NewInvoiceMobileItem";
 
 type ItemRow = {
   id: string;

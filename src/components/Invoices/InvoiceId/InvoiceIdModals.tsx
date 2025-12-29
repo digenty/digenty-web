@@ -1,13 +1,13 @@
-import { Avatar } from "../Avatar";
-import { Bank } from "../Icons/Bank";
-import { Modal } from "../Modal";
-import { getBadge } from "../StudentProfile/StudentTable/StudentInvoiceTable";
-import { Button } from "../ui/button";
+import { Avatar } from "@/components/Avatar";
+import { Bank } from "@/components/Icons/Bank";
+import { Modal } from "@/components/Modal";
+import { getBadge } from "@/components/StudentProfile/StudentTable/StudentInvoiceTable";
+import { Button } from "@/components/ui/button";
 import { useClassesStore } from "@/store/classes";
-import { Checkbox } from "../ui/checkbox";
-import AlertFill from "../Icons/AlertFill";
-import { MobileDrawer } from "../MobileDrawer";
-import { DrawerClose, DrawerFooter } from "../ui/drawer";
+import { Checkbox } from "@/components/ui/checkbox";
+import AlertFill from "@/components/Icons/AlertFill";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 export const PaymentDetailsModal = () => {

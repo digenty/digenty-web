@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
-import { Button } from "../ui/button";
-import DeleteBin from "../Icons/DeleteBin";
-import Edit from "../Icons/Edit";
-import Printer from "../Icons/Printer";
+import { Button } from "@/components/ui/button";
+import DeleteBin from "@/components/Icons/DeleteBin";
+import Edit from "@/components/Icons/Edit";
+import Printer from "@/components/Icons/Printer";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
 

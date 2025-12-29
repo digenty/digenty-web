@@ -1,11 +1,12 @@
 import React from "react";
-import { Button } from "../ui/button";
-import Eye from "../Icons/Eye";
-import Save from "../Icons/Save";
-import { SendPlane } from "../Icons/SendPlane";
-import { EyeClose } from "../Icons/EyeClose";
+import { Button } from "../../ui/button";
+import Eye from "../../Icons/Eye";
+import Save from "../../Icons/Save";
+import { SendPlane } from "../../Icons/SendPlane";
+import { EyeClose } from "../../Icons/EyeClose";
 import { INVOICE_STEPS, useInvoiceStep } from "./step";
-import { Badge } from "../ui/badge";
+import { Badge } from "../../ui/badge";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 type PreviewProps = {
   openPreview: boolean;
@@ -18,6 +19,11 @@ export const NewInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps)
 
   const current = stepIndex + 1;
   const total = INVOICE_STEPS.length;
+
+  useBreadcrumb([
+    { label: "Invoices", url: "/invoices" },
+    { label: "New Invoice", url: "" },
+  ]);
 
   return (
     <div className="mb-3">
