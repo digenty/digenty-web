@@ -16,6 +16,7 @@ import { MobileDrawer } from "../MobileDrawer";
 import { DrawerClose, DrawerFooter } from "../ui/drawer";
 import { BallPen } from "../Icons/BallPen";
 import Notification2 from "../Icons/Notification2";
+import { useRouter } from "next/navigation";
 
 const InvoicesItems = [
   {
@@ -112,6 +113,7 @@ export const InvoiceOverviewTable = () => {
   const [visibleCount, setVisibleCount] = useState(3);
   const [selectedRows, setSelectedRows] = useState<InvoicesOverviewTableProps[]>([]);
   const pageSize = 50;
+  const router = useRouter();
 
   return (
     <div>
@@ -148,6 +150,7 @@ export const InvoiceOverviewTable = () => {
                       </div>
                       <div
                         role="button"
+                        onClick={() => router.push("/invoices/edit-invoice")}
                         className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                       >
                         <Printer fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Invoice

@@ -1,29 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import Image from "next/image";
+import { useState } from "react";
 import { SearchInput } from "../SearchInput";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import Image from "next/image";
 
+import { Ellipsis, Plus } from "lucide-react";
 import ShareBox from "../Icons/ShareBox";
-import { InvoiceExportModal } from "./InvoiceExportModal";
-import { AddFill } from "../Icons/AddFill";
 import { MobileDrawer } from "../MobileDrawer";
-import { Ellipsis } from "lucide-react";
 import { DrawerClose, DrawerFooter } from "../ui/drawer";
+import { InvoiceExportModal } from "./InvoiceExportModal";
 
-import { CheckDouble } from "../Icons/CheckDouble";
-import { Draft } from "../Icons/Draft";
-import AlertFill from "../Icons/AlertFill";
-import { CloseCircle } from "../Icons/CloseCircle";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import AlertFill from "../Icons/AlertFill";
+import { CheckDouble } from "../Icons/CheckDouble";
+import { CloseCircle } from "../Icons/CloseCircle";
+import { Draft } from "../Icons/Draft";
 
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from "../ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 import { Check } from "../Icons/Check";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 export const InvoiceSearchAndExport = () => {
   const isMobile = useIsMobile();
+  const router = useRouter();
 
   const [openExport, setOpenExport] = useState(false);
   const [isOpen, setIsOpen] = useState(false); // action drawer
@@ -94,8 +95,11 @@ export const InvoiceSearchAndExport = () => {
           </Button>
 
           <div className="flex items-center gap-1">
-            <Button className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md">
-              <AddFill fill="var(--color-icon-white-default)" />
+            <Button
+              onClick={() => router.push("/invoices/new-invoice")}
+              className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
+            >
+              <Plus className="text-texticon-white-default size-4" />
               Add Invoice
             </Button>
 

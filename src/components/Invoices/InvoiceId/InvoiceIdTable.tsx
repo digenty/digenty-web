@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable } from "../DataTable";
+import { DataTable } from "@/components/DataTable";
 import { breakdownColumns, getPaymentMethodIcon, paymentHistoryColumns } from "./InvoiceIdColumns";
 import { invoiceBreakdownType } from "./invoiceIdTypes";
-import { getBadge } from "../StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "@/components/StudentProfile/StudentTable/StudentInvoiceTable";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
-import { Avatar } from "../Avatar";
+import { Avatar } from "@/components/Avatar";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { MobileDrawer } from "../MobileDrawer";
-import DeleteBin from "../Icons/DeleteBin";
-import Edit from "../Icons/Edit";
-import { Button } from "../ui/button";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import DeleteBin from "@/components/Icons/DeleteBin";
+import Edit from "@/components/Icons/Edit";
+import { Button } from "@/components/ui/button";
 import { useClassesStore } from "@/store/classes";
 import { DeletePaymentModal, PaymentDetailsModal } from "./InvoiceIdModals";
 

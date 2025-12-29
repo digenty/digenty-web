@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import { DashProgress } from "../ProgressBar/DashProgress";
-import { Button } from "../ui/button";
-import { AddFill } from "../Icons/AddFill";
+import { DashProgress } from "@/components/ProgressBar/DashProgress";
+import { Button } from "@/components/ui/button";
+import { AddFill } from "@/components/Icons/AddFill";
 import { useRouter } from "next/navigation";
 
 export const InvoicePaymentSummary = () => {

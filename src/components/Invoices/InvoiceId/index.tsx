@@ -3,7 +3,7 @@ import { InvoiceView } from "./InvoiceView";
 import { InvoiceIdBreakDownTable, InvoiceIdPaymentHistoryTable } from "./InvoiceIdTable";
 import { InvoicePaymentSummary } from "./InvoicePaymentSummary";
 import { InvoiceIdHeader } from "./InvoiceIdHeader";
-import { Tabs } from "../Tabs";
+import { Tabs } from "../../Tabs";
 
 export const InvoiceDetail = () => {
   return (
