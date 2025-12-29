@@ -1,19 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Draggable } from "@/components/Icons/Draggable";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import DeleteBin from "@/components/Icons/DeleteBin";
-import { StockSheet } from "@/components/Invoices/NewInvoice/NewInvoiceItems/StockSheet";
+import { Draggable } from "@/components/Icons/Draggable";
 import { FeesSheet } from "@/components/Invoices/NewInvoice/NewInvoiceItems/FeesSheet";
 import { GroupFeesSheet } from "@/components/Invoices/NewInvoice/NewInvoiceItems/GroupFeesSheet";
 import { NewInvoiceItemMobile } from "@/components/Invoices/NewInvoice/NewInvoiceItems/NewInvoiceMobileItem";
+import { StockSheet } from "@/components/Invoices/NewInvoice/NewInvoiceItems/StockSheet";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { ChevronDown, Plus } from "lucide-react";
+import { useState } from "react";
 
 type ItemRow = {
   id: string;
@@ -24,6 +25,7 @@ type ItemRow = {
 };
 
 export const EditInvoiceItem = () => {
+  const [openMobileDrawer, setOpenMobileDrawer] = useState(false);
   const [items, setItems] = useState<ItemRow[]>([{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }]);
 
   const subtotal = items.reduce((acc, item) => acc + item.qty * item.price, 0);
@@ -44,12 +46,36 @@ export const EditInvoiceItem = () => {
     <div className="">
       <div className="">
         <div className="text-text-default mb-4 text-lg font-semibold">Invoice Items</div>
-        <div className="mb-6 flex flex-wrap gap-1">
-          <StockSheet />
+        <div className="mb-6">
+          <div className="hidden flex-wrap gap-1 md:flex">
+            <StockSheet />
 
-          <FeesSheet />
+            <FeesSheet />
 
-          <GroupFeesSheet />
+            <GroupFeesSheet />
+          </div>
+
+          <div className="flex md:hidden">
+            <Button
+              onClick={() => setOpenMobileDrawer(true)}
+              className="hover:bg-bg-none! border-border-darker text-text-muted flex items-center gap-2 border p-0 px-3 text-sm font-normal"
+            >
+              <span className="">Select from Stock, Fees and Fee Groups</span>
+              <ChevronDown className="text-icon-default-muted size-4" />
+            </Button>
+
+            {openMobileDrawer && (
+              <MobileDrawer title="Action" open={openMobileDrawer} setIsOpen={setOpenMobileDrawer}>
+                <div className="flex flex-col content-center gap-2 p-4">
+                  <StockSheet />
+
+                  <FeesSheet />
+
+                  <GroupFeesSheet />
+                </div>
+              </MobileDrawer>
+            )}
+          </div>
         </div>
 
         <div className="border-border-darker hidden w-full overflow-hidden rounded-md border md:block">

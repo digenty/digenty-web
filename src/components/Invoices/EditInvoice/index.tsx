@@ -49,6 +49,7 @@ export const EditInvoice = () => {
               },
             ]}
             className="max-w-full"
+            buttonClassName="sm:w-1/3!"
           />
         </div>
         <div className="border-border-default bg-bg-default absolute right-0 bottom-0 left-0 z-20 flex w-full justify-between gap-2 border-t p-2">

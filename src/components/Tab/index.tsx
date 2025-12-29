@@ -10,9 +10,10 @@ type TabItem = {
 interface TabsProps {
   items: TabItem[];
   className?: string;
+  buttonClassName?: string;
 }
 
-export const Tabs: React.FC<TabsProps> = ({ items, className }) => {
+export const Tabs: React.FC<TabsProps> = ({ items, className, buttonClassName }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -23,11 +24,13 @@ export const Tabs: React.FC<TabsProps> = ({ items, className }) => {
             <button
               key={index}
               onClick={() => setActiveIndex(index)}
-              className={`transit flex justify-center px-4 py-2 text-sm font-medium sm:w-1/3 ${
+              className={cn(
+                "transit flex justify-center px-4 py-2 text-sm font-medium",
+                buttonClassName,
                 activeIndex === index
-                  ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-between gap-1 rounded-full border shadow-sm"
-                  : "text-text-muted flex h-8 items-center gap-1"
-              }`}
+                  ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
+                  : "text-text-muted flex h-8 items-center gap-1",
+              )}
             >
               {item.label}
             </button>

@@ -161,7 +161,7 @@ export const StockSheet = () => {
       {isMobile && (
         <MobileDrawer open={open} setIsOpen={setOpen} title="Select Stock Items">
           <div className="flex w-full flex-col gap-6 overflow-y-auto p-6">
-            <SearchInput className="bg-bg-input-soft border-border-default border" placeholder="Search fee group" />
+            <SearchInput className="bg-bg-input-soft border-border-default border" placeholder="Search stock items" />
             <div className="flex flex-col gap-4">
               {sheetFees.map(sf => (
                 <div key={sf.id} className="border-border-darker bg-bg-card rounded-md border p-4">

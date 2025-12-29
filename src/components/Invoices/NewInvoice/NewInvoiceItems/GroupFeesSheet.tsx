@@ -188,7 +188,7 @@ export const GroupFeesSheet = () => {
 
       {/* Mobile */}
       {isMobile && (
-        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Select Stock Items">
+        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Select Fee Groups">
           <div className="flex w-full flex-col gap-6 px-6 pt-2 pb-6">
             <SearchInput className="bg-bg-input-soft border-border-default border" placeholder="Search fee group" />
             <div className="flex flex-col gap-4">

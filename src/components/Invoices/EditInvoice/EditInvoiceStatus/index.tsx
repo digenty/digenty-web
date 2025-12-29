@@ -16,7 +16,7 @@ export const EditStatus = () => {
           { label: "Paid", content: <Paid /> },
           { label: "Partially Paid", content: <PartiallyPaid /> },
         ]}
-        className="max-w-80 sm:max-w-full"
+        className="max-w-80"
       />
     </div>
   );

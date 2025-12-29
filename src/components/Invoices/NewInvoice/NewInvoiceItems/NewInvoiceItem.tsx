@@ -1,21 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, Plus } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import DeleteBin from "@/components/Icons/DeleteBin";
 import { Draggable } from "@/components/Icons/Draggable";
-import { Input } from "@/components/ui/input";
+import { MobileDrawer } from "@/components/MobileDrawer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import { GroupFeesSheet } from "./GroupFeesSheet";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { ChevronDown, Plus } from "lucide-react";
+import { useState } from "react";
 import { FeesSheet } from "./FeesSheet";
-import { StockSheet } from "./StockSheet";
+import { GroupFeesSheet } from "./GroupFeesSheet";
 import { NewInvoiceItemMobile } from "./NewInvoiceMobileItem";
-import { ArrowDownS } from "@/components/Icons/ArrowDownS";
-import { MobileDrawer } from "@/components/MobileDrawer";
+import { StockSheet } from "./StockSheet";
 
 type ItemRow = {
   id: string;

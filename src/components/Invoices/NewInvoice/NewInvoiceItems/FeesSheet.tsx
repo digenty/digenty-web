@@ -162,9 +162,9 @@ export const FeesSheet = () => {
 
       {/* Mobile */}
       {isMobile && (
-        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Select Stock Items">
+        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Select from Fees">
           <div className="flex w-full flex-col gap-6 p-6">
-            <SearchInput className="bg-bg-input-soft border-border-default border" placeholder="Search fee group" />
+            <SearchInput className="bg-bg-input-soft border-border-default border" placeholder="Search fees" />
             <div className="flex flex-col gap-4">
               {sheetFees.map(sf => (
                 <div key={sf.id} className="border-border-darker bg-bg-card rounded-md border p-4">
