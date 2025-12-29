@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { previewColumns } from "./PreviewColumn";
 
 export interface PreviewProps {
-  id: number;
+  id: string | number;
   item: string;
   qty: number;
   price: number;
@@ -49,6 +49,7 @@ export const PreviewTable = () => {
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
         onSelectRows={() => {}}
+        clickHandler={() => {}}
       />
       <div className="border-border-default w-full border-b p-2">
         <div className="mr-6 flex justify-end gap-13 text-sm">
