@@ -1,11 +1,18 @@
 import { AddFee } from "@/components/Fees/AddFee";
-import React from "react";
+import { Spinner } from "@/components/ui/spinner";
+import React, { Suspense } from "react";
 
 const feesAdd = () => {
   return (
-    <div>
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <Spinner className="size-16" />
+        </div>
+      }
+    >
       <AddFee />
-    </div>
+    </Suspense>
   );
 };
 
