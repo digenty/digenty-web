@@ -12,12 +12,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
+import { useState } from "react";
 
 type ItemRow = {
   id: string;
@@ -31,6 +31,12 @@ export const AddFeeToGroup = () => {
   const [openMobileDrawer, setOpenMobileDrawer] = useState(false);
   const [branchSelected, setBranchSelected] = useState(branches[0]);
   const [items, setItems] = useState<ItemRow[]>([{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }]);
+
+  useBreadcrumb([
+    { label: "Fees", url: "/fees" },
+    { label: "Fee Groups", url: "/fees?tab=Fee Groups" },
+    { label: "Add Fee Group", url: "/fees/add-fee-to-group" },
+  ]);
 
   const subtotal = items.reduce((acc, item) => acc + item.qty * item.price, 0);
 

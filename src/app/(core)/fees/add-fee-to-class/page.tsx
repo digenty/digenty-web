@@ -1,4 +1,4 @@
-import AddFeeToClass from "@/components/Fees/classFees/AddFeeToClass";
+import AddFeeToClass from "@/components/Fees/ClassFees/AddFeeToClass";
 import React from "react";
 
 const AddFeeToClassPage = () => {

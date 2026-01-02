@@ -100,7 +100,7 @@ export const FeeGroupColumn: ColumnDef<FeeGroupProp>[] = [
 
   {
     accessorKey: "totalAmount",
-    header: () => <div className="text-text-muted text-sm font-medium">TotalAmount</div>,
+    header: () => <div className="text-text-muted text-sm font-medium">Total Amount</div>,
     cell: ({ row }) => <div className="text-text-default text-sm font-medium">₦{row.original.totalAmount.toLocaleString()}</div>,
     size: 140,
   },

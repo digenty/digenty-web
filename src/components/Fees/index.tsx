@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { ClassFees } from "./ClassFees";
-import { FeeItem } from "./FeeItem";
-import { FeesGroup } from "./FeesGroup";
+import { FeesItem } from "@/components/Fees/FeesItem";
+import { ClassFees } from "@/components/Fees/ClassFees";
+import { FeesGroup } from "@/components/Fees/FeesGroup";
 
 const tabs = ["Class Fees", "Fee Items", "Fee Groups"];
 
@@ -25,7 +25,7 @@ export const FeesIndex = () => {
   }, [activeTab, router]);
 
   return (
-    <div className="px-4 md:px-8">
+    <div className="space-y-4 px-4 md:space-y-6 md:px-8">
       <div className="border-border-default flex w-auto max-w-105 items-center gap-3 border-b">
         {tabs.map(tab => {
           const isActive = activeTab === tab;
@@ -48,7 +48,7 @@ export const FeesIndex = () => {
       </div>
 
       {activeTab === "Class Fees" && <ClassFees />}
-      {activeTab === "Fee Items" && <FeeItem />}
+      {activeTab === "Fee Items" && <FeesItem />}
       {activeTab === "Fee Groups" && <FeesGroup />}
     </div>
   );

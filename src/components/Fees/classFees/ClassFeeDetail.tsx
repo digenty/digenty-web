@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -49,6 +50,12 @@ export const ClassFeeDetail = () => {
   const route = useRouter();
   const [items, setItems] = useState(ClassItems);
   const [openDeleteModal, setOpeDeleteModal] = useState(false);
+
+  useBreadcrumb([
+    { label: "Fees", url: "/fees" },
+    { label: "Class Fees", url: "/fees" },
+    { label: "JSS 1", url: "/fees/class-fees/jss-1" },
+  ]);
   const remove = (id: number) => {
     setItems(prev => prev.filter(item => item.id !== id));
   };
@@ -56,9 +63,9 @@ export const ClassFeeDetail = () => {
   const subtotal = items.reduce((acc, item) => acc + item.qty * item.amount, 0);
 
   return (
-    <div className="mx-auto flex items-center justify-center">
-      <div className="w-full px-4 py-3 md:w-1/2 md:px-8">
-        <div className="mb-9 flex justify-between">
+    <div className="flex items-center justify-center px-4 md:px-30 lg:px-70.5">
+      <div className="w-full py-4">
+        <div className="mb-4 flex flex-col justify-between gap-4 md:mb-9 md:flex-row">
           <div className="text-text-default text-xl font-semibold">JSS 1</div>
           <div className="flex gap-2">
             <Button className="bg-bg-state-secondary! border-border-darker hover:bg-bg-state-secondary-hover! h-8! w-8! border shadow-sm!">
@@ -150,13 +157,13 @@ export const ClassFeeDetail = () => {
                 <div className="border-border-default flex items-center justify-between rounded-md border px-6 py-4" key={itm.id}>
                   <div className="flex flex-col gap-2">
                     <div className="flex gap-2">
-                      <div className="text-text-default">{itm.title}</div>
+                      <div className="text-text-default text-base font-medium">{itm.title}</div>
                       <Badge className="bg-bg-state-secondary! border-border-default text-text-default rounded-md border">{itm.qty}</Badge>
                     </div>
                     <div className="font-medium">{getStatusBadge(itm.status)}</div>
                   </div>
                   <div className="flex gap-7">
-                    <div className="text-text-default">₦{itm.amount.toLocaleString()}</div>
+                    <div className="text-text-default text-base font-semibold">₦{itm.amount.toLocaleString()}</div>
                     <div className="flex gap-3">
                       <DeleteBin onClick={() => setOpeDeleteModal(true)} fill="var(--color-icon-default-subtle)" className="cursor-pointer" />
                       <Edit fill="var(--color-icon-default-subtle)" className="cursor-pointer" />
@@ -167,8 +174,8 @@ export const ClassFeeDetail = () => {
             ))}
           </div>
           <div className="border-border-default mt-6 flex items-center justify-between rounded-md border px-6 py-4">
-            <div className="text-text-muted text-md font-semibold">Total</div>
-            <div className="text-text-default text-sm font-medium"> ₦{subtotal.toLocaleString()}</div>
+            <div className="text-text-muted text-base font-semibold">Total</div>
+            <div className="text-text-default text-base font-bold"> ₦{subtotal.toLocaleString()}</div>
           </div>
         </div>
       </div>

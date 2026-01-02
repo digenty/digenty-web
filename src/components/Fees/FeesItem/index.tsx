@@ -11,10 +11,17 @@ import { Badge } from "@/components/ui/badge";
 import { getStatusBadge } from "@/components/Status";
 import Edit from "@/components/Icons/Edit";
 import { FileCopy } from "@/components/Icons/FileCopy";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { useRouter } from "next/navigation";
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 
 export const FeesItem = () => {
+  const router = useRouter();
+  useBreadcrumb([
+    { label: "Fees", url: "/fees" },
+    { label: "Fee Items", url: "/fees?tab=Fee Items" },
+  ]);
   const [branchSelected, setBranchSelected] = useState(branches[0]);
   const [termSelected, setTermSelected] = useState(termsOptions[0]);
   const [rowSelection, setRowSelection] = useState({});
@@ -32,8 +39,15 @@ export const FeesItem = () => {
     totalAmount: 1500000,
   }));
 
+  // Empty Fee Item STate
+  // <EmptyFeeState
+  //       title="No Fees Created"
+  //       description="Add fees here to start managing tuition, exams, levies, or other charges for your classes."
+  //       buttonText="Add First Fee"
+  //     />
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 md:gap-6">
       <FeesHeader
         title="Fee Items"
         branches={branches}
@@ -46,9 +60,6 @@ export const FeesItem = () => {
         showToggle={false}
         exportTitle="Export Fee Items"
         exportActionButton="Export Fees"
-        // onExportConfirm={() => {
-        //   console.log("exporting fee groups...");
-        // }}
       />
 
       <div className="hidden md:block">
@@ -59,11 +70,16 @@ export const FeesItem = () => {
           page={page}
           setCurrentPage={setPage}
           pageSize={pageSize}
-          clickHandler={() => {}}
+          clickHandler={row => {
+            router.push(`/fees/fee-item/${row.original.id}`);
+          }}
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}
           onSelectRows={setSelectedRows}
           showPagination={false}
+          classNames={{
+            tableRow: "cursor-pointer",
+          }}
         />
       </div>
       <div className="flex flex-col gap-4 md:hidden">
@@ -114,7 +130,7 @@ export const FeesItem = () => {
               </div>
 
               <div className="">
-                <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
+                <div className="border-border-default flex justify-between px-3 py-2 text-sm">
                   <span className="text-text-muted font-medium">Total Amount</span>
                   <span className="text-text-default text-sm font-medium">₦{item.totalAmount.toLocaleString()}</span>
                 </div>

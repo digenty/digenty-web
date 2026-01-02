@@ -13,7 +13,7 @@ export const MobileDrawer = ({
   open: boolean;
   setIsOpen: (bool: boolean) => void;
   children: React.ReactNode;
-  title: string;
+  title: React.ReactNode | string;
 }) => {
   const isMobile = useIsMobile();
   return (

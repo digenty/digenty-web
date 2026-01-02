@@ -1,4 +1,4 @@
-import { FeeItemDetail } from "@/components/Fees/feeItem/feeDetails";
+import { FeeItemDetail } from "@/components/Fees/FeesItem/feeDetails";
 import React from "react";
 
 const FeeItemDetailPage = () => {

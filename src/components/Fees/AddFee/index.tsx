@@ -8,8 +8,15 @@ import FeeAmount from "./FeeAmount";
 import { Button } from "@/components/ui/button";
 import { FEES_STEPS, useFeesStep } from "./FeesSteps";
 import { Badge } from "@/components/ui/badge";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 export const AddFee = () => {
+  useBreadcrumb([
+    { label: "Fees", url: "/fees" },
+    { label: "Class Fees", url: "/fees" },
+    { label: "Add fees", url: "/fees/add" },
+  ]);
+
   const { step, goToStep } = useFeesStep();
   const stepIndex = FEES_STEPS.findIndex(s => s.key === step);
 
@@ -19,20 +26,23 @@ export const AddFee = () => {
   return (
     <div className="">
       <div className="bg-bg-card-subtle border-border-default flex w-full items-center justify-between border-b p-3">
-        <div className="text-text-default text-md flex w-full font-semibold md:max-w-100 md:items-center md:justify-center">Add Fees</div>
+        <div className="text-text-default text-md mx-auto flex w-full font-semibold md:block md:max-w-150 md:items-center md:justify-center">
+          Add Fees
+        </div>
         <Badge className="text-text-subtle bg-bg-badge-default border-border-default block h-6 rounded-sm border p-1 md:hidden">
           {current}/{total}
         </Badge>
       </div>
       <div className="mx-auto my-4 hidden w-full md:block md:max-w-150">
-        <div className="mx-3 hidden flex-col gap-6 md:mx-0 md:flex">
+        <div className="mx-3 mb-20 hidden flex-col gap-6 md:mx-0 md:flex">
           <FeeDetails />
           <FeeBranch />
           <FeesClassApplyTo />
           <FeeAmount />
         </div>
 
-        <div className="border-border-default bg-bg-default absolute bottom-0 w-full max-w-150 border-b py-3">
+        {/* <div className="border-border-default border-t mx-auto bg-bg-default fixed px-4 bottom-0 left-0. right-0 w-full  border-b py-3"> */}
+        <div className="border-border-default bg-bg-default fixed bottom-0 w-full max-w-150 border-t py-3 pr-8 pl-4 md:px-0">
           <div className="flex justify-between">
             <Button className="bg-bg-state-soft! text-text-subtle! hover:bg-bg-state-soft-hover! h-7! text-sm">Cancel</Button>
             <div className="flex items-center gap-2">
@@ -42,6 +52,7 @@ export const AddFee = () => {
           </div>
         </div>
       </div>
+
       <div className="flex md:hidden">
         <div className="w-full p-3">
           {step === "details" && <FeeDetails />}

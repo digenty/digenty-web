@@ -1,4 +1,4 @@
-import { AddNewStudentFees } from "@/components/Fees/AddNewStudentFee";
+import { AddNewStudentFees } from "@/components/Fees/FeesGroup/FeeGroup";
 import React from "react";
 
 const AddNewStudentFeePage = () => {

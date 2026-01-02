@@ -11,11 +11,19 @@ import Eye from "@/components/Icons/Eye";
 import Edit from "@/components/Icons/Edit";
 import { FileCopy } from "@/components/Icons/FileCopy";
 import { Badge } from "@/components/ui/badge";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { useRouter } from "next/navigation";
 
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 
 export const FeesGroup = () => {
+  const router = useRouter();
+  useBreadcrumb([
+    { label: "Fees", url: "/fees" },
+    { label: "Fee Groups", url: "/fees?tab=Fee Groups" },
+  ]);
+
   const [branchSelected, setBranchSelected] = useState(branches[0]);
   const [termSelected, setTermSelected] = useState(termsOptions[0]);
   const [rowSelection, setRowSelection] = useState({});
@@ -30,6 +38,15 @@ export const FeesGroup = () => {
     applyTo: { item1: "Tuition", item2: "School Uniform", count: 20 },
     totalAmount: 1500000,
   }));
+
+  // Empty State
+  // <EmptyFeeState
+  //       title="No Fee Groups Yet"
+  //       description="Create groups to organise related fees into bundles you can reuse when setting up invoices."
+  //       buttonText="Add Fee Group"
+  //       url="/fees/add-fee-to-group"
+  //     />
+
   return (
     <div className="flex flex-col gap-6">
       <FeesHeader
@@ -45,12 +62,8 @@ export const FeesGroup = () => {
         showTermFilter={false}
         exportTitle="Export Group Fee"
         exportActionButton="Export Group"
-        showArm={false}
-        showClass={false}
-
-        // onExportConfirm={() => {
-        //   console.log("exporting fee groups...");
-        // }}
+        termsOptions={termsOptions}
+        addButttonText="Add Fee Group"
       />
       <div className="hidden md:block">
         <DataTable
@@ -60,11 +73,16 @@ export const FeesGroup = () => {
           page={page}
           setCurrentPage={setPage}
           pageSize={pageSize}
-          clickHandler={() => {}}
+          clickHandler={row => {
+            router.push(`/fees/fee-group/${row.original.id}`);
+          }}
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}
           onSelectRows={setSelectedRows}
           showPagination={true}
+          classNames={{
+            tableRow: "cursor-pointer",
+          }}
         />
       </div>
       <div className="flex flex-col gap-4 md:hidden">
@@ -109,7 +127,7 @@ export const FeesGroup = () => {
               </div>
 
               <div className="">
-                <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
+                <div className="border-border-default flex justify-between px-3 py-2 text-sm">
                   <span className="text-text-muted font-medium">Total Amount</span>
                   <span className="text-text-default text-sm font-medium">₦{item.totalAmount.toLocaleString()}</span>
                 </div>

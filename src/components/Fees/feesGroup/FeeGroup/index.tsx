@@ -43,9 +43,9 @@ export const AddNewStudentFees = () => {
 
   return (
     <div className="mx-auto flex items-center justify-center">
-      <div className="w-full px-4 py-3 md:w-1/2 md:px-8">
-        <div className="mb-9 flex justify-between">
-          <div className="text-text-default text-xl font-semibold">JSS 1</div>
+      <div className="w-full px-4 py-3 md:px-30 lg:px-60">
+        <div className="mb-4 flex flex-col justify-between gap-3 md:mb-9 md:flex-row">
+          <div className="text-text-default text-xl font-semibold">New Student Fee</div>
           <div className="flex gap-2">
             <Button className="bg-bg-state-secondary! border-border-darker hover:bg-bg-state-secondary-hover! h-8! w-8! border shadow-sm!">
               <DeleteBin fill="var(--color-bg-state-destructive)" className="size-4" />
@@ -55,6 +55,7 @@ export const AddNewStudentFees = () => {
               className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! h-8! border font-medium shadow-sm!"
             >
               <Edit fill="var(--color-icon-default-muted)" />
+              <p className="inline md:hidden">Edit Fee Group</p>
             </Button>
           </div>
         </div>
@@ -64,8 +65,8 @@ export const AddNewStudentFees = () => {
               <div className="border-border-default flex items-center justify-between rounded-md border px-6 py-4" key={itm.id}>
                 <div className="flex flex-col gap-2">
                   <div className="flex gap-2">
-                    <div className="text-text-default">{itm.title}</div>
-                    <Badge className="bg-bg-state-secondary! border-border-default text-text-default rounded-md border">{itm.qty}</Badge>
+                    <div className="text-text-default font-medium">{itm.title}</div>
+                    <Badge className="bg-bg-state-secondary! border-border-default text-text-default size-5 rounded-md border">{itm.qty}</Badge>
                   </div>
                   <Badge
                     className={`border-border-default rounded-md border text-xs font-medium ${itm.status === "Required" && "text-bg-basic-blue-strong bg-bg-badge-blue"} ${itm.status === "Optional" && "text-bg-basic-fuchsia-strong bg-bg-badge-fuchsia"}`}
@@ -74,7 +75,7 @@ export const AddNewStudentFees = () => {
                   </Badge>
                 </div>
                 <div className="">
-                  <div className="text-text-default">₦{itm.amount.toLocaleString()}</div>
+                  <div className="text-text-default text-base font-semibold">₦{itm.amount.toLocaleString()}</div>
                 </div>
               </div>
             ))}

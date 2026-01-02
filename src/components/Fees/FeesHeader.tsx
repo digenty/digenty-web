@@ -16,6 +16,7 @@ import ShareBox from "../Icons/ShareBox";
 import { AddFill } from "../Icons/AddFill";
 import { Modal } from "../Modal";
 import { Badge } from "../ui/badge";
+import { PlusIcon } from "lucide-react";
 
 type FeesHeaderProps = {
   title?: string;
@@ -30,23 +31,21 @@ type FeesHeaderProps = {
   // onExportConfirm?: () => void;
   exportTitle?: string;
   exportActionButton?: string;
+  addButttonText?: string;
 
-  arms: string[];
-  selectedArm: string;
-  setSelectedArm: (value: string) => void;
+  arms?: string[];
+  selectedArm?: string;
+  setSelectedArm?: (value: string) => void;
 
-  classes: string[];
-  selectedClass: string;
-  setSelectedClass: (value: string) => void;
+  classes?: string[];
+  selectedClass?: string;
+  setSelectedClass?: (value: string) => void;
 
   showBranchFilter?: boolean;
   showTermFilter?: boolean;
   showSearch?: boolean;
   showExport?: boolean;
-  showAddButton?: boolean;
   showToggle?: boolean;
-  showClass?: boolean;
-  showArm?: boolean;
 
   onAddClick?: () => void;
 };
@@ -61,6 +60,7 @@ export const FeesHeader = ({
   branchSelected,
   setBranchSelected,
   exportTitle,
+  addButttonText = "Add Fee",
   exportActionButton,
   termsOptions,
   termSelected,
@@ -76,10 +76,7 @@ export const FeesHeader = ({
   showTermFilter = true,
   showSearch = true,
   showExport = true,
-  showAddButton = true,
   showToggle = true,
-  showArm = false,
-  showClass = false,
 
   onAddClick,
 }: FeesHeaderProps) => {
@@ -129,7 +126,7 @@ export const FeesHeader = ({
             )}
           </div>
 
-          {showClass && (
+          {classes && classes.length > 0 && (
             <div className="space-y-2">
               <Label className="text-text-default text-sm font-medium">Class</Label>
 
@@ -150,7 +147,7 @@ export const FeesHeader = ({
             </div>
           )}
 
-          {showArm && (
+          {arms && arms.length > 0 && (
             <div className="space-y-2">
               <Label className="text-text-default text-sm font-medium">Arm</Label>
 
@@ -226,7 +223,7 @@ export const FeesHeader = ({
             )}
           </div>
 
-          {showClass && (
+          {classes && classes.length > 0 && (
             <div className="space-y-2">
               <Label className="text-text-default text-sm font-medium">Class</Label>
 
@@ -247,7 +244,7 @@ export const FeesHeader = ({
             </div>
           )}
 
-          {showArm && (
+          {arms && arms.length > 0 && (
             <div className="space-y-2">
               <Label className="text-text-default text-sm font-medium">Arm</Label>
 
@@ -417,27 +414,25 @@ export const FeesHeader = ({
         </div>
       </div>
 
-      <div className="mt-6 mb-4 flex flex-col gap-2 md:flex-row md:justify-between">
+      <div className="mt-4 flex flex-col gap-3 md:mt-6 md:flex-row md:justify-between md:gap-2">
         {showSearch && <SearchInput className="bg-bg-input-soft! w-full rounded-md border-none md:w-71" />}
 
         <div className="flex gap-2">
           {showExport && (
             <Button
               onClick={() => setIsOpen(true)}
-              className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default h-8! w-22! rounded-md text-sm font-normal"
+              className="bg-bg-state-secondary! border-border-default hover:bg-bg-state-secondary-hover! text-text-default h-7 rounded-md border text-sm font-normal md:h-8"
             >
               <ShareBox fill="var(--color-icon-default-muted)" /> Export
             </Button>
           )}
 
-          {showAddButton && (
-            <Button
-              onClick={onAddClick}
-              className="text-tex-white-default bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-8! rounded-md text-sm"
-            >
-              <AddFill fill="var(--color-icon-white-default)" /> Add Fee
-            </Button>
-          )}
+          <Button
+            onClick={onAddClick}
+            className="text-tex-white-default bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 rounded-md text-sm md:h-8"
+          >
+            <PlusIcon className="text-icon-white-default" /> {addButttonText}
+          </Button>
         </div>
       </div>
     </div>
