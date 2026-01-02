@@ -19,12 +19,12 @@ export const AddFee = () => {
   return (
     <div className="">
       <div className="bg-bg-card-subtle border-border-default flex w-full items-center justify-between border-b p-3">
-        <div className="text-text-default text-md flex w-full font-semibold md:ml-27 md:max-w-150 md:items-center md:justify-center">Add Fees</div>
+        <div className="text-text-default text-md flex w-full font-semibold md:max-w-100 md:items-center md:justify-center">Add Fees</div>
         <Badge className="text-text-subtle bg-bg-badge-default border-border-default block h-6 rounded-sm border p-1 md:hidden">
           {current}/{total}
         </Badge>
       </div>
-      <div className="mx-auto my-2 hidden w-full md:block md:max-w-150">
+      <div className="mx-auto my-4 hidden w-full md:block md:max-w-150">
         <div className="mx-3 hidden flex-col gap-6 md:mx-0 md:flex">
           <FeeDetails />
           <FeeBranch />

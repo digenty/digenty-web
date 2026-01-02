@@ -6,6 +6,7 @@ import GraduationCap from "@/components/Icons/GraduationCap";
 import School from "@/components/Icons/School";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import Image from "next/image";
 import React, { useState } from "react";
 
 const classesapply = [
