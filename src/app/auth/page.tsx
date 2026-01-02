@@ -1,4 +1,4 @@
-import { Signup } from "@/components/Auth/Signup";
+import { Auth } from "@/components/Auth";
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 
@@ -12,7 +12,7 @@ export default function SignupPage() {
           </div>
         }
       >
-        <Signup />
+        <Auth />
       </Suspense>
     </div>
   );
