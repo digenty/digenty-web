@@ -8,7 +8,7 @@ import { useFormik } from "formik";
 import { useState } from "react";
 import { PasswordForm } from "./PasswordForm";
 
-export const Fields = ({ setShowNextStep }: { setShowNextStep: (bool: boolean) => void }) => {
+export const Fields = ({ setNextStep, nextStep }: { setNextStep: (value: "login" | "signup") => void; nextStep: "login" | "signup" | null }) => {
   const [showPasswordInput, setShowPasswordInput] = useState(false);
 
   const formik = useFormik({
@@ -24,7 +24,7 @@ export const Fields = ({ setShowNextStep }: { setShowNextStep: (bool: boolean) =
 
   const displayPasswordInput = () => {
     setShowPasswordInput(true);
-    setShowNextStep(true);
+    setNextStep("login");
   };
 
   return (
@@ -63,7 +63,7 @@ export const Fields = ({ setShowNextStep }: { setShowNextStep: (bool: boolean) =
           </div>
         </>
       ) : (
-        <PasswordForm email={formik.values.email} />
+        <PasswordForm email={formik.values.email} step={nextStep} />
       )}
     </div>
   );

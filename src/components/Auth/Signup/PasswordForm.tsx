@@ -4,12 +4,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { authSchema } from "@/schema/auth";
+import { Checkbox } from "@radix-ui/react-checkbox";
 import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
-export const PasswordForm = ({ email }: { email: string }) => {
+export const PasswordForm = ({ email, step }: { email: string; step: "login" | "signup" | null }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const toggleRememberMe = () => {
+    setRememberMe(prev => !prev);
+  };
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
   };
@@ -77,13 +84,30 @@ export const PasswordForm = ({ email }: { email: string }) => {
         {formik.touched.password && formik.errors.password && <p className="text-text-destructive text-xs font-light">{formik.errors.password}</p>}
       </div>
 
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={rememberMe}
+            onCheckedChange={checked => setRememberMe(checked === true)}
+            aria-label="Remember me"
+            className="bg-bg-checkbox-default checked:bg-bg-state-primary border-border-darker size-4 cursor-pointer rounded-[5px] border"
+          />
+          <label htmlFor="remember-me" className="text-text-default text-sm font-medium">
+            Remember me
+          </label>
+        </div>
+        <Link href="#" className="text-text-informative text-sm font-medium">
+          Forgot Password
+        </Link>
+      </div>
+
       <div className="mt-8 space-y-8">
         <Button
           disabled={!formik.values.email || !formik.values.password}
           onClick={() => handleSubmit()}
           className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full"
         >
-          Continue
+          {step === "signup" ? "Continue" : "Log In"}
         </Button>
         <p className="text-text-muted text-center text-xs">Terms of Use | Privacy Policy</p>
       </div>
