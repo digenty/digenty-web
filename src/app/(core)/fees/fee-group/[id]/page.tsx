@@ -1,10 +1,10 @@
-import { AddNewStudentFees } from "@/components/Fees/FeesGroup/FeeGroup";
+import { FeeGroup } from "@/components/Fees/FeesGroup/FeeGroup";
 import React from "react";
 
 const AddNewStudentFeePage = () => {
   return (
     <div>
-      <AddNewStudentFees />
+      <FeeGroup />
     </div>
   );
 };

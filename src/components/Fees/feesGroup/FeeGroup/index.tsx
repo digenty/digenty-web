@@ -36,7 +36,7 @@ const ClassItems = [
     amount: 200280,
   },
 ];
-export const AddNewStudentFees = () => {
+export const FeeGroup = () => {
   const [items, setItems] = useState(ClassItems);
 
   const subtotal = items.reduce((acc, item) => acc + item.qty * item.amount, 0);
