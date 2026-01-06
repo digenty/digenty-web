@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLogin, useSignup } from "@/hooks/queryHooks/useAuth";
 import { cn } from "@/lib/utils";
 import { authSchema } from "@/schema/auth";
 import { Checkbox } from "@radix-ui/react-checkbox";
@@ -13,6 +14,9 @@ import { useState } from "react";
 export const PasswordForm = ({ email, step }: { email: string; step: "login" | "signup" | null }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  const { mutate, isPending } = useLogin();
+  const { mutate: login, isPending: isPendingLogin } = useLogin();
 
   const toggleRememberMe = () => {
     setRememberMe(prev => !prev);
@@ -31,7 +35,16 @@ export const PasswordForm = ({ email, step }: { email: string; step: "login" | "
     },
   });
 
-  const handleSubmit = () => {};
+  const handleSubmit = async () => {
+    console.log({
+      email: formik.values.email,
+      password: formik.values.password,
+    });
+    await mutate({
+      email: formik.values.email,
+      password: formik.values.password,
+    });
+  };
 
   return (
     <div className="w-full space-y-6">
@@ -104,7 +117,10 @@ export const PasswordForm = ({ email, step }: { email: string; step: "login" | "
       <div className="mt-8 space-y-8">
         <Button
           disabled={!formik.values.email || !formik.values.password}
-          onClick={() => handleSubmit()}
+          onClick={e => {
+            e.preventDefault();
+            handleSubmit();
+          }}
           className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full"
         >
           {step === "signup" ? "Continue" : "Log In"}

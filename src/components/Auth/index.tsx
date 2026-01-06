@@ -1,7 +1,7 @@
 "use client";
-import { AppleAuth } from "@/components/Auth/AppleAuth";
+// import { AppleAuth } from "@/components/Auth/AppleAuth";
 import { AuthLayout } from "@/components/Auth/AuthLayout";
-import { GoogleAuth } from "@/components/Auth/GoogleAuth";
+// import { GoogleAuth } from "@/components/Auth/GoogleAuth";
 import { Fields } from "./Signup/Fields";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -24,12 +24,12 @@ export const Auth = () => {
           </p>
         </div>
 
-        {!nextStep && (
+        {/* {!nextStep && (
           <div className="mt-7 w-full space-y-3">
             <GoogleAuth />
             <AppleAuth />
           </div>
-        )}
+        )} */}
 
         {!nextStep && (
           <div className="my-6 flex w-full items-center justify-stretch gap-3">

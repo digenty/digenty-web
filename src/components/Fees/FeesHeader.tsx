@@ -304,7 +304,7 @@ export const FeesHeader = ({
 
         <div className="flex gap-2">
           <div className="flex items-center gap-2">
-            {showToggle && <Toggle />}
+            {/* {showToggle && <Toggle />} */}
 
             <div className="hidden gap-2 align-middle md:flex">
               {showBranchFilter && (

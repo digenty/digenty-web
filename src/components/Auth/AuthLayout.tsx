@@ -15,7 +15,7 @@ export const AuthLayout = ({ children, showNextStep }: { children: React.ReactNo
       <div className="min-h-screen px-5 md:px-12">
         <AuthHeader />
 
-        <div className="flex items-center justify-center pt-[20%]">
+        <div className="flex items-center justify-center pt-[25%]">
           <div className="w-full max-w-md">{children}</div>
         </div>
       </div>

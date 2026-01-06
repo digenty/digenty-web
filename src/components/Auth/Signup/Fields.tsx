@@ -10,6 +10,16 @@ import { PasswordForm } from "./PasswordForm";
 
 export const Fields = ({ setNextStep, nextStep }: { setNextStep: (value: "login" | "signup") => void; nextStep: "login" | "signup" | null }) => {
   const [showPasswordInput, setShowPasswordInput] = useState(false);
+  // const router = useRouter();
+  // const params = useSearchParams();
+  // const authStep = params.get("step");
+
+  // useEffect(() => {
+  //   if (authStep === "login" || authStep === "signup") {
+  //     setShowPasswordInput(true);
+  //   setNextStep("login");
+  //   }
+  // }, [authStep, setNextStep]);
 
   const formik = useFormik({
     initialValues: {
@@ -25,6 +35,7 @@ export const Fields = ({ setNextStep, nextStep }: { setNextStep: (value: "login"
   const displayPasswordInput = () => {
     setShowPasswordInput(true);
     setNextStep("login");
+    // router.push(`/auth?step=login`)
   };
 
   return (
