@@ -11,29 +11,29 @@ export const QuickActions = () => {
       <h2 className="text-text-default text-lg font-semibold md:text-2xl">Quick Actions</h2>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8 lg:grid-cols-5">
-        <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-[14px]!">
+        <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-3.5!">
           <FileList3Fill fill="var(--color-icon-default-muted)" className="size-4.5" />
-          <span className="text-text-default font-medium">Create Invoice</span>
+          <span className="text-text-default truncate font-medium">Create Invoice</span>
         </Button>
 
-        <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-[14px]!">
+        <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-3.5!">
           <Notification2Fill fill="var(--color-icon-default-muted)" className="size-4.5" />
-          <span className="text-text-default font-medium">Send Reminders</span>
+          <span className="text-text-default truncate font-medium">Send Reminders</span>
         </Button>
 
-        <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-[14px]!">
+        <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-3.5!">
           <UserFill fill="var(--color-icon-default-muted)" className="size-4.5" />
-          <span className="text-text-default font-medium">Add Student</span>
+          <span className="text-text-default truncate font-medium">Add Student</span>
         </Button>
 
-        <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-[14px]!">
+        <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-3.5!">
           <IndeterminateCircleFill fill="var(--color-icon-default-muted)" className="size-4.5" />
-          <span className="text-text-default font-medium">Add Expense</span>
+          <span className="text-text-default truncate font-medium">Add Expense</span>
         </Button>
 
-        <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-[14px]!">
+        <Button className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-3.5!">
           <SendPlaneFill fill="var(--color-icon-default-muted)" className="size-4.5" />
-          <span className="text-text-default font-medium">Send Campaign</span>
+          <span className="text-text-default truncate font-medium">Send Campaign</span>
         </Button>
       </div>
     </div>

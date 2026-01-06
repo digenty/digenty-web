@@ -1,6 +1,6 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 import { AuthHeader } from "./AuthHeader";
-import { cn } from "@/lib/utils";
 
 export const AuthLayout = ({ children, showNextStep }: { children: React.ReactNode; showNextStep: boolean }) => {
   return (

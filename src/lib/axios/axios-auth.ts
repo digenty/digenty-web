@@ -16,10 +16,10 @@ const api = axios.create({
  */
 api.interceptors.request.use(
   async config => {
-    const { accessToken } = await getSessionData();
+    const { token } = await getSessionData();
 
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
