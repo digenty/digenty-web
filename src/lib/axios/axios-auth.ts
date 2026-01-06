@@ -3,7 +3,7 @@ import axios from "axios";
 import { redirect } from "next/navigation";
 
 const api = axios.create({
-  baseURL: "https://school-app-backend-y82vo.ondigitalocean.app",
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true, // if using cookies
   headers: {
     "Content-Type": "application/json",

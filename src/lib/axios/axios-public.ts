@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiPublic = axios.create({
-  baseURL: "https://school-app-backend-y82vo.ondigitalocean.app",
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
