@@ -1,22 +1,22 @@
 "use client";
+import { createSession } from "@/app/actions/auth";
+import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
+import { useLogin } from "@/hooks/queryHooks/useAuth";
 import { cn } from "@/lib/utils";
 import { authSchema } from "@/schema/auth";
-import { Checkbox } from "@radix-ui/react-checkbox";
 import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
-export const PasswordForm = ({ email, step }: { email: string; step: "login" | "signup" | null }) => {
+export const LoginPasswordForm = ({ email }: { email: string }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
-  const toggleRememberMe = () => {
-    setRememberMe(prev => !prev);
-  };
+  const { mutate, isPending } = useLogin();
+
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
   };
@@ -27,14 +27,34 @@ export const PasswordForm = ({ email, step }: { email: string; step: "login" | "
     },
     validationSchema: authSchema,
     onSubmit: async values => {
-      console.log(values);
+      await mutate(
+        {
+          email: values.email,
+          password: values.password,
+        },
+        {
+          onSuccess: data => {
+            toast({
+              title: "Successfully logged in",
+              description: data.message,
+              type: "success",
+            });
+            createSession(data.data.token);
+          },
+          onError: error => {
+            toast({
+              title: error.message ?? "Something went wrong",
+              description: "Could not log you in",
+              type: "error",
+            });
+          },
+        },
+      );
     },
   });
 
-  const handleSubmit = () => {};
-
   return (
-    <div className="w-full space-y-6">
+    <form noValidate onSubmit={formik.handleSubmit} className="w-full space-y-6">
       <div className="space-y-2">
         <Label htmlFor="email" className="text-text-default text-sm font-medium">
           Email Address
@@ -84,7 +104,8 @@ export const PasswordForm = ({ email, step }: { email: string; step: "login" | "
         {formik.touched.password && formik.errors.password && <p className="text-text-destructive text-xs font-light">{formik.errors.password}</p>}
       </div>
 
-      <div className="flex items-center justify-between">
+      {/* TODO: Uncomment and implement these after first launch */}
+      {/* <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Checkbox
             checked={rememberMe}
@@ -99,18 +120,18 @@ export const PasswordForm = ({ email, step }: { email: string; step: "login" | "
         <Link href="#" className="text-text-informative text-sm font-medium">
           Forgot Password
         </Link>
-      </div>
+      </div> */}
 
       <div className="mt-8 space-y-8">
         <Button
           disabled={!formik.values.email || !formik.values.password}
-          onClick={() => handleSubmit()}
-          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full"
+          className="bg-bg-state-primary disabled:bg-bg-state-primary-hover disabled:text-text-white-default hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full"
         >
-          {step === "signup" ? "Continue" : "Log In"}
+          {isPending && <Spinner className="text-text-white-default" />}
+          Log In
         </Button>
         <p className="text-text-muted text-center text-xs">Terms of Use | Privacy Policy</p>
       </div>
-    </div>
+    </form>
   );
 };

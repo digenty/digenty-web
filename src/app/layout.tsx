@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { inter } from "./fonts";
 import "./styles/globals.css";
+import { TanstackProvider } from "./providers/Tanstack";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Digenty",
@@ -17,7 +19,12 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <body className={`${inter.className} antialiased`}>
+        <TanstackProvider>
+          {children}
+          <Toaster position="bottom-right" richColors closeButton />
+        </TanstackProvider>
+      </body>
     </html>
   );
 }

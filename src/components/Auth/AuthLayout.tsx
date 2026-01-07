@@ -1,6 +1,6 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 import { AuthHeader } from "./AuthHeader";
-import { cn } from "@/lib/utils";
 
 export const AuthLayout = ({ children, showNextStep }: { children: React.ReactNode; showNextStep: boolean }) => {
   return (
@@ -15,7 +15,7 @@ export const AuthLayout = ({ children, showNextStep }: { children: React.ReactNo
       <div className="min-h-screen px-5 md:px-12">
         <AuthHeader />
 
-        <div className="flex items-center justify-center pt-[20%]">
+        <div className="flex items-center justify-center pt-[25%]">
           <div className="w-full max-w-md">{children}</div>
         </div>
       </div>

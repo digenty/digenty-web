@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { jwtDecode } from "jwt-decode";
 import { twMerge } from "tailwind-merge";
 
 export const MOBILE_VIEWPORT = 768;
@@ -53,4 +54,28 @@ export const formatDate = (dateInput: string | number | Date) => {
   const year = date.getFullYear();
 
   return `${day}/${month}/${year}`;
+};
+
+export const decodeJWT = (token: string) => {
+  try {
+    const decodedToken = jwtDecode(token);
+    if (!decodedToken || !decodedToken.exp) {
+      return null;
+    } else {
+      const decoded = jwtDecode(token);
+      return decoded;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    return null;
+  }
+};
+
+export const parseCookieString = (string = "") => {
+  try {
+    return JSON.parse(string);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    return null;
+  }
 };
