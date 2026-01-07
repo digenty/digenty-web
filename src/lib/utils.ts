@@ -70,3 +70,12 @@ export const decodeJWT = (token: string) => {
     return null;
   }
 };
+
+export const parseCookieString = (string = "") => {
+  try {
+    return JSON.parse(string);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (error) {
+    return null;
+  }
+};
