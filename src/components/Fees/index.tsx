@@ -5,8 +5,8 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { FeesItem } from "@/components/Fees/FeesItem";
-import { ClassFees } from "@/components/Fees/ClassFees";
-import { FeesGroup } from "@/components/Fees/FeesGroup";
+import { ClassFees } from "@/components/Fees/temp_classFees";
+import { FeesGroup } from "@/components/Fees/temp_feesGroup";
 
 const tabs = ["Class Fees", "Fee Items", "Fee Groups"];
 
