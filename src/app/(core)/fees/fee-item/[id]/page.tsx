@@ -1,4 +1,4 @@
-import { FeeItemDetail } from "@/components/Fees/FeesItem/temp_feeDetails";
+import { FeeItemDetail } from "@/components/Fees/FeesItem/FeeDetails";
 import React from "react";
 
 const FeeItemDetailPage = () => {
