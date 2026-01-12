@@ -7,11 +7,11 @@ export default function CoreLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="bg-bg-default flex h-screen overflow-hidden leading-5">
+    <div className="bg-bg-default fixed inset-0 flex overflow-hidden leading-5">
       <Sidebar />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col">
         <Header />
-        <div className="h-screen overflow-y-auto pb-12">{children}</div>
+        <div className="flex-1 overflow-y-auto">{children}</div>
       </div>
     </div>
   );

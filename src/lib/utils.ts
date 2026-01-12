@@ -79,3 +79,13 @@ export const parseCookieString = (string = "") => {
     return null;
   }
 };
+
+export const getAcademicYears = (startYear = 2000) => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+
+  for (let year = startYear; year < currentYear; year++) {
+    years.push(`${year}/${year + 1}`);
+  }
+  return years;
+};
