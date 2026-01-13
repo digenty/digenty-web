@@ -17,6 +17,7 @@ import { LinkEntity } from "./LinkEntity";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
 import { Tags } from "./Tags";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 type Fields = {
   branchId: number;
@@ -32,6 +33,12 @@ export const AddStudent = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [avatar, setAvatar] = useState<File | null>(null);
   const [step, setStep] = useState(1);
+
+  useBreadcrumb([
+    { label: "Student & Parent Record", url: "/student-and-parent-record" },
+    { label: "Students", url: "/student-and-parent-record?tab=students" },
+    { label: "Add Student", url: "" },
+  ]);
 
   const { mutate, isPending } = useAddStudent();
   const { branchId } = useLoggedInUser();

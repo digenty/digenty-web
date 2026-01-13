@@ -43,3 +43,8 @@ interface User {
 }
 
 export type JWTPayload = JwtPayload & User;
+
+export interface Pagination {
+  limit: number;
+  page: number;
+}
