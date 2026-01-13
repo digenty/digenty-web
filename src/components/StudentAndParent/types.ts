@@ -1,4 +1,4 @@
-import { BoardingStatus, Gender, StudentStatus } from "@/types";
+import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
 
 export interface Student {
   id: string;
@@ -32,16 +32,16 @@ export interface StudentInputValues {
   address: string;
   emergencyContactName: string;
   emergencyContactNumber: string;
-  primaryPhoneNumber: string;
+  phoneNumber: string;
   secondaryPhoneNumber: string;
-  studentStatus: StudentStatus;
+  admissionStatus: AdmissionStatus;
   admissionNumber: string;
   medicalInformation: string;
-  role: string;
+  // role: string;
   nationality: string;
   stateOfOrigin: string;
-  termJoined: string;
-  sessionJoined: string;
+  joinedSchoolTerm: string;
+  joinedSchoolSession: string;
 }
 
 export interface Country {
@@ -60,4 +60,34 @@ export interface State {
   id: string;
   name: string;
   iso2: string;
+}
+
+export interface StudentInputType {
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  email: string;
+  gender: Gender;
+  boardingStatus: BoardingStatus;
+  dateOfBirth: string;
+  address: string;
+  emergencyContactName: string;
+  emergencyContactNumber: string;
+  phoneNumber: string;
+  secondaryPhoneNumber: string;
+  admissionStatus: AdmissionStatus;
+  admissionNumber: string;
+  medicalInformation: string;
+  // role: string;
+  nationality: string;
+  stateOfOrigin: string;
+  joinedSchoolTerm: string;
+  joinedSchoolSession: string;
+  branchId: number;
+  classId: number;
+  departmentId: number;
+  armId: number;
+  image: File | null;
+  tags: string[];
+  linkedParents: number[];
 }

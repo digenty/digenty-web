@@ -1,4 +1,4 @@
-import { BoardingStatus, Gender, StudentStatus } from "@/types";
+import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
 import * as yup from "yup";
 
 export const studentSchema = yup.object().shape({
@@ -14,10 +14,13 @@ export const studentSchema = yup.object().shape({
   nationality: yup.string(),
   stateOfOrigin: yup.string(),
   emergencyContactNumber: yup.string(),
-  primaryPhoneNumber: yup.string(),
+  phoneNumber: yup.string(),
   secondaryPhoneNumber: yup.string(),
-  studentStatus: yup.string().oneOf(Object.values(StudentStatus), "Student's status is not a valid value!").required("Student's status is required!"),
+  admissionStatus: yup
+    .string()
+    .oneOf(Object.values(AdmissionStatus), "Student's status is not a valid value!")
+    .required("Student's status is required!"),
   admissionNumber: yup.string(),
   medicalInformation: yup.string(),
-  role: yup.string(),
+  // role: yup.string(),
 });

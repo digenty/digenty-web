@@ -1,10 +1,9 @@
 "use client";
-import Image from "next/image";
-import { Button } from "../../ui/button";
-import { useRef, useState } from "react";
 import { Avatar } from "@/components/Avatar";
+import { useRef, useState } from "react";
+import { Button } from "../../ui/button";
 
-export const ProfilePicture = ({ setAvatar }: { setAvatar: React.Dispatch<React.SetStateAction<File | null>> }) => {
+export const ProfilePicture = ({ setAvatar }: { setAvatar: (file: File | null) => void }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState<string | undefined>("/images/profile-picture.png");
 
@@ -26,7 +25,6 @@ export const ProfilePicture = ({ setAvatar }: { setAvatar: React.Dispatch<React.
 
       <div className="flex items-center gap-4">
         <div className="flex size-10 items-center justify-between rounded-full">
-          {/* <Image src={imageUrl} alt="profile" className="rounded-full" width={40} height={40} /> */}
           <Avatar url={imageUrl} username="" className="border-border-default size-10 border" />
           <input id="file-upload" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
         </div>

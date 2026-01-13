@@ -1,4 +1,4 @@
-export const StudentStatusValues = [
+export const AdmissionStatusValues = [
   { label: "Graduated", value: "GRADUATED" },
   { label: "Active", value: "ACTIVE" },
   { label: "Suspended", value: "SUSPENDED" },

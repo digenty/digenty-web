@@ -1,4 +1,3 @@
-import api from "@/lib/axios/axios-auth";
 import apiPublic from "@/lib/axios/axios-public";
 import { isAxiosError } from "axios";
 

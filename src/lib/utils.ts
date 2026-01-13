@@ -1,3 +1,4 @@
+import { JWTPayload } from "@/types";
 import { clsx, type ClassValue } from "clsx";
 import { jwtDecode } from "jwt-decode";
 import { twMerge } from "tailwind-merge";
@@ -63,7 +64,7 @@ export const decodeJWT = (token: string) => {
       return null;
     } else {
       const decoded = jwtDecode(token);
-      return decoded;
+      return decoded as JWTPayload;
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {

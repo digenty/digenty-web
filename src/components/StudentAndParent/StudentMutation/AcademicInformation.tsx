@@ -5,7 +5,8 @@ import { Label } from "../../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { StudentInputValues } from "../types";
 import { FormikProps } from "formik";
-import { BoardingStatusValues, StudentStatusValues } from "../constants";
+import { BoardingStatusValues, AdmissionStatusValues } from "../constants";
+import { terms } from "@/types";
 
 export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInputValues> }) => {
   const { handleBlur, handleChange, errors, touched, values } = formik;
@@ -15,10 +16,10 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-5">
         <div className="space-y-2">
-          <Label htmlFor="sessionJoined" className="text-text-default text-sm font-medium">
-            Joined School Session
+          <Label htmlFor="joinedSchoolSession" className="text-text-default text-sm font-medium">
+            Joined School Session<small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select onValueChange={value => formik.setFieldValue("sessionJoined", value)}>
+          <Select onValueChange={value => formik.setFieldValue("joinedSchoolSession", value)}>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="2024/2025" />
             </SelectTrigger>
@@ -34,16 +35,16 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
 
         <div className="space-y-2">
           <Label htmlFor="nationality" className="text-text-default text-sm font-medium">
-            Joined School Term
+            Joined School Term<small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select onValueChange={value => formik.setFieldValue("termJoined", value)}>
+          <Select onValueChange={value => formik.setFieldValue("joinedSchoolTerm", value)}>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="First Term" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
-              {["First Term", "Second Term", "Third Term"].map(term => (
-                <SelectItem key={term} className="text-text-default" value={term}>
-                  {term}
+              {terms.map(term => (
+                <SelectItem key={term.value} className="text-text-default" value={term.value}>
+                  {term.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -168,7 +169,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
               <SelectValue placeholder="Admission Status" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
-              {StudentStatusValues.map(status => (
+              {AdmissionStatusValues.map(status => (
                 <SelectItem key={status.value} className="text-text-default" value={status.value}>
                   {status.label}
                 </SelectItem>
@@ -177,7 +178,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           </Select>
         </div>
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label htmlFor="role" className="text-text-default text-sm font-medium">
             Input Role
           </Label>
@@ -194,7 +195,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
             )}
           />
           {touched.role && errors.role && <p className="text-text-destructive text-xs font-light">{errors.role}</p>}
-        </div>
+        </div> */}
       </div>
     </div>
   );

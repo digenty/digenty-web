@@ -55,24 +55,22 @@ export const ContactInformation = ({ formik }: { formik: FormikProps<StudentInpu
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-5">
         <div className="space-y-2">
-          <Label htmlFor="primaryPhoneNumber" className="text-text-default text-sm font-medium">
+          <Label htmlFor="phoneNumber" className="text-text-default text-sm font-medium">
             Primary Phone Number
           </Label>
           <Input
-            id="primaryPhoneNumber"
+            id="phoneNumber"
             onChange={handleChange}
             placeholder="Input Primary Phone Number"
             onBlur={handleBlur}
-            value={values.primaryPhoneNumber}
+            value={values.phoneNumber}
             type="text"
             className={cn(
               "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
-              errors.primaryPhoneNumber && touched.primaryPhoneNumber && "border-border-destructive border",
+              errors.phoneNumber && touched.phoneNumber && "border-border-destructive border",
             )}
           />
-          {touched.primaryPhoneNumber && errors.primaryPhoneNumber && (
-            <p className="text-text-destructive text-xs font-light">{errors.primaryPhoneNumber}</p>
-          )}
+          {touched.phoneNumber && errors.phoneNumber && <p className="text-text-destructive text-xs font-light">{errors.phoneNumber}</p>}
         </div>
 
         <div className="space-y-2">

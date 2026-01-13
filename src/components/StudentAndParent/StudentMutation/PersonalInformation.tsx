@@ -20,8 +20,8 @@ export const PersonalInformation = ({
   setDate,
   formik,
 }: {
-  date: Date;
-  setDate: React.Dispatch<React.SetStateAction<Date>>;
+  date: Date | string;
+  setDate: React.Dispatch<React.SetStateAction<Date | string>>;
   formik: FormikProps<StudentInputValues>;
 }) => {
   const { handleBlur, handleChange, errors, touched, values } = formik;

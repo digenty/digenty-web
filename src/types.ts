@@ -1,12 +1,14 @@
+import { JwtPayload } from "jwt-decode";
+
 export type SchoolOption = "Primary School" | "Secondary School";
 export type Crumb = { label: string; url?: string };
 
 export enum BoardingStatus {
-  Day = "Day",
-  Boarding = "Boarding",
+  Day = "DAY",
+  Boarding = "BOARDING",
 }
 
-export enum StudentStatus {
+export enum AdmissionStatus {
   Graduated = "GRADUATED",
   Active = "ACTIVE",
   Suspended = "SUSPENDED",
@@ -19,3 +21,25 @@ export enum Gender {
   Male = "MALE",
   Female = "FEMALE",
 }
+
+export const terms = [
+  {
+    label: "First Term",
+    value: "FIRST",
+  },
+  {
+    label: "Second Term",
+    value: "SECOND",
+  },
+  {
+    label: "Third Term",
+    value: "THIRD",
+  },
+];
+
+interface User {
+  id: string;
+  branchId: number;
+}
+
+export type JWTPayload = JwtPayload & User;
