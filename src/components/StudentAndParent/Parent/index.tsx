@@ -97,7 +97,7 @@ export const ParentsTable = () => {
             </Button>
 
             <Button
-              onClick={() => router.push("student-and-parent-record/add-student")}
+              onClick={() => router.push("student-and-parent-record/add-parent")}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! shadow-xlight h-8 gap-2 rounded-md px-2.5!"
             >
               <PlusIcon className="text-icon-white-default size-4" />

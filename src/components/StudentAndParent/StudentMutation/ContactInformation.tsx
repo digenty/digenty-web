@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { FormikProps } from "formik";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { StudentInputValues } from "../types";
 
 export const ContactInformation = ({ formik }: { formik: FormikProps<StudentInputValues> }) => {

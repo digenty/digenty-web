@@ -28,7 +28,7 @@ type Fields = {
 
 export const AddStudent = () => {
   const router = useRouter();
-  const [date, setDate] = useState<Date | string>("");
+  const [date, setDate] = useState<Date | undefined>();
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [avatar, setAvatar] = useState<File | null>(null);
@@ -134,7 +134,7 @@ export const AddStudent = () => {
     fields.branchId &&
     fields.classId &&
     fields.armId;
-  console.log(formik.values);
+
   return (
     <div className="flex h-screen flex-col">
       {open && <LinkEntity entity="Parents" open={open} setOpen={setOpen} />}
@@ -165,7 +165,7 @@ export const AddStudent = () => {
           {step === 3 && <Tags tags={tags} setTags={setTags} />}
 
           {/* Linked Parents */}
-          {step === 2 && <LinkedParents />}
+          {step === 2 && <LinkedParents setOpen={setOpen} />}
         </div>
 
         <div className="hidden md:block">
@@ -174,7 +174,7 @@ export const AddStudent = () => {
           <ContactInformation formik={formik} />
           <AcademicInformation formik={formik} />
           <Tags tags={tags} setTags={setTags} />
-          <LinkedParents />
+          <LinkedParents setOpen={setOpen} />
         </div>
 
         <div className="border-border-default bg-bg-default sticky bottom-0 w-full border-t py-3">

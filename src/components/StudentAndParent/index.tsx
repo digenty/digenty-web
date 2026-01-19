@@ -63,10 +63,13 @@ const StudentAndParentRecord = () => {
   const params = useSearchParams();
   const activeTab = params.get("tab") ?? "Students";
 
-  console.log(selectedParentsRows);
+  console.log(params);
 
   useEffect(() => {
-    router.push(`/student-and-parent-record?tab=${activeTab}`);
+    if (!activeTab) {
+      router.push(`/student-and-parent-record?tab=Students`);
+    }
+    // router.push(`/student-and-parent-record?tab=${activeTab}`);
   }, [activeTab, router]);
 
   return (

@@ -22,6 +22,17 @@ export enum Gender {
   Female = "FEMALE",
 }
 
+export const genders = [
+  {
+    label: "Male",
+    value: Gender.Male,
+  },
+  {
+    label: "Female",
+    value: Gender.Female,
+  },
+];
+
 export const terms = [
   {
     label: "First Term",
@@ -48,3 +59,24 @@ export interface Pagination {
   limit: number;
   page: number;
 }
+
+export enum Relationship {
+  Mother = "MOTHER",
+  Father = "FATHER",
+  Guardian = "GUARDIAN",
+}
+
+export const relationships = [
+  {
+    label: "Mother",
+    value: Relationship.Mother,
+  },
+  {
+    label: "Father",
+    value: Relationship.Father,
+  },
+  {
+    label: "Guardian",
+    value: Relationship.Guardian,
+  },
+];
