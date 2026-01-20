@@ -1,12 +1,103 @@
+"use client";
 import Download2 from "@/components/Icons/Download2";
 import File from "@/components/Icons/File";
+import { FileExcel } from "@/components/Icons/FileExcel";
+import { FileExcel2 } from "@/components/Icons/FileExcel2";
 import FileExcelFill from "@/components/Icons/FileExcelFill";
 import Information from "@/components/Icons/Information";
 import ViewComfyAlt from "@/components/Icons/ViewComfyAlt";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { fi } from "date-fns/locale";
 import { XIcon } from "lucide-react";
+import { useCallback } from "react";
+import { useDropzone } from "react-dropzone";
 
-export const CSVUpload = ({ entity }: { entity: "Students" | "Parents" }) => {
+export type ValidationError = {
+  row: number;
+  errors: string[];
+};
+
+const maxFileSize = 40 * 1024 * 1024;
+const sizeQuotient = 1024 * 1024;
+
+export const CSVUpload = ({
+  entity,
+  file,
+  setFile,
+  setErrors,
+  handleValidation,
+}: {
+  entity: "Students" | "Parents";
+  file: File | null;
+  setFile: (file: File | null) => void;
+  setErrors: (error: ValidationError[]) => void;
+  handleValidation: (file: File) => void;
+}) => {
+  useBreadcrumb([
+    { label: "Student & Parent Record", url: "/student-and-parent-record" },
+    { label: entity, url: `/student-and-parent-record?tab=${entity}` },
+    { label: "CSV Upload", url: "" },
+  ]);
+
+  const handleCSVDownload = () => {
+    if (entity === "Students") {
+      window.location.href = `/templates/student-upload-template.csv`;
+    } else {
+      window.location.href = `/templates/parent-upload-template.csv`;
+    }
+  };
+
+  const handleXSLXDownload = async () => {
+    const res = await fetch(`/api/upload-template?entity=${entity}`);
+    const blob = await res.blob();
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${entity}-upload-template.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      acceptedFiles.forEach((file: File) => {
+        if (file.type !== "text/csv" && file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+          // setErrors('Invalid file type. File type must be CSV or XLSX');
+          return;
+        }
+
+        if (file.size > maxFileSize) {
+          // setErrors('File size is too large. Must be less than 40MB');
+          return;
+        }
+
+        setFile(file);
+        handleValidation(file);
+      });
+    },
+    [handleValidation, setFile],
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "text/csv": [".csv"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+    },
+    maxFiles: 1,
+  });
+
+  const clearFile = () => {
+    setFile(null);
+    // setErrors(null);
+  };
+
   return (
     <div className="w-full space-y-6">
       <div className="flex flex-col items-center justify-center">
@@ -16,50 +107,78 @@ export const CSVUpload = ({ entity }: { entity: "Students" | "Parents" }) => {
         </p>
       </div>
 
-      <div className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover flex flex-col items-center justify-center rounded-md border border-dashed px-6 py-8">
+      <div
+        {...(!file ? getRootProps() : {})}
+        className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed px-6 py-8"
+      >
         <ViewComfyAlt fill="var(--color-icon-white-default)" />
 
         <div className="text-center text-sm font-medium">
-          <span className="text-text-default">Drag and drop a CSV file here, or </span>
-          <Button className="text-text-informative p-0!">click to browse</Button>
+          {isDragActive ? (
+            <span className="text-text-muted">Drop the file here...</span>
+          ) : (
+            <span className="text-text-default">
+              Drag and drop a CSV file here, or <span className="text-text-informative p-0!">click to browse</span>
+            </span>
+          )}
         </div>
         <p className="text-text-muted text-xs">Maximum of 40MB</p>
+
+        <input id="file-upload" type="file" className="hidden" {...getInputProps()} />
       </div>
 
-      <div className="border-border-default bg-bg-card shadow-light flex justify-between rounded-md border py-2 pr-5 pl-2">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <File />
-            <span className="bg-bg-card-inverted text-text-inverted-default absolute top-[40%] left-0 flex h-2.5 items-center rounded-[2px] px-0.5 py-0! text-[9px]">
-              csv
-            </span>
-          </div>
+      {file && (
+        <div className="border-border-default bg-bg-card shadow-light flex justify-between rounded-md border py-2 pr-5 pl-2">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <File />
+              <span className="bg-bg-card-inverted text-text-inverted-default absolute top-[40%] left-0 flex h-2.5 items-center rounded-[2px] px-0.5 py-0! text-[9px]">
+                {file.type === "text/csv" ? "csv" : "xlsx"}
+              </span>
+            </div>
 
-          <div>
-            <p className="text-text-default text-sm font-medium">filename.csv</p>
-            <p className="text-text-muted text-xs">
-              1.5MB <span className="text-border-darker h-3">|</span> <span className="text-text-success">Uploaded</span>{" "}
-            </p>
+            <div>
+              <p className="text-text-default text-sm font-medium">{file.name}</p>
+              <p className="text-text-muted text-xs">
+                {(file.size / sizeQuotient).toFixed(2)}MB <span className="text-border-darker h-3">|</span>{" "}
+                <span className="text-text-success">Uploaded</span>{" "}
+              </p>
+            </div>
           </div>
+          <Button onClick={() => clearFile()} className="p-0!">
+            <XIcon className="size-4" />
+          </Button>
         </div>
-        <Button className="p-0!">
-          <XIcon className="size-4" />
-        </Button>
-      </div>
+      )}
 
       <div className="bg-bg-muted flex flex-col gap-5 rounded-lg p-4 sm:flex-row md:px-6 md:py-4">
         <div className="flex items-center gap-4">
           <FileExcelFill fill="var(--color-icon-success)" className="size-10" />
 
           <div>
-            <h3 className="text-text-default text-base font-semibold">CSV Template</h3>
+            <h3 className="text-text-default text-base font-semibold">Download CSV or XSLX Template</h3>
             <p className="text-text-subtle text-xs">You can download the attached example and use them as a starting point for your file</p>
           </div>
         </div>
-        <Button className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm font-medium">
-          <Download2 fill="var(--color-icon-default-muted)" />
-          Download
-        </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm font-medium">
+              <Download2 fill="var(--color-icon-default-muted)" />
+              Download
+            </Button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent className="bg-bg-card border-none" align="start">
+            <DropdownMenuItem onClick={() => handleCSVDownload()} className="text-text-default">
+              <FileExcel fill="var(--color-icon-default-subtle)" className="size-4" /> CSV Template
+            </DropdownMenuItem>
+
+            <DropdownMenuItem onClick={() => handleXSLXDownload()} className="text-text-default">
+              <FileExcel2 fill="var(--color-default-subtle)" className="size-4" /> XSLX Template
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {entity === "Students" && (

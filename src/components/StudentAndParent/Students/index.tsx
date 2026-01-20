@@ -45,7 +45,6 @@ export const StudentsTable = () => {
   const pageSize = 50;
 
   const { data, isLoading } = useGetStudents({ limit: pageSize, page: 1 });
-  console.log(data, "!!!!!");
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
