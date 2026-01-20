@@ -19,7 +19,7 @@ type DateRangePickerProps = {
 export function DateRangePicker({ value, onChange, label, className }: DateRangePickerProps) {
   return (
     <div className="flex w-full flex-col gap-1">
-      {label && <label className="text-text-default text-sm font-medium">{label}</label>}
+      {label && <label className="text-text-default text-sm font-normal">{label}</label>}
 
       <Popover>
         <PopoverTrigger asChild>

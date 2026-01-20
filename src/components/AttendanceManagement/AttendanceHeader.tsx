@@ -102,7 +102,7 @@ export default function AttendanceHeader() {
               </SelectTrigger>
               <SelectContent className="bg-bg-default border-border-default">
                 <AttendanceCalendar
-                  className="text-text-default border-border-default w-full border-1 [--cell-size:--spacing(11)]"
+                  className="text-text-default border-border-default w-full border [--cell-size:--spacing(11)]"
                   mode="single"
                   selected={date}
                   onSelect={date => {

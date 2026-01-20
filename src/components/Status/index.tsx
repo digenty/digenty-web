@@ -11,6 +11,13 @@ export const getStatusBadge = (status: string) => {
           <span>Paid</span>
         </Badge>
       );
+    case "Active":
+      return (
+        <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Active</span>
+        </Badge>
+      );
+
     case "Successful":
       return (
         <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md text-xs font-medium">
@@ -30,6 +37,12 @@ export const getStatusBadge = (status: string) => {
         <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
           <TriangleAlert className="size-3" />
           <span>Outstanding</span>
+        </Badge>
+      );
+    case "Pending":
+      return (
+        <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Pending</span>
         </Badge>
       );
     case "Fully Paid":
@@ -58,5 +71,58 @@ export const getStatusBadge = (status: string) => {
           <span>Optional</span>
         </Badge>
       );
+  }
+};
+
+export const staffStatusBadge = (status: string) => {
+  switch (status) {
+    case "Principal":
+      return (
+        <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Principal</span>
+        </Badge>
+      );
+    case "Subject Teacher":
+      return (
+        <Badge className="bg-bg-badge-blue text-bg-basic-blue-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Subject Teacher</span>
+        </Badge>
+      );
+    case "Secretary":
+      return (
+        <Badge className="bg-bg-badge-cyan text-bg-basic-cyan-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Secretary</span>
+        </Badge>
+      );
+    case "Class Teacher":
+      return (
+        <Badge className="bg-bg-badge-pink text-bg-basic-pink-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Class Teacher</span>
+        </Badge>
+      );
+
+    default:
+      return (
+        <Badge className="bg-bg-badge-default text-text-subtle border-border-default h-5 rounded-md text-xs font-medium!">
+          <span>Not Label</span>
+        </Badge>
+      );
+  }
+};
+
+export const paymentStatus = (status: string) => {
+  switch (status) {
+    case "Paid":
+      return <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md text-xs font-medium">Paid</Badge>;
+
+    case "Failed":
+      return (
+        <Badge className="bg-bg-badge-red text-bg-basic-red-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Failed</span>
+        </Badge>
+      );
+
+    default:
+      return <div className=""></div>;
   }
 };
