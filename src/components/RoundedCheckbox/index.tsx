@@ -15,7 +15,7 @@ export const RoundedCheckbox: React.FC<RoundedCheckboxProps> = ({
   checked,
   onChange,
   size = "sm",
-  color = "bg-checkbox-active",
+  color = "bg-bg-checkbox-active",
   disabled = false,
   className,
 }) => {

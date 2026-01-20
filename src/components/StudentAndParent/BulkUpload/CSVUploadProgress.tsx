@@ -17,13 +17,13 @@ export const CSVUploadProgress = ({
   return (
     <div
       className={cn(
-        "bg-bg-card border-border-default grid w-auto items-center rounded-md border p-3 md:px-5 md:py-4",
+        "bg-bg-card border-border-default grid w-full items-center rounded-md border p-3 md:px-5 md:py-4",
         `grid-cols-${steps.length}`,
         className,
       )}
     >
       {steps.map(step => (
-        <div key={step.id} className="space-y-4">
+        <div key={step.id} className="w-full space-y-4">
           <div className="after:border-border-darker flex items-center after:mx-1 after:w-full after:border-t">
             {currentStep === step.id ? (
               <Loader2Fill fill="var(--color-icon-informative)" className="size-6" />
@@ -35,7 +35,7 @@ export const CSVUploadProgress = ({
               </div>
             )}
           </div>
-          <div className="text-text-default mr-5 text-sm font-medium md:text-base">{step.label}</div>
+          <div className="text-text-default text-sm font-medium md:text-base">{step.label}</div>
         </div>
       ))}
     </div>
