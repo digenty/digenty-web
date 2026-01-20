@@ -135,7 +135,7 @@ const StudentAndParentRecord = () => {
               title="Total Students"
               Icon={() => (
                 <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                  <UserFill fill="var(--color-icon-default)" className="size-[10px]" />
+                  <UserFill fill="var(--color-icon-default)" className="" />
                 </div>
               )}
               value="583"
@@ -144,7 +144,7 @@ const StudentAndParentRecord = () => {
               title="Active Students"
               Icon={() => (
                 <div className="bg-bg-basic-emerald-subtle border-bg-basic-emerald-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                  <UserFill fill="var(--color-icon-default)" className="size-[10px]" />
+                  <UserFill fill="var(--color-icon-default)" className="" />
                 </div>
               )}
               value="580"
@@ -153,7 +153,7 @@ const StudentAndParentRecord = () => {
               title="Withdrawn Students"
               Icon={() => (
                 <div className="bg-bg-basic-yellow-subtle border-bg-basic-yellow-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                  <UserMinus fill="var(--color-icon-default)" className="size-[10px]" />
+                  <UserMinus fill="var(--color-icon-default)" className="" />
                 </div>
               )}
               value="3"
@@ -163,7 +163,7 @@ const StudentAndParentRecord = () => {
               title="Graduated Students"
               Icon={() => (
                 <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                  <GraduationCap fill="var(--color-icon-default)" className="size-[10px]" />
+                  <GraduationCap fill="var(--color-icon-default)" className="" />
                 </div>
               )}
               value="100"
