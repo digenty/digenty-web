@@ -2,6 +2,36 @@ import { Check, CheckCheck, TriangleAlert, X } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Draft } from "../Icons/Draft";
 
+export const stockStatus = (status: string) => {
+  switch (status) {
+    case "Low Stock":
+      return (
+        <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Low Stock</span>
+        </Badge>
+      );
+    case "Out of Stock":
+      return (
+        <Badge className="bg-bg-badge-red text-bg-basic-red-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>In Stock</span>
+        </Badge>
+      );
+    case "In Stock":
+      return (
+        <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>In Stock</span>
+        </Badge>
+      );
+
+    default:
+      return (
+        <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>In Stock</span>
+        </Badge>
+      );
+  }
+};
+
 export const getStatusBadge = (status: string) => {
   switch (status) {
     case "Paid":
