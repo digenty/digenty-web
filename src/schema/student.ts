@@ -24,3 +24,21 @@ export const studentSchema = yup.object().shape({
   medicalInformation: yup.string(),
   role: yup.string(),
 });
+
+export const studentUploadSchema = yup.object().shape({
+  firstName: yup.string().trim().required("First Name is required!"),
+  lastName: yup.string().trim().required("Last Name is required!"),
+  middleName: yup.string(),
+  gender: yup.string().oneOf(Object.values(Gender), "Gender is not a valid value!").required("Gender is required!"),
+  email: yup.string(),
+  dateOfBirth: yup.string().required("Date of Birth is required!"),
+  address: yup.string().required("Address is required!"),
+  nationality: yup.string().required("Nationality is required!"),
+  stateOfOrigin: yup.string().required("State of Origin is required!"),
+  emergencyContactNumber: yup.string(),
+  phoneNumber: yup.string(),
+  admissionNumber: yup.string(),
+  branch: yup.number().required("Branch is required!"),
+  class: yup.string().required("Class is required!"),
+  arm: yup.string().required("Arm is required!"),
+});

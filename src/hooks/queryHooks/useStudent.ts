@@ -1,4 +1,4 @@
-import { addStudent, getStudents } from "@/api/student";
+import { addStudent, getStudents, uploadStudents } from "@/api/student";
 import { studentKeys } from "@/queries/student";
 import { Pagination } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -15,5 +15,12 @@ export const useGetStudents = (pagination: Pagination) => {
     queryKey: studentKeys.all,
     queryFn: () => getStudents({ pagination }),
     retry: false,
+  });
+};
+
+export const useUploadStudents = () => {
+  return useMutation({
+    mutationKey: studentKeys.studentsUpload,
+    mutationFn: uploadStudents,
   });
 };

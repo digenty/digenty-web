@@ -1,14 +1,17 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { studentUploadSchema } from "@/schema/student";
 import { useRouter } from "next/navigation";
+import Papa from "papaparse";
 import { useState } from "react";
+import * as yup from "yup";
 import { ConfirmUpload } from "./BulkUpload/ConfirmUpload";
 import { CSVUpload, ValidationError } from "./BulkUpload/CSVUpload";
 import { CSVUploadProgress } from "./BulkUpload/CSVUploadProgress";
 import { Step } from "./BulkUpload/types";
-import Papa from "papaparse";
-import { parentUploadSchema } from "@/schema/parent";
-import * as yup from "yup";
+import { useUploadStudents } from "@/hooks/queryHooks/useStudent";
+import { toast } from "@/components/Toast";
+import { Spinner } from "../ui/spinner";
 
 const steps: Step[] = [
   { id: 1, label: "Upload Students", completed: false },
@@ -21,8 +24,8 @@ export const StudentsUpload = () => {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [validRows, setValidRows] = useState<Record<string, unknown>[]>([]);
-  const [totalRows, setTotalRows] = useState(0);
   const [file, setFile] = useState<File | null>(null);
+  const { mutate, isPending } = useUploadStudents();
 
   const goToNext = () => {
     // Check if the previous step is completed, then add step to completed steps array
@@ -30,6 +33,32 @@ export const StudentsUpload = () => {
 
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
+    }
+
+    if (currentStep === steps.length) {
+      mutate(
+        {
+          file,
+        },
+        {
+          onSuccess: data => {
+            toast({
+              title: "Successfully uploaded students",
+              description: data.message,
+              type: "success",
+            });
+            setFile(null);
+            setCurrentStep(1);
+          },
+          onError: error => {
+            toast({
+              title: error.message ?? "Something went wrong",
+              description: "Could not upload students",
+              type: "error",
+            });
+          },
+        },
+      );
     }
   };
 
@@ -52,7 +81,7 @@ export const StudentsUpload = () => {
           const row = results.data[i];
 
           try {
-            const validatedRow = await parentUploadSchema.validate(row, {
+            const validatedRow = await studentUploadSchema.validate(row, {
               abortEarly: false,
             });
 
@@ -69,7 +98,6 @@ export const StudentsUpload = () => {
 
         setErrors(rowErrors);
         setValidRows(validData);
-        setTotalRows(results.data.length - 1);
       },
     });
   };
@@ -101,7 +129,7 @@ export const StudentsUpload = () => {
         <CSVUploadProgress currentStep={currentStep} steps={steps} className="w-full" completedSteps={completedSteps} />
 
         {currentStep === steps.length ? (
-          <ConfirmUpload entity="Students" errors={errors} totalRows={totalRows} downloadErrorReport={downloadErrorReport} />
+          <ConfirmUpload entity="Students" errors={errors} validRows={validRows} downloadErrorReport={downloadErrorReport} />
         ) : (
           <CSVUpload file={file} setFile={setFile} entity="Students" setErrors={setErrors} handleValidation={validateFile} />
         )}
@@ -120,6 +148,7 @@ export const StudentsUpload = () => {
             onClick={goToNext}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
           >
+            {isPending && currentStep === steps.length && <Spinner className="text-text-white-default" />}
             <span className="text-sm font-medium">{currentStep === steps.length ? "Confirm & Import" : "Continue"}</span>
           </Button>
         </div>

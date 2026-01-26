@@ -1,1 +1,1 @@
-First Name,Last Name,Middle Name (optional),Gender,Relationship,Nationality,State of Origin,Home Address,"School Branch (e.g Lagos, Ekiti, London, Nairobi)",Primary Phone Number,Secondary Phone Number,Email Address
+firstName,lastName,middleName,gender,relationship,nationality,stateOfOrigin,address,branch,email,phoneNumber,secondaryPhoneNumber

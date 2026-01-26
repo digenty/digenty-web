@@ -9,9 +9,8 @@ import ViewComfyAlt from "@/components/Icons/ViewComfyAlt";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { fi } from "date-fns/locale";
 import { XIcon } from "lucide-react";
-import { useCallback } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
 export type ValidationError = {
@@ -32,7 +31,7 @@ export const CSVUpload = ({
   entity: "Students" | "Parents";
   file: File | null;
   setFile: (file: File | null) => void;
-  setErrors: (error: ValidationError[]) => void;
+  setErrors: Dispatch<SetStateAction<ValidationError[]>>;
   handleValidation: (file: File) => void;
 }) => {
   useBreadcrumb([
@@ -48,6 +47,7 @@ export const CSVUpload = ({
       window.location.href = `/templates/parent-upload-template.csv`;
     }
   };
+  const [fileError, setFileError] = useState<string | null>(null);
 
   const handleXSLXDownload = async () => {
     const res = await fetch(`/api/upload-template?entity=${entity}`);
@@ -68,20 +68,24 @@ export const CSVUpload = ({
     (acceptedFiles: File[]) => {
       acceptedFiles.forEach((file: File) => {
         if (file.type !== "text/csv" && file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-          // setErrors('Invalid file type. File type must be CSV or XLSX');
+          setFileError("Invalid file type. File type must be CSV or XLSX");
           return;
         }
 
         if (file.size > maxFileSize) {
-          // setErrors('File size is too large. Must be less than 40MB');
+          setFileError(`File size must be less than ${maxFileSize / sizeQuotient}MB`);
           return;
         }
 
-        setFile(file);
-        handleValidation(file);
+        console.log(file);
+
+        if (!fileError) {
+          setFile(file);
+          handleValidation(file);
+        }
       });
     },
-    [handleValidation, setFile],
+    [fileError, handleValidation, setFile],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -95,7 +99,8 @@ export const CSVUpload = ({
 
   const clearFile = () => {
     setFile(null);
-    // setErrors(null);
+    setErrors([]);
+    setFileError(null);
   };
 
   return (

@@ -9,15 +9,17 @@ import { ValidationError } from "./CSVUpload";
 export const ConfirmUpload = ({
   entity,
   errors,
-  totalRows,
+  validRows,
   downloadErrorReport,
 }: {
   entity: "Students" | "Parents";
   errors: ValidationError[];
-  totalRows: number;
+  validRows: Record<string, unknown>[];
   downloadErrorReport: () => void;
 }) => {
-  const invalidRecords = errors.length > 0 ? errors.length - 1 : 0; //
+  const invalidRecords = errors.length > 0 ? errors.length : 0;
+  const totalRows = validRows.length + errors.length;
+
   const mapErrors = (errors: ValidationError[]) => {
     return errors.map(error => {
       const row = error.row;
@@ -50,7 +52,7 @@ export const ConfirmUpload = ({
               <CheckboxCircleFill fill="var(--color-icon-default)" className="size-2.5" />
             </div>
           )}
-          value={(totalRows - invalidRecords).toString()}
+          value={validRows.length.toString()}
         />
 
         <OverviewCard
@@ -91,7 +93,7 @@ export const ConfirmUpload = ({
         )}
       </div>
 
-      {invalidRecords && (
+      {!!invalidRecords && (
         <Button
           onClick={downloadErrorReport}
           className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm font-medium"

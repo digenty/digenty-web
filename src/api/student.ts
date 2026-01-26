@@ -26,3 +26,15 @@ export const getStudents = async ({ pagination }: { pagination: Pagination }) =>
     throw error;
   }
 };
+
+export const uploadStudents = async ({ file }: { file: File | null }) => {
+  try {
+    const { data } = await api.post("/students/upload", file);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
