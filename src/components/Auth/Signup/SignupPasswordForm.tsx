@@ -112,7 +112,7 @@ export const SignupPasswordForm = ({ email }: { email: string }) => {
         {formik.touched.password && formik.errors.password && <p className="text-text-destructive text-xs font-light">{formik.errors.password}</p>}
       </div>
 
-      <PasswordChecklist password={formik.values.password} setIsfulfilled={setPasswordIsFulfilled} />
+      {formik.values.password && <PasswordChecklist password={formik.values.password} setIsfulfilled={setPasswordIsFulfilled} />}
 
       <div className="mt-8 space-y-8">
         <Button

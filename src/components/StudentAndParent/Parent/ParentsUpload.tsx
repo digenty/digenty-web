@@ -2,11 +2,16 @@
 import { useState } from "react";
 import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
 import { Step } from "../BulkUpload/types";
-import { CSVUpload } from "../BulkUpload/CSVUpload";
+import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter } from "next/navigation";
 import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
+import { parentUploadSchema } from "@/schema/parent";
+import Papa from "papaparse";
+import * as yup from "yup";
+import { useUploadParents } from "@/hooks/queryHooks/useParent";
+import { toast } from "@/components/Toast";
 
 const steps: Step[] = [
   { id: 1, label: "Upload Parents", completed: false },
@@ -17,6 +22,10 @@ export const ParentsUpload = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
+  const [errors, setErrors] = useState<ValidationError[]>([]);
+  const [validRows, setValidRows] = useState<Record<string, unknown>[]>([]);
+  const [file, setFile] = useState<File | null>(null);
+  const { mutate, isPending } = useUploadParents();
 
   const goToNext = () => {
     // Check if the previous step is completed, then add step to completed steps array
@@ -24,6 +33,32 @@ export const ParentsUpload = () => {
 
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
+    }
+
+    if (currentStep === steps.length) {
+      mutate(
+        {
+          file,
+        },
+        {
+          onSuccess: data => {
+            toast({
+              title: "Successfully uploaded parents",
+              description: data.message,
+              type: "success",
+            });
+            setFile(null);
+            setCurrentStep(1);
+          },
+          onError: error => {
+            toast({
+              title: error.message ?? "Something went wrong",
+              description: "Could not upload parents",
+              type: "error",
+            });
+          },
+        },
+      );
     }
   };
 
@@ -35,12 +70,69 @@ export const ParentsUpload = () => {
     }
   };
 
+  const validateFile = (fileToValidate: File) => {
+    Papa.parse(fileToValidate, {
+      header: true,
+      complete: async results => {
+        const rowErrors: ValidationError[] = [];
+        const validData: Record<string, unknown>[] = [];
+
+        for (let i = 0; i < results.data.length; i++) {
+          const row = results.data[i];
+
+          try {
+            const validatedRow = await parentUploadSchema.validate(row, {
+              abortEarly: false,
+            });
+
+            validData.push(validatedRow);
+          } catch (err) {
+            if (err instanceof yup.ValidationError) {
+              rowErrors.push({
+                row: i + 2, // header row = 1
+                errors: err.errors,
+              });
+            }
+          }
+        }
+
+        setErrors(rowErrors);
+        setValidRows(validData);
+      },
+    });
+  };
+
+  const downloadErrorReport = () => {
+    const headers = ["Row", "Errors"];
+
+    // 2. CSV rows
+    const rows = errors.map(item => [item.row, item.errors.join(" | ")]);
+
+    // 3. Build CSV string
+    const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+
+    // 4. Create blob & download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "error-report.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <section className="flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-150 space-y-4 md:space-y-6">
         <CSVUploadProgress currentStep={currentStep} steps={steps} className="w-full" completedSteps={completedSteps} />
 
-        {currentStep === steps.length ? <ConfirmUpload entity="Parents" /> : <CSVUpload entity="Parents" />}
+        {currentStep === steps.length ? (
+          <ConfirmUpload entity="Parents" errors={errors} validRows={validRows} downloadErrorReport={downloadErrorReport} />
+        ) : (
+          <CSVUpload file={file} setFile={setFile} entity="Parents" setErrors={setErrors} handleValidation={validateFile} />
+        )}
 
         <div className="border-border-default mt-10 flex w-full justify-between border-t py-4">
           <Button
@@ -51,8 +143,11 @@ export const ParentsUpload = () => {
             {currentStep === steps.length ? "Back" : "Cancel"}
           </Button>
 
-          <Button onClick={goToNext} className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1">
-            {true && <Spinner />}
+          <Button
+            disabled={(file === null && currentStep === 1) || (currentStep === steps.length && (errors.length > 0 || validRows.length === 0))}
+            onClick={goToNext}
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
+          >
             <span className="text-sm font-medium">{currentStep === steps.length ? "Confirm & Import" : "Continue"}</span>
           </Button>
         </div>

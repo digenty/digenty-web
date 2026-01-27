@@ -13,7 +13,7 @@ import UserMinus from "../Icons/UserMinus";
 import { Student } from "./types";
 
 const RenderOptions = (row: Row<Student>) => {
-  console.log(row);
+  // console.log(row);
   const [open, setOpen] = useState(false);
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>

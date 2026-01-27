@@ -1,21 +1,20 @@
 "use client";
+import { deleteSession } from "@/app/actions/auth";
 import { Sheet, SheetContent, SheetHeader, SheetOverlay, SheetTitle } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/store";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import LeadIcon from "../Icons/LeadIcon";
+import Line from "../Icons/Line";
 import Logout from "../Icons/Logout";
+import { Tooltip } from "../Tooltip";
 import { Button } from "../ui/button";
 import { navigation } from "./constants";
 import { NavigationType } from "./types";
-import CloseLarge from "../Icons/CloseLarge";
-import LeadIcon from "../Icons/LeadIcon";
-import Line from "../Icons/Line";
-import { Tooltip } from "../Tooltip";
-import { deleteSession } from "@/app/actions/auth";
-import { useIsMobile } from "@/hooks/useIsMobile";
 
 export const Sidebar = () => {
   const pathname = usePathname();

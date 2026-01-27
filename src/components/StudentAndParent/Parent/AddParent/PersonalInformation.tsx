@@ -1,29 +1,17 @@
 "use client";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { Button } from "../../ui/button";
-import { Input } from "../../ui/input";
-import { Label } from "../../ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
-import { Country, State, StudentInputValues } from "../types";
-import { FormikProps } from "formik";
 import { getCountries, getStatesForCountry } from "@/app/actions/country";
-import { useCallback, useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
+import { FormikProps } from "formik";
+import { useCallback, useEffect, useState } from "react";
+import { Country, ParentInputValues, State } from "../../types";
+import { genders, relationships } from "@/types";
 
-export const PersonalInformation = ({
-  date,
-  setDate,
-  formik,
-}: {
-  date: Date | undefined;
-  setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
-  formik: FormikProps<StudentInputValues>;
-}) => {
+export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInputValues> }) => {
   const { handleBlur, handleChange, errors, touched, values } = formik;
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
@@ -125,9 +113,9 @@ export const PersonalInformation = ({
               <SelectValue placeholder="Select Gender" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map(gender => (
-                <SelectItem key={gender} className="text-text-default" value={gender}>
-                  {gender}
+              {genders.map(gender => (
+                <SelectItem key={gender.value} className="text-text-default" value={gender.value}>
+                  {gender.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -135,60 +123,47 @@ export const PersonalInformation = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="dob" className="text-text-default text-sm font-medium">
-            Date of Birth <small className="text-text-destructive text-xs">*</small>
+          <Label htmlFor="gender" className="text-text-default text-sm font-medium">
+            Relationship<small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "text-text-muted bg-bg-input-soft! focus-visible:border-border-default! hover:bg-bg-input-soft! w-full border-none text-sm font-normal shadow-none focus-visible:border!",
-                )}
-              >
-                {date ? format(date, "PPP") : <span>dd / mm / yy</span>}
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="bg-bg-card! p-0!" align="start">
-              <Calendar
-                disabled={{
-                  after: new Date(),
-                }}
-                mode="single"
-                required
-                selected={date}
-                onSelect={date => {
-                  setDate(date);
-                  formik.setFieldValue("dateOfBirth", date);
-                }}
-                captionLayout="dropdown"
-                className="bg-bg-card w-full border-none"
-              />
-            </PopoverContent>
-          </Popover>
+          <Select
+            onValueChange={rel => {
+              formik.setFieldValue("relationship", rel);
+            }}
+          >
+            <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+              <SelectValue placeholder="Select Relationship with Student" />
+            </SelectTrigger>
+            <SelectContent className="bg-bg-card border-none">
+              {relationships.map(rel => (
+                <SelectItem key={rel.value} className="text-text-default" value={rel.value}>
+                  {rel.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="medicalInformation" className="text-text-default text-sm font-medium">
-            Medical Information
+          <Label htmlFor="branch" className="text-text-default text-sm font-medium">
+            Branch <small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Input
-            id="medicalInformation"
-            onChange={handleChange}
-            autoFocus
-            placeholder="Input Any Medical Information"
-            onBlur={handleBlur}
-            value={values.medicalInformation}
-            type="text"
-            className={cn(
-              "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
-              errors.medicalInformation && touched.medicalInformation && "border-border-destructive border",
-            )}
-          />
-          {touched.medicalInformation && errors.medicalInformation && (
-            <p className="text-text-destructive text-xs font-light">{errors.medicalInformation}</p>
-          )}
+          <Select
+            onValueChange={value => {
+              formik.setFieldValue("branchId", value);
+            }}
+          >
+            <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+              <SelectValue placeholder="Branch" />
+            </SelectTrigger>
+            <SelectContent className="bg-bg-card border-none">
+              {["Male", "Female"].map((gender, index) => (
+                <SelectItem key={gender} className="text-text-default" value={`${index}`}>
+                  {gender}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">

@@ -1,3 +1,4 @@
+import { JWTPayload } from "@/types";
 import { clsx, type ClassValue } from "clsx";
 import { jwtDecode } from "jwt-decode";
 import { twMerge } from "tailwind-merge";
@@ -63,7 +64,7 @@ export const decodeJWT = (token: string) => {
       return null;
     } else {
       const decoded = jwtDecode(token);
-      return decoded;
+      return decoded as JWTPayload;
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
@@ -78,4 +79,14 @@ export const parseCookieString = (string = "") => {
   } catch (error) {
     return null;
   }
+};
+
+export const getAcademicYears = (startYear = 2000) => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+
+  for (let year = startYear; year < currentYear; year++) {
+    years.push(`${year}/${year + 1}`);
+  }
+  return years;
 };

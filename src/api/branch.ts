@@ -1,9 +1,9 @@
-import apiPublic from "@/lib/axios/axios-public";
+import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
-export const getUserByEmail = async (email: string) => {
+export const getBranchesForASchool = async () => {
   try {
-    const { data } = await apiPublic.get(`/users/email/lookup/${email}`);
+    const { data } = await api.get(`/branch`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

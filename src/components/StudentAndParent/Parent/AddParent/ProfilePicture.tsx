@@ -1,7 +1,7 @@
 "use client";
 import { Avatar } from "@/components/Avatar";
 import { useRef, useState } from "react";
-import { Button } from "../../ui/button";
+import { Button } from "@/components/ui/button";
 
 export const ProfilePicture = ({ setAvatar }: { setAvatar: (file: File | null) => void }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
