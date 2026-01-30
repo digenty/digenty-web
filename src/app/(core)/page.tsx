@@ -1,4 +1,4 @@
-import { Dashboard } from "@/components/Dashboard";
+import Dashboard from "@/components/Dashboard";
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 
