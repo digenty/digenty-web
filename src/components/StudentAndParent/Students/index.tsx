@@ -44,7 +44,7 @@ export const StudentsTable = () => {
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
   const pageSize = 50;
 
-  const { data, isLoading } = useGetStudents({ limit: pageSize, page: 1 });
+  const { data, isLoading } = useGetStudents({ pagination: { limit: pageSize, page: 1 }, branchId: 18 });
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },

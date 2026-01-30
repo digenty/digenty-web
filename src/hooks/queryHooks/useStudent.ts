@@ -10,11 +10,11 @@ export const useAddStudent = () => {
   });
 };
 
-export const useGetStudents = (pagination: Pagination) => {
+export const useGetStudents = ({ pagination, branchId }: { pagination: Pagination; branchId?: number }) => {
   return useQuery({
-    queryKey: studentKeys.all,
-    queryFn: () => getStudents({ pagination }),
-    retry: false,
+    queryKey: [studentKeys.all, branchId],
+    queryFn: () => getStudents({ pagination, branchId }),
+    enabled: branchId !== null,
   });
 };
 

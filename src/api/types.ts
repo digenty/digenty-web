@@ -1,3 +1,5 @@
+import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
+
 export interface Branch {
   id: number;
   uuid: string;
@@ -53,4 +55,35 @@ export interface Arm {
   branchId: number;
   schoolId: number;
   departmentId: number;
+}
+
+export interface Student {
+  id: number;
+  uuid: string;
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  email: string;
+  gender: Gender;
+  boardingStatus: BoardingStatus;
+  dateOfBirth: string;
+  address: string;
+  emergencyContactName: string;
+  emergencyContactNumber: string;
+  phoneNumber: string;
+  secondaryPhoneNumber: string;
+  admissionStatus: AdmissionStatus;
+  admissionNumber: string;
+  medicalInformation: string;
+  nationality: string;
+  stateOfOrigin: string;
+  joinedSchoolTerm: string;
+  joinedSchoolSession: string;
+  branchId: number | null;
+  classId: number | null;
+  departmentId: number | null;
+  armId: number | null;
+  image: string | null;
+  tags: string[];
+  linkedParents: number[];
 }

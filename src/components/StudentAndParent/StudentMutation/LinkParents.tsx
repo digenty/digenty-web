@@ -14,15 +14,15 @@ import { Button } from "../../ui/button";
 
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 
-export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Parents"; open: boolean; setOpen: (open: boolean) => void }) => {
+export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) => {
   const [branchSelected, setBranchSelected] = useState(branches[0]);
   const isMobile = useIsMobile();
   return (
     <>
       {isMobile ? (
-        <MobileDrawer open={open} setIsOpen={setOpen} title={`Link ${entity}`}>
+        <MobileDrawer open={open} setIsOpen={setOpen} title={`Link Parents`}>
           <div className="border-border-default bg-bg-card-subtle flex items-center justify-between border-b px-4 py-3">
-            <h3 className="text-text-default text-base font-semibold">{entity} List</h3>
+            <h3 className="text-text-default text-base font-semibold">Parents List</h3>
             <Select value={branchSelected} onValueChange={setBranchSelected}>
               <SelectTrigger className="border-border-darker h-8! w-auto border">
                 <SelectValue>
@@ -146,7 +146,7 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
 
             <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1">
               {true && <Spinner />}
-              <span className="text-sm font-medium">Link {entity}</span>
+              <span className="text-sm font-medium">Link Parents</span>
             </Button>
           </div>
         </MobileDrawer>
@@ -155,16 +155,16 @@ export const LinkEntity = ({ entity, open, setOpen }: { entity: "Students" | "Pa
           className="bg-bg-card max-w-200! overflow-y-auto"
           open={open}
           setOpen={setOpen}
-          title={`Link ${entity}`}
+          title={`Link $Parents`}
           ActionButton={
             <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1">
               {true && <Spinner />}
-              <span className="text-sm font-medium">Link {entity}</span>
+              <span className="text-sm font-medium">Link Parents</span>
             </Button>
           }
         >
           <div className="border-border-default bg-bg-card-subtle flex items-center justify-between border-b px-4 py-3">
-            <h3 className="text-text-default text-base font-semibold">{entity} List</h3>
+            <h3 className="text-text-default text-base font-semibold">Parents List</h3>
             <Select value={branchSelected} onValueChange={setBranchSelected}>
               <SelectTrigger className="border-border-darker h-8! w-auto border">
                 <SelectValue>

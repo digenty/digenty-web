@@ -2,7 +2,7 @@
 import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
 import { useAddStudent } from "@/hooks/queryHooks/useStudent";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { studentSchema } from "@/schema/student";
 import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
 import { useFormik } from "formik";
@@ -13,11 +13,10 @@ import { StudentInputValues } from "../types";
 import { AcademicInformation } from "./AcademicInformation";
 import { ContactInformation } from "./ContactInformation";
 import { LinkedParents } from "./LinkedParents";
-import { LinkEntity } from "./LinkEntity";
+import { LinkParents } from "./LinkParents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
 import { Tags } from "./Tags";
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 export const AddStudent = () => {
   const router = useRouter();
@@ -34,7 +33,6 @@ export const AddStudent = () => {
   ]);
 
   const { mutate, isPending } = useAddStudent();
-  const { branchId } = useLoggedInUser();
 
   const formik = useFormik<StudentInputValues>({
     initialValues: {
@@ -70,10 +68,6 @@ export const AddStudent = () => {
           ...values,
           tags,
 
-          departmentId: 4,
-          classId: 4,
-          branchId: branchId ?? 0,
-          armId: 4,
           linkedParents: [3],
           // image: avatar,
           image: null,
@@ -107,6 +101,8 @@ export const AddStudent = () => {
     }
   };
 
+  console.log(formik.errors, formik.values);
+
   const handleBack = () => {
     if (step > 0) {
       setStep(prev => prev - 1);
@@ -119,7 +115,7 @@ export const AddStudent = () => {
 
   return (
     <div className="flex h-screen flex-col">
-      {open && <LinkEntity entity="Parents" open={open} setOpen={setOpen} />}
+      {open && <LinkParents open={open} setOpen={setOpen} />}
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">

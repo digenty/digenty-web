@@ -2,6 +2,7 @@
 import { Avatar } from "@/components/Avatar";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { uploadImage } from "@/app/actions/upload-image";
 
 export const ProfilePicture = ({ setAvatar }: { setAvatar: (file: File | null) => void }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -11,7 +12,13 @@ export const ProfilePicture = ({ setAvatar }: { setAvatar: (file: File | null) =
     const file = evt.target.files?.[0];
     if (!file) return;
 
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const data = uploadImage(formData);
     setImageUrl(URL.createObjectURL(file));
+
+    // TODO: pass the url from data to setAvatar
     setAvatar(file);
   };
 

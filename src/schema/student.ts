@@ -25,7 +25,7 @@ export const studentSchema = yup.object().shape({
   branchId: yup.number().required("Branch is required!"),
   classId: yup.number().required("Class is required!"),
   armId: yup.number().required("Arm is required!"),
-  departmentId: yup.number(),
+  departmentId: yup.number().nullable(),
   joinedSchoolTerm: yup
     .string()
     .oneOf(Object.values(JoinedTermEnum), "Term must be either FIRST, SECOND or THIRD")
