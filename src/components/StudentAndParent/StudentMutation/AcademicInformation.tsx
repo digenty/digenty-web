@@ -7,8 +7,22 @@ import { StudentInputValues } from "../types";
 import { FormikProps } from "formik";
 import { BoardingStatusValues, AdmissionStatusValues } from "../constants";
 import { terms } from "@/types";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Arm, Branch, Class, Department } from "@/api/types";
+import { useGetClasses } from "@/hooks/queryHooks/useClass";
+import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
+import { useState } from "react";
+import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 
 export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInputValues> }) => {
+  const [classId, setClassId] = useState<string | null>(null);
+
+  const { data: branches, isPending: loadingBranches } = useGetBranches();
+  const { data: classes, isPending: loadingClasses } = useGetClasses();
+  const { data: departments, isPending: loadingDepartments } = useGetDepartments();
+  const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
+
   const { handleBlur, handleChange, errors, touched, values } = formik;
   return (
     <div className="border-border-default space-y-6 border-b py-6">
@@ -21,7 +35,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           </Label>
           <Select onValueChange={value => formik.setFieldValue("joinedSchoolSession", value)}>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-              <SelectValue placeholder="2024/2025" />
+              <SelectValue placeholder="Select Session" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
               {getAcademicYears().map(session => (
@@ -39,7 +53,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           </Label>
           <Select onValueChange={value => formik.setFieldValue("joinedSchoolTerm", value)}>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-              <SelectValue placeholder="First Term" />
+              <SelectValue placeholder="Select Term" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
               {terms.map(term => (
@@ -74,72 +88,115 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           <Label htmlFor="branch" className="text-text-default text-sm font-medium">
             Branch <small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select>
-            <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-              <SelectValue placeholder="Branch" />
-            </SelectTrigger>
-            <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map(gender => (
-                <SelectItem key={gender} className="text-text-default" value={gender}>
-                  {gender}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!branches || loadingBranches ? (
+            <Skeleton className="bg-bg-input-soft h-9 w-full" />
+          ) : (
+            <Select
+              onValueChange={value => {
+                const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                formik.setFieldValue("branchId", branch.id);
+              }}
+            >
+              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+                <SelectValue placeholder="Branch" />
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-none">
+                {branches.data.content.map((branch: Branch) => (
+                  <SelectItem key={branch.id} className="text-text-default" value={branch.uuid}>
+                    {branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="class" className="text-text-default text-sm font-medium">
             Class <small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select>
-            <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-              <SelectValue placeholder="Class" />
-            </SelectTrigger>
-            <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map(gender => (
-                <SelectItem key={gender} className="text-text-default" value={gender}>
-                  {gender}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!classes || loadingClasses ? (
+            <Skeleton className="bg-bg-input-soft h-9 w-full" />
+          ) : (
+            <Select
+              onValueChange={value => {
+                const classObj = classes.data.content?.find((cls: Class) => cls.uuid === value);
+                formik.setFieldValue("classId", classObj.id);
+                setClassId(classObj.id);
+              }}
+            >
+              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+                <SelectValue placeholder="Class" />
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-none">
+                {classes.data.content.map((cls: Class) => (
+                  <SelectItem key={cls.id} className="text-text-default" value={cls.uuid}>
+                    {cls.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="department" className="text-text-default text-sm font-medium">
             Department
           </Label>
-          <Select>
-            <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-              <SelectValue placeholder="Department" />
-            </SelectTrigger>
-            <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map(gender => (
-                <SelectItem key={gender} className="text-text-default" value={gender}>
-                  {gender}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!departments || loadingDepartments ? (
+            <Skeleton className="bg-bg-input-soft h-9 w-full" />
+          ) : (
+            <Select
+              onValueChange={value => {
+                const department = departments.data?.find((dept: Department) => dept.uuid === value);
+                formik.setFieldValue("departmentId", department.id);
+              }}
+            >
+              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+                <SelectValue placeholder="Department" />
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-none">
+                {departments.data.map((dept: Department) => (
+                  <SelectItem key={dept.id} className="text-text-default" value={dept.uuid}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="arm" className="text-text-default text-sm font-medium">
             Arm <small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select>
-            <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-              <SelectValue placeholder="Arm" />
-            </SelectTrigger>
-            <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map(gender => (
-                <SelectItem key={gender} className="text-text-default" value={gender}>
-                  {gender}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!arms || loadingArms ? (
+            <Skeleton className="bg-bg-input-soft h-9 w-full" />
+          ) : (
+            <Select
+              disabled={!classId}
+              onValueChange={value => {
+                const arm = arms.data?.content?.find((arm: Arm) => arm.uuid === value);
+                formik.setFieldValue("armId", arm.id);
+              }}
+            >
+              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+                <SelectValue placeholder="Arm" />
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-none">
+                {arms.data.content.length === 0 && (
+                  <SelectItem className="text-text-default" value="none">
+                    No Arms Found
+                  </SelectItem>
+                )}
+                {arms.data.content.map((arm: Arm) => (
+                  <SelectItem key={arm.id} className="text-text-default" value={arm.uuid}>
+                    {arm.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -164,7 +221,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           <Label htmlFor="admissionStatus" className="text-text-default text-sm font-medium">
             Admission Status <small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select>
+          <Select onValueChange={value => formik.setFieldValue("studentStatus", value)}>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="Admission Status" />
             </SelectTrigger>

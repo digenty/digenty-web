@@ -17,6 +17,12 @@ export enum AdmissionStatus {
   Total = "TOTAL",
 }
 
+export enum JoinedTermEnum {
+  First = "FIRST",
+  Second = "SECOND",
+  Third = "THIRD",
+}
+
 export enum Gender {
   Male = "MALE",
   Female = "FEMALE",

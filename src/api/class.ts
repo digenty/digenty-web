@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 
 export const getClassesForASchool = async () => {
   try {
-    const { data } = await api.get("/class?page=1&size=100");
+    const { data } = await api.get("/classes?page=0&size=100");
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

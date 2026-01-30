@@ -51,7 +51,7 @@ export const AddParent = () => {
       mutate(
         {
           ...values,
-          branchId: values.branchId as number,
+          // branchId: values.branchId as number,
           tags,
           linkedStudents: [3],
           // image: avatar,

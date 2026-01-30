@@ -19,13 +19,6 @@ import { ProfilePicture } from "./ProfilePicture";
 import { Tags } from "./Tags";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
-type Fields = {
-  branchId: number;
-  classId: number;
-  departmentId: number;
-  armId: number;
-};
-
 export const AddStudent = () => {
   const router = useRouter();
   const [date, setDate] = useState<Date | undefined>();
@@ -42,13 +35,6 @@ export const AddStudent = () => {
 
   const { mutate, isPending } = useAddStudent();
   const { branchId } = useLoggedInUser();
-
-  const [fields, setFields] = useState<Fields>({
-    branchId: 0,
-    classId: 0,
-    departmentId: 0,
-    armId: 0,
-  });
 
   const formik = useFormik<StudentInputValues>({
     initialValues: {
@@ -67,18 +53,21 @@ export const AddStudent = () => {
       admissionNumber: "",
       admissionStatus: AdmissionStatus.Active,
       medicalInformation: "",
-      // role: "",
       nationality: "",
       stateOfOrigin: "",
       joinedSchoolTerm: "",
       joinedSchoolSession: "",
+
+      branchId: null,
+      classId: null,
+      departmentId: null,
+      armId: null,
     },
     validationSchema: studentSchema,
     onSubmit: values => {
       mutate(
         {
           ...values,
-          ...fields,
           tags,
 
           departmentId: 4,
@@ -126,14 +115,7 @@ export const AddStudent = () => {
     }
   };
 
-  const isValid =
-    Object.keys(formik.errors).length === 0 &&
-    formik.values.gender &&
-    formik.values.dateOfBirth &&
-    formik.values.admissionStatus &&
-    fields.branchId &&
-    fields.classId &&
-    fields.armId;
+  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
 
   return (
     <div className="flex h-screen flex-col">
