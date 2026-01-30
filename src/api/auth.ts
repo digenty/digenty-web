@@ -27,6 +27,7 @@ export const signup = async (payload: Payload) => {
 export const login = async (payload: Payload) => {
   try {
     const { data } = await apiPublic.post("/auth/login", payload);
+
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

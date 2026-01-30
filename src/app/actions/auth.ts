@@ -30,5 +30,6 @@ export const getSessionData = async () => {
   }
 
   const accessToken = JSON.parse(token);
+
   return { token: accessToken };
 };

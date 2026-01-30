@@ -16,6 +16,7 @@ export const LoginPasswordForm = ({ email }: { email: string }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const { mutate, isPending } = useLogin();
+  console.log(mutate);
 
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);

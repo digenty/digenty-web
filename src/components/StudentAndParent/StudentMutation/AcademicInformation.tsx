@@ -1,27 +1,32 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { cn, getAcademicYears } from "@/lib/utils";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import { StudentInputValues } from "../types";
+import { FormikProps } from "formik";
+import { BoardingStatusValues, AdmissionStatusValues } from "../constants";
+import { terms } from "@/types";
 
-export const AcademicInformation = () => {
+export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInputValues> }) => {
+  const { handleBlur, handleChange, errors, touched, values } = formik;
   return (
     <div className="border-border-default space-y-6 border-b py-6">
       <h2 className="text-lg font-semibold">Academic Information</h2>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-5">
         <div className="space-y-2">
-          <Label htmlFor="nationality" className="text-text-default text-sm font-medium">
-            Joined School Session
+          <Label htmlFor="joinedSchoolSession" className="text-text-default text-sm font-medium">
+            Joined School Session<small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select>
+          <Select onValueChange={value => formik.setFieldValue("joinedSchoolSession", value)}>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="2024/2025" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map(gender => (
-                <SelectItem key={gender} className="text-text-default" value={gender}>
-                  {gender}
+              {getAcademicYears().map(session => (
+                <SelectItem key={session} className="text-text-default" value={session}>
+                  {session}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -30,16 +35,16 @@ export const AcademicInformation = () => {
 
         <div className="space-y-2">
           <Label htmlFor="nationality" className="text-text-default text-sm font-medium">
-            Joined School Term
+            Joined School Term<small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select>
+          <Select onValueChange={value => formik.setFieldValue("joinedSchoolTerm", value)}>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="First Term" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map(gender => (
-                <SelectItem key={gender} className="text-text-default" value={gender}>
-                  {gender}
+              {terms.map(term => (
+                <SelectItem key={term.value} className="text-text-default" value={term.value}>
+                  {term.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -52,23 +57,22 @@ export const AcademicInformation = () => {
           </Label>
           <Input
             id="admissionNumber"
-            // onChange={handleChange}
-            autoFocus
+            onChange={handleChange}
             placeholder="GFA/2023/01045"
-            // onBlur={handleBlur}
-            // value={values.email}
+            onBlur={handleBlur}
+            value={values.admissionNumber}
             type="text"
             className={cn(
               "text-text-muted bg-bg-input-soft! placeholder-text-hint! border-none text-sm font-normal",
-              // errors.email && touched.email && "border-text-error/50 border",
+              errors.admissionNumber && touched.admissionNumber && "border-border-destructive border",
             )}
           />
-          {/* {touched.email && errors.email && <p className="text-text-error/80 font-satoshi text-xs font-light">{errors.email}</p>} */}
+          {touched.admissionNumber && errors.admissionNumber && <p className="text-text-destructive text-xs font-light">{errors.admissionNumber}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="branch" className="text-text-default text-sm font-medium">
-            Branch
+            Branch <small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -86,7 +90,7 @@ export const AcademicInformation = () => {
 
         <div className="space-y-2">
           <Label htmlFor="class" className="text-text-default text-sm font-medium">
-            Class
+            Class <small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -122,7 +126,7 @@ export const AcademicInformation = () => {
 
         <div className="space-y-2">
           <Label htmlFor="arm" className="text-text-default text-sm font-medium">
-            Arm
+            Arm <small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -147,9 +151,9 @@ export const AcademicInformation = () => {
               <SelectValue placeholder="Boarding Status" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map(gender => (
-                <SelectItem key={gender} className="text-text-default" value={gender}>
-                  {gender}
+              {BoardingStatusValues.map(status => (
+                <SelectItem key={status.value} className="text-text-default" value={status.value}>
+                  {status.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -158,41 +162,40 @@ export const AcademicInformation = () => {
 
         <div className="space-y-2">
           <Label htmlFor="admissionStatus" className="text-text-default text-sm font-medium">
-            Admission Status
+            Admission Status <small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="Admission Status" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map(gender => (
-                <SelectItem key={gender} className="text-text-default" value={gender}>
-                  {gender}
+              {AdmissionStatusValues.map(status => (
+                <SelectItem key={status.value} className="text-text-default" value={status.value}>
+                  {status.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="inputRole" className="text-text-default text-sm font-medium">
+        {/* <div className="space-y-2">
+          <Label htmlFor="role" className="text-text-default text-sm font-medium">
             Input Role
           </Label>
           <Input
-            id="inputRole"
-            // onChange={handleChange}
-            autoFocus
+            id="role"
+            onChange={handleChange}
             placeholder="Input Position"
-            // onBlur={handleBlur}
-            // value={values.email}
+            onBlur={handleBlur}
+            value={values.role}
             type="text"
             className={cn(
               "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
-              // errors.email && touched.email && "border-text-error/50 border",
+              errors.role && touched.role && "border-border-destructive border",
             )}
           />
-          {/* {touched.email && errors.email && <p className="text-text-error/80 font-satoshi text-xs font-light">{errors.email}</p>} */}
-        </div>
+          {touched.role && errors.role && <p className="text-text-destructive text-xs font-light">{errors.role}</p>}
+        </div> */}
       </div>
     </div>
   );
