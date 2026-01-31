@@ -107,7 +107,7 @@ export const LinkStudents = ({
                           <p className="text-text-default text-sm font-medium">
                             {student.firstName} {student.lastName}
                           </p>
-                          <p className="text-text-subtle text-xs font-normal">Lawanson</p>
+                          <p className="text-text-subtle text-xs font-normal">{branchSelected?.name}</p>
                         </div>
                       </div>
                     </div>
@@ -223,7 +223,7 @@ export const LinkStudents = ({
                           <p className="text-text-default text-sm font-medium">
                             {student.firstName} {student.lastName}
                           </p>
-                          <p className="text-text-subtle text-xs font-normal">Lawanson</p>
+                          <p className="text-text-subtle text-xs font-normal">{branchSelected?.name}</p>
                         </div>
                       </div>
                     </div>
