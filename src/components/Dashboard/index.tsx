@@ -1,4 +1,3 @@
-import { getSessionData } from "@/app/actions/auth";
 import { Alerts } from "../Alert";
 import AlertFill from "../Icons/AlertFill";
 import CashFill from "../Icons/CashFill";
@@ -8,20 +7,10 @@ import { OverviewCard } from "../OverviewCard";
 import { Chart } from "./Chart";
 import DashboardHeader from "./DashboardHeader";
 import { QuickActions } from "./QuickActions";
-import { JWTPayload } from "@/types";
-import { decodeJWT } from "@/lib/utils";
-import OnboardingModal from "../Onboarding/OnBoardingModal";
 
 export default async function Dashboard() {
-  const { token } = await getSessionData();
-
-  const user: JWTPayload = decodeJWT(token);
-
-  const showOnboarding = !user.schoolId;
-
   return (
     <>
-      {showOnboarding && <OnboardingModal initialShow={showOnboarding} />}
       <div className="space-y-6 px-4 py-6 md:space-y-8 md:px-8">
         <DashboardHeader />
 

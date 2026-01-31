@@ -26,10 +26,10 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/10 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" />
 
-      <div className="bg-bg-card relative z-10 max-h-155 w-full max-w-175 rounded-md">
-        <div className="bg-bg-card-subtle border-border-default rounded-t-md border-b">
+      <div className="bg-bg-card relative z-10 max-h-155 w-full max-w-175 rounded-xl">
+        <div className="bg-bg-card-subtle border-border-default rounded-t-xl border-b">
           <div className="text-text-default text-md flex items-center gap-2 px-6 py-4 font-semibold">
             <LogoMark /> Digenty
           </div>

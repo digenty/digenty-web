@@ -19,7 +19,7 @@ export const SchoolOverview = () => {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <div className="text-text-default text-lg font-semibold">School Overview</div>
-        <div className="text-text-muted text-sm">Tell us about your school&apso;s structure</div>
+        <div className="text-text-muted text-sm">Tell us about your school&apos;s structure</div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { inter } from "./fonts";
-import "./styles/globals.css";
-import { TanstackProvider } from "./providers/Tanstack";
 import { Toaster } from "sonner";
+import { inter } from "./fonts";
+import { TanstackProvider } from "./providers/Tanstack";
+import "./styles/globals.css";
 
 export const metadata: Metadata = {
   title: "Digenty",

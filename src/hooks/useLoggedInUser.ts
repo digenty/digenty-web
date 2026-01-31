@@ -1,4 +1,4 @@
-import { deleteSession, getSessionData } from "@/app/actions/auth";
+import { deleteSession, getSessionToken } from "@/app/actions/auth";
 import { decodeJWT } from "@/lib/utils";
 import { JWTPayload } from "@/types";
 import { useEffect, useState } from "react";
@@ -8,7 +8,7 @@ export const useLoggedInUser = () => {
 
   const getLoggedInUser = async () => {
     try {
-      const token = await getSessionData();
+      const token = await getSessionToken();
 
       const user = decodeJWT(token.token);
 
