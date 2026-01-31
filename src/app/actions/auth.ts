@@ -1,4 +1,6 @@
 "use server";
+import { decodeJWT } from "@/lib/utils";
+import { JWTPayload } from "@/types";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -21,7 +23,7 @@ export const deleteSession = async () => {
   redirect("/auth");
 };
 
-export const getSessionData = async () => {
+export const getSessionToken = async () => {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -31,4 +33,17 @@ export const getSessionData = async () => {
 
   const accessToken = JSON.parse(token);
   return { token: accessToken };
+};
+
+export const getSessionData = async () => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  if (!token) {
+    return { user: null };
+  }
+
+  const accessToken = JSON.parse(token);
+  const user: JWTPayload | null = decodeJWT(accessToken);
+  return { user };
 };

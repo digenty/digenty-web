@@ -1,4 +1,4 @@
-import { getSessionData } from "@/app/actions/auth";
+import { getSessionToken } from "@/app/actions/auth";
 import axios from "axios";
 import { redirect } from "next/navigation";
 
@@ -16,7 +16,7 @@ const api = axios.create({
  */
 api.interceptors.request.use(
   async config => {
-    const { token } = await getSessionData();
+    const { token } = await getSessionToken();
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

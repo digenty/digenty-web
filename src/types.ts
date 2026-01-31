@@ -51,6 +51,7 @@ export const terms = [
 interface User {
   id: string;
   branchId: number;
+  schoolId: number;
 }
 
 export type JWTPayload = JwtPayload & User;
