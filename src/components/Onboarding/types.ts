@@ -1,8 +1,16 @@
-export interface CreateSchoolProps {
+export interface CreateSchoolTypes {
   firstName?: string;
   lastName?: string;
   schoolName?: string;
-  schoolsize?: string | number;
+  schoolSize?: number;
   role?: string;
   country?: string;
+  currency?: string;
+}
+
+export interface OnBoardingCountry {
+  id: string;
+  name: string;
+  code?: number;
+  currency?: string;
 }
