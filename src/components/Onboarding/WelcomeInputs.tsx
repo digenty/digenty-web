@@ -1,25 +1,25 @@
-import React, { useEffect, useState } from "react";
+"use client";
+import { useEffect, useState } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { getCountries } from "@/app/actions/country";
-import { Country } from "../StudentAndParent/types";
 import { FormikProps } from "formik";
 
 import { Skeleton } from "../ui/skeleton";
-import { CreateSchoolProps } from "./types";
+import { CreateSchoolTypes, OnBoardingCountry } from "./types";
+import { currencies } from "@/store/currenciesCode";
 
-const schoolSizes = ["1", "2", "3", " 4"];
-const currencies = ["NGN"];
+const schoolSizes = [1, 2, 3, 4];
 
-export const WelcomeInputs = ({ formik }: { formik?: FormikProps<CreateSchoolProps> }) => {
-  const [schoolSize, setSchoolSize] = useState(schoolSizes[0]);
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [currency, setCurrency] = useState(currencies[1]);
+export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolTypes> }) => {
+  const { handleBlur, handleChange, errors, touched, values, setFieldTouched, setFieldValue } = formik;
+  const [countries, setCountries] = useState<OnBoardingCountry[]>([]);
 
   useEffect(() => {
     getCountries().then(setCountries);
   }, []);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
@@ -29,63 +29,123 @@ export const WelcomeInputs = ({ formik }: { formik?: FormikProps<CreateSchoolPro
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="flex flex-col gap-2">
-          <Label className="text-text-default text-sm font-semibold">First Name</Label>
-          <Input className="bg-bg-input-soft! text-text-default w-full border-none text-sm" placeholder="e.g Damilare" />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label className="text-text-default text-sm font-semibold">Last Name</Label>
-          <Input className="bg-bg-input-soft! text-text-default w-full border-none text-sm" placeholder="e.g John" />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label className="text-text-default text-sm font-semibold">School Name</Label>
-          <Input className="bg-bg-input-soft! text-text-default w-full border-none text-sm" placeholder="e.g Digenty Schools" />
+          <Label htmlFor="firstName" className="text-text-default text-sm font-semibold">
+            First Name
+          </Label>
+          <Input
+            id="firstName"
+            name="firstName"
+            value={values.firstName}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className="bg-bg-input-soft! text-text-default w-full border-none text-sm"
+            placeholder="e.g Damilare"
+          />
+          {touched.firstName && errors.firstName && <p className="text-text-destructive text-xs font-light">{errors.firstName}</p>}
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label className="text-text-default text-sm font-semibold">School Size</Label>
-          <Select value={schoolSize} onValueChange={setSchoolSize}>
-            <SelectTrigger className="bg-bg-input-soft! w-full border-none">
-              <SelectValue placeholder="Select one">
-                {" "}
-                <span className="text-text-default flex text-sm font-medium"> {schoolSize}</span>
-              </SelectValue>
+          <Label htmlFor="lastName" className="text-text-default text-sm font-semibold">
+            Last Name
+          </Label>
+          <Input
+            id="lastName"
+            name="lastName"
+            value={values.lastName}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className="bg-bg-input-soft! text-text-default w-full border-none text-sm"
+            placeholder="e.g John"
+          />
+          {touched.lastName && errors.lastName && <p className="text-text-destructive text-xs font-light">{errors.lastName}</p>}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="schoolName" className="text-text-default text-sm font-semibold">
+            School Name
+          </Label>
+          <Input
+            id="schoolName"
+            name="schoolName"
+            value={values.schoolName}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className="bg-bg-input-soft! text-text-default w-full border-none text-sm"
+            placeholder="e.g Digenty Schools"
+          />
+          {touched.schoolName && errors.schoolName && <p className="text-text-destructive text-xs font-light">{errors.schoolName}</p>}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="schoolSize" className="text-text-default text-sm font-semibold">
+            School Size
+          </Label>
+          <Select
+            value={values.schoolSize?.toString()}
+            onValueChange={value => {
+              formik.setFieldValue("schoolSize", Number(value));
+              formik.setFieldTouched("schoolSize", true);
+            }}
+          >
+            <SelectTrigger className="bg-bg-input-soft! text-text-default w-full border-none">
+              <SelectValue placeholder="School size" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-border-default border">
               {schoolSizes.map(ss => (
-                <SelectItem key={ss} value={ss} className="text-text-default">
+                <SelectItem key={ss} value={ss.toString()} className="text-text-default">
                   {ss}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+          {touched.schoolSize && errors.schoolSize && <p className="text-text-destructive text-xs font-light">{errors.schoolSize}</p>}
         </div>
       </div>
+
       <div className="flex flex-col gap-2">
-        <Label className="text-text-default text-sm font-semibold">Role</Label>
-        <Input className="bg-bg-input-soft! text-text-default w-full border-none text-sm" placeholder="e.g Principal" />
+        <Label htmlFor="role" className="text-text-default text-sm font-semibold">
+          Role
+        </Label>
+        <Input
+          id="role"
+          name="role"
+          value={values.role}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          className="bg-bg-input-soft! text-text-default w-full border-none text-sm"
+          placeholder="e.g Principal"
+        />
+        {touched.role && errors.role && <p className="text-text-destructive text-xs font-light">{errors.role}</p>}
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="nationality" className="text-text-default text-sm font-medium">
+          <Label htmlFor="country" className="text-text-default text-sm font-medium">
             School Country
           </Label>
-          {countries && countries.length > 0 ? (
-            <Select
-              onValueChange={countryName => {
-                const selectedCountry = countries?.find(c => c.name === countryName);
 
-                formik?.setFieldValue("country", countryName);
-                formik?.setFieldValue("country", selectedCountry?.iso2);
+          {countries.length > 0 ? (
+            <Select
+              value={values.country || ""}
+              onValueChange={value => {
+                const selectedCountry = countries.find(c => c.id === value);
+
+                setFieldValue("country", value);
+                setFieldTouched("country", true);
+
+                if (selectedCountry?.currency) {
+                  setFieldValue("currency", selectedCountry.currency);
+                }
               }}
             >
               <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-                <SelectValue placeholder="Select Nationality" />
+                <SelectValue placeholder="Select country" />
               </SelectTrigger>
+
               <SelectContent className="bg-bg-card border-none">
                 {countries.map(country => (
-                  <SelectItem key={country.id} value={country.name} className="text-text-default">
-                    {country.name}
+                  <SelectItem key={country.id} value={country.id} className="text-text-default">
+                    {country.code} {country.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -93,16 +153,24 @@ export const WelcomeInputs = ({ formik }: { formik?: FormikProps<CreateSchoolPro
           ) : (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           )}
+
+          {touched.country && errors.country && <p className="text-text-destructive text-xs font-light">{errors.country}</p>}
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label className="text-text-default text-sm font-semibold">School Currency</Label>
-          <Select value={currency} onValueChange={setCurrency}>
-            <SelectTrigger className="bg-bg-input-soft! w-full border-none">
-              <SelectValue placeholder="School Currency">
-                {" "}
-                <span className="text-text-default flex text-sm font-medium"> {currency}</span>
-              </SelectValue>
+          <Label htmlFor="currency" className="text-text-default text-sm font-semibold">
+            School Currency
+          </Label>
+          <Select
+            // tryin to auto select curr
+            value={values.currency || ""}
+            onValueChange={value => {
+              formik.setFieldValue("currency", value);
+              formik.setFieldTouched("currency", true);
+            }}
+          >
+            <SelectTrigger disabled className="bg-bg-input-soft! text-text-default w-full border-none text-sm">
+              <SelectValue placeholder="School Currency" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-border-default border">
               {currencies.map(c => (
@@ -112,6 +180,7 @@ export const WelcomeInputs = ({ formik }: { formik?: FormikProps<CreateSchoolPro
               ))}
             </SelectContent>
           </Select>
+          {touched.currency && errors.currency && <p className="text-text-destructive text-xs font-light">{errors.currency}</p>}
         </div>
       </div>
     </div>
