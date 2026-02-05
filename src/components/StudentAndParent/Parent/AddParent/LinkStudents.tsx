@@ -13,7 +13,7 @@ import { useGetStudents } from "@/hooks/queryHooks/useStudent";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 export const LinkStudents = ({
   open,
@@ -31,13 +31,8 @@ export const LinkStudents = ({
 
   const isMobile = useIsMobile();
 
-  useEffect(() => {
-    if (branches) {
-      setBranchSelected(branches.data.content[0]);
-    }
-  }, [branches]);
-
-  const { data, isPending } = useGetStudents({ pagination: { limit: 20, page: 1 }, branchId: branchSelected?.id });
+  const { data, isPending } = useGetStudents({ limit: 50, branchId: branchSelected?.id });
+  const students = data?.pages.flatMap(page => page.content) ?? [];
 
   const removeStudent = (id: number) => {
     const students = selectedStudents.filter(student => student.id !== id);
@@ -61,9 +56,12 @@ export const LinkStudents = ({
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
                   <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                  <span className="text-text-default text-sm font-semibold">{branchSelected?.name}</span>
+                  <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
+                  <SelectItem value="none" className="text-text-default text-sm font-semibold">
+                    All Branches
+                  </SelectItem>
                   {branches.data.content.map((branch: Branch) => (
                     <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-semibold">
                       {branch.name}
@@ -82,10 +80,10 @@ export const LinkStudents = ({
             </Button>
 
             {!data || isPending ? (
-              <Skeleton className="h-[300px]" />
+              <Skeleton className="h-75" />
             ) : (
-              <div className="border-border-default h-[300px] space-y-3 overflow-y-auto rounded-sm border p-3">
-                {data?.data?.content.map((student: Student) => {
+              <div className="border-border-default h-75 space-y-3 overflow-y-auto rounded-sm border p-3">
+                {students.map((student: Student) => {
                   const isChecked = selectedStudents.find(std => std.id === student.id);
                   return (
                     <div key={student.id} className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
@@ -177,9 +175,12 @@ export const LinkStudents = ({
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
                   <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                  <span className="text-text-default text-sm font-semibold">{branchSelected?.name}</span>
+                  <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
+                  <SelectItem value="none" className="text-text-default text-sm font-semibold">
+                    All Branches
+                  </SelectItem>
                   {branches.data.content.map((branch: Branch) => (
                     <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-semibold">
                       {branch.name}
@@ -200,8 +201,8 @@ export const LinkStudents = ({
             {!data || isPending ? (
               <Skeleton className="bg-bg-input-soft h-20 w-full" />
             ) : (
-              <div className="border-border-default h-[300px] space-y-3 overflow-y-auto rounded-sm border p-3">
-                {data.data.content.map((student: Student) => {
+              <div className="border-border-default h-75 space-y-3 overflow-y-auto rounded-sm border p-3">
+                {students.map((student: Student) => {
                   const isChecked = selectedStudents.find(std => std.id === student.id);
                   return (
                     <div key={student.id} className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">

@@ -1,8 +1,7 @@
 import { addStudent, getStudents, uploadStudents } from "@/api/student";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { studentKeys } from "@/queries/student";
-import { Pagination } from "@/types";
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 
 export const useAddStudent = () => {
   return useMutation({
@@ -29,7 +28,6 @@ export const useGetStudents = ({
   return useInfiniteQuery({
     queryKey: [studentKeys.all, branchId, classId, departmentId, armId, status],
     queryFn: ({ pageParam }) => getStudents({ pageParam, limit, branchId, classId, departmentId, armId, status }),
-    // enabled: branchId !== null,
     initialPageParam: 0,
     getNextPageParam: lastPage => {
       if (lastPage.last) return undefined;
