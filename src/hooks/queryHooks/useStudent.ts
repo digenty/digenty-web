@@ -2,7 +2,7 @@ import { addStudent, getStudents, uploadStudents } from "@/api/student";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { studentKeys } from "@/queries/student";
 import { Pagination } from "@/types";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 export const useAddStudent = () => {
   return useMutation({
@@ -12,24 +12,29 @@ export const useAddStudent = () => {
 };
 
 export const useGetStudents = ({
-  pagination,
+  limit,
   branchId,
   classId,
   departmentId,
   armId,
   status,
 }: {
-  pagination: Pagination;
+  limit: number;
   branchId?: number;
   classId?: number;
   departmentId?: number;
   armId?: number;
   status?: StudentsStatus;
 }) => {
-  return useQuery({
-    queryKey: [studentKeys.all, pagination.page, branchId, classId, departmentId, armId, status],
-    queryFn: () => getStudents({ pagination, branchId, classId, departmentId, armId, status }),
-    enabled: branchId !== null,
+  return useInfiniteQuery({
+    queryKey: [studentKeys.all, branchId, classId, departmentId, armId, status],
+    queryFn: ({ pageParam }) => getStudents({ pageParam, limit, branchId, classId, departmentId, armId, status }),
+    // enabled: branchId !== null,
+    initialPageParam: 0,
+    getNextPageParam: lastPage => {
+      if (lastPage.last) return undefined;
+      return lastPage.number + 1; // next page index
+    },
   });
 };
 

@@ -16,14 +16,16 @@ export const addStudent = async (payload: StudentInputType) => {
 };
 
 export const getStudents = async ({
-  pagination,
+  limit,
+  pageParam,
   branchId,
   classId,
   departmentId,
   armId,
   status,
 }: {
-  pagination: Pagination;
+  limit: number;
+  pageParam: number;
   branchId?: number;
   classId?: number;
   departmentId?: number;
@@ -32,9 +34,9 @@ export const getStudents = async ({
 }) => {
   try {
     const { data } = await api.get(
-      `/students/school?size=${pagination.limit}&page=${pagination.page - 1}${branchId ? `&branchId=${branchId}` : ""}${classId ? `&classId=${classId}` : ""}${departmentId ? `&departmentId=${departmentId}` : ""}${armId ? `&armId=${armId}` : ""}${status ? `&status=${status}` : ""}`,
+      `/students/school?size=${limit}&page=${pageParam}${branchId ? `&branchId=${branchId}` : ""}${classId ? `&classId=${classId}` : ""}${departmentId ? `&departmentId=${departmentId}` : ""}${armId ? `&armId=${armId}` : ""}${status ? `&status=${status}` : ""}`,
     ); // page starts from 0
-    return data;
+    return data.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;

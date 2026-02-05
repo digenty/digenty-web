@@ -32,8 +32,7 @@ export const StudentsTable = () => {
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
-  const [students, setStudents] = useState<Student[]>([]); // for mobile
-  const pageSize = 3;
+  const pageSize = 5;
 
   const [branchSelected, setBranchSelected] = useState<Branch | undefined>();
   const [classSelected, setClassSelected] = useState<ClassType>();
@@ -41,8 +40,14 @@ export const StudentsTable = () => {
   const [armSelected, setArmSelected] = useState<Arm>();
   const [statusSelected, setStatusSelected] = useState<{ value: StudentsStatus; label: string }>();
 
-  const { data, isPending: loadingStudents } = useGetStudents({
-    pagination: { limit: pageSize, page },
+  const {
+    data,
+    isPending: loadingStudents,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useGetStudents({
+    limit: pageSize,
     branchId: branchSelected?.id,
     classId: classSelected?.id,
     departmentId: departmentSelected?.id,
@@ -50,23 +55,21 @@ export const StudentsTable = () => {
     status: statusSelected?.value,
   });
 
+  const students = data?.pages.flatMap(page => page.content) ?? [];
+
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
     { label: "Students", url: `/student-and-parent-record?tab=Students` },
   ]);
 
   useEffect(() => {
-    // for mobile view
-    if (data) {
-      setStudents(data.data.content);
+    // Make sure that page is fetched
+    if (page > (data?.pages.length ?? 0)) {
+      fetchNextPage();
     }
-  }, [data]);
-  console.log(students);
+  }, [page, data?.pages.length, fetchNextPage]);
 
-  const loadMore = () => {
-    setPage(prev => prev + 1);
-    setStudents(prev => [...prev, ...data.data.content]);
-  };
+  const dataForDesktop = data?.pages[page - 1]?.content ?? [];
 
   return (
     <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
@@ -227,8 +230,8 @@ export const StudentsTable = () => {
         <div className="hidden md:block">
           <DataTable
             columns={columns}
-            data={data.data.content}
-            totalCount={data.data.totalElements ?? 0}
+            data={dataForDesktop}
+            totalCount={data?.pages[0].totalElements}
             page={page}
             setCurrentPage={setPage}
             pageSize={pageSize}
@@ -238,6 +241,7 @@ export const StudentsTable = () => {
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}
             onSelectRows={setSelectedRows}
+            loadingContent={isFetchingNextPage}
           />
         </div>
       )}
@@ -255,8 +259,8 @@ export const StudentsTable = () => {
               <MobileCard key={student.id} student={student} />
             ))}
 
-            {page < data.data.totalElements / pageSize && (
-              <Button onClick={() => loadMore()} className="bg-bg-state-soft text-text-subtle w-fit self-center px-10">
+            {hasNextPage && (
+              <Button onClick={() => fetchNextPage()} className="bg-bg-state-soft text-text-subtle w-fit self-center px-10">
                 Load More
               </Button>
             )}
