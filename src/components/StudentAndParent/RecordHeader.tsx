@@ -1,7 +1,12 @@
 "use client";
 
+import { Arm, Branch, ClassType, Department } from "@/api/types";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetClasses } from "@/hooks/queryHooks/useClass";
+import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
 import Image from "next/image";
 import { useState } from "react";
 import BookOpen from "../Icons/BookOpen";
@@ -11,21 +16,44 @@ import School from "../Icons/School";
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { Skeleton } from "../ui/skeleton";
+import { studentsStatus } from "./constants";
+import { StudentsStatus } from "./types";
 
-const branches = ["All Branches", "Lawanson", "Ilasamaja"];
-const classes = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
-const studentStatus = ["Active Students", "Graduated Students", "Withdrawn Students"];
-const departments = ["All Departments", "Art", "Commercial", "Science"];
-const arms = ["All Arms", "A", "B", "C"];
-
-export const RecordHeader = ({ tab }: { tab: string }) => {
-  const [branchSelected, setBranchSelected] = useState(branches[0]);
-  const [classSelected, setClassSelected] = useState(classes[0]);
-  const [statusSelected, setStatusSelected] = useState(studentStatus[0]);
-  const [departmentSelected, setDepartmentSelected] = useState(departments[0]);
-  const [armSelected, setArmSelected] = useState(arms[0]);
+export const RecordHeader = ({
+  tab,
+  branchSelected,
+  setBranchSelected,
+  classSelected,
+  setClassSelected,
+  armSelected,
+  departmentSelected,
+  setDepartmentSelected,
+  setArmSelected,
+  statusSelected,
+  setStatusSelected,
+}: {
+  tab: string;
+  branchSelected?: Branch;
+  classSelected?: ClassType;
+  setBranchSelected?: (branch: Branch) => void;
+  setClassSelected?: (cls: ClassType) => void;
+  armSelected?: Arm;
+  departmentSelected?: Department;
+  statusSelected?: { value: StudentsStatus; label: string };
+  setArmSelected?: (arm: Arm) => void;
+  setDepartmentSelected?: (dept: Department) => void;
+  setStatusSelected?: (status: { value: StudentsStatus; label: string }) => void;
+}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterCount, setFilterCount] = useState(0);
 
+  const { data: branches, isPending: loadingBranches } = useGetBranches();
+  const { data: classes, isPending: loadingClasses } = useGetClasses();
+  const { data: departments, isPending: loadingDepartments } = useGetDepartments();
+  const { data: arms, isPending: loadingArms } = useGetArmsByClass(classSelected?.id);
+
+  console.log(statusSelected);
   return (
     <div>
       <div className="flex w-full justify-between align-middle">
@@ -39,34 +67,26 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
         </div>
 
         <div className="hidden gap-2 align-middle md:flex">
-          <Select value={branchSelected} onValueChange={setBranchSelected}>
-            <SelectTrigger className="border-border-darker h-8! w-auto border">
-              <SelectValue>
-                <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                <span className="text-text-default text-sm font-medium">{branchSelected}</span>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="bg-bg-card border-border-default">
-              {branches.map(branch => (
-                <SelectItem key={branch} value={branch} className="text-text-default text-sm font-medium">
-                  {branch}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {tab === "Students" && (
-            <Select value={classSelected} onValueChange={setClassSelected}>
+          {!branches || loadingBranches ? (
+            <Skeleton className="bg-bg-input-soft h-8 w-32" />
+          ) : (
+            <Select
+              onValueChange={value => {
+                const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                setBranchSelected?.(branch);
+              }}
+            >
               <SelectTrigger className="border-border-darker h-8! w-auto border">
-                <SelectValue>
-                  <GraduationCap fill="var(--color-icon-black-muted )" className="size-4" />
-                  <span className="text-text-default text-sm font-medium">{classSelected}</span>
-                </SelectValue>
+                <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                <span className="text-text-default text-sm font-medium">{branchSelected ? branchSelected?.name : "All Branches"}</span>
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
-                {classes.map(val => (
-                  <SelectItem key={val} value={val} className="text-text-default text-sm font-medium">
-                    {val}
+                <SelectItem value="none" className="text-text-default text-sm font-medium">
+                  All Branches
+                </SelectItem>
+                {branches.data.content.map((branch: Branch) => (
+                  <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
+                    {branch.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -74,17 +94,55 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
           )}
 
           {tab === "Students" && (
-            <Select value={statusSelected} onValueChange={setStatusSelected}>
+            <>
+              {!classes || loadingClasses ? (
+                <Skeleton className="bg-bg-input-soft h-8 w-32" />
+              ) : (
+                <Select
+                  onValueChange={value => {
+                    const cls = classes.data.content?.find((cls: ClassType) => cls.uuid === value);
+                    setClassSelected?.(cls);
+                  }}
+                >
+                  <SelectTrigger className="border-border-darker h-8! w-auto border">
+                    <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                    <span className="text-text-default text-sm font-medium">{classSelected ? classSelected?.name : "All Classes"}</span>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-card border-border-default">
+                    <SelectItem value="none" className="text-text-default text-sm font-medium">
+                      All Classes
+                    </SelectItem>
+                    {classes.data.content.map((cls: ClassType) => (
+                      <SelectItem key={cls.id} value={cls.uuid} className="text-text-default text-sm font-medium">
+                        {cls.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </>
+          )}
+
+          {tab === "Students" && (
+            <Select
+              onValueChange={value => {
+                const status = studentsStatus.find((status: { value: StudentsStatus; label: string }) => status.value === value);
+                if (status) {
+                  setStatusSelected?.(status);
+                }
+              }}
+            >
               <SelectTrigger className="border-border-darker h-8! w-auto border">
-                <SelectValue>
-                  <Group fill="var(--color-icon-black-muted )" className="size-4" />
-                  <span className="text-text-default text-sm font-medium">{statusSelected}</span>
-                </SelectValue>
+                <Group fill="var(--color-icon-black-muted )" className="size-4" />
+                <span className="text-text-default text-sm font-medium">{statusSelected ? statusSelected.label : "All Students"}</span>
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
-                {studentStatus.map(status => (
-                  <SelectItem key={status} value={status} className="text-text-default text-sm font-medium">
-                    {status}
+                <SelectItem value="none" className="text-text-default text-sm font-medium">
+                  All Students
+                </SelectItem>
+                {studentsStatus.map(status => (
+                  <SelectItem key={status.value} value={status.value} className="text-text-default text-sm font-medium">
+                    {status.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -103,20 +161,31 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <School fill="var(--color-icon-black-muted)" className="size-4" />
                 <Label className="text-text-default text-sm font-medium">Branch</Label>
               </div>
-              <Select value={branchSelected} onValueChange={setBranchSelected}>
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{branchSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {branches.map(branch => (
-                    <SelectItem key={branch} value={branch} className="text-text-default text-sm">
-                      {branch}
+              {!branches || loadingBranches ? (
+                <Skeleton className="bg-bg-input-soft h-9 w-full" />
+              ) : (
+                <Select
+                  onValueChange={value => {
+                    const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                    setBranchSelected?.(branch);
+                    setFilterCount(prev => (!branchSelected ? prev + 1 : prev));
+                  }}
+                >
+                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                    <span className="text-text-default text-sm font-medium">{branchSelected ? branchSelected?.name : "All Branches"}</span>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-card border-border-default">
+                    <SelectItem value="none" className="text-text-default text-sm font-medium">
+                      All Branches
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    {branches.data.content.map((branch: Branch) => (
+                      <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
+                        {branch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -124,20 +193,31 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <GraduationCap fill="var(--color-icon-black-muted)" className="size-4" />
                 <Label className="text-text-default text-sm font-medium">Class</Label>
               </div>
-              <Select value={classSelected} onValueChange={setClassSelected}>
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{classSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {classes.map(value => (
-                    <SelectItem key={value} value={value} className="text-text-default text-sm">
-                      {value}
+              {!classes || loadingClasses ? (
+                <Skeleton className="bg-bg-input-soft h-9 w-full" />
+              ) : (
+                <Select
+                  onValueChange={value => {
+                    const cls = classes.data.content?.find((cls: ClassType) => cls.uuid === value);
+                    setClassSelected?.(cls);
+                    setFilterCount(prev => (!classSelected ? prev + 1 : prev));
+                  }}
+                >
+                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                    <span className="text-text-default text-sm font-medium">{classSelected ? classSelected?.name : "All Classes"}</span>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-card border-border-default">
+                    <SelectItem value="none" className="text-text-default text-sm font-medium">
+                      All Classes
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    {classes.data.content.map((cls: ClassType) => (
+                      <SelectItem key={cls.id} value={cls.uuid} className="text-text-default text-sm font-medium">
+                        {cls.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -145,20 +225,31 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <Group fill="var(--color-icon-black-muted)" className="size-4" />
                 <Label className="text-text-default text-sm font-medium">Department</Label>
               </div>
-              <Select value={departmentSelected} onValueChange={setDepartmentSelected}>
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{departmentSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {departments.map(dept => (
-                    <SelectItem key={dept} value={dept} className="text-text-default text-sm">
-                      {dept}
+              {!departments || loadingDepartments ? (
+                <Skeleton className="bg-bg-input-soft h-9 w-full" />
+              ) : (
+                <Select
+                  onValueChange={value => {
+                    const department = departments.data.find((dept: Department) => dept.uuid === value);
+                    setDepartmentSelected?.(department);
+                    setFilterCount(prev => (!departmentSelected ? prev + 1 : prev));
+                  }}
+                >
+                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                    <span className="text-text-default text-sm">{departmentSelected ? departmentSelected?.name : "All Departments"}</span>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-default border-border-default">
+                    <SelectItem value="none" className="text-text-default text-sm font-medium">
+                      All Departments
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    {departments.data.map((dept: Department) => (
+                      <SelectItem key={dept.id} value={dept.uuid} className="text-text-default text-sm">
+                        {dept.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -166,20 +257,29 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <BookOpen fill="var(--color-icon-black-muted)" className="size-4" />
                 <Label className="text-text-default text-sm font-medium">Arm</Label>
               </div>
-              <Select value={armSelected} onValueChange={setArmSelected}>
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{classSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {arms.map(arm => (
-                    <SelectItem key={arm} value={arm} className="text-text-default text-sm">
-                      {arm}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {!arms || loadingArms ? (
+                <Skeleton className="bg-bg-input-soft h-9 w-full" />
+              ) : (
+                <Select
+                  onValueChange={value => {
+                    const arm = arms.data.content.find((arm: Arm) => arm.uuid === value);
+                    setArmSelected?.(arm);
+                    setFilterCount(prev => (!armSelected ? prev + 1 : prev));
+                  }}
+                >
+                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                    <span className="text-text-default text-sm">{armSelected ? armSelected?.name : "Select Arm"}</span>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-default border-border-default">
+                    {arms.data.content.length === 0 && <SelectItem value="none">No Arms for the selected class</SelectItem>}
+                    {arms.data.content.map((arm: Arm) => (
+                      <SelectItem key={arm.id} value={arm.uuid} className="text-text-default text-sm">
+                        {arm.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -187,16 +287,25 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <Group fill="var(--color-icon-black-muted)" className="size-4" />
                 <Label className="text-text-default text-sm font-medium">Student Status</Label>
               </div>
-              <Select value={statusSelected} onValueChange={setStatusSelected}>
+              <Select
+                onValueChange={value => {
+                  const status = studentsStatus.find((status: { value: StudentsStatus; label: string }) => status.value === value);
+                  if (status) {
+                    setStatusSelected?.(status);
+                    setFilterCount(prev => (!statusSelected ? prev + 1 : prev));
+                  }
+                }}
+              >
                 <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{statusSelected}</span>
-                  </SelectValue>
+                  <span className="text-text-default text-sm">{statusSelected ? statusSelected.label : "All Students"}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
-                  {studentStatus.map(status => (
-                    <SelectItem key={status} value={status} className="text-text-default text-sm">
-                      {status}
+                  <SelectItem value="none" className="text-text-default text-sm font-medium">
+                    All Students
+                  </SelectItem>
+                  {studentsStatus.map(status => (
+                    <SelectItem key={status.value} value={status.value} className="text-text-default text-sm">
+                      {status.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -210,9 +319,12 @@ export const RecordHeader = ({ tab }: { tab: string }) => {
                 <Button className="bg-bg-state-soft text-text-subtle rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
               </DrawerClose>
 
-              <Button className="bg-bg-state-primary text-text-white-default rounded-md! px-4 py-2 text-sm tracking-[0.1rem]">
+              <Button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-bg-state-primary text-text-white-default rounded-md! px-4 py-2 text-sm tracking-[0.1rem]"
+              >
                 <span>Apply Filter</span>
-                <span className="bg-bg-badge-white border-border-white rounded-sm px-1.5 py-0.5 text-xs">2</span>
+                <span className="bg-bg-badge-white border-border-white rounded-sm px-1.5 py-0.5 text-xs">{filterCount}</span>
               </Button>
             </div>
           </DrawerFooter>

@@ -71,7 +71,7 @@ export const ParentsTable = () => {
 
       {/* Title and Filter buttons */}
       <div className="space-y-4">
-        <RecordHeader tab="Parents" />
+        {/* <RecordHeader tab="Parents" /> */}
 
         <div className="border-border-default border-b" />
 

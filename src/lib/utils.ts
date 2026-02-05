@@ -72,6 +72,19 @@ export const decodeJWT = (token: string) => {
   }
 };
 
+export const isTokenExpired = (token: string): boolean => {
+  try {
+    const decoded = jwtDecode<JWTPayload>(token);
+
+    if (!decoded.exp) return true;
+
+    const currentTime = Date.now() / 1000;
+    return decoded.exp < currentTime;
+  } catch {
+    return true;
+  }
+};
+
 export const parseCookieString = (string = "") => {
   try {
     return JSON.parse(string);

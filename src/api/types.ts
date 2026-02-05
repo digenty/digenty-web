@@ -16,7 +16,7 @@ export interface Branch {
   country: string | null;
 }
 
-export interface Class {
+export interface ClassType {
   id: number;
   uuid: string;
   active: boolean;

@@ -15,9 +15,11 @@ export const addStudent = async (payload: StudentInputType) => {
   }
 };
 
-export const getStudents = async ({ pagination, branchId }: { pagination: Pagination; branchId?: number }) => {
+export const getStudents = async ({ pagination, branchId, classId }: { pagination: Pagination; branchId?: number; classId?: number }) => {
   try {
-    const { data } = await api.get(`/students/all/${branchId}?size=${pagination.limit}&page=${pagination.page - 1}`); // page starts from 0
+    const { data } = await api.get(
+      `/students/school?size=${pagination.limit}&page=${pagination.page - 1}${branchId ? `&branchId=${branchId}` : ""}${classId ? `&classId=${classId}` : ""}`,
+    ); // page starts from 0
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

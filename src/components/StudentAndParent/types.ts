@@ -126,3 +126,11 @@ export interface ParentInputType {
   tags: string[];
   linkedStudents: number[];
 }
+
+export enum StudentsStatus {
+  Active = "ACTIVE",
+  Inactive = "INACTIVE",
+  Graduated = "GRADUATED",
+  Suspended = "SUSPENDED",
+  Withdrawn = "WITHDRAWN",
+}

@@ -9,14 +9,14 @@ import { BoardingStatusValues, AdmissionStatusValues } from "../constants";
 import { terms } from "@/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Arm, Branch, Class, Department } from "@/api/types";
+import { Arm, Branch, ClassType, Department } from "@/api/types";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
 import { useState } from "react";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 
 export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInputValues> }) => {
-  const [classId, setClassId] = useState<string | null>(null);
+  const [classId, setClassId] = useState<number | undefined>();
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses();
@@ -120,7 +120,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           ) : (
             <Select
               onValueChange={value => {
-                const classObj = classes.data.content?.find((cls: Class) => cls.uuid === value);
+                const classObj = classes.data.content?.find((cls: ClassType) => cls.uuid === value);
                 formik.setFieldValue("classId", classObj.id);
                 setClassId(classObj.id);
               }}
@@ -129,7 +129,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
                 <SelectValue placeholder="Class" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {classes.data.content.map((cls: Class) => (
+                {classes.data.content.map((cls: ClassType) => (
                   <SelectItem key={cls.id} className="text-text-default" value={cls.uuid}>
                     {cls.name}
                   </SelectItem>

@@ -1,4 +1,5 @@
 "use client";
+import { Arm, Branch, ClassType, Department } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import DeleteBin from "@/components/Icons/DeleteBin";
 import GraduationCap from "@/components/Icons/GraduationCap";
@@ -9,9 +10,8 @@ import UserMinus from "@/components/Icons/UserMinus";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { OverviewCard } from "@/components/OverviewCard";
-``;
 import { SearchInput } from "@/components/SearchInput";
-import { Student } from "@/components/StudentAndParent/types";
+import { Student, StudentsStatus } from "@/components/StudentAndParent/types";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetStudents } from "@/hooks/queryHooks/useStudent";
@@ -23,6 +23,7 @@ import { columns } from "../Columns";
 import { MobileCard } from "../MobileCard";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
+``;
 
 const students: Student[] = Array.from({ length: 60 }).map(() => ({
   id: Math.random().toString(36).substring(2, 9),
@@ -44,7 +45,16 @@ export const StudentsTable = () => {
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
   const pageSize = 50;
 
-  const { data, isLoading } = useGetStudents({ pagination: { limit: pageSize, page: 1 }, branchId: 18 });
+  const [branchSelected, setBranchSelected] = useState<Branch | undefined>();
+  const [classSelected, setClassSelected] = useState<ClassType>();
+  const [departmentSelected, setDepartmentSelected] = useState<Department>();
+  const [armSelected, setArmSelected] = useState<Arm>();
+  const [statusSelected, setStatusSelected] = useState<{ value: StudentsStatus; label: string }>();
+
+  console.log(classSelected);
+  const { data, isLoading } = useGetStudents({ pagination: { limit: pageSize, page: 1 }, branchId: branchSelected?.id, classId: classSelected?.id });
+
+  console.log(data, "@@@");
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -78,7 +88,19 @@ export const StudentsTable = () => {
 
       {/* Title and Filter buttons */}
       <div className="space-y-4">
-        <RecordHeader tab="Students" />
+        <RecordHeader
+          tab="Students"
+          branchSelected={branchSelected}
+          setBranchSelected={setBranchSelected}
+          classSelected={classSelected}
+          setClassSelected={setClassSelected}
+          armSelected={armSelected}
+          setArmSelected={setArmSelected}
+          departmentSelected={departmentSelected}
+          setDepartmentSelected={setDepartmentSelected}
+          statusSelected={statusSelected}
+          setStatusSelected={setStatusSelected}
+        />
 
         <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
           <OverviewCard
