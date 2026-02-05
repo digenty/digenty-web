@@ -20,6 +20,8 @@ interface DataTableProps<TData, TValue> {
   onSelectRows: (data: TData[]) => void;
   showPagination?: boolean;
   fullBorder?: boolean;
+  border?: boolean;
+  headerBg?: boolean;
   classNames?: {
     tableWrapper?: string;
     table?: string;
@@ -46,6 +48,8 @@ export const DataTable = <TData, TValue>({
   onSelectRows,
   showPagination = true,
   fullBorder = false,
+  border = false,
+  headerBg = false,
   classNames,
 }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
@@ -75,9 +79,9 @@ export const DataTable = <TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className={cn("overflow-hidden rounded-md", classNames?.tableWrapper)}>
+      <div className={cn("overflow-hidden rounded-md", classNames?.tableWrapper, border && "border-border-default border")}>
         <Table className={cn("w-full", classNames?.table)}>
-          <TableHeader className={cn("border-border-default border-t", fullBorder && "border")}>
+          <TableHeader className={cn("border-border-default border-t", fullBorder && "border", headerBg && "bg-bg-subtle")}>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id} className={cn("border-border-default border-b", classNames?.tableHead, classNames?.tableRow)}>
                 {headerGroup.headers.map(header => {
