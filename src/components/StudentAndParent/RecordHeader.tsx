@@ -53,7 +53,6 @@ export const RecordHeader = ({
   const { data: departments, isPending: loadingDepartments } = useGetDepartments();
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(classSelected?.id);
 
-  console.log(statusSelected);
   return (
     <div>
       <div className="flex w-full justify-between align-middle">

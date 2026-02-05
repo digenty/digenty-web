@@ -1,4 +1,3 @@
-import { Student } from "@/components/StudentAndParent/types";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "../Avatar";
@@ -8,6 +7,7 @@ import UserMinus from "../Icons/UserMinus";
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
+import { Student } from "@/api/types";
 
 export const MobileCard = ({ student }: { student: Student }) => {
   const router = useRouter();
@@ -21,8 +21,10 @@ export const MobileCard = ({ student }: { student: Student }) => {
     >
       <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
         <div className="flex gap-2">
-          <Avatar username="Damilare John" className="size-5" url="" />
-          <p className="text-text-default">{student.name}</p>
+          <Avatar username={student.firstName} className="size-5" url={student.image ?? ""} />
+          <p className="text-text-default">
+            {student.firstName} {student.lastName}
+          </p>
         </div>
 
         <Button
@@ -72,7 +74,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{student.class}</p>
+          <p className="text-text-default">{student.classId}</p>
         </Button>
       </div>
 
@@ -82,7 +84,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{student.branch}</p>
+          <p className="text-text-default">{student.branchId}</p>
         </Button>
       </div>
     </div>

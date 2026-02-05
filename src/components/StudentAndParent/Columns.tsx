@@ -10,7 +10,9 @@ import { Avatar } from "../Avatar";
 import DeleteBin from "../Icons/DeleteBin";
 import Edit from "../Icons/Edit";
 import UserMinus from "../Icons/UserMinus";
-import { Student } from "./types";
+import { Student } from "@/api/types";
+import { format } from "date-fns";
+// import { Student } from "./types";
 
 const RenderOptions = (row: Row<Student>) => {
   // console.log(row);
@@ -105,8 +107,10 @@ export const columns: ColumnDef<Student>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
-          <Avatar username="Damilare John" className="size-5" url="" />
-          <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.name}</span>
+          <Avatar username={row.original.firstName} className="size-5" url={row.original.image ?? ""} />
+          <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">
+            {row.original.firstName} {row.original.lastName}
+          </span>
         </div>
 
         {row.original.tags && (
@@ -114,9 +118,9 @@ export const columns: ColumnDef<Student>[] = [
             {row.original.tags.map(tag => (
               <span
                 className={cn("bg-bg-badge-cyan text-bg-basic-cyan-strong border-border-default rounded-lg border px-2 py-0.5 text-xs")}
-                key={tag.label}
+                key={tag}
               >
-                {tag.label}
+                {tag}
               </span>
             ))}
           </div>
@@ -128,13 +132,13 @@ export const columns: ColumnDef<Student>[] = [
   {
     accessorKey: "gender",
     header: () => <div className="text-text-muted text-sm font-medium">Gender</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.gender}</span>,
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal capitalize">{row.original.gender.toLowerCase()}</span>,
     size: 150,
   },
   {
     accessorKey: "class",
     header: () => <div className="text-text-muted text-sm font-medium">Class</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.class}</span>,
+    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.classId}</span>,
     size: 150,
   },
   {
@@ -147,13 +151,13 @@ export const columns: ColumnDef<Student>[] = [
     accessorKey: "dob",
     header: () => RenderDOBHeader(),
     // cell: ({ row }) => <span className="cursor-pointer text-sm font-normal text-text-muted">{formatDate(row.original.dob)}</span>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.dob}</span>,
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{format(row.original.dateOfBirth, "P")}</span>,
     size: 150,
   },
   {
     accessorKey: "branch",
     header: () => <div className="text-text-muted text-sm font-medium">Branch</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.branch}</span>,
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.branchId}</span>,
     size: 150,
   },
   {

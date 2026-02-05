@@ -142,9 +142,7 @@ export const DataTable = <TData, TValue>({
         </Table>
       </div>
 
-      {showPagination && (
-        <Pagination table={table} currentPage={page} totalPages={Math.ceil(totalCount / pageSize)} setCurrentPage={setCurrentPage} />
-      )}
+      {showPagination && <Pagination currentPage={page} totalPages={Math.ceil(totalCount / pageSize)} setCurrentPage={setCurrentPage} />}
     </div>
   );
 };

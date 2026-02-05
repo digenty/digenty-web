@@ -1,5 +1,5 @@
 "use client";
-import { Arm, Branch, ClassType, Department } from "@/api/types";
+import { Arm, Branch, ClassType, Department, Student } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import DeleteBin from "@/components/Icons/DeleteBin";
 import GraduationCap from "@/components/Icons/GraduationCap";
@@ -11,30 +11,19 @@ import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { OverviewCard } from "@/components/OverviewCard";
 import { SearchInput } from "@/components/SearchInput";
-import { Student, StudentsStatus } from "@/components/StudentAndParent/types";
+import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetStudents } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { columns } from "../Columns";
 import { MobileCard } from "../MobileCard";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
-``;
-
-const students: Student[] = Array.from({ length: 60 }).map(() => ({
-  id: Math.random().toString(36).substring(2, 9),
-  name: "Damilare John",
-  gender: "Male",
-  class: "SS 1 Arts A",
-  admissionNumber: "GFA/2023/10145",
-  dob: "18/05/2007",
-  branch: "Lawanson",
-  tags: [{ label: "Prefect", color: "bg-basic-cyan-strong", bgColor: "bg-badge-cyan" }],
-}));
 
 export const StudentsTable = () => {
   const router = useRouter();
@@ -43,7 +32,8 @@ export const StudentsTable = () => {
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
-  const pageSize = 50;
+  const [students, setStudents] = useState<Student[]>([]); // for mobile
+  const pageSize = 3;
 
   const [branchSelected, setBranchSelected] = useState<Branch | undefined>();
   const [classSelected, setClassSelected] = useState<ClassType>();
@@ -51,15 +41,32 @@ export const StudentsTable = () => {
   const [armSelected, setArmSelected] = useState<Arm>();
   const [statusSelected, setStatusSelected] = useState<{ value: StudentsStatus; label: string }>();
 
-  console.log(classSelected);
-  const { data, isLoading } = useGetStudents({ pagination: { limit: pageSize, page: 1 }, branchId: branchSelected?.id, classId: classSelected?.id });
-
-  console.log(data, "@@@");
+  const { data, isPending: loadingStudents } = useGetStudents({
+    pagination: { limit: pageSize, page },
+    branchId: branchSelected?.id,
+    classId: classSelected?.id,
+    departmentId: departmentSelected?.id,
+    armId: armSelected?.id,
+    status: statusSelected?.value,
+  });
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
     { label: "Students", url: `/student-and-parent-record?tab=Students` },
   ]);
+
+  useEffect(() => {
+    // for mobile view
+    if (data) {
+      setStudents(data.data.content);
+    }
+  }, [data]);
+  console.log(students);
+
+  const loadMore = () => {
+    setPage(prev => prev + 1);
+    setStudents(prev => [...prev, ...data.data.content]);
+  };
 
   return (
     <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
@@ -107,7 +114,7 @@ export const StudentsTable = () => {
             title="Total Students"
             Icon={() => (
               <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                <UserFill fill="var(--color-icon-default)" className="size-[10px]" />
+                <UserFill fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
             value="583"
@@ -116,7 +123,7 @@ export const StudentsTable = () => {
             title="Active Students"
             Icon={() => (
               <div className="bg-bg-basic-emerald-subtle border-bg-basic-emerald-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                <UserFill fill="var(--color-icon-default)" className="size-[10px]" />
+                <UserFill fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
             value="580"
@@ -125,7 +132,7 @@ export const StudentsTable = () => {
             title="Withdrawn Students"
             Icon={() => (
               <div className="bg-bg-basic-yellow-subtle border-bg-basic-yellow-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                <UserMinus fill="var(--color-icon-default)" className="size-[10px]" />
+                <UserMinus fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
             value="3"
@@ -135,7 +142,7 @@ export const StudentsTable = () => {
             title="Graduated Students"
             Icon={() => (
               <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                <GraduationCap fill="var(--color-icon-default)" className="size-[10px]" />
+                <GraduationCap fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
             value="100"
@@ -214,27 +221,47 @@ export const StudentsTable = () => {
       )}
 
       {/* Separate the table components into two different files with their separate states, then render conditionally here */}
-      <div className="hidden md:block">
-        <DataTable
-          columns={columns}
-          data={students}
-          totalCount={students.length}
-          page={page}
-          setCurrentPage={setPage}
-          pageSize={pageSize}
-          clickHandler={row => {
-            router.push(`/student-and-parent-record/${row.original.id}`);
-          }}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          onSelectRows={setSelectedRows}
-        />
-      </div>
+      {!data || loadingStudents ? (
+        <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />
+      ) : (
+        <div className="hidden md:block">
+          <DataTable
+            columns={columns}
+            data={data.data.content}
+            totalCount={data.data.totalElements ?? 0}
+            page={page}
+            setCurrentPage={setPage}
+            pageSize={pageSize}
+            clickHandler={row => {
+              router.push(`/student-and-parent-record/${row.original.id}`);
+            }}
+            rowSelection={rowSelection}
+            setRowSelection={setRowSelection}
+            onSelectRows={setSelectedRows}
+          />
+        </div>
+      )}
 
-      <div className="flex flex-col gap-4 pb-16 md:hidden">
-        {students.map(student => (
-          <MobileCard key={student.id} student={student} />
-        ))}
+      <div className="flex flex-col justify-center gap-4 md:hidden">
+        {!data || loadingStudents ? (
+          <div className="space-y-4">
+            <Skeleton className="bg-bg-input-soft h-36 w-full" />
+            <Skeleton className="bg-bg-input-soft h-36 w-full" />
+            <Skeleton className="bg-bg-input-soft h-36 w-full" />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {students.map((student: Student) => (
+              <MobileCard key={student.id} student={student} />
+            ))}
+
+            {page < data.data.totalElements / pageSize && (
+              <Button onClick={() => loadMore()} className="bg-bg-state-soft text-text-subtle w-fit self-center px-10">
+                Load More
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
