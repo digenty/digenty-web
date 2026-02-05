@@ -20,6 +20,7 @@ interface DataTableProps<TData, TValue> {
   onSelectRows: (data: TData[]) => void;
   showPagination?: boolean;
   fullBorder?: boolean;
+  loadingContent?: boolean;
   classNames?: {
     tableWrapper?: string;
     table?: string;
@@ -46,6 +47,7 @@ export const DataTable = <TData, TValue>({
   onSelectRows,
   showPagination = true,
   fullBorder = false,
+  loadingContent,
   classNames,
 }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
@@ -142,9 +144,7 @@ export const DataTable = <TData, TValue>({
         </Table>
       </div>
 
-      {showPagination && (
-        <Pagination table={table} currentPage={page} totalPages={Math.ceil(totalCount / pageSize)} setCurrentPage={setCurrentPage} />
-      )}
+      {showPagination && <Pagination currentPage={page} totalPages={Math.ceil(totalCount / pageSize)} setCurrentPage={setCurrentPage} />}
     </div>
   );
 };

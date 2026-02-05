@@ -14,6 +14,7 @@ import { getCountries, getStatesForCountry } from "@/app/actions/country";
 import { useCallback, useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { GenderValues } from "../constants";
 
 export const PersonalInformation = ({
   date,
@@ -125,9 +126,9 @@ export const PersonalInformation = ({
               <SelectValue placeholder="Select Gender" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map(gender => (
-                <SelectItem key={gender} className="text-text-default" value={gender}>
-                  {gender}
+              {GenderValues.map(gender => (
+                <SelectItem key={gender.value} className="text-text-default" value={gender.value}>
+                  {gender.label}
                 </SelectItem>
               ))}
             </SelectContent>

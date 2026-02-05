@@ -10,12 +10,16 @@ import { FormikProps } from "formik";
 import { useCallback, useEffect, useState } from "react";
 import { Country, ParentInputValues, State } from "../../types";
 import { genders, relationships } from "@/types";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { Branch } from "@/api/types";
 
 export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInputValues> }) => {
   const { handleBlur, handleChange, errors, touched, values } = formik;
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [activeCountryCode, setActiveCountryCode] = useState<string>("");
+
+  const { data: branches, isPending: loadingBranches } = useGetBranches();
 
   const getCountryCode = async () => {
     const countryList = await getCountries();
@@ -148,22 +152,27 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
           <Label htmlFor="branch" className="text-text-default text-sm font-medium">
             Branch <small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select
-            onValueChange={value => {
-              formik.setFieldValue("branchId", value);
-            }}
-          >
-            <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-              <SelectValue placeholder="Branch" />
-            </SelectTrigger>
-            <SelectContent className="bg-bg-card border-none">
-              {["Male", "Female"].map((gender, index) => (
-                <SelectItem key={gender} className="text-text-default" value={`${index}`}>
-                  {gender}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {!branches || loadingBranches ? (
+            <Skeleton className="bg-bg-input-soft h-9 w-full" />
+          ) : (
+            <Select
+              onValueChange={value => {
+                const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                formik.setFieldValue("branchId", branch.id);
+              }}
+            >
+              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+                <SelectValue placeholder="Branch" />
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-none">
+                {branches.data.content.map((branch: Branch) => (
+                  <SelectItem key={branch.id} className="text-text-default" value={branch.uuid}>
+                    {branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="space-y-2">

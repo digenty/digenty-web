@@ -1,4 +1,4 @@
-import { StudentInputType } from "@/components/StudentAndParent/types";
+import { StudentInputType, StudentsStatus } from "@/components/StudentAndParent/types";
 import api from "@/lib/axios/axios-auth";
 import { Pagination } from "@/types";
 import { isAxiosError } from "axios";
@@ -15,10 +15,28 @@ export const addStudent = async (payload: StudentInputType) => {
   }
 };
 
-export const getStudents = async ({ pagination }: { pagination: Pagination }) => {
+export const getStudents = async ({
+  limit,
+  pageParam,
+  branchId,
+  classId,
+  departmentId,
+  armId,
+  status,
+}: {
+  limit: number;
+  pageParam: number;
+  branchId?: number;
+  classId?: number;
+  departmentId?: number;
+  armId?: number;
+  status?: StudentsStatus;
+}) => {
   try {
-    const { data } = await api.get(`/students?size=${pagination.limit}&page=${pagination.page}`);
-    return data;
+    const { data } = await api.get(
+      `/students/school?size=${limit}&page=${pageParam}${branchId ? `&branchId=${branchId}` : ""}${classId ? `&classId=${classId}` : ""}${departmentId ? `&departmentId=${departmentId}` : ""}${armId ? `&armId=${armId}` : ""}${status ? `&status=${status}` : ""}`,
+    ); // page starts from 0
+    return data.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;

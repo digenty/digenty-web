@@ -8,11 +8,11 @@ import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../../../ui/button";
-import { LinkEntity } from "../../StudentMutation/LinkEntity";
 import { Tags } from "../../StudentMutation/Tags";
 import { ParentInputValues } from "../../types";
 import { ContactInformation } from "./ContactInformation";
 import { LinkedStudents } from "./LinkedStudents";
+import { LinkStudents } from "./LinkStudents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
 
@@ -20,6 +20,8 @@ export const AddParent = () => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
+  const [selectedStudents, setSelectedStudents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
+
   const [avatar, setAvatar] = useState<File | null>(null);
   const [step, setStep] = useState(1);
 
@@ -51,9 +53,8 @@ export const AddParent = () => {
       mutate(
         {
           ...values,
-          branchId: values.branchId as number,
           tags,
-          linkedStudents: [3],
+          linkedStudents: selectedStudents.map(student => student.id),
           // image: avatar,
           image: null,
         },
@@ -98,7 +99,7 @@ export const AddParent = () => {
 
   return (
     <div className="flex h-screen flex-col">
-      {open && <LinkEntity entity="Parents" open={open} setOpen={setOpen} />}
+      {open && <LinkStudents selectedStudents={selectedStudents} setSelectedStudents={setSelectedStudents} open={open} setOpen={setOpen} />}
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">
@@ -124,7 +125,7 @@ export const AddParent = () => {
           {step === 3 && <Tags tags={tags} setTags={setTags} />}
 
           {/* Linked Parents */}
-          {step === 3 && <LinkedStudents setOpen={setOpen} />}
+          {step === 3 && <LinkedStudents setOpen={setOpen} setSelectedStudents={setSelectedStudents} selectedStudents={selectedStudents} />}
         </div>
 
         <div className="hidden md:block">
@@ -132,7 +133,7 @@ export const AddParent = () => {
           <PersonalInformation formik={formik} />
           <ContactInformation formik={formik} />
           <Tags tags={tags} setTags={setTags} />
-          <LinkedStudents setOpen={setOpen} />
+          <LinkedStudents setOpen={setOpen} selectedStudents={selectedStudents} setSelectedStudents={setSelectedStudents} />
         </div>
       </form>
       <div className="border-border-default bg-bg-default sticky bottom-0 w-full border-t px-4 py-3 md:px-30 xl:px-70">

@@ -37,11 +37,14 @@ export interface StudentInputValues {
   admissionStatus: AdmissionStatus;
   admissionNumber: string;
   medicalInformation: string;
-  // role: string;
   nationality: string;
   stateOfOrigin: string;
   joinedSchoolTerm: string;
   joinedSchoolSession: string;
+  branchId: number | null;
+  classId: number | null;
+  departmentId: number | null;
+  armId: number | null;
 }
 
 export interface ParentInputValues {
@@ -93,15 +96,14 @@ export interface StudentInputType {
   admissionStatus: AdmissionStatus;
   admissionNumber: string;
   medicalInformation: string;
-  // role: string;
   nationality: string;
   stateOfOrigin: string;
   joinedSchoolTerm: string;
   joinedSchoolSession: string;
-  branchId: number;
-  classId: number;
-  departmentId: number;
-  armId: number;
+  branchId: number | null;
+  classId: number | null;
+  departmentId: number | null;
+  armId: number | null;
   image: File | null;
   tags: string[];
   linkedParents: number[];
@@ -123,4 +125,12 @@ export interface ParentInputType {
   image: File | null;
   tags: string[];
   linkedStudents: number[];
+}
+
+export enum StudentsStatus {
+  Active = "ACTIVE",
+  Inactive = "INACTIVE",
+  Graduated = "GRADUATED",
+  Suspended = "SUSPENDED",
+  Withdrawn = "WITHDRAWN",
 }

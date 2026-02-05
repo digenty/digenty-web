@@ -1,3 +1,4 @@
+"use client";
 import { Alerts } from "../Alert";
 import AlertFill from "../Icons/AlertFill";
 import CashFill from "../Icons/CashFill";

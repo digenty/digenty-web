@@ -36,7 +36,7 @@ export const ContactInformation = ({ formik }: { formik: FormikProps<ParentInput
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-5">
         <div className="space-y-2">
           <Label htmlFor="phoneNumber" className="text-text-default text-sm font-medium">
-            Primary Phone Number
+            Primary Phone Number<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Input
             id="phoneNumber"
