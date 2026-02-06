@@ -87,7 +87,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
             <Button
               type="submit"
               className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! flex items-center gap-2 border-none"
-              disabled={isPending}
+              disabled={isPending || (step === 1 && !formik.isValid)}
             >
               {isPending && <Spinner className="text-text-white-default" />}
               Continue

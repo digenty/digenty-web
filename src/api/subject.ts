@@ -1,11 +1,9 @@
-import { CreateSchoolTypes } from "@/components/Onboarding/types";
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
-export const addSchool = async (payload: CreateSchoolTypes) => {
+export const getTeacherSubjects = async () => {
   try {
-    const { data } = await api.post("/schools", payload);
-
+    const data = await api.get("/teacher/subject/my");
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

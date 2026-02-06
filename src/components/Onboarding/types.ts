@@ -13,4 +13,5 @@ export interface OnBoardingCountry {
   name: string;
   code?: number;
   currency?: string;
+  iso2?: string;
 }
