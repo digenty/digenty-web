@@ -3,10 +3,7 @@
 import { Arm, Branch, ClassType, Department } from "@/api/types";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
-import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { useGetClasses } from "@/hooks/queryHooks/useClass";
-import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
+
 import Image from "next/image";
 import { useState } from "react";
 import BookOpen from "../Icons/BookOpen";
@@ -22,36 +19,37 @@ import { StudentsStatus } from "./types";
 
 export const RecordHeader = ({
   tab,
-  branchSelected,
-  setBranchSelected,
-  classSelected,
-  setClassSelected,
-  armSelected,
-  departmentSelected,
-  setDepartmentSelected,
-  setArmSelected,
-  statusSelected,
-  setStatusSelected,
+  filter,
+  onFilterChange,
+  branches,
+  loadingBranches,
+  classes,
+  loadingClasses,
+  arms,
+  loadingArms,
+  departments,
+  loadingDepartments,
 }: {
   tab: string;
-  branchSelected?: Branch;
-  classSelected?: ClassType;
-  setBranchSelected?: (branch: Branch) => void;
-  setClassSelected?: (cls: ClassType) => void;
-  armSelected?: Arm;
-  departmentSelected?: Department;
-  statusSelected?: { value: StudentsStatus; label: string };
-  setArmSelected?: (arm: Arm) => void;
-  setDepartmentSelected?: (dept: Department) => void;
-  setStatusSelected?: (status: { value: StudentsStatus; label: string }) => void;
+  filter: {
+    branchSelected?: Branch;
+    classSelected?: ClassType;
+    departmentSelected?: Department;
+    armSelected?: Arm;
+    statusSelected?: { value: StudentsStatus; label: string };
+  };
+  onFilterChange: (filter: string, value: Branch | ClassType | Department | Arm | { value: StudentsStatus; label: string } | undefined) => void;
+  branches?: { data: { content: Branch[] } };
+  loadingBranches?: boolean;
+  classes?: { data: { content: ClassType[] } };
+  loadingClasses?: boolean;
+  arms?: { data: { content: Arm[] } };
+  loadingArms?: boolean;
+  departments?: { data: Department[] };
+  loadingDepartments?: boolean;
 }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
-
-  const { data: branches, isPending: loadingBranches } = useGetBranches();
-  const { data: classes, isPending: loadingClasses } = useGetClasses();
-  const { data: departments, isPending: loadingDepartments } = useGetDepartments();
-  const { data: arms, isPending: loadingArms } = useGetArmsByClass(classSelected?.id);
 
   return (
     <div>
@@ -72,12 +70,12 @@ export const RecordHeader = ({
             <Select
               onValueChange={value => {
                 const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
-                setBranchSelected?.(branch);
+                onFilterChange("branchSelected", branch);
               }}
             >
               <SelectTrigger className="border-border-darker h-8! w-auto border">
                 <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                <span className="text-text-default text-sm font-medium">{branchSelected ? branchSelected?.name : "All Branches"}</span>
+                <span className="text-text-default text-sm font-medium">{filter.branchSelected ? filter.branchSelected?.name : "All Branches"}</span>
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 <SelectItem value="none" className="text-text-default text-sm font-medium">
@@ -100,12 +98,12 @@ export const RecordHeader = ({
                 <Select
                   onValueChange={value => {
                     const cls = classes.data.content?.find((cls: ClassType) => cls.uuid === value);
-                    setClassSelected?.(cls);
+                    onFilterChange("classSelected", cls);
                   }}
                 >
                   <SelectTrigger className="border-border-darker h-8! w-auto border">
                     <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                    <span className="text-text-default text-sm font-medium">{classSelected ? classSelected?.name : "All Classes"}</span>
+                    <span className="text-text-default text-sm font-medium">{filter.classSelected ? filter.classSelected?.name : "All Classes"}</span>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
                     <SelectItem value="none" className="text-text-default text-sm font-medium">
@@ -127,13 +125,13 @@ export const RecordHeader = ({
               onValueChange={value => {
                 const status = studentsStatus.find((status: { value: StudentsStatus; label: string }) => status.value === value);
                 if (status) {
-                  setStatusSelected?.(status);
+                  onFilterChange("statusSelected", status);
                 }
               }}
             >
               <SelectTrigger className="border-border-darker h-8! w-auto border">
                 <Group fill="var(--color-icon-black-muted )" className="size-4" />
-                <span className="text-text-default text-sm font-medium">{statusSelected ? statusSelected.label : "All Students"}</span>
+                <span className="text-text-default text-sm font-medium">{filter.statusSelected ? filter.statusSelected.label : "All Students"}</span>
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 <SelectItem value="none" className="text-text-default text-sm font-medium">
@@ -166,12 +164,14 @@ export const RecordHeader = ({
                 <Select
                   onValueChange={value => {
                     const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
-                    setBranchSelected?.(branch);
-                    setFilterCount(prev => (!branchSelected ? prev + 1 : prev));
+                    onFilterChange("branchSelected", branch);
+                    setFilterCount(prev => (!filter.branchSelected ? prev + 1 : prev));
                   }}
                 >
                   <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                    <span className="text-text-default text-sm font-medium">{branchSelected ? branchSelected?.name : "All Branches"}</span>
+                    <span className="text-text-default text-sm font-medium">
+                      {filter.branchSelected ? filter.branchSelected?.name : "All Branches"}
+                    </span>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
                     <SelectItem value="none" className="text-text-default text-sm font-medium">
@@ -198,12 +198,12 @@ export const RecordHeader = ({
                 <Select
                   onValueChange={value => {
                     const cls = classes.data.content?.find((cls: ClassType) => cls.uuid === value);
-                    setClassSelected?.(cls);
-                    setFilterCount(prev => (!classSelected ? prev + 1 : prev));
+                    onFilterChange("classSelected", cls);
+                    setFilterCount(prev => (!filter.classSelected ? prev + 1 : prev));
                   }}
                 >
                   <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                    <span className="text-text-default text-sm font-medium">{classSelected ? classSelected?.name : "All Classes"}</span>
+                    <span className="text-text-default text-sm font-medium">{filter.classSelected ? filter.classSelected?.name : "All Classes"}</span>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
                     <SelectItem value="none" className="text-text-default text-sm font-medium">
@@ -230,12 +230,14 @@ export const RecordHeader = ({
                 <Select
                   onValueChange={value => {
                     const department = departments.data.find((dept: Department) => dept.uuid === value);
-                    setDepartmentSelected?.(department);
-                    setFilterCount(prev => (!departmentSelected ? prev + 1 : prev));
+                    onFilterChange("departmentSelected", department);
+                    setFilterCount(prev => (!filter.departmentSelected ? prev + 1 : prev));
                   }}
                 >
                   <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                    <span className="text-text-default text-sm">{departmentSelected ? departmentSelected?.name : "All Departments"}</span>
+                    <span className="text-text-default text-sm">
+                      {filter.departmentSelected ? filter.departmentSelected?.name : "All Departments"}
+                    </span>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-default border-border-default">
                     <SelectItem value="none" className="text-text-default text-sm font-medium">
@@ -262,12 +264,12 @@ export const RecordHeader = ({
                 <Select
                   onValueChange={value => {
                     const arm = arms.data.content.find((arm: Arm) => arm.uuid === value);
-                    setArmSelected?.(arm);
-                    setFilterCount(prev => (!armSelected ? prev + 1 : prev));
+                    onFilterChange("armSelected", arm);
+                    setFilterCount(prev => (!filter.armSelected ? prev + 1 : prev));
                   }}
                 >
                   <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                    <span className="text-text-default text-sm">{armSelected ? armSelected?.name : "Select Arm"}</span>
+                    <span className="text-text-default text-sm">{filter.armSelected ? filter.armSelected?.name : "Select Arm"}</span>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-default border-border-default">
                     {arms.data.content.length === 0 && <SelectItem value="none">No Arms for the selected class</SelectItem>}
@@ -290,13 +292,13 @@ export const RecordHeader = ({
                 onValueChange={value => {
                   const status = studentsStatus.find((status: { value: StudentsStatus; label: string }) => status.value === value);
                   if (status) {
-                    setStatusSelected?.(status);
-                    setFilterCount(prev => (!statusSelected ? prev + 1 : prev));
+                    onFilterChange("statusSelected", status);
+                    setFilterCount(prev => (!filter.statusSelected ? prev + 1 : prev));
                   }
                 }}
               >
                 <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <span className="text-text-default text-sm">{statusSelected ? statusSelected.label : "All Students"}</span>
+                  <span className="text-text-default text-sm">{filter.statusSelected ? filter.statusSelected.label : "All Students"}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
                   <SelectItem value="none" className="text-text-default text-sm font-medium">

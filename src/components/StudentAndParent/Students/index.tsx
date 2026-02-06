@@ -15,8 +15,9 @@ import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetStudents } from "@/hooks/queryHooks/useStudent";
+import { useExportStudents, useGetStudents, useGetStudentsDistribution } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import useDebounce from "@/hooks/useDebounce";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -24,6 +25,11 @@ import { columns } from "../Columns";
 import { MobileCard } from "../MobileCard";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
+import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetClasses } from "@/hooks/queryHooks/useClass";
+import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
+import { toast } from "@/components/Toast";
 
 export const StudentsTable = () => {
   const router = useRouter();
@@ -32,13 +38,23 @@ export const StudentsTable = () => {
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
-  const pageSize = 5;
+  const [studentDistribution, setStudentDistribution] = useState({
+    total: 0,
+    active: 0,
+    graduated: 0,
+    withdrawn: 0,
+  });
+  const pageSize = 15;
 
-  const [branchSelected, setBranchSelected] = useState<Branch | undefined>();
-  const [classSelected, setClassSelected] = useState<ClassType>();
-  const [departmentSelected, setDepartmentSelected] = useState<Department>();
-  const [armSelected, setArmSelected] = useState<Arm>();
-  const [statusSelected, setStatusSelected] = useState<{ value: StudentsStatus; label: string }>();
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const [filter, setFilter] = useState<{
+    branchSelected?: Branch;
+    classSelected?: ClassType;
+    departmentSelected?: Department;
+    armSelected?: Arm;
+    statusSelected?: { value: StudentsStatus; label: string };
+  }>({});
 
   const {
     data,
@@ -48,13 +64,65 @@ export const StudentsTable = () => {
     isFetchingNextPage,
   } = useGetStudents({
     limit: pageSize,
-    branchId: branchSelected?.id,
-    classId: classSelected?.id,
-    departmentId: departmentSelected?.id,
-    armId: armSelected?.id,
-    status: statusSelected?.value,
+    branchId: filter?.branchSelected?.id,
+    classId: filter?.classSelected?.id,
+    departmentId: filter?.departmentSelected?.id,
+    armId: filter?.armSelected?.id,
+    status: filter?.statusSelected?.value,
+    search: debouncedSearchQuery,
   });
 
+  const { data: distribution } = useGetStudentsDistribution(filter?.branchSelected?.id);
+  const { data: branches, isPending: loadingBranches } = useGetBranches();
+  const { data: classes, isPending: loadingClasses } = useGetClasses();
+  const { data: departments, isPending: loadingDepartments } = useGetDepartments();
+  const { data: arms, isPending: loadingArms } = useGetArmsByClass(filter?.classSelected?.id);
+
+  const { mutate, isPending: exporting } = useExportStudents({
+    armId: filter.armSelected?.id,
+    branchId: filter.branchSelected?.id,
+    classId: filter.classSelected?.id,
+    status: filter.statusSelected?.value,
+  });
+
+  const exportStudents = async () => {
+    await mutate(undefined, {
+      onSuccess: () => {
+        toast({
+          title: "Exporting Students...",
+          type: "success",
+        });
+      },
+      onError: error => {
+        toast({
+          title: error.message ?? "Something went wrong",
+          description: "Could not export students",
+          type: "error",
+        });
+      },
+    });
+  };
+
+  const handleFilterChange = (
+    filter: string,
+    value: Branch | ClassType | Department | Arm | { value: StudentsStatus; label: string } | undefined,
+  ) => {
+    setFilter(prev => ({ ...prev, [filter]: value }));
+  };
+
+  useEffect(() => {
+    if (distribution) {
+      const studentDistr = {
+        total: distribution.data?.find((distr: { status: StudentsStatus; count: number }) => distr.status === StudentsStatus.Total)?.count ?? 0,
+        active: distribution.data?.find((distr: { status: StudentsStatus; count: number }) => distr.status === StudentsStatus.Active)?.count ?? 0,
+        graduated:
+          distribution.data?.find((distr: { status: StudentsStatus; count: number }) => distr.status === StudentsStatus.Graduated)?.count ?? 0,
+        withdrawn:
+          distribution.data?.find((distr: { status: StudentsStatus; count: number }) => distr.status === StudentsStatus.Withdrawn)?.count ?? 0,
+      };
+      setStudentDistribution(studentDistr);
+    }
+  }, [distribution]);
   const students = data?.pages.flatMap(page => page.content) ?? [];
 
   useBreadcrumb([
@@ -86,13 +154,27 @@ export const StudentsTable = () => {
             </span>
           }
           ActionButton={
-            <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1">
-              {true ? <Spinner /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
-              <span className="text-sm font-medium">Students</span>
+            <Button
+              onClick={() => exportStudents()}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
+            >
+              {exporting ? <Spinner /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
+              <span className="text-sm font-medium">Export Students</span>
             </Button>
           }
         >
-          <TableExportFilter tab="Students" />
+          <TableExportFilter
+            tab="Students"
+            filter={filter}
+            onFilterChange={handleFilterChange}
+            branches={branches}
+            loadingBranches={loadingBranches}
+            classes={classes}
+            loadingClasses={loadingClasses}
+            arms={arms}
+            loadingArms={loadingArms}
+            filteredCount={data?.pages[0].totalElements}
+          />
         </Modal>
       )}
 
@@ -100,16 +182,16 @@ export const StudentsTable = () => {
       <div className="space-y-4">
         <RecordHeader
           tab="Students"
-          branchSelected={branchSelected}
-          setBranchSelected={setBranchSelected}
-          classSelected={classSelected}
-          setClassSelected={setClassSelected}
-          armSelected={armSelected}
-          setArmSelected={setArmSelected}
-          departmentSelected={departmentSelected}
-          setDepartmentSelected={setDepartmentSelected}
-          statusSelected={statusSelected}
-          setStatusSelected={setStatusSelected}
+          filter={filter}
+          onFilterChange={handleFilterChange}
+          branches={branches}
+          loadingBranches={loadingBranches}
+          classes={classes}
+          loadingClasses={loadingClasses}
+          arms={arms}
+          loadingArms={loadingArms}
+          departments={departments}
+          loadingDepartments={loadingDepartments}
         />
 
         <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
@@ -120,7 +202,7 @@ export const StudentsTable = () => {
                 <UserFill fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
-            value="583"
+            value={`${studentDistribution?.total}`}
           />
           <OverviewCard
             title="Active Students"
@@ -129,7 +211,7 @@ export const StudentsTable = () => {
                 <UserFill fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
-            value="580"
+            value={`${studentDistribution?.active}`}
           />
           <OverviewCard
             title="Withdrawn Students"
@@ -138,7 +220,7 @@ export const StudentsTable = () => {
                 <UserMinus fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
-            value="3"
+            value={`${studentDistribution?.withdrawn}`}
           />
 
           <OverviewCard
@@ -148,13 +230,19 @@ export const StudentsTable = () => {
                 <GraduationCap fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
-            value="100"
+            value={`${studentDistribution?.graduated}`}
           />
         </div>
 
         {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
-          <SearchInput className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5" />
+          <SearchInput
+            className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
+            value={searchQuery}
+            onChange={evt => {
+              setSearchQuery(evt.target.value);
+            }}
+          />
 
           <div className="flex items-center gap-1">
             <Button

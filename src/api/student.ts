@@ -1,6 +1,5 @@
 import { StudentInputType, StudentsStatus } from "@/components/StudentAndParent/types";
 import api from "@/lib/axios/axios-auth";
-import { Pagination } from "@/types";
 import { isAxiosError } from "axios";
 
 export const addStudent = async (payload: StudentInputType) => {
@@ -23,6 +22,7 @@ export const getStudents = async ({
   departmentId,
   armId,
   status,
+  search,
 }: {
   limit: number;
   pageParam: number;
@@ -31,10 +31,11 @@ export const getStudents = async ({
   departmentId?: number;
   armId?: number;
   status?: StudentsStatus;
+  search?: string;
 }) => {
   try {
     const { data } = await api.get(
-      `/students/school?size=${limit}&page=${pageParam}${branchId ? `&branchId=${branchId}` : ""}${classId ? `&classId=${classId}` : ""}${departmentId ? `&departmentId=${departmentId}` : ""}${armId ? `&armId=${armId}` : ""}${status ? `&status=${status}` : ""}`,
+      `/students/school?size=${limit}&page=${pageParam}${branchId ? `&branchId=${branchId}` : ""}${classId ? `&classId=${classId}` : ""}${departmentId ? `&departmentId=${departmentId}` : ""}${armId ? `&armId=${armId}` : ""}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`,
     ); // page starts from 0
     return data.data;
   } catch (error: unknown) {
@@ -49,6 +50,63 @@ export const uploadStudents = async ({ file }: { file: File | null }) => {
   try {
     const { data } = await api.post("/students/upload", file);
     return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const getStudentsDistribution = async (branchId?: number) => {
+  try {
+    const { data } = await api.get(`/students/status/distribution?${branchId ? `branchId=${branchId}` : ""}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const exportStudents = async ({
+  branchId,
+  classId,
+  armId,
+  status,
+}: {
+  branchId?: number;
+  classId?: number;
+  armId?: number;
+  status?: StudentsStatus;
+}) => {
+  try {
+    const res = await api.get(
+      `/students/export?${branchId ? `branchId=${branchId}` : ""}${classId ? `${branchId && "&"}classId=${classId}` : ""}${armId ? `${branchId || (classId && "&")}armId=${armId}` : ""}${status ? `${branchId || classId || (armId && "&")}status=${status}` : ""}`,
+      {
+        responseType: "blob",
+      },
+    );
+
+    const disposition = res.headers["content-disposition"];
+    const filename = disposition?.match(/filename="?(.+)"?/)?.[1] ?? "students.xlsx";
+
+    const blob = new Blob([res.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+    // return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;

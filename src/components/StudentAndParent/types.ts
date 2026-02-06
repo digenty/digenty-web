@@ -133,4 +133,5 @@ export enum StudentsStatus {
   Graduated = "GRADUATED",
   Suspended = "SUSPENDED",
   Withdrawn = "WITHDRAWN",
+  Total = "TOTAL",
 }

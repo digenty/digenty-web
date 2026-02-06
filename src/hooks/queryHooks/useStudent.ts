@@ -1,7 +1,7 @@
-import { addStudent, getStudents, uploadStudents } from "@/api/student";
+import { addStudent, exportStudents, getStudents, getStudentsDistribution, uploadStudents } from "@/api/student";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { studentKeys } from "@/queries/student";
-import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 export const useAddStudent = () => {
   return useMutation({
@@ -17,6 +17,7 @@ export const useGetStudents = ({
   departmentId,
   armId,
   status,
+  search,
 }: {
   limit: number;
   branchId?: number;
@@ -24,10 +25,11 @@ export const useGetStudents = ({
   departmentId?: number;
   armId?: number;
   status?: StudentsStatus;
+  search?: string;
 }) => {
   return useInfiniteQuery({
-    queryKey: [studentKeys.all, branchId, classId, departmentId, armId, status],
-    queryFn: ({ pageParam }) => getStudents({ pageParam, limit, branchId, classId, departmentId, armId, status }),
+    queryKey: [studentKeys.all, branchId, classId, departmentId, armId, status, search],
+    queryFn: ({ pageParam }) => getStudents({ pageParam, limit, branchId, classId, departmentId, armId, status, search }),
     initialPageParam: 0,
     getNextPageParam: lastPage => {
       if (lastPage.last) return undefined;
@@ -40,5 +42,29 @@ export const useUploadStudents = () => {
   return useMutation({
     mutationKey: studentKeys.studentsUpload,
     mutationFn: uploadStudents,
+  });
+};
+
+export const useGetStudentsDistribution = (branchId?: number) => {
+  return useQuery({
+    queryKey: [studentKeys.studentsDistributionByBranch, branchId],
+    queryFn: () => getStudentsDistribution(branchId),
+  });
+};
+
+export const useExportStudents = ({
+  branchId,
+  classId,
+  armId,
+  status,
+}: {
+  branchId?: number;
+  classId?: number;
+  armId?: number;
+  status?: StudentsStatus;
+}) => {
+  return useMutation({
+    mutationKey: studentKeys.exportStudents,
+    mutationFn: () => exportStudents({ branchId, classId, armId, status }),
   });
 };

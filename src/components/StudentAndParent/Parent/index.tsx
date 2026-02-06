@@ -65,7 +65,8 @@ export const ParentsTable = () => {
             </Button>
           }
         >
-          <TableExportFilter tab="Parents" />
+          {/* <TableExportFilter tab="Parents" /> */}
+          <div></div>
         </Modal>
       )}
 
