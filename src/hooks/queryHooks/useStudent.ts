@@ -17,6 +17,7 @@ export const useGetStudents = ({
   departmentId,
   armId,
   status,
+  search,
 }: {
   limit: number;
   branchId?: number;
@@ -24,10 +25,11 @@ export const useGetStudents = ({
   departmentId?: number;
   armId?: number;
   status?: StudentsStatus;
+  search?: string;
 }) => {
   return useInfiniteQuery({
-    queryKey: [studentKeys.all, branchId, classId, departmentId, armId, status],
-    queryFn: ({ pageParam }) => getStudents({ pageParam, limit, branchId, classId, departmentId, armId, status }),
+    queryKey: [studentKeys.all, branchId, classId, departmentId, armId, status, search],
+    queryFn: ({ pageParam }) => getStudents({ pageParam, limit, branchId, classId, departmentId, armId, status, search }),
     initialPageParam: 0,
     getNextPageParam: lastPage => {
       if (lastPage.last) return undefined;

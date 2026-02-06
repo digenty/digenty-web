@@ -22,6 +22,7 @@ export const getStudents = async ({
   departmentId,
   armId,
   status,
+  search,
 }: {
   limit: number;
   pageParam: number;
@@ -30,10 +31,11 @@ export const getStudents = async ({
   departmentId?: number;
   armId?: number;
   status?: StudentsStatus;
+  search?: string;
 }) => {
   try {
     const { data } = await api.get(
-      `/students/school?size=${limit}&page=${pageParam}${branchId ? `&branchId=${branchId}` : ""}${classId ? `&classId=${classId}` : ""}${departmentId ? `&departmentId=${departmentId}` : ""}${armId ? `&armId=${armId}` : ""}${status ? `&status=${status}` : ""}`,
+      `/students/school?size=${limit}&page=${pageParam}${branchId ? `&branchId=${branchId}` : ""}${classId ? `&classId=${classId}` : ""}${departmentId ? `&departmentId=${departmentId}` : ""}${armId ? `&armId=${armId}` : ""}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`,
     ); // page starts from 0
     return data.data;
   } catch (error: unknown) {

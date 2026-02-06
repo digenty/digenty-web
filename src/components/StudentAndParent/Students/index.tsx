@@ -19,11 +19,14 @@ import { useGetStudents, useGetStudentsDistribution } from "@/hooks/queryHooks/u
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { columns } from "../Columns";
 import { MobileCard } from "../MobileCard";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
+import debounce from "lodash.debounce";
+import { set } from "lodash";
+import useDebounce from "@/hooks/useDebounce";
 
 export const StudentsTable = () => {
   const router = useRouter();
@@ -45,6 +48,8 @@ export const StudentsTable = () => {
   const [departmentSelected, setDepartmentSelected] = useState<Department>();
   const [armSelected, setArmSelected] = useState<Arm>();
   const [statusSelected, setStatusSelected] = useState<{ value: StudentsStatus; label: string }>();
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const {
     data,
@@ -59,6 +64,7 @@ export const StudentsTable = () => {
     departmentId: departmentSelected?.id,
     armId: armSelected?.id,
     status: statusSelected?.value,
+    search: debouncedSearchQuery,
   });
 
   // const { data: distribution, isPending: loadingDistribution } = useGetStudentsDistribution(branchSelected?.id)
@@ -176,7 +182,13 @@ export const StudentsTable = () => {
 
         {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
-          <SearchInput className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5" />
+          <SearchInput
+            className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
+            value={searchQuery}
+            onChange={evt => {
+              setSearchQuery(evt.target.value);
+            }}
+          />
 
           <div className="flex items-center gap-1">
             <Button
