@@ -60,8 +60,53 @@ export const uploadStudents = async ({ file }: { file: File | null }) => {
 
 export const getStudentsDistribution = async (branchId?: number) => {
   try {
-    const { data } = await api.get(`/students/branch/${branchId}/status/distribution`);
+    const { data } = await api.get(`/students/status/distribution?${branchId ? `branchId=${branchId}` : ""}`);
     return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const exportStudents = async ({
+  branchId,
+  classId,
+  armId,
+  status,
+}: {
+  branchId?: number;
+  classId?: number;
+  armId?: number;
+  status?: StudentsStatus;
+}) => {
+  try {
+    const res = await api.get(
+      `/students/export?${branchId ? `branchId=${branchId}` : ""}${classId ? `${branchId && "&"}classId=${classId}` : ""}${armId ? `${branchId || (classId && "&")}armId=${armId}` : ""}${status ? `${branchId || classId || (armId && "&")}status=${status}` : ""}`,
+      {
+        responseType: "blob",
+      },
+    );
+
+    const disposition = res.headers["content-disposition"];
+    const filename = disposition?.match(/filename="?(.+)"?/)?.[1] ?? "students.xlsx";
+
+    const blob = new Blob([res.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+    // return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;
