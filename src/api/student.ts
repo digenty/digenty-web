@@ -1,6 +1,5 @@
 import { StudentInputType, StudentsStatus } from "@/components/StudentAndParent/types";
 import api from "@/lib/axios/axios-auth";
-import { Pagination } from "@/types";
 import { isAxiosError } from "axios";
 
 export const addStudent = async (payload: StudentInputType) => {
@@ -48,6 +47,18 @@ export const getStudents = async ({
 export const uploadStudents = async ({ file }: { file: File | null }) => {
   try {
     const { data } = await api.post("/students/upload", file);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const getStudentsDistribution = async (branchId?: number) => {
+  try {
+    const { data } = await api.get(`/students/branch/${branchId}/status/distribution`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

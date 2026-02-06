@@ -6,6 +6,6 @@ export const useGetArmsByClass = (classId?: number) => {
   return useQuery({
     queryKey: armKeys.armsByClass(classId),
     queryFn: () => getArmsByClass(classId),
-    enabled: classId !== null,
+    enabled: !!classId,
   });
 };

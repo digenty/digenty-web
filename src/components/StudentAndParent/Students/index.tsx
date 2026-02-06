@@ -15,7 +15,7 @@ import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetStudents } from "@/hooks/queryHooks/useStudent";
+import { useGetStudents, useGetStudentsDistribution } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -32,6 +32,12 @@ export const StudentsTable = () => {
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
+  const [studentDistribution, setStudentDistribution] = useState({
+    total: 0,
+    active: 0,
+    graduated: 0,
+    withdrawn: 0,
+  });
   const pageSize = 5;
 
   const [branchSelected, setBranchSelected] = useState<Branch | undefined>();
@@ -55,6 +61,22 @@ export const StudentsTable = () => {
     status: statusSelected?.value,
   });
 
+  // const { data: distribution, isPending: loadingDistribution } = useGetStudentsDistribution(branchSelected?.id)
+  const { data: distribution } = useGetStudentsDistribution(branchSelected?.id ?? 18);
+
+  useEffect(() => {
+    if (distribution) {
+      const studentDistr = {
+        total: distribution.data?.find((distr: { status: StudentsStatus; count: number }) => distr.status === StudentsStatus.Total)?.count ?? 0,
+        active: distribution.data?.find((distr: { status: StudentsStatus; count: number }) => distr.status === StudentsStatus.Active)?.count ?? 0,
+        graduated:
+          distribution.data?.find((distr: { status: StudentsStatus; count: number }) => distr.status === StudentsStatus.Graduated)?.count ?? 0,
+        withdrawn:
+          distribution.data?.find((distr: { status: StudentsStatus; count: number }) => distr.status === StudentsStatus.Withdrawn)?.count ?? 0,
+      };
+      setStudentDistribution(studentDistr);
+    }
+  }, [distribution]);
   const students = data?.pages.flatMap(page => page.content) ?? [];
 
   useBreadcrumb([
@@ -120,7 +142,7 @@ export const StudentsTable = () => {
                 <UserFill fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
-            value="583"
+            value={`${studentDistribution?.total}`}
           />
           <OverviewCard
             title="Active Students"
@@ -129,7 +151,7 @@ export const StudentsTable = () => {
                 <UserFill fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
-            value="580"
+            value={`${studentDistribution?.active}`}
           />
           <OverviewCard
             title="Withdrawn Students"
@@ -138,7 +160,7 @@ export const StudentsTable = () => {
                 <UserMinus fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
-            value="3"
+            value={`${studentDistribution?.withdrawn}`}
           />
 
           <OverviewCard
@@ -148,7 +170,7 @@ export const StudentsTable = () => {
                 <GraduationCap fill="var(--color-icon-default)" className="size-2.5" />
               </div>
             )}
-            value="100"
+            value={`${studentDistribution?.graduated}`}
           />
         </div>
 

@@ -9,7 +9,7 @@ import { Chart } from "./Chart";
 import DashboardHeader from "./DashboardHeader";
 import { QuickActions } from "./QuickActions";
 
-export default async function Dashboard() {
+export default function Dashboard() {
   return (
     <>
       <div className="space-y-6 px-4 py-6 md:space-y-8 md:px-8">

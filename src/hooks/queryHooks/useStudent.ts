@@ -1,7 +1,7 @@
-import { addStudent, getStudents, uploadStudents } from "@/api/student";
+import { addStudent, getStudents, getStudentsDistribution, uploadStudents } from "@/api/student";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { studentKeys } from "@/queries/student";
-import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 export const useAddStudent = () => {
   return useMutation({
@@ -40,5 +40,13 @@ export const useUploadStudents = () => {
   return useMutation({
     mutationKey: studentKeys.studentsUpload,
     mutationFn: uploadStudents,
+  });
+};
+
+export const useGetStudentsDistribution = (branchId?: number) => {
+  return useQuery({
+    queryKey: [studentKeys.studentsDistributionByBranch, branchId],
+    queryFn: () => getStudentsDistribution(branchId),
+    enabled: !!branchId,
   });
 };
