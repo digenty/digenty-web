@@ -9,6 +9,7 @@ import { useState } from "react";
 import RequestEdit from "./RequestEdit";
 import RequestLoader from "@/components/Icons/RequestLoader";
 import { useRouter } from "next/navigation";
+import { useGetTeacherSubject } from "@/hooks/queryHooks/useSubject";
 
 export type ClassItem = {
   id: number;
@@ -24,6 +25,8 @@ export type SubjectProps = {
 export default function Subject({ title, classes }: SubjectProps) {
   const [openRequest, setOpenRequest] = useState<boolean>(false);
   const router = useRouter();
+  const { data } = useGetTeacherSubject();
+
   const handleOpen = (): void => {
     setOpenRequest(!openRequest);
   };
