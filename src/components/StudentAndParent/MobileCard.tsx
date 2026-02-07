@@ -9,7 +9,17 @@ import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Student } from "@/api/types";
 
-export const MobileCard = ({ student }: { student: Student }) => {
+export const MobileCard = ({
+  student,
+  setSelectedRows,
+  handleWithdrawal,
+  handleDeletion,
+}: {
+  student: Student;
+  setSelectedRows: (student: Student[]) => void;
+  handleWithdrawal: () => void;
+  handleDeletion: () => void;
+}) => {
   const router = useRouter();
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
@@ -55,11 +65,25 @@ export const MobileCard = ({ student }: { student: Student }) => {
                 <span>Edit Student Profile</span>
               </Button>
 
-              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Button
+                onClick={evt => {
+                  evt.stopPropagation();
+                  setSelectedRows([student]);
+                  handleWithdrawal();
+                }}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+              >
                 <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />
                 <span>Withdraw Student</span>
               </Button>
-              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Button
+                onClick={evt => {
+                  evt.stopPropagation();
+                  setSelectedRows([student]);
+                  handleDeletion();
+                }}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+              >
                 <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
                 <span className="text-icon-destructive">Delete Student Profile</span>
               </Button>

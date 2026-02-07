@@ -15,7 +15,7 @@ import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useExportStudents, useGetStudents, useGetStudentsDistribution } from "@/hooks/queryHooks/useStudent";
+import { useDeleteStudents, useExportStudents, useGetStudents, useGetStudentsDistribution, useWithdrawStudents } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
@@ -30,9 +30,13 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
 import { toast } from "@/components/Toast";
+import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
+import { useQueryClient } from "@tanstack/react-query";
+import { studentKeys } from "@/queries/student";
 
 export const StudentsTable = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [openExportFilter, setOpenExportFilter] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
@@ -71,6 +75,7 @@ export const StudentsTable = () => {
     status: filter?.statusSelected?.value,
     search: debouncedSearchQuery,
   });
+  const students = data?.pages.flatMap(page => page.content) ?? [];
 
   const { data: distribution } = useGetStudentsDistribution(filter?.branchSelected?.id);
   const { data: branches, isPending: loadingBranches } = useGetBranches();
@@ -85,6 +90,9 @@ export const StudentsTable = () => {
     status: filter.statusSelected?.value,
   });
 
+  const { mutate: withdrawStudents, isPending: withdrawing } = useWithdrawStudents(selectedRows.map(row => row.id));
+  const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents(selectedRows.map(row => row.id));
+
   const exportStudents = async () => {
     await mutate(undefined, {
       onSuccess: () => {
@@ -97,6 +105,46 @@ export const StudentsTable = () => {
         toast({
           title: error.message ?? "Something went wrong",
           description: "Could not export students",
+          type: "error",
+        });
+      },
+    });
+  };
+
+  const handleWithdrawal = () => {
+    withdrawStudents(undefined, {
+      onSuccess: data => {
+        toast({
+          title: "Successfully withdrawn students",
+          description: data.data.message,
+          type: "success",
+        });
+      },
+      onError: error => {
+        toast({
+          title: error.message ?? "Something went wrong",
+          description: "Could not withdraw selected students",
+          type: "error",
+        });
+      },
+    });
+  };
+
+  const handleDeletion = () => {
+    deleteStudents(undefined, {
+      onSuccess: data => {
+        queryClient.invalidateQueries({ queryKey: studentKeys.all, refetchType: "active" });
+
+        toast({
+          title: "Successfully deleted students",
+          description: data.data.message,
+          type: "success",
+        });
+      },
+      onError: error => {
+        toast({
+          title: error.message ?? "Something went wrong",
+          description: "Could not delete selected students",
           type: "error",
         });
       },
@@ -123,7 +171,6 @@ export const StudentsTable = () => {
       setStudentDistribution(studentDistr);
     }
   }, [distribution]);
-  const students = data?.pages.flatMap(page => page.content) ?? [];
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -158,7 +205,7 @@ export const StudentsTable = () => {
               onClick={() => exportStudents()}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
             >
-              {exporting ? <Spinner /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
+              {exporting ? <Spinner className="text-text-white-default" /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
               <span className="text-sm font-medium">Export Students</span>
             </Button>
           }
@@ -177,6 +224,36 @@ export const StudentsTable = () => {
           />
         </Modal>
       )}
+
+      <MobileDrawer open={openExportFilter} setIsOpen={setOpenExportFilter} title="Export Students">
+        <TableExportFilter
+          tab="Students"
+          filter={filter}
+          onFilterChange={handleFilterChange}
+          branches={branches}
+          loadingBranches={loadingBranches}
+          classes={classes}
+          loadingClasses={loadingClasses}
+          arms={arms}
+          loadingArms={loadingArms}
+          filteredCount={data?.pages[0].totalElements}
+        />
+        <DrawerFooter className="border-border-default border-t">
+          <div className="flex justify-between">
+            <DrawerClose asChild>
+              <Button className="bg-bg-state-soft text-text-subtle h-8 rounded-md! px-4 text-sm font-medium">Cancel</Button>
+            </DrawerClose>
+
+            <Button
+              onClick={() => exportStudents()}
+              className="bg-bg-state-primary text-text-white-default h-8 rounded-md! px-4 text-sm tracking-[0.1rem]"
+            >
+              {exporting ? <Spinner className="text-text-white-default" /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
+              <span className="text-sm font-medium">Export Students</span>
+            </Button>
+          </div>
+        </DrawerFooter>
+      </MobileDrawer>
 
       {/* Title and Filter buttons */}
       <div className="space-y-4">
@@ -279,11 +356,17 @@ export const StudentsTable = () => {
       {isActionsOpen && (
         <MobileDrawer open={isActionsOpen} setIsOpen={setIsActionsOpen} title="Actions">
           <div className="flex flex-col gap-2 px-3 py-4">
-            <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+            <Button
+              onClick={() => setOpenExportFilter(true)}
+              className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
+            >
               <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
               <span>Export</span>
             </Button>
-            <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+            <Button
+              onClick={() => router.push(`student-and-parent-record/upload-students`)}
+              className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
+            >
               <Import fill="var(--color-icon-default-muted)" className="size-4" />
               <span>Import</span>
             </Button>
@@ -299,14 +382,20 @@ export const StudentsTable = () => {
             <span>Selected Item{selectedRows.length !== 1 && "s"}</span>
           </div>
 
-          <Button className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium">
-            <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />
+          <Button
+            onClick={handleWithdrawal}
+            className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
+          >
+            {withdrawing ? <Spinner /> : <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />}
             <span>Withdraw student{selectedRows.length !== 1 && "s"}</span>
           </Button>
 
-          <Button className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium">
-            <DeleteBin fill="var(--color-bg-basic-red-accent)" className="size-4" />
-            <span>Delete {selectedRows.length !== 1 && "s"}</span>
+          <Button
+            onClick={handleDeletion}
+            className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
+          >
+            {deleting ? <Spinner /> : <DeleteBin fill="var(--color-bg-basic-red-accent)" className="size-4" />}
+            <span>Delete Student{selectedRows.length !== 1 && "s"}</span>
           </Button>
         </div>
       )}
@@ -344,7 +433,13 @@ export const StudentsTable = () => {
         ) : (
           <div className="flex flex-col gap-4">
             {students.map((student: Student) => (
-              <MobileCard key={student.id} student={student} />
+              <MobileCard
+                key={student.id}
+                student={student}
+                setSelectedRows={setSelectedRows}
+                handleWithdrawal={handleWithdrawal}
+                handleDeletion={handleDeletion}
+              />
             ))}
 
             {hasNextPage && (

@@ -1,4 +1,4 @@
-import { addStudent, exportStudents, getStudents, getStudentsDistribution, uploadStudents } from "@/api/student";
+import { addStudent, deleteStudents, exportStudents, getStudents, getStudentsDistribution, uploadStudents, withdrawStudents } from "@/api/student";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { studentKeys } from "@/queries/student";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
@@ -66,5 +66,19 @@ export const useExportStudents = ({
   return useMutation({
     mutationKey: studentKeys.exportStudents,
     mutationFn: () => exportStudents({ branchId, classId, armId, status }),
+  });
+};
+
+export const useWithdrawStudents = (studentIds: number[]) => {
+  return useMutation({
+    mutationKey: studentKeys.withdrawStudents,
+    mutationFn: () => withdrawStudents(studentIds),
+  });
+};
+
+export const useDeleteStudents = (studentIds: number[]) => {
+  return useMutation({
+    mutationKey: studentKeys.deleteStudents,
+    mutationFn: () => deleteStudents(studentIds),
   });
 };

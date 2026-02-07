@@ -4,4 +4,6 @@ export const studentKeys = {
   studentsUpload: ["studentsUpload"] as const,
   studentsDistributionByBranch: ["studentsDistributionByBranch"] as const,
   exportStudents: ["exportStudents"] as const,
+  withdrawStudents: ["withdrawStudents"] as const,
+  deleteStudents: ["deleteStudents"] as const,
 };
