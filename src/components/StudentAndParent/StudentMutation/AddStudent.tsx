@@ -17,6 +17,7 @@ import { LinkParents } from "./LinkParents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
 import { Tags } from "./Tags";
+import { format } from "date-fns";
 
 export const AddStudent = () => {
   const router = useRouter();
@@ -72,6 +73,7 @@ export const AddStudent = () => {
           linkedParents: [3],
           // image: avatar,
           image: null,
+          // dateOfBirth: format(formik.values.dateOfBirth, "dd-MM-yyyy"),
         },
         {
           onSuccess: data => {
@@ -94,14 +96,17 @@ export const AddStudent = () => {
     },
   });
 
+  console.log(step);
   const handleSteps = () => {
+    console.log("here");
     if (step < 3) {
+      console.log("here 1");
       setStep(prev => prev + 1);
     } else {
+      console.log("here 2");
       formik.handleSubmit();
     }
   };
-
   console.log(formik.errors, formik.values);
 
   const handleBack = () => {
@@ -172,7 +177,7 @@ export const AddStudent = () => {
 
             <Button
               onClick={() => handleSteps()}
-              {...(step === 3 && { type: "submit" })}
+              // {...(step === 3 && { type: "submit" })}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
             >
               {isPending && <Spinner className="text-text-white-default" />}

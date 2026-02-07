@@ -37,7 +37,7 @@ export const LinkParents = ({
         <MobileDrawer open={open} setIsOpen={setOpen} title={`Link Parents`}>
           <div className="border-border-default bg-bg-card-subtle flex items-center justify-between border-b px-4 py-3">
             <h3 className="text-text-default text-base font-semibold">Parents List</h3>
-            <Select value={branchSelected} onValueChange={setBranchSelected}>
+            {/* <Select value={branchSelected} onValueChange={setBranchSelected}>
               <SelectTrigger className="border-border-darker h-8! w-auto border">
                 <SelectValue>
                   <div className="flex items-center gap-2">
@@ -53,7 +53,7 @@ export const LinkParents = ({
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
 
           <div className="space-y-3 px-3 py-4 md:px-6">
@@ -179,7 +179,7 @@ export const LinkParents = ({
         >
           <div className="border-border-default bg-bg-card-subtle flex items-center justify-between border-b px-4 py-3">
             <h3 className="text-text-default text-base font-semibold">Parents List</h3>
-            <Select value={branchSelected} onValueChange={setBranchSelected}>
+            {/* <Select value={branchSelected} onValueChange={setBranchSelected}>
               <SelectTrigger className="border-border-darker h-8! w-auto border">
                 <SelectValue>
                   <div className="flex items-center gap-2">
@@ -195,7 +195,7 @@ export const LinkParents = ({
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
 
           <div className="space-y-3 px-3 py-4 md:px-6">

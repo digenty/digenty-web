@@ -32,7 +32,7 @@ export const ProfilePicture = ({ setAvatar }: { setAvatar: (file: File | null) =
 
       <div className="flex items-center gap-4">
         <div className="flex size-10 items-center justify-between rounded-full">
-          <Avatar url={imageUrl} username="" className="border-border-default size-10 border" />
+          <Avatar url={imageUrl} className="border-border-default size-10 border" />
           <input id="file-upload" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
         </div>
 
