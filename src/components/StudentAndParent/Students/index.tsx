@@ -90,8 +90,8 @@ export const StudentsTable = () => {
     status: filter.statusSelected?.value,
   });
 
-  const { mutate: withdrawStudents, isPending: withdrawing } = useWithdrawStudents(selectedRows.map(row => row.id));
-  const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents(selectedRows.map(row => row.id));
+  const { mutate: withdrawStudents, isPending: withdrawing } = useWithdrawStudents();
+  const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents();
 
   const exportStudents = async () => {
     await mutate(undefined, {
@@ -111,8 +111,8 @@ export const StudentsTable = () => {
     });
   };
 
-  const handleWithdrawal = () => {
-    withdrawStudents(undefined, {
+  const handleWithdrawal = (ids: number[]) => {
+    withdrawStudents(ids, {
       onSuccess: data => {
         toast({
           title: "Successfully withdrawn students",
@@ -130,8 +130,8 @@ export const StudentsTable = () => {
     });
   };
 
-  const handleDeletion = () => {
-    deleteStudents(undefined, {
+  const handleDeletion = (ids: number[]) => {
+    deleteStudents(ids, {
       onSuccess: data => {
         queryClient.invalidateQueries({ queryKey: studentKeys.all, refetchType: "active" });
 
@@ -383,7 +383,7 @@ export const StudentsTable = () => {
           </div>
 
           <Button
-            onClick={handleWithdrawal}
+            onClick={() => handleWithdrawal(selectedRows.map(row => row.id))}
             className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
           >
             {withdrawing ? <Spinner /> : <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />}
@@ -391,7 +391,7 @@ export const StudentsTable = () => {
           </Button>
 
           <Button
-            onClick={handleDeletion}
+            onClick={() => handleDeletion(selectedRows.map(row => row.id))}
             className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
           >
             {deleting ? <Spinner /> : <DeleteBin fill="var(--color-bg-basic-red-accent)" className="size-4" />}
@@ -433,13 +433,7 @@ export const StudentsTable = () => {
         ) : (
           <div className="flex flex-col gap-4">
             {students.map((student: Student) => (
-              <MobileCard
-                key={student.id}
-                student={student}
-                setSelectedRows={setSelectedRows}
-                handleWithdrawal={handleWithdrawal}
-                handleDeletion={handleDeletion}
-              />
+              <MobileCard key={student.id} student={student} handleWithdrawal={handleWithdrawal} handleDeletion={handleDeletion} />
             ))}
 
             {hasNextPage && (

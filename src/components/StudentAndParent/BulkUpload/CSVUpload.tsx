@@ -77,8 +77,6 @@ export const CSVUpload = ({
           return;
         }
 
-        console.log(file);
-
         if (!fileError) {
           setFile(file);
           handleValidation(file);
@@ -161,7 +159,7 @@ export const CSVUpload = ({
           <FileExcelFill fill="var(--color-icon-success)" className="size-10" />
 
           <div>
-            <h3 className="text-text-default text-base font-semibold">Download CSV or XSLX Template</h3>
+            <h3 className="text-text-default text-base font-semibold">Download CSV or XLSX Template</h3>
             <p className="text-text-subtle text-xs">You can download the attached example and use them as a starting point for your file</p>
           </div>
         </div>

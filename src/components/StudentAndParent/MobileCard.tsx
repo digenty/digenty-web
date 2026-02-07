@@ -11,14 +11,12 @@ import { Student } from "@/api/types";
 
 export const MobileCard = ({
   student,
-  setSelectedRows,
   handleWithdrawal,
   handleDeletion,
 }: {
   student: Student;
-  setSelectedRows: (student: Student[]) => void;
-  handleWithdrawal: () => void;
-  handleDeletion: () => void;
+  handleWithdrawal: (id: number[]) => void;
+  handleDeletion: (id: number[]) => void;
 }) => {
   const router = useRouter();
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
@@ -68,8 +66,7 @@ export const MobileCard = ({
               <Button
                 onClick={evt => {
                   evt.stopPropagation();
-                  setSelectedRows([student]);
-                  handleWithdrawal();
+                  handleWithdrawal([student]);
                 }}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
               >
@@ -79,8 +76,7 @@ export const MobileCard = ({
               <Button
                 onClick={evt => {
                   evt.stopPropagation();
-                  setSelectedRows([student]);
-                  handleDeletion();
+                  handleDeletion([student]);
                 }}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
               >
