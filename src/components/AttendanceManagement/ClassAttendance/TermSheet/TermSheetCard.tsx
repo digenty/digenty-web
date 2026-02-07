@@ -31,7 +31,7 @@ export const TermSheetCard = ({
         )}
       >
         <div className="flex gap-3">
-          <Avatar username={student.name} className="border-border-default size-10 border" />
+          <Avatar className="border-border-default size-10 border" />
           <div className="text-text-default flex flex-col text-sm">
             <span className="font-medium">Damilare John</span>
             <div className="flex items-center gap-0.5 text-xs">

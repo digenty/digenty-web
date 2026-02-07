@@ -1,4 +1,4 @@
-import { getSessionToken } from "@/app/actions/auth";
+import { deleteSession, getSessionToken } from "@/app/actions/auth";
 import axios from "axios";
 import { redirect } from "next/navigation";
 
@@ -36,7 +36,8 @@ api.interceptors.response.use(
   async error => {
     if (error.response?.status === 401 || error.response?.status === 403) {
       // Unauthorized
-      await redirect("/auth");
+      // await redirect("/auth");
+      deleteSession();
     }
 
     return Promise.reject(error);

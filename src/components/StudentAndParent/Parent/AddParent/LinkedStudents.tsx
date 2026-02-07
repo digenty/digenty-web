@@ -31,7 +31,7 @@ export const LinkedStudents = ({
             className="bg-bg-card shadow-light border-border-default flex items-center justify-between rounded-xl border py-2 pr-4 pl-2"
           >
             <div className="flex items-center gap-2">
-              <Avatar username={student.name} className="size-10" url={student.avatar ?? ""} />
+              <Avatar className="size-10" url={student.avatar ?? ""} />
               <p className="text-text-default text-sm font-medium">{student.name}</p>
             </div>
 

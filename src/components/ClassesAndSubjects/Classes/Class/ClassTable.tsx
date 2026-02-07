@@ -87,7 +87,7 @@ export const ClassTable = () => {
                 <div className="flex items-center justify-between p-3">
                   <span className="text-text-muted text-sm font-medium">Subject Teacher</span>
                   <div className="flex items-center gap-2">
-                    <Avatar username={item.teacherName} className="size-6" />
+                    <Avatar className="size-6" />
                     <span className="text-text-default text-sm font-medium">{item.teacherName}</span>
                   </div>
                 </div>

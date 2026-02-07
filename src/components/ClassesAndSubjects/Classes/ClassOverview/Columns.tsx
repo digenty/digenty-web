@@ -49,7 +49,7 @@ export const columns: ColumnDef<Subject>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
-          <Avatar username="Damilare John" className="size-5" url="" />
+          <Avatar className="size-5" url="" />
           <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.teacher}</span>
         </div>
       </div>

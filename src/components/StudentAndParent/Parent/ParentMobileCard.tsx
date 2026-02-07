@@ -15,7 +15,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
     <div className="bg-bg-subtle border-border-default rounded-sm border text-sm font-medium">
       <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
         <div className="flex gap-2">
-          <Avatar username="Damilare John" className="size-5" url="" />
+          <Avatar className="size-5" url="" />
           <p className="text-text-default">{parent.name}</p>
         </div>
 

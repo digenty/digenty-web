@@ -8,10 +8,12 @@ import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Student } from "@/api/types";
+import { useStudentStore } from "@/store/student";
 
 export const MobileCard = ({ student }: { student: Student }) => {
   const router = useRouter();
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const { setOpenWithdraw, setOpenDelete } = useStudentStore();
 
   return (
     <div
@@ -21,7 +23,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
     >
       <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
         <div className="flex gap-2">
-          <Avatar username={student.firstName} className="size-5" url={student.image ?? ""} />
+          <Avatar className="size-5" url={student.image ?? ""} />
           <p className="text-text-default">
             {student.firstName} {student.lastName}
           </p>
@@ -55,11 +57,23 @@ export const MobileCard = ({ student }: { student: Student }) => {
                 <span>Edit Student Profile</span>
               </Button>
 
-              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Button
+                onClick={evt => {
+                  evt.stopPropagation();
+                  setOpenWithdraw(true);
+                }}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+              >
                 <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />
                 <span>Withdraw Student</span>
               </Button>
-              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Button
+                onClick={evt => {
+                  evt.stopPropagation();
+                  setOpenDelete(true);
+                }}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+              >
                 <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
                 <span className="text-icon-destructive">Delete Student Profile</span>
               </Button>

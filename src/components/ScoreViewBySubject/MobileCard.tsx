@@ -75,7 +75,7 @@ export const MobileCard = ({
         className="bg-bg-subtle flex w-full items-center justify-between rounded-sm p-3"
       >
         <div className="flex items-center gap-3">
-          <Avatar username={student.studentName} className="h-10 w-10" />
+          <Avatar className="h-10 w-10" />
           <div className="space-y-1.5 text-left">
             <div className="text-text-default text-sm font-medium">{student.studentName}</div>
             <div className="flex items-center gap-2">

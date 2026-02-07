@@ -38,7 +38,7 @@ export const InvoiceView = () => {
           <div className="border-border-default flex h-26 flex-col justify-center gap-4 border border-l-0 p-4 md:p-8">
             <div className="text-text-muted text-xs font-medium">Issued To</div>
             <p className="text-text-default text-md flex items-center gap-1 text-sm font-medium">
-              <Avatar className="size-5" username={inv.issueTo} />
+              <Avatar className="size-5" />
               {inv.issueTo}
             </p>
           </div>
@@ -57,7 +57,7 @@ export const InvoiceView = () => {
           <div className="border-border-default flex h-26 flex-col justify-center gap-4 border border-t-0 border-l-0 p-4 md:p-8">
             <div className="text-text-muted text-xs font-medium">Last Updated By </div>
             <p className="text-text-default text-md flex items-center gap-1 text-sm font-medium">
-              <Avatar className="size-5" username={inv.lastUpdatedBy} />
+              <Avatar className="size-5" />
               {inv.lastUpdatedBy}
             </p>
           </div>

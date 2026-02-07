@@ -103,3 +103,18 @@ export const getAcademicYears = (startYear = 2000) => {
   }
   return years;
 };
+
+export const getYearDifference = (from: string | Date) => {
+  const start = new Date(from);
+  const today = new Date();
+
+  let years = today.getFullYear() - start.getFullYear();
+
+  const isNotUpToYear = today.getMonth() < start.getMonth() || (today.getMonth() === start.getMonth() && today.getDate() < start.getDate());
+
+  if (isNotUpToYear) {
+    years -= 1;
+  }
+
+  return years;
+};

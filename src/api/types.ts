@@ -72,7 +72,7 @@ export interface Student {
   emergencyContactNumber: string;
   phoneNumber: string;
   secondaryPhoneNumber: string;
-  admissionStatus: AdmissionStatus;
+  studentStatus: AdmissionStatus;
   admissionNumber: string;
   medicalInformation: string;
   nationality: string;

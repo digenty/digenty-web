@@ -16,7 +16,7 @@ export const studentSchema = yup.object().shape({
   emergencyContactNumber: yup.string(),
   phoneNumber: yup.string(),
   secondaryPhoneNumber: yup.string(),
-  studentStatus: yup
+  admissionStatus: yup
     .string()
     .oneOf(Object.values(AdmissionStatus), "Student's status is not a valid value!")
     .required("Student's status is required!"),

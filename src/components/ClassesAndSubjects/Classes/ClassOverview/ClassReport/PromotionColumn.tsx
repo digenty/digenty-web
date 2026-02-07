@@ -81,7 +81,7 @@ export const createPromotionColumns = (data: StudentRow[]): ColumnDef<StudentRow
       cell: ({ row }) => {
         return (
           <div className="flex w-70 items-center gap-2">
-            <Avatar username={row.original.name} className="size-8" />
+            <Avatar className="size-8" />
             <span className="text-text-default text-sm">{row.original.name}</span>
           </div>
         );

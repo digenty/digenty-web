@@ -43,7 +43,7 @@ export const Header = () => {
         </Button>
 
         <div className="border-border-darker rounded-full">
-          <Avatar username="John Doe" className="size-8" />
+          <Avatar className="size-8" />
         </div>
       </div>
     </header>

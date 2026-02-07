@@ -37,8 +37,8 @@ export const TableExportFilter = ({
   filteredCount?: number;
 }) => {
   return (
-    <div className="flex w-full flex-col gap-5 px-6 py-5">
-      <p className="text-text-default text-sm font-bold">Filter Selection</p>
+    <div className="flex w-full flex-col gap-5 px-3 py-5 md:px-6">
+      <p className="text-text-default hidden text-sm font-bold md:inline">Filter Selection</p>
 
       <div className="space-y-2">
         <div className="flex items-center gap-2">

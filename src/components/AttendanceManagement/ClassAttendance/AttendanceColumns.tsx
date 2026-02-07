@@ -66,7 +66,7 @@ export const columns: ColumnDef<Student>[] = [
     header: () => <div className="text-text-muted text-sm font-medium">Student Name</div>,
     cell: ({ row }) => (
       <div className="flex items-center gap-1.5">
-        <Avatar username="Damilare John" className="size-5" />
+        <Avatar className="size-5" />
         <span className="text-text-default cursor-pointer text-sm">{row.original.name}</span>
       </div>
     ),

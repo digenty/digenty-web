@@ -1,29 +1,33 @@
 "use client";
 
+import { Student } from "@/api/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useStudentStore } from "@/store/student";
 import { ColumnDef, Row } from "@tanstack/react-table";
+import { format } from "date-fns";
 import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Avatar } from "../Avatar";
 import DeleteBin from "../Icons/DeleteBin";
 import Edit from "../Icons/Edit";
 import UserMinus from "../Icons/UserMinus";
-import { Student } from "@/api/types";
-import { format } from "date-fns";
-// import { Student } from "./types";
 
 const RenderOptions = (row: Row<Student>) => {
-  // console.log(row);
+  const router = useRouter();
+
   const [open, setOpen] = useState(false);
+  const { setOpenWithdraw, setOpenDelete } = useStudentStore();
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger onClick={evt => evt.stopPropagation()} className="focus-visible:ring-0 focus-visible:outline-none">
         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => router.push(`/student-and-parent-record/${row.original.id}`)} className="gap-2.5 px-3">
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View student profile</span>
         </DropdownMenuItem>
@@ -32,11 +36,11 @@ const RenderOptions = (row: Row<Student>) => {
           <span>Edit student profile</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => setOpenWithdraw(true)} className="gap-2.5 px-3">
           <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Withdraw student</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => setOpenDelete(true)} className="gap-2.5 px-3">
           <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
           <span className="text-icon-destructive">Delete student profile</span>
         </DropdownMenuItem>
@@ -107,7 +111,7 @@ export const columns: ColumnDef<Student>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
-          <Avatar username={row.original.firstName} className="size-5" url={row.original.image ?? ""} />
+          <Avatar className="size-5" url={row.original.image ?? ""} />
           <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">
             {row.original.firstName} {row.original.lastName}
           </span>
