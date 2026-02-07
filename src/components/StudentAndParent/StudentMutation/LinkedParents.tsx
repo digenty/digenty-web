@@ -15,7 +15,7 @@ export const LinkedParents = ({ setOpen }: { setOpen: (open: boolean) => void })
       <div className="grid grid-cols-1 gap-6 sm:gap-5">
         <div className="bg-bg-card shadow-light border-border-default flex items-center justify-between rounded-xl border py-2 pr-4 pl-2">
           <div className="flex items-center gap-2">
-            <Avatar username="Damilare John" className="size-10" url="" />
+            <Avatar className="size-10" url="" />
             <p className="text-text-default text-sm font-medium">Damilare John</p>
           </div>
 

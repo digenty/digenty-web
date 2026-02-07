@@ -8,18 +8,12 @@ import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { Student } from "@/api/types";
+import { useStudentStore } from "@/store/student";
 
-export const MobileCard = ({
-  student,
-  handleWithdrawal,
-  handleDeletion,
-}: {
-  student: Student;
-  handleWithdrawal: (id: number[]) => void;
-  handleDeletion: (id: number[]) => void;
-}) => {
+export const MobileCard = ({ student }: { student: Student }) => {
   const router = useRouter();
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const { setOpenWithdraw, setOpenDelete } = useStudentStore();
 
   return (
     <div
@@ -29,7 +23,7 @@ export const MobileCard = ({
     >
       <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
         <div className="flex gap-2">
-          <Avatar username={student.firstName} className="size-5" url={student.image ?? ""} />
+          <Avatar className="size-5" url={student.image ?? ""} />
           <p className="text-text-default">
             {student.firstName} {student.lastName}
           </p>
@@ -66,7 +60,7 @@ export const MobileCard = ({
               <Button
                 onClick={evt => {
                   evt.stopPropagation();
-                  handleWithdrawal([student]);
+                  setOpenWithdraw(true);
                 }}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
               >
@@ -76,7 +70,7 @@ export const MobileCard = ({
               <Button
                 onClick={evt => {
                   evt.stopPropagation();
-                  handleDeletion([student]);
+                  setOpenDelete(true);
                 }}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
               >

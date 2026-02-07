@@ -137,3 +137,15 @@ export const deleteStudents = async (studentIds: number[]) => {
     throw error;
   }
 };
+
+export const getStudent = async (studentId?: number) => {
+  try {
+    const { data } = await api.get(`/students/${studentId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

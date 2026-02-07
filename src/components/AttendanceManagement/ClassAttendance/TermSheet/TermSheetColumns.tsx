@@ -44,7 +44,7 @@ export const generateColumns = (weeks: AttendanceWeek[]): ColumnDef<StudentAtten
         const student = row.original;
         return (
           <div className="flex items-center gap-3">
-            <Avatar username={row.original.name} className="size-8" />
+            <Avatar className="size-8" />
             <span className="text-text-default text-sm">{student.name}</span>
           </div>
         );

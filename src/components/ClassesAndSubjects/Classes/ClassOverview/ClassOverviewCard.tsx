@@ -23,7 +23,7 @@ export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
       <div className="border-border-darker flex items-center justify-between border-b px-3 py-[9px]">
         <p className="text-text-muted font-medium">Teacher</p>
         <div className="flex items-center gap-2">
-          <Avatar username="Damilare John" className="size-5" url="" />
+          <Avatar className="size-5" url="" />
           <span className="text-text-default cursor-pointer pl-0 text-sm">{subject.teacher}</span>
         </div>
       </div>

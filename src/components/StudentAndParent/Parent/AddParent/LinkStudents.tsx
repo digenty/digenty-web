@@ -100,7 +100,7 @@ export const LinkStudents = ({
                         aria-label="Select"
                       />
                       <div className="flex items-center gap-2">
-                        <Avatar username={`${student.firstName} ${student.lastName}`} className="size-10 md:size-8" />
+                        <Avatar className="size-10 md:size-8" />
                         <div className="">
                           <p className="text-text-default text-sm font-medium">
                             {student.firstName} {student.lastName}
@@ -123,7 +123,7 @@ export const LinkStudents = ({
                   key={std.id}
                   className="bg-bg-badge-default border-border-default text-text-subtle flex items-center gap-1 rounded-full border p-1 text-xs"
                 >
-                  <Avatar username={std.name} className="size-3.5" />
+                  <Avatar className="size-3.5" />
                   <span>{std.name}</span>
                   <XIcon onClick={() => removeStudent(std.id)} className="text-icon-default-muted size-3.5 cursor-pointer" />
                 </div>
@@ -219,7 +219,7 @@ export const LinkStudents = ({
                         aria-label="Select"
                       />
                       <div className="flex items-center gap-2">
-                        <Avatar username={`${student.firstName} ${student.lastName}`} className="size-10 md:size-8" url={student.image ?? ""} />
+                        <Avatar className="size-10 md:size-8" url={student.image ?? ""} />
                         <div className="">
                           <p className="text-text-default text-sm font-medium">
                             {student.firstName} {student.lastName}
@@ -242,7 +242,7 @@ export const LinkStudents = ({
                   key={std.id}
                   className="bg-bg-badge-default border-border-default text-text-subtle flex items-center gap-1 rounded-full border p-1 text-xs"
                 >
-                  <Avatar username={std.name} className="size-3.5" />
+                  <Avatar className="size-3.5" />
                   <span>{std.name}</span>
                   <XIcon onClick={() => removeStudent(std.id)} className="text-icon-default-muted size-3.5 cursor-pointer" />
                 </div>

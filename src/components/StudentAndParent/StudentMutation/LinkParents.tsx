@@ -8,15 +8,29 @@ import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Avatar } from "../../Avatar";
 import { Button } from "../../ui/button";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { Branch } from "@/api/types";
 
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 
-export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) => {
-  const [branchSelected, setBranchSelected] = useState(branches[0]);
+export const LinkParents = ({
+  open,
+  setOpen,
+  selectedStudents,
+  setSelectedStudents,
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  selectedStudents: { id: number; name: string; avatar: string | null }[];
+  setSelectedStudents: Dispatch<SetStateAction<{ id: number; name: string; avatar: string | null }[]>>;
+}) => {
   const isMobile = useIsMobile();
+
+  const [branchSelected, setBranchSelected] = useState<Branch>();
+  const { data: branches, isPending: loadingBranches } = useGetBranches();
   return (
     <>
       {isMobile ? (
@@ -59,7 +73,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -76,7 +90,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -93,7 +107,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -110,7 +124,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -124,12 +138,12 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
             <h3 className="text-text-default text-sm font-medium">Selected</h3>
             <div className="flex flex-wrap gap-2">
               <div className="bg-bg-badge-default border-border-default text-text-subtle flex items-center gap-1 rounded-full border p-1 text-xs">
-                <Avatar username="Damilare John" className="size-3.5" />
+                <Avatar className="size-3.5" />
                 <span>Damilare John</span>
                 <XIcon className="text-icon-default-muted size-3.5 cursor-pointer" />
               </div>
               <div className="bg-bg-badge-default border-border-default text-text-subtle flex items-center gap-1 rounded-full border p-1 text-xs">
-                <Avatar username="Damilare John" className="size-3.5" />
+                <Avatar className="size-3.5" />
                 <span>Damilare John</span>
                 <XIcon className="text-icon-default-muted size-3.5 cursor-pointer" />
               </div>
@@ -201,7 +215,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -218,7 +232,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -235,7 +249,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -252,7 +266,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -269,7 +283,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -286,7 +300,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -303,7 +317,7 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
                   aria-label="Select"
                 />
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-10 md:size-8" />
+                  <Avatar className="size-10 md:size-8" />
                   <div className="">
                     <p className="text-text-default text-sm font-medium">Damilare John</p>
                     <p className="text-text-subtle text-xs font-normal">Lawanson</p>
@@ -317,12 +331,12 @@ export const LinkParents = ({ open, setOpen }: { open: boolean; setOpen: (open: 
             <h3 className="text-text-default text-sm font-medium">Selected</h3>
             <div className="flex flex-wrap gap-2">
               <div className="bg-bg-badge-default border-border-default text-text-subtle flex items-center gap-1 rounded-full border p-1 text-xs">
-                <Avatar username="Damilare John" className="size-3.5" />
+                <Avatar className="size-3.5" />
                 <span>Damilare John</span>
                 <XIcon className="text-icon-default-muted size-3.5 cursor-pointer" />
               </div>
               <div className="bg-bg-badge-default border-border-default text-text-subtle flex items-center gap-1 rounded-full border p-1 text-xs">
-                <Avatar username="Damilare John" className="size-3.5" />
+                <Avatar className="size-3.5" />
                 <span>Damilare John</span>
                 <XIcon className="text-icon-default-muted size-3.5 cursor-pointer" />
               </div>

@@ -169,7 +169,7 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal }: EditReq
             <div className="border-border-default rounded-sm border">
               <div className="border-border-default border-b p-3">
                 <div className="flex items-center gap-2">
-                  <Avatar username="Damilare John" className="size-5" />
+                  <Avatar className="size-5" />
                   <div className="text-text-default text-sm font-medium">Damilare John</div>
                 </div>
                 <span className="text-text-muted text-xs">damilarejohn@gmail.com</span>
@@ -251,7 +251,7 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal }: EditReq
           <div className="border-border-default rounded-sm border">
             <div className="border-border-default border-b p-3">
               <div className="flex items-center gap-2">
-                <Avatar username="Damilare John" className="size-5" />
+                <Avatar className="size-5" />
                 <div className="text-text-default text-sm font-medium">Damilare John</div>
               </div>
               <span className="text-text-muted text-xs">damilarejohn@gmail.com</span>

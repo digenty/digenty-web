@@ -158,10 +158,10 @@ export const EditPayment = () => {
               <SelectContent className="bg-bg-card border-border-default text-text-default border">
                 <SelectGroup>
                   <SelectItem value="apple">
-                    <Avatar username="Damilare John" className="size-4" /> <span>Damilare John</span>
+                    <Avatar className="size-4" /> <span>Damilare John</span>
                   </SelectItem>
                   <SelectItem value="banana">
-                    <Avatar username="Damilare John" className="size-4" /> <span>Damilare John</span>
+                    <Avatar className="size-4" /> <span>Damilare John</span>
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>

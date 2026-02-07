@@ -244,7 +244,7 @@ export const InvoiceIdPaymentHistoryTable = () => {
                     <div className="text-text-muted text-sm font-medium">Paid By</div>
                     <div className="text-text-default flex items-center gap-1 text-sm font-medium">
                       {" "}
-                      <Avatar username={history.paidBy} className="size-5" /> {history.paidBy}
+                      <Avatar className="size-5" /> {history.paidBy}
                     </div>
                   </div>
                 </div>
@@ -264,7 +264,7 @@ export const InvoiceIdPaymentHistoryTable = () => {
                     ) : (
                       <>
                         {" "}
-                        <Avatar username={history.paidBy} className="size-5" /> {history.paidBy}
+                        <Avatar className="size-5" /> {history.paidBy}
                       </>
                     )}
                   </div>

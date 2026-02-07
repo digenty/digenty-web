@@ -1,72 +1,25 @@
 "use client";
 
+import { Student } from "@/api/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useStudentStore } from "@/store/student";
 import { ColumnDef, Row } from "@tanstack/react-table";
+import { format } from "date-fns";
 import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Avatar } from "../Avatar";
 import DeleteBin from "../Icons/DeleteBin";
 import Edit from "../Icons/Edit";
 import UserMinus from "../Icons/UserMinus";
-import { Student } from "@/api/types";
-import { format } from "date-fns";
-import { useRouter } from "next/navigation";
-import { useDeleteStudents, useWithdrawStudents } from "@/hooks/queryHooks/useStudent";
-import { toast } from "../Toast";
-import { studentKeys } from "@/queries/student";
-import { useQueryClient } from "@tanstack/react-query";
-// import { Student } from "./types";
 
 const RenderOptions = (row: Row<Student>) => {
   const router = useRouter();
-  const queryClient = useQueryClient();
 
   const [open, setOpen] = useState(false);
-
-  const { mutate: withdrawStudents, isPending: withdrawing } = useWithdrawStudents();
-  const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents();
-
-  const handleWithdrawal = (ids: number[]) => {
-    withdrawStudents(ids, {
-      onSuccess: data => {
-        toast({
-          title: "Successfully withdrawn students",
-          description: data.data.message,
-          type: "success",
-        });
-      },
-      onError: error => {
-        toast({
-          title: error.message ?? "Something went wrong",
-          description: "Could not withdraw selected students",
-          type: "error",
-        });
-      },
-    });
-  };
-
-  const handleDeletion = (ids: number[]) => {
-    deleteStudents(ids, {
-      onSuccess: data => {
-        queryClient.invalidateQueries({ queryKey: studentKeys.all, refetchType: "active" });
-
-        toast({
-          title: "Successfully deleted students",
-          description: data.data.message,
-          type: "success",
-        });
-      },
-      onError: error => {
-        toast({
-          title: error.message ?? "Something went wrong",
-          description: "Could not delete selected students",
-          type: "error",
-        });
-      },
-    });
-  };
+  const { setOpenWithdraw, setOpenDelete } = useStudentStore();
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -83,11 +36,11 @@ const RenderOptions = (row: Row<Student>) => {
           <span>Edit student profile</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
-        <DropdownMenuItem onClick={() => handleWithdrawal([row.original.id])} className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => setOpenWithdraw(true)} className="gap-2.5 px-3">
           <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Withdraw student</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleDeletion([row.original.id])} className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => setOpenDelete(true)} className="gap-2.5 px-3">
           <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
           <span className="text-icon-destructive">Delete student profile</span>
         </DropdownMenuItem>
@@ -158,7 +111,7 @@ export const columns: ColumnDef<Student>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
-          <Avatar username={row.original.firstName} className="size-5" url={row.original.image ?? ""} />
+          <Avatar className="size-5" url={row.original.image ?? ""} />
           <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">
             {row.original.firstName} {row.original.lastName}
           </span>

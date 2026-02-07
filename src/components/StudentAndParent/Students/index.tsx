@@ -33,15 +33,22 @@ import { toast } from "@/components/Toast";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { useQueryClient } from "@tanstack/react-query";
 import { studentKeys } from "@/queries/student";
+import { DialogDescription } from "@/components/ui/dialog";
+import WarningIcon from "@/components/Icons/WarningIcon";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useStudentStore } from "@/store/student";
 
 export const StudentsTable = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { openWithdraw, setOpenWithdraw, openDelete, setOpenDelete } = useStudentStore();
+
   const [page, setPage] = useState(1);
   const [openExportFilter, setOpenExportFilter] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
+  const [isChecked, setIsChecked] = useState(false);
   const [studentDistribution, setStudentDistribution] = useState({
     total: 0,
     active: 0,
@@ -100,8 +107,10 @@ export const StudentsTable = () => {
           title: "Exporting Students...",
           type: "success",
         });
+        setOpenWithdraw(false);
       },
       onError: error => {
+        setOpenWithdraw(false);
         toast({
           title: error.message ?? "Something went wrong",
           description: "Could not export students",
@@ -119,6 +128,7 @@ export const StudentsTable = () => {
           description: data.data.message,
           type: "success",
         });
+        setOpenDelete(false);
       },
       onError: error => {
         toast({
@@ -126,6 +136,7 @@ export const StudentsTable = () => {
           description: "Could not withdraw selected students",
           type: "error",
         });
+        setOpenDelete(false);
       },
     });
   };
@@ -224,6 +235,74 @@ export const StudentsTable = () => {
           />
         </Modal>
       )}
+
+      {/* Withdraw open modal  */}
+
+      <Modal
+        open={openWithdraw}
+        className="block"
+        setOpen={setOpenWithdraw}
+        title="Withdraw Student?"
+        ActionButton={
+          <Button
+            onClick={() => handleWithdrawal(selectedRows.map(row => row.id))}
+            className={"bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 rounded-md text-sm font-medium"}
+          >
+            {withdrawing && <Spinner />}
+            Withdraw Student
+          </Button>
+        }
+      >
+        <div className="space-y-5 px-6 py-5">
+          <DialogDescription className="text-text-subtle text-sm font-normal">
+            Are you sure you want to withdraw <span className="font-normal">Damilare John?</span>{" "}
+          </DialogDescription>
+          <div className="bg-bg-basic-orange-subtle shadow-light border-border-default text-text-subtle rounded-sm border px-2.5 py-2.5 text-sm font-normal">
+            <p>
+              Once withdrawn, the profile will remain in the system, but the student will no longer appear in active classes or reports. You can
+              re-enroll the student later if needed.
+            </p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete open modal */}
+      <Modal
+        open={openDelete}
+        setOpen={setOpenDelete}
+        title="Delete Student?"
+        className="block"
+        ActionButton={
+          <Button
+            disabled={!isChecked}
+            onClick={() => handleDeletion(selectedRows.map(row => row.id))}
+            className={`h-7 rounded-md text-sm font-medium ${
+              isChecked ? "bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover!" : "bg-bg-state-soft text-text-subtle"
+            }`}
+          >
+            {deleting && <Spinner />}
+            Delete Student
+          </Button>
+        }
+      >
+        <div className="space-y-5 px-6 py-5">
+          <DialogDescription className="text-text-subtle text-sm font-normal">
+            Are you sure you want to permanently delete this student’s profile? This action cannot be undone.
+          </DialogDescription>
+
+          <div className="bg-bg-basic-orange-subtle border-border-default text-text-subtle shadow-light flex items-center gap-3 rounded-sm border px-2.5 py-2.5 text-sm font-normal">
+            <WarningIcon />
+            <p>Deleting will remove the student’s profile and records. This cannot be undone.</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Checkbox id="terms" checked={isChecked} onCheckedChange={(checked: boolean) => setIsChecked(checked)} />
+            <label htmlFor="terms" className="text-text-subtle text-sm font-normal">
+              I understand that deleting this student is permanent and cannot be undone.
+            </label>
+          </div>
+        </div>
+      </Modal>
 
       <MobileDrawer open={openExportFilter} setIsOpen={setOpenExportFilter} title="Export Students">
         <TableExportFilter
@@ -383,18 +462,16 @@ export const StudentsTable = () => {
           </div>
 
           <Button
-            onClick={() => handleWithdrawal(selectedRows.map(row => row.id))}
+            onClick={() => setOpenWithdraw(true)}
             className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
           >
-            {withdrawing ? <Spinner /> : <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />}
             <span>Withdraw student{selectedRows.length !== 1 && "s"}</span>
           </Button>
 
           <Button
-            onClick={() => handleDeletion(selectedRows.map(row => row.id))}
+            onClick={() => setOpenDelete(true)}
             className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
           >
-            {deleting ? <Spinner /> : <DeleteBin fill="var(--color-bg-basic-red-accent)" className="size-4" />}
             <span>Delete Student{selectedRows.length !== 1 && "s"}</span>
           </Button>
         </div>
@@ -433,7 +510,7 @@ export const StudentsTable = () => {
         ) : (
           <div className="flex flex-col gap-4">
             {students.map((student: Student) => (
-              <MobileCard key={student.id} student={student} handleWithdrawal={handleWithdrawal} handleDeletion={handleDeletion} />
+              <MobileCard key={student.id} student={student} />
             ))}
 
             {hasNextPage && (

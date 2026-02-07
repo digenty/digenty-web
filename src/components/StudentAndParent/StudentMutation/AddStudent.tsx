@@ -25,6 +25,7 @@ export const AddStudent = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [avatar, setAvatar] = useState<File | null>(null);
   const [step, setStep] = useState(1);
+  const [selectedParents, setSelectedParents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -115,7 +116,7 @@ export const AddStudent = () => {
 
   return (
     <div className="flex h-screen flex-col">
-      {open && <LinkParents open={open} setOpen={setOpen} />}
+      {/* {open && <LinkParents open={open} setOpen={setOpen} />} */}
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">
