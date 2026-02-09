@@ -8,10 +8,9 @@ import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { Avatar } from "../../Avatar";
 import DeleteBin from "../../Icons/DeleteBin";
 import Edit from "../../Icons/Edit";
-import { Parent } from "../types";
+import { Parent } from "@/api/types";
 
 const RenderOptions = (row: Row<Parent>) => {
-  console.log(row);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus-visible:ring-0 focus-visible:outline-none">
@@ -69,10 +68,12 @@ export const parentColumns: ColumnDef<Parent>[] = [
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
           <Avatar className="size-5" url="" />
-          <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.name}</span>
+          <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">
+            {row.original.firstName} {row.original.lastName}
+          </span>
         </div>
 
-        {row.original.tags && (
+        {/* {row.original.tags && (
           <div className="flex items-center gap-2">
             {row.original.tags.map(tag => (
               <span
@@ -83,7 +84,7 @@ export const parentColumns: ColumnDef<Parent>[] = [
               </span>
             ))}
           </div>
-        )}
+        )} */}
       </div>
     ),
     size: 600,
@@ -91,7 +92,7 @@ export const parentColumns: ColumnDef<Parent>[] = [
   {
     accessorKey: "gender",
     header: () => <div className="text-text-muted text-sm font-medium">Gender</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.gender}</span>,
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal capitalize">{row.original.gender.toLowerCase()}</span>,
     size: 150,
   },
   {
@@ -103,7 +104,7 @@ export const parentColumns: ColumnDef<Parent>[] = [
   {
     accessorKey: "emailAddress",
     header: () => <div className="text-text-muted text-sm font-medium">Email Address</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.emailAddress}</span>,
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.email}</span>,
     size: 150,
   },
 

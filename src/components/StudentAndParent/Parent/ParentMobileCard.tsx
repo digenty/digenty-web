@@ -1,5 +1,5 @@
+import { Parent } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import { Parent } from "../types";
 import DeleteBin from "@/components/Icons/DeleteBin";
 import Edit from "@/components/Icons/Edit";
 
@@ -16,7 +16,9 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
       <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
         <div className="flex gap-2">
           <Avatar className="size-5" url="" />
-          <p className="text-text-default">{parent.name}</p>
+          <p className="text-text-default">
+            {parent.firstName} {parent.lastName}
+          </p>
         </div>
 
         <Button variant="ghost" onClick={() => setIsOptionsOpen(true)}>
@@ -51,7 +53,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
 
         <Button variant="ghost">
           <span className="border-border-default bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong rounded-md border px-2 text-xs font-medium">
-            {parent.tags[0].label}
+            {/* {parent.tags[0].label} */}
           </span>
         </Button>
       </div>
@@ -72,7 +74,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{parent.emailAddress}</p>
+          <p className="text-text-default">{parent.email}</p>
         </Button>
       </div>
 

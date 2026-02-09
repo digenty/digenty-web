@@ -1,4 +1,4 @@
-import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
+import { AdmissionStatus, BoardingStatus, Gender, Relationship } from "@/types";
 
 export interface Branch {
   id: number;
@@ -86,4 +86,22 @@ export interface Student {
   image: string | null;
   tags: string[];
   linkedParents: number[];
+}
+
+export interface Parent {
+  id: number;
+  uuid: string;
+  firstName: string;
+  lastName: string;
+  image: string | null;
+  middleName: string;
+  email: string;
+  phoneNumber: string;
+  branch: string;
+  gender: Gender;
+  relationship: Relationship;
+  nationality: string;
+  stateOfOrigin: string;
+  address: string;
+  secondaryPhoneNumber: string;
 }

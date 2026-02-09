@@ -88,7 +88,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{student.classId}</p>
+          <p className="text-text-default">{student.class}</p>
         </Button>
       </div>
 
@@ -98,7 +98,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{student.branchId}</p>
+          <p className="text-text-default">{student.branch}</p>
         </Button>
       </div>
     </div>

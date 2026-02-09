@@ -29,8 +29,10 @@ export const RecordHeader = ({
   loadingArms,
   departments,
   loadingDepartments,
+  totalParents,
 }: {
   tab: string;
+  totalParents?: number;
   filter: {
     branchSelected?: Branch;
     classSelected?: ClassType;
@@ -58,7 +60,7 @@ export const RecordHeader = ({
           <h2 className="text-text-default text-lg font-semibold md:text-2xl">{tab === "Parents" ? "Parents" : "Students"}</h2>
           {tab === "Parents" && (
             <div className="bg-bg-badge-cyan border-border-default text-bg-basic-cyan-strong flex h-5 w-7 items-center justify-center rounded-md border text-xs">
-              35
+              {totalParents}
             </div>
           )}
         </div>
@@ -124,9 +126,7 @@ export const RecordHeader = ({
             <Select
               onValueChange={value => {
                 const status = studentsStatus.find((status: { value: StudentsStatus; label: string }) => status.value === value);
-                if (status) {
-                  onFilterChange("statusSelected", status);
-                }
+                onFilterChange("statusSelected", status);
               }}
             >
               <SelectTrigger className="border-border-darker h-8! w-auto border">
@@ -187,131 +187,135 @@ export const RecordHeader = ({
               )}
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <GraduationCap fill="var(--color-icon-black-muted)" className="size-4" />
-                <Label className="text-text-default text-sm font-medium">Class</Label>
-              </div>
-              {!classes || loadingClasses ? (
-                <Skeleton className="bg-bg-input-soft h-9 w-full" />
-              ) : (
-                <Select
-                  onValueChange={value => {
-                    const cls = classes.data.content?.find((cls: ClassType) => cls.uuid === value);
-                    onFilterChange("classSelected", cls);
-                    setFilterCount(prev => (!filter.classSelected ? prev + 1 : prev));
-                  }}
-                >
-                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                    <span className="text-text-default text-sm font-medium">{filter.classSelected ? filter.classSelected?.name : "All Classes"}</span>
-                  </SelectTrigger>
-                  <SelectContent className="bg-bg-card border-border-default">
-                    <SelectItem value="none" className="text-text-default text-sm font-medium">
-                      All Classes
-                    </SelectItem>
-                    {classes.data.content.map((cls: ClassType) => (
-                      <SelectItem key={cls.id} value={cls.uuid} className="text-text-default text-sm font-medium">
-                        {cls.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
+            {tab === "Students" && (
+              <>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap fill="var(--color-icon-black-muted)" className="size-4" />
+                    <Label className="text-text-default text-sm font-medium">Class</Label>
+                  </div>
+                  {!classes || loadingClasses ? (
+                    <Skeleton className="bg-bg-input-soft h-9 w-full" />
+                  ) : (
+                    <Select
+                      onValueChange={value => {
+                        const cls = classes.data.content?.find((cls: ClassType) => cls.uuid === value);
+                        onFilterChange("classSelected", cls);
+                        setFilterCount(prev => (!filter.classSelected ? prev + 1 : prev));
+                      }}
+                    >
+                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                        <span className="text-text-default text-sm font-medium">
+                          {filter.classSelected ? filter.classSelected?.name : "All Classes"}
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent className="bg-bg-card border-border-default">
+                        <SelectItem value="none" className="text-text-default text-sm font-medium">
+                          All Classes
+                        </SelectItem>
+                        {classes.data.content.map((cls: ClassType) => (
+                          <SelectItem key={cls.id} value={cls.uuid} className="text-text-default text-sm font-medium">
+                            {cls.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Group fill="var(--color-icon-black-muted)" className="size-4" />
-                <Label className="text-text-default text-sm font-medium">Department</Label>
-              </div>
-              {!departments || loadingDepartments ? (
-                <Skeleton className="bg-bg-input-soft h-9 w-full" />
-              ) : (
-                <Select
-                  onValueChange={value => {
-                    const department = departments.data.find((dept: Department) => dept.uuid === value);
-                    onFilterChange("departmentSelected", department);
-                    setFilterCount(prev => (!filter.departmentSelected ? prev + 1 : prev));
-                  }}
-                >
-                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                    <span className="text-text-default text-sm">
-                      {filter.departmentSelected ? filter.departmentSelected?.name : "All Departments"}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent className="bg-bg-default border-border-default">
-                    <SelectItem value="none" className="text-text-default text-sm font-medium">
-                      All Departments
-                    </SelectItem>
-                    {departments.data.map((dept: Department) => (
-                      <SelectItem key={dept.id} value={dept.uuid} className="text-text-default text-sm">
-                        {dept.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Group fill="var(--color-icon-black-muted)" className="size-4" />
+                    <Label className="text-text-default text-sm font-medium">Department</Label>
+                  </div>
+                  {!departments || loadingDepartments ? (
+                    <Skeleton className="bg-bg-input-soft h-9 w-full" />
+                  ) : (
+                    <Select
+                      onValueChange={value => {
+                        const department = departments.data.find((dept: Department) => dept.uuid === value);
+                        onFilterChange("departmentSelected", department);
+                        setFilterCount(prev => (!filter.departmentSelected ? prev + 1 : prev));
+                      }}
+                    >
+                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                        <span className="text-text-default text-sm">
+                          {filter.departmentSelected ? filter.departmentSelected?.name : "All Departments"}
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent className="bg-bg-default border-border-default">
+                        <SelectItem value="none" className="text-text-default text-sm font-medium">
+                          All Departments
+                        </SelectItem>
+                        {departments.data.map((dept: Department) => (
+                          <SelectItem key={dept.id} value={dept.uuid} className="text-text-default text-sm">
+                            {dept.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <BookOpen fill="var(--color-icon-black-muted)" className="size-4" />
-                <Label className="text-text-default text-sm font-medium">Arm</Label>
-              </div>
-              {!arms || loadingArms ? (
-                <Skeleton className="bg-bg-input-soft h-9 w-full" />
-              ) : (
-                <Select
-                  onValueChange={value => {
-                    const arm = arms.data.content.find((arm: Arm) => arm.uuid === value);
-                    onFilterChange("armSelected", arm);
-                    setFilterCount(prev => (!filter.armSelected ? prev + 1 : prev));
-                  }}
-                >
-                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                    <span className="text-text-default text-sm">{filter.armSelected ? filter.armSelected?.name : "Select Arm"}</span>
-                  </SelectTrigger>
-                  <SelectContent className="bg-bg-default border-border-default">
-                    {arms.data.content.length === 0 && <SelectItem value="none">No Arms for the selected class</SelectItem>}
-                    {arms.data.content.map((arm: Arm) => (
-                      <SelectItem key={arm.id} value={arm.uuid} className="text-text-default text-sm">
-                        {arm.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <BookOpen fill="var(--color-icon-black-muted)" className="size-4" />
+                    <Label className="text-text-default text-sm font-medium">Arm</Label>
+                  </div>
+                  {!arms || loadingArms ? (
+                    <Skeleton className="bg-bg-input-soft h-9 w-full" />
+                  ) : (
+                    <Select
+                      onValueChange={value => {
+                        const arm = arms.data.content.find((arm: Arm) => arm.uuid === value);
+                        onFilterChange("armSelected", arm);
+                        setFilterCount(prev => (!filter.armSelected ? prev + 1 : prev));
+                      }}
+                    >
+                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                        <span className="text-text-default text-sm">{filter.armSelected ? filter.armSelected?.name : "Select Arm"}</span>
+                      </SelectTrigger>
+                      <SelectContent className="bg-bg-default border-border-default">
+                        {arms.data.content.length === 0 && <SelectItem value="none">No Arms for the selected class</SelectItem>}
+                        {arms.data.content.map((arm: Arm) => (
+                          <SelectItem key={arm.id} value={arm.uuid} className="text-text-default text-sm">
+                            {arm.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Group fill="var(--color-icon-black-muted)" className="size-4" />
-                <Label className="text-text-default text-sm font-medium">Student Status</Label>
-              </div>
-              <Select
-                onValueChange={value => {
-                  const status = studentsStatus.find((status: { value: StudentsStatus; label: string }) => status.value === value);
-                  if (status) {
-                    onFilterChange("statusSelected", status);
-                    setFilterCount(prev => (!filter.statusSelected ? prev + 1 : prev));
-                  }
-                }}
-              >
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <span className="text-text-default text-sm">{filter.statusSelected ? filter.statusSelected.label : "All Students"}</span>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  <SelectItem value="none" className="text-text-default text-sm font-medium">
-                    All Students
-                  </SelectItem>
-                  {studentsStatus.map(status => (
-                    <SelectItem key={status.value} value={status.value} className="text-text-default text-sm">
-                      {status.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Group fill="var(--color-icon-black-muted)" className="size-4" />
+                    <Label className="text-text-default text-sm font-medium">Student Status</Label>
+                  </div>
+                  <Select
+                    onValueChange={value => {
+                      const status = studentsStatus.find((status: { value: StudentsStatus; label: string }) => status.value === value);
+                      onFilterChange("statusSelected", status);
+                      setFilterCount(prev => (!filter.statusSelected ? prev + 1 : prev));
+                    }}
+                  >
+                    <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                      <span className="text-text-default text-sm">{filter.statusSelected ? filter.statusSelected.label : "All Students"}</span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-bg-default border-border-default">
+                      <SelectItem value="none" className="text-text-default text-sm font-medium">
+                        All Students
+                      </SelectItem>
+                      {studentsStatus.map(status => (
+                        <SelectItem key={status.value} value={status.value} className="text-text-default text-sm">
+                          {status.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
           </div>
 
           <DrawerFooter className="border-border-default border-t">

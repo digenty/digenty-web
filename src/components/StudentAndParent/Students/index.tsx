@@ -108,10 +108,10 @@ export const StudentsTable = () => {
           title: "Exporting Students...",
           type: "success",
         });
-        setOpenWithdraw(false);
+        // setOpenExportFilter(false);
       },
       onError: error => {
-        setOpenWithdraw(false);
+        setOpenExportFilter(false);
         toast({
           title: error.message ?? "Something went wrong",
           description: "Could not export students",
@@ -129,7 +129,7 @@ export const StudentsTable = () => {
           description: data.data.message,
           type: "success",
         });
-        setOpenDelete(false);
+        setOpenWithdraw(false);
       },
       onError: error => {
         toast({
@@ -137,7 +137,7 @@ export const StudentsTable = () => {
           description: "Could not withdraw selected students",
           type: "error",
         });
-        setOpenDelete(false);
+        setOpenWithdraw(false);
       },
     });
   };
@@ -152,6 +152,7 @@ export const StudentsTable = () => {
           description: data.data.message,
           type: "success",
         });
+        setOpenDelete(false);
       },
       onError: error => {
         toast({
@@ -159,6 +160,7 @@ export const StudentsTable = () => {
           description: "Could not delete selected students",
           type: "error",
         });
+        setOpenDelete(false);
       },
     });
   };
