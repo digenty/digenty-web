@@ -221,7 +221,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           <Label htmlFor="admissionStatus" className="text-text-default text-sm font-medium">
             Admission Status <small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select onValueChange={value => formik.setFieldValue("studentStatus", value)}>
+          <Select onValueChange={value => formik.setFieldValue("admissionStatus", value)}>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="Admission Status" />
             </SelectTrigger>

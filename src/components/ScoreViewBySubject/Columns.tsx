@@ -91,7 +91,7 @@ export const scoreColumns = (isEditable: boolean): ColumnDef<ScoreType>[] => [
     cell: ({ row }) => (
       <div className="flex h-14 items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
-          <Avatar username={row.original.studentName} className="size-8" url="" />
+          <Avatar className="size-8" url="" />
           <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.studentName}</span>
         </div>
       </div>

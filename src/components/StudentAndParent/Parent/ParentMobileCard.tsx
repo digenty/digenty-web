@@ -1,22 +1,26 @@
+import { Parent } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import { Parent } from "../types";
 import DeleteBin from "@/components/Icons/DeleteBin";
 import Edit from "@/components/Icons/Edit";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
+  const router = useRouter();
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   return (
     <div className="bg-bg-subtle border-border-default rounded-sm border text-sm font-medium">
       <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
         <div className="flex gap-2">
-          <Avatar username="Damilare John" className="size-5" url="" />
-          <p className="text-text-default">{parent.name}</p>
+          <Avatar className="size-5" url="" />
+          <p className="text-text-default">
+            {parent.firstName} {parent.lastName}
+          </p>
         </div>
 
         <Button variant="ghost" onClick={() => setIsOptionsOpen(true)}>
@@ -26,7 +30,10 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
         {isOptionsOpen && (
           <MobileDrawer open={isOptionsOpen} setIsOpen={setIsOptionsOpen} title="Actions">
             <div className="flex flex-col gap-2 p-4">
-              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Button
+                onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}`)}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+              >
                 <EyeIcon className="text-icon-default-muted size-4" />
                 <span>View Parent Profile</span>
               </Button>
@@ -51,7 +58,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
 
         <Button variant="ghost">
           <span className="border-border-default bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong rounded-md border px-2 text-xs font-medium">
-            {parent.tags[0].label}
+            {/* {parent.tags[0].label} */}
           </span>
         </Button>
       </div>
@@ -72,7 +79,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{parent.emailAddress}</p>
+          <p className="text-text-default">{parent.email}</p>
         </Button>
       </div>
 

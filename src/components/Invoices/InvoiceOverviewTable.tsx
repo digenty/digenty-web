@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { InvoicesOverviewTableProps } from "./types";
 import { DataTable } from "../DataTable";
 import { InvoiceOverviewTableColumns } from "./Column";
-import { getBadge } from "../StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "../StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import { Ellipsis, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import Eye from "../Icons/Eye";
@@ -176,7 +176,7 @@ export const InvoiceOverviewTable = () => {
                 <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
                   <span className="text-text-muted font-medium">Student Name</span>
                   <div className="flex items-center gap-2">
-                    <Avatar username={invoice.studentName} className="size-5" url="" />
+                    <Avatar className="size-5" url="" />
                     <span className="text-text-default text-sm font-medium">{invoice.studentName}</span>
                   </div>{" "}
                 </div>

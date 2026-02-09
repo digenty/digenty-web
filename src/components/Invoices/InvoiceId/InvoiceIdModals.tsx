@@ -1,7 +1,7 @@
 import { Avatar } from "@/components/Avatar";
 import { Bank } from "@/components/Icons/Bank";
 import { Modal } from "@/components/Modal";
-import { getBadge } from "@/components/StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "@/components/StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import { Button } from "@/components/ui/button";
 import { useClassesStore } from "@/store/classes";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -46,7 +46,7 @@ export const PaymentDetailsModal = () => {
             <div className="border-border-default flex justify-between border-b p-2">
               <div className="text-text-muted text-sm font-medium">Paid By</div>
               <div className="flex items-center">
-                <Avatar className="mr-2 size-5" username="Damilare John" />
+                <Avatar className="mr-2 size-5" />
                 <div className="text-text-default text-sm font-medium"> Damilare John </div>
               </div>
             </div>
@@ -83,7 +83,7 @@ export const PaymentDetailsModal = () => {
             <div className="border-border-default flex justify-between border-b p-2">
               <div className="text-text-muted text-sm font-medium">Paid By</div>
               <div className="flex items-center">
-                <Avatar className="mr-2 size-5" username="Damilare John" />
+                <Avatar className="mr-2 size-5" />
                 <div className="text-text-default text-sm font-medium"> Damilare John </div>
               </div>
             </div>

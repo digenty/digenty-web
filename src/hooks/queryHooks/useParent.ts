@@ -1,7 +1,6 @@
-import { addParent, getParents, uploadParents } from "@/api/parent";
+import { addParent, exportParents, getParent, getParents, uploadParents } from "@/api/parent";
 import { parentKeys } from "@/queries/parent";
-import { Pagination } from "@/types";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 export const useAddParent = () => {
   return useMutation({
@@ -10,11 +9,15 @@ export const useAddParent = () => {
   });
 };
 
-export const useGetParents = (pagination: Pagination) => {
-  return useQuery({
-    queryKey: parentKeys.all,
-    queryFn: () => getParents({ pagination }),
-    retry: false,
+export const useGetParents = ({ limit, branchId, search }: { limit: number; branchId?: number; search?: string }) => {
+  return useInfiniteQuery({
+    queryKey: [parentKeys.all, branchId, search],
+    queryFn: ({ pageParam }) => getParents({ pageParam, limit, branchId, search }),
+    initialPageParam: 0,
+    getNextPageParam: lastPage => {
+      if (lastPage.last) return undefined;
+      return lastPage.number + 1; // next page index
+    },
   });
 };
 
@@ -22,5 +25,20 @@ export const useUploadParents = () => {
   return useMutation({
     mutationKey: parentKeys.parentsUpload,
     mutationFn: uploadParents,
+  });
+};
+
+export const useExportParents = ({ branchId }: { branchId?: number }) => {
+  return useMutation({
+    mutationKey: parentKeys.exportParents,
+    mutationFn: () => exportParents({ branchId }),
+  });
+};
+
+export const useGetParent = (parentId?: number) => {
+  return useQuery({
+    queryKey: [parentKeys.getParent, parentId],
+    queryFn: () => getParent(parentId),
+    enabled: !!parentId,
   });
 };

@@ -15,7 +15,7 @@ export const ClassReportColumns: ColumnDef<ClassReportProps>[] = [
     header: () => <div className="text-text-muted text-sm font-medium">Teacher</div>,
     cell: ({ row }) => (
       <div className="items center flex gap-2">
-        <Avatar username={row.original.studentName} className="size-5" />
+        <Avatar className="size-5" />
         <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.studentName}</span>{" "}
       </div>
     ),

@@ -8,17 +8,18 @@ import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { Avatar } from "../../Avatar";
 import DeleteBin from "../../Icons/DeleteBin";
 import Edit from "../../Icons/Edit";
-import { Parent } from "../types";
+import { Parent } from "@/api/types";
+import { useRouter } from "next/navigation";
 
 const RenderOptions = (row: Row<Parent>) => {
-  console.log(row);
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus-visible:ring-0 focus-visible:outline-none">
         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => router.push(`/student-and-parent-record/parents/${row.original.id}`)} className="gap-2.5 px-3">
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View parent profile</span>
         </DropdownMenuItem>
@@ -68,11 +69,13 @@ export const parentColumns: ColumnDef<Parent>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
-          <Avatar username="Damilare John" className="size-5" url="" />
-          <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.name}</span>
+          <Avatar className="size-5" url="" />
+          <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">
+            {row.original.firstName} {row.original.lastName}
+          </span>
         </div>
 
-        {row.original.tags && (
+        {/* {row.original.tags && (
           <div className="flex items-center gap-2">
             {row.original.tags.map(tag => (
               <span
@@ -83,7 +86,7 @@ export const parentColumns: ColumnDef<Parent>[] = [
               </span>
             ))}
           </div>
-        )}
+        )} */}
       </div>
     ),
     size: 600,
@@ -91,7 +94,7 @@ export const parentColumns: ColumnDef<Parent>[] = [
   {
     accessorKey: "gender",
     header: () => <div className="text-text-muted text-sm font-medium">Gender</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.gender}</span>,
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal capitalize">{row.original.gender.toLowerCase()}</span>,
     size: 150,
   },
   {
@@ -103,7 +106,7 @@ export const parentColumns: ColumnDef<Parent>[] = [
   {
     accessorKey: "emailAddress",
     header: () => <div className="text-text-muted text-sm font-medium">Email Address</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.emailAddress}</span>,
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.email}</span>,
     size: 150,
   },
 

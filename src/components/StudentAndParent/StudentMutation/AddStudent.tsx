@@ -17,6 +17,7 @@ import { LinkParents } from "./LinkParents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
 import { Tags } from "./Tags";
+import { format } from "date-fns";
 
 export const AddStudent = () => {
   const router = useRouter();
@@ -25,6 +26,7 @@ export const AddStudent = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [avatar, setAvatar] = useState<File | null>(null);
   const [step, setStep] = useState(1);
+  const [selectedParents, setSelectedParents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -71,6 +73,7 @@ export const AddStudent = () => {
           linkedParents: [3],
           // image: avatar,
           image: null,
+          // dateOfBirth: format(formik.values.dateOfBirth, "dd-MM-yyyy"),
         },
         {
           onSuccess: data => {
@@ -93,14 +96,17 @@ export const AddStudent = () => {
     },
   });
 
+  console.log(step);
   const handleSteps = () => {
+    console.log("here");
     if (step < 3) {
+      console.log("here 1");
       setStep(prev => prev + 1);
     } else {
+      console.log("here 2");
       formik.handleSubmit();
     }
   };
-
   console.log(formik.errors, formik.values);
 
   const handleBack = () => {
@@ -115,7 +121,7 @@ export const AddStudent = () => {
 
   return (
     <div className="flex h-screen flex-col">
-      {open && <LinkParents open={open} setOpen={setOpen} />}
+      {/* {open && <LinkParents open={open} setOpen={setOpen} />} */}
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">
@@ -171,7 +177,7 @@ export const AddStudent = () => {
 
             <Button
               onClick={() => handleSteps()}
-              {...(step === 3 && { type: "submit" })}
+              // {...(step === 3 && { type: "submit" })}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
             >
               {isPending && <Spinner className="text-text-white-default" />}

@@ -8,7 +8,7 @@ import { Cash } from "@/components/Icons/Cash";
 import DeleteBin from "@/components/Icons/DeleteBin";
 import Edit from "@/components/Icons/Edit";
 import { Folder3 } from "@/components/Icons/Folder3";
-import { getBadge } from "@/components/StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "@/components/StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { invoiceBreakdownType, paymentHistoryType } from "./invoiceIdTypes";
 
@@ -125,7 +125,7 @@ export const paymentHistoryColumns: ColumnDef<paymentHistoryType>[] = [
     header: () => <div className="text-text-muted text-sm font-medium">Paid By</div>,
     cell: ({ row }) => (
       <div className="flex items-center gap-1">
-        <Avatar className="size-5" username={row.original.paidBy} />
+        <Avatar className="size-5" />
         <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.paidBy}</span>
       </div>
     ),
@@ -144,7 +144,7 @@ export const paymentHistoryColumns: ColumnDef<paymentHistoryType>[] = [
           <span className="text-text-default text-sm font-normal">{row.original.addedBy}</span>
         ) : (
           <div className="flex items-center gap-1">
-            <Avatar className="size-5" username={row.original.addedBy} />
+            <Avatar className="size-5" />
             <span className="text-text-default text-sm font-normal">{row.original.paidBy}</span>
           </div>
         )}

@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { PreviewProps } from "./PreviewTable";
-import { getBadge } from "@/components/StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "@/components/StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 
 export const previewColumns: ColumnDef<PreviewProps>[] = [
   {

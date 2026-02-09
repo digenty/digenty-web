@@ -4,8 +4,8 @@ import Printer from "@/components/Icons/Printer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
-import DeleteBin from "../../Icons/DeleteBin";
-import { Invoice } from "../types";
+import DeleteBin from "../../../Icons/DeleteBin";
+import { Invoice } from "./types";
 import { getBadge } from "./StudentInvoiceTable";
 
 const RenderOptions = (row: Row<Invoice>) => {

@@ -1,43 +1,56 @@
 "use client";
 import { Arm, Branch, ClassType, Department, Student } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
-import DeleteBin from "@/components/Icons/DeleteBin";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import GraduationCap from "@/components/Icons/GraduationCap";
 import Import from "@/components/Icons/Import";
 import ShareBox from "@/components/Icons/ShareBox";
 import UserFill from "@/components/Icons/UserFill";
 import UserMinus from "@/components/Icons/UserMinus";
+import WarningIcon from "@/components/Icons/WarningIcon";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { OverviewCard } from "@/components/OverviewCard";
 import { SearchInput } from "@/components/SearchInput";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
+import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DialogDescription } from "@/components/ui/dialog";
+import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useExportStudents, useGetStudents, useGetStudentsDistribution } from "@/hooks/queryHooks/useStudent";
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import useDebounce from "@/hooks/useDebounce";
-import { MoreHorizontal, PlusIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { columns } from "../Columns";
-import { MobileCard } from "../MobileCard";
-import { RecordHeader } from "../RecordHeader";
-import { TableExportFilter } from "../TableExportFilter";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
-import { toast } from "@/components/Toast";
+import { useDeleteStudents, useExportStudents, useGetStudents, useGetStudentsDistribution, useWithdrawStudents } from "@/hooks/queryHooks/useStudent";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import useDebounce from "@/hooks/useDebounce";
+import { studentKeys } from "@/queries/student";
+import { useStudentStore } from "@/store/student";
+import { useQueryClient } from "@tanstack/react-query";
+import { MoreHorizontal, PlusIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { columns } from "./Columns";
+import { MobileCard } from "./MobileCard";
+import { RecordHeader } from "../RecordHeader";
+import { TableExportFilter } from "../TableExportFilter";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export const StudentsTable = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
+  const { openWithdraw, setOpenWithdraw, openDelete, setOpenDelete } = useStudentStore();
+
   const [page, setPage] = useState(1);
   const [openExportFilter, setOpenExportFilter] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
+  const [isChecked, setIsChecked] = useState(false);
   const [studentDistribution, setStudentDistribution] = useState({
     total: 0,
     active: 0,
@@ -59,6 +72,7 @@ export const StudentsTable = () => {
   const {
     data,
     isPending: loadingStudents,
+    isError,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -71,6 +85,7 @@ export const StudentsTable = () => {
     status: filter?.statusSelected?.value,
     search: debouncedSearchQuery,
   });
+  const students = data?.pages.flatMap(page => page.content) ?? [];
 
   const { data: distribution } = useGetStudentsDistribution(filter?.branchSelected?.id);
   const { data: branches, isPending: loadingBranches } = useGetBranches();
@@ -85,6 +100,9 @@ export const StudentsTable = () => {
     status: filter.statusSelected?.value,
   });
 
+  const { mutate: withdrawStudents, isPending: withdrawing } = useWithdrawStudents();
+  const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents();
+
   const exportStudents = async () => {
     await mutate(undefined, {
       onSuccess: () => {
@@ -92,13 +110,59 @@ export const StudentsTable = () => {
           title: "Exporting Students...",
           type: "success",
         });
+        setOpenExportFilter(false);
       },
       onError: error => {
+        setOpenExportFilter(false);
         toast({
           title: error.message ?? "Something went wrong",
           description: "Could not export students",
           type: "error",
         });
+      },
+    });
+  };
+
+  const handleWithdrawal = (ids: number[]) => {
+    withdrawStudents(ids, {
+      onSuccess: data => {
+        toast({
+          title: "Successfully withdrawn students",
+          description: data.data.message,
+          type: "success",
+        });
+        setOpenWithdraw(false);
+      },
+      onError: error => {
+        toast({
+          title: error.message ?? "Something went wrong",
+          description: "Could not withdraw selected students",
+          type: "error",
+        });
+        setOpenWithdraw(false);
+      },
+    });
+  };
+
+  const handleDeletion = (ids: number[]) => {
+    deleteStudents(ids, {
+      onSuccess: data => {
+        queryClient.invalidateQueries({ queryKey: studentKeys.all, refetchType: "active" });
+
+        toast({
+          title: "Successfully deleted students",
+          description: data.data.message,
+          type: "success",
+        });
+        setOpenDelete(false);
+      },
+      onError: error => {
+        toast({
+          title: error.message ?? "Something went wrong",
+          description: "Could not delete selected students",
+          type: "error",
+        });
+        setOpenDelete(false);
       },
     });
   };
@@ -123,7 +187,6 @@ export const StudentsTable = () => {
       setStudentDistribution(studentDistr);
     }
   }, [distribution]);
-  const students = data?.pages.flatMap(page => page.content) ?? [];
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -158,7 +221,7 @@ export const StudentsTable = () => {
               onClick={() => exportStudents()}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
             >
-              {exporting ? <Spinner /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
+              {exporting ? <Spinner className="text-text-white-default" /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
               <span className="text-sm font-medium">Export Students</span>
             </Button>
           }
@@ -176,6 +239,106 @@ export const StudentsTable = () => {
             filteredCount={data?.pages[0].totalElements}
           />
         </Modal>
+      )}
+
+      {/* Withdraw open modal  */}
+
+      <Modal
+        open={openWithdraw}
+        className="block"
+        setOpen={setOpenWithdraw}
+        title="Withdraw Student?"
+        ActionButton={
+          <Button
+            onClick={() => handleWithdrawal(selectedRows.map(row => row.id))}
+            className={"bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 rounded-md text-sm font-medium"}
+          >
+            {withdrawing && <Spinner />}
+            Withdraw Student
+          </Button>
+        }
+      >
+        <div className="space-y-5 px-6 py-5">
+          <DialogDescription className="text-text-subtle text-sm font-normal">
+            Are you sure you want to withdraw <span className="font-normal">Damilare John?</span>{" "}
+          </DialogDescription>
+          <div className="bg-bg-basic-orange-subtle shadow-light border-border-default text-text-subtle rounded-sm border px-2.5 py-2.5 text-sm font-normal">
+            <p>
+              Once withdrawn, the profile will remain in the system, but the student will no longer appear in active classes or reports. You can
+              re-enroll the student later if needed.
+            </p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete open modal */}
+      <Modal
+        open={openDelete}
+        setOpen={setOpenDelete}
+        title="Delete Student?"
+        className="block"
+        ActionButton={
+          <Button
+            disabled={!isChecked}
+            onClick={() => handleDeletion(selectedRows.map(row => row.id))}
+            className={`h-7 rounded-md text-sm font-medium ${
+              isChecked ? "bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover!" : "bg-bg-state-soft text-text-subtle"
+            }`}
+          >
+            {deleting && <Spinner />}
+            Delete Student
+          </Button>
+        }
+      >
+        <div className="space-y-5 px-6 py-5">
+          <DialogDescription className="text-text-subtle text-sm font-normal">
+            Are you sure you want to permanently delete this student’s profile? This action cannot be undone.
+          </DialogDescription>
+
+          <div className="bg-bg-basic-orange-subtle border-border-default text-text-subtle shadow-light flex items-center gap-3 rounded-sm border px-2.5 py-2.5 text-sm font-normal">
+            <WarningIcon />
+            <p>Deleting will remove the student’s profile and records. This cannot be undone.</p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Checkbox id="terms" checked={isChecked} onCheckedChange={(checked: boolean) => setIsChecked(checked)} />
+            <label htmlFor="terms" className="text-text-subtle text-sm font-normal">
+              I understand that deleting this student is permanent and cannot be undone.
+            </label>
+          </div>
+        </div>
+      </Modal>
+
+      {isMobile && (
+        <MobileDrawer open={openExportFilter} setIsOpen={setOpenExportFilter} title="Export Students">
+          <TableExportFilter
+            tab="Students"
+            filter={filter}
+            onFilterChange={handleFilterChange}
+            branches={branches}
+            loadingBranches={loadingBranches}
+            classes={classes}
+            loadingClasses={loadingClasses}
+            arms={arms}
+            loadingArms={loadingArms}
+            filteredCount={data?.pages[0].totalElements}
+          />
+          <DrawerFooter className="border-border-default border-t">
+            <div className="flex justify-between">
+              <DrawerClose asChild>
+                <Button className="bg-bg-state-soft text-text-subtle h-8 rounded-md! px-4 text-sm font-medium">Cancel</Button>
+              </DrawerClose>
+
+              <Button
+                onClick={() => exportStudents()}
+                className="bg-bg-state-primary text-text-white-default h-8 rounded-md! px-4 text-sm tracking-[0.1rem]"
+              >
+                {exporting ? <Spinner className="text-text-white-default" /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
+                <span className="text-sm font-medium">Export Students</span>
+              </Button>
+            </div>
+          </DrawerFooter>
+        </MobileDrawer>
       )}
 
       {/* Title and Filter buttons */}
@@ -279,11 +442,17 @@ export const StudentsTable = () => {
       {isActionsOpen && (
         <MobileDrawer open={isActionsOpen} setIsOpen={setIsActionsOpen} title="Actions">
           <div className="flex flex-col gap-2 px-3 py-4">
-            <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+            <Button
+              onClick={() => setOpenExportFilter(true)}
+              className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
+            >
               <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
               <span>Export</span>
             </Button>
-            <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+            <Button
+              onClick={() => router.push(`student-and-parent-record/upload-students`)}
+              className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
+            >
               <Import fill="var(--color-icon-default-muted)" className="size-4" />
               <span>Import</span>
             </Button>
@@ -299,20 +468,32 @@ export const StudentsTable = () => {
             <span>Selected Item{selectedRows.length !== 1 && "s"}</span>
           </div>
 
-          <Button className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium">
-            <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />
+          <Button
+            onClick={() => setOpenWithdraw(true)}
+            className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
+          >
             <span>Withdraw student{selectedRows.length !== 1 && "s"}</span>
           </Button>
 
-          <Button className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium">
-            <DeleteBin fill="var(--color-bg-basic-red-accent)" className="size-4" />
-            <span>Delete {selectedRows.length !== 1 && "s"}</span>
+          <Button
+            onClick={() => setOpenDelete(true)}
+            className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
+          >
+            <span>Delete Student{selectedRows.length !== 1 && "s"}</span>
           </Button>
         </div>
       )}
 
       {/* Separate the table components into two different files with their separate states, then render conditionally here */}
-      {!data || loadingStudents ? (
+      {isError ? (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent
+            title="Could not get Students"
+            description="This is our problem, we are looking into it so as to serve you better"
+            buttonText="Go to the Home page"
+          />
+        </div>
+      ) : !data || loadingStudents ? (
         <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />
       ) : (
         <div className="hidden md:block">
@@ -324,7 +505,7 @@ export const StudentsTable = () => {
             setCurrentPage={setPage}
             pageSize={pageSize}
             clickHandler={row => {
-              router.push(`/student-and-parent-record/${row.original.id}`);
+              router.push(`/student-and-parent-record/students/${row.original.id}`);
             }}
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}

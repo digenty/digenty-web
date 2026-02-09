@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 import { useState } from "react";
 import * as yup from "yup";
-import { ConfirmUpload } from "./BulkUpload/ConfirmUpload";
-import { CSVUpload, ValidationError } from "./BulkUpload/CSVUpload";
-import { CSVUploadProgress } from "./BulkUpload/CSVUploadProgress";
-import { Step } from "./BulkUpload/types";
+import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
+import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
+import { Step } from "../BulkUpload/types";
 import { useUploadStudents } from "@/hooks/queryHooks/useStudent";
 import { toast } from "@/components/Toast";
-import { Spinner } from "../ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
+import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
 
 const steps: Step[] = [
   { id: 1, label: "Upload Students", completed: false },

@@ -48,7 +48,7 @@ const Toast = (props: ToastProps) => {
         <div className="w-full space-y-3">
           <div>
             <p className="text-text-inverted-default pt-0 text-sm font-medium">{title}</p>
-            <p className="text-text-inverted-subtle mt-1 text-xs">{description}</p>
+            {description && <p className="text-text-inverted-subtle mt-1 text-xs">{description}</p>}
           </div>
 
           {button && <Button className="bg-bg-default text-text-muted h-7 text-xs">{button?.label}</Button>}

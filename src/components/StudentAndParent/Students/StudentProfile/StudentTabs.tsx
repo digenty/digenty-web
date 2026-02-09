@@ -2,10 +2,11 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { Biodata } from "./StudentTable/Biodata";
-import StudentAcademicRecord from "./StudentTable/StudentAcademicRecord";
-import StudentInvoiceTable from "./StudentTable/StudentInvoiceTable";
+import { Biodata } from "./Biodata";
+import StudentAcademicRecord from "./StudentAcademicRecord";
+import StudentInvoiceTable from "./StudentInvoiceTable";
 import { cn } from "@/lib/utils";
+import { Student } from "@/api/types";
 
 const tabs = [
   { label: "Biodata", value: "biodata" },
@@ -13,7 +14,7 @@ const tabs = [
   { label: "Academic Records", value: "academic-records" },
 ];
 
-export default function StudentTabs() {
+export default function StudentTabs({ student }: { student: Student }) {
   const router = useRouter();
   const params = useSearchParams();
   const activeTab = params.get("tab");
@@ -42,7 +43,7 @@ export default function StudentTabs() {
       </div>
 
       <div className="mt-4 md:mt-6">
-        {activeTab === "biodata" && <Biodata />}
+        {activeTab === "biodata" && <Biodata student={student} />}
         {activeTab === "invoices" && <StudentInvoiceTable />}
         {activeTab === "academic-records" && <StudentAcademicRecord />}
       </div>

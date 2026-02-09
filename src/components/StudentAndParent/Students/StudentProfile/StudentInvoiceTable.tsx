@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { Calendar, Check, CheckCheck, Ellipsis, Eye, Trash2, TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
-import { Invoice } from "../types";
+import { Invoice } from "./types";
 import { columns } from "./InvoiceColumns";
 import { Draft } from "@/components/Icons/Draft";
 import { useRouter } from "next/navigation";

@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import Edit from "../Icons/Edit";
 import DeleteBin from "../Icons/DeleteBin";
-import { getBadge } from "../StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "../StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import Notification2 from "../Icons/Notification2";
 import { BallPen } from "../Icons/BallPen";
 import { useRouter } from "next/navigation";
@@ -91,7 +91,7 @@ export const InvoiceOverviewTableColumns: ColumnDef<InvoicesOverviewTableProps>[
     cell: ({ row }) => (
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
-          <Avatar username={row.original.studentName} className="size-5" url="" />
+          <Avatar className="size-5" url="" />
           <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.studentName}</span>
         </div>
       </div>

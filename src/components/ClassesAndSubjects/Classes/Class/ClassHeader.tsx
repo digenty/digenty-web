@@ -26,7 +26,7 @@ export const ClassHeader = () => {
           <div className="flex flex-col gap-1">
             <h2 className="border-border-default text-text-default border-b px-4 py-2 text-lg font-semibold md:border-none md:p-0">JSS 1A</h2>
             <div className="border-border-default flex items-center gap-1 border-b px-4 py-2 md:border-none md:p-0">
-              <Avatar username="Damialre John" className="size-4" /> <span className="text-text-subtle text-sm font-normal">Damilare John</span>
+              <Avatar className="size-4" /> <span className="text-text-subtle text-sm font-normal">Damilare John</span>
             </div>
           </div>
           <div className="border-border-default space-between flex items-center gap-2 border-b px-4 pb-2 md:gap-1 md:border-none md:p-0">

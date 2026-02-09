@@ -106,7 +106,54 @@ export const exportStudents = async ({
 
     a.remove();
     window.URL.revokeObjectURL(downloadUrl);
-    // return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const withdrawStudents = async (studentIds: number[]) => {
+  try {
+    const { data } = await api.put(`/students/withdraw/${studentIds.join(",")}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const deleteStudents = async (studentIds: number[]) => {
+  try {
+    const { data } = await api.delete(`/students/${studentIds.join(",")}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const getStudent = async (studentId?: number) => {
+  try {
+    const { data } = await api.get(`/students/${studentId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const editStudent = async (payload: StudentInputType & { studentId: number }) => {
+  try {
+    const { data } = await api.put("/students", payload);
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;

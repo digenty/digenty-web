@@ -4,9 +4,9 @@ import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerT
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
 import { useState } from "react";
-import BookOpen from "../Icons/BookOpen";
-import ClassIcon from "../Icons/ClassIcon";
-import StudentIcon from "../Icons/StudentIcon";
+import BookOpen from "@/components/Icons/BookOpen";
+import ClassIcon from "@/components/Icons/ClassIcon";
+import StudentIcon from "@/components/Icons/StudentIcon";
 
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 const classes = ["JSS1", "JSS2", "JSS3", "SS1", "SS2", "SS3"];

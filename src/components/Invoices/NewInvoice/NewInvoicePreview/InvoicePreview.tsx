@@ -32,7 +32,7 @@ export const InvoicePreview = ({ onPreviewToggle }: ToggleProp) => {
             <div>
               <div className="text-text-default text-sm font-semibold">Bill for</div>
               <div className="flex items-center gap-1">
-                <Avatar username="Damilare John" className="size-4" />
+                <Avatar className="size-4" />
                 <span className="text-text-informative text-sm font-medium">Damilare John</span>
               </div>
             </div>
