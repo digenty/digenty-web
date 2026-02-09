@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Avatar } from "../../../Avatar";
 import { Button } from "../../../ui/button";
 import { DialogDescription } from "../../../ui/dialog";
-import StatusBadge from "./StatusBadge";
 
 import DeleteBin from "../../../Icons/DeleteBin";
 import Edit from "../../../Icons/Edit";
@@ -23,6 +22,7 @@ import { studentKeys } from "@/queries/student";
 import { toast } from "../../../Toast";
 import { Spinner } from "../../../ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import StatusBadge from "@/components/StatusBadge";
 
 export const StudentProfile = () => {
   const pathname = usePathname();
@@ -102,7 +102,7 @@ export const StudentProfile = () => {
   }
 
   const student: Student = data?.data;
-  console.log(student);
+
   return (
     <div className="base:px-20.5 mb-5 px-4 py-4">
       <div>

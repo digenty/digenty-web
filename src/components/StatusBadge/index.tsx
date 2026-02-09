@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Badge } from "../../../ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 export default function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {

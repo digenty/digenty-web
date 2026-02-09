@@ -15,9 +15,9 @@ interface DataTableProps<TData, TValue> {
   setCurrentPage: (page: number) => void;
   clickHandler: (row: Row<TData>) => void;
   pageSize: number;
-  rowSelection: Record<string, boolean>;
-  setRowSelection: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-  onSelectRows: (data: TData[]) => void;
+  rowSelection?: Record<string, boolean>;
+  setRowSelection?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  onSelectRows?: (data: TData[]) => void;
   showPagination?: boolean;
   fullBorder?: boolean;
   loadingContent?: boolean;

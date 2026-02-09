@@ -80,7 +80,6 @@ export const ParentProfile = () => {
   }
 
   const parent: Parent = data?.data;
-  console.log(parent, "###");
 
   return (
     <div className="base:px-20.5 mb-5 px-4 py-4">

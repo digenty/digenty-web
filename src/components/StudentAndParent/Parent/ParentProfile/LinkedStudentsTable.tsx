@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LinkedStudentMobileCard } from "./LinkedStudentMobileCard";
 import { columns } from "./LinkedStudentsColumn";
-import { Invoice } from "./types";
 
 const students: Student[] = [
   {
@@ -42,8 +41,6 @@ const students: Student[] = [
     armId: null,
   },
 ];
-
-const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 
 export const getBadge = (status: string) => {
   switch (status) {
@@ -108,7 +105,7 @@ export const getBadge = (status: string) => {
 export const LinkedStudentsTable = () => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
-  const [selectedRows, setSelectedRows] = useState<Invoice[]>([]);
+  const [selectedRows, setSelectedRows] = useState<Student[]>([]);
   console.log(selectedRows);
   const router = useRouter();
   const pageSize = 10;
