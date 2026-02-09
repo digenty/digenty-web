@@ -1,5 +1,5 @@
 "use client";
-import { PageEmptyState } from "@/components/PageEmptyState";
+import { PageEmptyState } from "@/components/Error/PageEmptyState";
 
 export default function NotFound() {
   return (

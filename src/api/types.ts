@@ -79,8 +79,8 @@ export interface Student {
   stateOfOrigin: string;
   joinedSchoolTerm: string;
   joinedSchoolSession: string;
-  branchId: number | null;
-  classId: number | null;
+  branch: string;
+  class: string;
   departmentId: number | null;
   armId: number | null;
   image: string | null;

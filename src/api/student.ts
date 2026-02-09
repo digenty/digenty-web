@@ -149,3 +149,15 @@ export const getStudent = async (studentId?: number) => {
     throw error;
   }
 };
+
+export const editStudent = async (payload: StudentInputType & { studentId: number }) => {
+  try {
+    const { data } = await api.put("/students", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

@@ -13,7 +13,7 @@ import WarningIcon from "../Icons/WarningIcon";
 import { Modal } from "../Modal";
 import { Checkbox } from "../ui/checkbox";
 import StudentTabs from "./StudentTabs";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useDeleteStudents, useGetStudent, useWithdrawStudents } from "@/hooks/queryHooks/useStudent";
 import { Skeleton } from "../ui/skeleton";
 import { Student } from "@/api/types";
@@ -26,6 +26,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 export const Profile = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const studentId = pathname.split("/")[2] ?? "";
 
   const { openWithdraw, setOpenWithdraw, openDelete, setOpenDelete } = useStudentStore();
@@ -87,7 +88,7 @@ export const Profile = () => {
   if (!data || isPending) {
     return (
       <div className="base:px-20.5 mb-5 space-y-8 px-4 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-12">
           <div className="flex items-center gap-6">
             <Skeleton className="bg-bg-input-soft size-12 rounded-full md:size-26.5" />
             <Skeleton className="bg-bg-input-soft h-20 w-45 rounded-md" />
@@ -133,7 +134,10 @@ export const Profile = () => {
             >
               {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
             </Button>
-            <Button className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm">
+            <Button
+              onClick={() => router.push(`/student-and-parent-record/${student.id}/edit`)}
+              className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm"
+            >
               <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Student Information
             </Button>
           </div>

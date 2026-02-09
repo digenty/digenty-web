@@ -10,10 +10,10 @@ import { format } from "date-fns";
 import { ArrowRightIcon, CheckIcon, ChevronsUpDownIcon, EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Avatar } from "../Avatar";
-import DeleteBin from "../Icons/DeleteBin";
-import Edit from "../Icons/Edit";
-import UserMinus from "../Icons/UserMinus";
+import { Avatar } from "../../Avatar";
+import DeleteBin from "../../Icons/DeleteBin";
+import Edit from "../../Icons/Edit";
+import UserMinus from "../../Icons/UserMinus";
 
 const RenderOptions = (row: Row<Student>) => {
   const router = useRouter();
@@ -31,7 +31,13 @@ const RenderOptions = (row: Row<Student>) => {
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View student profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem
+          onClick={evt => {
+            evt.stopPropagation();
+            router.push(`/student-and-parent-record/${row.original.id}/edit`);
+          }}
+          className="gap-2.5 px-3"
+        >
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit student profile</span>
         </DropdownMenuItem>
@@ -117,15 +123,19 @@ export const columns: ColumnDef<Student>[] = [
           </span>
         </div>
 
-        {row.original.tags && (
+        {row.original.tags.length > 0 && row.original.tags && (
           <div className="flex items-center gap-2">
-            {row.original.tags.map(tag => (
-              <span
-                className={cn("bg-bg-badge-cyan text-bg-basic-cyan-strong border-border-default rounded-lg border px-2 py-0.5 text-xs")}
-                key={tag}
-              >
-                {tag}
-              </span>
+            {row.original.tags.slice(0, 3).map((tag, index) => (
+              <div key={`${tag}-${index}`}>
+                {tag && (
+                  <span
+                    className={cn("bg-bg-badge-cyan text-bg-basic-cyan-strong border-border-default rounded-lg border px-2 py-0.5 text-xs")}
+                    key={tag}
+                  >
+                    {tag}
+                  </span>
+                )}
+              </div>
             ))}
           </div>
         )}
@@ -142,7 +152,7 @@ export const columns: ColumnDef<Student>[] = [
   {
     accessorKey: "class",
     header: () => <div className="text-text-muted text-sm font-medium">Class</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.classId}</span>,
+    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.class}</span>,
     size: 150,
   },
   {
@@ -161,7 +171,7 @@ export const columns: ColumnDef<Student>[] = [
   {
     accessorKey: "branch",
     header: () => <div className="text-text-muted text-sm font-medium">Branch</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.branchId}</span>,
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.branch}</span>,
     size: 150,
   },
   {

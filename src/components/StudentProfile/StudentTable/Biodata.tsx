@@ -13,7 +13,7 @@ import { Phone } from "lucide-react";
 
 export const Biodata = ({ student }: { student: Student }) => {
   const biodata = [
-    { bio: "Branch", detail: student.branchId, icon: <Building fill="var(--color-icon-default-muted)" /> },
+    { bio: "Branch", detail: student.branch, icon: <Building fill="var(--color-icon-default-muted)" /> },
     { bio: "Joined School", detail: student.joinedSchoolSession, icon: <Calendar fill="var(--color-icon-default-muted)" /> },
     { bio: "Gender", detail: student.gender.toLowerCase(), icon: <User fill="var(--color-icon-default-muted)" /> },
     { bio: "Boarding Status", detail: student.boardingStatus.toLowerCase(), icon: <RedPacket fill="var(--color-icon-default-muted)" /> },

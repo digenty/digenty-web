@@ -1,42 +1,42 @@
 "use client";
 import { Arm, Branch, ClassType, Department, Student } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
-import DeleteBin from "@/components/Icons/DeleteBin";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import GraduationCap from "@/components/Icons/GraduationCap";
 import Import from "@/components/Icons/Import";
 import ShareBox from "@/components/Icons/ShareBox";
 import UserFill from "@/components/Icons/UserFill";
 import UserMinus from "@/components/Icons/UserMinus";
+import WarningIcon from "@/components/Icons/WarningIcon";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { OverviewCard } from "@/components/OverviewCard";
 import { SearchInput } from "@/components/SearchInput";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
+import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DialogDescription } from "@/components/ui/dialog";
+import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useDeleteStudents, useExportStudents, useGetStudents, useGetStudentsDistribution, useWithdrawStudents } from "@/hooks/queryHooks/useStudent";
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import useDebounce from "@/hooks/useDebounce";
-import { MoreHorizontal, PlusIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { columns } from "../Columns";
-import { MobileCard } from "../MobileCard";
-import { RecordHeader } from "../RecordHeader";
-import { TableExportFilter } from "../TableExportFilter";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
-import { toast } from "@/components/Toast";
-import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
-import { useQueryClient } from "@tanstack/react-query";
+import { useDeleteStudents, useExportStudents, useGetStudents, useGetStudentsDistribution, useWithdrawStudents } from "@/hooks/queryHooks/useStudent";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import useDebounce from "@/hooks/useDebounce";
 import { studentKeys } from "@/queries/student";
-import { DialogDescription } from "@/components/ui/dialog";
-import WarningIcon from "@/components/Icons/WarningIcon";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useStudentStore } from "@/store/student";
+import { useQueryClient } from "@tanstack/react-query";
+import { MoreHorizontal, PlusIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { columns } from "./Columns";
+import { MobileCard } from "../MobileCard";
+import { RecordHeader } from "../RecordHeader";
+import { TableExportFilter } from "../TableExportFilter";
 
 export const StudentsTable = () => {
   const router = useRouter();
@@ -70,6 +70,7 @@ export const StudentsTable = () => {
   const {
     data,
     isPending: loadingStudents,
+    isError,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -478,7 +479,15 @@ export const StudentsTable = () => {
       )}
 
       {/* Separate the table components into two different files with their separate states, then render conditionally here */}
-      {!data || loadingStudents ? (
+      {isError ? (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent
+            title="Could not get Students"
+            description="This is our problem, we are looking into it so as to serve you better"
+            buttonText="Go to the Home page"
+          />
+        </div>
+      ) : !data || loadingStudents ? (
         <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />
       ) : (
         <div className="hidden md:block">

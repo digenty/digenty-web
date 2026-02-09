@@ -27,7 +27,7 @@ const TagInput: React.FC<TagInputProps> = ({ placeholder = "Add tag", tags, setT
       .map(tag => tag.trim())
       .filter(tag => tag && !tags.includes(tag));
     if (newTags.length) {
-      setTags([...tags, ...newTags]);
+      setTags([...new Set([...tags, ...newTags])]);
     }
   };
 

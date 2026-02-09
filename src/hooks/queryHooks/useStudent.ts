@@ -1,6 +1,7 @@
 import {
   addStudent,
   deleteStudents,
+  editStudent,
   exportStudents,
   getStudent,
   getStudents,
@@ -97,5 +98,12 @@ export const useGetStudent = (studentId?: number) => {
     queryKey: [studentKeys.getStudent, studentId],
     queryFn: () => getStudent(studentId),
     enabled: !!studentId,
+  });
+};
+
+export const useEditStudent = () => {
+  return useMutation({
+    mutationKey: studentKeys.editStudent,
+    mutationFn: editStudent,
   });
 };
