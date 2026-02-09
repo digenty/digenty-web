@@ -4,4 +4,5 @@ export const parentKeys = {
   addParent: ["addParent"] as const,
   parentsUpload: ["parentsUpload"] as const,
   exportParents: ["exportParents"] as const,
+  deleteParents: ["deleteParents"] as const,
 };

@@ -92,3 +92,15 @@ export const getParent = async (parentId?: number) => {
     throw error;
   }
 };
+
+export const deleteParents = async (parentIds: number[]) => {
+  try {
+    const { data } = await api.delete(`/parents/${parentIds.join(",")}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

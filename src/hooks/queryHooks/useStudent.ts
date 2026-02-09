@@ -79,17 +79,17 @@ export const useExportStudents = ({
   });
 };
 
-export const useWithdrawStudents = () => {
+export const useWithdrawStudents = (studentIds: number[]) => {
   return useMutation({
     mutationKey: studentKeys.withdrawStudents,
-    mutationFn: (studentIds: number[]) => withdrawStudents(studentIds),
+    mutationFn: () => withdrawStudents(studentIds),
   });
 };
 
-export const useDeleteStudents = () => {
+export const useDeleteStudents = (studentIds: number[]) => {
   return useMutation({
     mutationKey: studentKeys.deleteStudents,
-    mutationFn: (studentIds: number[]) => deleteStudents(studentIds),
+    mutationFn: () => deleteStudents(studentIds),
   });
 };
 

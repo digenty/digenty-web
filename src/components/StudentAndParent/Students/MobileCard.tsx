@@ -1,4 +1,7 @@
+import { Student } from "@/api/types";
+import { useStudentStore } from "@/store/student";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Avatar } from "../../Avatar";
 import DeleteBin from "../../Icons/DeleteBin";
@@ -6,14 +9,11 @@ import Edit from "../../Icons/Edit";
 import UserMinus from "../../Icons/UserMinus";
 import { MobileDrawer } from "../../MobileDrawer";
 import { Button } from "../../ui/button";
-import { useRouter } from "next/navigation";
-import { Student } from "@/api/types";
-import { useStudentStore } from "@/store/student";
 
 export const MobileCard = ({ student }: { student: Student }) => {
   const router = useRouter();
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
-  const { setOpenWithdraw, setOpenDelete } = useStudentStore();
+  const { setOpenWithdraw, setOpenDelete, setStudentIdsToDelete, setStudentIdsToWithdraw } = useStudentStore();
 
   return (
     <div
@@ -61,6 +61,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
                 onClick={evt => {
                   evt.stopPropagation();
                   setOpenWithdraw(true);
+                  setStudentIdsToWithdraw([student.id]);
                 }}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
               >
@@ -71,6 +72,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
                 onClick={evt => {
                   evt.stopPropagation();
                   setOpenDelete(true);
+                  setStudentIdsToDelete([student.id]);
                 }}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
               >
