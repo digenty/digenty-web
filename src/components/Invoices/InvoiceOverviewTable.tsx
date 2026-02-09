@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { InvoicesOverviewTableProps } from "./types";
 import { DataTable } from "../DataTable";
 import { InvoiceOverviewTableColumns } from "./Column";
-import { getBadge } from "../StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "../StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import { Ellipsis, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import Eye from "../Icons/Eye";

@@ -9,15 +9,17 @@ import { Avatar } from "../../Avatar";
 import DeleteBin from "../../Icons/DeleteBin";
 import Edit from "../../Icons/Edit";
 import { Parent } from "@/api/types";
+import { useRouter } from "next/navigation";
 
 const RenderOptions = (row: Row<Parent>) => {
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus-visible:ring-0 focus-visible:outline-none">
         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => router.push(`/student-and-parent-record/parents/${row.original.id}`)} className="gap-2.5 px-3">
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View parent profile</span>
         </DropdownMenuItem>

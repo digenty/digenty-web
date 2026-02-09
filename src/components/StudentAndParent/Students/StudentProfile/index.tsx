@@ -1,33 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Avatar } from "../Avatar";
-import { Button } from "../ui/button";
-import { DialogDescription } from "../ui/dialog";
+import { Avatar } from "../../../Avatar";
+import { Button } from "../../../ui/button";
+import { DialogDescription } from "../../../ui/dialog";
 import StatusBadge from "./StatusBadge";
 
-import DeleteBin from "../Icons/DeleteBin";
-import Edit from "../Icons/Edit";
-import UserMinus from "../Icons/UserMinus";
-import WarningIcon from "../Icons/WarningIcon";
-import { Modal } from "../Modal";
-import { Checkbox } from "../ui/checkbox";
+import DeleteBin from "../../../Icons/DeleteBin";
+import Edit from "../../../Icons/Edit";
+import UserMinus from "../../../Icons/UserMinus";
+import WarningIcon from "../../../Icons/WarningIcon";
+import { Modal } from "../../../Modal";
+import { Checkbox } from "../../../ui/checkbox";
 import StudentTabs from "./StudentTabs";
 import { usePathname, useRouter } from "next/navigation";
 import { useDeleteStudents, useGetStudent, useWithdrawStudents } from "@/hooks/queryHooks/useStudent";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "../../../ui/skeleton";
 import { Student } from "@/api/types";
 import { useStudentStore } from "@/store/student";
 import { queryClient } from "@/lib/tanstack";
 import { studentKeys } from "@/queries/student";
-import { toast } from "../Toast";
-import { Spinner } from "../ui/spinner";
+import { toast } from "../../../Toast";
+import { Spinner } from "../../../ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
-export const Profile = () => {
+export const StudentProfile = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const studentId = pathname.split("/")[2] ?? "";
+  const studentId = pathname.split("/")[3] ?? "";
 
   const { openWithdraw, setOpenWithdraw, openDelete, setOpenDelete } = useStudentStore();
 
@@ -102,7 +102,7 @@ export const Profile = () => {
   }
 
   const student: Student = data?.data;
-
+  console.log(student);
   return (
     <div className="base:px-20.5 mb-5 px-4 py-4">
       <div>
@@ -114,7 +114,7 @@ export const Profile = () => {
                 <span>
                   {student.firstName} {student.lastName}
                 </span>
-                <StatusBadge status="Prefect" />
+                {student.tags.slice(0, 2).map((tag, index) => tag && <StatusBadge key={`${tag}-${index}`} status="Prefect" />)}
               </div>
               <p className="text-text-subtle text-sm font-normal">JSS 1 A</p>
               <div className="text-text-subtle text-sm font-normal">{student.admissionNumber ?? "--"}</div>

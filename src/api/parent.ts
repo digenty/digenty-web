@@ -80,3 +80,15 @@ export const exportParents = async ({ branchId }: { branchId?: number }) => {
     throw error;
   }
 };
+
+export const getParent = async (parentId?: number) => {
+  try {
+    const { data } = await api.get(`/parents/${parentId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

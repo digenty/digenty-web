@@ -8,7 +8,7 @@ import { Cash } from "@/components/Icons/Cash";
 import DeleteBin from "@/components/Icons/DeleteBin";
 import Edit from "@/components/Icons/Edit";
 import { Folder3 } from "@/components/Icons/Folder3";
-import { getBadge } from "@/components/StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "@/components/StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { invoiceBreakdownType, paymentHistoryType } from "./invoiceIdTypes";
 

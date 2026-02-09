@@ -4,7 +4,7 @@ import { useState } from "react";
 import { DataTable } from "@/components/DataTable";
 import { breakdownColumns, getPaymentMethodIcon, paymentHistoryColumns } from "./InvoiceIdColumns";
 import { invoiceBreakdownType } from "./invoiceIdTypes";
-import { getBadge } from "@/components/StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "@/components/StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
 import { useIsMobile } from "@/hooks/useIsMobile";

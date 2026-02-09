@@ -1,6 +1,6 @@
 "use client";
 import { Avatar } from "@/components/Avatar";
-import { getBadge } from "@/components/StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "@/components/StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 
 const invoice = [
   {

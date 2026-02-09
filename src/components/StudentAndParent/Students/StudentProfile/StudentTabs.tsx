@@ -2,9 +2,9 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { Biodata } from "./StudentTable/Biodata";
-import StudentAcademicRecord from "./StudentTable/StudentAcademicRecord";
-import StudentInvoiceTable from "./StudentTable/StudentInvoiceTable";
+import { Biodata } from "./Biodata";
+import StudentAcademicRecord from "./StudentAcademicRecord";
+import StudentInvoiceTable from "./StudentInvoiceTable";
 import { cn } from "@/lib/utils";
 import { Student } from "@/api/types";
 

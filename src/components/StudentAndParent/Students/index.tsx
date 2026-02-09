@@ -34,7 +34,7 @@ import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { columns } from "./Columns";
-import { MobileCard } from "../MobileCard";
+import { MobileCard } from "./MobileCard";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -505,7 +505,7 @@ export const StudentsTable = () => {
             setCurrentPage={setPage}
             pageSize={pageSize}
             clickHandler={row => {
-              router.push(`/student-and-parent-record/${row.original.id}`);
+              router.push(`/student-and-parent-record/students/${row.original.id}`);
             }}
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}

@@ -282,7 +282,7 @@ export const ParentsTable = () => {
             setCurrentPage={setPage}
             pageSize={pageSize}
             clickHandler={row => {
-              router.push(`/student-and-parent-record/${row.original.id}`);
+              router.push(`/student-and-parent-record/parents/${row.original.id}`);
             }}
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}

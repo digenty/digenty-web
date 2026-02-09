@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Badge } from "../ui/badge";
+import { Badge } from "../../../ui/badge";
 
 export default function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
@@ -12,7 +12,12 @@ export default function StatusBadge({ status }: { status: string }) {
   };
 
   return (
-    <Badge className={cn("border-border-default h-6 rounded-md border text-xs capitalize", colors[status?.toLowerCase()])}>
+    <Badge
+      className={cn(
+        "border-border-default h-6 rounded-md border text-xs capitalize",
+        colors[status?.toLowerCase()] ?? "bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong",
+      )}
+    >
       {status.toLowerCase()}
     </Badge>
   );

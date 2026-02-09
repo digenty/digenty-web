@@ -6,9 +6,11 @@ import Edit from "@/components/Icons/Edit";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
+  const router = useRouter();
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
 
   return (
@@ -28,7 +30,10 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
         {isOptionsOpen && (
           <MobileDrawer open={isOptionsOpen} setIsOpen={setIsOptionsOpen} title="Actions">
             <div className="flex flex-col gap-2 p-4">
-              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Button
+                onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}`)}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+              >
                 <EyeIcon className="text-icon-default-muted size-4" />
                 <span>View Parent Profile</span>
               </Button>

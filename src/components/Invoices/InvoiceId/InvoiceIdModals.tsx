@@ -1,7 +1,7 @@
 import { Avatar } from "@/components/Avatar";
 import { Bank } from "@/components/Icons/Bank";
 import { Modal } from "@/components/Modal";
-import { getBadge } from "@/components/StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "@/components/StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import { Button } from "@/components/ui/button";
 import { useClassesStore } from "@/store/classes";
 import { Checkbox } from "@/components/ui/checkbox";

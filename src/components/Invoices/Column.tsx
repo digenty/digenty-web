@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import Edit from "../Icons/Edit";
 import DeleteBin from "../Icons/DeleteBin";
-import { getBadge } from "../StudentProfile/StudentTable/StudentInvoiceTable";
+import { getBadge } from "../StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import Notification2 from "../Icons/Notification2";
 import { BallPen } from "../Icons/BallPen";
 import { useRouter } from "next/navigation";

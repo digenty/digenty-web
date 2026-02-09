@@ -1,11 +1,11 @@
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
-import { Avatar } from "../Avatar";
-import DeleteBin from "../Icons/DeleteBin";
-import Edit from "../Icons/Edit";
-import UserMinus from "../Icons/UserMinus";
-import { MobileDrawer } from "../MobileDrawer";
-import { Button } from "../ui/button";
+import { Avatar } from "../../Avatar";
+import DeleteBin from "../../Icons/DeleteBin";
+import Edit from "../../Icons/Edit";
+import UserMinus from "../../Icons/UserMinus";
+import { MobileDrawer } from "../../MobileDrawer";
+import { Button } from "../../ui/button";
 import { useRouter } from "next/navigation";
 import { Student } from "@/api/types";
 import { useStudentStore } from "@/store/student";
@@ -45,7 +45,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
               <Button
                 onClick={evt => {
                   evt.stopPropagation();
-                  router.push(`/student-and-parent-record/${student.id}`);
+                  router.push(`/student-and-parent-record/students/${student.id}`);
                 }}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
               >

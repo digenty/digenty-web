@@ -1,6 +1,6 @@
-import { addParent, exportParents, getParents, uploadParents } from "@/api/parent";
+import { addParent, exportParents, getParent, getParents, uploadParents } from "@/api/parent";
 import { parentKeys } from "@/queries/parent";
-import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 export const useAddParent = () => {
   return useMutation({
@@ -32,5 +32,13 @@ export const useExportParents = ({ branchId }: { branchId?: number }) => {
   return useMutation({
     mutationKey: parentKeys.exportParents,
     mutationFn: () => exportParents({ branchId }),
+  });
+};
+
+export const useGetParent = (parentId?: number) => {
+  return useQuery({
+    queryKey: [parentKeys.getParent, parentId],
+    queryFn: () => getParent(parentId),
+    enabled: !!parentId,
   });
 };
