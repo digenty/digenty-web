@@ -28,9 +28,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { useExportStudents } from "@/hooks/queryHooks/useStudent";
 import { toast } from "@/components/Toast";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export const ParentsTable = () => {
   const router = useRouter();
+  const isMobile = useIsMobile();
+
   const [page, setPage] = useState(1);
   const [openExportFilter, setOpenExportFilter] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
@@ -71,7 +74,7 @@ export const ParentsTable = () => {
           title: "Exporting Parents...",
           type: "success",
         });
-        // setOpenExportFilter(false);
+        setOpenExportFilter(false);
       },
       onError: error => {
         setOpenExportFilter(false);
@@ -120,7 +123,10 @@ export const ParentsTable = () => {
             </span>
           }
           ActionButton={
-            <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1">
+            <Button
+              onClick={() => exportStudents()}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
+            >
               {exporting ? <Spinner className="text-text-white-default" /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
               <span className="text-sm font-medium">Export Parents</span>
             </Button>
@@ -137,31 +143,33 @@ export const ParentsTable = () => {
         </Modal>
       )}
 
-      <MobileDrawer open={openExportFilter} setIsOpen={setOpenExportFilter} title="Export Students">
-        <TableExportFilter
-          tab="Parents"
-          filter={filter}
-          onFilterChange={handleFilterChange}
-          branches={branches}
-          loadingBranches={loadingBranches}
-          filteredCount={data?.pages[0].totalElements}
-        />
-        <DrawerFooter className="border-border-default border-t">
-          <div className="flex justify-between">
-            <DrawerClose asChild>
-              <Button className="bg-bg-state-soft text-text-subtle h-8 rounded-md! px-4 text-sm font-medium">Cancel</Button>
-            </DrawerClose>
+      {isMobile && (
+        <MobileDrawer open={openExportFilter} setIsOpen={setOpenExportFilter} title="Export Students">
+          <TableExportFilter
+            tab="Parents"
+            filter={filter}
+            onFilterChange={handleFilterChange}
+            branches={branches}
+            loadingBranches={loadingBranches}
+            filteredCount={data?.pages[0].totalElements}
+          />
+          <DrawerFooter className="border-border-default border-t">
+            <div className="flex justify-between">
+              <DrawerClose asChild>
+                <Button className="bg-bg-state-soft text-text-subtle h-8 rounded-md! px-4 text-sm font-medium">Cancel</Button>
+              </DrawerClose>
 
-            <Button
-              onClick={() => exportStudents()}
-              className="bg-bg-state-primary text-text-white-default h-8 rounded-md! px-4 text-sm tracking-[0.1rem]"
-            >
-              {exporting ? <Spinner className="text-text-white-default" /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
-              <span className="text-sm font-medium">Export Parents</span>
-            </Button>
-          </div>
-        </DrawerFooter>
-      </MobileDrawer>
+              <Button
+                onClick={() => exportStudents()}
+                className="bg-bg-state-primary text-text-white-default h-8 rounded-md! px-4 text-sm tracking-[0.1rem]"
+              >
+                {exporting ? <Spinner className="text-text-white-default" /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
+                <span className="text-sm font-medium">Export Parents</span>
+              </Button>
+            </div>
+          </DrawerFooter>
+        </MobileDrawer>
+      )}
 
       {/* Title and Filter buttons */}
       <div className="space-y-4">
@@ -218,21 +226,6 @@ export const ParentsTable = () => {
         </div>
       </div>
 
-      {/* {isActionsOpen && (
-        <MobileDrawer open={isActionsOpen} setIsOpen={setIsActionsOpen} title="Actions">
-          <div className="flex flex-col gap-2 px-3 py-4">
-            <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
-              <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
-              <span>Export</span>
-            </Button>
-            <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
-              <Import fill="var(--color-icon-default-muted)" className="size-4" />
-              <span>Import</span>
-            </Button>
-          </div>
-        </MobileDrawer>
-      )} */}
-
       {isActionsOpen && (
         <MobileDrawer open={isActionsOpen} setIsOpen={setIsActionsOpen} title="Actions">
           <div className="flex flex-col gap-2 px-3 py-4">
@@ -244,7 +237,7 @@ export const ParentsTable = () => {
               <span>Export</span>
             </Button>
             <Button
-              onClick={() => router.push(`student-and-parent-record/upload-students`)}
+              onClick={() => router.push(`student-and-parent-record/upload-parents`)}
               className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
             >
               <Import fill="var(--color-icon-default-muted)" className="size-4" />

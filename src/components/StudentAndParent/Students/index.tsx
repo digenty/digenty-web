@@ -37,10 +37,12 @@ import { columns } from "./Columns";
 import { MobileCard } from "../MobileCard";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export const StudentsTable = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const { openWithdraw, setOpenWithdraw, openDelete, setOpenDelete } = useStudentStore();
 
   const [page, setPage] = useState(1);
@@ -108,7 +110,7 @@ export const StudentsTable = () => {
           title: "Exporting Students...",
           type: "success",
         });
-        // setOpenExportFilter(false);
+        setOpenExportFilter(false);
       },
       onError: error => {
         setOpenExportFilter(false);
@@ -307,35 +309,37 @@ export const StudentsTable = () => {
         </div>
       </Modal>
 
-      <MobileDrawer open={openExportFilter} setIsOpen={setOpenExportFilter} title="Export Students">
-        <TableExportFilter
-          tab="Students"
-          filter={filter}
-          onFilterChange={handleFilterChange}
-          branches={branches}
-          loadingBranches={loadingBranches}
-          classes={classes}
-          loadingClasses={loadingClasses}
-          arms={arms}
-          loadingArms={loadingArms}
-          filteredCount={data?.pages[0].totalElements}
-        />
-        <DrawerFooter className="border-border-default border-t">
-          <div className="flex justify-between">
-            <DrawerClose asChild>
-              <Button className="bg-bg-state-soft text-text-subtle h-8 rounded-md! px-4 text-sm font-medium">Cancel</Button>
-            </DrawerClose>
+      {isMobile && (
+        <MobileDrawer open={openExportFilter} setIsOpen={setOpenExportFilter} title="Export Students">
+          <TableExportFilter
+            tab="Students"
+            filter={filter}
+            onFilterChange={handleFilterChange}
+            branches={branches}
+            loadingBranches={loadingBranches}
+            classes={classes}
+            loadingClasses={loadingClasses}
+            arms={arms}
+            loadingArms={loadingArms}
+            filteredCount={data?.pages[0].totalElements}
+          />
+          <DrawerFooter className="border-border-default border-t">
+            <div className="flex justify-between">
+              <DrawerClose asChild>
+                <Button className="bg-bg-state-soft text-text-subtle h-8 rounded-md! px-4 text-sm font-medium">Cancel</Button>
+              </DrawerClose>
 
-            <Button
-              onClick={() => exportStudents()}
-              className="bg-bg-state-primary text-text-white-default h-8 rounded-md! px-4 text-sm tracking-[0.1rem]"
-            >
-              {exporting ? <Spinner className="text-text-white-default" /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
-              <span className="text-sm font-medium">Export Students</span>
-            </Button>
-          </div>
-        </DrawerFooter>
-      </MobileDrawer>
+              <Button
+                onClick={() => exportStudents()}
+                className="bg-bg-state-primary text-text-white-default h-8 rounded-md! px-4 text-sm tracking-[0.1rem]"
+              >
+                {exporting ? <Spinner className="text-text-white-default" /> : <ShareBox fill="var(--color-icon-white-default)" className="size-4" />}
+                <span className="text-sm font-medium">Export Students</span>
+              </Button>
+            </div>
+          </DrawerFooter>
+        </MobileDrawer>
+      )}
 
       {/* Title and Filter buttons */}
       <div className="space-y-4">
