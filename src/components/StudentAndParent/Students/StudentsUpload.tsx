@@ -98,13 +98,12 @@ export const StudentsUpload = () => {
       defval: "",
     });
 
-    console.log(workbook, sheet, buffer, json);
     processXlsxRows(json);
   };
 
   const processXlsxRows = async (data: StudentUploadType[]) => {
     if (!data.length) {
-      setErrors([{ row: 0, errors: ["File is empty"] }]);
+      setErrors([{ row: 0, errors: ["The File is empty. Please add some data to the file"] }]);
       return;
     }
 
@@ -122,7 +121,7 @@ export const StudentsUpload = () => {
       return;
     }
 
-    const validRows: StudentUploadType[] = [];
+    const validRows: Record<string, unknown>[] = [];
     const rowErrors: {
       row: number;
       errors: string[];
@@ -135,10 +134,12 @@ export const StudentsUpload = () => {
         });
         validRows.push(validated);
       } catch (err) {
-        rowErrors.push({
-          row: index + 2, // Excel row number
-          errors: [err.message],
-        });
+        if (err instanceof yup.ValidationError) {
+          rowErrors.push({
+            row: index + 2, // Excel row number
+            errors: [err.message],
+          });
+        }
       }
     });
 
@@ -147,7 +148,6 @@ export const StudentsUpload = () => {
   };
 
   const validateFile = (fileToValidate: File, type: string) => {
-    console.log(type, fileToValidate);
     if (type === "xlsx") {
       parseXLSX(fileToValidate);
       return;

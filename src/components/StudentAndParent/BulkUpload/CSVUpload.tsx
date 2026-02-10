@@ -95,6 +95,7 @@ export const CSVUpload = ({
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
     },
     maxFiles: 1,
+    disabled: !!file,
   });
 
   const clearFile = () => {
@@ -113,7 +114,8 @@ export const CSVUpload = ({
       </div>
 
       <div
-        {...(!file ? getRootProps() : {})}
+        // {...(!file ? getRootProps() : {})}
+        {...getRootProps()}
         className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed px-6 py-8"
       >
         <ViewComfyAlt fill="var(--color-icon-white-default)" />

@@ -1,6 +1,7 @@
+import { getSessionToken } from "@/app/actions/auth";
 import { ParentInputType } from "@/components/StudentAndParent/types";
 import api from "@/lib/axios/axios-auth";
-import { isAxiosError } from "axios";
+import axios, { isAxiosError } from "axios";
 
 export const addParent = async (payload: ParentInputType) => {
   try {
@@ -39,14 +40,23 @@ export const getParents = async ({
 };
 
 export const uploadParents = async ({ file }: { file: File | null }) => {
-  try {
-    const { data } = await api.post("/parents/upload", file);
-    return data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) {
-      throw error.response?.data;
+  if (file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const { token } = await getSessionToken();
+    try {
+      const { data } = await axios.post("/parents/upload", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return data;
+    } catch (error: unknown) {
+      if (isAxiosError(error)) {
+        throw error.response?.data;
+      }
+      throw error;
     }
-    throw error;
   }
 };
 
