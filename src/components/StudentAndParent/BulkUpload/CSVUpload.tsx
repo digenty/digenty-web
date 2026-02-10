@@ -32,7 +32,7 @@ export const CSVUpload = ({
   file: File | null;
   setFile: (file: File | null) => void;
   setErrors: Dispatch<SetStateAction<ValidationError[]>>;
-  handleValidation: (file: File) => void;
+  handleValidation: (file: File, filetype: string) => void;
 }) => {
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -77,9 +77,11 @@ export const CSVUpload = ({
           return;
         }
 
+        const extension = file.name.split(".").pop()?.toLowerCase() || "";
+
         if (!fileError) {
           setFile(file);
-          handleValidation(file);
+          handleValidation(file, extension);
         }
       });
     },

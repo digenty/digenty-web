@@ -1,17 +1,36 @@
 "use client";
+import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { useUploadStudents } from "@/hooks/queryHooks/useStudent";
 import { studentUploadSchema } from "@/schema/student";
 import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 import { useState } from "react";
+import * as XLSX from "xlsx";
 import * as yup from "yup";
+import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
 import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
 import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
-import { Step } from "../BulkUpload/types";
-import { useUploadStudents } from "@/hooks/queryHooks/useStudent";
-import { toast } from "@/components/Toast";
-import { Spinner } from "@/components/ui/spinner";
-import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
+import { Step, StudentUploadType } from "../BulkUpload/types";
+
+const REQUIRED_HEADERS = [
+  "firstName",
+  "lastName",
+  "middleName",
+  "gender",
+  "email",
+  "dateOfBirth",
+  "address",
+  "nationality",
+  "stateOfOrigin",
+  "emergencyContactNumber",
+  "phoneNumber",
+  "admissionNumber",
+  "class",
+  "arm",
+  "branch",
+];
 
 const steps: Step[] = [
   { id: 1, label: "Upload Students", completed: false },
@@ -70,7 +89,70 @@ export const StudentsUpload = () => {
     }
   };
 
-  const validateFile = (fileToValidate: File) => {
+  const parseXLSX = async (file: File) => {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    const json = XLSX.utils.sheet_to_json<StudentUploadType>(sheet, {
+      defval: "",
+    });
+
+    console.log(workbook, sheet, buffer, json);
+    processXlsxRows(json);
+  };
+
+  const processXlsxRows = async (data: StudentUploadType[]) => {
+    if (!data.length) {
+      setErrors([{ row: 0, errors: ["File is empty"] }]);
+      return;
+    }
+
+    // Header validation
+    const headers = Object.keys(data[0]);
+    const missingHeaders = REQUIRED_HEADERS.filter(h => !headers.includes(h));
+
+    if (missingHeaders.length) {
+      setErrors([
+        {
+          row: 0,
+          errors: [`Missing headers: ${missingHeaders.join(", ")}`],
+        },
+      ]);
+      return;
+    }
+
+    const validRows: StudentUploadType[] = [];
+    const rowErrors: {
+      row: number;
+      errors: string[];
+    }[] = [];
+
+    data.forEach((row, index) => {
+      try {
+        const validated = studentUploadSchema.validateSync(row, {
+          abortEarly: true,
+        });
+        validRows.push(validated);
+      } catch (err) {
+        rowErrors.push({
+          row: index + 2, // Excel row number
+          errors: [err.message],
+        });
+      }
+    });
+
+    setValidRows(validRows);
+    setErrors(rowErrors);
+  };
+
+  const validateFile = (fileToValidate: File, type: string) => {
+    console.log(type, fileToValidate);
+    if (type === "xlsx") {
+      parseXLSX(fileToValidate);
+      return;
+    }
+
     Papa.parse(fileToValidate, {
       header: true,
       complete: async results => {

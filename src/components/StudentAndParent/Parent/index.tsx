@@ -63,7 +63,7 @@ export const ParentsTable = () => {
     isFetchingNextPage,
   } = useGetParents({
     limit: pageSize,
-    branchId: filter?.branchSelected?.id ?? 18,
+    branchId: filter?.branchSelected?.id,
     search: debouncedSearchQuery,
   });
   const parents = data?.pages.flatMap(page => page.content) ?? [];
