@@ -1,12 +1,13 @@
 "use client";
 import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
-import { useAddParent } from "@/hooks/queryHooks/useParent";
+import { useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { parentSchema } from "@/schema/parent";
+import { Gender, Relationship } from "@/types";
 import { useFormik } from "formik";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "../../../ui/button";
 import { Tags } from "../../StudentMutation/Tags";
 import { ParentInputValues } from "../../types";
@@ -15,10 +16,14 @@ import { LinkedStudents } from "./LinkedStudents";
 import { LinkStudents } from "./LinkStudents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
-import { Gender, Relationship } from "@/types";
 
-export const AddParent = () => {
+export const EditParent = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const parentId = pathname.split("/")[3] ?? "";
+
+  const { data, isPending: loadingParent } = useGetParent(Number(parentId));
+
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
@@ -29,10 +34,10 @@ export const AddParent = () => {
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
     { label: "Parents", url: "/student-and-parent-record?tab=Parents" },
-    { label: "Add Parent", url: "" },
+    { label: "Edit Parent", url: "" },
   ]);
 
-  const { mutate, isPending } = useAddParent();
+  const { mutate, isPending } = useEditParent();
 
   const formik = useFormik<ParentInputValues>({
     initialValues: {
@@ -46,10 +51,11 @@ export const AddParent = () => {
       secondaryPhoneNumber: "",
       nationality: "",
       stateOfOrigin: "",
-      relationship: Relationship.Father,
+      relationship: Relationship.Mother,
       branchId: null,
     },
     validationSchema: parentSchema,
+    enableReinitialize: true,
     onSubmit: values => {
       mutate(
         {
@@ -58,11 +64,12 @@ export const AddParent = () => {
           linkedStudents: selectedStudents.map(student => student.id),
           // image: avatar,
           image: null,
+          id: Number(parentId),
         },
         {
           onSuccess: data => {
             toast({
-              title: `Successfully added ${data.data.firstName} ${data.data.lastName}`,
+              title: `Successfully updated ${data.data.firstName} ${data.data.lastName}`,
               description: data.message,
               type: "success",
             });
@@ -71,7 +78,7 @@ export const AddParent = () => {
           onError: error => {
             toast({
               title: error.message ?? "Something went wrong",
-              description: "Could not add parent",
+              description: "Could not update parent' details",
               type: "error",
             });
           },
@@ -79,6 +86,21 @@ export const AddParent = () => {
       );
     },
   });
+
+  useEffect(() => {
+    if (data) {
+      formik.setFieldValue("firstName", data.data.firstName);
+      formik.setFieldValue("lastName", data.data.lastName);
+      formik.setFieldValue("middleName", data.data.middleName);
+      formik.setFieldValue("email", data.data.email);
+      formik.setFieldValue("phoneNumber", data.data.phoneNumber);
+      formik.setFieldValue("secondaryPhoneNumber", data.data.secondaryPhoneNumber ?? "");
+      formik.setFieldValue("gender", data.data.gender);
+      formik.setFieldValue("relationship", data.data.relationship);
+      formik.setFieldValue("address", data.data.address);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   const handleSteps = () => {
     if (step < 3) {
@@ -103,9 +125,7 @@ export const AddParent = () => {
       {open && <LinkStudents selectedStudents={selectedStudents} setSelectedStudents={setSelectedStudents} open={open} setOpen={setOpen} />}
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
-        <h1 className="text-text-default text-base font-semibold">
-          Add <span className="hidden md:inline">New</span> Parent
-        </h1>
+        <h1 className="text-text-default text-base font-semibold">Edit Parent</h1>
         <div className="bg-bg-badge-default text-text-subtle border-border-default flex h-6 w-8.5 items-center justify-center rounded-md border p-1 text-sm md:hidden">
           {step}/3
         </div>
@@ -116,7 +136,7 @@ export const AddParent = () => {
           {step === 1 && (
             <div>
               <ProfilePicture setAvatar={setAvatar} />
-              <PersonalInformation formik={formik} />
+              <PersonalInformation formik={formik} data={data} />
             </div>
           )}
 
@@ -131,7 +151,7 @@ export const AddParent = () => {
 
         <div className="hidden md:block">
           <ProfilePicture setAvatar={setAvatar} />
-          <PersonalInformation formik={formik} />
+          <PersonalInformation formik={formik} data={data} />
           <ContactInformation formik={formik} />
           <Tags tags={tags} setTags={setTags} />
           <LinkedStudents setOpen={setOpen} selectedStudents={selectedStudents} setSelectedStudents={setSelectedStudents} />
@@ -148,7 +168,7 @@ export const AddParent = () => {
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default hidden h-7! md:flex"
           >
             {isPending && <Spinner className="text-text-white-default" />}
-            Add Parent
+            Edit Parent
           </Button>
 
           <Button
@@ -157,7 +177,7 @@ export const AddParent = () => {
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
           >
             {isPending && <Spinner className="text-text-white-default" />}
-            {step === 3 ? "Add Parent" : "Next"}
+            {step === 3 ? "Edit Parent" : "Next"}
           </Button>
         </div>
       </div>

@@ -29,13 +29,22 @@ export const StudentProfile = () => {
   const router = useRouter();
   const studentId = pathname.split("/")[3] ?? "";
 
-  const { openWithdraw, setOpenWithdraw, openDelete, setOpenDelete } = useStudentStore();
+  const {
+    openWithdraw,
+    setOpenWithdraw,
+    openDelete,
+    setOpenDelete,
+    studentIdsToDelete,
+    studentIdsToWithdraw,
+    setStudentIdsToDelete,
+    setStudentIdsToWithdraw,
+  } = useStudentStore();
 
   const [isChecked, setIsChecked] = useState(false);
 
   const { data, isPending } = useGetStudent(Number(studentId));
-  const { mutate: withdrawStudents, isPending: withdrawing } = useWithdrawStudents();
-  const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents();
+  const { mutate: withdrawStudents, isPending: withdrawing } = useWithdrawStudents(studentIdsToWithdraw);
+  const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents(studentIdsToDelete);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -43,8 +52,8 @@ export const StudentProfile = () => {
     { label: "Student", url: "" },
   ]);
 
-  const handleWithdrawal = (ids: number[]) => {
-    withdrawStudents(ids, {
+  const handleWithdrawal = () => {
+    withdrawStudents(undefined, {
       onSuccess: data => {
         toast({
           title: "Successfully withdrawn students",
@@ -64,8 +73,8 @@ export const StudentProfile = () => {
     });
   };
 
-  const handleDeletion = (ids: number[]) => {
-    deleteStudents(ids, {
+  const handleDeletion = () => {
+    deleteStudents(undefined, {
       onSuccess: data => {
         queryClient.invalidateQueries({ queryKey: studentKeys.all, refetchType: "active" });
 
@@ -123,19 +132,25 @@ export const StudentProfile = () => {
 
           <div className="border-border-default md:p-none flex items-center gap-1 border-t pt-3 md:border-none">
             <Button
-              onClick={() => setOpenWithdraw(true)}
+              onClick={() => {
+                setStudentIdsToWithdraw([student.id]);
+                setOpenWithdraw(true);
+              }}
               className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border text-sm"
             >
               {withdrawing ? <Spinner /> : <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />}
             </Button>
             <Button
-              onClick={() => setOpenDelete(true)}
+              onClick={() => {
+                setStudentIdsToDelete([student.id]);
+                setOpenDelete(true);
+              }}
               className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border text-sm"
             >
               {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
             </Button>
             <Button
-              onClick={() => router.push(`/student-and-parent-record/${student.id}/edit`)}
+              onClick={() => router.push(`/student-and-parent-record/students/${student.id}/edit`)}
               className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm"
             >
               <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Student Information
@@ -152,7 +167,7 @@ export const StudentProfile = () => {
           title="Withdraw Student?"
           ActionButton={
             <Button
-              onClick={() => handleWithdrawal([student.id])}
+              onClick={() => handleWithdrawal()}
               className={"bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 rounded-md text-sm font-medium"}
             >
               Withdraw Student
@@ -181,7 +196,7 @@ export const StudentProfile = () => {
           ActionButton={
             <Button
               disabled={!isChecked}
-              onClick={() => handleDeletion([student.id])}
+              onClick={() => handleDeletion()}
               className={`hover:bg-bg-state-destructive-hover! h-7 rounded-md text-sm font-medium ${
                 isChecked ? "bg-bg-state-destructive text-text-white-default" : "bg-bg-state-soft text-text-subtle"
               }`}

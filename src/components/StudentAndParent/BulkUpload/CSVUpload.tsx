@@ -32,7 +32,7 @@ export const CSVUpload = ({
   file: File | null;
   setFile: (file: File | null) => void;
   setErrors: Dispatch<SetStateAction<ValidationError[]>>;
-  handleValidation: (file: File) => void;
+  handleValidation: (file: File, filetype: string) => void;
 }) => {
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -77,9 +77,11 @@ export const CSVUpload = ({
           return;
         }
 
+        const extension = file.name.split(".").pop()?.toLowerCase() || "";
+
         if (!fileError) {
           setFile(file);
-          handleValidation(file);
+          handleValidation(file, extension);
         }
       });
     },
@@ -93,6 +95,7 @@ export const CSVUpload = ({
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
     },
     maxFiles: 1,
+    disabled: !!file,
   });
 
   const clearFile = () => {
@@ -111,7 +114,8 @@ export const CSVUpload = ({
       </div>
 
       <div
-        {...(!file ? getRootProps() : {})}
+        // {...(!file ? getRootProps() : {})}
+        {...getRootProps()}
         className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed px-6 py-8"
       >
         <ViewComfyAlt fill="var(--color-icon-white-default)" />

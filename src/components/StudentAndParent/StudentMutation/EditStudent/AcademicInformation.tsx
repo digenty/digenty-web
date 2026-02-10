@@ -18,7 +18,7 @@ import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 export const AcademicInformation = ({ formik, data }: { formik: FormikProps<StudentInputValues>; data: { data: Student } | undefined }) => {
   const [classId, setClassId] = useState<number | undefined>();
 
-  const { data: branches, isPending: loadingBranches } = useGetBranches();
+  const { data: branches, isPending: loadingBranches, error } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses();
   const { data: departments, isPending: loadingDepartments } = useGetDepartments();
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
@@ -33,7 +33,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
   const { handleBlur, handleChange, errors, touched, values } = formik;
 
   useEffect(() => {
-    if (data) {
+    if (data && branches && classes && departments && arms) {
       const branch = branches.data.content?.find((brnch: Branch) => brnch.name === data.data.branch);
       formik.setFieldValue("branchId", branch?.id);
       setBranch(branch?.name);
@@ -138,7 +138,9 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
               value={branch}
               onValueChange={value => {
                 const branch = branches.data.content?.find((branch: Branch) => branch.name === value);
-                formik.setFieldValue("branchId", branch.id);
+                if (branch) {
+                  formik.setFieldValue("branchId", branch.id);
+                }
               }}
             >
               <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">

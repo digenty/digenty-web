@@ -19,7 +19,7 @@ const RenderOptions = (row: Row<Student>) => {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
-  const { setOpenWithdraw, setOpenDelete } = useStudentStore();
+  const { setOpenWithdraw, setOpenDelete, setStudentIdsToDelete, setStudentIdsToWithdraw } = useStudentStore();
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -34,7 +34,7 @@ const RenderOptions = (row: Row<Student>) => {
         <DropdownMenuItem
           onClick={evt => {
             evt.stopPropagation();
-            router.push(`/student-and-parent-record/${row.original.id}/edit`);
+            router.push(`/student-and-parent-record/students/${row.original.id}/edit`);
           }}
           className="gap-2.5 px-3"
         >
@@ -42,11 +42,23 @@ const RenderOptions = (row: Row<Student>) => {
           <span>Edit student profile</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
-        <DropdownMenuItem onClick={() => setOpenWithdraw(true)} className="gap-2.5 px-3">
+        <DropdownMenuItem
+          onClick={() => {
+            setOpenWithdraw(true);
+            setStudentIdsToWithdraw([row.original.id]);
+          }}
+          className="gap-2.5 px-3"
+        >
           <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Withdraw student</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setOpenDelete(true)} className="gap-2.5 px-3">
+        <DropdownMenuItem
+          onClick={() => {
+            setOpenDelete(true);
+            setStudentIdsToDelete([row.original.id]);
+          }}
+          className="gap-2.5 px-3"
+        >
           <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
           <span className="text-icon-destructive">Delete student profile</span>
         </DropdownMenuItem>

@@ -1,37 +1,26 @@
 "use client";
+import { Branch, Parent } from "@/api/types";
 import { getCountries, getStatesForCountry } from "@/app/actions/country";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { genders, relationships } from "@/types";
 import { FormikProps } from "formik";
-import { CalendarIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { GenderValues } from "../../constants";
-import { Country, State, StudentInputValues } from "../../types";
-import { Student } from "@/api/types";
+import { Country, ParentInputValues, State } from "../../types";
 
-export const PersonalInformation = ({
-  date,
-  setDate,
-  formik,
-  data,
-}: {
-  date: Date | undefined;
-  setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
-  formik: FormikProps<StudentInputValues>;
-  data: { data: Student } | undefined;
-}) => {
+export const PersonalInformation = ({ formik, data }: { formik: FormikProps<ParentInputValues>; data: { data: Parent } | undefined }) => {
   const { handleBlur, handleChange, errors, touched, values } = formik;
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [activeCountryCode, setActiveCountryCode] = useState<string>("");
+  const [branch, setBranch] = useState<string>();
+
+  const { data: branches, isPending: loadingBranches } = useGetBranches();
 
   const getCountryCode = async () => {
     const countryList = await getCountries();
@@ -54,8 +43,9 @@ export const PersonalInformation = ({
   }, [activeCountryCode, getStates]);
 
   useEffect(() => {
-    if (data && countries) {
+    if (data) {
       const country = countries?.find(ctry => ctry.name === data.data.nationality);
+      console.log(country, "country", data.data.nationality);
       if (country) {
         setActiveCountryCode(country?.iso2);
         formik.setFieldValue("nationality", country.name);
@@ -70,6 +60,15 @@ export const PersonalInformation = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCountryCode, data]);
+
+  useEffect(() => {
+    if (data && branches) {
+      const brnch = branches.data.content?.find((brnch: Branch) => brnch.id === data.data.branchId);
+      formik.setFieldValue("branchId", brnch?.id);
+      setBranch(brnch?.name);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, branches]);
 
   return (
     <div className="border-border-default space-y-6 border-b py-6">
@@ -148,7 +147,7 @@ export const PersonalInformation = ({
               <SelectValue placeholder="Select Gender" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
-              {GenderValues.map(gender => (
+              {genders.map(gender => (
                 <SelectItem key={gender.value} className="text-text-default" value={gender.value}>
                   {gender.label}
                 </SelectItem>
@@ -158,59 +157,55 @@ export const PersonalInformation = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="dob" className="text-text-default text-sm font-medium">
-            Date of Birth <small className="text-text-destructive text-xs">*</small>
+          <Label htmlFor="gender" className="text-text-default text-sm font-medium">
+            Relationship<small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "text-text-muted bg-bg-input-soft! focus-visible:border-border-default! hover:bg-bg-input-soft! w-full border-none text-sm font-normal shadow-none focus-visible:border!",
-                )}
-              >
-                {date ? format(date, "PPP") : <span>dd / mm / yy</span>}
-                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="bg-bg-card! p-0!" align="start">
-              <Calendar
-                disabled={{
-                  after: new Date(),
-                }}
-                mode="single"
-                required
-                selected={date}
-                onSelect={date => {
-                  setDate(date);
-                  formik.setFieldValue("dateOfBirth", date);
-                }}
-                captionLayout="dropdown"
-                className="bg-bg-card w-full border-none"
-              />
-            </PopoverContent>
-          </Popover>
+          <Select
+            value={formik.values.relationship}
+            onValueChange={rel => {
+              formik.setFieldValue("relationship", rel);
+            }}
+          >
+            <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+              <SelectValue placeholder="Select Relationship with Student" />
+            </SelectTrigger>
+            <SelectContent className="bg-bg-card border-none">
+              {relationships.map(rel => (
+                <SelectItem key={rel.value} className="text-text-default" value={rel.value}>
+                  {rel.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="medicalInformation" className="text-text-default text-sm font-medium">
-            Medical Information
+          <Label htmlFor="branch" className="text-text-default text-sm font-medium">
+            Branch <small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Input
-            id="medicalInformation"
-            onChange={handleChange}
-            autoFocus
-            placeholder="Input Any Medical Information"
-            onBlur={handleBlur}
-            value={values.medicalInformation}
-            type="text"
-            className={cn(
-              "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
-              errors.medicalInformation && touched.medicalInformation && "border-border-destructive border",
-            )}
-          />
-          {touched.medicalInformation && errors.medicalInformation && (
-            <p className="text-text-destructive text-xs font-light">{errors.medicalInformation}</p>
+          {!branches || loadingBranches ? (
+            <Skeleton className="bg-bg-input-soft h-9 w-full" />
+          ) : (
+            <Select
+              value={branch}
+              onValueChange={value => {
+                const branch = branches.data.content?.find((branch: Branch) => branch.name === value);
+                if (branch) {
+                  formik.setFieldValue("branchId", branch.id);
+                }
+              }}
+            >
+              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+                <SelectValue placeholder="Branch" />
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-none">
+                {branches.data.content.map((branch: Branch) => (
+                  <SelectItem key={branch.id} className="text-text-default" value={branch.name ?? ""}>
+                    {branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         </div>
 
@@ -222,8 +217,8 @@ export const PersonalInformation = ({
             <Select
               value={formik.values.nationality}
               onValueChange={country => {
-                const ctry = countries?.find(ctry => ctry.name === country);
-                setActiveCountryCode(ctry?.iso2 || "");
+                const countryCode = countries?.find(ctry => ctry.name === country);
+                setActiveCountryCode(countryCode?.iso2 || "");
                 formik.setFieldValue("nationality", country);
               }}
             >
@@ -248,8 +243,8 @@ export const PersonalInformation = ({
             State of Origin <small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
-            disabled={!activeCountryCode}
             value={formik.values.stateOfOrigin}
+            disabled={!activeCountryCode}
             onValueChange={value => {
               const state = states?.find(stat => stat.name === value);
               formik.setFieldValue("stateOfOrigin", state?.name);

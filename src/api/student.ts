@@ -1,6 +1,7 @@
+import { getSessionToken } from "@/app/actions/auth";
 import { StudentInputType, StudentsStatus } from "@/components/StudentAndParent/types";
 import api from "@/lib/axios/axios-auth";
-import { isAxiosError } from "axios";
+import axios, { isAxiosError } from "axios";
 
 export const addStudent = async (payload: StudentInputType) => {
   try {
@@ -47,14 +48,23 @@ export const getStudents = async ({
 };
 
 export const uploadStudents = async ({ file }: { file: File | null }) => {
-  try {
-    const { data } = await api.post("/students/upload", file);
-    return data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) {
-      throw error.response?.data;
+  if (file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const { token } = await getSessionToken();
+    try {
+      const { data } = await axios.post("/students/upload", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return data;
+    } catch (error: unknown) {
+      if (isAxiosError(error)) {
+        throw error.response?.data;
+      }
+      throw error;
     }
-    throw error;
   }
 };
 

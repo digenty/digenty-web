@@ -52,13 +52,13 @@ export interface ParentInputValues {
   lastName: string;
   middleName: string;
   email: string;
-  gender: Gender | null;
+  gender: Gender;
   address: string;
   phoneNumber: string;
   secondaryPhoneNumber: string;
   nationality: string;
   stateOfOrigin: string;
-  relationship: Relationship | null;
+  relationship: Relationship;
   branchId: number | null;
 }
 

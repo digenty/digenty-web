@@ -27,23 +27,37 @@ import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
 import { useDeleteStudents, useExportStudents, useGetStudents, useGetStudentsDistribution, useWithdrawStudents } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { studentKeys } from "@/queries/student";
 import { useStudentStore } from "@/store/student";
 import { useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { columns } from "./Columns";
-import { MobileCard } from "./MobileCard";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { columns } from "./Columns";
+import { MobileCard } from "./MobileCard";
 
 export const StudentsTable = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
-  const { openWithdraw, setOpenWithdraw, openDelete, setOpenDelete } = useStudentStore();
+  const {
+    openWithdraw,
+    setOpenWithdraw,
+    openDelete,
+    setOpenDelete,
+    studentIdsToDelete,
+    studentIdsToWithdraw,
+    setStudentIdsToDelete,
+    setStudentIdsToWithdraw,
+  } = useStudentStore();
+
+  useBreadcrumb([
+    { label: "Student & Parent Record", url: "/student-and-parent-record" },
+    { label: "Students", url: `/student-and-parent-record?tab=Students` },
+  ]);
 
   const [page, setPage] = useState(1);
   const [openExportFilter, setOpenExportFilter] = useState(false);
@@ -100,8 +114,8 @@ export const StudentsTable = () => {
     status: filter.statusSelected?.value,
   });
 
-  const { mutate: withdrawStudents, isPending: withdrawing } = useWithdrawStudents();
-  const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents();
+  const { mutate: withdrawStudents, isPending: withdrawing } = useWithdrawStudents(studentIdsToWithdraw);
+  const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents(studentIdsToDelete);
 
   const exportStudents = async () => {
     await mutate(undefined, {
@@ -123,8 +137,8 @@ export const StudentsTable = () => {
     });
   };
 
-  const handleWithdrawal = (ids: number[]) => {
-    withdrawStudents(ids, {
+  const handleWithdrawal = () => {
+    withdrawStudents(undefined, {
       onSuccess: data => {
         toast({
           title: "Successfully withdrawn students",
@@ -132,6 +146,7 @@ export const StudentsTable = () => {
           type: "success",
         });
         setOpenWithdraw(false);
+        setStudentIdsToWithdraw([]);
       },
       onError: error => {
         toast({
@@ -140,12 +155,13 @@ export const StudentsTable = () => {
           type: "error",
         });
         setOpenWithdraw(false);
+        setStudentIdsToWithdraw([]);
       },
     });
   };
 
-  const handleDeletion = (ids: number[]) => {
-    deleteStudents(ids, {
+  const handleDeletion = () => {
+    deleteStudents(undefined, {
       onSuccess: data => {
         queryClient.invalidateQueries({ queryKey: studentKeys.all, refetchType: "active" });
 
@@ -155,6 +171,7 @@ export const StudentsTable = () => {
           type: "success",
         });
         setOpenDelete(false);
+        setStudentIdsToDelete([]);
       },
       onError: error => {
         toast({
@@ -163,6 +180,7 @@ export const StudentsTable = () => {
           type: "error",
         });
         setOpenDelete(false);
+        setStudentIdsToDelete([]);
       },
     });
   };
@@ -187,11 +205,6 @@ export const StudentsTable = () => {
       setStudentDistribution(studentDistr);
     }
   }, [distribution]);
-
-  useBreadcrumb([
-    { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Students", url: `/student-and-parent-record?tab=Students` },
-  ]);
 
   useEffect(() => {
     // Make sure that page is fetched
@@ -250,10 +263,10 @@ export const StudentsTable = () => {
         title="Withdraw Student?"
         ActionButton={
           <Button
-            onClick={() => handleWithdrawal(selectedRows.map(row => row.id))}
+            onClick={() => handleWithdrawal()}
             className={"bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 rounded-md text-sm font-medium"}
           >
-            {withdrawing && <Spinner />}
+            {withdrawing && <Spinner className="text-text-white-default" />}
             Withdraw Student
           </Button>
         }
@@ -280,12 +293,12 @@ export const StudentsTable = () => {
         ActionButton={
           <Button
             disabled={!isChecked}
-            onClick={() => handleDeletion(selectedRows.map(row => row.id))}
+            onClick={() => handleDeletion()}
             className={`h-7 rounded-md text-sm font-medium ${
               isChecked ? "bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover!" : "bg-bg-state-soft text-text-subtle"
             }`}
           >
-            {deleting && <Spinner />}
+            {deleting && <Spinner className="text-text-white-default" />}
             Delete Student
           </Button>
         }
@@ -469,14 +482,20 @@ export const StudentsTable = () => {
           </div>
 
           <Button
-            onClick={() => setOpenWithdraw(true)}
+            onClick={() => {
+              setOpenWithdraw(true);
+              setStudentIdsToWithdraw(selectedRows.map(row => row.id));
+            }}
             className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
           >
             <span>Withdraw student{selectedRows.length !== 1 && "s"}</span>
           </Button>
 
           <Button
-            onClick={() => setOpenDelete(true)}
+            onClick={() => {
+              setOpenDelete(true);
+              setStudentIdsToDelete(selectedRows.map(row => row.id));
+            }}
             className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
           >
             <span>Delete Student{selectedRows.length !== 1 && "s"}</span>

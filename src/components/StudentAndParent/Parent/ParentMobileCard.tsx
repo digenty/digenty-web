@@ -5,13 +5,15 @@ import Edit from "@/components/Icons/Edit";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Button } from "@/components/ui/button";
+import { useParentStore } from "@/store/useParentStore";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useState } from "react";
 
 export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
   const router = useRouter();
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const { setOpenDelete, setParentIds } = useParentStore();
 
   return (
     <div className="bg-bg-subtle border-border-default rounded-sm border text-sm font-medium">
@@ -37,12 +39,21 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
                 <EyeIcon className="text-icon-default-muted size-4" />
                 <span>View Parent Profile</span>
               </Button>
-              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Button
+                onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}/edit`)}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+              >
                 <Edit fill="var(--color-icon-default-muted)" className="size-4" />
                 <span>Edit Parent Profile</span>
               </Button>
 
-              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Button
+                onClick={() => {
+                  setOpenDelete(true);
+                  setParentIds([parent.id]);
+                }}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+              >
                 <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
                 <span className="text-icon-destructive">Delete Parent Profile</span>
               </Button>
@@ -89,7 +100,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{parent.branch}</p>
+          <p className="text-text-default">{parent.branchId}</p>
         </Button>
       </div>
     </div>

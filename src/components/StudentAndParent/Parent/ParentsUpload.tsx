@@ -1,17 +1,32 @@
 "use client";
-import { useState } from "react";
-import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
-import { Step } from "../BulkUpload/types";
-import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
-import { useRouter } from "next/navigation";
-import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
-import { parentUploadSchema } from "@/schema/parent";
-import Papa from "papaparse";
-import * as yup from "yup";
-import { useUploadParents } from "@/hooks/queryHooks/useParent";
 import { toast } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
+import { useUploadParents } from "@/hooks/queryHooks/useParent";
+import { parentUploadSchema } from "@/schema/parent";
+import { useRouter } from "next/navigation";
+import Papa from "papaparse";
+import { useState } from "react";
+import * as yup from "yup";
+import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
+import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
+import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
+import { ParentUploadType, Step } from "../BulkUpload/types";
+import * as XLSX from "xlsx";
+
+const REQUIRED_HEADERS = [
+  "firstName",
+  "lastName",
+  "middleName",
+  "gender",
+  "email",
+  "relationship",
+  "address",
+  "nationality",
+  "stateOfOrigin",
+  "phoneNumber",
+  "secondaryhoneNumber",
+  "branch",
+];
 
 const steps: Step[] = [
   { id: 1, label: "Upload Parents", completed: false },
@@ -70,7 +85,68 @@ export const ParentsUpload = () => {
     }
   };
 
-  const validateFile = (fileToValidate: File) => {
+  const parseXLSX = async (file: File) => {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    const json = XLSX.utils.sheet_to_json<ParentUploadType>(sheet, {
+      defval: "",
+    });
+
+    processXlsxRows(json);
+  };
+
+  const processXlsxRows = async (data: ParentUploadType[]) => {
+    if (!data.length) {
+      setErrors([{ row: 0, errors: ["The File is empty. Please add some data to the file"] }]);
+      return;
+    }
+
+    // Header validation
+    const headers = Object.keys(data[0]);
+    const missingHeaders = REQUIRED_HEADERS.filter(h => !headers.includes(h));
+
+    if (missingHeaders.length) {
+      setErrors([
+        {
+          row: 0,
+          errors: [`Missing headers: ${missingHeaders.join(", ")}`],
+        },
+      ]);
+      return;
+    }
+
+    const validRows: Record<string, unknown>[] = [];
+    const rowErrors: {
+      row: number;
+      errors: string[];
+    }[] = [];
+
+    data.forEach((row, index) => {
+      try {
+        const validated = parentUploadSchema.validateSync(row, {
+          abortEarly: true,
+        });
+        validRows.push(validated);
+      } catch (err) {
+        if (err instanceof yup.ValidationError) {
+          rowErrors.push({
+            row: index + 2, // Excel row number
+            errors: [err.message],
+          });
+        }
+      }
+    });
+
+    setValidRows(validRows);
+    setErrors(rowErrors);
+  };
+  const validateFile = (fileToValidate: File, type: string) => {
+    if (type === "xlsx") {
+      parseXLSX(fileToValidate);
+      return;
+    }
     Papa.parse(fileToValidate, {
       header: true,
       complete: async results => {

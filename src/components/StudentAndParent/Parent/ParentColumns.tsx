@@ -1,18 +1,20 @@
 "use client";
 
+import { Parent } from "@/api/types";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { useParentStore } from "@/store/useParentStore";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Avatar } from "../../Avatar";
 import DeleteBin from "../../Icons/DeleteBin";
 import Edit from "../../Icons/Edit";
-import { Parent } from "@/api/types";
-import { useRouter } from "next/navigation";
 
 const RenderOptions = (row: Row<Parent>) => {
   const router = useRouter();
+  const { setOpenDelete, setParentIds } = useParentStore();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus-visible:ring-0 focus-visible:outline-none">
@@ -23,13 +25,19 @@ const RenderOptions = (row: Row<Parent>) => {
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View parent profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => router.push(`/student-and-parent-record/parents/${row.original.id}/edit`)} className="gap-2.5 px-3">
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit parent profile</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem
+          onClick={() => {
+            setOpenDelete(true);
+            setParentIds([row.original.id]);
+          }}
+          className="gap-2.5 px-3"
+        >
           <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
           <span className="text-icon-destructive">Delete parent profile</span>
         </DropdownMenuItem>
@@ -113,7 +121,7 @@ export const parentColumns: ColumnDef<Parent>[] = [
   {
     accessorKey: "branch",
     header: () => <div className="text-text-muted text-sm font-medium">Branch</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.branch}</span>,
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.branchId}</span>,
     size: 150,
   },
   {
