@@ -30,7 +30,7 @@ export const AddStudent = () => {
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Students", url: "/student-and-parent-record?tab=students" },
+    { label: "Students", url: "/student-and-parent-record?tab=Students" },
     { label: "Add Student", url: "" },
   ]);
 

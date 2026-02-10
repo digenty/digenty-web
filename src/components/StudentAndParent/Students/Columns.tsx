@@ -34,7 +34,7 @@ const RenderOptions = (row: Row<Student>) => {
         <DropdownMenuItem
           onClick={evt => {
             evt.stopPropagation();
-            router.push(`/student-and-parent-record/${row.original.id}/edit`);
+            router.push(`/student-and-parent-record/students/${row.original.id}/edit`);
           }}
           className="gap-2.5 px-3"
         >

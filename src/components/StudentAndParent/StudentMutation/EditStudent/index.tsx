@@ -21,7 +21,7 @@ import { Tags } from "./Tags";
 export const EditStudent = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const studentId = pathname.split("/")[2] ?? "";
+  const studentId = pathname.split("/")[3] ?? "";
 
   const { data, isPending: loadingStudent } = useGetStudent(Number(studentId));
 
@@ -34,7 +34,7 @@ export const EditStudent = () => {
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Students", url: "/student-and-parent-record?tab=students" },
+    { label: "Students", url: "/student-and-parent-record?tab=Students" },
     { label: "Edit Student", url: "" },
   ]);
 

@@ -104,3 +104,15 @@ export const deleteParents = async (parentIds: number[]) => {
     throw error;
   }
 };
+
+export const editParent = async (payload: ParentInputType & { id: number }) => {
+  try {
+    const { data } = await api.put("/parents", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

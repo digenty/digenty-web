@@ -6,7 +6,7 @@ import { Button } from "../../../ui/button";
 import { DialogDescription } from "../../../ui/dialog";
 
 import { Parent } from "@/api/types";
-import { useGetParent } from "@/hooks/queryHooks/useParent";
+import { useDeleteParents, useGetParent } from "@/hooks/queryHooks/useParent";
 import { useDeleteStudents } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { queryClient } from "@/lib/tanstack";
@@ -23,18 +23,19 @@ import { Skeleton } from "../../../ui/skeleton";
 import { Spinner } from "../../../ui/spinner";
 import { Biodata } from "./Biodata";
 import { LinkedStudentsTable } from "./LinkedStudentsTable";
+import { useParentStore } from "@/store/useParentStore";
 
 export const ParentProfile = () => {
   const pathname = usePathname();
   const router = useRouter();
   const parentId = pathname.split("/")[3] ?? "";
 
-  const { openDelete, setOpenDelete } = useStudentStore();
+  const { openDelete, setOpenDelete, parentIds, setParentIds } = useParentStore();
 
   const [isChecked, setIsChecked] = useState(false);
 
   const { data, isPending } = useGetParent(Number(parentId));
-  const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents();
+  const { mutate: deleteStudents, isPending: deleting } = useDeleteParents(parentIds);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -42,8 +43,8 @@ export const ParentProfile = () => {
     { label: "Parent", url: "" },
   ]);
 
-  const handleDeletion = (ids: number[]) => {
-    deleteStudents(ids, {
+  const handleDeletion = () => {
+    deleteStudents(undefined, {
       onSuccess: data => {
         queryClient.invalidateQueries({ queryKey: studentKeys.all, refetchType: "active" });
 
@@ -100,13 +101,16 @@ export const ParentProfile = () => {
 
           <div className="border-border-default md:p-none flex items-center gap-1 border-t pt-3 md:border-none">
             <Button
-              onClick={() => setOpenDelete(true)}
+              onClick={() => {
+                setParentIds([parent.id]);
+                setOpenDelete(true);
+              }}
               className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border text-sm"
             >
               {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
             </Button>
             <Button
-              onClick={() => router.push(`/student-and-parent-record/${parent.id}/edit`)}
+              onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}/edit`)}
               className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm"
             >
               <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Parent Information
@@ -123,7 +127,7 @@ export const ParentProfile = () => {
           ActionButton={
             <Button
               disabled={!isChecked}
-              onClick={() => handleDeletion([parent.id])}
+              onClick={() => handleDeletion()}
               className={`hover:bg-bg-state-destructive-hover! h-7 rounded-md text-sm font-medium ${
                 isChecked ? "bg-bg-state-destructive text-text-white-default" : "bg-bg-state-soft text-text-subtle"
               }`}

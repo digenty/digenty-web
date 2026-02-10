@@ -1,4 +1,4 @@
-import { addParent, deleteParents, exportParents, getParent, getParents, uploadParents } from "@/api/parent";
+import { addParent, deleteParents, editParent, exportParents, getParent, getParents, uploadParents } from "@/api/parent";
 import { parentKeys } from "@/queries/parent";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
@@ -47,5 +47,12 @@ export const useDeleteParents = (parentIds: number[]) => {
   return useMutation({
     mutationKey: parentKeys.deleteParents,
     mutationFn: () => deleteParents(parentIds),
+  });
+};
+
+export const useEditParent = () => {
+  return useMutation({
+    mutationKey: parentKeys.editParent,
+    mutationFn: editParent,
   });
 };

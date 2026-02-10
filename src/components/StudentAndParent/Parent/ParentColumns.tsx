@@ -25,7 +25,7 @@ const RenderOptions = (row: Row<Parent>) => {
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View parent profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => router.push(`/student-and-parent-record/parents/${row.original.id}/edit`)} className="gap-2.5 px-3">
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit parent profile</span>
         </DropdownMenuItem>
