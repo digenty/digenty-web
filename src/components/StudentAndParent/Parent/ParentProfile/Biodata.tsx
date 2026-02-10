@@ -9,7 +9,7 @@ import { Phone } from "lucide-react";
 
 export const Biodata = ({ parent }: { parent: Parent }) => {
   const biodata = [
-    { bio: "Branch", detail: parent.branch, icon: <Building fill="var(--color-icon-default-muted)" /> },
+    { bio: "Branch", detail: parent.branchId, icon: <Building fill="var(--color-icon-default-muted)" /> },
     { bio: "Gender", detail: parent.gender.toLowerCase(), icon: <User fill="var(--color-icon-default-muted)" /> },
     { bio: "Address", detail: parent.address, icon: <Map fill="var(--color-icon-default-muted)" /> },
     { bio: "Nationality", detail: parent.nationality, icon: <Flag fill="var(--color-icon-default-muted)" /> },

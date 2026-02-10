@@ -39,7 +39,10 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
                 <EyeIcon className="text-icon-default-muted size-4" />
                 <span>View Parent Profile</span>
               </Button>
-              <Button className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium">
+              <Button
+                onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}/edit`)}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+              >
                 <Edit fill="var(--color-icon-default-muted)" className="size-4" />
                 <span>Edit Parent Profile</span>
               </Button>
@@ -97,7 +100,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{parent.branch}</p>
+          <p className="text-text-default">{parent.branchId}</p>
         </Button>
       </div>
     </div>

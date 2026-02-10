@@ -15,6 +15,7 @@ import { LinkedStudents } from "./LinkedStudents";
 import { LinkStudents } from "./LinkStudents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
+import { Gender, Relationship } from "@/types";
 
 export const AddParent = () => {
   const router = useRouter();
@@ -39,13 +40,13 @@ export const AddParent = () => {
       lastName: "",
       middleName: "",
       email: "",
-      gender: null,
+      gender: Gender.Female,
       address: "",
       phoneNumber: "",
       secondaryPhoneNumber: "",
       nationality: "",
       stateOfOrigin: "",
-      relationship: null,
+      relationship: Relationship.Father,
       branchId: null,
     },
     validationSchema: parentSchema,
