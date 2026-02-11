@@ -15,7 +15,7 @@ export const ContactInformation = ({ formik }: { formik: FormikProps<ParentInput
       <div className="grid grid-cols-1 gap-6 sm:gap-5">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-text-default text-sm font-medium">
-            Email Address
+            Email Address<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Input
             id="email"

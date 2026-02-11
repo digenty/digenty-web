@@ -100,6 +100,7 @@ export const StudentsTable = () => {
     search: debouncedSearchQuery,
   });
   const students = data?.pages.flatMap(page => page.content) ?? [];
+  console.log(data);
 
   const { data: distribution } = useGetStudentsDistribution(filter?.branchSelected?.id);
   const { data: branches, isPending: loadingBranches } = useGetBranches();
@@ -214,7 +215,7 @@ export const StudentsTable = () => {
   }, [page, data?.pages.length, fetchNextPage]);
 
   const dataForDesktop = data?.pages[page - 1]?.content ?? [];
-
+  console.log(isError, data, loadingStudents, dataForDesktop, students);
   return (
     <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
       {openExportFilter && (
@@ -503,8 +504,7 @@ export const StudentsTable = () => {
         </div>
       )}
 
-      {/* Separate the table components into two different files with their separate states, then render conditionally here */}
-      {isError ? (
+      {isError && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent
             title="Could not get Students"
@@ -512,49 +512,50 @@ export const StudentsTable = () => {
             buttonText="Go to the Home page"
           />
         </div>
-      ) : !data || loadingStudents ? (
-        <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />
-      ) : (
-        <div className="hidden md:block">
-          <DataTable
-            columns={columns}
-            data={dataForDesktop}
-            totalCount={data?.pages[0].totalElements}
-            page={page}
-            setCurrentPage={setPage}
-            pageSize={pageSize}
-            clickHandler={row => {
-              router.push(`/student-and-parent-record/students/${row.original.id}`);
-            }}
-            rowSelection={rowSelection}
-            setRowSelection={setRowSelection}
-            onSelectRows={setSelectedRows}
-            loadingContent={isFetchingNextPage}
-          />
+      )}
+      {loadingStudents && <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />}
+
+      {students.length === 0 && (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Add a student" />
         </div>
       )}
 
-      <div className="flex flex-col justify-center gap-4 md:hidden">
-        {!data || loadingStudents ? (
-          <div className="space-y-4">
-            <Skeleton className="bg-bg-input-soft h-36 w-full" />
-            <Skeleton className="bg-bg-input-soft h-36 w-full" />
-            <Skeleton className="bg-bg-input-soft h-36 w-full" />
+      {!loadingStudents && !isError && students.length > 0 && (
+        <div>
+          <div className="hidden md:block">
+            <DataTable
+              columns={columns}
+              data={dataForDesktop}
+              totalCount={data?.pages[0].totalElements}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={pageSize}
+              clickHandler={row => {
+                router.push(`/student-and-parent-record/students/${row.original.id}`);
+              }}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              onSelectRows={setSelectedRows}
+              loadingContent={isFetchingNextPage}
+            />
           </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {students.map((student: Student) => (
-              <MobileCard key={student.id} student={student} />
-            ))}
 
-            {hasNextPage && (
-              <Button onClick={() => fetchNextPage()} className="bg-bg-state-soft text-text-subtle w-fit self-center px-10">
-                Load More
-              </Button>
-            )}
+          <div className="flex flex-col justify-center gap-4 md:hidden">
+            <div className="flex flex-col gap-4">
+              {students.map((student: Student) => (
+                <MobileCard key={student.id} student={student} />
+              ))}
+
+              {hasNextPage && (
+                <Button onClick={() => fetchNextPage()} className="bg-bg-state-soft text-text-subtle w-fit self-center px-10">
+                  Load More
+                </Button>
+              )}
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

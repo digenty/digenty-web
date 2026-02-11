@@ -7,7 +7,7 @@ export const parentSchema = yup.object().shape({
   middleName: yup.string(),
   gender: yup.string().oneOf(Object.values(Gender), "Gender is not a valid value!").required("Gender is required!"),
   relationship: yup.string().oneOf(Object.values(Relationship), "Relationship is not a valid value!").required("Relationship is required!"),
-  email: yup.string(),
+  email: yup.string().required("Email is required!"),
   address: yup.string().required("Address is required!"),
   nationality: yup.string().required("Nationality is required!"),
   stateOfOrigin: yup.string().required("State of Origin is required!"),
