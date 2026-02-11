@@ -15,3 +15,12 @@ export interface OnBoardingCountry {
   currency?: string;
   iso2?: string;
 }
+
+export interface CreateBranchPayload {
+  branchDtos: {
+    branchName?: string;
+    address?: string;
+    levels?: string[];
+  }[];
+}
+export type BranchType = "one" | "multiple";
