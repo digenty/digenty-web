@@ -1,3 +1,4 @@
+import { AttendanceCard } from "@/api/types";
 import { SearchInput } from "../SearchInput";
 import { Card } from "./Card";
 
@@ -75,23 +76,21 @@ const attendanceUpdates = [
   },
 ];
 
-export default function AttendanceCards() {
+export const AttendanceCards = ({ attendance }: { attendance: AttendanceCard[] }) => {
   return (
     <div className="space-y-4 md:space-y-5">
-      <SearchInput className="bg-bg-input-soft! w-full border-none md:w-80" />
-
       <ul className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3">
-        {attendanceUpdates.map(att => (
+        {attendance.map(att => (
           <Card
-            key={att.id}
-            classname={att.classname}
-            totalStudents={att.totalStudents}
-            teacherName={att.teacherName}
-            lastUpdate={att.lastUpdate as "Today" | "Yesterday" | "None"}
-            attendancePercentage={att.attendancePercentage}
+            key={att.classArm}
+            classname={att.classArm}
+            totalStudents={att.numberOfStudentInArm.toString()}
+            teacherName={att.classTeacher}
+            lastUpdate={att.lastUpdated as "Today" | "Yesterday" | "None"}
+            attendancePercentage={`${att.attendancePercentage}%`}
           />
         ))}
       </ul>
     </div>
   );
-}
+};

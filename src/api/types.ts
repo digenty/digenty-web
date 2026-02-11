@@ -105,3 +105,18 @@ export interface Parent {
   address: string;
   secondaryPhoneNumber: string;
 }
+
+export interface AttendanceCard {
+  classArm: string;
+  classTeacher: string;
+  numberOfStudentInArm: number;
+  attendancePercentage: number;
+  lastUpdated: string;
+}
+export interface Attendance {
+  classArmAttendanceCardList: AttendanceCard[];
+  numberOfClassAttendanceTaken: number;
+  overallAttendancePercentage: number;
+  totalClasses: number;
+  totalStudents: number;
+}

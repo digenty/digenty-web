@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Calendar from "../Icons/Calendar";
 import School from "../Icons/School";
 import { MobileDrawer } from "../MobileDrawer";
@@ -10,36 +10,59 @@ import { Calendar as AttendanceCalendar } from "../ui/calendar";
 import { DrawerClose, DrawerFooter } from "../ui/drawer";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { Branch } from "@/api/types";
+import { Skeleton } from "../ui/skeleton";
 
-const branches = ["Lawanson", "Ilasamaja"];
-
-export default function AttendanceHeader() {
-  const [branchSelected, setBranchSelected] = useState(branches[0]);
+export const AttendanceHeader = ({
+  branchSelected,
+  setBranchSelected,
+  date,
+  setDate,
+}: {
+  branchSelected: Branch | null;
+  setBranchSelected: React.Dispatch<React.SetStateAction<Branch | null>>;
+  date: Date | undefined;
+  setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+}) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [date, setDate] = React.useState<Date | undefined>(undefined);
   const [open, setOpen] = React.useState(false);
+
+  const { data: branches, isPending: loadingBranches } = useGetBranches();
+
+  useEffect(() => {
+    if (branches) {
+      setBranchSelected(branches.data.content[0]);
+    }
+  }, [branches, setBranchSelected]);
+
   return (
     <div className="border-border-default flex w-full items-center justify-between border-b px-4 py-2 align-middle md:px-8 md:py-3">
       <h2 className="text-text-default text-lg font-semibold md:text-xl">Attendance Management</h2>
 
       <div className="hidden gap-2 align-middle md:flex">
-        <Select value={branchSelected} onValueChange={setBranchSelected}>
-          <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
-            <SelectValue>
-              <div className="flex items-center gap-2">
-                <School fill="var(--color-icon-default-muted)" className="size-3" />
-                <span className="text-text-default text-sm font-medium">{branchSelected}</span>
-              </div>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent className="bg-bg-card border-border-default">
-            {branches.map(branch => (
-              <SelectItem key={branch} value={branch} className="text-text-default text-sm font-medium">
-                {branch}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {!branches || loadingBranches ? (
+          <Skeleton className="bg-bg-input-soft h-9 w-full" />
+        ) : (
+          <Select
+            onValueChange={value => {
+              const branch = branches.data.content?.find((branch: Branch) => branch.id === Number(value));
+              setBranchSelected(branch);
+            }}
+          >
+            <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
+              <School fill="var(--color-icon-default-muted)" className="size-3" />
+              <span className="text-text-default text-sm font-medium">{branchSelected?.name}</span>
+            </SelectTrigger>
+            <SelectContent className="bg-bg-card border-border-default">
+              {branches.data.content.map((branch: Branch) => (
+                <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm font-medium">
+                  {branch.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         <Select open={open} onOpenChange={setOpen} defaultValue="Today">
           <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
             <SelectValue>
@@ -74,20 +97,27 @@ export default function AttendanceHeader() {
               <School fill="var(--color-icon-black-muted)" className="size-4" />
               <Label className="text-text-default text-sm font-medium">Branch</Label>
             </div>
-            <Select value={branchSelected} onValueChange={setBranchSelected}>
-              <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                <SelectValue>
-                  <span className="text-text-default text-sm">{branchSelected}</span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="bg-bg-default border-border-default">
-                {branches.map(branch => (
-                  <SelectItem key={branch} value={branch} className="text-text-default text-sm">
-                    {branch}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {!branches || loadingBranches ? (
+              <Skeleton className="bg-bg-input-soft h-9 w-full" />
+            ) : (
+              <Select
+                onValueChange={value => {
+                  const branch = branches.data.content?.find((branch: Branch) => branch.id === Number(value));
+                  setBranchSelected(branch);
+                }}
+              >
+                <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                  <span className="text-text-default text-sm">{branchSelected?.name}</span>
+                </SelectTrigger>
+                <SelectContent className="bg-bg-default border-border-default">
+                  {branches.data.content.map((branch: Branch) => (
+                    <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm">
+                      {branch.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -130,4 +160,4 @@ export default function AttendanceHeader() {
       </MobileDrawer>
     </div>
   );
-}
+};
