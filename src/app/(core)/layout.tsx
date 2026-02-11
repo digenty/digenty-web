@@ -9,8 +9,7 @@ export default async function CoreLayout({
   children: React.ReactNode;
 }>) {
   const { user } = await getSessionData();
-  const showOnboarding = user?.schoolId === 31;
-  console.log("User data in layout:", user);
+  const showOnboarding = !user?.schoolId;
 
   return (
     <div className="bg-bg-default fixed inset-0 flex overflow-hidden leading-5">
