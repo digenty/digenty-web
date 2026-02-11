@@ -4,6 +4,7 @@ import { isAxiosError } from "axios";
 export const getTeacherSubjects = async () => {
   try {
     const data = await api.get("/teacher/subject/my");
+    console.log(data);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

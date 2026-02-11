@@ -26,7 +26,7 @@ export default function Subject({ title, classes }: SubjectProps) {
   const [openRequest, setOpenRequest] = useState<boolean>(false);
   const router = useRouter();
   const { data } = useGetTeacherSubject();
-  console.log(data?.data);
+  console.log(data);
 
   const handleOpen = (): void => {
     setOpenRequest(!openRequest);
