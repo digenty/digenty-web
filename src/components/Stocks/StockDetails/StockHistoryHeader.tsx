@@ -80,7 +80,7 @@ export const StockHistoryHeader = () => {
               <div className="flex flex-col gap-1 px-1">
                 {changesBy.map((ch, i) => (
                   <div key={i} className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm">
-                    <Avatar username={ch} className="size-4" /> <span className="text-text-default font-normal">{ch}</span>
+                    <Avatar className="size-4" /> <span className="text-text-default font-normal">{ch}</span>
                   </div>
                 ))}
               </div>

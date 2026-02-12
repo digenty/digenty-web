@@ -53,7 +53,7 @@ export const StockHistories = () => {
                 <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
                   <span className="text-text-muted font-medium">Change By</span>
                   <div className="flex items-center gap-2">
-                    <Avatar username={stock.changedBy} className="size-4" />
+                    <Avatar className="size-4" />
                     <div className="text-text-default text-sm font-medium">{stock.changedBy}</div>
                   </div>
                 </div>

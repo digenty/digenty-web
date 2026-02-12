@@ -56,7 +56,7 @@ export const StocksHistoryColumns: ColumnDef<StockHistoryProps>[] = [
     header: () => <div className="text-text-muted text-sm font-medium">Change By</div>,
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <Avatar username={row.original.changedBy} className="size-8" />
+        <Avatar className="size-8" />
         <span className="text-text-default text-sm font-normal">{row.original.changedBy}</span>
       </div>
     ),
