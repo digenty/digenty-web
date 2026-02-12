@@ -143,7 +143,7 @@ function ClassesResponsiveTabs({
 export const GradingAndAssessment = () => {
   const [activeTab, setActiveTab] = useState<Tab>("Lawanson");
   return (
-    <div className="w-full">
+    <div className="mx-auto flex w-full flex-col gap-4 px-4 lg:px-36">
       <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
         <div className="">
           <div className="text-text-default text-md font-semibold">Do grading or assessment settings differ by school branch?</div>

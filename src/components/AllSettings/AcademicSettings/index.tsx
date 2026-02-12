@@ -17,7 +17,7 @@ const academicSteps = [
   },
   {
     id: 2,
-    label: "class & Arms",
+    label: "Class & Arms",
     completed: false,
   },
   {
@@ -47,9 +47,9 @@ export function AcademicSetup() {
   const isLastStep = currentStep === academicSteps.length;
 
   return (
-    <section className="my-6 flex w-full items-center justify-center md:w-271">
-      <div className="w-full space-y-4 md:space-y-6">
-        <div className="mx-auto flex w-full flex-col gap-4 md:w-217 md:px-4">
+    <section className="my-6 flex w-full items-center justify-center">
+      <div className="w-full space-y-4 px-4 md:space-y-6">
+        <div className="mx-auto flex w-full flex-col gap-4 lg:px-36">
           <CSVUploadProgress currentStep={currentStep} steps={steps} completedSteps={completedSteps} className="flex w-full" />
         </div>
 
@@ -58,7 +58,7 @@ export function AcademicSetup() {
         {currentStep === 3 && <GradingAndAssessment />}
         {currentStep === 4 && <AdmissionNumberSetup />}
 
-        <div className="flex items-center justify-between gap-3">
+        <div className="border-border-default bg-bg-default sticky bottom-0 flex w-full justify-between border-t pt-3 lg:px-36">
           <Button
             className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle"
             disabled={currentStep === 1}

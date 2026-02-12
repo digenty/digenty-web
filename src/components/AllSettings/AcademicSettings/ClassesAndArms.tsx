@@ -146,7 +146,7 @@ function ClassesResponsiveTabs({
 export const ClassesAndArms = () => {
   const [activeTab, setActiveTab] = useState<Tab>("Lawanson");
   return (
-    <div className="w-full">
+    <div className="mx-auto flex w-full flex-col gap-4 px-4 lg:px-36">
       <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
         <div className="">
           <div className="text-text-default text-md font-semibold">Do academic structures differ by school branch?</div>
@@ -229,7 +229,7 @@ export const ClassesSetup = () => {
 export const NurserySetup = ({ onOpenDelete }: { onOpenDelete?: (target?: { id: string; name?: string }) => void }) => {
   const nurseryClasses = [{ id: "n1" }, { id: "n2" }];
   return (
-    <div className="mt-8 flex w-full flex-col gap-6 md:w-200 lg:w-270">
+    <div className="mt-8 flex w-full flex-col gap-6">
       {nurseryClasses.map(nc => (
         <div key={nc.id} className="bg-bg-state-soft rounded-md p-1">
           <div className="flex items-center justify-between px-5 py-2">

@@ -20,7 +20,7 @@ export const AcademicAllSetupDone = () => {
   return (
     <div className="w-full">
       <div className="bg-bg-subtle border-border-darker w-full border-b">
-        <div className="flex w-full items-center justify-between gap-2 p-4 md:px-8 md:py-4">
+        <div className="flex items-center justify-between gap-2 p-4">
           <Select value={termSelected} onValueChange={setTermSelected}>
             <SelectTrigger className="border-border-darker h-8! w-auto border">
               <SelectValue>
@@ -45,7 +45,7 @@ export const AcademicAllSetupDone = () => {
         </div>
       </div>
       <div className="md:px-8 md:pt-8">
-        <div className="border-border-default mb-10 flex flex-row items-center gap-4 overflow-x-auto border-b py-3 md:p-0">
+        <div className="border-border-default mb-10 flex items-center justify-evenly gap-4 border-b py-3 md:p-0">
           {tabs.map(tab => {
             const isActive = activeTab === tab;
 
@@ -54,7 +54,7 @@ export const AcademicAllSetupDone = () => {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "hover:bg-bg-none! w-1/2 rounded-none py-2.5 text-center transition-all md:w-1/6",
+                  "hover:bg-bg-none! rounded-none text-center transition-all",
                   isActive && "md:border-border-informative md:border-b-[1.5px]",
                 )}
               >
@@ -72,7 +72,7 @@ export const AcademicAllSetupDone = () => {
           })}
         </div>
       </div>
-      <div className="mt-5">
+      <div className="mt-5 px-4">
         {activeTab === "School, Session & Term" && (
           <div className="">
             <SchoolStructure />
@@ -95,7 +95,7 @@ export const AcademicAllSetupDone = () => {
         )}
       </div>
 
-      <div className="border-border-default mt-5 flex items-center justify-between border-t py-4 md:px-10">
+      <div className="border-border-default bg-bg-default sticky bottom-0 mx-auto flex w-full justify-between border-t py-3 md:px-36">
         <Button className="bg-bg-state-soft! text-text-subtle rounded-md">Cancel</Button>
         <Button className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default rounded-md">Save changes</Button>
       </div>

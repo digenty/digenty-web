@@ -27,7 +27,7 @@ export default function SettingsBigScreenLayout({
             <SettingsMobileNav />
           </div>
         ) : (
-          <div className="p-4">
+          <div className="">
             <div className="mb-4 hidden">
               <Link href="/settings" className="text-primary-600 inline-flex items-center gap-2 text-sm">
                 <span aria-hidden className="text-lg">
