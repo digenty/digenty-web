@@ -20,8 +20,9 @@ export const SearchInput = ({
       <InputGroupAddon>
         <Search className="text-icon-default-muted" />
       </InputGroupAddon>
+
       <InputGroupAddon align="inline-end">
-        <Button className="border-border-default size-5 border px-2">
+        <Button type="button" className="border-border-default size-5 border px-2">
           <span className="text-text-muted text-xs font-medium">/</span>
         </Button>
       </InputGroupAddon>
