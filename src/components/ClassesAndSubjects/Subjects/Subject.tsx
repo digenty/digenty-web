@@ -24,6 +24,7 @@ export type SubjectProps = {
 export default function Subject({ title, classes }: SubjectProps) {
   const [openRequest, setOpenRequest] = useState<boolean>(false);
   const router = useRouter();
+
   const handleOpen = (): void => {
     setOpenRequest(!openRequest);
   };

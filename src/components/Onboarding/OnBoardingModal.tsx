@@ -1,58 +1,205 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LogoMark } from "../Icons/LogoMark";
 import { WelcomeInputs } from "./WelcomeInputs";
 import { Button } from "../ui/button";
 import { SchoolOverview } from "./SchoolOverview";
+import { useAddSchool } from "@/hooks/queryHooks/useSchool";
+import { useAddBranch } from "@/hooks/queryHooks/useBranch";
+import { useFormik } from "formik";
+import { CreateSchoolTypes } from "./types";
+import { schoolSchema } from "@/schema/school";
+import { Spinner } from "../ui/spinner";
+import { toast } from "../Toast";
+import { Modal } from "../Modal";
 
 interface OnboardingModalProps {
   initialShow: boolean;
 }
 
+interface BranchFormValues {
+  activeOption: "one" | "multiple" | null;
+  numOfBranches: number;
+  branches: { branchName: string; address: string; levels: string[] }[];
+  singleBranch: { branchName: string; address: string; levels: string[] };
+}
+
+interface CreateBranchPayload {
+  branchDtos: { branchName: string; address: string; levels: string[] }[];
+}
+
 const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
-  const [step, setStep] = useState<number>(1);
+  const [step, setStep] = useState(1);
   const [showModal, setShowModal] = useState(initialShow);
   const totalSteps = 2;
-  const nextStep = () => {
-    if (step === 2) {
-      setShowModal(false);
-    } else {
-      setStep(step + 1);
+
+  const { mutate: mutateSchool, isPending: isSchoolPending } = useAddSchool();
+  const { mutate: mutateBranch, isPending: isBranchPending } = useAddBranch();
+
+  const schoolFormik = useFormik<CreateSchoolTypes>({
+    initialValues: {
+      firstName: "",
+      lastName: "",
+      schoolName: "",
+      schoolSize: 1,
+      role: "",
+      country: "",
+      currency: "",
+    },
+    validationSchema: schoolSchema,
+    onSubmit: values => {
+      mutateSchool(values, {
+        onSuccess: data => {
+          toast({
+            title: "School created successfully",
+            description: data.message,
+            type: "success",
+          });
+          setStep(2);
+        },
+        onError: error => {
+          toast({
+            title: error.message ?? "Something went wrong",
+            description: "Could not create a school",
+            type: "error",
+          });
+        },
+      });
+    },
+  });
+
+  const branchFormik = useFormik<BranchFormValues>({
+    initialValues: {
+      activeOption: null,
+      numOfBranches: 2,
+      branches: [
+        { branchName: "", address: "", levels: [] },
+        { branchName: "", address: "", levels: [] },
+      ],
+      singleBranch: { branchName: "", address: "", levels: [] },
+    },
+    onSubmit: async values => {
+      if (!values.activeOption) {
+        toast({ title: "Please select a branch option", type: "error" });
+        return;
+      }
+
+      const formatLevels = (levels: string[]) => levels.map(level => level.toUpperCase());
+
+      let payload: CreateBranchPayload;
+
+      if (values.activeOption === "one") {
+        if (!values.singleBranch.branchName || !values.singleBranch.address || values.singleBranch.levels.length === 0) {
+          toast({ title: "Fill all required fields for the branch", type: "error" });
+          return;
+        }
+
+        payload = {
+          branchDtos: [
+            {
+              branchName: values.singleBranch.branchName,
+              address: values.singleBranch.address,
+              levels: formatLevels(values.singleBranch.levels),
+            },
+          ],
+        };
+      } else {
+        const filledBranches = values.branches.filter(b => b.branchName && b.address && b.levels.length > 0);
+
+        if (filledBranches.length === 0) {
+          toast({ title: "Fill at least one branch completely", type: "error" });
+          return;
+        }
+
+        payload = {
+          branchDtos: filledBranches.map(b => ({
+            branchName: b.branchName,
+            address: b.address,
+            levels: formatLevels(b.levels),
+          })),
+        };
+      }
+
+      mutateBranch(payload, {
+        onError: () => {
+          toast({ title: "Branch(es) created successfully", type: "success" });
+          setShowModal(false);
+        },
+        onSuccess: () => {
+          toast({ title: `Branch${branchFormik.values.branches.length > 1 ? "es" : ""} created successfully`, type: "success" });
+          setShowModal(false);
+        },
+      });
+    },
+  });
+
+  // Keep the branch array in sync with numOfBranches
+  useEffect(() => {
+    const targetLength = branchFormik.values.numOfBranches;
+    const updated = [...branchFormik.values.branches];
+
+    while (updated.length < targetLength) updated.push({ branchName: "", address: "", levels: [] });
+    while (updated.length > targetLength) updated.pop();
+
+    branchFormik.setFieldValue("branches", updated);
+  }, [branchFormik.values.numOfBranches]);
+
+  const isStep2Valid = () => {
+    const { activeOption, singleBranch, branches } = branchFormik.values;
+    if (!activeOption) return false;
+
+    if (activeOption === "one") {
+      return singleBranch.branchName && singleBranch.address && singleBranch.levels.length > 0;
     }
+
+    if (activeOption === "multiple") {
+      return branches.some(b => b.branchName && b.address && b.levels.length > 0);
+    }
+
+    return false;
   };
 
   if (!showModal) return null;
 
+  const isSchoolValid = Object.keys(schoolFormik.errors).length === 0 && Object.keys(schoolFormik.touched).length !== 0;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" />
-
-      <div className="bg-bg-card relative z-10 max-h-155 w-full max-w-175 rounded-xl">
-        <div className="bg-bg-card-subtle border-border-default rounded-t-xl border-b">
-          <div className="text-text-default text-md flex items-center gap-2 px-6 py-4 font-semibold">
-            <LogoMark /> Digenty
-          </div>
+    <Modal
+      open={showModal}
+      setOpen={setShowModal}
+      className="sm:max-w-175"
+      title={
+        <span className="text-text-default text-md flex items-center gap-2">
+          <LogoMark /> Digenty
+        </span>
+      }
+      cancelButton={
+        <div className="text-text-muted text-sm">
+          {step} of {totalSteps}
         </div>
-
-        <div className="px-6 py-4">
-          {step === 1 && <WelcomeInputs />}
-
-          {step === 2 && <SchoolOverview />}
-        </div>
-
-        <div className="border-border-default border-t">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="text-text-muted text-sm">
-              {step} of {totalSteps}
-            </div>
-            <Button onClick={nextStep} className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! border-none">
-              Continue
-            </Button>
-          </div>
-        </div>
+      }
+      ActionButton={
+        <Button
+          disabled={(step === 1 && !isSchoolValid) || (step === 2 && !isStep2Valid())}
+          onClick={() => {
+            if (step === 1) {
+              schoolFormik.handleSubmit();
+            } else {
+              branchFormik.handleSubmit();
+            }
+          }}
+          className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! flex items-center gap-2 border-none"
+        >
+          {(isSchoolPending || isBranchPending) && <Spinner className="text-text-white-default" />}
+          Continue
+        </Button>
+      }
+    >
+      <div className="px-6 py-4">
+        {step === 1 && <WelcomeInputs formik={schoolFormik} />}
+        {step === 2 && <SchoolOverview formik={branchFormik} />}
       </div>
-    </div>
+    </Modal>
   );
 };
 

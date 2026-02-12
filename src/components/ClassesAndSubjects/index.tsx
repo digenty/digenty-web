@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { MyClasses } from "./Classes";
 import { Subjects } from "./Subjects";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 const tabs = [
   { id: "classes", label: "My Classes" },
@@ -12,6 +13,8 @@ const tabs = [
 ];
 
 const ClassesAndSubjects = () => {
+  const user = useLoggedInUser();
+  console.log("User data from hook:", user);
   const router = useRouter();
   const { setBreadcrumbs } = useBreadcrumbStore();
   const params = useSearchParams();
