@@ -34,7 +34,7 @@ export const OneCollectionAccount = () => {
         <Label className="text-text-default text-sm font-medium">Account Number</Label>
         <Input className="bg-bg-input-soft! text-text-muted w-full rounded-md border-none" placeholder="Enter 10-digits account number" />
         <div className="bg-bg-input-soft mt-2 flex w-full items-center gap-2 rounded-md p-2">
-          <Avatar username="Damilare John" className="size-4" /> <span className="text-text-default text-sm font-medium">Damilare John</span>
+          <Avatar className="size-4" /> <span className="text-text-default text-sm font-medium">Damilare John</span>
         </div>
       </div>
     </div>

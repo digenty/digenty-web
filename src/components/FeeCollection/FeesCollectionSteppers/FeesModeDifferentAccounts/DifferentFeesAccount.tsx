@@ -215,7 +215,7 @@ export const AddAccountSheet = () => {
                                 <Gtbank /> <span>GTBank</span>
                               </SelectItem>
                               <SelectItem value="John">
-                                <Avatar username="Damilare John" className="size-4" /> <span>Access Bank</span>
+                                <Avatar className="size-4" /> <span>Access Bank</span>
                               </SelectItem>
                             </SelectGroup>
                           </SelectContent>
@@ -228,8 +228,7 @@ export const AddAccountSheet = () => {
                           placeholder="Enter 10-digits account number"
                         />
                         <div className="bg-bg-input-soft mt-2 flex w-full items-center gap-2 rounded-md p-2">
-                          <Avatar username="Damilare John" className="size-4" />{" "}
-                          <span className="text-text-default text-sm font-medium">Damilare John</span>
+                          <Avatar className="size-4" /> <span className="text-text-default text-sm font-medium">Damilare John</span>
                         </div>
                       </div>
                     </div>
@@ -274,10 +273,10 @@ export const AddAccountSheet = () => {
                       <SelectContent className="bg-bg-card border-border-default text-text-default border">
                         <SelectGroup>
                           <SelectItem value="Dami">
-                            <Avatar username="Damilare John" className="size-4" /> <span>Damilare John</span>
+                            <Avatar className="size-4" /> <span>Damilare John</span>
                           </SelectItem>
                           <SelectItem value="John">
-                            <Avatar username="Damilare John" className="size-4" /> <span>Damilare John</span>
+                            <Avatar className="size-4" /> <span>Damilare John</span>
                           </SelectItem>
                         </SelectGroup>
                       </SelectContent>
@@ -287,8 +286,7 @@ export const AddAccountSheet = () => {
                     <Label className="text-text-default text-sm font-medium">Account Number</Label>
                     <Input className="bg-bg-input-soft! text-text-muted w-full rounded-md border-none" placeholder="Enter 10-digits account number" />
                     <div className="bg-bg-input-soft mt-2 flex w-full items-center gap-2 rounded-md p-2">
-                      <Avatar username="Damilare John" className="size-4" />{" "}
-                      <span className="text-text-default text-sm font-medium">Damilare John</span>
+                      <Avatar className="size-4" /> <span className="text-text-default text-sm font-medium">Damilare John</span>
                     </div>
                   </div>
                 </div>
