@@ -57,7 +57,7 @@ export const StocksHistoryColumns: ColumnDef<StockHistoryProps>[] = [
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         <Avatar username={row.original.changedBy} className="size-8" />
-        <span className="text-text-default text-sm font-normal">{row.original.changedBy}</span>,
+        <span className="text-text-default text-sm font-normal">{row.original.changedBy}</span>
       </div>
     ),
   },
@@ -102,7 +102,7 @@ export const StocksHistoryColumns: ColumnDef<StockHistoryProps>[] = [
     cell: ({ row }) => (
       <div className="flex flex-col gap-1">
         <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.reason}</span>
-        <span className="text-text-informative cursor-pointer text-sm font-medium">{row.original.summary}</span>
+        <span className="text-text-informative cursor-pointer text-xs font-normal">{row.original.summary}</span>
       </div>
     ),
   },

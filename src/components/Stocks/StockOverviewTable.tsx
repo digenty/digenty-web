@@ -14,8 +14,11 @@ import { Badge } from "../ui/badge";
 import Edit from "../Icons/Edit";
 import { FileCopy } from "../Icons/FileCopy";
 import DeleteBin from "../Icons/DeleteBin";
+import { useRouter } from "next/navigation";
 
 export const StockOverviewTable = () => {
+  const router = useRouter();
+
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +38,9 @@ export const StockOverviewTable = () => {
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}
           onSelectRows={setSelectedRows}
-          clickHandler={() => {}}
+          clickHandler={row => {
+            router.push(`/stock/${row.original.id}`);
+          }}
           showPagination={true}
         />
       </div>

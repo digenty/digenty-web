@@ -88,7 +88,7 @@ export const StocksSearchAndFilter = () => {
 
           <div className="flex items-center gap-1">
             <Button
-              onClick={() => router.push("/invoices/new-invoice")}
+              onClick={() => router.push("/stock/add-stock")}
               className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
             >
               <Plus className="text-texticon-white-default size-4" />

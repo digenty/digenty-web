@@ -11,6 +11,7 @@ import { Badge } from "../ui/badge";
 import { stockStatus } from "../Status";
 import { FileCopy } from "../Icons/FileCopy";
 import { ExpandUpAndDown } from "../Icons/ExpandUpAndDown";
+import { Avatar } from "../ui/avatar";
 
 const RenderOptions = (row: Row<stocksItemsProps>) => {
   const [open, setOpen] = useState(false);
@@ -78,7 +79,7 @@ export const StocksOverviewTableColumns: ColumnDef<stocksItemsProps>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
-          <Image src="/images/image.png" alt="stock image" height={20} width={20} />
+          <Avatar className="size-5" />
           <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.itemName}</span>
         </div>
       </div>

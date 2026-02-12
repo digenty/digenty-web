@@ -9,6 +9,7 @@ import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { FolderReduce } from "../Icons/FolderReduce";
 
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 
@@ -23,7 +24,10 @@ export const StockHeader = () => {
       <div className="flex w-full justify-between align-middle">
         <h2 className="text-text-default text-xl font-semibold">Overview</h2>
         <div className="flex items-center gap-2">
-          <Button className="border-border-darker text-text-default h-8! w-auto border text-sm font-medium"> Stock Categories</Button>
+          <Button className="border-border-darker text-text-default h-8! w-auto border text-sm font-medium">
+            {" "}
+            <FolderReduce fill="var(--color-icon-black-muted)" className="size-4" /> Stock Categories
+          </Button>
           <div className="hidden gap-2 align-middle md:flex">
             <Select value={branchSelected} onValueChange={setBranchSelected}>
               <SelectTrigger className="border-border-darker h-8! w-auto border">
