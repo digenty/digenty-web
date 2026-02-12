@@ -29,7 +29,7 @@ export const InvoiceSetting = () => {
             <div className="border-border-default flex items-center gap-4 border-b pb-4">
               <input type="file" accept="image/png,image/jpeg" className="hidden" aria-label="Upload school logo" />
 
-              <Avatar username="Damilare" className="size-10" />
+              <Avatar className="size-10" />
               <Button className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow">
                 Upload
               </Button>

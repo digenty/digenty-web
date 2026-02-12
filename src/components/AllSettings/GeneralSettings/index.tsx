@@ -91,7 +91,7 @@ export const General = () => {
                 aria-label="Upload school logo"
               />
 
-              <Avatar username="Damilare" className="size-10" url={image} />
+              <Avatar className="size-10" url={image} />
               <Button
                 onClick={handleUploadClick}
                 className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"

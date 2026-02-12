@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { ClassFees } from "./classFees";
 import { FeesItem } from "./FeesItem";
-import { FeesGroup } from "./feesGroup";
+import { FeesGroup } from "./FeesGroup";
+import { ClassFees } from "./ClassFees";
 
 const tabs = ["Class Fees", "Fee Items", "Fee Groups"];
 
