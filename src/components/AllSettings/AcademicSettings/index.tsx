@@ -13,22 +13,22 @@ const academicSteps = [
   {
     id: 1,
     label: "School Structure",
-    component: <SchoolStructure />,
+    completed: false,
   },
   {
     id: 2,
     label: "class & Arms",
-    component: <ClassesAndArms />,
+    completed: false,
   },
   {
     id: 3,
     label: "Grading & Assessment",
-    component: <GradingAndAssessment />,
+    completed: false,
   },
   {
     id: 4,
     label: "Admission Number",
-    component: <AdmissionNumberSetup />,
+    completed: false,
   },
 ];
 
@@ -40,18 +40,23 @@ export function AcademicSetup() {
   const steps = academicSteps.map(({ id, label }) => ({
     id,
     label,
+    completed: false,
   }));
 
-  const activeStep = academicSteps.find(step => step.id === currentStep);
+  // const activeStep = academicSteps.find(step => step.id === currentStep);
   const isLastStep = currentStep === academicSteps.length;
 
   return (
-    <section className="mx-auto my-6 flex w-full items-center justify-center md:w-271">
+    <section className="my-6 flex w-full items-center justify-center md:w-271">
       <div className="w-full space-y-4 md:space-y-6">
-        <div className="">
+        <div className="mx-auto flex w-full flex-col gap-4 md:w-217 md:px-4">
           <CSVUploadProgress currentStep={currentStep} steps={steps} completedSteps={completedSteps} className="flex w-full" />
         </div>
-        <div className="mx-auto flex items-center justify-center">{activeStep?.component}</div>
+
+        {currentStep === 1 && <SchoolStructure />}
+        {currentStep === 2 && <ClassesAndArms />}
+        {currentStep === 3 && <GradingAndAssessment />}
+        {currentStep === 4 && <AdmissionNumberSetup />}
 
         <div className="flex items-center justify-between gap-3">
           <Button

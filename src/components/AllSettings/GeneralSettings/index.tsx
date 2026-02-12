@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PlusIcon } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 type EditProps = "editName" | "editSchoolName" | "moto" | "editPhoneNum" | "editBranch" | null;
@@ -76,7 +77,7 @@ export const General = () => {
   return (
     <div className="p-4 md:p-8">
       <div className="text-text-default mb-8 text-xl font-semibold">General Settings</div>
-      <div className="flex w-full flex-col md:max-w-237">
+      <div className="flex w-full flex-col md:max-w-150">
         <div className="">
           <div className="text-text-default mb-4 text-sm font-medium">School Logo</div>
           <div className="flex flex-col gap-4">
@@ -406,6 +407,10 @@ export const General = () => {
             </div>
           )}
         </div>
+
+        <Button className="bg-bg-state-soft mt-4 self-start">
+          <PlusIcon className="text-icon-default-muted size-4" /> Add Branch
+        </Button>
       </div>
     </div>
   );

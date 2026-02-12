@@ -9,7 +9,7 @@ export const SettingsHeader = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="border-border-default hidden h-14 items-center justify-between gap-2 border-b px-8 py-3 md:flex">
+    <nav className="border-border-default scrollbar-hide hidden h-14 items-center justify-between gap-2 overflow-x-auto border-b px-8 py-3 md:flex">
       {SETTINGS_NAV.map(item => {
         const isActive = pathname === item.url || pathname.startsWith(item.url + "/");
 
@@ -17,7 +17,7 @@ export const SettingsHeader = () => {
           <Link
             key={item.url}
             href={item.url}
-            className={`hover:bg-bg-state-soft-hover text-text-muted flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all ${
+            className={`hover:bg-bg-state-soft-hover text-text-muted flex h-8 w-fit items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-nowrap transition-all ${
               isActive ? "bg-bg-state-soft text-text-default" : "bg-transparent"
             }`}
           >
