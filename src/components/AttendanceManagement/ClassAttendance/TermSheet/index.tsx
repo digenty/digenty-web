@@ -22,7 +22,6 @@ export const TermSheet = () => {
   const [selectedRows, setSelectedRows] = useState<StudentAttendance[]>([]);
   const [activeWeek, setActiveWeek] = useState(students[0].weeks[0].week);
   const [activeStudent, setActiveStudent] = useState<string>();
-  console.log(selectedRows);
   const pageSize = 10;
 
   return (

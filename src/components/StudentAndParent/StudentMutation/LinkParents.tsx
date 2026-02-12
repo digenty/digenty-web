@@ -224,13 +224,7 @@ export const LinkParents = ({
               </div>
 
               <div className="bg-bg-card border-border-darker flex items-center gap-3 rounded-lg border p-4">
-                <Checkbox
-                  checked={false}
-                  onCheckedChange={(value: boolean) => {
-                    console.log(value);
-                  }}
-                  aria-label="Select"
-                />
+                <Checkbox checked={false} onCheckedChange={(value: boolean) => {}} aria-label="Select" />
                 <div className="flex items-center gap-2">
                   <Avatar className="size-10 md:size-8" />
                   <div className="">

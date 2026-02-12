@@ -13,7 +13,6 @@ export async function GET() {
     return NextResponse.json({ countries });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.log(error, "####");
     return NextResponse.json({ countries: null }, { status: 500 });
   }
 }
