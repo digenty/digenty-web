@@ -1,4 +1,4 @@
-import { FeesSetup } from "@/components/FeesAndCollection/FeesCollectionSteppers";
+import { FeesSetup } from "@/components/FeeCollection/FeesCollectionSteppers";
 import React from "react";
 
 const FeesSetupMainPage = () => {

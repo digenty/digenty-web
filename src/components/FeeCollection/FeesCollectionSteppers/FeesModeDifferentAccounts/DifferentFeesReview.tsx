@@ -9,6 +9,7 @@ import { SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Modal } from "@/components/Modal";
+import { PlusIcon } from "lucide-react";
 
 type FlowType = "oneAccount" | "differentAccounts";
 
@@ -132,7 +133,7 @@ export const CustomBranchFeeRouting = () => {
             <GroupWorkT />
             <div className="text-text-default text-md font-medium">No fees routed</div>
 
-            <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default"> Add Fee</Button>
+            <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default"> Route Fees</Button>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { EmptyFeesCollectionState } from "@/components/FeesAndCollection/EmptyState";
+import { EmptyFeesCollectionState } from "@/components/FeeCollection/EmptyState";
 import { Spinner } from "@/components/ui/spinner";
 import React, { Suspense } from "react";
 

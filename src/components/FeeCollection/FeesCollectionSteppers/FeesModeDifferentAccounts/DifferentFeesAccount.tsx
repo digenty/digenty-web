@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Label } from "@radix-ui/react-label";
+import { PlusIcon } from "lucide-react";
 import React, { useState } from "react";
 
 const branchAcc = [
@@ -73,15 +74,15 @@ export const DifferentFeesAccount = () => {
                   <SelectValue placeholder="Select account" />
                 </SelectTrigger>
 
-                <SelectContent className="bg-bg-card border-border-default text-text-default w-71! py-2.5 shadow-sm">
+                <SelectContent className="bg-bg-card border-border-default text-text-default w-71! p-0! shadow-sm">
                   <div className="border-border-default border-b">
                     <SearchInput className="w-full rounded-md border-none" value={query} onChange={e => setQuery(e.target.value)} />
                   </div>
 
-                  <SelectGroup>
+                  <SelectGroup className="p-0!">
                     {filteredItems.length > 0 ? (
                       filteredItems.map((item, i) => (
-                        <SelectItem key={i} value={String(item.accNum)} className="text-text-default my-2 text-sm">
+                        <SelectItem key={i} value={String(item.accNum)} className="text-text-default my-2 py-3 text-sm">
                           <div className="flex w-full items-center justify-between gap-2">
                             <div className=""> {item.bankLogo}</div>
                             <div className="w-full text-xs">
@@ -182,12 +183,13 @@ export const AddAccountSheet = () => {
   const isMobile = useIsMobile();
   return (
     <div className="">
-      <Button
+      <div
         onClick={() => setSheetOpen(true)}
-        className="hover:bg-bg-none! border-border-default text-text-default 10! flex w-full! items-center justify-center rounded-md border bg-none text-center! md:h-7! md:rounded-none md:border-t md:pt-5!"
+        role="button"
+        className="hover:bg-bg-input-soft border-border-default text-text-default flex cursor-pointer items-center justify-center gap-1.5 border-t py-2 text-sm"
       >
-        <AddFill fill="var(--color-icon-default-muted)" /> Add new account
-      </Button>
+        <PlusIcon className="text-icon-default-muted size-4" /> Add new account
+      </div>
 
       <div>
         {!isMobile && (

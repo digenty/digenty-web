@@ -13,6 +13,7 @@ import { OneAccountReview } from "./FeesModeOneAccount/OneAccountReview";
 import { DifferentFeesAccount } from "./FeesModeDifferentAccounts/DifferentFeesAccount";
 import { DifferentFeesRounting } from "./FeesModeDifferentAccounts/DifferentFeesRounting";
 import { DifferentFeesReview } from "./FeesModeDifferentAccounts/DifferentFeesReview";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 type FlowType = "oneAccount" | "differentAccounts";
 
@@ -21,16 +22,17 @@ const steps = [{ label: "Choose Mode" }, { label: "Account Setup" }, { label: "R
 export const FeesSetup = () => {
   const [activeStep, setActiveStep] = useState(-1);
   const [flow, setFlow] = useState<FlowType | null>(null);
+  useBreadcrumb([{ label: "Fee Collection", url: "/fee-collection" }]);
 
   const next = () => setActiveStep(s => Math.min(s + 1, steps.length - 1));
 
   const prev = () => setActiveStep(s => Math.max(s - 1, 0));
 
   const renderStepIndicator = (index: number) => {
-    if (index < activeStep) {
+    if (index < activeStep + 1) {
       return <CheckboxCircleFill fill="var(--color-icon-success)" />;
     }
-    if (index === activeStep) {
+    if (index === activeStep + 1) {
       return <Loader2Fill fill="var(--color-icon-informative)" />;
     }
     return (
@@ -63,6 +65,7 @@ export const FeesSetup = () => {
           <div className="px-6 pt-6">
             {activeStep === -1 && <FeesMode selected={flow} onSelect={value => setFlow(value)} />}
             {activeStep === 0 && flow === "oneAccount" && <OneCollectionAccount />}
+            {/* TODO: Show this step while still on step 0. Move butttons and control to each component or control the step movement from each component */}
             {activeStep === 1 && flow === "oneAccount" && (
               <div>
                 <div className="flex flex-col gap-8">
