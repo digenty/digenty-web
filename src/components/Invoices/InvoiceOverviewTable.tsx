@@ -12,8 +12,6 @@ import Printer from "../Icons/Printer";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Avatar } from "../Avatar";
 import { MobileDrawer } from "../MobileDrawer";
-
-import { DrawerClose, DrawerFooter } from "../ui/drawer";
 import { BallPen } from "../Icons/BallPen";
 import Notification2 from "../Icons/Notification2";
 import { useRouter } from "next/navigation";

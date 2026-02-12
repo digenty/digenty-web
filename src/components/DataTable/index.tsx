@@ -21,6 +21,8 @@ interface DataTableProps<TData, TValue> {
   showPagination?: boolean;
   fullBorder?: boolean;
   loadingContent?: boolean;
+  border?: boolean;
+  headerBg?: boolean;
   classNames?: {
     tableWrapper?: string;
     table?: string;
@@ -48,6 +50,8 @@ export const DataTable = <TData, TValue>({
   showPagination = true,
   fullBorder = false,
   loadingContent,
+  border = false,
+  headerBg = false,
   classNames,
 }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
@@ -77,9 +81,9 @@ export const DataTable = <TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className={cn("overflow-hidden rounded-md", classNames?.tableWrapper)}>
+      <div className={cn("overflow-hidden rounded-md", classNames?.tableWrapper, border && "border-border-default border")}>
         <Table className={cn("w-full", classNames?.table)}>
-          <TableHeader className={cn("border-border-default border-t", fullBorder && "border")}>
+          <TableHeader className={cn("border-border-default border-t", fullBorder && "border", headerBg && "bg-bg-subtle")}>
             {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id} className={cn("border-border-default border-b", classNames?.tableHead, classNames?.tableRow)}>
                 {headerGroup.headers.map(header => {
@@ -135,7 +139,7 @@ export const DataTable = <TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="text-text-default h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>
