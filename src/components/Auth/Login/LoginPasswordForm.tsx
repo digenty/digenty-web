@@ -39,7 +39,7 @@ export const LoginPasswordForm = ({ email }: { email: string }) => {
               description: data.message,
               type: "success",
             });
-            createSession(data.da);
+            createSession(data.data.token);
           },
           onError: error => {
             toast({
