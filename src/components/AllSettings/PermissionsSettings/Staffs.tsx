@@ -42,7 +42,6 @@ export const Staffs = () => {
   const [openExport, setOpenExport] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
   const [openActions, setOpenAction] = useState(false);
-  console.log(selectedRows);
   const filterBranch = [
     {
       branch: "Lawanson",
@@ -173,7 +172,7 @@ export const Staffs = () => {
             <div key={stf.id} className="border-border-default bg-bg-subtle rounded-md border">
               <div className="border-border-default flex h-[38px] items-center justify-between border-b px-3 py-1.5">
                 <div className="flex items-center gap-2">
-                  <Avatar username={stf.staffName} className="size-5" url="" />
+                  <Avatar className="size-5" url="" />
                   <span className="text-text-default text-sm font-medium">{stf.staffName}</span>
                 </div>
                 <Button onClick={() => setIsOpen(true)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">

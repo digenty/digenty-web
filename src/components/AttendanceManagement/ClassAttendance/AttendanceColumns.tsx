@@ -8,7 +8,6 @@ import { useState } from "react";
 import { Student } from "./AttendanceTable";
 
 const RenderAttendance = (row: Row<Student>) => {
-  console.log(row);
   const [isPresent, setIsPresent] = useState(false);
   const [isAbsent, setIsAbsent] = useState(false);
 

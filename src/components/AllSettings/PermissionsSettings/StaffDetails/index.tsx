@@ -25,7 +25,7 @@ export const StaffDetails = () => {
         <div className="flex w-full flex-col gap-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between md:gap-4">
             <div className="flex items-center gap-2">
-              <Avatar username="Damilare John" className="size-14 md:size-26" />
+              <Avatar className="size-14 md:size-26" />
 
               <div className="flex flex-col gap-1 md:gap-2">
                 <div className="flex items-center gap-1">
