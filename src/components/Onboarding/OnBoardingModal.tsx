@@ -12,6 +12,7 @@ import { CreateSchoolTypes } from "./types";
 import { schoolSchema } from "@/schema/school";
 import { Spinner } from "../ui/spinner";
 import { toast } from "../Toast";
+import { Modal } from "../Modal";
 
 interface OnboardingModalProps {
   initialShow: boolean;
@@ -84,7 +85,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
         return;
       }
 
-      const formatLevels = (levels: string[]) => levels.map(l => l.toUpperCase());
+      const formatLevels = (levels: string[]) => levels.map(level => level.toUpperCase());
 
       let payload: CreateBranchPayload;
 
@@ -119,15 +120,17 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
           })),
         };
       }
-      console.log(payload);
-      try {
-        mutateBranch(payload);
 
-        toast({ title: "Branch(es) created successfully", type: "success" });
-        setShowModal(false);
-      } catch (err: unknown) {
-        toast({ title: err instanceof Error ? err.message : "Could not create branch(es)", type: "error" });
-      }
+      mutateBranch(payload, {
+        onError: () => {
+          toast({ title: "Branch(es) created successfully", type: "success" });
+          setShowModal(false);
+        },
+        onSuccess: () => {
+          toast({ title: `Branch${branchFormik.values.branches.length > 1 ? "es" : ""} created successfully`, type: "success" });
+          setShowModal(false);
+        },
+      });
     },
   });
 
@@ -159,46 +162,44 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
 
   if (!showModal) return null;
 
+  const isSchoolValid = Object.keys(schoolFormik.errors).length === 0 && Object.keys(schoolFormik.touched).length !== 0;
   return (
-    <div className="fixed inset-0 z-50 mx-3 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" />
-
-      <div className="bg-bg-card relative z-10 min-h-155 w-full max-w-175 rounded-xl">
-        <div className="bg-bg-card-subtle border-border-default rounded-t-xl border-b">
-          <div className="text-text-default text-md flex items-center gap-2 px-6 py-4 font-semibold">
-            <LogoMark /> Digenty
-          </div>
+    <Modal
+      open={showModal}
+      setOpen={setShowModal}
+      className="sm:max-w-175"
+      title={
+        <span className="text-text-default text-md flex items-center gap-2">
+          <LogoMark /> Digenty
+        </span>
+      }
+      cancelButton={
+        <div className="text-text-muted text-sm">
+          {step} of {totalSteps}
         </div>
-
-        <div className="px-6 py-4">
-          {step === 1 && <WelcomeInputs formik={schoolFormik} />}
-          {step === 2 && <SchoolOverview formik={branchFormik} />}
-        </div>
-
-        <div className="border-border-default border-t">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="text-text-muted text-sm">
-              {step} of {totalSteps}
-            </div>
-
-            <Button
-              onClick={() => {
-                if (step === 1) {
-                  schoolFormik.handleSubmit();
-                } else {
-                  branchFormik.handleSubmit();
-                }
-              }}
-              className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! flex items-center gap-2 border-none"
-              disabled={(step === 1 && (isSchoolPending || !schoolFormik.isValid)) || (step === 2 && (isBranchPending || !isStep2Valid()))}
-            >
-              {(isSchoolPending || isBranchPending) && <Spinner className="text-text-white-default" />}
-              Continue
-            </Button>
-          </div>
-        </div>
+      }
+      ActionButton={
+        <Button
+          disabled={(step === 1 && !isSchoolValid) || (step === 2 && !isStep2Valid())}
+          onClick={() => {
+            if (step === 1) {
+              schoolFormik.handleSubmit();
+            } else {
+              branchFormik.handleSubmit();
+            }
+          }}
+          className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! flex items-center gap-2 border-none"
+        >
+          {(isSchoolPending || isBranchPending) && <Spinner className="text-text-white-default" />}
+          Continue
+        </Button>
+      }
+    >
+      <div className="px-6 py-4">
+        {step === 1 && <WelcomeInputs formik={schoolFormik} />}
+        {step === 2 && <SchoolOverview formik={branchFormik} />}
       </div>
-    </div>
+    </Modal>
   );
 };
 

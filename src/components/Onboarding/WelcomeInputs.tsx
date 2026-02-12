@@ -13,7 +13,7 @@ import { currencies } from "@/store/currenciesCode";
 const schoolSizes = [1, 2, 3, 4];
 
 export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolTypes> }) => {
-  const { handleBlur, handleChange, errors, touched, values, setFieldTouched, setFieldValue } = formik;
+  const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
   const [countries, setCountries] = useState<OnBoardingCountry[]>([]);
 
   useEffect(() => {
@@ -84,7 +84,6 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
             value={values.schoolSize?.toString()}
             onValueChange={value => {
               formik.setFieldValue("schoolSize", Number(value));
-              formik.setFieldTouched("schoolSize", true);
             }}
           >
             <SelectTrigger className="bg-bg-input-soft! text-text-default w-full border-none">
@@ -128,10 +127,9 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
             <Select
               value={values.country || ""}
               onValueChange={value => {
-                const selectedCountry = countries.find(c => c.id === value);
+                const selectedCountry = countries.find(country => country.id === value);
 
                 setFieldValue("country", value);
-                setFieldTouched("country", true);
 
                 if (selectedCountry?.currency) {
                   setFieldValue("currency", selectedCountry.currency);
@@ -166,7 +164,6 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
             value={values.currency || ""}
             onValueChange={value => {
               formik.setFieldValue("currency", value);
-              formik.setFieldTouched("currency", true);
             }}
           >
             <SelectTrigger disabled className="bg-bg-input-soft! text-text-default w-full border-none text-sm">
