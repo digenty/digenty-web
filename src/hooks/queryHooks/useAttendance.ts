@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 
 export const useGetAllAttendance = (branchId?: number) => {
   return useQuery({
-    queryKey: attendanceKeys.attendance,
+    queryKey: [attendanceKeys.attendance, branchId],
     queryFn: () => getAllAttendance(branchId),
-    enabled: !!branchId,
+    // enabled: !!branchId,
   });
 };

@@ -30,12 +30,6 @@ export const AttendanceHeader = ({
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
 
-  useEffect(() => {
-    if (branches) {
-      setBranchSelected(branches.data.content[0]);
-    }
-  }, [branches, setBranchSelected]);
-
   return (
     <div className="border-border-default flex w-full items-center justify-between border-b px-4 py-2 align-middle md:px-8 md:py-3">
       <h2 className="text-text-default text-lg font-semibold md:text-xl">Attendance Management</h2>
@@ -52,9 +46,12 @@ export const AttendanceHeader = ({
           >
             <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
               <School fill="var(--color-icon-default-muted)" className="size-3" />
-              <span className="text-text-default text-sm font-medium">{branchSelected?.name}</span>
+              <span className="text-text-default text-sm font-medium">{branchSelected ? branchSelected?.name : "All Branches"}</span>
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-border-default">
+              <SelectItem value="none" className="text-text-default text-sm font-medium">
+                All Branches
+              </SelectItem>
               {branches.data.content.map((branch: Branch) => (
                 <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm font-medium">
                   {branch.name}
