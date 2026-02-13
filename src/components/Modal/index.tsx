@@ -12,6 +12,7 @@ export const Modal = ({
   children,
   className,
   cancelButton,
+  showCloseButton = true,
 }: {
   open: boolean;
   setOpen: (bool: boolean) => void;
@@ -20,10 +21,14 @@ export const Modal = ({
   children: ReactNode;
   className?: string;
   cancelButton?: ReactNode;
+  showCloseButton?: boolean;
 }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className={cn("bg-bg-card hidden border-none p-0 shadow-sm sm:max-w-138.5 md:block", className)}>
+      <DialogContent
+        showCloseButton={showCloseButton}
+        className={cn("bg-bg-card hidden border-none p-0 shadow-sm sm:max-w-138.5 md:block", className)}
+      >
         <DialogHeader className="bg-bg-card-subtle border-border-default rounded-t-xl border-b px-4 py-3 text-left">
           <DialogTitle className="text-text-default text-base font-semibold">{title}</DialogTitle>
           <VisuallyHidden>
