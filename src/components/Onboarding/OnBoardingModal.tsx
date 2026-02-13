@@ -17,6 +17,7 @@ import { Spinner } from "../ui/spinner";
 import { SchoolOverview } from "./SchoolOverview";
 import { CreateSchoolTypes } from "./types";
 import { WelcomeInputs } from "./WelcomeInputs";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface OnboardingModalProps {
   initialShow: boolean;
@@ -36,6 +37,7 @@ interface CreateBranchPayload {
 const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
   const [step, setStep] = useState(1);
   const [showModal, setShowModal] = useState(initialShow);
+  const isMobile = useIsMobile();
   const totalSteps = 2;
 
   const { mutate: mutateSchool, isPending: isSchoolPending } = useAddSchool();
@@ -139,7 +141,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
             },
             onSuccess: data => {
               createSession(data.data.token);
-              toast({ title: `Branch${branchFormik.values.branches.length > 1 ? "es" : ""} created successfully`, type: "success" });
+              toast({ title: "Branch(es) created successfully", type: "success" });
               setShowModal(false);
             },
           });
@@ -179,66 +181,23 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
   const isSchoolValid = Object.keys(schoolFormik.errors).length === 0 && Object.keys(schoolFormik.touched).length !== 0;
   return (
     <>
-      <Modal
-        open={showModal}
-        setOpen={setShowModal}
-        showCloseButton={false}
-        className="sm:max-w-175"
-        title={
-          <span className="text-text-default text-md flex items-center gap-2">
-            <LogoMark /> Digenty
-          </span>
-        }
-        cancelButton={
-          <div className="text-text-muted text-sm">
-            {step} of {totalSteps}
-          </div>
-        }
-        ActionButton={
-          <Button
-            disabled={(step === 1 && !isSchoolValid) || (step === 2 && !isStep2Valid())}
-            onClick={() => {
-              if (step === 1) {
-                schoolFormik.handleSubmit();
-              } else {
-                branchFormik.handleSubmit();
-              }
-            }}
-            className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! flex items-center gap-2 border-none"
-          >
-            {(isSchoolPending || isAuthenticating || isBranchPending) && <Spinner className="text-text-white-default" />}
-            Continue
-          </Button>
-        }
-      >
-        <div className="px-6 py-4">
-          {step === 1 && <WelcomeInputs formik={schoolFormik} />}
-          {step === 2 && <SchoolOverview formik={branchFormik} />}
-        </div>
-      </Modal>
-
-      <MobileDrawer
-        open={showModal}
-        setIsOpen={setShowModal}
-        title={
-          <span className="text-text-default text-md flex items-center gap-2">
-            <LogoMark /> Digenty
-          </span>
-        }
-        showCloseButton={false}
-        className=""
-      >
-        <div className="px-6 py-4">
-          {step === 1 && <WelcomeInputs formik={schoolFormik} />}
-          {step === 2 && <SchoolOverview formik={branchFormik} />}
-        </div>
-
-        <div className="border-border-default fixed w-full border-t">
-          <DialogFooter className="flex items-center justify-between px-6 py-2">
+      {!isMobile && (
+        <Modal
+          open={showModal}
+          setOpen={setShowModal}
+          showCloseButton={false}
+          className="sm:max-w-175"
+          title={
+            <span className="text-text-default text-md flex items-center gap-2">
+              <LogoMark /> Digenty
+            </span>
+          }
+          cancelButton={
             <div className="text-text-muted text-sm">
               {step} of {totalSteps}
             </div>
-
+          }
+          ActionButton={
             <Button
               disabled={(step === 1 && !isSchoolValid) || (step === 2 && !isStep2Valid())}
               onClick={() => {
@@ -253,9 +212,56 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
               {(isSchoolPending || isAuthenticating || isBranchPending) && <Spinner className="text-text-white-default" />}
               Continue
             </Button>
-          </DialogFooter>
-        </div>
-      </MobileDrawer>
+          }
+        >
+          <div className="px-6 py-4">
+            {step === 1 && <WelcomeInputs formik={schoolFormik} />}
+            {step === 2 && <SchoolOverview formik={branchFormik} />}
+          </div>
+        </Modal>
+      )}
+
+      {isMobile && (
+        <MobileDrawer
+          open={showModal}
+          setIsOpen={setShowModal}
+          title={
+            <span className="text-text-default text-md flex items-center gap-2">
+              <LogoMark /> Digenty
+            </span>
+          }
+          showCloseButton={false}
+          className=""
+        >
+          <div className="px-6 py-4">
+            {step === 1 && <WelcomeInputs formik={schoolFormik} />}
+            {step === 2 && <SchoolOverview formik={branchFormik} />}
+          </div>
+
+          <div className="border-border-default fixed w-full border-t">
+            <DialogFooter className="flex items-center justify-between px-6 py-2">
+              <div className="text-text-muted text-sm">
+                {step} of {totalSteps}
+              </div>
+
+              <Button
+                disabled={(step === 1 && !isSchoolValid) || (step === 2 && !isStep2Valid())}
+                onClick={() => {
+                  if (step === 1) {
+                    schoolFormik.handleSubmit();
+                  } else {
+                    branchFormik.handleSubmit();
+                  }
+                }}
+                className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! flex items-center gap-2 border-none"
+              >
+                {(isSchoolPending || isAuthenticating || isBranchPending) && <Spinner className="text-text-white-default" />}
+                Continue
+              </Button>
+            </DialogFooter>
+          </div>
+        </MobileDrawer>
+      )}
     </>
   );
 };

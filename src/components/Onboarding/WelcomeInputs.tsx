@@ -15,9 +15,22 @@ const schoolSizes = [1, 2, 3, 4];
 export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolTypes> }) => {
   const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
   const [countries, setCountries] = useState<OnBoardingCountry[]>([]);
+  const [currency, setCurrency] = useState<string>();
+  const [activeCountry, setActiveCountry] = useState<OnBoardingCountry>();
+
+  const getCountryList = async () => {
+    const countryList = await getCountries();
+    setCountries(countryList);
+  };
+  useEffect(() => {
+    if (activeCountry) {
+      setCurrency(activeCountry.currency);
+      setFieldValue("currency", activeCountry.currency);
+    }
+  }, [activeCountry, setFieldValue]);
 
   useEffect(() => {
-    getCountries().then(setCountries);
+    getCountryList();
   }, []);
 
   return (
@@ -30,7 +43,7 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="firstName" className="text-text-default text-sm font-semibold">
-            First Name
+            First Name<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Input
             id="firstName"
@@ -46,7 +59,7 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="lastName" className="text-text-default text-sm font-semibold">
-            Last Name
+            Last Name<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Input
             id="lastName"
@@ -62,7 +75,7 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="schoolName" className="text-text-default text-sm font-semibold">
-            School Name
+            School Name<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Input
             id="schoolName"
@@ -78,7 +91,7 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="schoolSize" className="text-text-default text-sm font-semibold">
-            School Size
+            School Size<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
             value={values.schoolSize?.toString()}
@@ -103,7 +116,7 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="role" className="text-text-default text-sm font-semibold">
-          Role
+          Role<small className="text-text-destructive text-xs">*</small>
         </Label>
         <Input
           id="role"
@@ -120,24 +133,20 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="country" className="text-text-default text-sm font-medium">
-            School Country
+            School Country<small className="text-text-destructive text-xs">*</small>
           </Label>
 
           {countries.length > 0 ? (
             <Select
-              value={values.country || ""}
               onValueChange={value => {
                 const selectedCountry = countries.find(country => country.id === value);
 
                 setFieldValue("country", value);
-
-                if (selectedCountry?.currency) {
-                  setFieldValue("currency", selectedCountry.currency);
-                }
+                setActiveCountry(selectedCountry);
               }}
             >
               <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-                <SelectValue placeholder="Select country" />
+                <span className="text-text-muted text-sm font-medium">{activeCountry ? activeCountry?.name : "Select Country"}</span>
               </SelectTrigger>
 
               <SelectContent className="bg-bg-card border-none">
@@ -157,11 +166,10 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="currency" className="text-text-default text-sm font-semibold">
-            School Currency
+            School Currency<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
-            // tryin to auto select curr
-            value={values.currency || ""}
+            value={currency}
             onValueChange={value => {
               formik.setFieldValue("currency", value);
             }}
