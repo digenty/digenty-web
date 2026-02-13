@@ -111,7 +111,7 @@ export interface AttendanceCard {
   classTeacher: string;
   numberOfStudentInArm: number;
   attendancePercentage: number;
-  lastUpdated: string;
+  lastUpdated: Date;
 }
 export interface Attendance {
   classArmAttendanceCardList: AttendanceCard[];

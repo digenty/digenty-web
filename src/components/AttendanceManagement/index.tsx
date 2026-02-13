@@ -3,18 +3,17 @@ import Approve from "../Icons/Approve";
 import BarChartIcon from "../Icons/BarChartIcon";
 
 import { Branch } from "@/api/types";
+import { useGetAllAttendance } from "@/hooks/queryHooks/useAttendance";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import React, { useState } from "react";
+import { ErrorComponent } from "../Error/ErrorComponent";
 import GraduationCapFill from "../Icons/GraduationCapFill";
 import NumStudentIcon from "../Icons/NumStudentIcon";
 import { OverviewCard } from "../OverviewCard";
+import { SearchInput } from "../SearchInput";
+import { Skeleton } from "../ui/skeleton";
 import { AttendanceCards } from "./AttendanceCards";
 import { AttendanceHeader } from "./AttendanceHeader";
-import { useGetAllAttendance } from "@/hooks/queryHooks/useAttendance";
-import { SearchInput } from "../SearchInput";
-import { ErrorComponent } from "../Error/ErrorComponent";
-import { Skeleton } from "../ui/skeleton";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const AttendanceManagement = () => {
   useBreadcrumb([{ label: "Attendance Management", url: "/attendance" }]);
@@ -23,7 +22,7 @@ export const AttendanceManagement = () => {
   const [date, setDate] = React.useState<Date | undefined>();
 
   const { data, isPending, isError } = useGetAllAttendance(branchSelected?.id);
-  console.log(data);
+  console.log(branchSelected);
 
   const attendanceStats = {
     totalClasses: data?.data.totalClasses ?? 0,
@@ -31,9 +30,6 @@ export const AttendanceManagement = () => {
     totalStudents: data?.data.totalStudents ?? 0,
     overallAttendance: data?.data.overallAttendancePercentage ?? 0,
   };
-
-  const user = useLoggedInUser();
-  console.log(user);
 
   return (
     <div className="flex flex-col">
