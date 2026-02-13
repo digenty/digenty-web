@@ -1,3 +1,4 @@
+import api from "@/lib/axios/axios-auth";
 import apiPublic from "@/lib/axios/axios-public";
 import { isAxiosError } from "axios";
 
@@ -27,6 +28,18 @@ export const signup = async (payload: Payload) => {
 export const login = async (payload: Payload) => {
   try {
     const { data } = await apiPublic.post("/auth/login", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const reAuthenticateUser = async () => {
+  try {
+    const { data } = await api.get("/reauth/token");
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
