@@ -16,7 +16,7 @@ export interface Subject {
   subjectId: number;
   subjectName: string;
   subjectTeacherName: string;
-  status: "IN PROGRESS" | "NOT STARTED" | "SUBMITTED";
+  status: "IN_PROGRESS" | "NOT_SUBMITTED" | "SUBMITTED";
 }
 
 export const ClassOverview = () => {
