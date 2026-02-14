@@ -88,6 +88,7 @@ export const AttendanceCards = ({ attendance }: { attendance: AttendanceCard[] }
             teacherName={att.classTeacher}
             lastUpdate={att.lastUpdated}
             attendancePercentage={`${att.attendancePercentage}%`}
+            armId={att.armId}
           />
         ))}
       </ul>

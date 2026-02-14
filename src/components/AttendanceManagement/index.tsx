@@ -2,10 +2,10 @@
 import Approve from "../Icons/Approve";
 import BarChartIcon from "../Icons/BarChartIcon";
 
-import { Branch } from "@/api/types";
+import { Branch, Term } from "@/api/types";
 import { useGetAllAttendance } from "@/hooks/queryHooks/useAttendance";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import React, { useState } from "react";
+import { useState } from "react";
 import { ErrorComponent } from "../Error/ErrorComponent";
 import GraduationCapFill from "../Icons/GraduationCapFill";
 import NumStudentIcon from "../Icons/NumStudentIcon";
@@ -19,10 +19,11 @@ export const AttendanceManagement = () => {
   useBreadcrumb([{ label: "Attendance Management", url: "/attendance" }]);
 
   const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
-  const [date, setDate] = React.useState<Date | undefined>();
+  const [termSelected, setTermSelected] = useState<Term | null>(null);
+  const [activeSession, setActveSesion] = useState<string | null>(null);
 
-  const { data, isPending, isError } = useGetAllAttendance(branchSelected?.id);
-  console.log(branchSelected);
+  const { data, isPending, isError } = useGetAllAttendance(branchSelected?.id, termSelected?.termId);
+  console.log(termSelected, "termSelected");
 
   const attendanceStats = {
     totalClasses: data?.data.totalClasses ?? 0,
@@ -33,7 +34,14 @@ export const AttendanceManagement = () => {
 
   return (
     <div className="flex flex-col">
-      <AttendanceHeader setBranchSelected={setBranchSelected} branchSelected={branchSelected} date={date} setDate={setDate} />
+      <AttendanceHeader
+        setBranchSelected={setBranchSelected}
+        branchSelected={branchSelected}
+        termSelected={termSelected}
+        setTermSelected={setTermSelected}
+        activeSession={activeSession}
+        setActiveSession={setActveSesion}
+      />
 
       <div className="space-y-6 px-4 pt-4 pb-8 md:space-y-7.5 md:px-8 md:pt-6 md:pb-12">
         <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
@@ -98,7 +106,7 @@ export const AttendanceManagement = () => {
           </div>
         )}
 
-        {data?.data.classArmAttendanceCardList?.length === 0 && (
+        {!isPending && !isError && data?.data.classArmAttendanceCardList?.length === 0 && (
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent title="No Attendance data found" description="No attendance has been taken yet." buttonText="Create Attendance" />
           </div>
