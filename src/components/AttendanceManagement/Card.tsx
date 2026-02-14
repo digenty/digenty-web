@@ -14,9 +14,10 @@ interface CardProps {
   lastUpdate: Date;
   attendancePercentage: string;
   viewLabel?: string;
+  armId: number;
 }
 
-export function Card({ classname, totalStudents, teacherName, lastUpdate, attendancePercentage, viewLabel = "Open" }: CardProps) {
+export function Card({ classname, totalStudents, teacherName, lastUpdate, attendancePercentage, viewLabel = "Open", armId }: CardProps) {
   const router = useRouter();
   const updateStyles =
     formatRelativeDate(lastUpdate) === "Today"
@@ -57,7 +58,7 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
       </div>
 
       <Button
-        onClick={() => router.push(`/attendance/${classname.replace(/\s+/g, "-").toLowerCase()}`)}
+        onClick={() => router.push(`/attendance/${armId}`)}
         className="border-border-darker bg-bg-state-secondary text-text-default flex h-7 items-center gap-2 rounded-md border p-2"
       >
         <span className="text-sm font-medium">{viewLabel}</span>

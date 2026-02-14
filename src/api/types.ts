@@ -107,6 +107,7 @@ export interface Parent {
 }
 
 export interface AttendanceCard {
+  armId: number;
   classArm: string;
   classTeacher: string;
   numberOfStudentInArm: number;
@@ -119,4 +120,16 @@ export interface Attendance {
   overallAttendancePercentage: number;
   totalClasses: number;
   totalStudents: number;
+}
+
+export interface Term {
+  termId: number;
+  term: string;
+  isActiveTerm: boolean;
+}
+
+export interface Terms {
+  academicSessionName: string;
+  isActiveSession: boolean;
+  terms: Term[];
 }
