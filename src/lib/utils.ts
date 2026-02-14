@@ -2,6 +2,7 @@ import { JWTPayload } from "@/types";
 import { clsx, type ClassValue } from "clsx";
 import { jwtDecode } from "jwt-decode";
 import { twMerge } from "tailwind-merge";
+import { differenceInDays, differenceInWeeks, differenceInMonths, isToday, isYesterday } from "date-fns";
 
 export const MOBILE_VIEWPORT = 768;
 
@@ -117,4 +118,22 @@ export const getYearDifference = (from: string | Date) => {
   }
 
   return years;
+};
+
+export const formatRelativeDate = (date: Date) => {
+  const now = new Date();
+
+  if (isToday(date)) return "Today";
+  if (isYesterday(date)) return "Yesterday";
+
+  const days = differenceInDays(now, date);
+  if (days < 7) return `${days} day${days > 1 ? "s" : ""} ago`;
+
+  const weeks = differenceInWeeks(now, date);
+  if (weeks === 1) return "Last week";
+  if (weeks < 4) return `${weeks} weeks ago`;
+
+  const months = differenceInMonths(now, date);
+  if (months === 1) return "Last month";
+  return `${months} months ago`;
 };

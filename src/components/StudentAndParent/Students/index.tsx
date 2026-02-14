@@ -100,7 +100,6 @@ export const StudentsTable = () => {
     search: debouncedSearchQuery,
   });
   const students = data?.pages.flatMap(page => page.content) ?? [];
-  console.log(data);
 
   const { data: distribution } = useGetStudentsDistribution(filter?.branchSelected?.id);
   const { data: branches, isPending: loadingBranches } = useGetBranches();
@@ -215,7 +214,7 @@ export const StudentsTable = () => {
   }, [page, data?.pages.length, fetchNextPage]);
 
   const dataForDesktop = data?.pages[page - 1]?.content ?? [];
-  console.log(isError, data, loadingStudents, dataForDesktop, students);
+
   return (
     <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
       {openExportFilter && (
@@ -515,7 +514,7 @@ export const StudentsTable = () => {
       )}
       {loadingStudents && <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />}
 
-      {students.length === 0 && (
+      {!loadingStudents && !isError && students.length === 0 && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Add a student" />
         </div>
