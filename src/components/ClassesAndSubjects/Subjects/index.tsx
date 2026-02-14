@@ -17,13 +17,13 @@ export const Subjects = () => {
       {isLoading ? (
         <div className="flex flex-col gap-6">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="bg-bg-input-soft h-40 w-full" />
+            <Skeleton key={i} className="bg-bg-input-soft h-30 w-full md:max-w-219" />
           ))}
         </div>
       ) : (
         <div className="flex flex-col gap-6">
-          {subjectList.map((subject: { subjectName: string; classArmReportDtos: [] }) => (
-            <Subject key={subject.subjectName} subjectName={subject.subjectName} classes={subject.classArmReportDtos} />
+          {subjectList.map((subject: { subjectName: string; subjectId: number; classArmReportDtos: [] }) => (
+            <Subject key={subject.subjectId} subjectName={subject.subjectName} classes={subject.classArmReportDtos} subjectId={subject.subjectId} />
           ))}
         </div>
       )}

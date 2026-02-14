@@ -17,14 +17,14 @@ export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
     <div className="border-border-darker bg-bg-subtle w-full rounded-md border text-sm">
       <div className="border-border-darker flex items-center justify-between border-b px-3 py-[8.5px]">
         <p className="text-text-muted font-medium">Subject</p>
-        <p className="text-text-default font-medium">{subject?.title}</p>
+        <p className="text-text-default font-medium">{subject.subjectName}</p>
       </div>
 
       <div className="border-border-darker flex items-center justify-between border-b px-3 py-[9px]">
         <p className="text-text-muted font-medium">Teacher</p>
         <div className="flex items-center gap-2">
           <Avatar className="size-5" url="" />
-          <span className="text-text-default cursor-pointer pl-0 text-sm">{subject.teacher}</span>
+          <span className="text-text-default cursor-pointer pl-0 text-sm">{subject.subjectTeacherName}</span>
         </div>
       </div>
 
@@ -34,9 +34,9 @@ export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
           <span
             className={cn(
               "border-border-default rounded-md border px-2 py-0.5 text-xs",
-              subject?.status === "Submitted"
+              subject?.status === "SUBMITTED"
                 ? "bg-bg-badge-green text-bg-basic-green-strong"
-                : subject?.status === "In Progress"
+                : subject?.status === "IN PROGRESS"
                   ? "bg-bg-badge-orange text-bg-basic-orange-strong"
                   : "bg-bg-badge-default text-text-subtle",
             )}
