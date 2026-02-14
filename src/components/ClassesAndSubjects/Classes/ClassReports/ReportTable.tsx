@@ -5,10 +5,10 @@ import { ScoreType } from "@/components/ScoreViewBySubject/types";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 const tableData: ScoreType = {
-  id: 1,
+  studentId: 1,
   studentName: "Damilare John",
-  ca1Score: 0,
-  ca2Score: 0,
+  CA1: 0,
+  CA2: 0,
   examScore: 0,
   totalScore: 0,
   grade: "F",
@@ -17,7 +17,7 @@ const tableData: ScoreType = {
 
 const scores: ScoreType[] = Array.from({ length: 12 }, (_, index) => ({
   ...tableData,
-  id: index + 1,
+  studentId: index + 1,
 }));
 
 export const ReportTable = () => {

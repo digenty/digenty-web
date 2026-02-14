@@ -9,18 +9,21 @@ import { useState } from "react";
 import RequestEdit from "./RequestEdit";
 import RequestLoader from "@/components/Icons/RequestLoader";
 import { useRouter } from "next/navigation";
+import { REPORT_STATUS_CONFIG } from "@/queries/subject";
 
 export type ClassItem = {
+  armId?: number;
   classArmName: string;
   reportStatus: "NOT_SUBMITTED" | "IN_PROGRESS" | "SUBMITTED" | "REQUEST_EDIT_ACCESS";
 };
 
 export type SubjectProps = {
-  subjectName: string;
+  subjectName?: string;
   classes: ClassItem[];
+  subjectId?: number;
 };
 
-export default function Subject({ subjectName, classes }: SubjectProps) {
+export default function Subject({ subjectName, classes, subjectId }: SubjectProps) {
   const [openRequest, setOpenRequest] = useState<boolean>(false);
   const router = useRouter();
 
@@ -36,29 +39,29 @@ export default function Subject({ subjectName, classes }: SubjectProps) {
         <h2 className="text-text-default text-md px-3 pt-1.5 font-semibold md:px-5 md:pt-3">{subjectName}</h2>
         <ul className="bg-bg-card border-border-default w-full rounded-sm border shadow-sm md:max-w-213">
           {classes.map(cl => {
-            const statusUpdate =
-              cl.reportStatus === "REQUEST_EDIT_ACCESS"
-                ? "bg-bg-badge-orange text-bg-basic-orange-strong"
-                : cl.reportStatus === "IN_PROGRESS"
-                  ? "bg-bg-badge-orange text-bg-basic-orange-strong"
-                  : cl.reportStatus === "SUBMITTED"
-                    ? "bg-bg-badge-green text-bg-basic-green-strong"
-                    : "bg-bg-badge-default text-text-subtle";
+            const statusUpdate = REPORT_STATUS_CONFIG[cl.reportStatus];
 
             return (
               <li key={cl.classArmName} className="border-border-default border-b">
                 <div className="flex flex-col gap-4 px-3 py-4 md:flex-row md:items-center md:justify-between md:gap-2 md:p-2 md:px-6 md:py-3">
                   <div className="flex flex-col gap-1 md:gap-2">
                     <p className="text-text-default text-md font-semibold">{cl.classArmName}</p>
-                    <Badge className={`border-border-default flex h-5 items-center gap-1 rounded-md border p-1 text-xs font-medium ${statusUpdate}`}>
-                      {cl.reportStatus === "REQUEST_EDIT_ACCESS" && <RequestLoader fill="var(--color-bg-basic-orange-strong)" />} {cl.reportStatus}
+                    <Badge
+                      className={`border-border-default flex h-5 items-center gap-1 rounded-md border p-1 text-xs font-medium ${statusUpdate.className}`}
+                    >
+                      {cl.reportStatus === "REQUEST_EDIT_ACCESS" && <RequestLoader fill="var(--color-bg-basic-orange-strong)" />}
+                      {statusUpdate.label}
                     </Badge>
                   </div>
 
                   <div>
                     {(cl.reportStatus === "NOT_SUBMITTED" || cl.reportStatus === "IN_PROGRESS") && (
                       <Button
-                        onClick={() => router.push(`/classes-and-subjects/${cl.classArmName}/add-score?subject=${subjectName}`)}
+                        onClick={() =>
+                          router.push(
+                            `/classes-and-subjects/subjectId=${subjectId}/add-score?armId=${cl.armId}&subjectName=${subjectName}&armName=${cl.classArmName}`,
+                          )
+                        }
                         className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
                       >
                         Enter Score
@@ -74,7 +77,11 @@ export default function Subject({ subjectName, classes }: SubjectProps) {
                           <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
                         </Button>
                         <Button
-                          onClick={() => router.push(`/classes-and-subjects/${cl.classArmName}/add-score?subject=${subjectName}&submitted=true`)}
+                          onClick={() =>
+                            router.push(
+                              `/classes-and-subjects/subjectId=${subjectId}/add-score?armId=${cl.armId}&subjectName=${subjectName}&armName=${cl.classArmName}`,
+                            )
+                          }
                           className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"
                         >
                           <Eye fill="var(--color-icon-default-muted)" /> View
@@ -86,7 +93,7 @@ export default function Subject({ subjectName, classes }: SubjectProps) {
 
                     {cl.reportStatus === "REQUEST_EDIT_ACCESS" ? (
                       <Button
-                        onClick={() => router.push(`/classes-and-subjects/${cl.classArmName}/add-score?subject=${subjectName}&requested=true`)}
+                        onClick={() => router.push(`/classes-and-subjects/subject=${subjectId}/add-score?${cl.armId}&requested=true`)}
                         className="border-border-darker text-text-default bg-bg-state-secondary shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"
                       >
                         <Eye fill="var(--color-icon-default-muted)" /> View

@@ -70,7 +70,7 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
   return (
     <div
       className={cn("text-text-muted flex h-14 items-center justify-center text-sm font-normal", isEditable ? "cursor-text" : "cursor-pointer")}
-      onClick={() => setIsEditing(true)}
+      onClick={() => isEditable && setIsEditing(true)}
     >
       <span className="max-w-2 truncate">{value}</span>
     </div>
@@ -99,14 +99,14 @@ export const scoreColumns = (isEditable: boolean): ColumnDef<ScoreType>[] => [
     size: 340,
   },
   {
-    accessorKey: "ca1Score",
+    accessorKey: "CA1",
     header: () => <div className="text-text-muted text-center text-sm font-medium">CA 1</div>,
     cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
     size: 108,
     maxSize: 108,
   },
   {
-    accessorKey: "ca2Score",
+    accessorKey: "CA2",
     header: () => <div className="text-text-muted text-center text-sm font-medium">CA 2</div>,
     cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
     size: 108,

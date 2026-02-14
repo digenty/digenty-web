@@ -65,13 +65,13 @@ export const MobileCard = ({
   isEditable?: boolean;
 }) => {
   const toggleCard = () => {
-    setActiveStudent(prev => (prev === student.id ? undefined : student.id));
+    setActiveStudent(prev => (prev === student.studentId ? undefined : student.studentId));
   };
   return (
-    <li key={student.id} className="border-border-default w-full rounded-sm border">
+    <li key={student.studentId} className="border-border-default w-full rounded-sm border">
       <div
         onClick={toggleCard}
-        aria-expanded={activeStudent === student.id}
+        aria-expanded={activeStudent === student.studentId}
         className="bg-bg-subtle flex w-full items-center justify-between rounded-sm p-3"
       >
         <div className="flex items-center gap-3">
@@ -87,23 +87,27 @@ export const MobileCard = ({
           </div>
         </div>
         <div>
-          {activeStudent === student.id ? <ArrowUp fill="var(--color-icon-default-muted)" /> : <ArrowDown fill="var(--color-icon-default-muted)" />}
+          {activeStudent === student.studentId ? (
+            <ArrowUp fill="var(--color-icon-default-muted)" />
+          ) : (
+            <ArrowDown fill="var(--color-icon-default-muted)" />
+          )}
         </div>
       </div>
       <div
-        className={`text-sm transition-all duration-200 ${activeStudent === student.id ? "border-border-default flex max-h-96 flex-col border-t" : "hidden"}`}
+        className={`text-sm transition-all duration-200 ${activeStudent === student.studentId ? "border-border-default flex max-h-96 flex-col border-t" : "hidden"}`}
       >
         <div className="border-border-default flex border-b text-center">
           <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">CA 1</div>
           <div className="flex h-12 flex-1 items-center justify-center px-2">
-            <RenderCell initialValue={student.ca1Score} isEditable={isEditable} />
+            <RenderCell initialValue={student.CA1} isEditable={isEditable} />
           </div>
         </div>
 
         <div className="border-border-default flex border-b text-center">
           <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">CA 2</span>
           <div className="flex h-12 flex-1 items-center justify-center px-2">
-            <RenderCell initialValue={student.ca2Score} isEditable={isEditable} />
+            <RenderCell initialValue={student.CA2} isEditable={isEditable} />
           </div>
         </div>
 
