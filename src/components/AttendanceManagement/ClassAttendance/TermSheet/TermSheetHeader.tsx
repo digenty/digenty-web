@@ -36,7 +36,7 @@ export const TermSheetHeader = ({
         <h2 className="text-text-default text-lg font-semibold md:text-xl">{classname.toUpperCase()}</h2>
       </div>
 
-      <div className="scrollbar-hide flex w-full gap-2 overflow-x-auto px-4 py-2 align-middle md:w-auto md:overflow-visible md:px-8 md:py-0">
+      <div className="hide-scrollbar flex w-full gap-2 overflow-x-auto px-4 py-2 align-middle md:w-auto md:overflow-visible md:px-8 md:py-0">
         <Button className="border-border-darker bg-bg-state-secondary-press flex h-8! items-center gap-2 border">
           <ListCheck fill="var(--color-icon-default-disabled)" className="size-3" />
           <span className="text-text-hint text-sm font-medium">See Term Sheet</span>
@@ -69,7 +69,7 @@ export const TermSheetHeader = ({
         </Button>
       </div>
 
-      <div className="border-border-default scrollbar-hide flex w-full gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
+      <div className="border-border-default hide-scrollbar flex w-full gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
         {termWeeks.map(week => (
           <span
             key={week.week}

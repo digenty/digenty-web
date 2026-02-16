@@ -16,7 +16,7 @@ export const ClassReportFooter = ({
   return (
     <div
       ref={footerRef}
-      className="bg-bg-card border-border-default scrollbar-hide fixed bottom-0 hidden w-full items-center gap-2 overflow-x-auto border-t py-4 pr-50 pl-10 md:flex"
+      className="bg-bg-card border-border-default hide-scrollbar fixed bottom-0 hidden w-full items-center gap-2 overflow-x-auto border-t py-4 pr-50 pl-10 md:flex"
     >
       <Button
         onClick={() => setActiveFilter("spreadsheet")}

@@ -48,7 +48,7 @@ export const TermSheetCard = ({
       </div>
 
       {activeStudent === student.id && (
-        <div className="border-border-default scrollbar-hide flex w-full overflow-x-auto rounded-b-sm border-x border-b">
+        <div className="border-border-default hide-scrollbar flex w-full overflow-x-auto rounded-b-sm border-x border-b">
           {days?.map(day => {
             return (
               <div

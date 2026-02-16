@@ -1028,11 +1028,11 @@
   border: 1px solid var(--color-border-default) !important;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
+.hide-scrollbar::-webkit-scrollbar {
   display: none !important;
 }
 
-.scrollbar-hide {
+.hide-scrollbar {
   -ms-overflow-style: none !important; /* IE and Edge */
   scrollbar-width: none !important; /* Firefox */
 }

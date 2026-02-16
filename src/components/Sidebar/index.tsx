@@ -31,7 +31,7 @@ export const Sidebar = () => {
     <aside className="h-screen">
       <div
         className={cn(
-          "border-border-default bg-bg-sidebar-subtle hidden h-screen overflow-y-auto w-69 space-y-4 border-r p-4 md:block md:space-y-8",
+          "border-border-default bg-bg-sidebar-subtle hide-scrollbar hidden h-screen w-69 space-y-4 overflow-y-auto border-r p-4 md:block md:space-y-8",
           !isSidebarOpen && "w-auto",
         )}
       >

@@ -9,7 +9,7 @@ export const SettingsHeader = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="border-border-default scrollbar-hide hidden h-14 items-center justify-between gap-2 overflow-x-auto border-b px-8 py-3 md:flex">
+    <nav className="border-border-default hide-scrollbar hidden h-14 items-center justify-between gap-2 overflow-x-auto border-b px-8 py-3 md:flex">
       {SETTINGS_NAV.map(item => {
         const isActive = pathname === item.url || pathname.startsWith(item.url + "/");
 

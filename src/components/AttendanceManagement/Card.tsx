@@ -6,6 +6,9 @@ import NumStudentIcon from "../Icons/NumStudentIcon";
 import { TimeFill } from "../Icons/TimeFill";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { useCreateAttendanceSheet } from "@/hooks/queryHooks/useAttendance";
+import { toast } from "../Toast";
+import { Spinner } from "../ui/spinner";
 
 interface CardProps {
   classname: string;
@@ -19,6 +22,32 @@ interface CardProps {
 
 export function Card({ classname, totalStudents, teacherName, lastUpdate, attendancePercentage, viewLabel = "Open", armId }: CardProps) {
   const router = useRouter();
+  const { mutate, isPending} = useCreateAttendanceSheet();
+
+  const createSheet =  () => {
+    mutate({
+      armId
+    },
+      {
+        onError: error => {
+          toast({
+            title: error.message ?? "Something went wrong",
+            description: "Could not create or update attendance sheet",
+            type: "error",
+          });
+        },
+        onSuccess: () => {
+          toast({
+            title: "Getting the sheet ready....",
+            type: "success",
+          });
+
+          router.push(`/attendance/${armId}`);
+        }
+      }
+    );
+  }
+
   const updateStyles =
     formatRelativeDate(lastUpdate) === "Today"
       ? "bg-bg-badge-green text-bg-basic-green-strong"
@@ -58,9 +87,10 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
       </div>
 
       <Button
-        onClick={() => router.push(`/attendance/${armId}`)}
+        onClick={createSheet}
         className="border-border-darker bg-bg-state-secondary text-text-default flex h-7 items-center gap-2 rounded-md border p-2"
       >
+        {isPending && <Spinner />}
         <span className="text-sm font-medium">{viewLabel}</span>
         <ArrowOpenRight fill="var(--color-icon-default-muted)" className="size-3" />
       </Button>

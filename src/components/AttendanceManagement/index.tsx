@@ -14,6 +14,7 @@ import { SearchInput } from "../SearchInput";
 import { Skeleton } from "../ui/skeleton";
 import { AttendanceCards } from "./AttendanceCards";
 import { AttendanceHeader } from "./AttendanceHeader";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const AttendanceManagement = () => {
   useBreadcrumb([{ label: "Attendance Management", url: "/attendance" }]);
@@ -23,7 +24,6 @@ export const AttendanceManagement = () => {
   const [activeSession, setActveSesion] = useState<string | null>(null);
 
   const { data, isPending, isError } = useGetAllAttendance(branchSelected?.id, termSelected?.termId);
-  console.log(termSelected, "termSelected");
 
   const attendanceStats = {
     totalClasses: data?.data.totalClasses ?? 0,
