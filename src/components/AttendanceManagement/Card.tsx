@@ -43,7 +43,7 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
             type: "success",
           });
 
-          router.push(`/attendance/${armId}/attendance-sheet/${data.data.id}`);
+          router.push(`/attendance/${classname.split(" ").join("-")}/${armId}/attendance-sheet/${data.data.id}`);
         },
       },
     );

@@ -24,7 +24,7 @@ export const TermSheetHeader = ({
 }) => {
   useBreadcrumb([
     { label: "Attendance Management", url: "/attendance" },
-    { label: `${classname} Attendance`, url: "" },
+    { label: `${classname.split("-").join(" ")} Attendance`, url: "" },
     { label: "Term Sheet", url: "" },
   ]);
 
@@ -33,7 +33,7 @@ export const TermSheetHeader = ({
   return (
     <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle md:flex-row md:items-center md:py-3">
       <div className="border-border-default w-full border-b px-4 pb-2 md:border-none md:px-8 md:pb-0">
-        <h2 className="text-text-default text-lg font-semibold md:text-xl">{classname.toUpperCase()}</h2>
+        <h2 className="text-text-default text-lg font-semibold md:text-xl">{classname.split("-").join(" ").toUpperCase()}</h2>
       </div>
 
       <div className="hide-scrollbar flex w-full gap-2 overflow-x-auto px-4 py-2 align-middle md:w-auto md:overflow-visible md:px-8 md:py-0">

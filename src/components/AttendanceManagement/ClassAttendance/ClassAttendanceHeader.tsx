@@ -33,8 +33,8 @@ export const ClassAttendanceHeader = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const attendanceId = pathname.split("/")[4] ?? "";
-  const armId = pathname.split("/")[2] ?? "";
+  const attendanceId = pathname.split("/")[5] ?? "";
+  const armId = pathname.split("/")[3] ?? "";
 
   const { mutate: saveAttendance, isPending: saving } = useMarkAttendance();
   const { mutate: markAllAttendance, isPending: markingAll } = useMarkAllAttendance();
@@ -101,7 +101,7 @@ export const ClassAttendanceHeader = ({
   return (
     <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle md:flex-row md:items-center md:py-3">
       <div className="border-border-default flex w-full items-center gap-2 border-b px-4 md:border-none md:px-8">
-        <h2 className="text-text-default text-lg font-semibold md:text-xl">{classArmName.toUpperCase()}</h2>
+        <h2 className="text-text-default line-clamp-1 text-lg font-semibold md:text-xl">{classArmName.toUpperCase()}</h2>
 
         <div className="hidden gap-1 md:flex">
           <Button
@@ -125,7 +125,10 @@ export const ClassAttendanceHeader = ({
       </div>
 
       <div className="scollbar-hide flex w-full gap-2 overflow-x-auto px-4 py-2 align-middle md:w-auto md:overflow-x-visible md:px-8 md:py-0">
-        <Button onClick={() => router.push(`${pathname}/term-sheet`)} className="border-border-darker flex h-8! items-center gap-2 border">
+        <Button
+          onClick={() => router.push(`/attendance/${classArmName.split(" ").join("-")}/${armId}/term-sheet`)}
+          className="border-border-darker flex h-8! items-center gap-2 border"
+        >
           <ListCheck fill="var(--color-icon-default-muted)" className="size-3" />
           <span className="text-text-default text-sm font-medium">See Term Sheet</span>
         </Button>

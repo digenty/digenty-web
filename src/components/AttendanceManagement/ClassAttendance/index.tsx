@@ -10,16 +10,17 @@ import { ClassAttendanceHeader } from "./ClassAttendanceHeader";
 
 export const ClassAttendance = () => {
   const path = usePathname();
+  const armId = path.split("/")[3] ?? "";
   const classArmName = path.split("/")[2] ?? "";
   const [date, setDate] = useState<Date>(new Date());
 
-  const { data, isPending, isError } = useGetArmAttendance({ armId: Number(classArmName), limit: 200, page: 0, date: format(date, "yyyy-MM-dd") });
+  const { data, isPending, isError } = useGetArmAttendance({ armId: Number(armId), limit: 200, page: 0, date: format(date, "yyyy-MM-dd") });
   const [attendanceList, setAttendanceList] = useState<{ studentId: number; isPresent: boolean }[]>([]);
 
   return (
     <div className="space-y-6">
       <ClassAttendanceHeader
-        classArmName={classArmName.replace("-", " ")}
+        classArmName={classArmName.split("-").join(" ")}
         attendanceList={attendanceList}
         setAttendanceList={setAttendanceList}
         students={data?.data?.content || []}
