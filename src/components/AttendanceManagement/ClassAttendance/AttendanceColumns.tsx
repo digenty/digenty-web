@@ -73,8 +73,11 @@ export const getColumns = (
     accessorKey: "attendance",
     header: () => <div className="text-text-muted w-32 text-sm font-medium">Attendance</div>,
     cell: ({ row }) => {
-      const isStudentPresent = attendanceList.find(s => s.studentId === row.original.studentId)?.isPresent === true;
-      const isStudentAbsent = attendanceList.find(s => s.studentId === row.original.studentId)?.isPresent === false;
+      const attendanceRecord = attendanceList.find(s => s.studentId === row.original.studentId);
+      const isRecordPresent = attendanceRecord ? attendanceRecord.isPresent : row.original.isPresent;
+
+      const isStudentPresent = isRecordPresent === true;
+      const isStudentAbsent = isRecordPresent === false;
 
       return (
         <StudentsAttendanceToggle

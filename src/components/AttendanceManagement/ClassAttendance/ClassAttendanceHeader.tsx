@@ -14,12 +14,18 @@ import { Button } from "../../ui/button";
 import { Calendar as AttendanceCalendar } from "../../ui/calendar";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "../../ui/select";
 
+import { StudentAttendance } from "@/api/types";
+
 export const ClassAttendanceHeader = ({
   classArmName,
   attendanceList,
+  setAttendanceList,
+  students,
 }: {
   classArmName: string;
   attendanceList: { studentId: number; isPresent: boolean }[];
+  setAttendanceList: React.Dispatch<React.SetStateAction<{ studentId: number; isPresent: boolean }[]>>;
+  students: StudentAttendance[];
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -64,6 +70,7 @@ export const ClassAttendanceHeader = ({
 
   const handleMarkAllAttendance = (isPresent: boolean) => {
     setIsAllPresent(isPresent);
+    setAttendanceList(students.map(student => ({ studentId: student.studentId, isPresent })));
     markAllAttendance(
       {
         armId: Number(armId),
@@ -87,6 +94,7 @@ export const ClassAttendanceHeader = ({
       },
     );
   };
+
   return (
     <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle md:flex-row md:items-center md:py-3">
       <div className="border-border-default flex w-full items-center gap-2 border-b px-4 md:border-none md:px-8">

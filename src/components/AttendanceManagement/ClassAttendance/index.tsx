@@ -15,7 +15,12 @@ export const ClassAttendance = () => {
 
   return (
     <div className="space-y-6">
-      <ClassAttendanceHeader classArmName={classArmName.replace("-", " ")} attendanceList={attendanceList} />
+      <ClassAttendanceHeader
+        classArmName={classArmName.replace("-", " ")}
+        attendanceList={attendanceList}
+        setAttendanceList={setAttendanceList}
+        students={data?.data?.content || []}
+      />
 
       <div className="px-4 pb-10 md:px-8">
         {isError && (
