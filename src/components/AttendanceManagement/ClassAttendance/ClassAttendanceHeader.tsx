@@ -21,11 +21,15 @@ export const ClassAttendanceHeader = ({
   attendanceList,
   setAttendanceList,
   students,
+  date,
+  setDate,
 }: {
   classArmName: string;
   attendanceList: { studentId: number; isPresent: boolean }[];
   setAttendanceList: React.Dispatch<React.SetStateAction<{ studentId: number; isPresent: boolean }[]>>;
   students: StudentAttendance[];
+  date: Date;
+  setDate: React.Dispatch<React.SetStateAction<Date>>;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -40,7 +44,6 @@ export const ClassAttendanceHeader = ({
     { label: `${classArmName} Attendance`, url: "" },
   ]);
 
-  const [date, setDate] = React.useState<Date>(new Date());
   const [open, setOpen] = React.useState(false);
   const [isAllPresent, setIsAllPresent] = React.useState(false);
 
@@ -132,7 +135,7 @@ export const ClassAttendanceHeader = ({
             <SelectValue>
               <div className="flex items-center gap-2">
                 <Calendar fill="var(--color-icon-default-muted )" className="size-4" />
-                <span className="text-text-default text-sm font-medium"> {date ? format(date, "P") : "Today"}</span>
+                <span className="text-text-default text-sm font-medium"> {date ? format(date, "PP") : "Today"}</span>
               </div>
             </SelectValue>
           </SelectTrigger>

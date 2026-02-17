@@ -48,7 +48,7 @@ export const createAttendanceSheet = async (payload: AttendancePayload) => {
 
 export const getArmAttendance = async ({ armId, date, limit, page }: { armId: number; date?: string; limit?: number; page?: number }) => {
   try {
-    const { data } = await api.get(`/attendance/arm/${armId}?size=${limit}&page=${page}${date ? `date=${date}` : ""}`);
+    const { data } = await api.get(`/attendance/arm/${armId}?size=${limit}&page=${page}&${date ? `date=${date}` : ""}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

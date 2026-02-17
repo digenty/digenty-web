@@ -2,15 +2,18 @@
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetArmAttendance } from "@/hooks/queryHooks/useAttendance";
+import { format } from "date-fns";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { AttendanceTable } from "./AttendanceTable";
 import { ClassAttendanceHeader } from "./ClassAttendanceHeader";
-import { useState } from "react";
 
 export const ClassAttendance = () => {
   const path = usePathname();
   const classArmName = path.split("/")[2] ?? "";
-  const { data, isPending, isError } = useGetArmAttendance({ armId: Number(classArmName), limit: 200, page: 0 });
+  const [date, setDate] = useState<Date>(new Date());
+
+  const { data, isPending, isError } = useGetArmAttendance({ armId: Number(classArmName), limit: 200, page: 0, date: format(date, "yyyy-MM-dd") });
   const [attendanceList, setAttendanceList] = useState<{ studentId: number; isPresent: boolean }[]>([]);
 
   return (
@@ -20,6 +23,8 @@ export const ClassAttendance = () => {
         attendanceList={attendanceList}
         setAttendanceList={setAttendanceList}
         students={data?.data?.content || []}
+        date={date}
+        setDate={setDate}
       />
 
       <div className="px-4 pb-10 md:px-8">
