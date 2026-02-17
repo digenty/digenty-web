@@ -46,6 +46,9 @@ export const TermSheet = () => {
           setRowSelection={setRowSelection}
           onSelectRows={setSelectedRows}
           fullBorder
+          classNames={{
+            tableWrapper: "overflow-auto",
+          }}
         />
       </div>
 

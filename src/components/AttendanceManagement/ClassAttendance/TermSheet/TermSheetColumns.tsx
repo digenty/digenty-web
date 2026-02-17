@@ -11,7 +11,7 @@ const RenderCell = (row: Row<StudentAttendance>, week: string, day: AttendanceDa
   const studentWeek = row.original.weeks.find(wk => wk.week === week);
 
   const record = studentWeek?.days.find(dy => dy.date === day.date);
-  const [isPresent, setIsPresent] = useState(record?.present);
+  const [isPresent, setIsPresent] = useState(record?.isPresent);
 
   const toggleAttendance = () => {
     setIsPresent(prev => !prev);
