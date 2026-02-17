@@ -1,18 +1,49 @@
 "use client";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetArmAttendance } from "@/hooks/queryHooks/useAttendance";
 import { usePathname } from "next/navigation";
 import { AttendanceTable } from "./AttendanceTable";
 import { ClassAttendanceHeader } from "./ClassAttendanceHeader";
-import { useGetArmAttendance } from "@/hooks/queryHooks/useAttendance";
+import { useState } from "react";
 
 export const ClassAttendance = () => {
   const path = usePathname();
-  const classGroup = path.split("/").pop() ?? "";
-  const { data, isPending } = useGetArmAttendance({ armId: Number(classGroup), limit: 200, page: 1 });
+  const classArmName = path.split("/")[2] ?? "";
+  const { data, isPending, isError } = useGetArmAttendance({ armId: Number(classArmName), limit: 200, page: 0 });
+  const [attendanceList, setAttendanceList] = useState<{ studentId: number; isPresent: boolean }[]>([]);
 
   return (
     <div className="space-y-6">
-      <ClassAttendanceHeader classname={classGroup.replace("-", " ")} />
-      <AttendanceTable />
+      <ClassAttendanceHeader classArmName={classArmName.replace("-", " ")} attendanceList={attendanceList} />
+
+      <div className="px-4 pb-10 md:px-8">
+        {isError && (
+          <div className="flex h-80 items-center justify-center">
+            <ErrorComponent
+              title="Could not load attendance sheet"
+              description="This is our problem, we are looking into it so as to serve you better"
+              buttonText="Go to the Home page"
+            />
+          </div>
+        )}
+        {isPending && <Skeleton className="bg-bg-input-soft h-200 w-full" />}
+
+        {!isPending && !isError && data.data.content.length === 0 && (
+          <div className="flex h-80 items-center justify-center">
+            <ErrorComponent
+              title="No Students in this arm yet"
+              description="No students have been added to this arm"
+              buttonText="Add a student"
+              url="/student-and-parent-record/add-student"
+            />
+          </div>
+        )}
+
+        {!isPending && !isError && data.data.content.length > 0 && (
+          <AttendanceTable students={data.data.content} attendanceList={attendanceList} setAttendanceList={setAttendanceList} />
+        )}
+      </div>
     </div>
   );
 };

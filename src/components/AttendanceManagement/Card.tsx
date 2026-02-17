@@ -22,12 +22,13 @@ interface CardProps {
 
 export function Card({ classname, totalStudents, teacherName, lastUpdate, attendancePercentage, viewLabel = "Open", armId }: CardProps) {
   const router = useRouter();
-  const { mutate, isPending} = useCreateAttendanceSheet();
+  const { mutate, isPending } = useCreateAttendanceSheet();
 
-  const createSheet =  () => {
-    mutate({
-      armId
-    },
+  const createSheet = () => {
+    mutate(
+      {
+        armId,
+      },
       {
         onError: error => {
           toast({
@@ -36,17 +37,17 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
             type: "error",
           });
         },
-        onSuccess: () => {
+        onSuccess: data => {
           toast({
             title: "Getting the sheet ready....",
             type: "success",
           });
 
-          router.push(`/attendance/${armId}`);
-        }
-      }
+          router.push(`/attendance/${armId}/attendance-sheet/${data.data.id}`);
+        },
+      },
     );
-  }
+  };
 
   const updateStyles =
     formatRelativeDate(lastUpdate) === "Today"

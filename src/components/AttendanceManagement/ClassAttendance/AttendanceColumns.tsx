@@ -4,32 +4,27 @@ import { Avatar } from "@/components/Avatar";
 import { cn } from "@/lib/utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { CheckIcon, XIcon } from "lucide-react";
-import { useState } from "react";
-import { Student } from "./AttendanceTable";
 
-const RenderAttendance = (row: Row<Student>) => {
-  const [isPresent, setIsPresent] = useState(false);
-  const [isAbsent, setIsAbsent] = useState(false);
+import { StudentAttendance } from "@/api/types";
 
-  const markPresent = () => {
-    // API calls will happen here. Using state temporarily
-    setIsPresent(true);
-    setIsAbsent(false);
-  };
-
-  const markAbsent = () => {
-    // API calls will happen here. Using state temporarily
-    setIsAbsent(true);
-    setIsPresent(false);
-  };
-
+const StudentsAttendanceToggle = ({
+  studentId,
+  addStudentsAttendance,
+  isPresent,
+  isAbsent,
+}: {
+  studentId: number;
+  isPresent: boolean;
+  isAbsent: boolean;
+  addStudentsAttendance: ({ studentId, isPresent }: { studentId: number; isPresent: boolean }) => void;
+}) => {
   return (
     <div className="full-cell absolute top-0 bottom-0 flex h-full w-full cursor-pointer items-center justify-center">
       <div
         role="button"
         onClick={evt => {
           evt.stopPropagation();
-          markPresent();
+          addStudentsAttendance({ studentId: studentId, isPresent: true });
         }}
         className={cn("flex h-full w-1/2 items-center justify-center", isPresent && "bg-bg-badge-emerald")}
       >
@@ -42,7 +37,7 @@ const RenderAttendance = (row: Row<Student>) => {
         role="button"
         onClick={evt => {
           evt.stopPropagation();
-          markAbsent();
+          addStudentsAttendance({ studentId: studentId, isPresent: false });
         }}
         className={cn("flex h-full w-1/2 items-center justify-center", isAbsent && "bg-bg-badge-red")}
       >
@@ -52,7 +47,10 @@ const RenderAttendance = (row: Row<Student>) => {
   );
 };
 
-export const columns: ColumnDef<Student>[] = [
+export const getColumns = (
+  attendanceList: { studentId: number; isPresent: boolean }[],
+  onToggleAttendance: (studentId: number, isPresent: boolean) => void,
+): ColumnDef<StudentAttendance>[] => [
   {
     accessorKey: "s/n",
     header: () => <div className="text-text-muted inline-block w-0.5 text-sm font-medium">S/N</div>,
@@ -66,7 +64,7 @@ export const columns: ColumnDef<Student>[] = [
     cell: ({ row }) => (
       <div className="flex items-center gap-1.5">
         <Avatar className="size-5" />
-        <span className="text-text-default cursor-pointer text-sm">{row.original.name}</span>
+        <span className="text-text-default cursor-pointer text-sm">{row.original.studentName}</span>
       </div>
     ),
     size: 900,
@@ -74,6 +72,18 @@ export const columns: ColumnDef<Student>[] = [
   {
     accessorKey: "attendance",
     header: () => <div className="text-text-muted w-32 text-sm font-medium">Attendance</div>,
-    cell: ({ row }) => RenderAttendance(row),
+    cell: ({ row }) => {
+      const isStudentPresent = attendanceList.find(s => s.studentId === row.original.studentId)?.isPresent === true;
+      const isStudentAbsent = attendanceList.find(s => s.studentId === row.original.studentId)?.isPresent === false;
+
+      return (
+        <StudentsAttendanceToggle
+          studentId={row.original.studentId}
+          addStudentsAttendance={({ studentId, isPresent }) => onToggleAttendance(studentId, isPresent)}
+          isPresent={isStudentPresent}
+          isAbsent={isStudentAbsent}
+        />
+      );
+    },
   },
 ];

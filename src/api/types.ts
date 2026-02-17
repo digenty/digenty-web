@@ -133,3 +133,10 @@ export interface Terms {
   isActiveSession: boolean;
   terms: Term[];
 }
+
+export interface StudentAttendance {
+  studentId: number;
+  studentName: string;
+  avatar?: string;
+  isPresent: boolean;
+}

@@ -1,40 +1,113 @@
 "use client";
 
 import ListCheck from "@/components/Icons/ListCheck";
+import { toast } from "@/components/Toast";
+import { Spinner } from "@/components/ui/spinner";
+import { useMarkAllAttendance, useMarkAttendance } from "@/hooks/queryHooks/useAttendance";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { format } from "date-fns";
 import { CheckIcon, XIcon } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import Calendar from "../../Icons/Calendar";
 import { Button } from "../../ui/button";
 import { Calendar as AttendanceCalendar } from "../../ui/calendar";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "../../ui/select";
-import { format } from "date-fns";
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { usePathname, useRouter } from "next/navigation";
 
-export const ClassAttendanceHeader = ({ classname }: { classname: string }) => {
+export const ClassAttendanceHeader = ({
+  classArmName,
+  attendanceList,
+}: {
+  classArmName: string;
+  attendanceList: { studentId: number; isPresent: boolean }[];
+}) => {
   const router = useRouter();
   const pathname = usePathname();
+  const attendanceId = pathname.split("/")[4] ?? "";
+  const armId = pathname.split("/")[2] ?? "";
+
+  const { mutate: saveAttendance, isPending: saving } = useMarkAttendance();
+  const { mutate: markAllAttendance, isPending: markingAll } = useMarkAllAttendance();
 
   useBreadcrumb([
     { label: "Attendance Management", url: "/attendance" },
-    { label: `${classname} Attendance`, url: "" },
+    { label: `${classArmName} Attendance`, url: "" },
   ]);
 
   const [date, setDate] = React.useState<Date>(new Date());
   const [open, setOpen] = React.useState(false);
+  const [isAllPresent, setIsAllPresent] = React.useState(false);
+
+  const handleSaveAttendance = () => {
+    saveAttendance(
+      {
+        attendanceId: Number(attendanceId),
+        studentAttendanceList: attendanceList,
+      },
+      {
+        onSuccess: data => {
+          toast({
+            title: "Attendance saved successfully",
+            description: data.message,
+            type: "success",
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Failed to save attendance",
+            type: "error",
+          });
+        },
+      },
+    );
+  };
+
+  const handleMarkAllAttendance = (isPresent: boolean) => {
+    setIsAllPresent(isPresent);
+    markAllAttendance(
+      {
+        armId: Number(armId),
+        date: date.toISOString(),
+        isPresent,
+      },
+      {
+        onSuccess: data => {
+          toast({
+            title: `All students marked as ${isPresent ? "Present" : "Absent"}`,
+            description: data.message,
+            type: "success",
+          });
+        },
+        onError: () => {
+          toast({
+            title: `Failed to mark all students ${isPresent ? "Present" : "Absent"}`,
+            type: "error",
+          });
+        },
+      },
+    );
+  };
   return (
     <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle md:flex-row md:items-center md:py-3">
       <div className="border-border-default flex w-full items-center gap-2 border-b px-4 md:border-none md:px-8">
-        <h2 className="text-text-default text-lg font-semibold md:text-xl">{classname.toUpperCase()}</h2>
+        <h2 className="text-text-default text-lg font-semibold md:text-xl">{classArmName.toUpperCase()}</h2>
 
         <div className="hidden gap-1 md:flex">
-          <Button className="bg-bg-state-soft text-text-subtle flex h-8! items-center gap-2">
-            <CheckIcon className="text-icon-default-muted size-4" />
+          <Button
+            disabled={markingAll}
+            onClick={() => handleMarkAllAttendance(true)}
+            className="bg-bg-state-soft text-text-subtle flex h-8! items-center gap-2"
+          >
+            {markingAll && isAllPresent ? <Spinner /> : <CheckIcon className="text-icon-default-muted size-4" />}
             <span className="text-text-default text-sm font-medium">Mark All Present</span>
           </Button>
 
-          <Button className="bg-bg-state-soft text-text-subtle flex h-8! items-center gap-2">
-            <XIcon className="text-icon-default-muted size-4" />
+          <Button
+            disabled={markingAll}
+            onClick={() => handleMarkAllAttendance(false)}
+            className="bg-bg-state-soft text-text-subtle flex h-8! items-center gap-2"
+          >
+            {markingAll && !isAllPresent ? <Spinner /> : <XIcon className="text-icon-default-muted size-4" />}
             <span className="text-text-default text-sm font-medium">Mark All Absent</span>
           </Button>
         </div>
@@ -62,25 +135,29 @@ export const ClassAttendanceHeader = ({ classname }: { classname: string }) => {
               selected={date}
               onSelect={date => {
                 setDate(date as Date);
-                // setOpen(false);
+                setOpen(false);
               }}
             />
           </SelectContent>
         </Select>
 
-        <Button className="bg-bg-state-primary text-text-white-default! hover:bg-bg-state-primary-hover! flex h-8! items-center gap-2">
+        <Button
+          onClick={handleSaveAttendance}
+          className="bg-bg-state-primary text-text-white-default! hover:bg-bg-state-primary-hover! flex h-8! items-center gap-2"
+        >
+          {saving && <Spinner className="text-text-white-default" />}
           <span className="text-sm font-medium">Save</span>
         </Button>
       </div>
 
       <div className="border-border-default scollbar-hide flex w-full gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
-        <Button className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
-          <CheckIcon className="text-icon-default-muted size-4" />
+        <Button disabled={markingAll} onClick={() => handleMarkAllAttendance(true)} className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
+          {markingAll && isAllPresent ? <Spinner /> : <CheckIcon className="text-icon-default-muted size-4" />}
           <span className="text-text-subtle text-sm font-medium">Mark All Present</span>
         </Button>
 
-        <Button className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
-          <XIcon className="text-icon-default-muted size-4" />
+        <Button disabled={markingAll} onClick={() => handleMarkAllAttendance(false)} className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
+          {markingAll && !isAllPresent ? <Spinner /> : <XIcon className="text-icon-default-muted size-4" />}
           <span className="text-text-subtle text-sm font-medium">Mark All Absent</span>
         </Button>
       </div>

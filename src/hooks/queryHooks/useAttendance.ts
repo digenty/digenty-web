@@ -6,7 +6,7 @@ export const useGetAllAttendance = (branchId?: number, termId?: number) => {
   return useQuery({
     queryKey: [attendanceKeys.attendance, branchId, termId],
     queryFn: () => getAllAttendance(branchId, termId),
-    enabled: !!termId
+    enabled: !!termId,
   });
 };
 
