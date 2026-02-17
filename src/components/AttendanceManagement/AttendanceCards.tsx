@@ -1,7 +1,5 @@
 import { AttendanceCard } from "@/api/types";
-import { SearchInput } from "../SearchInput";
 import { Card } from "./Card";
-import { useCreateAttendanceSheet } from "@/hooks/queryHooks/useAttendance";
 
 export const AttendanceCards = ({ attendance }: { attendance: AttendanceCard[] }) => {
   return (
@@ -14,7 +12,7 @@ export const AttendanceCards = ({ attendance }: { attendance: AttendanceCard[] }
             totalStudents={att.numberOfStudentInArm.toString()}
             teacherName={att.classTeacher}
             lastUpdate={att.lastUpdated}
-            attendancePercentage={`${att.attendancePercentage}%`}
+            attendancePercentage={att.attendancePercentage}
             armId={att.armId}
           />
         ))}

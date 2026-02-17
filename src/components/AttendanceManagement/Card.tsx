@@ -15,7 +15,7 @@ interface CardProps {
   totalStudents: string;
   teacherName: string;
   lastUpdate: Date;
-  attendancePercentage: string;
+  attendancePercentage: number;
   viewLabel?: string;
   armId: number;
 }
@@ -82,7 +82,8 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
 
         {lastUpdate && (
           <div className="text-bg-basic-cyan-strong flex items-center gap-1 p-1 text-xs font-medium">
-            <div className="bg-bg-basic-cyan-accent flex size-2 items-center justify-center rounded-full p-1" /> {attendancePercentage} Attendance
+            <div className="bg-bg-basic-cyan-accent flex size-2 items-center justify-center rounded-full p-1" /> {attendancePercentage.toFixed(0)}%
+            Attendance
           </div>
         )}
       </div>
