@@ -14,6 +14,8 @@ import { Avatar } from "../../Avatar";
 import DeleteBin from "../../Icons/DeleteBin";
 import Edit from "../../Icons/Edit";
 import UserMinus from "../../Icons/UserMinus";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManage } from "@/lib/permissions/students-and-parents";
 
 const RenderOptions = (row: Row<Student>) => {
   const router = useRouter();
@@ -31,38 +33,41 @@ const RenderOptions = (row: Row<Student>) => {
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View student profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={evt => {
-            evt.stopPropagation();
-            router.push(`/student-and-parent-record/students/${row.original.id}/edit`);
-          }}
-          className="gap-2.5 px-3"
-        >
-          <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Edit student profile</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="border-border-default bg-border-default" />
-        <DropdownMenuItem
-          onClick={() => {
-            setOpenWithdraw(true);
-            setStudentIdsToWithdraw([row.original.id]);
-          }}
-          className="gap-2.5 px-3"
-        >
-          <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Withdraw student</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => {
-            setOpenDelete(true);
-            setStudentIdsToDelete([row.original.id]);
-          }}
-          className="gap-2.5 px-3"
-        >
-          <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-          <span className="text-icon-destructive">Delete student profile</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
+        <PermissionCheck permissionUtility={canManage}>
+
+          <DropdownMenuItem
+            onClick={evt => {
+              evt.stopPropagation();
+              router.push(`/student-and-parent-record/students/${row.original.id}/edit`);
+            }}
+            className="gap-2.5 px-3"
+          >
+            <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
+            <span>Edit student profile</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="border-border-default bg-border-default" />
+          <DropdownMenuItem
+            onClick={() => {
+              setOpenWithdraw(true);
+              setStudentIdsToWithdraw([row.original.id]);
+            }}
+            className="gap-2.5 px-3"
+          >
+            <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />
+            <span>Withdraw student</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              setOpenDelete(true);
+              setStudentIdsToDelete([row.original.id]);
+            }}
+            className="gap-2.5 px-3"
+          >
+            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+            <span className="text-icon-destructive">Delete student profile</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
+        </DropdownMenuContent>
     </DropdownMenu>
   );
 };
@@ -176,7 +181,6 @@ export const columns: ColumnDef<Student>[] = [
   {
     accessorKey: "dob",
     header: () => RenderDOBHeader(),
-    // cell: ({ row }) => <span className="cursor-pointer text-sm font-normal text-text-muted">{formatDate(row.original.dob)}</span>,
     cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{format(row.original.dateOfBirth, "P")}</span>,
     size: 150,
   },
@@ -190,6 +194,5 @@ export const columns: ColumnDef<Student>[] = [
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
     cell: ({ row }) => RenderOptions(row),
-    // size: 150,
   },
 ];

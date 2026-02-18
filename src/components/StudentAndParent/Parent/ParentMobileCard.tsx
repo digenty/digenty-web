@@ -4,7 +4,9 @@ import DeleteBin from "@/components/Icons/DeleteBin";
 import Edit from "@/components/Icons/Edit";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
+import { canManage } from "@/lib/permissions/students-and-parents";
 import { useParentStore } from "@/store/useParentStore";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -39,6 +41,8 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
                 <EyeIcon className="text-icon-default-muted size-4" />
                 <span>View Parent Profile</span>
               </Button>
+
+              <PermissionCheck permissionUtility={canManage}>
               <Button
                 onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}/edit`)}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
@@ -57,6 +61,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
                 <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
                 <span className="text-icon-destructive">Delete Parent Profile</span>
               </Button>
+              </PermissionCheck>
             </div>
           </MobileDrawer>
         )}

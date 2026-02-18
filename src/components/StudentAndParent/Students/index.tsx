@@ -38,6 +38,8 @@ import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManage } from "@/lib/permissions/students-and-parents";
 
 export const StudentsTable = () => {
   const router = useRouter();
@@ -370,6 +372,7 @@ export const StudentsTable = () => {
           loadingDepartments={loadingDepartments}
         />
 
+      <PermissionCheck permissionUtility={canManage}>
         <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
           <OverviewCard
             title="Total Students"
@@ -409,6 +412,7 @@ export const StudentsTable = () => {
             value={`${studentDistribution?.graduated}`}
           />
         </div>
+      </PermissionCheck>
 
         {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
@@ -429,6 +433,7 @@ export const StudentsTable = () => {
               <span className="text-text-default font-medium">Export</span>
             </Button>
 
+            <PermissionCheck permissionUtility={canManage}>
             <Button
               onClick={() => router.push(`student-and-parent-record/upload-students`)}
               className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
@@ -444,6 +449,7 @@ export const StudentsTable = () => {
               <PlusIcon className="text-icon-white-default size-4" />
               <span className="text-text-white-default font-medium">Add Student</span>
             </Button>
+            </PermissionCheck>
 
             <Button onClick={() => setIsActionsOpen(true)} className="bg-bg-state-soft flex h-8 rounded-md px-2! md:hidden">
               <MoreHorizontal className="text-icon-default-subtle size-4" />
@@ -462,6 +468,8 @@ export const StudentsTable = () => {
               <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
               <span>Export</span>
             </Button>
+            <PermissionCheck permissionUtility={canManage}>
+
             <Button
               onClick={() => router.push(`student-and-parent-record/upload-students`)}
               className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
@@ -469,6 +477,7 @@ export const StudentsTable = () => {
               <Import fill="var(--color-icon-default-muted)" className="size-4" />
               <span>Import</span>
             </Button>
+            </PermissionCheck>
           </div>
         </MobileDrawer>
       )}
@@ -480,6 +489,8 @@ export const StudentsTable = () => {
             <span> {selectedRows.length}</span>
             <span>Selected Item{selectedRows.length !== 1 && "s"}</span>
           </div>
+
+        <PermissionCheck permissionUtility={canManage}>
 
           <Button
             onClick={() => {
@@ -500,6 +511,7 @@ export const StudentsTable = () => {
           >
             <span>Delete Student{selectedRows.length !== 1 && "s"}</span>
           </Button>
+        </PermissionCheck>
         </div>
       )}
 

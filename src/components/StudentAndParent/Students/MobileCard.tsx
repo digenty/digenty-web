@@ -9,6 +9,8 @@ import Edit from "../../Icons/Edit";
 import UserMinus from "../../Icons/UserMinus";
 import { MobileDrawer } from "../../MobileDrawer";
 import { Button } from "../../ui/button";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManage } from "@/lib/permissions/students-and-parents";
 
 export const MobileCard = ({ student }: { student: Student }) => {
   const router = useRouter();
@@ -48,6 +50,8 @@ export const MobileCard = ({ student }: { student: Student }) => {
                 <EyeIcon className="text-icon-default-muted size-4" />
                 <span>View Student Profile</span>
               </Button>
+              <PermissionCheck permissionUtility={canManage}>
+
               <Button
                 onClick={() => router.push(`/student-and-parent-record/students/${student.id}/edit`)}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
@@ -78,6 +82,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
                 <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
                 <span className="text-icon-destructive">Delete Student Profile</span>
               </Button>
+              </PermissionCheck>
             </div>
           </MobileDrawer>
         )}

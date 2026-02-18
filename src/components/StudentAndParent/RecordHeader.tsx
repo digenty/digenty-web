@@ -4,6 +4,7 @@ import { Arm, Branch, ClassType, Department } from "@/api/types";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 
+import { canManage } from "@/lib/permissions/students-and-parents";
 import Image from "next/image";
 import { useState } from "react";
 import BookOpen from "../Icons/BookOpen";
@@ -11,6 +12,7 @@ import GraduationCap from "../Icons/GraduationCap";
 import Group from "../Icons/Group";
 import School from "../Icons/School";
 import { MobileDrawer } from "../MobileDrawer";
+import { PermissionCheck } from "../ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Skeleton } from "../ui/skeleton";
@@ -75,10 +77,14 @@ export const RecordHeader = ({
                 onFilterChange("branchSelected", branch);
               }}
             >
-              <SelectTrigger className="border-border-darker h-8! w-auto border">
-                <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                <span className="text-text-default text-sm font-medium">{filter.branchSelected ? filter.branchSelected?.name : "All Branches"}</span>
-              </SelectTrigger>
+              <PermissionCheck permissionUtility={canManage}>
+                <SelectTrigger className="border-border-darker h-8! w-auto border">
+                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                  <span className="text-text-default text-sm font-medium">
+                    {filter.branchSelected ? filter.branchSelected?.name : "All Branches"}
+                  </span>
+                </SelectTrigger>
+              </PermissionCheck>
               <SelectContent className="bg-bg-card border-border-default">
                 <SelectItem value="none" className="text-text-default text-sm font-medium">
                   All Branches
@@ -103,10 +109,14 @@ export const RecordHeader = ({
                     onFilterChange("classSelected", cls);
                   }}
                 >
-                  <SelectTrigger className="border-border-darker h-8! w-auto border">
-                    <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                    <span className="text-text-default text-sm font-medium">{filter.classSelected ? filter.classSelected?.name : "All Classes"}</span>
-                  </SelectTrigger>
+                  <PermissionCheck permissionUtility={canManage}>
+                    <SelectTrigger className="border-border-darker h-8! w-auto border">
+                      <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                      <span className="text-text-default text-sm font-medium">
+                        {filter.classSelected ? filter.classSelected?.name : "All Classes"}
+                      </span>
+                    </SelectTrigger>
+                  </PermissionCheck>
                   <SelectContent className="bg-bg-card border-border-default">
                     <SelectItem value="none" className="text-text-default text-sm font-medium">
                       All Classes
@@ -153,75 +163,80 @@ export const RecordHeader = ({
 
         <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
           <div className="flex w-full flex-col gap-4 px-3 py-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <School fill="var(--color-icon-black-muted)" className="size-4" />
-                <Label className="text-text-default text-sm font-medium">Branch</Label>
-              </div>
-              {!branches || loadingBranches ? (
-                <Skeleton className="bg-bg-input-soft h-9 w-full" />
-              ) : (
-                <Select
-                  onValueChange={value => {
-                    const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
-                    onFilterChange("branchSelected", branch);
-                    setFilterCount(prev => (!filter.branchSelected ? prev + 1 : prev));
-                  }}
-                >
-                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                    <span className="text-text-default text-sm font-medium">
-                      {filter.branchSelected ? filter.branchSelected?.name : "All Branches"}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent className="bg-bg-card border-border-default">
-                    <SelectItem value="none" className="text-text-default text-sm font-medium">
-                      All Branches
-                    </SelectItem>
-                    {branches.data.content.map((branch: Branch) => (
-                      <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
-                        {branch.name}
+            <PermissionCheck permissionUtility={canManage}>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <School fill="var(--color-icon-black-muted)" className="size-4" />
+                  <Label className="text-text-default text-sm font-medium">Branch</Label>
+                </div>
+                {!branches || loadingBranches ? (
+                  <Skeleton className="bg-bg-input-soft h-9 w-full" />
+                ) : (
+                  <Select
+                    onValueChange={value => {
+                      const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                      onFilterChange("branchSelected", branch);
+                      setFilterCount(prev => (!filter.branchSelected ? prev + 1 : prev));
+                    }}
+                  >
+                    <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                      <span className="text-text-default text-sm font-medium">
+                        {filter.branchSelected ? filter.branchSelected?.name : "All Branches"}
+                      </span>
+                    </SelectTrigger>
+
+                    <SelectContent className="bg-bg-card border-border-default">
+                      <SelectItem value="none" className="text-text-default text-sm font-medium">
+                        All Branches
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
+                      {branches.data.content.map((branch: Branch) => (
+                        <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
+                          {branch.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            </PermissionCheck>
 
             {tab === "Students" && (
               <>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <GraduationCap fill="var(--color-icon-black-muted)" className="size-4" />
-                    <Label className="text-text-default text-sm font-medium">Class</Label>
-                  </div>
-                  {!classes || loadingClasses ? (
-                    <Skeleton className="bg-bg-input-soft h-9 w-full" />
-                  ) : (
-                    <Select
-                      onValueChange={value => {
-                        const cls = classes.data.content?.find((cls: ClassType) => cls.uuid === value);
-                        onFilterChange("classSelected", cls);
-                        setFilterCount(prev => (!filter.classSelected ? prev + 1 : prev));
-                      }}
-                    >
-                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                        <span className="text-text-default text-sm font-medium">
-                          {filter.classSelected ? filter.classSelected?.name : "All Classes"}
-                        </span>
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-card border-border-default">
-                        <SelectItem value="none" className="text-text-default text-sm font-medium">
-                          All Classes
-                        </SelectItem>
-                        {classes.data.content.map((cls: ClassType) => (
-                          <SelectItem key={cls.id} value={cls.uuid} className="text-text-default text-sm font-medium">
-                            {cls.name}
+                <PermissionCheck permissionUtility={canManage}>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <GraduationCap fill="var(--color-icon-black-muted)" className="size-4" />
+                      <Label className="text-text-default text-sm font-medium">Class</Label>
+                    </div>
+                    {!classes || loadingClasses ? (
+                      <Skeleton className="bg-bg-input-soft h-9 w-full" />
+                    ) : (
+                      <Select
+                        onValueChange={value => {
+                          const cls = classes.data.content?.find((cls: ClassType) => cls.uuid === value);
+                          onFilterChange("classSelected", cls);
+                          setFilterCount(prev => (!filter.classSelected ? prev + 1 : prev));
+                        }}
+                      >
+                        <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                          <span className="text-text-default text-sm font-medium">
+                            {filter.classSelected ? filter.classSelected?.name : "All Classes"}
+                          </span>
+                        </SelectTrigger>
+                        <SelectContent className="bg-bg-card border-border-default">
+                          <SelectItem value="none" className="text-text-default text-sm font-medium">
+                            All Classes
                           </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
+                          {classes.data.content.map((cls: ClassType) => (
+                            <SelectItem key={cls.id} value={cls.uuid} className="text-text-default text-sm font-medium">
+                              {cls.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+                </PermissionCheck>
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -257,35 +272,37 @@ export const RecordHeader = ({
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <BookOpen fill="var(--color-icon-black-muted)" className="size-4" />
-                    <Label className="text-text-default text-sm font-medium">Arm</Label>
+                <PermissionCheck permissionUtility={canManage}>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <BookOpen fill="var(--color-icon-black-muted)" className="size-4" />
+                      <Label className="text-text-default text-sm font-medium">Arm</Label>
+                    </div>
+                    {!arms || loadingArms ? (
+                      <Skeleton className="bg-bg-input-soft h-9 w-full" />
+                    ) : (
+                      <Select
+                        onValueChange={value => {
+                          const arm = arms.data.content.find((arm: Arm) => arm.uuid === value);
+                          onFilterChange("armSelected", arm);
+                          setFilterCount(prev => (!filter.armSelected ? prev + 1 : prev));
+                        }}
+                      >
+                        <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                          <span className="text-text-default text-sm">{filter.armSelected ? filter.armSelected?.name : "Select Arm"}</span>
+                        </SelectTrigger>
+                        <SelectContent className="bg-bg-default border-border-default">
+                          {arms.data.content.length === 0 && <SelectItem value="none">No Arms for the selected class</SelectItem>}
+                          {arms.data.content.map((arm: Arm) => (
+                            <SelectItem key={arm.id} value={arm.uuid} className="text-text-default text-sm">
+                              {arm.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
-                  {!arms || loadingArms ? (
-                    <Skeleton className="bg-bg-input-soft h-9 w-full" />
-                  ) : (
-                    <Select
-                      onValueChange={value => {
-                        const arm = arms.data.content.find((arm: Arm) => arm.uuid === value);
-                        onFilterChange("armSelected", arm);
-                        setFilterCount(prev => (!filter.armSelected ? prev + 1 : prev));
-                      }}
-                    >
-                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                        <span className="text-text-default text-sm">{filter.armSelected ? filter.armSelected?.name : "Select Arm"}</span>
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-default border-border-default">
-                        {arms.data.content.length === 0 && <SelectItem value="none">No Arms for the selected class</SelectItem>}
-                        {arms.data.content.map((arm: Arm) => (
-                          <SelectItem key={arm.id} value={arm.uuid} className="text-text-default text-sm">
-                            {arm.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
+                </PermissionCheck>
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">

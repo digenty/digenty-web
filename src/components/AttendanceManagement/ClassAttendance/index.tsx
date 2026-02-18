@@ -14,8 +14,10 @@ export const ClassAttendance = () => {
   const classArmName = path.split("/")[2] ?? "";
   const [date, setDate] = useState<Date>(new Date());
 
-  const { data, isPending, isError } = useGetArmAttendance({ armId: Number(armId), limit: 200, page: 0, date: format(date, "yyyy-MM-dd") });
+  const { data, isPending, isError, error } = useGetArmAttendance({ armId: Number(armId), limit: 200, page: 0, date: format(date, "yyyy-MM-dd") });
   const [attendanceList, setAttendanceList] = useState<{ studentId: number; isPresent: boolean }[]>([]);
+
+  console.log(error, isError, data);
 
   return (
     <div className="space-y-6">
@@ -23,13 +25,13 @@ export const ClassAttendance = () => {
         classArmName={classArmName.split("-").join(" ")}
         attendanceList={attendanceList}
         setAttendanceList={setAttendanceList}
-        students={data?.data?.content || []}
+        students={data?.data?.studentsPresent || []}
         date={date}
         setDate={setDate}
       />
 
       <div className="px-4 pb-10 md:px-8">
-        {isError && (
+        {isError && !data && (
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent
               title="Could not load attendance sheet"
@@ -40,7 +42,7 @@ export const ClassAttendance = () => {
         )}
         {isPending && <Skeleton className="bg-bg-input-soft h-200 w-full" />}
 
-        {!isPending && !isError && data.data.content.length === 0 && (
+        {!isPending && !isError && data.data.studentsPresent.length === 0 && (
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent
               title="No Students in this arm yet"
@@ -51,8 +53,8 @@ export const ClassAttendance = () => {
           </div>
         )}
 
-        {!isPending && !isError && data.data.content.length > 0 && (
-          <AttendanceTable students={data.data.content} attendanceList={attendanceList} setAttendanceList={setAttendanceList} />
+        {data && !isPending && !isError && data.data.studentsPresent.length > 0 && (
+          <AttendanceTable students={data.data.studentsPresent} attendanceList={attendanceList} setAttendanceList={setAttendanceList} />
         )}
       </div>
     </div>

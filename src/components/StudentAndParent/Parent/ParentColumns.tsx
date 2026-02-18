@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { Avatar } from "../../Avatar";
 import DeleteBin from "../../Icons/DeleteBin";
 import Edit from "../../Icons/Edit";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManage } from "@/lib/permissions/students-and-parents";
 
 const RenderOptions = (row: Row<Parent>) => {
   const router = useRouter();
@@ -25,6 +27,9 @@ const RenderOptions = (row: Row<Parent>) => {
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View parent profile</span>
         </DropdownMenuItem>
+
+        <PermissionCheck permissionUtility={canManage}>
+
         <DropdownMenuItem onClick={() => router.push(`/student-and-parent-record/parents/${row.original.id}/edit`)} className="gap-2.5 px-3">
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit parent profile</span>
@@ -41,6 +46,7 @@ const RenderOptions = (row: Row<Parent>) => {
           <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
           <span className="text-icon-destructive">Delete parent profile</span>
         </DropdownMenuItem>
+        </PermissionCheck>
       </DropdownMenuContent>
     </DropdownMenu>
   );
