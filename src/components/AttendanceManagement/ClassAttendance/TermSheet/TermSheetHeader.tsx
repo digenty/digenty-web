@@ -27,7 +27,7 @@ export const TermSheetHeader = ({
 }: {
   classname: string;
   termWeeks: AttendanceWeek[];
-  activeWeek: string;
+  activeWeek: string | undefined;
   setActiveWeek: (week: string) => void;
   termSelected: Term | null;
   setTermSelected: React.Dispatch<React.SetStateAction<Term | null>>;

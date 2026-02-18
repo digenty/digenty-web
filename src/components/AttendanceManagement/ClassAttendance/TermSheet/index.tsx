@@ -1,15 +1,15 @@
 "use client";
+import { Term } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetTermSheet } from "@/hooks/queryHooks/useAttendance";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TermSheetCard } from "./TermSheetCard";
 import { generateColumns } from "./TermSheetColumns";
 import { TermSheetHeader } from "./TermSheetHeader";
-import { StudentAttendance, students2 } from "./students";
-import { useGetTermSheet } from "@/hooks/queryHooks/useAttendance";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Term } from "@/api/types";
+import { StudentAttendance } from "./students";
 
 export interface Student {
   id: number;
@@ -24,8 +24,8 @@ export const TermSheet = () => {
   const armId = path.split("/")[3] ?? "";
 
   const [page, setPage] = useState(1);
-  const [activeWeek, setActiveWeek] = useState(students2[0].weeks[0].week);
-  const [activeStudent, setActiveStudent] = useState<string>();
+  const [activeWeek, setActiveWeek] = useState<string | undefined>();
+  const [activeStudent, setActiveStudent] = useState<number>();
   const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [activeSession, setActveSesion] = useState<string | null>(null);
 
@@ -33,7 +33,11 @@ export const TermSheet = () => {
 
   const { data, isPending, isError } = useGetTermSheet(Number(armId));
 
-  console.log(data);
+  useEffect(() => {
+    if (data) {
+      setActiveWeek(data.data[0].weeks[0].week);
+    }
+  }, [data]);
 
   return (
     <div>
@@ -89,7 +93,6 @@ export const TermSheet = () => {
           <div className="block space-y-3 px-4 md:hidden">
             {data.data.map((student: StudentAttendance) => {
               const days = student.weeks.find(wk => wk.week === activeWeek)?.days;
-              console.log(student, "###");
               return (
                 <TermSheetCard
                   key={student.studentId}
