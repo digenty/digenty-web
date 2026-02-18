@@ -3,7 +3,7 @@ import { deleteSession } from "@/app/actions/auth";
 import { Sheet, SheetContent, SheetHeader, SheetOverlay, SheetTitle } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { canView } from "@/lib/permissions/students-and-parents";
+import { canViewStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/store";
 import { JWTPayload } from "@/types";
@@ -32,6 +32,19 @@ import Wallet from "../Icons/Wallet";
 import { Tooltip } from "../Tooltip";
 import { Button } from "../ui/button";
 import { NavigationType } from "./types";
+import { canViewClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
+import { canViewAttendance } from "@/lib/permissions/attendance";
+import { canViewFinanceReport } from "@/lib/permissions/finance-report";
+import { canViewFeeCollection } from "@/lib/permissions/fee-collection";
+import { canViewExpenses } from "@/lib/permissions/expenses";
+import { canViewFees } from "@/lib/permissions/fees";
+import { canViewInvoices } from "@/lib/permissions/invoices";
+import { canViewStock } from "@/lib/permissions/stock";
+import { canViewSettings } from "@/lib/permissions/settings";
+import { canViewCommunication } from "@/lib/permissions/communication";
+import { canViewPortalCustomization } from "@/lib/permissions/portal-customization";
+import { canViewPortalOverview } from "@/lib/permissions/portal-overview";
+import { canViewDomain } from "@/lib/permissions/domain";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -45,7 +58,8 @@ export const Sidebar = () => {
           url: "/",
           icon: Home2,
         },
-        ...(canView(user?.permissions)
+
+        ...(canViewStudentParentRecords(user?.permissions)
           ? [
               {
                 title: "Student & Parent Record",
@@ -54,88 +68,169 @@ export const Sidebar = () => {
               },
             ]
           : []),
-        {
-          title: "Classes & Subjects",
-          url: "classes-and-subjects",
-          icon: GraduationCap,
-        },
-        {
-          title: "Attendance",
-          url: "attendance",
-          icon: CalendarCheck,
-        },
+
+        ...(canViewClassesAndSubjects(user?.permissions)
+          ? [
+              {
+                title: "Classes & Subjects",
+                url: "classes-and-subjects",
+                icon: GraduationCap,
+              },
+            ]
+          : []),
+
+        ...(canViewAttendance(user?.permissions)
+          ? [
+              {
+                title: "Attendance",
+                url: "attendance",
+                icon: CalendarCheck,
+              },
+            ]
+          : []),
       ],
     },
-    {
-      title: "Finance",
-      menu: [
-        {
-          title: "Invoices",
-          url: "invoices",
-          icon: FileList3,
-        },
-        {
-          title: "Fees",
-          url: "fees",
-          icon: Bill,
-        },
-        {
-          title: "Expenses",
-          url: "expense",
-          icon: BankCard,
-        },
-        {
-          title: "Stock",
-          url: "stock",
-          icon: Store3,
-        },
-        {
-          title: "Fee Collection",
-          url: "fee-collection",
-          icon: Wallet,
-        },
-        {
-          title: "Finance Report",
-          url: "finance-report",
-          icon: LineChart,
-        },
-      ],
-    },
-    {
-      title: "Communication & Portal",
-      menu: [
-        {
-          title: "Communications",
-          url: "communications",
-          icon: Megaphone,
-        },
-        {
-          title: "Portal Overview",
-          url: "portal-overview",
-          icon: Macbook,
-        },
-        {
-          title: "Portal Customization",
-          url: "portal-customization",
-          icon: ColorFilter,
-        },
-        {
-          title: "Domain",
-          url: "domain",
-          icon: Global,
-        },
-      ],
-    },
-    {
-      title: "",
-      menu: [
-        {
-          title: "Settings",
-          url: "settings",
-          icon: Settings4,
-        },
-      ],
-    },
+
+    ...(canViewFinanceReport(user?.permissions) ||
+    canViewFeeCollection(user?.permissions) ||
+    canViewExpenses(user?.permissions) ||
+    canViewFees(user?.permissions) ||
+    canViewInvoices(user?.permissions) ||
+    canViewStock(user?.permissions)
+      ? [
+          {
+            title: "Finance",
+            menu: [
+              ...(canViewInvoices(user?.permissions)
+                ? [
+                    {
+                      title: "Invoices",
+                      url: "invoices",
+                      icon: FileList3,
+                    },
+                  ]
+                : []),
+
+              ...(canViewFees(user?.permissions)
+                ? [
+                    {
+                      title: "Fees",
+                      url: "fees",
+                      icon: Bill,
+                    },
+                  ]
+                : []),
+
+              ...(canViewExpenses(user?.permissions)
+                ? [
+                    {
+                      title: "Expenses",
+                      url: "expense",
+                      icon: BankCard,
+                    },
+                  ]
+                : []),
+
+              ...(canViewStock(user?.permissions)
+                ? [
+                    {
+                      title: "Stock",
+                      url: "stock",
+                      icon: Store3,
+                    },
+                  ]
+                : []),
+
+              ...(canViewFeeCollection(user?.permissions)
+                ? [
+                    {
+                      title: "Fee Collection",
+                      url: "fee-collection",
+                      icon: Wallet,
+                    },
+                  ]
+                : []),
+
+              ...(canViewFinanceReport(user?.permissions)
+                ? [
+                    {
+                      title: "Finance Report",
+                      url: "finance-report",
+                      icon: LineChart,
+                    },
+                  ]
+                : []),
+            ],
+          },
+        ]
+      : []),
+
+    ...(canViewCommunication(user?.permissions) ||
+    canViewPortalCustomization(user?.permissions) ||
+    canViewPortalOverview(user?.permissions) ||
+    canViewDomain(user?.permissions)
+      ? [
+          {
+            title: "Communication & Portal",
+            menu: [
+              ...(canViewCommunication(user?.permissions)
+                ? [
+                    {
+                      title: "Communications",
+                      url: "communications",
+                      icon: Megaphone,
+                    },
+                  ]
+                : []),
+
+              ...(canViewPortalOverview(user?.permissions)
+                ? [
+                    {
+                      title: "Portal Overview",
+                      url: "portal-overview",
+                      icon: Macbook,
+                    },
+                  ]
+                : []),
+
+              ...(canViewPortalCustomization(user?.permissions)
+                ? [
+                    {
+                      title: "Portal Customization",
+                      url: "portal-customization",
+                      icon: ColorFilter,
+                    },
+                  ]
+                : []),
+
+              ...(canViewDomain(user?.permissions)
+                ? [
+                    {
+                      title: "Domain",
+                      url: "domain",
+                      icon: Global,
+                    },
+                  ]
+                : []),
+            ],
+          },
+        ]
+      : []),
+
+    ...(canViewSettings(user?.permissions)
+      ? [
+          {
+            title: "",
+            menu: [
+              {
+                title: "Settings",
+                url: "settings",
+                icon: Settings4,
+              },
+            ],
+          },
+        ]
+      : []),
   ];
 
   const pathname = usePathname();

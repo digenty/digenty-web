@@ -58,7 +58,7 @@ export const getArmAttendance = async ({ armId, date, limit, page }: { armId: nu
   }
 };
 
-export const getTermSheet = async (armId: number) => {
+export const getTermSheet = async (armId?: number) => {
   try {
     const { data } = await api.get(`/attendance/term-sheet/arm/${armId}`);
     return data;

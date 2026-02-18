@@ -39,7 +39,7 @@ import { TableExportFilter } from "../TableExportFilter";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
-import { canManage } from "@/lib/permissions/students-and-parents";
+import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 
 export const StudentsTable = () => {
   const router = useRouter();
@@ -372,47 +372,47 @@ export const StudentsTable = () => {
           loadingDepartments={loadingDepartments}
         />
 
-      <PermissionCheck permissionUtility={canManage}>
-        <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-          <OverviewCard
-            title="Total Students"
-            Icon={() => (
-              <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                <UserFill fill="var(--color-icon-default)" className="size-2.5" />
-              </div>
-            )}
-            value={`${studentDistribution?.total}`}
-          />
-          <OverviewCard
-            title="Active Students"
-            Icon={() => (
-              <div className="bg-bg-basic-emerald-subtle border-bg-basic-emerald-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                <UserFill fill="var(--color-icon-default)" className="size-2.5" />
-              </div>
-            )}
-            value={`${studentDistribution?.active}`}
-          />
-          <OverviewCard
-            title="Withdrawn Students"
-            Icon={() => (
-              <div className="bg-bg-basic-yellow-subtle border-bg-basic-yellow-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                <UserMinus fill="var(--color-icon-default)" className="size-2.5" />
-              </div>
-            )}
-            value={`${studentDistribution?.withdrawn}`}
-          />
+        <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+          <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+            <OverviewCard
+              title="Total Students"
+              Icon={() => (
+                <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex w-6 items-center justify-center rounded-xs border p-1">
+                  <UserFill fill="var(--color-icon-default)" className="size-2.5" />
+                </div>
+              )}
+              value={`${studentDistribution?.total}`}
+            />
+            <OverviewCard
+              title="Active Students"
+              Icon={() => (
+                <div className="bg-bg-basic-emerald-subtle border-bg-basic-emerald-accent flex w-6 items-center justify-center rounded-xs border p-1">
+                  <UserFill fill="var(--color-icon-default)" className="size-2.5" />
+                </div>
+              )}
+              value={`${studentDistribution?.active}`}
+            />
+            <OverviewCard
+              title="Withdrawn Students"
+              Icon={() => (
+                <div className="bg-bg-basic-yellow-subtle border-bg-basic-yellow-accent flex w-6 items-center justify-center rounded-xs border p-1">
+                  <UserMinus fill="var(--color-icon-default)" className="size-2.5" />
+                </div>
+              )}
+              value={`${studentDistribution?.withdrawn}`}
+            />
 
-          <OverviewCard
-            title="Graduated Students"
-            Icon={() => (
-              <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                <GraduationCap fill="var(--color-icon-default)" className="size-2.5" />
-              </div>
-            )}
-            value={`${studentDistribution?.graduated}`}
-          />
-        </div>
-      </PermissionCheck>
+            <OverviewCard
+              title="Graduated Students"
+              Icon={() => (
+                <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex w-6 items-center justify-center rounded-xs border p-1">
+                  <GraduationCap fill="var(--color-icon-default)" className="size-2.5" />
+                </div>
+              )}
+              value={`${studentDistribution?.graduated}`}
+            />
+          </div>
+        </PermissionCheck>
 
         {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
@@ -433,22 +433,22 @@ export const StudentsTable = () => {
               <span className="text-text-default font-medium">Export</span>
             </Button>
 
-            <PermissionCheck permissionUtility={canManage}>
-            <Button
-              onClick={() => router.push(`student-and-parent-record/upload-students`)}
-              className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
-            >
-              <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />
-              <span className="text-text-default font-medium">Import</span>
-            </Button>
+            <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+              <Button
+                onClick={() => router.push(`student-and-parent-record/upload-students`)}
+                className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
+              >
+                <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />
+                <span className="text-text-default font-medium">Import</span>
+              </Button>
 
-            <Button
-              onClick={() => router.push("student-and-parent-record/add-student")}
-              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! shadow-xlight h-8 gap-2 rounded-md px-2.5!"
-            >
-              <PlusIcon className="text-icon-white-default size-4" />
-              <span className="text-text-white-default font-medium">Add Student</span>
-            </Button>
+              <Button
+                onClick={() => router.push("student-and-parent-record/add-student")}
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! shadow-xlight h-8 gap-2 rounded-md px-2.5!"
+              >
+                <PlusIcon className="text-icon-white-default size-4" />
+                <span className="text-text-white-default font-medium">Add Student</span>
+              </Button>
             </PermissionCheck>
 
             <Button onClick={() => setIsActionsOpen(true)} className="bg-bg-state-soft flex h-8 rounded-md px-2! md:hidden">
@@ -468,15 +468,14 @@ export const StudentsTable = () => {
               <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
               <span>Export</span>
             </Button>
-            <PermissionCheck permissionUtility={canManage}>
-
-            <Button
-              onClick={() => router.push(`student-and-parent-record/upload-students`)}
-              className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
-            >
-              <Import fill="var(--color-icon-default-muted)" className="size-4" />
-              <span>Import</span>
-            </Button>
+            <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+              <Button
+                onClick={() => router.push(`student-and-parent-record/upload-students`)}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
+              >
+                <Import fill="var(--color-icon-default-muted)" className="size-4" />
+                <span>Import</span>
+              </Button>
             </PermissionCheck>
           </div>
         </MobileDrawer>
@@ -490,28 +489,27 @@ export const StudentsTable = () => {
             <span>Selected Item{selectedRows.length !== 1 && "s"}</span>
           </div>
 
-        <PermissionCheck permissionUtility={canManage}>
+          <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+            <Button
+              onClick={() => {
+                setOpenWithdraw(true);
+                setStudentIdsToWithdraw(selectedRows.map(row => row.id));
+              }}
+              className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
+            >
+              <span>Withdraw student{selectedRows.length !== 1 && "s"}</span>
+            </Button>
 
-          <Button
-            onClick={() => {
-              setOpenWithdraw(true);
-              setStudentIdsToWithdraw(selectedRows.map(row => row.id));
-            }}
-            className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
-          >
-            <span>Withdraw student{selectedRows.length !== 1 && "s"}</span>
-          </Button>
-
-          <Button
-            onClick={() => {
-              setOpenDelete(true);
-              setStudentIdsToDelete(selectedRows.map(row => row.id));
-            }}
-            className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
-          >
-            <span>Delete Student{selectedRows.length !== 1 && "s"}</span>
-          </Button>
-        </PermissionCheck>
+            <Button
+              onClick={() => {
+                setOpenDelete(true);
+                setStudentIdsToDelete(selectedRows.map(row => row.id));
+              }}
+              className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
+            >
+              <span>Delete Student{selectedRows.length !== 1 && "s"}</span>
+            </Button>
+          </PermissionCheck>
         </div>
       )}
 

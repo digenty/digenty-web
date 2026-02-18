@@ -84,7 +84,7 @@ export const AttendanceManagement = () => {
                 <BarChartIcon fill="var(--color-icon-default)" />
               </div>
             )}
-            value={`${attendanceStats.overallAttendance}%`}
+            value={`${attendanceStats.overallAttendance.toFixed(0)}%`}
           />
         </div>
 

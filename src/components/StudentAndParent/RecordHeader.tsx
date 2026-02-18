@@ -4,7 +4,7 @@ import { Arm, Branch, ClassType, Department } from "@/api/types";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 
-import { canManage } from "@/lib/permissions/students-and-parents";
+import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import Image from "next/image";
 import { useState } from "react";
 import BookOpen from "../Icons/BookOpen";
@@ -77,7 +77,7 @@ export const RecordHeader = ({
                 onFilterChange("branchSelected", branch);
               }}
             >
-              <PermissionCheck permissionUtility={canManage}>
+              <PermissionCheck permissionUtility={canManageStudentParentRecords}>
                 <SelectTrigger className="border-border-darker h-8! w-auto border">
                   <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
                   <span className="text-text-default text-sm font-medium">
@@ -109,7 +109,7 @@ export const RecordHeader = ({
                     onFilterChange("classSelected", cls);
                   }}
                 >
-                  <PermissionCheck permissionUtility={canManage}>
+                  <PermissionCheck permissionUtility={canManageStudentParentRecords}>
                     <SelectTrigger className="border-border-darker h-8! w-auto border">
                       <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
                       <span className="text-text-default text-sm font-medium">
@@ -163,7 +163,7 @@ export const RecordHeader = ({
 
         <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
           <div className="flex w-full flex-col gap-4 px-3 py-4">
-            <PermissionCheck permissionUtility={canManage}>
+            <PermissionCheck permissionUtility={canManageStudentParentRecords}>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <School fill="var(--color-icon-black-muted)" className="size-4" />
@@ -202,7 +202,7 @@ export const RecordHeader = ({
 
             {tab === "Students" && (
               <>
-                <PermissionCheck permissionUtility={canManage}>
+                <PermissionCheck permissionUtility={canManageStudentParentRecords}>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <GraduationCap fill="var(--color-icon-black-muted)" className="size-4" />
@@ -272,7 +272,7 @@ export const RecordHeader = ({
                   )}
                 </div>
 
-                <PermissionCheck permissionUtility={canManage}>
+                <PermissionCheck permissionUtility={canManageStudentParentRecords}>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <BookOpen fill="var(--color-icon-black-muted)" className="size-4" />

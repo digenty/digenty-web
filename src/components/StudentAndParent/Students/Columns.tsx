@@ -15,7 +15,7 @@ import DeleteBin from "../../Icons/DeleteBin";
 import Edit from "../../Icons/Edit";
 import UserMinus from "../../Icons/UserMinus";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
-import { canManage } from "@/lib/permissions/students-and-parents";
+import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 
 const RenderOptions = (row: Row<Student>) => {
   const router = useRouter();
@@ -33,8 +33,7 @@ const RenderOptions = (row: Row<Student>) => {
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View student profile</span>
         </DropdownMenuItem>
-        <PermissionCheck permissionUtility={canManage}>
-
+        <PermissionCheck permissionUtility={canManageStudentParentRecords}>
           <DropdownMenuItem
             onClick={evt => {
               evt.stopPropagation();
@@ -67,7 +66,7 @@ const RenderOptions = (row: Row<Student>) => {
             <span className="text-icon-destructive">Delete student profile</span>
           </DropdownMenuItem>
         </PermissionCheck>
-        </DropdownMenuContent>
+      </DropdownMenuContent>
     </DropdownMenu>
   );
 };

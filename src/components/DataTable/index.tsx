@@ -13,7 +13,7 @@ interface DataTableProps<TData, TValue> {
   totalCount: number;
   page: number;
   setCurrentPage: (page: number) => void;
-  clickHandler: (row: Row<TData>) => void;
+  clickHandler?: (row: Row<TData>) => void;
   pageSize: number;
   rowSelection?: Record<string, boolean>;
   setRowSelection?: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
@@ -58,7 +58,7 @@ export const DataTable = <TData, TValue>({
     data,
     columns,
     state: {
-      rowSelection, // ✅ tell the table which rows are selected
+      rowSelection: rowSelection ?? {}, // ✅ tell the table which rows are selected
     },
     rowCount: totalCount,
     getCoreRowModel: getCoreRowModel(),
@@ -130,7 +130,7 @@ export const DataTable = <TData, TValue>({
                         fullBorder && "border-border-default border-r",
                         classNames?.tableBodyCell,
                       )}
-                      onClick={cell.column.id === "actions" || cell.column.id === "select" ? undefined : () => clickHandler(row)}
+                      onClick={cell.column.id === "actions" || cell.column.id === "select" || !clickHandler ? undefined : () => clickHandler(row)}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>

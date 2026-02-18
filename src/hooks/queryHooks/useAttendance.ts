@@ -24,10 +24,11 @@ export const useGetArmAttendance = ({ armId, date, limit, page }: { armId: numbe
   });
 };
 
-export const useGetTermSheet = (armId: number) => {
+export const useGetTermSheet = (armId?: number) => {
   return useQuery({
     queryKey: attendanceKeys.getTermSheet,
     queryFn: () => getTermSheet(armId),
+    enabled: !!armId,
   });
 };
 

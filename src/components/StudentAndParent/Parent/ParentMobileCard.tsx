@@ -6,7 +6,7 @@ import Edit from "@/components/Icons/Edit";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
-import { canManage } from "@/lib/permissions/students-and-parents";
+import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { useParentStore } from "@/store/useParentStore";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -42,25 +42,25 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
                 <span>View Parent Profile</span>
               </Button>
 
-              <PermissionCheck permissionUtility={canManage}>
-              <Button
-                onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}/edit`)}
-                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
-              >
-                <Edit fill="var(--color-icon-default-muted)" className="size-4" />
-                <span>Edit Parent Profile</span>
-              </Button>
+              <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+                <Button
+                  onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}/edit`)}
+                  className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+                >
+                  <Edit fill="var(--color-icon-default-muted)" className="size-4" />
+                  <span>Edit Parent Profile</span>
+                </Button>
 
-              <Button
-                onClick={() => {
-                  setOpenDelete(true);
-                  setParentIds([parent.id]);
-                }}
-                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
-              >
-                <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-                <span className="text-icon-destructive">Delete Parent Profile</span>
-              </Button>
+                <Button
+                  onClick={() => {
+                    setOpenDelete(true);
+                    setParentIds([parent.id]);
+                  }}
+                  className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+                >
+                  <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+                  <span className="text-icon-destructive">Delete Parent Profile</span>
+                </Button>
               </PermissionCheck>
             </div>
           </MobileDrawer>

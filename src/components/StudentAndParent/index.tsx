@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { ParentsTable } from "./Parent";
 import { StudentsTable } from "./Students";
 import { ModulePermissionsWrapper } from "@/components/ModulePermissionsWrapper";
+import { canViewStudentParentRecords } from "@/lib/permissions/students-and-parents";
 
 const tabs = ["Students", "Parents"];
 
@@ -20,7 +21,7 @@ const StudentAndParentRecord = () => {
   }, [activeTab, router]);
 
   return (
-    <ModulePermissionsWrapper>
+    <ModulePermissionsWrapper permissionUtility={canViewStudentParentRecords}>
       <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
         {/* Tabs */}
         <div className="border-border-default flex w-auto max-w-105 items-center gap-3 border-b">

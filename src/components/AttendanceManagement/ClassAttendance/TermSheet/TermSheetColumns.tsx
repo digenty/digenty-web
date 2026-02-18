@@ -2,7 +2,7 @@
 
 import { Avatar } from "@/components/Avatar";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { CheckIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { AttendanceDay, AttendanceWeek, StudentAttendance } from "./students";
@@ -28,7 +28,7 @@ const RenderCell = (row: Row<StudentAttendance>, week: string, day: AttendanceDa
   );
 };
 
-export const generateColumns = (weeks: AttendanceWeek[]): ColumnDef<StudentAttendance>[] => {
+export const generateColumns = ({ weeks, totalStudents }: { weeks: AttendanceWeek[]; totalStudents: number }): ColumnDef<StudentAttendance>[] => {
   return [
     {
       accessorKey: "name",
@@ -36,7 +36,7 @@ export const generateColumns = (weeks: AttendanceWeek[]): ColumnDef<StudentAtten
       header: () => (
         <div className="bg-bg-muted fill-header text-text-muted absolute -top-10 left-0 flex h-20 w-full flex-col justify-center pl-4 font-medium">
           <p>Student Name</p>
-          <p>10 Total</p>
+          <p>{totalStudents} Total</p>
         </div>
       ),
       meta: { rowSpan: 2 },
@@ -45,7 +45,7 @@ export const generateColumns = (weeks: AttendanceWeek[]): ColumnDef<StudentAtten
         return (
           <div className="flex items-center gap-3">
             <Avatar className="size-8" />
-            <span className="text-text-default text-sm">{student.name}</span>
+            <span className="text-text-default text-sm">{student.studentName}</span>
           </div>
         );
       },
@@ -53,10 +53,12 @@ export const generateColumns = (weeks: AttendanceWeek[]): ColumnDef<StudentAtten
 
     ...weeks.map(week => ({
       id: week.week,
-      header: () => <div className="fill-header text-text-muted text-center text-sm">{week.week}</div>,
+      header: () => <div className="fill-header text-text-muted flex items-center justify-center text-center text-sm">{week.week}</div>,
       columns: week.days.map(day => ({
         id: `${week.week}-${day.date}`,
-        header: () => <span className="text-text-muted pl-6 text-center text-sm">{format(new Date(day.date), "MMMM d")}</span>,
+        header: () => (
+          <span className="text-text-muted flex items-center justify-center text-center text-sm">{format(parseISO(day.date), "MMM d")}</span>
+        ),
         cell: ({ row }: { row: Row<StudentAttendance> }) => RenderCell(row, week.week, day),
       })),
     })),
@@ -71,13 +73,13 @@ export const generateColumns = (weeks: AttendanceWeek[]): ColumnDef<StudentAtten
       ),
       cell: ({ row }) => {
         const total = row.original;
-        const percentage = Math.round((total.totalPresent / total.totalDays) * 100);
+        const percentage = Math.round((total.totalPresent / total.totalSchoolDays) * 100);
 
         return (
           <div className="flex flex-col items-center justify-center text-center">
             <div className="text-text-default text-xs">{percentage}%</div>
             <div className="text-text-muted text-xs">
-              {total.totalPresent}/{total.totalDays} days
+              {total.totalPresent}/{total.totalSchoolDays} day{total.totalSchoolDays > 1 ? "s" : ""}
             </div>
           </div>
         );
