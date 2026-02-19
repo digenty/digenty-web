@@ -226,3 +226,21 @@ export interface StudentReport {
   principalComment: string | null;
   nextTermBegins: string;
 }
+
+export interface BranchReport {
+         branchId: number,
+         branchName: string,
+         BranchHeadName: string,
+         numberOfClassArm: number,
+         numberOfClassTeacherSubmitted: number | null,
+         numberOfPendingApprovals: number | null
+}
+
+export interface AllBranchesReport {
+    totalBranchesInSchool: number,
+    totalArmsInSchool: number,
+    totalPendingArmSubmission: number,
+    totalArmSubmitted: number,
+    totalPublishedReport: number,
+    branchReports:BranchReport[]
+}
