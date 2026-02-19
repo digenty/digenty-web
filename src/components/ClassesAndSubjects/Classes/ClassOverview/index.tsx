@@ -27,12 +27,13 @@ export const ClassOverview = () => {
   const { openNotifyTeacher } = useClassesStore();
   const searchParams = useSearchParams();
   const classArmName = searchParams.get("classArmName");
-  const pageSize = 10;
+  const pageSize = 15;
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   console.log(setRowSelection);
-  const { data: classTeachersData, isLoading } = useGetClassTeachersInClass(1);
+  const { data, isLoading } = useGetClassTeachersInClass(1);
 
+  const classTeachersData = data?.content || [];
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 md:py-4">
       {openNotifyTeacher && <NotifyTeacher />}
@@ -40,37 +41,35 @@ export const ClassOverview = () => {
 
       <h3 className="text-text-default hidden text-lg font-semibold md:inline">{classArmName}</h3>
 
-      <div className="hidden pt-5 md:block">
-        {isLoading ? (
-          <Skeleton className="h-52 w-full" />
-        ) : (
-          <DataTable
-            columns={columns}
-            data={classTeachersData?.content}
-            totalCount={classTeachersData?.length}
-            page={page}
-            setCurrentPage={setPage}
-            pageSize={pageSize}
-            clickHandler={row => {
-              console.log(row);
-              //   router.push(`/student-and-parent-record/${row.original.id}`);
-            }}
-            rowSelection={rowSelection}
-            setRowSelection={() => {}}
-            onSelectRows={() => {}}
-            showPagination={false}
-          />
-        )}
-      </div>
-
-      {isLoading || classTeachersData === 0 ? (
-        <Skeleton className="h-52 w-full rounded-md" />
+      {isLoading || classTeachersData.length === 0 ? (
+        <Skeleton className="h-100 w-full rounded-md" />
       ) : (
-        <div className="flex flex-col gap-4 md:hidden">
-          {classTeachersData?.content.map((subject: Subject) => (
-            <ClassOverviewCard key={subject.id} subject={subject} />
-          ))}
-        </div>
+        <>
+          <div className="hidden pt-5 md:block">
+            <DataTable
+              columns={columns}
+              data={classTeachersData}
+              totalCount={classTeachersData.length}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={pageSize}
+              clickHandler={row => {
+                console.log(row);
+                //   router.push(`/student-and-parent-record/${row.original.id}`);
+              }}
+              rowSelection={rowSelection}
+              setRowSelection={() => {}}
+              onSelectRows={() => {}}
+              showPagination={false}
+            />
+          </div>
+
+          <div className="flex flex-col gap-4 md:hidden">
+            {classTeachersData.map((subject: Subject) => (
+              <ClassOverviewCard key={subject.id} subject={subject} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

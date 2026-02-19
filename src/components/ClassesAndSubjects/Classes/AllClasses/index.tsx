@@ -1,11 +1,23 @@
+"use client";
+
 import AlertFill from "@/components/Icons/AlertFill";
 import GraduationCapFill from "@/components/Icons/GraduationCapFill";
 import { OverviewCard } from "@/components/OverviewCard";
 import React from "react";
 import { AllClassesHeader } from "./AllClassesHeader";
 import { AllClassesMainTable } from "./AllClassesMainTable";
+import { useGetAllClassDetails } from "@/hooks/queryHooks/useClass";
+import { useParams, useSearchParams } from "next/navigation";
 
 export const AllClassesMain = () => {
+  const params = useParams();
+  const searchParams = useSearchParams();
+
+  const branchId = Number(params.branchId);
+  const termId = searchParams.get("termId");
+
+  const { data: allClassesDetails, isFetching } = useGetAllClassDetails(branchId, Number(termId));
+  console.log(allClassesDetails);
   return (
     <div className="flex flex-col">
       <AllClassesHeader />
@@ -17,7 +29,7 @@ export const AllClassesMain = () => {
               <GraduationCapFill fill="var(--color-icon-default)" className="" />
             </div>
           )}
-          value="67"
+          value={allClassesDetails?.totalArms}
         />
         <OverviewCard
           title="Pending Submission"
@@ -26,7 +38,7 @@ export const AllClassesMain = () => {
               <AlertFill fill="var(--color-icon-default)" className="" />
             </div>
           )}
-          value="78"
+          value={allClassesDetails?.totalPendingSubmissions}
         />
         <OverviewCard
           className="col-span-2 lg:col-auto"
@@ -36,11 +48,11 @@ export const AllClassesMain = () => {
               <GraduationCapFill fill="var(--color-icon-default)" className="" />
             </div>
           )}
-          value="45"
+          value={allClassesDetails?.totalCompletedSubmissions}
         />
       </div>
 
-      <AllClassesMainTable />
+      <AllClassesMainTable allClassesDetails={allClassesDetails?.branchArmReportResponseDtos} isFetching={isFetching} />
     </div>
   );
 };

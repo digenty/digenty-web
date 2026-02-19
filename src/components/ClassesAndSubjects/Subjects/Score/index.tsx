@@ -5,7 +5,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import ScoresHeader from "./ScoresHeader";
 import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { useRef } from "react";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,9 +19,9 @@ export default function Score() {
 
   const searchParams = useSearchParams();
   const router = useRouter();
-  const subjectId = Number(searchParams.get("subjectId"));
+  const params = useParams();
+  const subjectId = Number(params.id);
   const armId = Number(searchParams.get("armId"));
-
   const { data: StudentsItem, isLoading } = useGetSubjectStudents(subjectId, armId);
   const { isPending: isSubmitting } = useAddScore();
   const isSubmitted = !!searchParams.get("SUBMITTED");

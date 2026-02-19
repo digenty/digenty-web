@@ -1,7 +1,7 @@
 "use client ";
 
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { AllClassesMainTableProps, ClassProps } from "./types";
+import { ClassProps } from "./types";
 import { DropdownMenuSeparator, DropdownMenu, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
@@ -14,8 +14,9 @@ import { useRouter } from "next/navigation";
 import { Notification } from "@/components/Icons/Notification";
 import { Button } from "@/components/ui/button";
 import { CheckboxCircle } from "@/components/Icons/CheckboxCircle";
+import { AllClassesProps } from "./AllClasses/type";
 
-const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
+const RenderOptions = (row: Row<AllClassesProps>) => {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -32,7 +33,7 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
         <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
           <DropdownMenuItem
             className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
-            onClick={() => router.push(`/classes-and-subjects/all-classes/${row.original.id}`)}
+            onClick={() => router.push(`/classes-and-subjects/all-classes/${row.original.ClassArmId}`)}
           >
             <Eye fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>View class</span>
@@ -90,9 +91,9 @@ const RenderModals = (row: Row<ClassProps>) => {
   );
 };
 //  Table for AllClass
-export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] = [
+export const AllClassessTableMainColumns: ColumnDef<AllClassesProps>[] = [
   {
-    accessorKey: "class",
+    accessorKey: "className",
     header: () => <div className="text-text-muted text-sm font-medium">Class</div>,
     cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.className}</span>,
   },
@@ -122,14 +123,16 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
     cell: ({ row }) => {
       const status = row.original.status;
 
-      const statusStyles: Record<AllClassesMainTableProps["status"], string> = {
+      const statusStyles: Record<AllClassesProps["status"], string> = {
         Approved: "bg-bg-badge-green text-bg-basic-green-strong ",
-        "Pending Approval": "bg-bg-badge-orange text-bg-basic-orange-strong ",
-        "Not Submitted": "bg-bg-badge-red text-bg-basic-red-strong ",
-        "Edit Request": "bg-bg-badge-lime text-bg-basic-lime-strong ",
+        "PENDING APPROVAL": "bg-bg-badge-orange text-bg-basic-orange-strong ",
+        NOT_SUBMITTED: "bg-bg-badge-red text-bg-basic-red-strong ",
+        EDIT_REQUEST: "bg-bg-badge-lime text-bg-basic-lime-strong ",
       };
 
-      return <Badge className={`border-border-default rounded-md border p-1 text-xs font-medium ${statusStyles[status]} `}>{status}</Badge>;
+      return (
+        <Badge className={`border-border-default rounded-md border p-1 text-xs font-medium ${statusStyles[status]} `}>{status.toLowerCase()}</Badge>
+      );
     },
   },
   {

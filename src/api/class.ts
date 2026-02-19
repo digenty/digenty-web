@@ -31,12 +31,26 @@ export const getTeacherClass = async () => {
 export const getClassTeachersInClass = async (classId: number) => {
   try {
     const data = await api.get(`/report/subject/arm/${classId}?page=0&size=15`);
-    return data.data.data;
+    return data.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.message;
     }
 
+    throw error;
+  }
+};
+
+export const getAllClassDetails = async (branchId: number, termId: number) => {
+  try {
+    const url = termId ? `report/class/arm/branch/${branchId}?page=0&size=15&termId=${termId}` : `report/class/arm/branch/${branchId}?page=0&size=15`;
+
+    const data = await api.get(url);
+    return data.data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
     throw error;
   }
 };

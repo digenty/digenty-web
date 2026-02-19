@@ -29,6 +29,7 @@ export const ScoreViewBySubject = ({
   const [tableData, setTableData] = useState<ScoreType[]>(scores ?? []);
   console.log(scores);
   const { mutate, isSuccess } = useAddScore();
+
   console.log("SubjectId:", subjectId);
   const handleSubmit = () => {
     const payload: SubmitScorePayload = {
