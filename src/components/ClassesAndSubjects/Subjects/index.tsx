@@ -23,7 +23,7 @@ export const Subjects = () => {
       ) : (
         <div className="flex flex-col gap-6">
           {subjectList.map((subject: { subjectName: string; subjectId: number; classArmReportDtos: [] }) => (
-            <Subject key={subject.subjectId} subjectName={subject.subjectName} classes={subject.classArmReportDtos} subjectId={subject.subjectId} />
+            <Subject key={subject.subjectId} subjectName={subject.subjectName} classes={subject?.classArmReportDtos} subjectId={subject.subjectId} />
           ))}
         </div>
       )}

@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { REPORT_STATUS_CONFIG } from "@/queries/subject";
 
 export type ClassItem = {
-  armId?: number;
+  armId: number;
   classArmName: string;
   reportStatus: "NOT_SUBMITTED" | "IN_PROGRESS" | "SUBMITTED" | "REQUEST_EDIT_ACCESS";
 };
@@ -42,7 +42,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
             const statusUpdate = REPORT_STATUS_CONFIG[cl.reportStatus];
 
             return (
-              <li key={cl.classArmName} className="border-border-default border-b">
+              <li key={cl.armId} className="border-border-default border-b">
                 <div className="flex flex-col gap-4 px-3 py-4 md:flex-row md:items-center md:justify-between md:gap-2 md:p-2 md:px-6 md:py-3">
                   <div className="flex flex-col gap-1 md:gap-2">
                     <p className="text-text-default text-md font-semibold">{cl.classArmName}</p>

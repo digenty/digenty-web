@@ -46,7 +46,7 @@ export default function Score() {
 
   return (
     <div className="flex w-full flex-col gap-5">
-      <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+      <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} subjectId={subjectId} />
       {isLoading || !subjectId || !armId ? (
         <div className="p-4">
           <Skeleton className="bg-bg-input-soft h-100 w-full" />
