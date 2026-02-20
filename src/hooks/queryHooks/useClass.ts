@@ -1,4 +1,4 @@
-import { getClasses, getClassTeachersInClass, getTeacherClass } from "@/api/class";
+import { getClasses, getClassTeachersInClass, getTeacherClass, getClassReport, getClassCumulativeReport } from "@/api/class";
 import { classKeys } from "@/queries/class";
 import { useQuery } from "@tanstack/react-query";
 
@@ -23,5 +23,21 @@ export const useGetClassTeachersInClass = (armId: number) => {
     queryKey: classKeys.class(armId),
     queryFn: () => getClassTeachersInClass(armId),
     retry: false,
+  });
+};
+
+export const useGetClassReport = (armId?: number, termId?: number) => {
+  return useQuery({
+    queryKey: classKeys.classReport(armId, termId),
+    queryFn: () => getClassReport(armId, termId),
+    enabled: !!armId,
+  });
+};
+
+export const useGetClassCumulativeReport = (armId?: number, filter?: string) => {
+  return useQuery({
+    queryKey: classKeys.classCumulativeReport(armId),
+    queryFn: () => getClassCumulativeReport(armId),
+    enabled: !!armId && filter === "promotion",
   });
 };

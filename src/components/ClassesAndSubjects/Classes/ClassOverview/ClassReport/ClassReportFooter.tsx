@@ -40,11 +40,11 @@ export const ClassReportFooter = ({
       <div className="border-border-default h-7 border-r" />
       {students.map(student => (
         <Button
-          onClick={() => setActiveFilter(student.id)}
+          onClick={() => setActiveFilter(String(student.id))}
           key={student.id}
           className={cn(
             "bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
-            activeFilter === student.id && "bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default",
+            activeFilter === String(student.id) && "bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default",
           )}
         >
           {student.name}

@@ -3,7 +3,7 @@ import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { StudentResult } from "@/components/StudentResult";
 import { Button } from "@/components/ui/button";
-import { SelectTrigger, Select, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
@@ -30,6 +30,7 @@ export default function StudentAcademicRecord({ studentId, armId }: { studentId:
       setActiveSession(terms.data.academicSessionName);
     }
   }, [setActiveSession, setTermSelected, terms]);
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">

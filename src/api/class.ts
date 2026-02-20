@@ -1,5 +1,4 @@
 import api from "@/lib/axios/axios-auth";
-import { useQuery } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 
 export const getClasses = async (branchId?: number) => {
@@ -39,9 +38,21 @@ export const getClassTeachersInClass = async (armId: number) => {
   }
 };
 
-export const getClassReport = async (armId: number, termId: number) => {
+export const getClassReport = async (armId?: number, termId?: number) => {
   try {
-    const { data } = await api.get(`/report/class/arm/${armId}?termId=${termId}&page=0&size=15`);
+    const { data } = await api.get(`/report/class/arm/${armId}?termId=${termId}&page=0&size=100`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
+    throw error;
+  }
+};
+
+export const getClassCumulativeReport = async (armId?: number) => {
+  try {
+    const { data } = await api.get(`/report/class/arm/${armId}/cumulative-report?page=0&size=100`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetClassTeachersInClass } from "@/hooks/queryHooks/useClass";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useClassesStore } from "@/store/classes";
-import { useParams, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ClassOverviewCard } from "./ClassOverviewCard";
 import { ClassOverviewHeader } from "./ClassOverviewHeader";
@@ -27,15 +27,15 @@ export const ClassOverview = () => {
   ]);
 
   const { openNotifyTeacher } = useClassesStore();
-  const params = useParams();
-  const classId = Number(params.classId);
+  const pathname = usePathname();
+  const armId = pathname.split("/")[4];
   const searchParams = useSearchParams();
-  const classArmName = searchParams.get("classArmName");
+  const classArmName = searchParams.get("classArmName")?.replace("-", " ");
 
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
 
-  const { data, isFetching, isError } = useGetClassTeachersInClass(classId);
+  const { data, isFetching, isError } = useGetClassTeachersInClass(Number(armId));
   const pageSize = data?.data?.pageable?.pageSize;
 
   const classTeachersData = data?.data?.data?.subjectReportResponseDtoList ?? [];
@@ -43,7 +43,7 @@ export const ClassOverview = () => {
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 md:py-4">
       {openNotifyTeacher && <NotifyTeacher />}
-      <ClassOverviewHeader />
+      <ClassOverviewHeader classArmName={classArmName} />
 
       <h3 className="text-text-default hidden text-lg font-semibold md:inline">{classArmName}</h3>
 

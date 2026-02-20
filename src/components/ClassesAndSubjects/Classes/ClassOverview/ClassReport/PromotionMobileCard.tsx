@@ -14,8 +14,8 @@ export const PromotionMobileCard = ({
   setActiveStudent,
 }: {
   student: StudentRow;
-  activeStudent?: string;
-  setActiveStudent: React.Dispatch<React.SetStateAction<string | undefined>>;
+  activeStudent?: number;
+  setActiveStudent: React.Dispatch<React.SetStateAction<number | undefined>>;
 }) => {
   const [actionSelected, setActionSelected] = useState(actions[0]);
 
@@ -44,10 +44,10 @@ export const PromotionMobileCard = ({
       <div
         className={`text-sm transition-all duration-200 ${activeStudent === student.id ? "border-border-default flex flex-col border-t" : "hidden"}`}
       >
-        {termsOptions.map(termOption => {
+        {termsOptions.map((termOption) => {
           const studentScore = student.terms.find(term => term.term === termOption);
           return (
-            <div key={studentScore?.term} className="border-border-default flex h-12 border-b text-center last:border-b-0">
+            <div key={`${student.id}-${termOption}`} className="border-border-default flex h-12 border-b text-center last:border-b-0">
               <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
                 {studentScore?.term} %
               </div>

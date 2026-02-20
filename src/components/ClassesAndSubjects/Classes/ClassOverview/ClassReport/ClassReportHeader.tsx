@@ -1,18 +1,19 @@
+import { Term } from "@/api/types";
+import Calendar from "@/components/Icons/Calendar";
 import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
 import Question from "@/components/Icons/Question";
 import ShareBox from "@/components/Icons/ShareBox";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StudentRow } from "./students";
 import { SubmitClassReportModal } from "./SubmitClassReportModal";
-// import RequestEdit from "../RequestEdit";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Calendar from "@/components/Icons/Calendar";
-
-const termsOptions = ["Third Term", "Second Term", "First Term"];
 
 export const ClassReportHeader = ({
   students,
@@ -20,50 +21,76 @@ export const ClassReportHeader = ({
   setActiveFilter,
   termSelected,
   setTermSelected,
+  activeSession,
+  setActiveSession,
+  classArmName,
 }: {
   students: StudentRow[];
   activeFilter: string;
   setActiveFilter: (filter: string) => void;
-  termSelected: string;
-  setTermSelected: (term: string) => void;
+  termSelected: Term | null;
+  setTermSelected: (term: Term) => void;
+  activeSession: string | null;
+  setActiveSession: React.Dispatch<React.SetStateAction<string | null>>;
+  classArmName: string;
 }) => {
   const isMobile = useIsMobile();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openRequest, setOpenRequest] = useState<boolean>(false);
 
   const searchParams = useSearchParams();
-  const subject = searchParams.get("subject");
   const isSubmitted = !!searchParams.get("submitted");
   const isRequested = !!searchParams.get("requested");
+
+  const user = useLoggedInUser();
+  const schoolId = user?.schoolId;
+
+  const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
+
+  useEffect(() => {
+    if (terms) {
+      const activeTerm = terms.data.terms.find((term: Term) => term.isActiveTerm);
+      setTermSelected(activeTerm);
+      setActiveSession(terms.data.academicSessionName);
+    }
+  }, [setActiveSession, setTermSelected, terms]);
 
   return (
     <>
       {openModal && <SubmitClassReportModal open={openModal} onOpenChange={setOpenModal} />}
-      {/* {openRequest && <RequestEdit open={openRequest} onOpenChange={setOpenRequest} />} */}
 
       <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
           <div className="flex items-center justify-between gap-4 md:justify-start">
-            <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">JSS 1 A</h2>
+            <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">{classArmName}</h2>
 
             {activeFilter !== "promotion" && (
-              <Select value={termSelected} onValueChange={setTermSelected}>
-                <SelectTrigger className="border-border-darker h-8! w-auto border">
-                  <SelectValue>
-                    <div className="flex items-center gap-2">
-                      <Calendar fill="var(--color-icon-black-muted )" className="size-4" />
-                      <span className="text-text-default text-sm font-semibold">{termSelected}</span>
-                    </div>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-card border-border-default">
-                  {termsOptions.map(term => (
-                    <SelectItem key={term} value={term} className="text-text-default text-sm font-semibold">
-                      {term}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <>
+                {isLoadingTerm || !terms ? (
+                  <Skeleton className="bg-bg-input-soft h-8 w-[200px]" />
+                ) : (
+                  <Select
+                    onValueChange={value => {
+                      const term = terms.data.terms?.find((term: Term) => term.termId === Number(value));
+                      setTermSelected(term);
+                    }}
+                  >
+                    <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
+                      <Calendar fill="var(--color-icon-default-muted )" className="size-4" />
+                      <span className="text-text-default text-sm font-medium capitalize">
+                        {activeSession} {termSelected?.term.toLowerCase()}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-bg-card border-border-default">
+                      {terms?.data?.terms?.map((term: Term) => (
+                        <SelectItem key={term.termId} value={String(term.termId)} className="text-text-default text-sm font-medium capitalize">
+                          {activeSession} {term.term.toLowerCase()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </>
             )}
           </div>
 
@@ -77,17 +104,14 @@ export const ClassReportHeader = ({
               </Button>
 
               {!isSubmitted && !isRequested && (
-                <div className="flex flex-1 items-center gap-2 md:flex-auto md:gap-1">
-                  {/* For Admin, Submit buttons would  Approve Result and Return Result  */}
-                  <Button
-                    onClick={() => setOpenModal(true)}
-                    size="sm"
-                    className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 w-full items-center gap-1 text-sm font-normal md:w-fit"
-                  >
-                    <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
-                    Submit
-                  </Button>
-                </div>
+                <Button
+                  onClick={() => setOpenModal(true)}
+                  size="sm"
+                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 w-full items-center gap-1 text-sm font-normal md:w-fit"
+                >
+                  <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
+                  Submit
+                </Button>
               )}
 
               {isSubmitted && !isRequested && (
@@ -111,7 +135,6 @@ export const ClassReportHeader = ({
             </div>
           </div>
 
-          {/* TODO: Separate this filter as a component and use same component  heere and in teh footer  */}
           {isMobile && (
             <div className="border-border-default flex gap-2 overflow-x-auto border-t px-4 py-2">
               <Button
@@ -135,11 +158,11 @@ export const ClassReportHeader = ({
 
               {students.map(student => (
                 <Button
-                  onClick={() => setActiveFilter(student.id)}
+                  onClick={() => setActiveFilter(student.id.toString())}
                   key={student.id}
                   className={cn(
                     "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
-                    activeFilter === student.id && "bg-bg-state-primary text-text-white-default",
+                    activeFilter === student.id.toString() && "bg-bg-state-primary text-text-white-default",
                   )}
                 >
                   {student.name}

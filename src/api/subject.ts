@@ -25,4 +25,3 @@ export const getSubjectStudents = async (subjectId: number, amrId: number) => {
     throw error;
   }
 };
-

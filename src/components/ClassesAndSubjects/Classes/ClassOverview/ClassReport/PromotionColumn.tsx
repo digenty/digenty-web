@@ -6,8 +6,9 @@ import { StudentRow } from "./students";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 
-const termsOptions = ["First Term", "Second Term", "Third Term"];
+const termsOptions = ["FIRST", "SECOND", "THIRD"];
 const actions = ["Promote", "Repeat", "Double Promotion"];
+
 const RenderAction = (row: Row<StudentRow>) => {
   const [actionSelected, setActionSelected] = useState(actions[0]);
 
@@ -34,32 +35,42 @@ const RenderAction = (row: Row<StudentRow>) => {
 };
 
 export const createPromotionColumns = (data: StudentRow[]): ColumnDef<StudentRow>[] => {
+  if (!data.length) return [];
   const firstStudent = data[0];
 
-  const termScores = termsOptions.map((term, index) => {
+  const termScores = termsOptions.flatMap((term, index) => {
     const activeTerm = firstStudent.terms.find(t => t.term === term);
-    const percentageScoreForTerm = activeTerm?.totalPercentage ?? 0;
 
-    return {
-      id: `subject-${index}`,
-      header: () => <span className="text-text-muted truncate text-sm font-medium">{activeTerm?.term} %</span>,
-      size: 136,
-      minSize: 136,
-      cell: () => {
-        return <span className="text-text-default text-sm">{percentageScoreForTerm}</span>;
+    if (!activeTerm) return [];
+
+    const percentageScoreForTerm = activeTerm.totalPercentage ?? 0;
+
+    return [
+      {
+        id: `subject-${index}`,
+        header: () => (
+          <span className="text-text-muted truncate text-sm font-medium">
+            {activeTerm?.term === "FIRST" ? "1st" : activeTerm?.term === "SECOND" ? "2nd" : "3rd"} Term %
+          </span>
+        ),
+        size: 136,
+        minSize: 136,
+        cell: () => {
+          return <span className="text-text-default text-sm">{percentageScoreForTerm}</span>;
+        },
       },
-    };
+    ];
   });
 
-  const cumulativeScore = {
+  const cumulativeScore: ColumnDef<StudentRow> = {
     id: "cumulative",
-    header: () => <span className="text-text-muted truncate text-sm font-medium">Cumulative</span>,
+    header: () => <span className="text-text-muted truncate text-sm font-medium">Cumulative %</span>,
     size: 136,
     minSize: 136,
     cell: ({ row }: { row: Row<StudentRow> }) => {
       const student = data[row.index];
       const terms = student.terms;
-      const cumulative = terms.reduce((acc, t) => acc + t.totalPercentage, 0) / terms.length;
+      const cumulative = terms.length > 0 ? terms.reduce((acc, t) => acc + t.totalPercentage, 0) / terms.length : 0;
       return <span className="text-text-default text-sm">{Math.floor(cumulative)}</span>;
     },
   };
