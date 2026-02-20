@@ -1,6 +1,6 @@
 export interface AttendanceDay {
   date: string;
-  present: boolean;
+  isPresent: boolean;
 }
 
 export interface AttendanceWeek {
@@ -9,231 +9,314 @@ export interface AttendanceWeek {
 }
 
 export interface StudentAttendance {
-  id: string;
-  name: string;
-  avatar: string;
-  weeks: AttendanceWeek[];
+  studentId: number;
+  studentName: string;
+  totalSchoolDays: number;
   totalPresent: number;
-  totalDays: number;
+  totalAbsent: number;
+  attendancePercentage: number;
+  weeks: AttendanceWeek[];
 }
 
-export const students: StudentAttendance[] = [
+export const students2: StudentAttendance[] = [
   {
-    id: "1",
-    name: "Ada Peters",
-    avatar: "/avatars/1.png",
+    studentId: 1,
+    studentName: "John Doe",
+    totalSchoolDays: 6,
+    totalPresent: 5,
+    totalAbsent: 1,
+    attendancePercentage: 83.3,
     weeks: [
       {
         week: "Week 1",
         days: [
-          { date: "2025-06-30", present: true },
-          { date: "2025-07-01", present: true },
-          { date: "2025-07-02", present: true },
-          { date: "2025-07-03", present: false },
-          { date: "2025-07-04", present: true },
+          { date: "2025-06-30", isPresent: true },
+          { date: "2025-07-01", isPresent: true },
+          { date: "2025-07-02", isPresent: true },
+          { date: "2025-07-03", isPresent: true },
+          { date: "2025-07-04", isPresent: true },
         ],
       },
       {
         week: "Week 2",
         days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-      {
-        week: "Week 3",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-      {
-        week: "Week 4",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-      {
-        week: "Week 5",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-      {
-        week: "Week 6",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-      {
-        week: "Week 7",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-      {
-        week: "Week 8",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-      {
-        week: "Week 9",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-      {
-        week: "Week 10",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-      {
-        week: "Week 11",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-      {
-        week: "Week 12",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
+          { date: "2025-07-07", isPresent: true },
+          { date: "2025-07-08", isPresent: false },
+          { date: "2025-07-09", isPresent: true },
+          { date: "2025-07-10", isPresent: true },
+          { date: "2025-07-11", isPresent: true },
         ],
       },
     ],
-    totalPresent: 9,
-    totalDays: 10,
-  },
-
-  {
-    id: "2",
-    name: "Tari Lawson",
-    avatar: "/avatars/2.png",
-    weeks: [
-      {
-        week: "Week 1",
-        days: [
-          { date: "2025-06-30", present: true },
-          { date: "2025-07-01", present: false },
-          { date: "2025-07-02", present: true },
-          { date: "2025-07-03", present: true },
-          { date: "2025-07-04", present: true },
-        ],
-      },
-      {
-        week: "Week 2",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: true },
-          { date: "2025-07-09", present: false },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-    ],
-    totalPresent: 8,
-    totalDays: 10,
-  },
-
-  {
-    id: "3",
-    name: "Boma Richards",
-    avatar: "/avatars/3.png",
-    weeks: [
-      {
-        week: "Week 1",
-        days: [
-          { date: "2025-06-30", present: true },
-          { date: "2025-07-01", present: true },
-          { date: "2025-07-02", present: true },
-          { date: "2025-07-03", present: true },
-          { date: "2025-07-04", present: true },
-        ],
-      },
-      {
-        week: "Week 2",
-        days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: false },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
-        ],
-      },
-    ],
-    totalPresent: 9,
-    totalDays: 10,
   },
   {
-    id: "4",
-    name: "Taiwo Richards",
-    avatar: "/avatars/3.png",
+    studentId: 2,
+    studentName: "Mary Johnson",
+    totalSchoolDays: 6,
+    totalPresent: 6,
+    totalAbsent: 0,
+    attendancePercentage: 100,
     weeks: [
       {
         week: "Week 1",
         days: [
-          { date: "2025-06-30", present: true },
-          { date: "2025-07-01", present: true },
-          { date: "2025-07-02", present: true },
-          { date: "2025-07-03", present: true },
-          { date: "2025-07-04", present: true },
+          { date: "2025-06-30", isPresent: true },
+          { date: "2025-07-01", isPresent: true },
+          { date: "2025-07-02", isPresent: true },
+          { date: "2025-07-03", isPresent: true },
+          { date: "2025-07-04", isPresent: true },
         ],
       },
       {
         week: "Week 2",
         days: [
-          { date: "2025-07-07", present: true },
-          { date: "2025-07-08", present: false },
-          { date: "2025-07-09", present: true },
-          { date: "2025-07-10", present: true },
-          { date: "2025-07-11", present: true },
+          { date: "2025-07-07", isPresent: true },
+          { date: "2025-07-08", isPresent: false },
+          { date: "2025-07-09", isPresent: true },
+          { date: "2025-07-10", isPresent: true },
+          { date: "2025-07-11", isPresent: true },
         ],
       },
     ],
-    totalPresent: 9,
-    totalDays: 10,
+  },
+  {
+    studentId: 3,
+    studentName: "David Williams",
+    totalSchoolDays: 6,
+    totalPresent: 4,
+    totalAbsent: 2,
+    attendancePercentage: 66.7,
+    weeks: [
+      {
+        week: "Week 1",
+        days: [
+          { date: "2025-06-30", isPresent: true },
+          { date: "2025-07-01", isPresent: true },
+          { date: "2025-07-02", isPresent: true },
+          { date: "2025-07-03", isPresent: true },
+          { date: "2025-07-04", isPresent: true },
+        ],
+      },
+      {
+        week: "Week 2",
+        days: [
+          { date: "2025-07-07", isPresent: true },
+          { date: "2025-07-08", isPresent: false },
+          { date: "2025-07-09", isPresent: true },
+          { date: "2025-07-10", isPresent: true },
+          { date: "2025-07-11", isPresent: true },
+        ],
+      },
+    ],
+  },
+  {
+    studentId: 4,
+    studentName: "Sophia Brown",
+    totalSchoolDays: 6,
+    totalPresent: 5,
+    totalAbsent: 1,
+    attendancePercentage: 83.3,
+    weeks: [
+      {
+        week: "Week 1",
+        days: [
+          { date: "2025-06-30", isPresent: true },
+          { date: "2025-07-01", isPresent: true },
+          { date: "2025-07-02", isPresent: true },
+          { date: "2025-07-03", isPresent: true },
+          { date: "2025-07-04", isPresent: true },
+        ],
+      },
+      {
+        week: "Week 2",
+        days: [
+          { date: "2025-07-07", isPresent: true },
+          { date: "2025-07-08", isPresent: false },
+          { date: "2025-07-09", isPresent: true },
+          { date: "2025-07-10", isPresent: true },
+          { date: "2025-07-11", isPresent: true },
+        ],
+      },
+    ],
+  },
+  {
+    studentId: 5,
+    studentName: "James Jones",
+    totalSchoolDays: 6,
+    totalPresent: 3,
+    totalAbsent: 3,
+    attendancePercentage: 50,
+    weeks: [
+      {
+        week: "Week 1",
+        days: [
+          { date: "2025-06-30", isPresent: true },
+          { date: "2025-07-01", isPresent: true },
+          { date: "2025-07-02", isPresent: true },
+          { date: "2025-07-03", isPresent: true },
+          { date: "2025-07-04", isPresent: true },
+        ],
+      },
+      {
+        week: "Week 2",
+        days: [
+          { date: "2025-07-07", isPresent: true },
+          { date: "2025-07-08", isPresent: false },
+          { date: "2025-07-09", isPresent: true },
+          { date: "2025-07-10", isPresent: true },
+          { date: "2025-07-11", isPresent: true },
+        ],
+      },
+    ],
+  },
+  {
+    studentId: 6,
+    studentName: "Olivia Garcia",
+    totalSchoolDays: 6,
+    totalPresent: 4,
+    totalAbsent: 2,
+    attendancePercentage: 66.7,
+    weeks: [
+      {
+        week: "Week 1",
+        days: [
+          { date: "2025-06-30", isPresent: true },
+          { date: "2025-07-01", isPresent: true },
+          { date: "2025-07-02", isPresent: true },
+          { date: "2025-07-03", isPresent: true },
+          { date: "2025-07-04", isPresent: true },
+        ],
+      },
+      {
+        week: "Week 2",
+        days: [
+          { date: "2025-07-07", isPresent: true },
+          { date: "2025-07-08", isPresent: false },
+          { date: "2025-07-09", isPresent: true },
+          { date: "2025-07-10", isPresent: true },
+          { date: "2025-07-11", isPresent: true },
+        ],
+      },
+    ],
+  },
+  {
+    studentId: 7,
+    studentName: "Liam Martinez",
+    totalSchoolDays: 6,
+    totalPresent: 5,
+    totalAbsent: 1,
+    attendancePercentage: 83.3,
+    weeks: [
+      {
+        week: "Week 1",
+        days: [
+          { date: "2025-06-30", isPresent: true },
+          { date: "2025-07-01", isPresent: true },
+          { date: "2025-07-02", isPresent: true },
+          { date: "2025-07-03", isPresent: true },
+          { date: "2025-07-04", isPresent: true },
+        ],
+      },
+      {
+        week: "Week 2",
+        days: [
+          { date: "2025-07-07", isPresent: true },
+          { date: "2025-07-08", isPresent: false },
+          { date: "2025-07-09", isPresent: true },
+          { date: "2025-07-10", isPresent: true },
+          { date: "2025-07-11", isPresent: true },
+        ],
+      },
+    ],
+  },
+  {
+    studentId: 8,
+    studentName: "Emma Rodriguez",
+    totalSchoolDays: 6,
+    totalPresent: 2,
+    totalAbsent: 4,
+    attendancePercentage: 33.3,
+    weeks: [
+      {
+        week: "Week 1",
+        days: [
+          { date: "2025-06-30", isPresent: true },
+          { date: "2025-07-01", isPresent: true },
+          { date: "2025-07-02", isPresent: true },
+          { date: "2025-07-03", isPresent: true },
+          { date: "2025-07-04", isPresent: true },
+        ],
+      },
+      {
+        week: "Week 2",
+        days: [
+          { date: "2025-07-07", isPresent: true },
+          { date: "2025-07-08", isPresent: false },
+          { date: "2025-07-09", isPresent: true },
+          { date: "2025-07-10", isPresent: true },
+          { date: "2025-07-11", isPresent: true },
+        ],
+      },
+    ],
+  },
+  {
+    studentId: 9,
+    studentName: "Noah Hernandez",
+    totalSchoolDays: 6,
+    totalPresent: 6,
+    totalAbsent: 0,
+    attendancePercentage: 100,
+    weeks: [
+      {
+        week: "Week 1",
+        days: [
+          { date: "2025-06-30", isPresent: true },
+          { date: "2025-07-01", isPresent: true },
+          { date: "2025-07-02", isPresent: true },
+          { date: "2025-07-03", isPresent: true },
+          { date: "2025-07-04", isPresent: true },
+        ],
+      },
+      {
+        week: "Week 2",
+        days: [
+          { date: "2025-07-07", isPresent: true },
+          { date: "2025-07-08", isPresent: false },
+          { date: "2025-07-09", isPresent: true },
+          { date: "2025-07-10", isPresent: true },
+          { date: "2025-07-11", isPresent: true },
+        ],
+      },
+    ],
+  },
+  {
+    studentId: 10,
+    studentName: "Ava Wilson",
+    totalSchoolDays: 6,
+    totalPresent: 4,
+    totalAbsent: 2,
+    attendancePercentage: 66.7,
+    weeks: [
+      {
+        week: "Week 1",
+        days: [
+          { date: "2025-06-30", isPresent: true },
+          { date: "2025-07-01", isPresent: true },
+          { date: "2025-07-02", isPresent: true },
+          { date: "2025-07-03", isPresent: true },
+          { date: "2025-07-04", isPresent: true },
+        ],
+      },
+      {
+        week: "Week 2",
+        days: [
+          { date: "2025-07-07", isPresent: true },
+          { date: "2025-07-08", isPresent: false },
+          { date: "2025-07-09", isPresent: true },
+          { date: "2025-07-10", isPresent: true },
+          { date: "2025-07-11", isPresent: true },
+        ],
+      },
+    ],
   },
 ];

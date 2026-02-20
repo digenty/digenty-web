@@ -58,6 +58,7 @@ interface User {
   id: string;
   branchId: number;
   schoolId: number;
+  permissions: string[];
 }
 
 export type JWTPayload = JwtPayload & User;

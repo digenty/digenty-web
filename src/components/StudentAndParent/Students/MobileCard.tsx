@@ -1,4 +1,6 @@
 import { Student } from "@/api/types";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { useStudentStore } from "@/store/student";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -48,36 +50,38 @@ export const MobileCard = ({ student }: { student: Student }) => {
                 <EyeIcon className="text-icon-default-muted size-4" />
                 <span>View Student Profile</span>
               </Button>
-              <Button
-                onClick={() => router.push(`/student-and-parent-record/students/${student.id}/edit`)}
-                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
-              >
-                <Edit fill="var(--color-icon-default-muted)" className="size-4" />
-                <span>Edit Student Profile</span>
-              </Button>
+              <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+                <Button
+                  onClick={() => router.push(`/student-and-parent-record/students/${student.id}/edit`)}
+                  className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+                >
+                  <Edit fill="var(--color-icon-default-muted)" className="size-4" />
+                  <span>Edit Student Profile</span>
+                </Button>
 
-              <Button
-                onClick={evt => {
-                  evt.stopPropagation();
-                  setOpenWithdraw(true);
-                  setStudentIdsToWithdraw([student.id]);
-                }}
-                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
-              >
-                <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />
-                <span>Withdraw Student</span>
-              </Button>
-              <Button
-                onClick={evt => {
-                  evt.stopPropagation();
-                  setOpenDelete(true);
-                  setStudentIdsToDelete([student.id]);
-                }}
-                className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
-              >
-                <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-                <span className="text-icon-destructive">Delete Student Profile</span>
-              </Button>
+                <Button
+                  onClick={evt => {
+                    evt.stopPropagation();
+                    setOpenWithdraw(true);
+                    setStudentIdsToWithdraw([student.id]);
+                  }}
+                  className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+                >
+                  <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />
+                  <span>Withdraw Student</span>
+                </Button>
+                <Button
+                  onClick={evt => {
+                    evt.stopPropagation();
+                    setOpenDelete(true);
+                    setStudentIdsToDelete([student.id]);
+                  }}
+                  className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
+                >
+                  <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+                  <span className="text-icon-destructive">Delete Student Profile</span>
+                </Button>
+              </PermissionCheck>
             </div>
           </MobileDrawer>
         )}

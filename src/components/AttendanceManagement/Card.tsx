@@ -1,34 +1,65 @@
 "use client";
+import { formatRelativeDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import Approve from "../Icons/Approve";
 import ArrowOpenRight from "../Icons/ArrowOpenRight";
 import NumStudentIcon from "../Icons/NumStudentIcon";
 import { TimeFill } from "../Icons/TimeFill";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { useCreateAttendanceSheet } from "@/hooks/queryHooks/useAttendance";
+import { toast } from "../Toast";
+import { Spinner } from "../ui/spinner";
 
 interface CardProps {
   classname: string;
   totalStudents: string;
   teacherName: string;
-  lastUpdate: "Today" | "Yesterday" | "None";
-  attendancePercentage: string;
+  lastUpdate: Date;
+  attendancePercentage: number;
   viewLabel?: string;
+  armId: number;
 }
 
-export function Card({ classname, totalStudents, teacherName, lastUpdate, attendancePercentage, viewLabel = "Open" }: CardProps) {
+export function Card({ classname, totalStudents, teacherName, lastUpdate, attendancePercentage, viewLabel = "Open", armId }: CardProps) {
   const router = useRouter();
+  const { mutate, isPending } = useCreateAttendanceSheet();
+
+  const createSheet = () => {
+    mutate(
+      {
+        armId,
+      },
+      {
+        onError: error => {
+          toast({
+            title: error.message ?? "Something went wrong",
+            description: "Could not create or update attendance sheet",
+            type: "error",
+          });
+        },
+        onSuccess: data => {
+          toast({
+            title: "Getting the sheet ready....",
+            type: "success",
+          });
+
+          router.push(`/attendance/${classname.split(" ").join("-")}/${armId}/attendance-sheet/${data.data.id}`);
+        },
+      },
+    );
+  };
+
   const updateStyles =
-    lastUpdate === "Today"
+    formatRelativeDate(lastUpdate) === "Today"
       ? "bg-bg-badge-green text-bg-basic-green-strong"
-      : lastUpdate === "Yesterday"
+      : formatRelativeDate(lastUpdate) === "Yesterday"
         ? "bg-bg-badge-orange text-bg-basic-orange-strong"
         : "bg-bg-badge-default text-text-muted";
 
   const updateIconColor =
-    lastUpdate === "Today"
+    formatRelativeDate(lastUpdate) === "Today"
       ? "var(--color-bg-basic-green-strong)"
-      : lastUpdate === "Yesterday"
+      : formatRelativeDate(lastUpdate) === "Yesterday"
         ? "var(--color-bg-basic-orange-strong)"
         : "var(--color-text-muted)";
 
@@ -40,26 +71,28 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
           <p className="text-text-muted pt-2 text-xs font-normal">{teacherName}</p>
         </div>
         <Badge className="border-border-default bg-bg-badge-default text-text-muted flex items-center gap-1 rounded-md text-xs font-normal">
-          <NumStudentIcon fill="var(--color-icon-default-muted)" /> {totalStudents}
+          <NumStudentIcon fill="var(--color-icon-default-muted)" /> {totalStudents} Student{totalStudents !== "1" && "s"}
         </Badge>
       </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <p className={`${updateStyles} border-border-default flex items-center gap-1 rounded-md border p-1 text-xs font-medium md:max-w-42`}>
-          <TimeFill fill={updateIconColor} /> {lastUpdate ? `Last Updated ${lastUpdate}` : "No Attendance Record"}
+      <div className="flex flex-col gap-4">
+        <p className={`${updateStyles} border-border-default flex w-fit items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium`}>
+          <TimeFill fill={updateIconColor} /> {lastUpdate ? `Last Updated ${formatRelativeDate(lastUpdate)}` : "No Attendance Record"}
         </p>
 
         {lastUpdate && (
-          <p className="border-border-default text-bg-basic-cyan-strong bg-bg-badge-cyan flex items-center gap-1 rounded-md border p-1 text-xs font-medium">
-            <Approve fill="var(--color-bg-basic-cyan-strong)" /> {attendancePercentage}
-          </p>
+          <div className="text-bg-basic-cyan-strong flex items-center gap-1 p-1 text-xs font-medium">
+            <div className="bg-bg-basic-cyan-accent flex size-2 items-center justify-center rounded-full p-1" /> {attendancePercentage.toFixed(0)}%
+            Attendance
+          </div>
         )}
       </div>
 
       <Button
-        onClick={() => router.push(`/attendance/${classname.replace(/\s+/g, "-").toLowerCase()}`)}
+        onClick={createSheet}
         className="border-border-darker bg-bg-state-secondary text-text-default flex h-7 items-center gap-2 rounded-md border p-2"
       >
+        {isPending && <Spinner />}
         <span className="text-sm font-medium">{viewLabel}</span>
         <ArrowOpenRight fill="var(--color-icon-default-muted)" className="size-3" />
       </Button>

@@ -105,3 +105,38 @@ export interface Parent {
   address: string;
   secondaryPhoneNumber: string;
 }
+
+export interface AttendanceCard {
+  armId: number;
+  classArm: string;
+  classTeacher: string;
+  numberOfStudentInArm: number;
+  attendancePercentage: number;
+  lastUpdated: Date;
+}
+export interface Attendance {
+  classArmAttendanceCardList: AttendanceCard[];
+  numberOfClassAttendanceTaken: number;
+  overallAttendancePercentage: number;
+  totalClasses: number;
+  totalStudents: number;
+}
+
+export interface Term {
+  termId: number;
+  term: string;
+  isActiveTerm: boolean;
+}
+
+export interface Terms {
+  academicSessionName: string;
+  isActiveSession: boolean;
+  terms: Term[];
+}
+
+export interface StudentAttendance {
+  studentId: number;
+  studentName: string;
+  avatar?: string;
+  isPresent: boolean;
+}
