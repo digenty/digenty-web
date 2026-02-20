@@ -105,3 +105,9 @@ export interface Parent {
   address: string;
   secondaryPhoneNumber: string;
 }
+
+export interface Terms {
+  termId: number;
+  term: string;
+  isActiveTerm: boolean;
+}

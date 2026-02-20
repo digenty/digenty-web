@@ -1,5 +1,4 @@
 import api from "@/lib/axios/axios-auth";
-import { useQuery } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 
 export const getClassesForASchool = async () => {
@@ -37,6 +36,18 @@ export const getClassTeachersInClass = async (classId: number) => {
       throw error.message;
     }
 
+    throw error;
+  }
+};
+
+export const getClassReport = async (armId: number, termId: number) => {
+  try {
+    const { data } = await api.get(`/report/class/arm/${armId}?termId=${termId}&page=0&size=15`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
     throw error;
   }
 };

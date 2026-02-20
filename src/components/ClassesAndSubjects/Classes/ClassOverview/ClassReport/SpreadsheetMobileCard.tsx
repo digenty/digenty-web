@@ -8,14 +8,14 @@ export const SpreadsheetMobileCard = ({
   student,
   activeStudent,
   setActiveStudent,
-  termSelected,
+  selectedTermId,
 }: {
   student: StudentRow;
   activeStudent?: string;
   setActiveStudent: React.Dispatch<React.SetStateAction<string | undefined>>;
-  termSelected: string;
+  selectedTermId: string;
 }) => {
-  const studentScore = student.terms.find(term => term.term === termSelected);
+  const studentScore = student.terms.find(term => term.term === selectedTermId);
   const toggleCard = () => {
     setActiveStudent(prev => (prev === student.id ? undefined : student.id));
   };

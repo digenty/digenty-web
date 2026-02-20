@@ -1,121 +1,183 @@
 "use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StudentResult } from "@/components/StudentResult";
+
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef, useState } from "react";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useGetAllTerms } from "@/hooks/queryHooks/useTerm";
+import { useGetClassReport } from "@/hooks/queryHooks/useClass";
+
+import { Terms } from "@/api/types";
+import { StudentRow } from "./students";
 import { ClassReportFooter } from "./ClassReportFooter";
 import { ClassReportHeader } from "./ClassReportHeader";
 import { createColumns } from "./SpreadsheetColumns";
-import { StudentRow, students } from "./students";
 import { createPromotionColumns } from "./PromotionColumn";
 import { SpreadsheetMobileCard } from "./SpreadsheetMobileCard";
 import { PromotionMobileCard } from "./PromotionMobileCard";
-import { StudentResult } from "@/components/StudentResult";
 
-const termsOptions = ["Third Term", "Second Term", "First Term"];
+const PAGE_SIZE = 15;
+const ARM_ID = 19;
 
 export const ClassReport = () => {
+  const user = useLoggedInUser();
+  const schoolId = user?.schoolId;
   const isMobile = useIsMobile();
   const footerRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<StudentRow[]>([]);
-  const [activeStudent, setActiveStudent] = useState<string>();
+  const [activeFilter, setActiveFilter] = useState("spreadsheet");
   const [collapsedStudentId, setCollapsedStudentId] = useState<string>();
-  const [termSelected, setTermSelected] = useState(termsOptions[0]);
+  const [selectedTermId, setSelectedTermId] = useState<number | undefined>();
 
-  const pageSize = 10;
+  useBreadcrumb([
+    { label: "Classes and Subjects", url: "/classes-and-subjects" },
+    { label: "Classes", url: "/classes-and-subjects" },
+    { label: "My Class", url: "/classes-and-subjects/classes/3" },
+    { label: "Class Report", url: "" },
+  ]);
 
-  const scrollRight = () => {
-    footerRef.current?.scrollBy?.({ left: 200, behavior: "smooth" });
+  const { data: terms, isFetching: isLoadingTerm } = useGetAllTerms(schoolId!);
+  const termList = terms?.terms;
+  const activeTerm = termList?.find((t: Terms) => t.isActiveTerm);
+
+  useEffect(() => {
+    if (activeTerm?.termId && !selectedTermId) {
+      setSelectedTermId(activeTerm.termId);
+    }
+  }, [activeTerm, selectedTermId]);
+
+  const { data: classReportData, isLoading: isLoadingReport } = useGetClassReport(ARM_ID, selectedTermId ?? activeTerm?.termId ?? 0);
+
+  const transformedStudents: StudentRow[] = useMemo(() => {
+    if (!classReportData?.classArmStudentReports) return [];
+
+    const selectedTerm = termList?.find(t => t.termId === selectedTermId);
+
+    return classReportData.classArmStudentReports.map((student, index) => ({
+      id: `${index + 1}`,
+      serial: index + 1,
+      name: student.studentName,
+      avatar: "/avatar.png",
+      terms: [
+        {
+          term: selectedTerm?.term ?? "First Term",
+          subjects: student.subjectScores.map(sub => ({
+            subjectId: sub.subjectName,
+            subjectName: sub.subjectName,
+            score: sub.score,
+          })),
+          totalPercentage: student.percentage,
+          position: student.position,
+        },
+      ],
+    }));
+  }, [classReportData, selectedTermId, termList]);
+
+  const selectedTermName = termList?.find(t => t.termId === selectedTermId)?.term ?? "First Term";
+
+  const handleTermChange = (termId: string) => {
+    setSelectedTermId(Number(termId));
   };
 
   const scrollLeft = () => {
     footerRef.current?.scrollBy?.({ left: -200, behavior: "smooth" });
   };
 
-  useBreadcrumb([
-    { label: "Classes and Subjects", url: "/classes-and-subjects" },
-    { label: "Classes", url: `/classes-and-subjects` },
-    { label: "My Class", url: "/classes-and-subjects/classes/3" },
-    { label: "Class Report", url: "" },
-  ]);
-  const [activeFilter, setActiveFilter] = useState("spreadsheet");
+  const scrollRight = () => {
+    footerRef.current?.scrollBy?.({ left: 200, behavior: "smooth" });
+  };
 
   return (
     <div className="relative">
       <ClassReportHeader
-        students={students}
+        students={transformedStudents}
         activeFilter={activeFilter}
         setActiveFilter={setActiveFilter}
-        termSelected={termSelected}
-        setTermSelected={setTermSelected}
+        termSelected={selectedTermId?.toString() ?? ""}
+        setTermSelected={handleTermChange}
+        terms={termList ?? []}
+        isLoadingTerm={isLoadingTerm}
       />
 
       <div className="px-4 md:px-8">
-        {activeFilter === "spreadsheet" ? (
+        {activeFilter === "spreadsheet" && (
           <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
-            <DataTable
-              columns={createColumns(students, termSelected)}
-              data={students}
-              totalCount={students.length}
-              page={page}
-              setCurrentPage={setPage}
-              pageSize={pageSize}
-              clickHandler={row => {
-                console.log(row);
-              }}
-              showPagination={false}
-              rowSelection={rowSelection}
-              setRowSelection={setRowSelection}
-              onSelectRows={setSelectedRows}
-              fullBorder
-              classNames={{
-                tableHeadCell: "text-center pr-2 w-34",
-                tableBodyCell: "text-center pr-2 w-34",
-                tableRow: "h-14",
-                table: "table-fixed",
-              }}
-            />
+            {!classReportData || isLoadingReport ? (
+              <Skeleton className="bg-bg-input-soft h-100 w-full" />
+            ) : (
+              <DataTable
+                columns={createColumns(transformedStudents, selectedTermName)}
+                data={transformedStudents}
+                totalCount={transformedStudents.length}
+                page={page}
+                setCurrentPage={setPage}
+                pageSize={PAGE_SIZE}
+                clickHandler={row => console.log(row)}
+                showPagination={false}
+                rowSelection={rowSelection}
+                setRowSelection={setRowSelection}
+                onSelectRows={setSelectedRows}
+                fullBorder
+                classNames={{
+                  tableHeadCell: "text-center pr-2 w-34",
+                  tableBodyCell: "text-center pr-2 w-34",
+                  tableRow: "h-14",
+                  table: "table-fixed",
+                }}
+              />
+            )}
           </div>
-        ) : activeFilter === "promotion" ? (
+        )}
+
+        {activeFilter === "promotion" && (
           <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
-            <DataTable
-              columns={createPromotionColumns(students)}
-              data={students}
-              totalCount={students.length}
-              page={page}
-              setCurrentPage={setPage}
-              pageSize={pageSize}
-              clickHandler={row => {
-                console.log(row);
-              }}
-              showPagination={false}
-              rowSelection={rowSelection}
-              setRowSelection={setRowSelection}
-              onSelectRows={setSelectedRows}
-              fullBorder
-              classNames={{
-                tableHeadCell: "text-center pr-2 w-34",
-                tableBodyCell: "text-center pr-2 w-34",
-                tableRow: "h-14",
-                table: "table-fixed",
-              }}
-            />
+            {!classReportData || isLoadingReport ? (
+              <Skeleton className="bg-bg-input-soft h-100 w-full" />
+            ) : (
+              <DataTable
+                columns={createPromotionColumns(transformedStudents)}
+                data={transformedStudents}
+                totalCount={transformedStudents.length}
+                page={page}
+                setCurrentPage={setPage}
+                pageSize={PAGE_SIZE}
+                clickHandler={row => console.log(row)}
+                showPagination={false}
+                rowSelection={rowSelection}
+                setRowSelection={setRowSelection}
+                onSelectRows={setSelectedRows}
+                fullBorder
+                classNames={{
+                  tableHeadCell: "text-center pr-2 w-34",
+                  tableBodyCell: "text-center pr-2 w-34",
+                  tableRow: "h-14",
+                  table: "table-fixed",
+                }}
+              />
+            )}
           </div>
-        ) : (
+        )}
+
+        {activeFilter !== "spreadsheet" && activeFilter !== "promotion" && (
           <div className="max-w-[678px] pt-6">
-            {/* TODO: Pass active student here */}
             <StudentResult />
           </div>
         )}
       </div>
 
-      {!isMobile && <ClassReportFooter students={students} activeFilter={activeFilter} setActiveFilter={setActiveFilter} footerRef={footerRef} />}
+      {!isMobile && (
+        <ClassReportFooter students={transformedStudents} activeFilter={activeFilter} setActiveFilter={setActiveFilter} footerRef={footerRef} />
+      )}
 
-      {/* Footer scroll buttons. Had to be kept outside cos of its fixed position also */}
       {!isMobile && (
         <div className="bg-bg-card fixed right-0 bottom-0 flex h-15 w-28 py-4">
           <div className="border-border-default mr-2 border-l" />
@@ -134,9 +196,8 @@ export const ClassReport = () => {
         </div>
       )}
 
-      {/* Mobile View */}
       <ul className="flex flex-col gap-3 px-4 py-6 pb-8 md:hidden">
-        {students.map(student => {
+        {transformedStudents.map(student => {
           if (activeFilter === "spreadsheet") {
             return (
               <SpreadsheetMobileCard
@@ -144,14 +205,16 @@ export const ClassReport = () => {
                 student={student}
                 activeStudent={collapsedStudentId}
                 setActiveStudent={setCollapsedStudentId}
-                termSelected={termSelected}
+                selectedTermId={selectedTermId}
               />
             );
-          } else if (activeFilter === "promotion") {
+          }
+          if (activeFilter === "promotion") {
             return (
               <PromotionMobileCard key={student.id} student={student} activeStudent={collapsedStudentId} setActiveStudent={setCollapsedStudentId} />
             );
           }
+          return null;
         })}
       </ul>
     </div>

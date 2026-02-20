@@ -1,18 +1,16 @@
 import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
 import Question from "@/components/Icons/Question";
 import ShareBox from "@/components/Icons/ShareBox";
+import Calendar from "@/components/Icons/Calendar";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { StudentRow } from "./students";
 import { SubmitClassReportModal } from "./SubmitClassReportModal";
-// import RequestEdit from "../RequestEdit";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Calendar from "@/components/Icons/Calendar";
-
-const termsOptions = ["Third Term", "Second Term", "First Term"];
+import { Terms } from "@/api/types";
 
 export const ClassReportHeader = ({
   students,
@@ -20,26 +18,30 @@ export const ClassReportHeader = ({
   setActiveFilter,
   termSelected,
   setTermSelected,
+  terms,
+  isLoadingTerm,
 }: {
   students: StudentRow[];
   activeFilter: string;
   setActiveFilter: (filter: string) => void;
   termSelected: string;
-  setTermSelected: (term: string) => void;
+  setTermSelected: (termId: string) => void;
+  terms: Terms[];
+  isLoadingTerm: boolean;
 }) => {
   const isMobile = useIsMobile();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openRequest, setOpenRequest] = useState<boolean>(false);
 
   const searchParams = useSearchParams();
-  const subject = searchParams.get("subject");
   const isSubmitted = !!searchParams.get("submitted");
   const isRequested = !!searchParams.get("requested");
+
+  const selectedTermName = terms.find(t => t.termId.toString() === termSelected)?.term ?? "Select Term";
 
   return (
     <>
       {openModal && <SubmitClassReportModal open={openModal} onOpenChange={setOpenModal} />}
-      {/* {openRequest && <RequestEdit open={openRequest} onOpenChange={setOpenRequest} />} */}
 
       <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
@@ -47,19 +49,19 @@ export const ClassReportHeader = ({
             <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">JSS 1 A</h2>
 
             {activeFilter !== "promotion" && (
-              <Select value={termSelected} onValueChange={setTermSelected}>
+              <Select value={termSelected} onValueChange={setTermSelected} disabled={isLoadingTerm}>
                 <SelectTrigger className="border-border-darker h-8! w-auto border">
                   <SelectValue>
                     <div className="flex items-center gap-2">
-                      <Calendar fill="var(--color-icon-black-muted )" className="size-4" />
-                      <span className="text-text-default text-sm font-semibold">{termSelected}</span>
+                      <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
+                      <span className="text-text-default text-sm font-semibold">{selectedTermName}</span>
                     </div>
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
-                  {termsOptions.map(term => (
-                    <SelectItem key={term} value={term} className="text-text-default text-sm font-semibold">
-                      {term}
+                  {terms.map(term => (
+                    <SelectItem key={term.termId} value={term.termId.toString()} className="text-text-default text-sm font-semibold">
+                      {term.term}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -77,17 +79,14 @@ export const ClassReportHeader = ({
               </Button>
 
               {!isSubmitted && !isRequested && (
-                <div className="flex flex-1 items-center gap-2 md:flex-auto md:gap-1">
-                  {/* For Admin, Submit buttons would  Approve Result and Return Result  */}
-                  <Button
-                    onClick={() => setOpenModal(true)}
-                    size="sm"
-                    className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 w-full items-center gap-1 text-sm font-normal md:w-fit"
-                  >
-                    <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
-                    Submit
-                  </Button>
-                </div>
+                <Button
+                  onClick={() => setOpenModal(true)}
+                  size="sm"
+                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 w-full items-center gap-1 text-sm font-normal md:w-fit"
+                >
+                  <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
+                  Submit
+                </Button>
               )}
 
               {isSubmitted && !isRequested && (
@@ -111,7 +110,6 @@ export const ClassReportHeader = ({
             </div>
           </div>
 
-          {/* TODO: Separate this filter as a component and use same component  heere and in teh footer  */}
           {isMobile && (
             <div className="border-border-default flex gap-2 overflow-x-auto border-t px-4 py-2">
               <Button
