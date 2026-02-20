@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { PlusIcon } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -39,6 +40,11 @@ export const General = () => {
   const [image, setImage] = useState<string | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const prevUrl = useRef<string | null>(null);
+
+  useBreadcrumb([
+    { label: "Settings", url: "/settings" },
+    { label: "General Settings", url: "/settings/general" },
+  ]);
 
   useEffect(() => {
     return () => {

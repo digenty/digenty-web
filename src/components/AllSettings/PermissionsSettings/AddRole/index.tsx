@@ -1,6 +1,6 @@
 "use client";
 
-import { Tabs } from "@/components/Tab";
+import { Tabs } from "@/components/Tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React from "react";

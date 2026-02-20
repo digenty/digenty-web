@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
@@ -115,7 +116,7 @@ export const EditStaff = () => {
                 className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! mt-2 flex w-fit items-center justify-start gap-2 rounded font-medium"
                 onClick={addRole}
               >
-                <AddFill fill="var(--color-icon-default-muted)" /> Add Role
+                <PlusIcon className="text-icon-white-default size-4" /> Add Role
               </Button>
             </div>
           </Accordion>

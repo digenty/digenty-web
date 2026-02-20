@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StaffList } from ".";
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
-import { Ellipsis } from "lucide-react";
+import { Ellipsis, PlusIcon } from "lucide-react";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import Eye from "@/components/Icons/Eye";
 import { StaffColumns } from "./StaffTableColumns";
@@ -97,7 +97,7 @@ export const Staffs = () => {
               onClick={() => router.push("/settings/permissions/add-staff")}
               className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
             >
-              <AddFill fill="var(--color-icon-white-default)" />
+              <PlusIcon className="text-icon-white-default size-4" />
               Add Staff
             </Button>
 

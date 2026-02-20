@@ -9,7 +9,7 @@ import School from "@/components/Icons/School";
 import { Substract } from "@/components/Icons/Substract";
 import { User3 } from "@/components/Icons/User3";
 import { RoundedCheckbox } from "@/components/RoundedCheckbox";
-import { Tabs } from "@/components/Tab";
+import { Tabs } from "@/components/Tabs";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

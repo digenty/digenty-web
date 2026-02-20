@@ -8,7 +8,7 @@ import IndeterminateCircleFill from "@/components/Icons/IndeterminateCircleFill"
 import { ReplyFill } from "@/components/Icons/ReplyFill";
 import { StockDetailsManagement } from "./StockDetailsManagement";
 import { StockHistories } from "./StockHistories";
-import { Tabs } from "@/components/Tab";
+import { Tabs } from "@/components/Tabs";
 import { Button } from "@/components/ui/button";
 import { StockQuantityManagementItems } from "./type";
 import { ArrowUpDown } from "@/components/Icons/ArrowUpDown";

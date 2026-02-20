@@ -1,7 +1,7 @@
 import React from "react";
 import { Paid } from "./Paid";
 import { UnPaid } from "./UnPaid";
-import { Tabs } from "@/components/Tab";
+import { Tabs } from "@/components/Tabs";
 import { PartiallyPaid } from "./PartiallyPaid";
 
 export const NewInvoiceStatus = () => {
