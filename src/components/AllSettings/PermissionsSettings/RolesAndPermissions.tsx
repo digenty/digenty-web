@@ -3,6 +3,7 @@ import DeleteBin from "@/components/Icons/DeleteBin";
 import Edit from "@/components/Icons/Edit";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
@@ -31,6 +32,7 @@ const roles = [
 
 export const RolesAndPermissions = () => {
   const router = useRouter();
+
   return (
     <div className="my-6 flex flex-col gap-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -40,7 +42,7 @@ export const RolesAndPermissions = () => {
           onClick={() => router.push("/settings/permissions/add-role")}
           className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8!"
         >
-          <AddFill fill="var(--color-icon-white-default)" />
+          <PlusIcon className="text-icon-white-default size-4" />
           Add Role{" "}
         </Button>
       </div>

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { SubscriptionColumns } from "./Columns";
 import { subscriptionTableData } from "./type";
-import { Tabs } from "@/components/Tab";
+import { Tabs } from "@/components/Tabs";
 import Information from "@/components/Icons/Information";
 import { useRouter } from "next/navigation";
 

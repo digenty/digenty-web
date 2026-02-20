@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { RolesAndPermissions } from "./RolesAndPermissions";
+import { PlusIcon } from "lucide-react";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 export const StaffList = [
   {
@@ -122,6 +124,13 @@ export const StaffList = [
 const tabs = ["Staff", "Roles & Permissions"];
 export const PermissonsSettings = () => {
   const [activeTab, setActiveTab] = useState("Staff");
+
+  useBreadcrumb([
+    { label: "Settings", url: "/settings" },
+    { label: "Permissions", url: "/settings/permissions" },
+    { label: activeTab, url: "" },
+  ]);
+
   return (
     <div>
       <div className="text-text-default px-4 py-4 text-xl font-semibold md:px-6">Permissions</div>
@@ -159,7 +168,7 @@ export const PermissonsSettings = () => {
                   <div className="text-text-muted text-xs">Invite staff members to assign roles and start managing your school.</div>
                   <Button className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7!">
                     {" "}
-                    <AddFill fill="var(--color-icon-white-default)" /> Add Staff
+                    <PlusIcon className="text-icon-white-default size-4" /> Add Staff
                   </Button>
                 </div>
               </div>
