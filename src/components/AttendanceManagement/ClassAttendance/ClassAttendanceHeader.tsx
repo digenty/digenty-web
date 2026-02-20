@@ -124,47 +124,49 @@ export const ClassAttendanceHeader = ({
         </div>
       </div>
 
-      <div className="scollbar-hide flex w-full gap-2 overflow-x-auto px-4 py-2 align-middle md:w-auto md:overflow-x-visible md:px-8 md:py-0">
-        <Button
-          onClick={() => router.push(`/attendance/${classArmName.split(" ").join("-")}/${armId}/term-sheet`)}
-          className="border-border-darker flex h-8! items-center gap-2 border"
-        >
-          <ListCheck fill="var(--color-icon-default-muted)" className="size-3" />
-          <span className="text-text-default text-sm font-medium">See Term Sheet</span>
-        </Button>
+      <div className="hide-scrollbar w-screen overflow-x-auto px-4 py-2 md:w-auto md:overflow-x-visible md:px-8 md:py-0">
+        <div className="flex w-max items-center gap-2 md:w-auto">
+          <Button
+            onClick={() => router.push(`/attendance/${classArmName.split(" ").join("-")}/${armId}/term-sheet`)}
+            className="border-border-darker flex h-8! items-center gap-2 border"
+          >
+            <ListCheck fill="var(--color-icon-default-muted)" className="size-3" />
+            <span className="text-text-default text-sm font-medium">See Term Sheet</span>
+          </Button>
 
-        <Select open={open} onOpenChange={setOpen} defaultValue="Today">
-          <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
-            <SelectValue>
-              <div className="flex items-center gap-2">
-                <Calendar fill="var(--color-icon-default-muted )" className="size-4" />
-                <span className="text-text-default text-sm font-medium"> {date ? format(date, "PP") : "Today"}</span>
-              </div>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent className="bg-bg-card border-border-default">
-            <AttendanceCalendar
-              className="text-text-default"
-              mode="single"
-              selected={date}
-              onSelect={date => {
-                setDate(date as Date);
-                setOpen(false);
-              }}
-            />
-          </SelectContent>
-        </Select>
+          <Select open={open} onOpenChange={setOpen} defaultValue="Today">
+            <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
+              <SelectValue>
+                <div className="flex items-center gap-2">
+                  <Calendar fill="var(--color-icon-default-muted )" className="size-4" />
+                  <span className="text-text-default text-sm font-medium"> {date ? format(date, "PP") : "Today"}</span>
+                </div>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-bg-card border-border-default">
+              <AttendanceCalendar
+                className="text-text-default"
+                mode="single"
+                selected={date}
+                onSelect={date => {
+                  setDate(date as Date);
+                  setOpen(false);
+                }}
+              />
+            </SelectContent>
+          </Select>
 
-        <Button
-          onClick={handleSaveAttendance}
-          className="bg-bg-state-primary text-text-white-default! hover:bg-bg-state-primary-hover! flex h-8! items-center gap-2"
-        >
-          {saving && <Spinner className="text-text-white-default" />}
-          <span className="text-sm font-medium">Save</span>
-        </Button>
+          <Button
+            onClick={handleSaveAttendance}
+            className="bg-bg-state-primary text-text-white-default! hover:bg-bg-state-primary-hover! flex h-8! items-center gap-2"
+          >
+            {saving && <Spinner className="text-text-white-default" />}
+            <span className="text-sm font-medium">Save</span>
+          </Button>
+        </div>
       </div>
 
-      <div className="border-border-default scollbar-hide flex w-full gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
+      <div className="border-border-default hide-scrollbar flex w-screen gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
         <Button disabled={markingAll} onClick={() => handleMarkAllAttendance(true)} className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
           {markingAll && isAllPresent ? <Spinner /> : <CheckIcon className="text-icon-default-muted size-4" />}
           <span className="text-text-subtle text-sm font-medium">Mark All Present</span>

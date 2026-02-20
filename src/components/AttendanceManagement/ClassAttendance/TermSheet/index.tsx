@@ -50,7 +50,7 @@ export const TermSheet = () => {
           />
         </div>
       )}
-      {isPending && <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />}
+      {isPending && <Skeleton className="bg-bg-input-soft mx-4 md:mx-8 mt-8 hidden h-100 w-full md:block" />}
 
       {!isPending && !isError && data.data.length === 0 && (
         <div className="flex h-80 items-center justify-center">
@@ -74,7 +74,8 @@ export const TermSheet = () => {
             setActiveSession={setActveSesion}
             setTermSelected={setTermSelected}
           />
-          <div className="hidden px-4 md:block md:px-8">
+
+          <div className="hidden px-4 md:px-8 md:block">
             <DataTable
               columns={generateColumns({ weeks: data.data[0].weeks, totalStudents: data.data.length })}
               data={data.data}
@@ -90,7 +91,7 @@ export const TermSheet = () => {
             />
           </div>
 
-          <div className="block space-y-3 px-4 md:hidden">
+          <div className="block px-4 space-y-3 md:hidden">
             {data.data.map((student: StudentAttendance) => {
               const days = student.weeks.find(wk => wk.week === activeWeek)?.days;
               return (
