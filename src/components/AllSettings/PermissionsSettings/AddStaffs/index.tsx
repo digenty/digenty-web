@@ -7,17 +7,20 @@ import Mail from "@/components/Icons/Mail";
 import School from "@/components/Icons/School";
 import { SchoolFill } from "@/components/Icons/SchoolFill";
 import { StaffInputValues } from "@/components/StudentAndParent/types";
+import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetRoles } from "@/hooks/queryHooks/useRole";
+import { useAddStaff } from "@/hooks/queryHooks/useStaff";
 import { cn } from "@/lib/utils";
 import { staffSchema } from "@/schema/staff";
 import { useFormik } from "formik";
-import { EyeIcon, EyeOffIcon, PlusIcon, Trash2 } from "lucide-react";
+import { EyeIcon, EyeOffIcon, MailIcon, PlusIcon, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -25,10 +28,10 @@ export const AddStaff = () => {
   const router = useRouter();
   const [assignments, setAssignments] = useState<{ branchId: number | null; roleIds: Role[] }[]>([{ branchId: null, roleIds: [] }]);
   const [showPassword, setShowPassword] = useState(false);
-  console.log(assignments, "###");
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: roles, isPending: loadingRoles } = useGetRoles();
+  const { mutate, isPending } = useAddStaff();
 
   useEffect(() => {
     if (roles && assignments[0].roleIds.length === 0) {
@@ -90,8 +93,34 @@ export const AddStaff = () => {
       password: "",
     },
     validationSchema: staffSchema,
-    onSubmit: values => {
-      console.log(values);
+    onSubmit: async values => {
+      const branchAssignmentDtos = assignments
+        .filter(a => a.branchId !== null)
+        .map(a => ({
+          branchId: a.branchId as number,
+          roleIds: a.roleIds.map(r => r.id),
+        }));
+
+      await mutate(
+        { ...values, branchAssignmentDtos },
+        {
+          onSuccess: data => {
+            toast({
+              title: "Successfully created staff. An email has been sent to the staff",
+              description: data.message,
+              type: "success",
+            });
+            router.back();
+          },
+          onError: error => {
+            toast({
+              title: error.message ?? "Something went wrong",
+              description: "Could not create staff",
+              type: "error",
+            });
+          },
+        },
+      );
     },
   });
 
@@ -150,7 +179,7 @@ export const AddStaff = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-text-default text-sm font-medium">
-                Email Address
+                Email Address<small className="text-text-destructive text-xs">*</small>
               </Label>
               <Input
                 id="email"
@@ -190,7 +219,7 @@ export const AddStaff = () => {
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-text-default text-sm font-medium">
-                Password
+                Password<small className="text-text-destructive text-xs">*</small>
               </Label>
 
               <div
@@ -246,10 +275,9 @@ export const AddStaff = () => {
                           Branch <small className="text-text-destructive text-xs">*</small>
                         </Label>
                         <Select
-                          value={String(assignment.branchId)}
+                          value={assignment.branchId ? String(assignment.branchId) : ""}
                           onValueChange={value => {
-                            const branch: Branch = branches?.data.content.find((branch: Branch) => branch.uuid === value);
-                            updateBranch(assignmentIndex, branch.id);
+                            updateBranch(assignmentIndex, Number(value));
                           }}
                         >
                           <SelectTrigger className="text-text-default bg-bg-input-soft! h-8! w-full border-none text-sm font-normal">
@@ -258,7 +286,7 @@ export const AddStaff = () => {
                           </SelectTrigger>
                           <SelectContent className="bg-bg-card border-none">
                             {branches?.data.content.map((branch: Branch) => (
-                              <SelectItem key={branch.id} className="text-text-default" value={branch.uuid}>
+                              <SelectItem key={branch.id} className="text-text-default" value={String(branch.id)}>
                                 {branch.name}
                               </SelectItem>
                             ))}
@@ -314,7 +342,6 @@ export const AddStaff = () => {
                       }}
                     >
                       <Trash2 className="text-icon-default-muted size-4" />
-                      {/* <XIcon className="text-icon-default-muted size-4" /> */}
                     </Button>
                   )}
                 </div>
@@ -339,10 +366,12 @@ export const AddStaff = () => {
           <div className="border-border-default border-t p-3">
             <div className="mx-auto flex h-15! w-full items-center justify-center md:max-w-225">
               <div className="flex w-full items-center justify-between">
-                <Button className="bg-bg-state-soft text-text-subtle">Cancel</Button>
-                <Button className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default">
-                  {" "}
-                  <Mail fill="var(--color-icon-white-default)" /> Send Invite
+                <Button className="bg-bg-state-soft h-7  text-text-subtle">Cancel</Button>
+                <Button
+                  onClick={() => formik.handleSubmit()}
+                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-7 text-text-white-default"
+                >
+                  {isPending ? <Spinner className="text-text-white-default" /> : <MailIcon className="text-icon-white-default" />} Send Invite
                 </Button>
               </div>
             </div>

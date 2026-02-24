@@ -142,6 +142,7 @@ export interface StudentAttendance {
 }
 
 export interface Role {
+  id: number;
   roleName: string;
   totalUsers: number;
 }
