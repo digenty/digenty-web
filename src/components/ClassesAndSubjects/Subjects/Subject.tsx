@@ -10,18 +10,7 @@ import RequestEdit from "./RequestEdit";
 import RequestLoader from "@/components/Icons/RequestLoader";
 import { useRouter } from "next/navigation";
 import { REPORT_STATUS_CONFIG } from "@/queries/subject";
-
-export type ClassItem = {
-  armId?: number;
-  classArmName: string;
-  reportStatus: "NOT_SUBMITTED" | "IN_PROGRESS" | "SUBMITTED" | "REQUEST_EDIT_ACCESS";
-};
-
-export type SubjectProps = {
-  subjectName?: string;
-  classes: ClassItem[];
-  subjectId?: number;
-};
+import { SubjectProps } from "./types";
 
 export default function Subject({ subjectName, classes, subjectId }: SubjectProps) {
   const [openRequest, setOpenRequest] = useState<boolean>(false);

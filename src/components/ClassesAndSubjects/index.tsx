@@ -21,9 +21,10 @@ const ClassesAndSubjects = () => {
   const params = useSearchParams();
   const activeTab = params.get("tab") ?? "classes";
 
-  const { data: subjectList = [], isLoading: isLoadingSubjects } = useGetTeacherSubjects();
-  const { data: classes = [], isLoading: isLoadingClasses } = useGetTeacherClasses();
-
+  const { data: subjectListResponse, isLoading: isLoadingSubjects } = useGetTeacherSubjects();
+  const { data: classesResponse, isLoading: isLoadingClasses } = useGetTeacherClasses();
+  const subjectList = subjectListResponse?.data;
+  const classes = classesResponse?.data?.data ?? [];
   const isLoading = isLoadingClasses || isLoadingSubjects;
   const hasClasses = classes.length > 0;
   const hasSubjects = subjectList.length > 0;
@@ -66,18 +67,22 @@ const ClassesAndSubjects = () => {
                   );
                 })}
               </div>
-              {activeTab === "classes" ? <MyClasses /> : <Subjects />}
+              {activeTab === "classes" ? (
+                <MyClasses classes={classes} isLoading={isLoadingClasses} />
+              ) : (
+                <Subjects subjectList={subjectList} isLoading={isLoadingSubjects} />
+              )}
             </>
           )}
 
           {/* Case 2: Subject teacher only */}
-          {!hasClasses && hasSubjects && <Subjects />}
+          {!hasClasses && hasSubjects && <Subjects subjectList={subjectList} isLoading={isLoadingSubjects} />}
 
           {/* Case 3: Class teacher only */}
           {hasClasses && !hasSubjects && (
             <div className="flex flex-col gap-4 pb-10">
               <h2 className="text-text-default hidden text-lg font-semibold md:inline md:text-xl">My Classes</h2>
-              <MyClasses />
+              <MyClasses classes={classes} isLoading={isLoadingClasses} />
             </div>
           )}
 

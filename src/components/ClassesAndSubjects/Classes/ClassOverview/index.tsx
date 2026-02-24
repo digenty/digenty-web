@@ -9,7 +9,8 @@ import { columns } from "./Columns";
 import { NotifyTeacher } from "./NotifyTeacher";
 import { useGetClassTeachersInClass } from "@/hooks/queryHooks/useClass";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
+import { PageEmptyState } from "@/components/Error/PageEmptyState";
 
 export interface Subject {
   id: number;
@@ -25,13 +26,16 @@ export const ClassOverview = () => {
     { label: "My Class", url: "" },
   ]);
   const { openNotifyTeacher } = useClassesStore();
+  const params = useParams();
+  const classId = Number(params.classId);
   const searchParams = useSearchParams();
   const classArmName = searchParams.get("classArmName");
   const pageSize = 10;
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   console.log(setRowSelection);
-  const { data: classTeachersData, isLoading } = useGetClassTeachersInClass(1);
+  const { data, isLoading: loading } = useGetClassTeachersInClass(classId);
+  const classTeachersData = data?.data?.data?.content ?? [];
 
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 md:py-4">
@@ -40,38 +44,39 @@ export const ClassOverview = () => {
 
       <h3 className="text-text-default hidden text-lg font-semibold md:inline">{classArmName}</h3>
 
-      <div className="hidden pt-5 md:block">
-        {isLoading ? (
-          <Skeleton className="h-52 w-full" />
+      <div className="">
+        {loading ? (
+          <Skeleton className="h-100 w-full" />
+        ) : !classTeachersData.length ? (
+          <PageEmptyState title="No Data" description="No teacher has submitted any report yet" buttonText="Go back" />
         ) : (
-          <DataTable
-            columns={columns}
-            data={classTeachersData?.content}
-            totalCount={classTeachersData?.length}
-            page={page}
-            setCurrentPage={setPage}
-            pageSize={pageSize}
-            clickHandler={row => {
-              console.log(row);
-              //   router.push(`/student-and-parent-record/${row.original.id}`);
-            }}
-            rowSelection={rowSelection}
-            setRowSelection={() => {}}
-            onSelectRows={() => {}}
-            showPagination={false}
-          />
+          <>
+            <div className="hidden pt-5 md:block">
+              <DataTable
+                columns={columns}
+                data={classTeachersData}
+                totalCount={classTeachersData?.length}
+                page={page}
+                setCurrentPage={setPage}
+                pageSize={pageSize}
+                clickHandler={row => {
+                  console.log(row);
+                  //   router.push(`/student-and-parent-record/${row.original.id}`);
+                }}
+                rowSelection={rowSelection}
+                setRowSelection={() => {}}
+                onSelectRows={() => {}}
+                showPagination={false}
+              />
+            </div>
+            <div className="flex flex-col gap-4 md:hidden">
+              {classTeachersData?.map((subject: Subject) => (
+                <ClassOverviewCard key={subject.id} subject={subject} />
+              ))}
+            </div>
+          </>
         )}
       </div>
-
-      {isLoading || classTeachersData === 0 ? (
-        <Skeleton className="h-52 w-full rounded-md" />
-      ) : (
-        <div className="flex flex-col gap-4 md:hidden">
-          {classTeachersData?.content.map((subject: Subject) => (
-            <ClassOverviewCard key={subject.id} subject={subject} />
-          ))}
-        </div>
-      )}
     </div>
   );
 };
