@@ -5,7 +5,7 @@ export const getTeacherSubjects = async () => {
   try {
     const data = await api.get("/teacher/subject/my");
 
-    return data.data;
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;
