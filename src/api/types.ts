@@ -279,3 +279,8 @@ export interface Level {
   branchName: string;
   classLevels: ClassLevel[];
 }
+
+export interface Role {
+  roleName: string;
+  totalUsers: number;
+}
