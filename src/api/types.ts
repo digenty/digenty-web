@@ -140,3 +140,8 @@ export interface StudentAttendance {
   avatar?: string;
   isPresent: boolean;
 }
+
+export interface Role {
+  roleName: string;
+  totalUsers: number;
+}

@@ -135,3 +135,11 @@ export enum StudentsStatus {
   Withdrawn = "WITHDRAWN",
   Total = "TOTAL",
 }
+
+export interface StaffInputValues {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+}
