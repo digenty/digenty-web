@@ -145,3 +145,8 @@ export interface Role {
   roleName: string;
   totalUsers: number;
 }
+
+export interface BranchDto {
+  branchId: number;
+  roleIds: number[];
+}
