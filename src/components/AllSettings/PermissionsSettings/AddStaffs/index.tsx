@@ -17,20 +17,22 @@ import { useGetRoles } from "@/hooks/queryHooks/useRole";
 import { cn } from "@/lib/utils";
 import { staffSchema } from "@/schema/staff";
 import { useFormik } from "formik";
-import { EyeIcon, EyeOffIcon, PlusIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, PlusIcon, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export const AddStaff = () => {
-  const [branchSelected, setBranchSelected] = useState();
-  const [assignedRoles, setAssignedRoles] = useState<Role[]>([]);
+  const router = useRouter();
+  const [assignments, setAssignments] = useState<{ branchId: number | null; roleIds: Role[] }[]>([{ branchId: null, roleIds: [] }]);
   const [showPassword, setShowPassword] = useState(false);
+  console.log(assignments, "###");
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: roles, isPending: loadingRoles } = useGetRoles();
 
   useEffect(() => {
-    if (roles) {
-      setAssignedRoles([roles.data[0]]);
+    if (roles && assignments[0].roleIds.length === 0) {
+      setAssignments([{ branchId: null, roleIds: [roles.data[0]] }]);
     }
   }, [roles]);
 
@@ -38,18 +40,45 @@ export const AddStaff = () => {
     setShowPassword(prev => !prev);
   };
 
-  const addRole = () => {
-    setAssignedRoles(prev => [...prev, roles.data[0]]);
+  const addAssignment = () => {
+    setAssignments(prev => [...prev, { branchId: null, roleIds: roles ? [roles.data[0]] : [] }]);
   };
 
-  const removeRole = (index: number) => {
-    setAssignedRoles(prev => prev.filter((_, i) => i !== index));
+  const removeAssignment = (index: number) => {
+    setAssignments(prev => prev.filter((_, i) => i !== index));
   };
 
-  const updateRole = (index: number, value: string) => {
-    const role = roles?.data.find((role: Role) => role.roleName === value);
+  const addRole = (assignmentIndex: number) => {
+    setAssignments(prev =>
+      prev.map((assignment, i) => (i === assignmentIndex ? { ...assignment, roleIds: [...assignment.roleIds, roles.data[0]] } : assignment)),
+    );
+  };
+
+  const removeRole = (assignmentIndex: number, roleIndex: number) => {
+    setAssignments(prev =>
+      prev.map((assignment, i) =>
+        i === assignmentIndex ? { ...assignment, roleIds: assignment.roleIds.filter((_, j) => j !== roleIndex) } : assignment,
+      ),
+    );
+  };
+
+  const updateBranch = (assignmentIndex: number, id: number) => {
+    setAssignments(prev => prev.map((assignment, i) => (i === assignmentIndex ? { ...assignment, branchId: id } : assignment)));
+  };
+
+  const updateRole = (assignmentIndex: number, roleIndex: number, roleName: string) => {
+    const role = roles?.data.find((r: Role) => r.roleName === roleName);
     if (!role) return;
-    setAssignedRoles(prev => prev.map((rol: Role, i: number) => (i === index ? role : rol)));
+    setAssignments(prev =>
+      prev.map((assignment, i) =>
+        i === assignmentIndex
+          ? {
+              ...assignment,
+              roleIds: assignment.roleIds.map((r, j) => (j === roleIndex ? role : r)),
+            }
+          : assignment,
+      ),
+    );
   };
 
   const formik = useFormik<StaffInputValues>({
@@ -61,10 +90,10 @@ export const AddStaff = () => {
       password: "",
     },
     validationSchema: staffSchema,
-    onSubmit: values => {},
+    onSubmit: values => {
+      console.log(values);
+    },
   });
-
-  console.log(branchSelected, roles);
 
   return (
     <div className="flex flex-col gap-6">
@@ -194,86 +223,114 @@ export const AddStaff = () => {
           <div className="border-border-default border-b" />
 
           <h3 className="text-text-default text-lg font-semibold">Branch Assignment</h3>
-          <Accordion
-            defaultOpen={true}
-            className="border-border-default rounded-md border"
-            title={
-              <div className="flex items-center gap-2">
-                <SchoolFill fill="var(--color-icon-default-muted)" /> Branch Assignment 1
-              </div>
-            }
-          >
-            <div className="flex flex-col gap-4 px-2 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="branch" className="text-text-default mb-2 text-sm font-medium">
-                  Branch <small className="text-text-destructive text-xs">*</small>
-                </Label>
-                {!branches || loadingBranches ? (
-                  <Skeleton className="bg-bg-input-soft h-9 w-full" />
-                ) : (
-                  <Select
-                    onValueChange={value => {
-                      const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
-                      setBranchSelected(branch);
-                    }}
-                  >
-                    <SelectTrigger className="text-text-default bg-bg-input-soft! h-8! w-full border-none text-sm font-normal">
-                      <SelectValue placeholder="Branch" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-bg-card border-none">
-                      {branches.data.content.map((branch: Branch) => (
-                        <SelectItem key={branch.id} className="text-text-default" value={branch.uuid}>
-                          {branch.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                {assignedRoles.map((roleValue, index) => (
-                  <div key={index} className="flex flex-col gap-2">
-                    <Select value={roleValue.roleName} onValueChange={value => updateRole(index, value)}>
-                      <div className="flex items-center justify-between">
-                        <Label className="text-text-default text-sm font-medium">Select Role</Label>{" "}
-                        {assignedRoles.length > 1 && (
-                          <Button className="hover:bg-bg-none! bg-none!" onClick={() => removeRole(index)}>
-                            <DeleteBin fill="var(--color-icon-default-muted)" />
-                          </Button>
-                        )}
+          {loadingBranches ? (
+            <Skeleton className="bg-bg-input-soft h-80 w-full" />
+          ) : (
+            <div className="space-y-6">
+              {assignments.map((assignment, assignmentIndex) => (
+                <div key={assignmentIndex} className="flex items-center gap-2">
+                  <Accordion
+                    defaultOpen={assignmentIndex === 0}
+                    className="border-border-default flex-1 rounded-md border"
+                    title={
+                      <div className="flex w-full items-center justify-between pr-4">
+                        <div className="flex items-center gap-2">
+                          <SchoolFill fill="var(--color-icon-default-muted)" /> Branch Assignment {assignmentIndex + 1}
+                        </div>
                       </div>
-                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-8 w-full border-none text-sm">
-                        <SelectValue placeholder="Select Role">{roleValue.roleName}</SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-card border-border-default">
-                        {roles?.data.map((role: Role) => (
-                          <SelectItem key={role.roleName} value={role.roleName} className="text-text-default text-sm font-semibold">
-                            {role.roleName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ))}
-              </div>
+                    }
+                  >
+                    <div className="flex flex-col gap-4 px-2 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor={`branch-${assignmentIndex}`} className="text-text-default mb-2 text-sm font-medium">
+                          Branch <small className="text-text-destructive text-xs">*</small>
+                        </Label>
+                        <Select
+                          value={String(assignment.branchId)}
+                          onValueChange={value => {
+                            const branch: Branch = branches?.data.content.find((branch: Branch) => branch.uuid === value);
+                            updateBranch(assignmentIndex, branch.id);
+                          }}
+                        >
+                          <SelectTrigger className="text-text-default bg-bg-input-soft! h-8! w-full border-none text-sm font-normal">
+                            <SelectValue placeholder="Branch" />
+                            {/* <span>{assignment.branchId}</span> */}
+                          </SelectTrigger>
+                          <SelectContent className="bg-bg-card border-none">
+                            {branches?.data.content.map((branch: Branch) => (
+                              <SelectItem key={branch.id} className="text-text-default" value={branch.uuid}>
+                                {branch.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-              <Button
-                className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! mt-2 flex h-7! w-fit items-center justify-start gap-2 rounded font-medium"
-                onClick={addRole}
-              >
-                <PlusIcon className="text-icon-default-muted" />
-                Add Role
-              </Button>
+                      <div className="space-y-3">
+                        {assignment.roleIds.map((roleValue, roleIndex) => (
+                          <div key={roleIndex} className="flex flex-col gap-2">
+                            <Select value={roleValue.roleName} onValueChange={value => updateRole(assignmentIndex, roleIndex, value)}>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-text-default text-sm font-medium">Select Role</Label>{" "}
+                                {assignment.roleIds.length > 1 && (
+                                  <Button className="hover:bg-bg-none! bg-none!" onClick={() => removeRole(assignmentIndex, roleIndex)}>
+                                    <DeleteBin fill="var(--color-icon-default-muted)" />
+                                  </Button>
+                                )}
+                              </div>
+                              <SelectTrigger className="bg-bg-input-soft! text-text-default h-8 w-full border-none text-sm">
+                                <SelectValue placeholder="Select Role">{roleValue.roleName}</SelectValue>
+                              </SelectTrigger>
+                              <SelectContent className="bg-bg-card border-border-default">
+                                {roles?.data.map((role: Role) => (
+                                  <SelectItem key={role.roleName} value={role.roleName} className="text-text-default text-sm font-semibold">
+                                    {role.roleName}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        ))}
+                      </div>
+
+                      <Button
+                        className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! mt-2 flex h-7! w-fit items-center justify-start gap-2 rounded font-medium"
+                        onClick={() => addRole(assignmentIndex)}
+                      >
+                        <PlusIcon className="text-icon-default-muted" />
+                        Add Role
+                      </Button>
+                    </div>
+                  </Accordion>
+
+                  {assignments.length > 1 && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={e => {
+                        e.stopPropagation();
+                        removeAssignment(assignmentIndex);
+                      }}
+                    >
+                      <Trash2 className="text-icon-default-muted size-4" />
+                      {/* <XIcon className="text-icon-default-muted size-4" /> */}
+                    </Button>
+                  )}
+                </div>
+              ))}
             </div>
-          </Accordion>
+          )}
 
           <div className="border-border-darker bg-bg-state-secondary flex items-center justify-center rounded-md border border-dashed p-6">
             <div className="flex flex-col items-center gap-2">
               <div className="text-text-default flex items-center gap-1 text-xs">
                 <School fill="var(--color-icon-default-muted)" /> Add another branch assignment
               </div>
-              <Button className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default flex h-6! w-fit items-center justify-center text-xs font-medium shadow">
+              <Button
+                onClick={addAssignment}
+                className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default flex h-6! w-fit items-center justify-center text-xs font-medium shadow"
+              >
                 <PlusIcon className="text-icon-default-muted" /> Add Branch
               </Button>
             </div>
