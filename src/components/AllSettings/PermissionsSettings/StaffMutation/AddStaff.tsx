@@ -2,6 +2,8 @@
 
 import { Branch, Role } from "@/api/types";
 import Accordion from "@/components/Accordion";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import DeleteBin from "@/components/Icons/DeleteBin";
 import Mail from "@/components/Icons/Mail";
 import School from "@/components/Icons/School";
@@ -54,7 +56,7 @@ export const AddStaff = () => {
   const { mutate, isPending } = useAddStaff();
 
   useEffect(() => {
-    if (roles && assignments[0].roleIds.length === 0) {
+    if (roles && roles.data.length > 0 && assignments[0].roleIds.length === 0) {
       setAssignments([{ branchId: null, roleIds: [roles.data[0]] }]);
     }
   }, [roles]);
@@ -90,14 +92,15 @@ export const AddStaff = () => {
   };
 
   const updateRole = (assignmentIndex: number, roleIndex: number, roleName: string) => {
-    const role = roles?.data.find((r: Role) => r.roleName === roleName);
+    const role = roles?.data.find((rol: Role) => rol.roleName === roleName);
     if (!role) return;
+
     setAssignments(prev =>
-      prev.map((assignment, i) =>
-        i === assignmentIndex
+      prev.map((assignment, index) =>
+        index === assignmentIndex
           ? {
               ...assignment,
-              roleIds: assignment.roleIds.map((r, j) => (j === roleIndex ? role : r)),
+              roleIds: assignment.roleIds.map((rle, index2) => (index2 === roleIndex ? role : rle)),
             }
           : assignment,
       ),
@@ -143,6 +146,7 @@ export const AddStaff = () => {
       );
     },
   });
+  console.log(assignments, roles);
 
   return (
     <div className="flex flex-col gap-6">
@@ -314,40 +318,54 @@ export const AddStaff = () => {
                         </Select>
                       </div>
 
-                      <div className="space-y-3">
-                        {assignment.roleIds.map((roleValue, roleIndex) => (
-                          <div key={roleIndex} className="flex flex-col gap-2">
-                            <Select value={roleValue.roleName} onValueChange={value => updateRole(assignmentIndex, roleIndex, value)}>
-                              <div className="flex items-center justify-between">
-                                <Label className="text-text-default text-sm font-medium">Select Role</Label>{" "}
-                                {assignment.roleIds.length > 1 && (
-                                  <Button className="hover:bg-bg-none! bg-none!" onClick={() => removeRole(assignmentIndex, roleIndex)}>
-                                    <DeleteBin fill="var(--color-icon-default-muted)" />
-                                  </Button>
-                                )}
+                      {roles?.data.length > 0 ? (
+                        <div>
+                          <div className="space-y-3">
+                            {assignment.roleIds.map((roleValue, roleIndex) => (
+                              <div key={roleIndex} className="flex flex-col gap-2">
+                                <Select value={roleValue.roleName} onValueChange={value => updateRole(assignmentIndex, roleIndex, value)}>
+                                  <div className="flex items-center justify-between">
+                                    <Label className="text-text-default text-sm font-medium">Select Role</Label>{" "}
+                                    {assignment.roleIds.length > 1 && (
+                                      <Button className="hover:bg-bg-none! bg-none!" onClick={() => removeRole(assignmentIndex, roleIndex)}>
+                                        <DeleteBin fill="var(--color-icon-default-muted)" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-8 w-full border-none text-sm">
+                                    <SelectValue placeholder="Select Role">{roleValue.roleName}</SelectValue>
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-bg-card border-border-default">
+                                    {roles?.data.map((role: Role) => (
+                                      <SelectItem key={role.roleName} value={role.roleName} className="text-text-default text-sm font-semibold">
+                                        {role.roleName}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
-                              <SelectTrigger className="bg-bg-input-soft! text-text-default h-8 w-full border-none text-sm">
-                                <SelectValue placeholder="Select Role">{roleValue.roleName}</SelectValue>
-                              </SelectTrigger>
-                              <SelectContent className="bg-bg-card border-border-default">
-                                {roles?.data.map((role: Role) => (
-                                  <SelectItem key={role.roleName} value={role.roleName} className="text-text-default text-sm font-semibold">
-                                    {role.roleName}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            ))}
                           </div>
-                        ))}
-                      </div>
 
-                      <Button
-                        className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! mt-2 flex h-7! w-fit items-center justify-start gap-2 rounded font-medium"
-                        onClick={() => addRole(assignmentIndex)}
-                      >
-                        <PlusIcon className="text-icon-default-muted" />
-                        Add Role
-                      </Button>
+                          <Button
+                            className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! mt-2 flex h-7! w-fit items-center justify-start gap-2 rounded font-medium"
+                            onClick={() => addRole(assignmentIndex)}
+                          >
+                            <PlusIcon className="text-icon-default-muted" />
+                            Add Role
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex justify-center">
+                          <ErrorComponent
+                            title="No Roles"
+                            description="Please add roles first"
+                            buttonText="Add Role"
+                            url="/settings/permissions/add-role"
+                            buttonStyle="h-7! w-fit"
+                          />
+                        </div>
+                      )}
                     </div>
                   </Accordion>
 
