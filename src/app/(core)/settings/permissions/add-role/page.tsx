@@ -1,4 +1,4 @@
-import { AddRoleSettings } from "@/components/AllSettings/PermissionsSettings/AddRole";
+import { AddRoleSettings } from "@/components/AllSettings/PermissionsSettings/RoleMutation/AddRole";
 import React from "react";
 
 const AddRolePage = () => {

@@ -12,36 +12,15 @@ import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
-const roles = [
-  {
-    id: 1,
-    role: "Subject Teacher",
-    users: 8,
-  },
-  {
-    id: 2,
-    role: "Class Teacher",
-    users: 8,
-  },
-  {
-    id: 3,
-    role: "Accountant",
-    users: 8,
-  },
-  {
-    id: 4,
-    role: "Branch Head",
-    users: 8,
-  },
-];
-
 export const RolesAndPermissions = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const { data, isPending, isError } = useGetRoles();
-  console.log(data);
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  const { data, isPending, isError } = useGetRoles({
+    search: debouncedSearchQuery,
+  });
 
   return (
     <div className="my-6 flex flex-col gap-6">

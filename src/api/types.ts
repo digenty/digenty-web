@@ -281,7 +281,7 @@ export interface Level {
 }
 
 export interface Role {
-  id: number;
+  roleId: number;
   roleName: string;
   totalUsers: number;
 }

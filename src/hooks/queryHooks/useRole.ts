@@ -2,10 +2,10 @@ import { addRole, getRoles } from "@/api/role";
 import { roleKeys } from "@/queries/role";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-export const useGetRoles = () => {
+export const useGetRoles = ({ search }: { search: string }) => {
   return useQuery({
-    queryKey: roleKeys.roles,
-    queryFn: getRoles,
+    queryKey: [roleKeys.roles, search],
+    queryFn: () => getRoles({ search }),
   });
 };
 
