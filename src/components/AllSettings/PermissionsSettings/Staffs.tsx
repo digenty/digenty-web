@@ -1,11 +1,11 @@
 import { Branch, Staff } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import ShareBox from "@/components/Icons/ShareBox";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
@@ -17,9 +17,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SettingPermissionModalExport } from "./SettingPermissionModalExport";
-import { StaffColumns } from "./StaffTableColumns";
 import { StaffMobileCard } from "./StaffMobileCard";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { StaffColumns } from "./StaffTableColumns";
 
 export type StaffProps = {
   id: number;
@@ -33,7 +32,6 @@ export type StaffProps = {
 
 export const Staffs = () => {
   const [page, setPage] = useState(1);
-  const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
   const router = useRouter();
   const [openExport, setOpenExport] = useState(false);
@@ -55,7 +53,6 @@ export const Staffs = () => {
     search: debouncedSearchQuery,
   });
   const staff = data?.pages.flatMap(page => page.content) ?? [];
-  console.log(staff, "#");
 
   useEffect(() => {
     // Make sure that page is fetched

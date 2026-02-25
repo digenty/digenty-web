@@ -30,7 +30,10 @@ const RenderOptions = (row: Row<Staff>) => {
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View staff</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/invoices/edit-invoice")} className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3">
+        <DropdownMenuItem
+          onClick={() => router.push(`/settings/permissions/edit-staff/${row.original.staffId}`)}
+          className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3"
+        >
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit staff</span>
         </DropdownMenuItem>
