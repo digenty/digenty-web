@@ -1,16 +1,17 @@
-import { ColumnDef, Row } from "@tanstack/react-table";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { StaffProps } from "./Staffs";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
-import Edit from "@/components/Icons/Edit";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Staff } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import { getStatusBadge, staffStatusBadge } from "@/components/Status";
+import Edit from "@/components/Icons/Edit";
 import { UserForbid } from "@/components/Icons/UserForbid";
+import { getStatusBadge, staffStatusBadge } from "@/components/Status";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { formatRelativeDate } from "@/lib/utils";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-const RenderOptions = (row: Row<StaffProps>) => {
+const RenderOptions = (row: Row<Staff>) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   return (
@@ -45,7 +46,7 @@ const RenderOptions = (row: Row<StaffProps>) => {
   );
 };
 
-export const StaffColumns: ColumnDef<StaffProps>[] = [
+export const StaffColumns: ColumnDef<Staff>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -74,7 +75,7 @@ export const StaffColumns: ColumnDef<StaffProps>[] = [
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
           <Avatar className="size-5" url="" />
-          <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.staffName}</span>
+          <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.fullName}</span>
         </div>
       </div>
     ),
@@ -82,7 +83,7 @@ export const StaffColumns: ColumnDef<StaffProps>[] = [
   {
     accessorKey: "role",
     header: () => <div className="text-text-muted text-sm font-medium">Role</div>,
-    cell: ({ row }) => <span className="">{staffStatusBadge(row.original.role)}</span>,
+    cell: ({ row }) => <span className="">{row.original.roleName ? staffStatusBadge(row.original.roleName) : "--"}</span>,
     size: 150,
   },
   {
@@ -94,19 +95,21 @@ export const StaffColumns: ColumnDef<StaffProps>[] = [
   {
     accessorKey: "status",
     header: () => <div className="text-text-muted text-sm font-medium">Status</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{getStatusBadge(row.original.status)}</span>,
+    cell: ({ row }) => (
+      <span className="text-text-muted cursor-pointer text-sm font-normal">{getStatusBadge(row.original.status ? "Active" : "Inactive")}</span>
+    ),
     size: 32,
   },
   {
     accessorKey: "branch",
     header: () => <div className="text-text-muted text-sm font-medium">Branch</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.branch}</span>,
+    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.branchName}</span>,
     size: 150,
   },
   {
     accessorKey: "lastLogin",
     header: () => <div className="text-text-muted text-sm font-medium">Last Login</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.lastLogin}</span>,
+    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{formatRelativeDate(row.original.lastLogin)}</span>,
     size: 32,
   },
 

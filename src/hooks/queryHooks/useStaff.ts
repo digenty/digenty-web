@@ -1,11 +1,16 @@
 import { addStaff, getStaff } from "@/api/staff";
 import { staffKeys } from "@/queries/staff";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
-export const useGetStaffs = () => {
-  return useQuery({
-    queryKey: staffKeys.staffs,
-    queryFn: getStaff,
+export const useGetStaffs = ({ branchId, search, limit }: { branchId?: number; search?: string; limit: number }) => {
+  return useInfiniteQuery({
+    queryKey: [staffKeys.staffs, branchId, search],
+    queryFn: ({ pageParam }) => getStaff({ pageParam, limit, branchId, search }),
+    initialPageParam: 0,
+    getNextPageParam: lastPage => {
+      if (lastPage.last) return undefined;
+      return lastPage.number + 1; // next page index
+    },
   });
 };
 
