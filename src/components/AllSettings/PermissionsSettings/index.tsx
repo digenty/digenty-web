@@ -25,7 +25,7 @@ export const PermissonsSettings = () => {
   useBreadcrumb([
     { label: "Settings", url: "/settings" },
     { label: "Permissions", url: "/settings/permissions" },
-    { label: activeTab, url: "" },
+    { label: tabs.find(tab => tab.value === activeTab)?.label || "Staff", url: "" },
   ]);
 
   return (

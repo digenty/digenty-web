@@ -4,7 +4,7 @@ import { AddRolePayload } from "@/components/AllSettings/types";
 
 export const addRole = async (payload: AddRolePayload) => {
   try {
-    const { data } = await api.post("/roles", payload);
+    const { data } = await api.post("/role", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
@@ -15,9 +15,9 @@ export const addRole = async (payload: AddRolePayload) => {
   }
 };
 
-export const getRoles = async () => {
+export const getRoles = async ({ search }: { search: string }) => {
   try {
-    const { data } = await api.get("/role");
+    const { data } = await api.get(`/role?search=${search}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

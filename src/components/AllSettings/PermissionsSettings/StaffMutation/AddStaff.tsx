@@ -104,7 +104,6 @@ export const AddStaff = () => {
     );
   };
 
-  console.log(assignments);
   const formik = useFormik<StaffInputValues>({
     initialValues: {
       firstName: "",
@@ -119,7 +118,7 @@ export const AddStaff = () => {
         .filter(assignment => assignment.branchId !== null)
         .map(assgnmnt => ({
           branchId: assgnmnt.branchId as number,
-          roleIds: assgnmnt.roleIds.map(role => role.id),
+          roleIds: assgnmnt.roleIds.map(role => role.roleId),
         }));
 
       await mutate(
@@ -131,7 +130,7 @@ export const AddStaff = () => {
               description: data.message,
               type: "success",
             });
-            router.back();
+            router.push("/settings/permissions?tab=staff");
           },
           onError: error => {
             toast({
