@@ -157,7 +157,7 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                   disabled={isSubmitting}
                   className="bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isSubmitting ? "Processing..." : "Reject Access"}
+                  {isSubmitting ? "Rejecting..." : "Reject Access"}
                 </Button>
 
                 <Button
@@ -165,7 +165,7 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                   disabled={isSubmitting}
                   className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isSubmitting ? "Processing..." : "Approve Access"}
+                  {isSubmitting ? "Approving..." : "Approve Access"}
                 </Button>
               </div>
             </DrawerFooter>

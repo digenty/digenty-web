@@ -15,6 +15,7 @@ import Notification2 from "@/components/Icons/Notification2";
 import { Key } from "@/components/Icons/Key";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
+import { PageEmptyState } from "@/components/Error/PageEmptyState";
 
 export const AllBranchesTable = ({ isFetching, allBranchList }: { allBranchList: AllBranchesTableProps[]; isFetching: boolean }) => {
   const [page, setPage] = useState(1);
@@ -31,12 +32,14 @@ export const AllBranchesTable = ({ isFetching, allBranchList }: { allBranchList:
 
       {isFetching ? (
         <Skeleton className="bg-bg-input-soft h-100 w-full" />
+      ) : !allBranchList.length ? (
+        <PageEmptyState title="No Branch" description="You do not have any branch." buttonText="Go back" />
       ) : (
         <div className="">
           <div className="hidden md:block">
             <DataTable
               columns={AllBranchDetailsColumns}
-              data={allBranchList || []}
+              data={allBranchList}
               totalCount={allBranchList.length}
               page={page}
               setCurrentPage={setPage}

@@ -27,7 +27,7 @@ export const AllBranches = () => {
   const effectiveTermId = termSelected ?? activeTerm?.termId;
   const { data: allBranchList, isFetching } = useGetAllBranchesDetails(effectiveTermId!);
   const [mobileTempTerm, setMobileTempTerm] = useState<number | null>(null);
-
+  console.log(allBranchList);
   const handleApplyFilter = () => {
     if (mobileTempTerm !== null) setTermSelected(mobileTempTerm);
     setIsFilterOpen(false);

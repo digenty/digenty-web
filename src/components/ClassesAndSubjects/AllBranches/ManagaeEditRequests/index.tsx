@@ -26,14 +26,14 @@ export const ManageEditRequest = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<BranchEditRequestTypes | null>(null);
   const [pendingAction, setPendingAction] = useState<"accepted" | "rejected" | null>(null);
+  const [bulkAction, setBulkAction] = useState<"approve" | "reject" | null>(null);
 
   const { data: requestList, isFetching } = useGetEditRequest(branchId);
   const { mutate: approveSingle, isPending: isApprovingSingle } = useApproveEditRequest();
-  const { mutate: approveBulk, isPending: isApprovingBulk } = useApproveEditRequestBulk();
+  const { mutate: approveBulk } = useApproveEditRequestBulk();
 
-  const pageSize = 15;
+  const pageSize = requestList?.pageSize;
 
-  // Mock data - remove this when using real API
   const mockData: BranchEditRequestTypes[] = [
     {
       editRequestId: 1,
@@ -105,16 +105,16 @@ export const ManageEditRequest = () => {
 
   const handleApproveAll = () => {
     const editAccessIds = selectedRows.map(row => row.editRequestId);
-
     if (editAccessIds.length === 0) {
-      toast.error("No items selected");
+      toast.error("No teacher selected");
       return;
     }
-
+    setBulkAction("approve");
     approveBulk(
       { editAccessIds, isApproved: true },
       {
         onSuccess: () => {
+          setBulkAction(null);
           const newDecisions = { ...decisions };
           selectedRows.forEach(row => {
             newDecisions[row.editRequestId] = "accepted";
@@ -125,6 +125,7 @@ export const ManageEditRequest = () => {
           toast.success(`${editAccessIds.length} request(s) approved successfully`);
         },
         onError: error => {
+          setBulkAction(null);
           toast.error("Failed to approve requests");
           console.error(error);
         },
@@ -139,11 +140,12 @@ export const ManageEditRequest = () => {
       toast.error("No items selected");
       return;
     }
-
+    setBulkAction("approve");
     approveBulk(
       { editAccessIds, isApproved: false },
       {
         onSuccess: () => {
+          setBulkAction(null);
           const newDecisions = { ...decisions };
           selectedRows.forEach(row => {
             newDecisions[row.editRequestId] = "rejected";
@@ -154,7 +156,8 @@ export const ManageEditRequest = () => {
           toast.success(`${editAccessIds.length} request(s) rejected successfully`);
         },
         onError: error => {
-          toast.error("Failed to reject requests");
+          setBulkAction(null);
+          toast("Failed to reject requests");
           console.error(error);
         },
       },
@@ -214,25 +217,25 @@ export const ManageEditRequest = () => {
         {selectedCount > 0 && (
           <div className="flex items-center gap-3">
             <span className="text-text-subtle bg-bg-state-soft flex h-7 items-center gap-1 rounded-md p-1.5 text-sm font-medium">
-              {selectedCount} Selected {selectedCount === 1 ? "Item" : "Items"}
+              {selectedCount} Selected {selectedCount === 1 ? "Teacher" : "Teachers"}
             </span>
             <Button
               onClick={handleApproveAll}
-              disabled={isApprovingBulk}
+              disabled={bulkAction !== null}
               size="sm"
               className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 rounded-md border shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span className="text-bg-basic-green-accent font-semibold">✓</span>
-              <span>{isApprovingBulk ? "Approving..." : "Approve All"}</span>
+              <span>{bulkAction === "approve" ? "Approving..." : "Approve All"}</span>
             </Button>
             <Button
               onClick={handleRejectAll}
-              disabled={isApprovingBulk}
+              disabled={bulkAction !== null}
               size="sm"
               className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 border disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span className="text-bg-basic-red-accent text-sm font-semibold">✕</span>
-              <span>{isApprovingBulk ? "Rejecting..." : "Reject All"}</span>
+              <span>{bulkAction === "reject" ? "Rejecting..." : "Reject All"}</span>
             </Button>
           </div>
         )}
@@ -240,7 +243,7 @@ export const ManageEditRequest = () => {
         <div>
           {isFetching ? (
             <Skeleton className="bg-bg-input-soft h-100 w-full" />
-          ) : filteredData === 0 ? (
+          ) : !filteredData.length ? (
             <PageEmptyState
               title="All caught up!"
               buttonText="Go Back"
@@ -251,7 +254,7 @@ export const ManageEditRequest = () => {
               <div className="hidden md:block">
                 <DataTable
                   columns={columns}
-                  data={filteredData || []}
+                  data={filteredData}
                   totalCount={filteredData?.length}
                   page={page}
                   setCurrentPage={setPage}
@@ -264,7 +267,7 @@ export const ManageEditRequest = () => {
                 />
               </div>
 
-              <div className="flex flex-col gap-3 p-4 md:hidden">
+              <div className="flex flex-col gap-3 md:hidden">
                 {filteredData.map((staff: BranchEditRequestTypes, index) => (
                   <ManageEditMobileCard
                     key={staff.editRequestId}

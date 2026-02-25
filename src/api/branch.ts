@@ -44,7 +44,7 @@ export const getAllBranchesDetails = async (termId: number) => {
 export const getRequestEdit = async (branchId: number) => {
   try {
     const { data } = await api.get(`/edit-access/branch/${branchId}`);
-    console.log(data?.data);
+
     return data.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

@@ -6,12 +6,20 @@ import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
 import GraduationCapFill from "@/components/Icons/GraduationCapFill";
 import { RocketFill } from "@/components/Icons/RocketFill";
 import { OverviewCard } from "@/components/OverviewCard";
-import { useGetAllBranchesDetails } from "@/hooks/queryHooks/useBranch";
+
 import React from "react";
 
-export const OverviewStats = () => {
-  const { data: stats } = useGetAllBranchesDetails();
+type StatsProps = {
+  stats?: {
+    totalBranchesInSchool?: number;
+    totalArmsInSchool?: number;
+    totalPendingArmSubmission?: number;
+    totalArmSubmitted?: number;
+    totalPublishedReport?: number;
+  };
+};
 
+export const OverviewStats = ({ stats }: StatsProps) => {
   return (
     <div>
       <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
