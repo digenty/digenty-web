@@ -522,11 +522,11 @@ export const StudentsTable = () => {
           />
         </div>
       )}
-      {loadingStudents && <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />}
+      {loadingStudents && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
       {!loadingStudents && !isError && students.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Add a student" />
+          <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Add a student" url="/students/add-student" />
         </div>
       )}
 

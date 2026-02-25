@@ -17,6 +17,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetRoles } from "@/hooks/queryHooks/useRole";
 import { useAddStaff } from "@/hooks/queryHooks/useStaff";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { cn } from "@/lib/utils";
 import { staffSchema } from "@/schema/staff";
 import { useFormik } from "formik";
@@ -28,6 +29,25 @@ export const AddStaff = () => {
   const router = useRouter();
   const [assignments, setAssignments] = useState<{ branchId: number | null; roleIds: Role[] }[]>([{ branchId: null, roleIds: [] }]);
   const [showPassword, setShowPassword] = useState(false);
+
+  useBreadcrumb([
+    {
+      label: "Settings",
+      url: "/settings",
+    },
+    {
+      label: "Permissions",
+      url: "/settings/permissions",
+    },
+    {
+      label: "Staff",
+      url: "/settings/permissions",
+    },
+    {
+      label: "Add Staff",
+      url: "",
+    },
+  ]);
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: roles, isPending: loadingRoles } = useGetRoles();
@@ -84,6 +104,7 @@ export const AddStaff = () => {
     );
   };
 
+  console.log(assignments);
   const formik = useFormik<StaffInputValues>({
     initialValues: {
       firstName: "",
@@ -95,10 +116,10 @@ export const AddStaff = () => {
     validationSchema: staffSchema,
     onSubmit: async values => {
       const branchAssignmentDtos = assignments
-        .filter(a => a.branchId !== null)
-        .map(a => ({
-          branchId: a.branchId as number,
-          roleIds: a.roleIds.map(r => r.id),
+        .filter(assignment => assignment.branchId !== null)
+        .map(assgnmnt => ({
+          branchId: assgnmnt.branchId as number,
+          roleIds: assgnmnt.roleIds.map(role => role.id),
         }));
 
       await mutate(
@@ -366,10 +387,10 @@ export const AddStaff = () => {
           <div className="border-border-default border-t p-3">
             <div className="mx-auto flex h-15! w-full items-center justify-center md:max-w-225">
               <div className="flex w-full items-center justify-between">
-                <Button className="bg-bg-state-soft h-7  text-text-subtle">Cancel</Button>
+                <Button className="bg-bg-state-soft text-text-subtle h-7">Cancel</Button>
                 <Button
                   onClick={() => formik.handleSubmit()}
-                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-7 text-text-white-default"
+                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7"
                 >
                   {isPending ? <Spinner className="text-text-white-default" /> : <MailIcon className="text-icon-white-default" />} Send Invite
                 </Button>

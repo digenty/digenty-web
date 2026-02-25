@@ -15,10 +15,17 @@ export const addStaff = async (payload: AddStaffPayload) => {
   }
 };
 
-export const getStaff = async () => {
+export const getStaff = async ({ limit, pageParam, branchId, search }: { limit: number; pageParam: number; branchId?: number; search?: string }) => {
   try {
-    const { data } = await api.get("/staffs");
-    return data;
+    const { data } = await api.get("/staffs", {
+      params: {
+        size: limit,
+        page: pageParam,
+        branchId,
+        search,
+      },
+    });
+    return data.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;

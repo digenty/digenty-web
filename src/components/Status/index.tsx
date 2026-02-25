@@ -105,39 +105,24 @@ export const getStatusBadge = (status: string) => {
 };
 
 export const staffStatusBadge = (status: string) => {
-  switch (status) {
-    case "Principal":
-      return (
-        <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default h-5 rounded-md text-xs font-medium">
-          <span>Principal</span>
-        </Badge>
-      );
-    case "Subject Teacher":
-      return (
-        <Badge className="bg-bg-badge-blue text-bg-basic-blue-strong border-border-default h-5 rounded-md text-xs font-medium">
-          <span>Subject Teacher</span>
-        </Badge>
-      );
-    case "Secretary":
-      return (
-        <Badge className="bg-bg-badge-cyan text-bg-basic-cyan-strong border-border-default h-5 rounded-md text-xs font-medium">
-          <span>Secretary</span>
-        </Badge>
-      );
-    case "Class Teacher":
-      return (
-        <Badge className="bg-bg-badge-pink text-bg-basic-pink-strong border-border-default h-5 rounded-md text-xs font-medium">
-          <span>Class Teacher</span>
-        </Badge>
-      );
+  const palette = [
+    "bg-bg-badge-lime text-bg-basic-lime-strong",
+    "bg-bg-badge-blue text-bg-basic-blue-strong",
+    "bg-bg-badge-cyan text-bg-basic-cyan-strong",
+    "bg-bg-badge-pink text-bg-basic-pink-strong",
+    "bg-bg-badge-orange text-bg-basic-orange-strong",
+    "bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong",
+    "bg-bg-badge-violet text-bg-basic-violet-strong",
+  ];
 
-    default:
-      return (
-        <Badge className="bg-bg-badge-default text-text-subtle border-border-default h-5 rounded-md text-xs font-medium!">
-          <span>Not Label</span>
-        </Badge>
-      );
-  }
+  const hash = status.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const colors = palette[hash % palette.length];
+
+  return (
+    <Badge className={`${colors} border-border-default h-5 rounded-md text-xs font-medium`}>
+      <span>{status}</span>
+    </Badge>
+  );
 };
 
 export const paymentStatus = (status: string) => {
