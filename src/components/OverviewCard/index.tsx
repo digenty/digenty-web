@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 type OverviewCardProps = {
   title: string;
   Icon: () => React.ReactNode;
-  value: string;
+  value?: string | number;
   className?: string;
 };
 
