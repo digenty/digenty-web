@@ -21,7 +21,7 @@ import { AddFill } from "@/components/Icons/AddFill";
 import { StaffProps } from "../Staffs";
 import { SettingPermissionModalExport } from "../SettingPermissionModalExport";
 import { StaffColumns } from "../StaffTableColumns";
-import { StaffList } from "..";
+// import { StaffList } from "..";
 import DeleteBin from "@/components/Icons/DeleteBin";
 import Edit from "@/components/Icons/Edit";
 import { UserForbid } from "@/components/Icons/UserForbid";
@@ -49,7 +49,7 @@ export const SubjectTeachers = () => {
 
   return (
     <div>
-      {openExport && <SettingPermissionModalExport open={openExport} setOpen={setOpenExport} />}
+      {/* {openExport && <SettingPermissionModalExport open={openExport} setOpen={setOpenExport} />} */}
 
       <div className="flex flex-col gap-4 md:p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -159,7 +159,7 @@ export const SubjectTeachers = () => {
           )}
         </div>
 
-        <div className="hidden p-4 md:block">
+        {/* <div className="hidden p-4 md:block">
           <DataTable
             columns={StaffColumns}
             data={StaffList}
@@ -238,7 +238,7 @@ export const SubjectTeachers = () => {
               Load More
             </Button>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );
