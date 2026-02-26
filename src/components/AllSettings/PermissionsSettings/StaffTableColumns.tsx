@@ -6,6 +6,7 @@ import { getStatusBadge, staffStatusBadge } from "@/components/Status";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatRelativeDate } from "@/lib/utils";
+import { useStaffStore } from "@/store/staff";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -14,6 +15,7 @@ import { useState } from "react";
 const RenderOptions = (row: Row<Staff>) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { setOpenDeactivation, setStaffIdToDeactivate } = useStaffStore();
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger onClick={evt => evt.stopPropagation()} className="focus-visible:ring-0 focus-visible:outline-none">
@@ -23,7 +25,7 @@ const RenderOptions = (row: Row<Staff>) => {
         <DropdownMenuItem
           onClick={evt => {
             evt.stopPropagation();
-            router.push(`/`);
+            router.push(`/settings/permissions/staff/${row.original.staffId}`);
           }}
           className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
         >
@@ -32,7 +34,7 @@ const RenderOptions = (row: Row<Staff>) => {
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => router.push(`/settings/permissions/edit-staff/${row.original.staffId}`)}
-          className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3"
+          className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
         >
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit staff</span>
@@ -40,7 +42,13 @@ const RenderOptions = (row: Row<Staff>) => {
 
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem
+          onClick={() => {
+            setOpenDeactivation(true);
+            setStaffIdToDeactivate(row.original.staffId);
+          }}
+          className="cursor-pointer gap-2.5 px-3"
+        >
           <UserForbid fill="var(--color-icon-destructive)" className="size-4" />
           <span className="text-icon-destructive">Deactivate staff</span>
         </DropdownMenuItem>

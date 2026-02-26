@@ -33,3 +33,41 @@ export const getStaff = async ({ limit, pageParam, branchId, search }: { limit: 
     throw error;
   }
 };
+
+export const getStaffDetails = async (staffId: number | null) => {
+  try {
+    const { data } = await api.get(`/staffs/${staffId}/details`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const deleteStaff = async (staffId: number | null) => {
+  try {
+    const { data } = await api.delete(`/staffs/${staffId}/delete`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+
+    throw error;
+  }
+};
+
+export const deactivateStaff = async (staffId: number | null) => {
+  try {
+    const { data } = await api.patch(`/staffs/${staffId}/deactivate`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+
+    throw error;
+  }
+};

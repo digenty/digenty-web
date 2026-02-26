@@ -3,15 +3,17 @@ import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
+import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import React from "react";
 
 type DeleteProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
+  deactivateStaff: () => void;
+  deactivating: boolean;
 };
 
-export const DeleteStaffModal = ({ open, setOpen }: DeleteProps) => {
+export const DeactivateStaffModal = ({ open, setOpen, deactivateStaff, deactivating }: DeleteProps) => {
   const isMobile = useIsMobile();
   return (
     <div>
@@ -23,7 +25,12 @@ export const DeleteStaffModal = ({ open, setOpen }: DeleteProps) => {
               setOpen={setOpen}
               open={open}
               ActionButton={
-                <Button className="bg-bg-state-destructive hover:bg-bg-state-destructive-hover! text-text-white-default h-7!">Keep roles</Button>
+                <Button
+                  onClick={deactivateStaff}
+                  className="bg-bg-state-destructive hover:bg-bg-state-destructive-hover! text-text-white-default h-7!"
+                >
+                  {deactivating && <Spinner className="text-text-white-default" />}Deactivate
+                </Button>
               }
             >
               <div className="flex flex-col gap-6 p-6">
@@ -35,11 +42,11 @@ export const DeleteStaffModal = ({ open, setOpen }: DeleteProps) => {
                     Once deactivated, this staff member will no longer be able to log in or perform any actions in the system.
                   </div>
                 </div>
-                <div className="border-border-default rounded-md border p-4">
+                {/* <div className="border-border-default rounded-md border p-4">
                   <div className="text-text-subtle text-sm">
                     You can either remove all their roles now or keep the roles assigned (you&apos;ll need to reassign them later).
                   </div>
-                </div>
+                </div> */}
               </div>
             </Modal>
           ) : (
@@ -53,20 +60,21 @@ export const DeleteStaffModal = ({ open, setOpen }: DeleteProps) => {
                     Once deactivated, this staff member will no longer be able to log in or perform any actions in the system.
                   </div>
                 </div>
-                <div className="border-border-default rounded-md border p-4">
-                  <div className="text-text-subtle text-sm">
-                    You can either remove all their roles now or keep the roles assigned (you&apos;ll need to reassign them later).
-                  </div>
-                </div>
               </div>
 
               <DrawerFooter className="border-border-default border-t">
                 <div className="flex justify-between">
                   <DrawerClose asChild>
-                    <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Remove roles</Button>
+                    <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
                   </DrawerClose>
 
-                  <Button className="bg-bg-state-destructive hover:bg-bg-state-destructive-hover! text-text-white-default h-7!">Keep roles</Button>
+                  <Button
+                    onClick={deactivateStaff}
+                    className="bg-bg-state-destructive hover:bg-bg-state-destructive-hover! text-text-white-default h-7!"
+                  >
+                    {deactivating && <Spinner className="text-text-white-default" />}
+                    Deactivate
+                  </Button>
                 </div>
               </DrawerFooter>
             </MobileDrawer>
