@@ -9,10 +9,17 @@ import { Button } from "@/components/ui/button";
 import { Ellipsis } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useStaffStore } from "@/store/staff";
 
 export const StaffMobileCard = ({ staff }: { staff: Staff }) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const { setOpenDeactivation, setStaffIdToDeactivate } = useStaffStore();
+
+  const handleDeactivate = () => {
+    setOpenDeactivation(true);
+    setStaffIdToDeactivate(staff.staffId);
+  };
   return (
     <div key={staff.staffId} className="border-border-default bg-bg-subtle rounded-md border">
       <div className="border-border-default flex h-[38px] items-center justify-between border-b px-3 py-1.5">
@@ -26,18 +33,24 @@ export const StaffMobileCard = ({ staff }: { staff: Staff }) => {
         <MobileDrawer open={isOpen} setIsOpen={setIsOpen} title="Actions">
           <div className="flex w-full flex-col gap-4 px-3 py-4">
             <div className="flex flex-col items-center gap-2">
-              <div className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
+              <div
+                onClick={() => router.push(`/settings/permissions/staff/${staff.staffId}`)}
+                className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+              >
                 <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Staff
               </div>
               <div
                 role="button"
-                onClick={() => router.push("")}
+                onClick={() => router.push(`/settings/permissions/edit-staff/${staff.staffId}`)}
                 className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
               >
                 <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Staff
               </div>
 
-              <div className="hover:bg-bg-muted border-border-darker text-text-destructive flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
+              <div
+                onClick={handleDeactivate}
+                className="hover:bg-bg-muted border-border-darker text-text-destructive flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+              >
                 <UserForbid fill="var(--color-icon-destructive)" className="size-4" /> Deactivate Staff
               </div>
             </div>

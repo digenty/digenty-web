@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { useGetStaffs } from "@/hooks/queryHooks/useStaff";
+import { useDeactivateStaff, useGetStaffs } from "@/hooks/queryHooks/useStaff";
 import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Ellipsis, PlusIcon } from "lucide-react";
@@ -19,6 +19,9 @@ import { useEffect, useState } from "react";
 import { SettingPermissionModalExport } from "./SettingPermissionModalExport";
 import { StaffMobileCard } from "./StaffMobileCard";
 import { StaffColumns } from "./StaffTableColumns";
+import { useStaffStore } from "@/store/staff";
+import { DeactivateStaffModal } from "./StaffDetails/DeactivateStaffModal";
+import { toast } from "@/components/Toast";
 
 export type StaffProps = {
   id: number;
@@ -41,18 +44,40 @@ export const Staffs = () => {
   const [branchSelected, setBranchSelected] = useState<Branch | undefined>();
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Staff[]>([]);
-
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-
   const pageSize = 15;
 
+  const { openDeactivation, setOpenDeactivation, staffIdToDeactivate } = useStaffStore();
+
   const { data: branches, isPending: loadingBranches } = useGetBranches();
-  const { data, isPending, isError, hasNextPage, fetchNextPage, isFetchingNextPage } = useGetStaffs({
+  const { mutate, isPending: deactivating } = useDeactivateStaff(staffIdToDeactivate);
+  const { data, isPending, isError, hasNextPage, fetchNextPage } = useGetStaffs({
     limit: pageSize,
     branchId: branchSelected?.id,
     search: debouncedSearchQuery,
   });
   const staff = data?.pages.flatMap(page => page.content) ?? [];
+
+  const deactivateStaff = () => {
+    mutate(undefined, {
+      onSuccess: () => {
+        setOpenDeactivation(false);
+        toast({
+          title: "Operation successful",
+          description: "Staff has been deactivated successfully",
+          type: "success",
+        });
+      },
+      onError: error => {
+        console.log(error, "####");
+        toast({
+          title: "Failed to deactivate staff",
+          description: error.message,
+          type: "error",
+        });
+      },
+    });
+  };
 
   useEffect(() => {
     // Make sure that page is fetched
@@ -75,6 +100,10 @@ export const Staffs = () => {
           loadingBranches={loadingBranches}
           filteredCount={data?.pages[0].totalElements}
         />
+      )}
+
+      {openDeactivation && (
+        <DeactivateStaffModal open={openDeactivation} setOpen={setOpenDeactivation} deactivateStaff={deactivateStaff} deactivating={deactivating} />
       )}
 
       <div className="flex flex-col gap-3 py-6 md:flex-row md:items-center md:justify-between md:gap-0">
