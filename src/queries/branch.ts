@@ -6,4 +6,5 @@ export const branchKeys = {
   stats: ["stats"] as const,
   editRequest: (branchId: number) => ["editRequest", branchId] as const,
   branchDetail: (branchId: number, termId?: number) => ["branchDetail", branchId, termId] as const,
+  updateBranch: ["updateBranch"] as const,
 };

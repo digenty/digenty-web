@@ -300,3 +300,21 @@ export interface Staff {
   branchName: string;
   lastLogin: Date;
 }
+
+export interface UpdateBranchPayload {
+  branchId: number;
+  name: string;
+  address: string;
+}
+
+export interface updateSchoolPayload {
+  schoolId: number;
+  logo: string;
+  adminId: number;
+  schoolName: string;
+  motto: string;
+  phoneNumber: number;
+  country: string;
+  currency: string;
+  timezone: string;
+}
