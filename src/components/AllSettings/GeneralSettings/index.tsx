@@ -67,6 +67,8 @@ export const General = () => {
   useEffect(() => {
     if (!school) return;
     setSchoolName(school.name ?? "");
+    setFirstName(school.firstName ?? "");
+    setLastName(school.lastName ?? "");
     setMotto(school.motto ?? "");
     setPhoneNumber(school.phoneNumber ?? "");
     setCountryId(school.country ?? "");
@@ -91,6 +93,8 @@ export const General = () => {
     adminId: Number(adminId),
     logo: logoUrl,
     schoolName,
+    firstName,
+    lastName,
     motto,
     phoneNumber: Number(phoneNumber),
     country: countryId,
@@ -263,7 +267,8 @@ export const General = () => {
 
                     <Button
                       className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
-                      onClick={() => setEdit(null)}
+                      onClick={() => handleSaveSchool({ firstName, lastName })}
+                      disabled={isSavingSchool}
                     >
                       Save
                     </Button>
