@@ -7,11 +7,10 @@ import { DialogDescription } from "../../../ui/dialog";
 
 import { Parent } from "@/api/types";
 import { useDeleteParents, useGetParent } from "@/hooks/queryHooks/useParent";
-import { useDeleteStudents } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { queryClient } from "@/lib/tanstack";
 import { studentKeys } from "@/queries/student";
-import { useStudentStore } from "@/store/student";
+import { useParentStore } from "@/store/useParentStore";
 import { usePathname, useRouter } from "next/navigation";
 import DeleteBin from "../../../Icons/DeleteBin";
 import Edit from "../../../Icons/Edit";
@@ -23,7 +22,6 @@ import { Skeleton } from "../../../ui/skeleton";
 import { Spinner } from "../../../ui/spinner";
 import { Biodata } from "./Biodata";
 import { LinkedStudentsTable } from "./LinkedStudentsTable";
-import { useParentStore } from "@/store/useParentStore";
 
 export const ParentProfile = () => {
   const pathname = usePathname();
@@ -35,7 +33,7 @@ export const ParentProfile = () => {
   const [isChecked, setIsChecked] = useState(false);
 
   const { data, isPending } = useGetParent(Number(parentId));
-  const { mutate: deleteStudents, isPending: deleting } = useDeleteParents(parentIds);
+  const { mutate: deleteParents, isPending: deleting } = useDeleteParents(parentIds);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -44,20 +42,22 @@ export const ParentProfile = () => {
   ]);
 
   const handleDeletion = () => {
-    deleteStudents(undefined, {
+    deleteParents(undefined, {
       onSuccess: data => {
         queryClient.invalidateQueries({ queryKey: studentKeys.all, refetchType: "active" });
 
         toast({
-          title: "Successfully deleted students",
+          title: "Successfully deleted parent",
           description: data.data.message,
           type: "success",
         });
+        setOpenDelete(false);
+        router.push("/student-and-parent-record?tab=Parents");
       },
       onError: error => {
         toast({
           title: error.message ?? "Something went wrong",
-          description: "Could not delete selected students",
+          description: "Could not delete parent",
           type: "error",
         });
       },
@@ -122,7 +122,7 @@ export const ParentProfile = () => {
         <Modal
           open={openDelete}
           setOpen={setOpenDelete}
-          title="Delete Student?"
+          title="Delete Parent?"
           className="block"
           ActionButton={
             <Button
@@ -132,7 +132,7 @@ export const ParentProfile = () => {
                 isChecked ? "bg-bg-state-destructive text-text-white-default" : "bg-bg-state-soft text-text-subtle"
               }`}
             >
-              Delete Student
+              Delete Parent
             </Button>
           }
         >

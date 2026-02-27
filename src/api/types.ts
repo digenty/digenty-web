@@ -97,7 +97,7 @@ export interface Parent {
   middleName: string;
   email: string;
   phoneNumber: string;
-  branchId: number;
+  branch: string;
   gender: Gender;
   relationship: Relationship;
   nationality: string;

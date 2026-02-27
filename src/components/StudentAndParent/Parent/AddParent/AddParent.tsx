@@ -96,7 +96,7 @@ export const AddParent = () => {
     }
   };
 
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
+  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0 && selectedStudents.length !== 0;
 
   return (
     <div className="flex h-screen flex-col">
@@ -125,7 +125,7 @@ export const AddParent = () => {
           {/* Tags */}
           {step === 3 && <Tags tags={tags} setTags={setTags} />}
 
-          {/* Linked Parents */}
+          {/* Linked Students */}
           {step === 3 && <LinkedStudents setOpen={setOpen} setSelectedStudents={setSelectedStudents} selectedStudents={selectedStudents} />}
         </div>
 

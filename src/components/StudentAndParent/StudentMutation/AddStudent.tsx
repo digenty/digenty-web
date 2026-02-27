@@ -44,7 +44,7 @@ export const AddStudent = () => {
       email: "",
       gender: Gender.Female,
       boardingStatus: BoardingStatus.Day,
-      dateOfBirth: "",
+      dateOfBirth: `${new Date()}`,
       address: "",
       emergencyContactName: "",
       emergencyContactNumber: "",
@@ -68,12 +68,11 @@ export const AddStudent = () => {
       mutate(
         {
           ...values,
+          dateOfBirth: format(new Date(formik.values.dateOfBirth), "yyyy-MM-dd"),
           tags,
-
-          linkedParents: [3],
+          linkedParents: selectedParents.map(parent => parent.id),
           // image: avatar,
           image: null,
-          // dateOfBirth: format(formik.values.dateOfBirth, "dd-MM-yyyy"),
         },
         {
           onSuccess: data => {
@@ -96,18 +95,13 @@ export const AddStudent = () => {
     },
   });
 
-  console.log(step);
   const handleSteps = () => {
-    console.log("here");
     if (step < 3) {
-      console.log("here 1");
       setStep(prev => prev + 1);
     } else {
-      console.log("here 2");
       formik.handleSubmit();
     }
   };
-  console.log(formik.errors, formik.values);
 
   const handleBack = () => {
     if (step > 0) {
@@ -121,7 +115,7 @@ export const AddStudent = () => {
 
   return (
     <div className="flex h-screen flex-col">
-      {/* {open && <LinkParents open={open} setOpen={setOpen} />} */}
+      {open && <LinkParents open={open} setOpen={setOpen} selectedParents={selectedParents} setSelectedParents={setSelectedParents} />}
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">
@@ -149,7 +143,7 @@ export const AddStudent = () => {
           {step === 3 && <Tags tags={tags} setTags={setTags} />}
 
           {/* Linked Parents */}
-          {step === 2 && <LinkedParents setOpen={setOpen} />}
+          {step === 2 && <LinkedParents setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />}
         </div>
 
         <div className="hidden md:block">
@@ -158,7 +152,7 @@ export const AddStudent = () => {
           <ContactInformation formik={formik} />
           <AcademicInformation formik={formik} />
           <Tags tags={tags} setTags={setTags} />
-          <LinkedParents setOpen={setOpen} />
+          <LinkedParents setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />
         </div>
 
         <div className="border-border-default bg-bg-default sticky bottom-0 w-full border-t py-3">

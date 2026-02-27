@@ -1,8 +1,10 @@
 "use client";
 
 import { Parent } from "@/api/types";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { useParentStore } from "@/store/useParentStore";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
@@ -10,8 +12,6 @@ import { useRouter } from "next/navigation";
 import { Avatar } from "../../Avatar";
 import DeleteBin from "../../Icons/DeleteBin";
 import Edit from "../../Icons/Edit";
-import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
-import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 
 const RenderOptions = (row: Row<Parent>) => {
   const router = useRouter();
@@ -88,18 +88,22 @@ export const parentColumns: ColumnDef<Parent>[] = [
           </span>
         </div>
 
-        {/* {row.original.tags && (
-          <div className="flex items-center gap-2">
-            {row.original.tags.map(tag => (
-              <span
-                className={cn("bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong border-border-default rounded-lg border px-2 py-0.5 text-xs")}
-                key={tag.label}
-              >
-                {tag.label}
-              </span>
-            ))}
-          </div>
-        )} */}
+        {/* {row.original.tags.length > 0 && row.original.tags && (
+                  <div className="flex items-center gap-2">
+                    {row.original.tags.slice(0, 3).map((tag, index) => (
+                      <div key={`${tag}-${index}`}>
+                        {tag && (
+                          <span
+                            className={cn("bg-bg-badge-cyan text-bg-basic-cyan-strong border-border-default rounded-lg border px-2 py-0.5 text-xs")}
+                            key={tag}
+                          >
+                            {tag}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )} */}
       </div>
     ),
     size: 600,
@@ -126,7 +130,7 @@ export const parentColumns: ColumnDef<Parent>[] = [
   {
     accessorKey: "branch",
     header: () => <div className="text-text-muted text-sm font-medium">Branch</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.branchId}</span>,
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.branch}</span>,
     size: 150,
   },
   {
