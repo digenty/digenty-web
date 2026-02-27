@@ -13,6 +13,7 @@ import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
 import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
 import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
 import { Step, StudentUploadType } from "../BulkUpload/types";
+import { Branch } from "@/api/types";
 
 const REQUIRED_HEADERS = [
   "firstName",
@@ -44,6 +45,8 @@ export const StudentsUpload = () => {
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [validRows, setValidRows] = useState<Record<string, unknown>[]>([]);
   const [file, setFile] = useState<File | null>(null);
+  const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
+
   const { mutate, isPending } = useUploadStudents();
 
   const goToNext = () => {
@@ -213,7 +216,15 @@ export const StudentsUpload = () => {
         {currentStep === steps.length ? (
           <ConfirmUpload entity="Students" errors={errors} validRows={validRows} downloadErrorReport={downloadErrorReport} />
         ) : (
-          <CSVUpload file={file} setFile={setFile} entity="Students" setErrors={setErrors} handleValidation={validateFile} />
+          <CSVUpload
+            branchSelected={branchSelected}
+            setBranchSelected={setBranchSelected}
+            file={file}
+            setFile={setFile}
+            entity="Students"
+            setErrors={setErrors}
+            handleValidation={validateFile}
+          />
         )}
 
         <div className="border-border-default mt-10 flex w-full justify-between border-t py-4">

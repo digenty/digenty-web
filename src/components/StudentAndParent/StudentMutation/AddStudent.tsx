@@ -160,6 +160,8 @@ export const AddStudent = () => {
             <Button onClick={() => handleBack()} className="bg-bg-state-soft text-text-subtle hover:bg-bg-state-soft-hover! h-7! text-sm">
               {step > 1 ? "Back" : "Cancel"}
             </Button>
+
+            {/* Desktop Submit button */}
             <Button
               type="submit"
               disabled={!isValid}
@@ -169,9 +171,9 @@ export const AddStudent = () => {
               Add Student
             </Button>
 
+            {/* Mobile Next/Submit button */}
             <Button
               onClick={() => handleSteps()}
-              // {...(step === 3 && { type: "submit" })}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
             >
               {isPending && <Spinner className="text-text-white-default" />}
