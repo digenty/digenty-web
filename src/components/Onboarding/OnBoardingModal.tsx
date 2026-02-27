@@ -170,7 +170,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
     }
 
     if (activeOption === "multiple") {
-      return branches.some(b => b.branchName && b.address && b.levels.length > 0);
+      return branches.every(b => b.branchName && b.address && b.levels.length > 0);
     }
 
     return false;

@@ -526,7 +526,12 @@ export const StudentsTable = () => {
 
       {!loadingStudents && !isError && students.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Add a student" url="/students/add-student" />
+          <ErrorComponent
+            title="No Students"
+            description="No student has been added yet"
+            buttonText="Add a student"
+            url="student-and-parent-record/add-student"
+          />
         </div>
       )}
 
