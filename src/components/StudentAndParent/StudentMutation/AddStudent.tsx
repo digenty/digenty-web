@@ -96,18 +96,13 @@ export const AddStudent = () => {
     },
   });
 
-  console.log(step);
   const handleSteps = () => {
-    console.log("here");
     if (step < 3) {
-      console.log("here 1");
       setStep(prev => prev + 1);
     } else {
-      console.log("here 2");
       formik.handleSubmit();
     }
   };
-  console.log(formik.errors, formik.values);
 
   const handleBack = () => {
     if (step > 0) {

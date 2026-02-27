@@ -16,7 +16,7 @@ export const SearchInput = ({
         className,
       )}
     >
-      <InputGroupInput className="text-text-muted text-sm" placeholder={placeholder} {...props} />
+      <InputGroupInput className="text-text-muted pt-0! text-sm" placeholder={placeholder} {...props} />
       <InputGroupAddon>
         <Search className="text-icon-default-muted" />
       </InputGroupAddon>

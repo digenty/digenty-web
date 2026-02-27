@@ -3,7 +3,7 @@
 import { Paid } from "@/components/Invoices/NewInvoice/NewInvoiceStatus/Paid";
 import { PartiallyPaid } from "@/components/Invoices/NewInvoice/NewInvoiceStatus/PartiallyPaid";
 import { UnPaid } from "@/components/Invoices/NewInvoice/NewInvoiceStatus/UnPaid";
-import { Tabs } from "@/components/Tab";
+import { Tabs } from "@/components/Tabs";
 import React from "react";
 
 export const EditStatus = () => {

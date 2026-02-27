@@ -5,7 +5,7 @@ import { EditInvoiceDetail } from "./EditInvoiceDetails/EditInvoiceDetail";
 import { EditInvoiceItem } from "./EditInvoiceItems/EditInvoiceItem";
 import { EditStatus } from "./EditInvoiceStatus";
 import { EditInvoiceHeader } from "./EditInvoiceHeader";
-import { Tabs } from "@/components/Tab";
+import { Tabs } from "@/components/Tabs";
 import { Button } from "@/components/ui/button";
 
 export const EditInvoice = () => {
