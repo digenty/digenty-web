@@ -12,11 +12,14 @@ import { Button } from "@/components/ui/button";
 import { StudentInputValues } from "../../types";
 import { AcademicInformation } from "./AcademicInformation";
 import { ContactInformation } from "./ContactInformation";
-import { LinkedParents } from "./LinkedParents";
-import { LinkParents } from "./LinkParents";
+// import { LinkedParents } from "./LinkedParents";
+// import { LinkParents } from "./LinkParents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
 import { Tags } from "./Tags";
+import { format } from "date-fns";
+import { LinkParents } from "../LinkParents";
+import { LinkedParents } from "../LinkedParents";
 
 export const EditStudent = () => {
   const router = useRouter();
@@ -73,9 +76,10 @@ export const EditStudent = () => {
       mutate(
         {
           ...values,
+          dateOfBirth: format(new Date(formik.values.dateOfBirth), "yyyy-MM-dd"),
           tags,
 
-          linkedParents: [3],
+          linkedParents: selectedParents.map(parent => parent.id),
           // image: avatar,
           image: null,
           studentId: Number(studentId),
@@ -118,6 +122,18 @@ export const EditStudent = () => {
       formik.setFieldValue("joinedSchoolSession", data.data.joinedSchoolSession);
       formik.setFieldValue("joinedSchoolTerm", data.data.joinedSchoolTerm);
       setTags(data.data.tags);
+      //       setSelectedParents([
+      //     {
+      //       id: 100,
+      //       name: "Bode Smart",
+      //       avatar: null
+      //     },
+      //     {
+      //       id: 101,
+      //       name: "Kemi Oyo",
+      //       avatar: null
+      //     }
+      // ])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
@@ -129,7 +145,6 @@ export const EditStudent = () => {
       formik.handleSubmit();
     }
   };
-  console.log(formik.errors, formik.values);
 
   const handleBack = () => {
     if (step > 0) {
@@ -143,7 +158,7 @@ export const EditStudent = () => {
 
   return (
     <div className="flex h-screen flex-col">
-      {/* {open && <LinkParents open={open} setOpen={setOpen} />} */}
+      {open && <LinkParents open={open} setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />}
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">Edit Student</h1>
@@ -169,7 +184,7 @@ export const EditStudent = () => {
           {step === 3 && <Tags tags={tags} setTags={setTags} />}
 
           {/* Linked Parents */}
-          {step === 2 && <LinkedParents setOpen={setOpen} />}
+          {step === 2 && <LinkedParents setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />}
         </div>
 
         <div className="hidden md:block">
@@ -178,7 +193,7 @@ export const EditStudent = () => {
           <ContactInformation formik={formik} />
           <AcademicInformation formik={formik} data={data} />
           <Tags tags={tags} setTags={setTags} />
-          <LinkedParents setOpen={setOpen} />
+          <LinkedParents setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />
         </div>
 
         <div className="border-border-default bg-bg-default sticky bottom-0 w-full border-t py-3">
