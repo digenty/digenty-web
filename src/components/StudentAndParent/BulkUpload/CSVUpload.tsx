@@ -12,6 +12,11 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { XIcon } from "lucide-react";
 import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Branch } from "@/api/types";
 
 export type ValidationError = {
   row: number;
@@ -27,18 +32,24 @@ export const CSVUpload = ({
   setFile,
   setErrors,
   handleValidation,
+  branchSelected,
+  setBranchSelected,
 }: {
   entity: "Students" | "Parents";
   file: File | null;
   setFile: (file: File | null) => void;
   setErrors: Dispatch<SetStateAction<ValidationError[]>>;
   handleValidation: (file: File, filetype: string) => void;
+  branchSelected: Branch | null;
+  setBranchSelected: (branch: Branch | null) => void;
 }) => {
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
     { label: entity, url: `/student-and-parent-record?tab=${entity}` },
     { label: "CSV Upload", url: "" },
   ]);
+
+  const { data: branches, isPending: loadingBranches } = useGetBranches();
 
   const handleCSVDownload = () => {
     if (entity === "Students") {
@@ -111,6 +122,37 @@ export const CSVUpload = ({
         <p className="text-text-subtle max-w-100 text-center text-xs">
           Upload your {entity.toLowerCase()} records in CSV format to quickly add them into the system.
         </p>
+      </div>
+
+      <div>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label className="text-text-default text-sm font-medium">
+              Select Branch<small className="text-text-destructive text-xs">*</small>
+            </Label>
+          </div>
+          {!branches || loadingBranches ? (
+            <Skeleton className="bg-bg-input-soft h-9 w-full" />
+          ) : (
+            <Select
+              onValueChange={value => {
+                const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                setBranchSelected(branch);
+              }}
+            >
+              <SelectTrigger className="bg-bg-input-soft! h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-light!">
+                <span className="text-text-default! text-sm font-medium">{branchSelected ? branchSelected?.name : "Select a branch"}</span>
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-border-default">
+                {branches.data.content.map((branch: Branch) => (
+                  <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
+                    {branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
       </div>
 
       <div
