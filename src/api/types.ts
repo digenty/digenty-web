@@ -151,6 +151,8 @@ export interface updateSchoolPayload {
   logo: string;
   adminId: number;
   schoolName: string;
+  firstName: string;
+  lastName: string;
   motto: string;
   phoneNumber: number;
   country: string;
