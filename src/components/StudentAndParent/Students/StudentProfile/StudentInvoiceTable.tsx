@@ -1,15 +1,18 @@
-import { DataTable } from "@/components/DataTable";
-import Printer from "@/components/Icons/Printer";
+import { Term } from "@/api/types";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { Draft } from "@/components/Icons/Draft";
+import { MobileDrawer } from "@/components/MobileDrawer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-import { Calendar, Check, CheckCheck, Ellipsis, Eye, Trash2, TriangleAlert, X } from "lucide-react";
-import { useState } from "react";
-import { Invoice } from "./types";
-import { columns } from "./InvoiceColumns";
-import { Draft } from "@/components/Icons/Draft";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetTerms } from "@/hooks/queryHooks/useTerms";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { Calendar, Check, CheckCheck, TriangleAlert, X } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Invoice } from "./types";
 
 const invoices = [
   { id: 0, title: "INV-2025-1001", issueDate: "30/5/2024", status: "Paid" },
@@ -86,39 +89,95 @@ export const getBadge = (status: string) => {
 };
 
 export default function StudentInvoiceTable() {
-  const [termSelected, setTermSelected] = useState(termsOptions[0]);
+  // const router = useRouter();
+  const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [page, setPage] = useState(1);
-  const [rowSelection, setRowSelection] = useState({});
-  const [selectedRows, setSelectedRows] = useState<Invoice[]>([]);
-  console.log(selectedRows);
-  const router = useRouter();
-  const pageSize = 10;
+  // const [rowSelection, setRowSelection] = useState({});
+  // const [selectedRows, setSelectedRows] = useState<Invoice[]>([]);
+  const [activeSession, setActiveSession] = useState<string | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  // const pageSize = 10;
+  const user = useLoggedInUser();
+
+  const { data: terms, isPending: loadingTerms } = useGetTerms(user.schoolId);
+
+  useEffect(() => {
+    if (terms) {
+      const activeTerm = terms.data.terms.find((term: Term) => term.isActiveTerm);
+      setTermSelected(activeTerm);
+      setActiveSession(terms.data.academicSessionName);
+    }
+  }, [setActiveSession, setTermSelected, terms]);
 
   return (
     <div className="space-y-4 md:space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="text-text-default text-lg font-semibold">Student Invoices</h2>
-        <Select value={termSelected} onValueChange={setTermSelected}>
-          <SelectTrigger className="border-border-darker h-7! w-auto border focus-visible:ring-0 md:h-8!">
-            <SelectValue>
-              <div className="flex items-center gap-2">
+
+        <div className="hidden md:block">
+          {!terms || loadingTerms ? (
+            <Skeleton className="bg-bg-input-soft h-9 w-full" />
+          ) : (
+            <Select
+              onValueChange={value => {
+                const term = terms.data.terms?.find((term: Term) => term.termId === Number(value));
+                setTermSelected(term);
+              }}
+            >
+              <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
                 <Calendar className="text-icon-black-muted size-4" />
-                <span className="text-text-default text-sm font-semibold">{termSelected}</span>
-              </div>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent className="bg-bg-card border-border-default">
-            {termsOptions.map(term => (
-              <SelectItem key={term} value={term} className="text-text-default text-sm font-semibold">
-                {term}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+                <span className="text-text-default text-sm font-medium capitalize">
+                  {activeSession} {termSelected?.term.toLowerCase()}
+                </span>
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-border-default">
+                {terms.data.terms.map((term: Term) => (
+                  <SelectItem key={term.termId} value={String(term.termId)} className="text-text-default text-sm font-medium capitalize">
+                    {activeSession} {term.term.toLowerCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        <div className="md:hidden">
+          <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
+            <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+          </Button>
+
+          <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
+            <div className="flex w-full flex-col gap-4 px-4 py-4">
+              {!terms || loadingTerms ? (
+                <Skeleton className="bg-bg-input-soft h-9 w-full" />
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {terms.data.terms.map((term: Term) => (
+                    <Button
+                      onClick={() => {
+                        setTermSelected(term);
+                        setIsFilterOpen(false);
+                      }}
+                      key={term.termId}
+                      className="text-text-default justify-start text-sm font-medium capitalize"
+                    >
+                      {activeSession} {term.term.toLowerCase()}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </MobileDrawer>
+        </div>
       </div>
 
+      <div className="flex items-center justify-center pt-25">
+        <ErrorComponent title="No Invoices" description="No Invoices for this student yet" />
+      </div>
+
+      {/* TODO: When working on invoices module, update this to show user's data */}
       {/* desktop table */}
-      <div className="hidden md:block">
+      {/* <div className="hidden md:block">
         <DataTable
           columns={columns}
           data={invoices}
@@ -136,10 +195,10 @@ export default function StudentInvoiceTable() {
           setRowSelection={setRowSelection}
           onSelectRows={setSelectedRows}
         />
-      </div>
+      </div> */}
 
       {/* Mobile View */}
-      <div className="flex flex-col gap-4 md:hidden">
+      {/* <div className="flex flex-col gap-4 md:hidden">
         {invoices.map(invoice => {
           return (
             <div key={invoice.id} className="border-border-default bg-bg-card rounded-md border">
@@ -183,7 +242,7 @@ export default function StudentInvoiceTable() {
             </div>
           );
         })}
-      </div>
+      </div> */}
     </div>
   );
 }

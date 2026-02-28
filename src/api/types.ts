@@ -191,4 +191,37 @@ export interface StudentUpdate {
   total: number;
   grade: string;
   remark: string;
+};
+
+export interface SubjectReport {
+  subjectName: string;
+  assessments: [
+    {
+      assessmentName: string;
+      score: number;
+      weight: number;
+    },
+  ];
+  total: number;
+  grade: string;
+  remark: string;
+}
+
+export interface StudentReport {
+  schoolName: string;
+  sessionName: string;
+  studentId: number;
+  studentName: string;
+  className: string;
+  totalSchoolDays: number;
+  totalPresent: number;
+  totalAbsent: number;
+  neatness: string | null;
+  punctuality: string | null;
+  diligence: string | null;
+  subjectReports: SubjectReport[];
+  overallPercentage: number;
+  classTeacherComment: string | null;
+  principalComment: string | null;
+  nextTermBegins: string;
 }

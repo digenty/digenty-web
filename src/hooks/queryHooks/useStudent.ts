@@ -4,6 +4,7 @@ import {
   editStudent,
   exportStudents,
   getStudent,
+  getStudentReport,
   getStudents,
   getStudentsDistribution,
   uploadStudents,
@@ -118,6 +119,14 @@ export const useGetStudent = (studentId?: number) => {
     queryKey: [studentKeys.getStudent, studentId],
     queryFn: () => getStudent(studentId),
     enabled: !!studentId,
+  });
+};
+
+export const useGetStudentReport = ({ studentId, termId, armId }: { studentId?: number; termId?: number; armId?: number | null }) => {
+  return useQuery({
+    queryKey: [studentKeys.studentReport, studentId, termId, armId],
+    queryFn: () => getStudentReport({ studentId, termId, armId }),
+    enabled: !!studentId && !!termId && !!armId,
   });
 };
 
