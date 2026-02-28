@@ -63,7 +63,7 @@ export const columns: ColumnDef<Subject>[] = [
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <span
           className={cn(
-            "border-border-default rounded-md border px-2 py-0.5 text-xs",
+            "border-border-default rounded-md border px-2 py-0.5 text-xs lowercase",
             row.original.status === "SUBMITTED"
               ? "bg-bg-badge-green text-bg-basic-green-strong"
               : row.original.status === "IN PROGRESS"

@@ -18,10 +18,10 @@ export const useGetTeacherClasses = () => {
 };
 
 // To put in another branch
-export const useGetClassTeachersInClass = (classId: number) => {
+export const useGetClassTeachersInClass = (armId: number) => {
   return useQuery({
-    queryKey: classKeys.class(classId),
-    queryFn: () => getClassTeachersInClass(classId),
+    queryKey: classKeys.class(armId),
+    queryFn: () => getClassTeachersInClass(armId),
     retry: false,
   });
 };

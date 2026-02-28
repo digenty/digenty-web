@@ -1,7 +1,7 @@
-import { addScoreToStudent } from "@/api/score";
+import { addScoreToStudent, viewStudentScore } from "@/api/score";
 import { toast } from "@/components/Toast";
 import { scoresKey } from "@/queries/score";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAddScore = () => {
   const queryClient = useQueryClient();
@@ -25,5 +25,12 @@ export const useAddScore = () => {
         type: "error",
       });
     },
+  });
+};
+
+export const useViewScore = (subjectId: number, armId: number, termId: number) => {
+  return useQuery({
+    queryKey: scoresKey.getScore,
+    queryFn: () => viewStudentScore(subjectId, armId, termId),
   });
 };

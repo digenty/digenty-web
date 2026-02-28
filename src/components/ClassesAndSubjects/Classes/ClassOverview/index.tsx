@@ -11,6 +11,7 @@ import { useGetClassTeachersInClass } from "@/hooks/queryHooks/useClass";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useParams, useSearchParams } from "next/navigation";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 export interface Subject {
   id: number;
@@ -30,11 +31,12 @@ export const ClassOverview = () => {
   const classId = Number(params.classId);
   const searchParams = useSearchParams();
   const classArmName = searchParams.get("classArmName");
-  const pageSize = 10;
+  const { data, isFetching, isError } = useGetClassTeachersInClass(classId);
+  const pageSize = data?.data?.pageable?.pageSize;
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   console.log(setRowSelection);
-  const { data, isLoading: loading } = useGetClassTeachersInClass(classId);
+
   const classTeachersData = data?.data?.data?.content ?? [];
 
   return (
@@ -44,12 +46,26 @@ export const ClassOverview = () => {
 
       <h3 className="text-text-default hidden text-lg font-semibold md:inline">{classArmName}</h3>
 
+      {isFetching && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
+
+      {isError && (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent
+            title="Could not get Class Subjects"
+            description="This is our problem, we are looking into it so as to serve you better"
+            buttonText="Go to the Home page"
+          />
+        </div>
+      )}
+
+      {!isFetching && !isError && classTeachersData.length === 0 && (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent title="No Subjects" description="No subject teacher has submitted yet" buttonText="Submit report" />
+        </div>
+      )}
+
       <div className="">
-        {loading ? (
-          <Skeleton className="h-100 w-full" />
-        ) : !classTeachersData.length ? (
-          <PageEmptyState title="No Data" description="No teacher has submitted any report yet" buttonText="Go back" />
-        ) : (
+        {!isFetching && !isError && classTeachersData.length > 0 && (
           <>
             <div className="hidden pt-5 md:block">
               <DataTable
