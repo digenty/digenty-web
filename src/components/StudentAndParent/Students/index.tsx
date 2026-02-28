@@ -165,8 +165,6 @@ export const StudentsTable = () => {
   const handleDeletion = () => {
     deleteStudents(undefined, {
       onSuccess: data => {
-        queryClient.invalidateQueries({ queryKey: studentKeys.all, refetchType: "active" });
-
         toast({
           title: "Successfully deleted students",
           description: data.data.message,

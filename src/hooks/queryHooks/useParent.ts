@@ -1,11 +1,15 @@
 import { addParent, deleteParents, editParent, exportParents, getParent, getParents, uploadParents } from "@/api/parent";
 import { parentKeys } from "@/queries/parent";
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAddParent = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: parentKeys.addParent,
     mutationFn: addParent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
+    },
   });
 };
 
@@ -22,9 +26,13 @@ export const useGetParents = ({ limit, branchId, search }: { limit: number; bran
 };
 
 export const useUploadParents = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: parentKeys.parentsUpload,
     mutationFn: uploadParents,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
+    },
   });
 };
 
@@ -44,15 +52,24 @@ export const useGetParent = (parentId?: number) => {
 };
 
 export const useDeleteParents = (parentIds: number[]) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: parentKeys.deleteParents,
     mutationFn: () => deleteParents(parentIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
+    },
   });
 };
 
 export const useEditParent = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: parentKeys.editParent,
     mutationFn: editParent,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
+      queryClient.invalidateQueries({ queryKey: [parentKeys.getParent, variables.id] });
+    },
   });
 };
