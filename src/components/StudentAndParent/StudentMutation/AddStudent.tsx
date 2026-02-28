@@ -24,10 +24,11 @@ export const AddStudent = () => {
   const [date, setDate] = useState<Date | undefined>();
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
-  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [selectedParents, setSelectedParents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
 
+  console.log(avatar, "88888");
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
     { label: "Students", url: "/student-and-parent-record?tab=Students" },
@@ -71,8 +72,7 @@ export const AddStudent = () => {
           dateOfBirth: format(new Date(formik.values.dateOfBirth), "yyyy-MM-dd"),
           tags,
           linkedParents: selectedParents.map(parent => parent.id),
-          // image: avatar,
-          image: null,
+          image: avatar,
         },
         {
           onSuccess: data => {

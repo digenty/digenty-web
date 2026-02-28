@@ -4,22 +4,30 @@ import { useRef, useState } from "react";
 import { Button } from "../../ui/button";
 import { uploadImage } from "@/app/actions/upload-image";
 
-export const ProfilePicture = ({ setAvatar }: { setAvatar: (file: File | null) => void }) => {
+export const ProfilePicture = ({ setAvatar }: { setAvatar: (url: string | null) => void }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState<string | undefined>("/images/profile-picture.png");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (evt: React.ChangeEvent<HTMLInputElement>) => {
     const file = evt.target.files?.[0];
     if (!file) return;
 
+    setIsUploading(true);
     const formData = new FormData();
     formData.append("file", file);
 
-    const data = uploadImage(formData);
-    setImageUrl(URL.createObjectURL(file));
-
-    // TODO: pass the url from data to setAvatar
-    setAvatar(file);
+    try {
+      const data = await uploadImage(formData);
+      if (data?.url) {
+        setImageUrl(data.url);
+        setAvatar(data.url);
+      }
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleCustomButtonClick = () => {
@@ -36,8 +44,12 @@ export const ProfilePicture = ({ setAvatar }: { setAvatar: (file: File | null) =
           <input id="file-upload" type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
         </div>
 
-        <Button onClick={handleCustomButtonClick} className="border-border-darker text-text-default h-7 border px-2! text-sm font-medium">
-          Upload
+        <Button
+          onClick={handleCustomButtonClick}
+          disabled={isUploading}
+          className="border-border-darker text-text-default h-7 border px-2! text-sm font-medium"
+        >
+          {isUploading ? "Uploading..." : "Upload"}
         </Button>
         <p className="text-text-muted text-xs font-normal">JPG or PNG. 1MB Max.</p>
       </div>
