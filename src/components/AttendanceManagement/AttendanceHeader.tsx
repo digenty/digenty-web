@@ -2,7 +2,7 @@
 
 import { Branch, Term } from "@/api/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { useGetTerms } from "@/hooks/queryHooks/useTerms";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";

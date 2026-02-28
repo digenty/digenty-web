@@ -25,9 +25,9 @@ export const getTeacherClass = async () => {
   }
 };
 
-export const getClassTeachersInClass = async (classId: number) => {
+export const getClassTeachersInClass = async (armId: number) => {
   try {
-    const data = await api.get(`/report/subject/arm/${classId}?page=0&size=15`);
+    const data = await api.get(`/report/subject/arm/${armId}?page=0&size=15`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

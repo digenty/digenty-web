@@ -140,3 +140,20 @@ export interface StudentAttendance {
   avatar?: string;
   isPresent: boolean;
 }
+
+export interface Grading {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  grade: string;
+  upperLimit: number;
+  lowerLimit: number;
+  remark: string;
+  classId: number;
+  branchId: number;
+  schoolId: number;
+  isDefault: boolean;
+}

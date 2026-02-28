@@ -1,11 +1,14 @@
-import { getTermsBySession } from "@/api/term";
+import { getAllTerms } from "@/api/term";
 import { termKeys } from "@/queries/term";
 import { useQuery } from "@tanstack/react-query";
 
+
+
+
 export const useGetTerms = (schoolId?: number) => {
   return useQuery({
-    queryKey: termKeys.termsBySession,
-    queryFn: () => getTermsBySession(schoolId),
+    queryKey: termKeys.terms(schoolId),
+    queryFn: () => getAllTerms(schoolId),
     enabled: !!schoolId,
   });
 };

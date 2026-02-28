@@ -43,7 +43,7 @@ export const MyClasses = ({ isLoading, classes }: ClassProps) => {
                         <Button
                           // onClick={() => router.push(`/classes-and-subjects/classes/${cl.armId}`)}
                           // am doin this cuz i wan the classArmName on the nested page , if there is a better way ?
-                          onClick={() => router.push(`/classes-and-subjects/classes/${cl.classId}?classArmName=${cl.classArmName}`)}
+                          onClick={() => router.push(`/classes-and-subjects/classes/${cl.armId}?classArmName=${cl.classArmName}`)}
                           className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
                         >
                           View Class

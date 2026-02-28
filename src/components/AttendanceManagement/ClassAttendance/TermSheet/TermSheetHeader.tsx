@@ -1,19 +1,17 @@
 "use client";
 
+import { Term } from "@/api/types";
 import Calendar from "@/components/Icons/Calendar";
 import ListCheck from "@/components/Icons/ListCheck";
 import { Button } from "@/components/ui/button";
-import { Calendar as AttendanceCalendar } from "@/components/ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import React, { useEffect } from "react";
 import { AttendanceWeek } from "./students";
-import { Term } from "@/api/types";
-import { useGetTerms } from "@/hooks/queryHooks/useTerms";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export const TermSheetHeader = ({
   classname,

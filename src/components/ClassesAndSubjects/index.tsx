@@ -23,7 +23,7 @@ const ClassesAndSubjects = () => {
 
   const { data: subjectListResponse, isLoading: isLoadingSubjects } = useGetTeacherSubjects();
   const { data: classesResponse, isLoading: isLoadingClasses } = useGetTeacherClasses();
-  const subjectList = subjectListResponse?.data;
+  const subjectList = subjectListResponse?.data?.data ?? [];
   const classes = classesResponse?.data?.data ?? [];
   const isLoading = isLoadingClasses || isLoadingSubjects;
   const hasClasses = classes.length > 0;
