@@ -11,12 +11,17 @@ import {
 } from "@/api/student";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { studentKeys } from "@/queries/student";
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAddStudent = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: studentKeys.addStudent,
     mutationFn: addStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
+      queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
+    },
   });
 };
 
@@ -49,9 +54,14 @@ export const useGetStudents = ({
 };
 
 export const useUploadStudents = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: studentKeys.studentsUpload,
     mutationFn: uploadStudents,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
+      queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
+    },
   });
 };
 
@@ -80,16 +90,26 @@ export const useExportStudents = ({
 };
 
 export const useWithdrawStudents = (studentIds: number[]) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: studentKeys.withdrawStudents,
     mutationFn: () => withdrawStudents(studentIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
+      queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
+    },
   });
 };
 
 export const useDeleteStudents = (studentIds: number[]) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: studentKeys.deleteStudents,
     mutationFn: () => deleteStudents(studentIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
+      queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
+    },
   });
 };
 
@@ -102,8 +122,14 @@ export const useGetStudent = (studentId?: number) => {
 };
 
 export const useEditStudent = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: studentKeys.editStudent,
     mutationFn: editStudent,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
+      queryClient.invalidateQueries({ queryKey: [studentKeys.getStudent, variables.studentId] });
+      queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
+    },
   });
 };
