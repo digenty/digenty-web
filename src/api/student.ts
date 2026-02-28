@@ -171,3 +171,14 @@ export const editStudent = async (payload: StudentInputType & { studentId: numbe
     throw error;
   }
 };
+export const getStudentReport = async ({ studentId, termId, armId }: { studentId?: number; termId?: number; armId?: number | null }) => {
+  try {
+    const { data } = await api.get(`/report-card/student/${studentId}/arm/${armId}?termId=${termId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

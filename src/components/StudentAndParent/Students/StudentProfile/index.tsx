@@ -123,9 +123,11 @@ export const StudentProfile = () => {
                 <span>
                   {student.firstName} {student.lastName}
                 </span>
-                {student.tags.slice(0, 2).map((tag, index) => tag && <StatusBadge key={`${tag}-${index}`} status="Prefect" />)}
+                {student.tags.slice(0, 2).map((tag, index) => tag && <StatusBadge key={`${tag}-${index}`} status={tag} />)}
               </div>
-              <p className="text-text-subtle text-sm font-normal">JSS 1 A</p>
+              <p className="text-text-subtle text-sm font-normal">
+                {student.class} {student.armId}
+              </p>
               <div className="text-text-subtle text-sm font-normal">{student.admissionNumber ?? "--"}</div>
             </div>
           </div>
