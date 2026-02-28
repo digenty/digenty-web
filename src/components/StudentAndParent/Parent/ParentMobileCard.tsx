@@ -105,7 +105,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{parent.branchId}</p>
+          <p className="text-text-default">{parent.branch}</p>
         </Button>
       </div>
     </div>

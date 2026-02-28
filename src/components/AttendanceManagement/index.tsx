@@ -14,16 +14,13 @@ import { SearchInput } from "../SearchInput";
 import { Skeleton } from "../ui/skeleton";
 import { AttendanceCards } from "./AttendanceCards";
 import { AttendanceHeader } from "./AttendanceHeader";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const AttendanceManagement = () => {
   useBreadcrumb([{ label: "Attendance Management", url: "/attendance" }]);
 
   const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
   const [termSelected, setTermSelected] = useState<Term | null>(null);
-  const [activeSession, setActveSesion] = useState<string | null>(null);
-  const user = useLoggedInUser();
-  console.log(user, "!!!!!!!");
+  const [activeSession, setActiveSession] = useState<string | null>(null);
 
   const { data, isPending, isError } = useGetAllAttendance(branchSelected?.id, termSelected?.termId);
 
@@ -42,7 +39,7 @@ export const AttendanceManagement = () => {
         termSelected={termSelected}
         setTermSelected={setTermSelected}
         activeSession={activeSession}
-        setActiveSession={setActveSesion}
+        setActiveSession={setActiveSession}
       />
 
       <div className="space-y-6 px-4 pt-4 pb-8 md:space-y-7.5 md:px-8 md:pt-6 md:pb-12">

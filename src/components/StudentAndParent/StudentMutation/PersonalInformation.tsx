@@ -50,6 +50,15 @@ export const PersonalInformation = ({
     }
   }, [activeCountryCode, getStates]);
 
+  useEffect(() => {
+    if (countries.length > 0 && values.nationality && !activeCountryCode) {
+      const countryCode = countries.find(ctry => ctry.name === values.nationality);
+      if (countryCode) {
+        setActiveCountryCode(countryCode.iso2);
+      }
+    }
+  }, [countries, values.nationality, activeCountryCode]);
+
   return (
     <div className="border-border-default space-y-6 border-b py-6">
       <h2 className="text-lg font-semibold">Personal Information</h2>
@@ -118,6 +127,7 @@ export const PersonalInformation = ({
             Gender<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
+            value={values.gender}
             onValueChange={gender => {
               formik.setFieldValue("gender", gender);
             }}
@@ -198,10 +208,12 @@ export const PersonalInformation = ({
           </Label>
           {countries && countries.length > 0 ? (
             <Select
+              value={values.nationality}
               onValueChange={country => {
                 const countryCode = countries?.find(ctry => ctry.name === country);
                 setActiveCountryCode(countryCode?.iso2 || "");
                 formik.setFieldValue("nationality", country);
+                formik.setFieldValue("stateOfOrigin", ""); // Reset state if country changes
               }}
             >
               <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -226,6 +238,7 @@ export const PersonalInformation = ({
           </Label>
           <Select
             disabled={!activeCountryCode}
+            value={values.stateOfOrigin}
             onValueChange={value => {
               const state = states?.find(stat => stat.name === value);
               formik.setFieldValue("stateOfOrigin", state?.name);

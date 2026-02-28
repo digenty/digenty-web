@@ -41,6 +41,15 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
     }
   }, [activeCountryCode, getStates]);
 
+  useEffect(() => {
+    if (countries.length > 0 && values.nationality && !activeCountryCode) {
+      const countryMatch = countries.find(ctry => ctry.name === values.nationality);
+      if (countryMatch) {
+        setActiveCountryCode(countryMatch.iso2);
+      }
+    }
+  }, [countries, values.nationality, activeCountryCode]);
+
   return (
     <div className="border-border-default space-y-6 border-b py-6">
       <h2 className="text-lg font-semibold">Personal Information</h2>
@@ -109,6 +118,7 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
             Gender<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
+            value={values.gender}
             onValueChange={gender => {
               formik.setFieldValue("gender", gender);
             }}
@@ -131,6 +141,7 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
             Relationship<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
+            value={values.relationship}
             onValueChange={rel => {
               formik.setFieldValue("relationship", rel);
             }}
@@ -156,6 +167,7 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (
             <Select
+              value={branches.data.content?.find((b: Branch) => b.id === values.branchId)?.uuid || ""}
               onValueChange={value => {
                 const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
                 formik.setFieldValue("branchId", branch.id);
@@ -181,10 +193,12 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
           </Label>
           {countries && countries.length > 0 ? (
             <Select
+              value={values.nationality}
               onValueChange={country => {
                 const countryCode = countries?.find(ctry => ctry.name === country);
                 setActiveCountryCode(countryCode?.iso2 || "");
                 formik.setFieldValue("nationality", country);
+                formik.setFieldValue("stateOfOrigin", "");
               }}
             >
               <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -209,6 +223,7 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
           </Label>
           <Select
             disabled={!activeCountryCode}
+            value={values.stateOfOrigin}
             onValueChange={value => {
               const state = states?.find(stat => stat.name === value);
               formik.setFieldValue("stateOfOrigin", state?.name);

@@ -4,28 +4,32 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
-  const formData = await req.formData();
-  const file = formData.get("file") as File;
+  try {
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
 
-  if (!file) {
-    return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
-  }
+    if (!file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const fileExtension = file.name.split(".").pop();
-  const key = `uploads/${randomUUID()}.${fileExtension}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileExtension = file.name.split(".").pop();
+    const key = `uploads/${randomUUID()}.${fileExtension}`;
 
-  await spacesClient.send(
-    new PutObjectCommand({
+    const command = new PutObjectCommand({
       Bucket: process.env.DIGITAL_OCEAN_SPACES_BUCKET,
       Key: key,
       Body: buffer,
       ContentType: file.type,
       ACL: "public-read",
-    }),
-  );
+    });
 
-  const url = `${process.env.DIGITAL_OCEAN_SPACES_ENDPOINT}/${process.env.DIGITAL_OCEAN_SPACES_BUCKET}/${key}`;
+    await spacesClient.send(command);
 
-  return NextResponse.json({ url });
+    const url = `${process.env.DIGITAL_OCEAN_SPACES_ENDPOINT}/${process.env.DIGITAL_OCEAN_SPACES_BUCKET}/${key}`;
+
+    return NextResponse.json({ url });
+  } catch (error) {
+    return NextResponse.json({ error: "Upload failed", details: error instanceof Error ? error.message : String(error) }, { status: 500 });
+  }
 }
