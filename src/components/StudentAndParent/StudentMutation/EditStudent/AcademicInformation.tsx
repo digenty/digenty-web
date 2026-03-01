@@ -33,39 +33,33 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
   const { handleBlur, handleChange, errors, touched, values } = formik;
 
   useEffect(() => {
-    if (data && branches && classes && departments && arms) {
+    if (data && branches && classes && departments) {
       const branch = branches.data.content?.find((brnch: Branch) => brnch.name === data.data.branch);
-      formik.setFieldValue("branchId", branch?.id);
       setBranch(branch?.name);
 
       const cls = classes.data.content?.find((cls: ClassType) => cls.name === data.data.class);
-      formik.setFieldValue("classId", cls?.id);
       setClassName(cls?.name);
       setClassId(cls?.id);
 
       const department = departments.data.find((dep: Department) => dep.id === data.data.departmentId);
-      formik.setFieldValue("departmentId", department?.id);
       setDepartment(department?.name);
 
       const boarding = BoardingStatusValues.find((board: { value: string; label: string }) => board.value === data.data.boardingStatus);
-      formik.setFieldValue("boardingStatus", boarding?.value);
       setBoardingStatus(boarding);
 
       const admission = AdmissionStatusValues.find((admission: { value: string; label: string }) => admission.value === data.data.studentStatus);
-      formik.setFieldValue("admissionStatus", admission?.value);
       setAdmissionStatus(admission);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, branches, arms]);
+  }, [data, branches, classes, departments]);
 
   useEffect(() => {
     if (arms && data) {
       const arm = arms.data.content.find((arm: Arm) => arm.id === data.data.armId);
-      formik.setFieldValue("armId", arm?.id);
       setArm(arm?.name);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [arms]);
+  }, [arms, data]);
 
   return (
     <div className="border-border-default space-y-6 border-b py-6">

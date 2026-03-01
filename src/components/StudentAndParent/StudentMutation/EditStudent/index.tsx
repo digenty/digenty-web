@@ -12,14 +12,13 @@ import { Button } from "@/components/ui/button";
 import { StudentInputValues } from "../../types";
 import { AcademicInformation } from "./AcademicInformation";
 import { ContactInformation } from "./ContactInformation";
-// import { LinkedParents } from "./LinkedParents";
-// import { LinkParents } from "./LinkParents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
 import { Tags } from "./Tags";
 import { format } from "date-fns";
 import { LinkParents } from "../LinkParents";
 import { LinkedParents } from "../LinkedParents";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const EditStudent = () => {
   const router = useRouter();
@@ -112,28 +111,25 @@ export const EditStudent = () => {
       formik.setFieldValue("middleName", data.data.middleName);
       formik.setFieldValue("email", data.data.email);
       formik.setFieldValue("phoneNumber", data.data.phoneNumber);
+      formik.setFieldValue("secondaryPhoneNumber", data.data.secondaryPhoneNumber);
       formik.setFieldValue("admissionNumber", data.data.admissionNumber ?? "");
       formik.setFieldValue("medicalInformation", data.data.medicalInformation ?? "");
-      formik.setFieldValue("emergencyContactNumber", data.data.emergencyContact ?? "");
+      formik.setFieldValue("emergencyContactName", data.data.emergencyContactName);
+      formik.setFieldValue("emergencyContactNumber", data.data.emergencyContactNumber ?? "");
       formik.setFieldValue("gender", data.data.gender);
       formik.setFieldValue("dateOfBirth", data.data.dateOfBirth);
       setDate(new Date(data.data.dateOfBirth));
       formik.setFieldValue("address", data.data.address);
       formik.setFieldValue("joinedSchoolSession", data.data.joinedSchoolSession);
       formik.setFieldValue("joinedSchoolTerm", data.data.joinedSchoolTerm);
+      formik.setFieldValue("boardingStatus", data.data.boardingStatus);
+      formik.setFieldValue("admissionStatus", data.data.studentStatus);
       setTags(data.data.tags);
-      //       setSelectedParents([
-      //     {
-      //       id: 100,
-      //       name: "Bode Smart",
-      //       avatar: null
-      //     },
-      //     {
-      //       id: 101,
-      //       name: "Kemi Oyo",
-      //       avatar: null
-      //     }
-      // ])
+
+      // If parents detail is available, map it here
+      // if (data.data.linkedParentsDetails) {
+      //   setSelectedParents(data.data.linkedParentsDetails);
+      // }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
@@ -156,6 +152,14 @@ export const EditStudent = () => {
 
   const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
 
+  if (loadingStudent || !data) {
+    return (
+      <div className="flex h-screen flex-col p-4 md:p-8">
+        <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen flex-col">
       {open && <LinkParents open={open} setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />}
@@ -171,7 +175,7 @@ export const EditStudent = () => {
         <div className="block md:hidden">
           {step === 1 && (
             <div>
-              <ProfilePicture setAvatar={setAvatar} />
+              <ProfilePicture setAvatar={setAvatar} defaultImageUrl={data.data.image} />
               <PersonalInformation date={date} setDate={setDate} formik={formik} data={data} />
             </div>
           )}
@@ -188,7 +192,7 @@ export const EditStudent = () => {
         </div>
 
         <div className="hidden md:block">
-          <ProfilePicture setAvatar={setAvatar} />
+          <ProfilePicture setAvatar={setAvatar} defaultImageUrl={data.data.image} />
           <PersonalInformation date={date} setDate={setDate} formik={formik} data={data} />
           <ContactInformation formik={formik} />
           <AcademicInformation formik={formik} data={data} />

@@ -48,28 +48,19 @@ export const PersonalInformation = ({
   }, []);
 
   useEffect(() => {
+    if (values.nationality && countries.length > 0) {
+      const country = countries.find(ctry => ctry.name === values.nationality);
+      if (country) {
+        setActiveCountryCode(country.iso2);
+      }
+    }
+  }, [values.nationality, countries]);
+
+  useEffect(() => {
     if (activeCountryCode) {
       getStates();
     }
   }, [activeCountryCode, getStates]);
-
-  useEffect(() => {
-    if (data && countries) {
-      const country = countries?.find(ctry => ctry.name === data.data.nationality);
-      if (country) {
-        setActiveCountryCode(country?.iso2);
-        formik.setFieldValue("nationality", country.name);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countries, data]);
-
-  useEffect(() => {
-    if (activeCountryCode && data) {
-      formik.setFieldValue("stateOfOrigin", data.data.stateOfOrigin);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCountryCode, data]);
 
   return (
     <div className="border-border-default space-y-6 border-b py-6">

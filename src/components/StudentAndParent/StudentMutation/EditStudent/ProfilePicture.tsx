@@ -4,9 +4,9 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { uploadImage } from "@/app/actions/upload-image";
 
-export const ProfilePicture = ({ setAvatar }: { setAvatar: (file: File | null) => void }) => {
+export const ProfilePicture = ({ setAvatar, defaultImageUrl }: { setAvatar: (file: File | null) => void; defaultImageUrl?: string | null }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageUrl, setImageUrl] = useState<string | undefined>("/images/profile-picture.png");
+  const [imageUrl, setImageUrl] = useState<string | undefined>(defaultImageUrl || "/images/profile-picture.png");
 
   const handleFileChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const file = evt.target.files?.[0];
