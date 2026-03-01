@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
+import { ReactNode } from "react";
 
 type OverviewCardProps = {
   title: string;
   Icon: () => React.ReactNode;
-  value?: string | number;
+  value?: string | number | ReactNode;
   className?: string;
 };
 

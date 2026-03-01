@@ -1,24 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { AllBranchesTableProps } from "./types";
 
-import { AllBranchDetailsColumns } from "./Columns";
-import { DataTable } from "@/components/DataTable";
-import { Skeleton } from "@/components/ui/skeleton";
-import { SearchInput } from "@/components/SearchInput";
-import { Button } from "@/components/ui/button";
-import { Ellipsis } from "lucide-react";
-import { MobileDrawer } from "@/components/MobileDrawer";
-import Eye from "@/components/Icons/Eye";
-import Notification2 from "@/components/Icons/Notification2";
-import { Key } from "@/components/Icons/Key";
-import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
-import StatusBadge from "@/components/StatusBadge";
+import { DataTable } from "@/components/DataTable";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
+import Eye from "@/components/Icons/Eye";
+import { Key } from "@/components/Icons/Key";
+import Notification2 from "@/components/Icons/Notification2";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { SearchInput } from "@/components/SearchInput";
+import StatusBadge from "@/components/StatusBadge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Ellipsis } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { AllBranchDetailsColumns } from "./Columns";
 
-export const AllBranchesTable = ({ isFetching, allBranchList, searchQuery, setSearchQuery }: { allBranchList: AllBranchesTableProps[]; isFetching: boolean, searchQuery: string, setSearchQuery: (value: string) => void }) => {
+export const AllBranchesTable = ({ isFetching, allBranchList, searchQuery, setSearchQuery, isError }: { allBranchList: AllBranchesTableProps[]; isFetching: boolean, searchQuery: string, setSearchQuery: (value: string) => void }) => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<AllBranchesTableProps[]>([]);
@@ -36,12 +37,24 @@ export const AllBranchesTable = ({ isFetching, allBranchList, searchQuery, setSe
               setSearchQuery(evt.target.value);
             }}
           />
+      
+      {isFetching && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
-      {isFetching ? (
-        <Skeleton className="bg-bg-input-soft h-100 w-full" />
-      ) : !allBranchList.length ? (
+      {isError && (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent
+            title="Could not get Branches"
+            description="This is our problem, we are looking into it so as to serve you better"
+            buttonText="Go to the Home page"
+          />
+        </div>
+      )}
+
+      {!isFetching && !isError && allBranchList.length === 0 && (
         <PageEmptyState title="No Branch" description="You do not have any branch." buttonText="Go back" />
-      ) : (
+      )}
+
+      {!isFetching && !isError && allBranchList.length > 0 && (
         <div className="">
           <div className="hidden md:block">
             <DataTable
@@ -134,14 +147,6 @@ export const AllBranchesTable = ({ isFetching, allBranchList, searchQuery, setSe
               );
             })}
 
-            {visibleCount < allBranchList.length && (
-              <Button
-                onClick={() => setVisibleCount(allBranchList.length)}
-                className="bg-bg-state-soft! text-text-subtle! mx-auto my-2 flex w-39 items-center justify-center rounded-md"
-              >
-                Load More
-              </Button>
-            )}
           </div>
         </div>
       )}

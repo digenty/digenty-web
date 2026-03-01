@@ -20,8 +20,11 @@ const RenderOptions = ({ row }: { row: Row<AllBranchesTableProps> }) => {
         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
-        <DropdownMenuItem  onClick={() => router.push("/classes-and-subjects/all-classes")} className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3">
+      <DropdownMenuContent
+        onClick={() => router.push(`/classes-and-subjects/all-branches/${row.original.branchId}/all-classes`)}
+        className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm"
+      >
+        <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3">
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View branch</span>
         </DropdownMenuItem>

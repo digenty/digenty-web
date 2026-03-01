@@ -1,16 +1,16 @@
 export type AllClassesMainTableProps = {
   id: number;
-  className: string;
-  teacherName: string;
-  subjectSheet: number;
-  editRequest: string;
-  status: "Approved" | "Pending Approval" | "Not Submitted" | "Edit Request";
+  classArmName: string;
+  classTeacherName: string;
+  numberOfSubjects: number;
+  numberOfEditRequest: 0;
+  status: "APPROVED" | "PENDING_APPROVAL" | "NOT_SUBMITTED" | "EDIT_REQUEST";
 };
 
 export type ClassProps = {
-  id: number;
+  subjectId: number;
   subject: string;
-  teacherName: string;
+  subjectTeacherName: string;
   status: string;
 };
 

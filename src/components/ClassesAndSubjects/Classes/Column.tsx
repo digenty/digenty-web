@@ -94,7 +94,7 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
   {
     accessorKey: "class",
     header: () => <div className="text-text-muted text-sm font-medium">Class</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.className}</span>,
+    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.classArmName}</span>,
   },
   {
     accessorKey: "classTeacher",
@@ -102,7 +102,7 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
     cell: ({ row }) => (
       <div className="items center flex gap-2">
         <Avatar className="size-5" />
-        <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.teacherName}</span>{" "}
+        <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.classTeacherName}</span>{" "}
       </div>
     ),
   },
@@ -111,7 +111,7 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
     header: () => <div className="text-text-muted text-sm font-medium">Subject Sheet</div>,
     cell: ({ row }) => (
       <span className="text-text-default cursor-pointer text-sm font-medium">
-        {row.original.subjectSheet}/{row.original.subjectSheet}
+        {row.original.numberOfSubjects}/{row.original.numberOfSubjects}
       </span>
     ),
   },
@@ -123,19 +123,23 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
       const status = row.original.status;
 
       const statusStyles: Record<AllClassesMainTableProps["status"], string> = {
-        Approved: "bg-bg-badge-green text-bg-basic-green-strong ",
-        "Pending Approval": "bg-bg-badge-orange text-bg-basic-orange-strong ",
-        "Not Submitted": "bg-bg-badge-red text-bg-basic-red-strong ",
-        "Edit Request": "bg-bg-badge-lime text-bg-basic-lime-strong ",
+        APPROVED: "bg-bg-badge-green text-bg-basic-green-strong ",
+        PENDING_APPROVAL: "bg-bg-badge-orange text-bg-basic-orange-strong ",
+        NOT_SUBMITTED: "bg-bg-badge-red text-bg-basic-red-strong ",
+        EDIT_REQUEST: "bg-bg-badge-lime text-bg-basic-lime-strong ",
       };
 
-      return <Badge className={`border-border-default rounded-md border p-1 text-xs font-medium ${statusStyles[status]} `}>{status}</Badge>;
+      return (
+        <Badge className={`border-border-default rounded-md border p-1 text-xs font-medium ${statusStyles[status]} `}>
+          {status.toLocaleLowerCase()}
+        </Badge>
+      );
     },
   },
   {
     accessorKey: "editRequest",
     header: () => <div className="text-text-muted text-sm font-medium">Edit Requests</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.editRequest}</span>,
+    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.numberOfEditRequest}</span>,
   },
 
   {

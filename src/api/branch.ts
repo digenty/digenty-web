@@ -43,7 +43,8 @@ export const getAllBranchesDetails = async (termId?: number, search?: string) =>
 export const getRequestEdit = async (branchId: number) => {
   try {
     const { data } = await api.get(`/edit-access/branch/${branchId}`);
-    return data.data;
+
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;
@@ -54,11 +55,11 @@ export const getRequestEdit = async (branchId: number) => {
 
 export const approveEditRequest = async (editAccessId: number, isApproved: boolean) => {
   try {
-    const response = await api.post("/edit-access/approve", {
+    const data = await api.post("/edit-access/approve", {
       editAccessId,
       isApproved,
     });
-    return response.data;
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.message;
@@ -69,15 +70,28 @@ export const approveEditRequest = async (editAccessId: number, isApproved: boole
 
 export const approveEditRequestBulk = async (editAccessIds: number[], isApproved: boolean) => {
   try {
-    const response = await api.post("/edit-access/approve/all", {
+    const data = await api.post("/edit-access/approve/all", {
       editAccessIds,
       isApproved,
     });
-    return response.data;
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.message;
     }
+    throw error;
+  }
+};
+
+export const getBranchDetails = async (branchId: number, termId: number) => {
+  try {
+    const data = await api.get(`/report/class/arm/branch/${branchId}?page=0&size=100`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
+
     throw error;
   }
 };

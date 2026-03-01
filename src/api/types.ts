@@ -244,3 +244,20 @@ export interface AllBranchesReport {
     totalPublishedReport: number,
     branchReports:BranchReport[]
 }
+
+export interface BranchArmReport {
+      classId: number,
+      armId: number,
+      classArmName: string,
+      classTeacherName: string,
+      numberOfSubjects: number,
+      status: string,
+      numberOfEditRequest: number
+    }
+
+export interface BranchArmReportResponse {
+  totalArms: number,
+  totalPendingSubmissions: number,
+  totalCompletedSubmissions: number,
+  branchArmReportResponseDtos: BranchArmReport[]
+}

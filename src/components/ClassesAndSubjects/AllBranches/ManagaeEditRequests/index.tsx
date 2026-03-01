@@ -14,6 +14,7 @@ import { useApproveEditRequest, useApproveEditRequestBulk, useGetEditRequest } f
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 export const ManageEditRequest = () => {
   const params = useParams();
@@ -40,11 +41,11 @@ export const ManageEditRequest = () => {
   const [pendingAction, setPendingAction] = useState<"accepted" | "rejected" | null>(null);
   const [bulkAction, setBulkAction] = useState<"approve" | "reject" | null>(null);
 
-  const { data: requestList, isFetching } = useGetEditRequest(branchId);
+  const { data: requestList, isFetching, isError } = useGetEditRequest(branchId);
   const { mutate: approveSingle, isPending: isApprovingSingle } = useApproveEditRequest();
   const { mutate: approveBulk } = useApproveEditRequestBulk();
 
-  const pageSize = requestList?.pageSize;
+  const pageSize = requestList?.data?.pageSize;
 
   const mockData: BranchEditRequestTypes[] = [
     {
@@ -252,16 +253,25 @@ export const ManageEditRequest = () => {
           </div>
         )}
 
-        <div>
-          {isFetching ? (
-            <Skeleton className="bg-bg-input-soft h-100 w-full" />
-          ) : !filteredData.length ? (
-            <PageEmptyState
-              title="All caught up!"
-              buttonText="Go Back"
-              description="You’ve reviewed every edit request. New requests will appear here when submitted."
+        {isFetching && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
+        {isError && (
+          <div className="flex h-80 items-center justify-center">
+            <ErrorComponent
+              title="Could not get Requests"
+              description="This is our problem, we are looking into it so as to serve you better"
+              buttonText="Go to the Home page"
             />
-          ) : (
+          </div>
+        )}
+        {!isFetching && !isError && filteredData.length === 0 && (
+          <PageEmptyState
+            title="All caught up!"
+            buttonText="Go Back"
+            description="You’ve reviewed every edit request. New requests will appear here when submitted."
+          />
+        )}
+        <div>
+          {!isFetching && !isError && filteredData.length > 0 && (
             <>
               <div className="hidden md:block">
                 <DataTable
