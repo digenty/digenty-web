@@ -13,8 +13,8 @@ export default function ScoresHeader({ onSubmit, isSubmitting, isError }: { onSu
   const [openRequest, setOpenRequest] = useState<boolean>(false);
 
   const searchParams = useSearchParams();
-  const classArm = searchParams.get("classArmName")?.replaceAll("-", " ");
-  const subjectName = searchParams.get("subjectName");
+  const classArm = searchParams.get("classArmName")?.replaceAll("-", " ") || "";
+  const subjectName = searchParams.get("subjectName") || "";
   const isSubmitted = !!searchParams.get("SUBMITTED");
   const isRequested = !!searchParams.get("requested");
 

@@ -55,7 +55,7 @@ export default function Score() {
 
   console.log(studentsData);
   return (
-    <div className="flex w-full flex-col gap-5">
+    <div className="flex w-full flex-col gap-5 px-4 md:px-8">
       <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} />
 
       {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
@@ -76,7 +76,7 @@ export default function Score() {
       )}
 
       {!isLoading && !isError && studentsData.length > 0 && (
-        <div className="px-4 md:px-8">
+        <div className="">
           <ScoreViewBySubject
             scores={studentsData}
             columns={assessmentHeader}

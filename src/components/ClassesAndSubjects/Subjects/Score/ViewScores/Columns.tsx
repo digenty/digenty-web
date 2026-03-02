@@ -26,23 +26,23 @@ export const viewScoreColumns = (): ColumnDef<ScoreType>[] => [
   {
     accessorKey: "CA1",
     header: () => <div className="text-text-muted text-center text-sm font-medium">CA 1</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.CA1}</span>,
+    // cell: ({ row }) => <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.CA1}</span>,
   },
   {
     accessorKey: "CA2",
     header: () => <div className="text-text-muted text-center text-sm font-medium">CA 2</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.CA2}</span>,
+    // cell: ({ row }) => <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.CA2}</span>,
   },
   {
     accessorKey: "examScore",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Exam Score</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.examScore}</span>,
+    // cell: ({ row }) => <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.examScore}</span>,
   },
 
   {
     accessorKey: "totalScore",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Total</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.totalScore}</span>,
+    // cell: ({ row }) => <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.totalScore}</span>,
   },
   {
     accessorKey: "grade",

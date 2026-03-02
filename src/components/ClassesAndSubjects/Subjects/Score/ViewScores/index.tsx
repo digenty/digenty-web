@@ -32,7 +32,7 @@ export const ViewScore = () => {
   const [page, setPage] = useState(1);
   const [activeStudent, setActiveStudent] = useState<number>();
   const [termSelected, setTermSelected] = useState<Term | null>();
-  const [activeSession, setActiveSession] = useState<string | null>()
+  const [activeSession, setActiveSession] = useState<string | null>();
   const pageSize = 15;
 
   const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
@@ -40,14 +40,13 @@ export const ViewScore = () => {
 
   const studentsScores: ScoreType[] = viewScoreData?.data?.data ?? [];
 
- useEffect(() => {
+  useEffect(() => {
     if (terms) {
       const activeTerm = terms.data.terms.find((term: Term) => term.isActiveTerm);
       setTermSelected(activeTerm);
       setActiveSession(terms.data.academicSessionName);
     }
   }, [setActiveSession, setTermSelected, terms]);
-
 
   return (
     <div>
@@ -57,30 +56,30 @@ export const ViewScore = () => {
             <div className="flex items-center gap-3">
               <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">{/* {classArm}, {subjectName} */}</h2>
 
-               {!terms || isLoadingTerm ? (
-                        <Skeleton className="bg-bg-input-soft h-9 w-full" />
-                      ) : (
-                        <Select
-                          onValueChange={value => {
-                            const term = terms.data.terms?.find((term: Term) => term.termId === Number(value));
-                            setTermSelected(term);
-                          }}
-                        >
-                          <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
-                            <Calendar fill="var(--color-icon-default-muted )" className="size-4" />
-                            <span className="text-text-default text-sm font-medium capitalize">
-                              {activeSession} {termSelected?.term.toLowerCase()}
-                            </span>
-                          </SelectTrigger>
-                          <SelectContent className="bg-bg-card border-border-default">
-                            {terms.data.terms.map((term: Term) => (
-                              <SelectItem key={term.termId} value={String(term.termId)} className="text-text-default text-sm font-medium capitalize">
-                                {activeSession} {term.term.toLowerCase()}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
+              {!terms || isLoadingTerm ? (
+                <Skeleton className="bg-bg-input-soft h-9 w-full" />
+              ) : (
+                <Select
+                  onValueChange={value => {
+                    const term = terms.data.terms?.find((term: Term) => term.termId === Number(value));
+                    setTermSelected(term);
+                  }}
+                >
+                  <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
+                    <Calendar fill="var(--color-icon-default-muted )" className="size-4" />
+                    <span className="text-text-default text-sm font-medium capitalize">
+                      {activeSession} {termSelected?.term.toLowerCase()}
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-card border-border-default">
+                    {terms.data.terms.map((term: Term) => (
+                      <SelectItem key={term.termId} value={String(term.termId)} className="text-text-default text-sm font-medium capitalize">
+                        {activeSession} {term.term.toLowerCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="border-border-default overflow-x-auto border-t px-4 py-2 md:border-none md:p-0">
@@ -162,7 +161,7 @@ export const ViewScore = () => {
                     <div className="space-y-1.5 text-left">
                       <div className="text-text-default text-sm font-medium">{score.studentName}</div>
                       <div className="flex items-center gap-2">
-                        <div className="text-text-default text-xs font-normal">{score.totalScore}</div>
+                        {/* <div className="text-text-default text-xs font-normal">{score.totalScore}</div> */}
                         <Badge className="text-text-subtle border-border-default bg-bg-badge-default h-4 w-4 rounded-md py-2 text-xs font-medium">
                           {score.grade}
                         </Badge>
@@ -178,7 +177,7 @@ export const ViewScore = () => {
                   </div>
                 </div>
 
-                <div
+                {/* <div
                   className={`text-sm transition-all duration-200 ${
                     activeStudent === score.studentId ? "border-border-default flex max-h-96 flex-col border-t" : "hidden"
                   }`}
@@ -198,7 +197,7 @@ export const ViewScore = () => {
                       <div className="flex h-12 flex-1 items-center justify-center px-2">{value}</div>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </li>
             ))}
           </ul>

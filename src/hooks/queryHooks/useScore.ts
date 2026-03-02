@@ -32,6 +32,6 @@ export const useViewScore = (subjectId: number, armId: number, termId?: number) 
   return useQuery({
     queryKey: scoresKey.getScore,
     queryFn: () => viewStudentScore(subjectId, armId, termId),
-    enabled: !!termId
+    enabled: !!termId,
   });
 };

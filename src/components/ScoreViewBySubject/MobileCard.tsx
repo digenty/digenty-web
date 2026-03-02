@@ -79,7 +79,7 @@ export const MobileCard = ({
           <div className="space-y-1.5 text-left">
             <div className="text-text-default text-sm font-medium">{student.studentName}</div>
             <div className="flex items-center gap-2">
-              <div className="text-text-default text-xs font-normal">{student.totalScore}</div>
+              {/* <div className="text-text-default text-xs font-normal">{student.totalScore}</div> */}
               <Badge className="text-text-subtle border-border-default bg-bg-badge-default h-4 w-4 rounded-md py-2 text-xs font-medium">
                 {student.grade}
               </Badge>
@@ -100,14 +100,14 @@ export const MobileCard = ({
         <div className="border-border-default flex border-b text-center">
           <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">CA 1</div>
           <div className="flex h-12 flex-1 items-center justify-center px-2">
-            <RenderCell initialValue={student.CA1} isEditable={isEditable} />
+            {/* <RenderCell initialValue={student.CA1} isEditable={isEditable} /> */}
           </div>
         </div>
 
         <div className="border-border-default flex border-b text-center">
           <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">CA 2</span>
           <div className="flex h-12 flex-1 items-center justify-center px-2">
-            <RenderCell initialValue={student.CA2} isEditable={isEditable} />
+            {/* <RenderCell initialValue={student.CA2} isEditable={isEditable} /> */}
           </div>
         </div>
 
@@ -116,14 +116,14 @@ export const MobileCard = ({
             Exam Score
           </span>
           <div className="flex h-12 flex-1 items-center justify-center px-2">
-            <RenderCell initialValue={student.examScore} isEditable={isEditable} />
+            {/* <RenderCell initialValue={student.examScore} isEditable={isEditable} /> */}
           </div>
         </div>
 
         <div className="border-border-default flex border-b text-center">
           <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">Total</span>
           <div className="flex h-12 flex-1 items-center justify-center px-2">
-            <RenderCell initialValue={student.totalScore} isEditable={isEditable} />
+            {/* <RenderCell initialValue={student.totalScore} isEditable={isEditable} /> */}
           </div>
         </div>
 

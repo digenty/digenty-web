@@ -13,7 +13,7 @@ import { columns } from "./Columns";
 import { NotifyTeacher } from "./NotifyTeacher";
 
 export interface Subject {
-  id: number;
+  subjectId: number;
   subjectName: string;
   subjectTeacherName: string;
   status: "IN PROGRESS" | "NOT STARTED" | "SUBMITTED";
@@ -38,7 +38,7 @@ export const ClassOverview = () => {
   const { data, isFetching, isError } = useGetClassTeachersInClass(classId);
   const pageSize = data?.data?.pageable?.pageSize;
 
-  const classTeachersData = data?.data?.data?.content ?? [];
+  const classTeachersData = data?.data?.data?.subjectReportResponseDtoList ?? [];
 
   return (
     <div className="space-y-6 px-4 py-6 md:px-8 md:py-4">
@@ -90,7 +90,7 @@ export const ClassOverview = () => {
 
             <div className="flex flex-col gap-4 md:hidden">
               {classTeachersData?.map((subject: Subject) => (
-                <ClassOverviewCard key={subject.subjectName} subject={subject} />
+                <ClassOverviewCard key={subject.subjectId} subject={subject} />
               ))}
             </div>
           </>
