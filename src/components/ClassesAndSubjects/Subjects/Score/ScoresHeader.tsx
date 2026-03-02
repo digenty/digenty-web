@@ -7,8 +7,17 @@ import { useState } from "react";
 import SubmitScoreModal from "./SubmitScoreModal";
 import Question from "@/components/Icons/Question";
 import RequestEdit from "../RequestEdit";
+import { Spinner } from "@/components/ui/spinner";
 
-export default function ScoresHeader({ onSubmit, isSubmitting, isError }: { onSubmit: () => void; isSubmitting: boolean; isError: boolean }) {
+export default function ScoresHeader({
+  onSubmit,
+  isSubmitting,
+  isError,
+}: {
+  onSubmit: (status: "SUBMITTED" | "IN_PROGRESS") => void;
+  isSubmitting: boolean;
+  isError: boolean;
+}) {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openRequest, setOpenRequest] = useState<boolean>(false);
 
@@ -52,9 +61,11 @@ export default function ScoresHeader({ onSubmit, isSubmitting, isError }: { onSu
                   <Button
                     disabled={isError}
                     size="sm"
+                    onClick={() => onSubmit("IN_PROGRESS")}
                     className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-33 items-center justify-between gap-1 border text-sm"
                   >
-                    <Save fill="var(--color-icon-default-muted)" className="size-3" /> Save as Draft
+                    {isSubmitting ? <Spinner /> : <Save fill="var(--color-icon-default-muted)" className="size-3" />}
+                    Save as Draft
                   </Button>
 
                   <Button

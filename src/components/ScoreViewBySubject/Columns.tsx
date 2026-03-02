@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import { ScoreType } from "./types";
-import { Grading } from "@/api/types";
+import { Assessment, Grading } from "@/api/types";
 
 type UpdateDataFn<T> = (rowIndex: number, columnId: string, value: unknown) => void;
 
@@ -78,7 +78,7 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
   );
 };
 
-export const scoreColumns = (isEditable: boolean, columns: string[], gradings: Grading[]): ColumnDef<ScoreType>[] => [
+export const scoreColumns = (isEditable: boolean, columns: Assessment[], gradings: Grading[]): ColumnDef<ScoreType>[] => [
   {
     accessorKey: "s/n",
     header: () => <div className="text-text-muted w-4 text-sm font-medium">S/N</div>,
@@ -101,9 +101,9 @@ export const scoreColumns = (isEditable: boolean, columns: string[], gradings: G
   },
 
   ...columns.map(column => ({
-    id: column,
-    accessorFn: (row: ScoreType) => row.assessmentScores[column]?.score,
-    header: () => <div className="text-text-muted text-center text-sm font-medium">{column}</div>,
+    id: String(column.assessmentName),
+    accessorFn: (row: ScoreType) => row.assessmentScores[column.assessmentName]?.score,
+    header: () => <div className="text-text-muted text-center text-sm font-medium">{column.assessmentName}</div>,
     cell: (cell: CellContext<ScoreType, unknown>) => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
     size: 108,
     maxSize: 108,

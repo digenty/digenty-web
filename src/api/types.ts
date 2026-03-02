@@ -157,3 +157,38 @@ export interface Grading {
   schoolId: number;
   isDefault: boolean;
 }
+
+export interface Assessment {
+  assessmentId: number;
+  assessmentName: string;
+  score: number;
+  weight: number;
+}
+
+export interface StudentUpdate {
+  studentId: number;
+  studentName: string;
+  assessmentScores: {
+    CA1: {
+      assessmentId: number;
+      assessmentName: string;
+      score: number;
+      weight: number;
+    };
+    CA2: {
+      assessmentId: number;
+      assessmentName: string;
+      score: number;
+      weight: number;
+    };
+    Exam: {
+      assessmentId: number;
+      assessmentName: string;
+      score: number;
+      weight: number;
+    };
+  };
+  total: number;
+  grade: string;
+  remark: string;
+}

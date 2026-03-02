@@ -1,41 +1,34 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ScoreType, SubmitScorePayload, StudentUpdate } from "./types";
+import { ScoreType, StudentUpdate } from "./types";
 
+import { Assessment, Grading } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
+import { toast } from "@/components/Toast";
+import { ErrorComponent } from "../Error/ErrorComponent";
+import { Skeleton } from "../ui/skeleton";
 import { scoreColumns } from "././Columns";
 import { MobileCard } from "./MobileCard";
-import { Skeleton } from "../ui/skeleton";
-import { useAddScore } from "@/hooks/queryHooks/useScore";
-import { ErrorComponent } from "../Error/ErrorComponent";
-import { toast } from "@/components/Toast";
-import { Grading } from "@/api/types";
 
 export const ScoreViewBySubject = ({
   scores,
   isEditable = false,
-  subjectId,
-  armId,
-  onSubmitTrigger,
-  onSubmitSuccess,
   columns,
   gradings,
+  setUpdatedData,
 }: {
   scores: ScoreType[];
   isEditable?: boolean;
   subjectId: number;
   armId: number;
-  onSubmitTrigger?: (submitFn: () => void) => void;
-  onSubmitSuccess?: () => void;
-  columns: string[];
+  columns: Assessment[];
   gradings: Grading[];
+  setUpdatedData: (data: ScoreType[]) => void;
 }) => {
   const [page, setPage] = useState(1);
   const [activeStudent, setActiveStudent] = useState<number>();
   const [scoreUpdates, setScoreUpdates] = useState<StudentUpdate[]>([]);
-
-  const { mutate, isSuccess } = useAddScore();
 
   // Merge original scores with updates for display
   const mergedData = useMemo(() => {
@@ -45,12 +38,13 @@ export const ScoreViewBySubject = ({
       if (!update) return student;
 
       const updatedAssessmentScores = { ...student.assessmentScores };
-      update.scores.forEach(s => {
-        const assessmentKey = String(s.assessmentId);
+
+      update.scores.forEach(score => {
+        const assessmentKey = String(score.assessmentId);
         if (updatedAssessmentScores[assessmentKey]) {
           updatedAssessmentScores[assessmentKey] = {
             ...updatedAssessmentScores[assessmentKey],
-            score: s.score,
+            score: score.score,
           };
         }
       });
@@ -62,37 +56,9 @@ export const ScoreViewBySubject = ({
     });
   }, [scores, scoreUpdates]);
 
-  const handleSubmit = () => {
-    const payload: SubmitScorePayload = {
-      subjectId,
-      armId,
-      status: "SUBMITTED",
-      studentReports: mergedData.map(student => ({
-        studentId: student.studentId,
-        scores: [
-          ...Object.entries(student.assessmentScores).map(([key, value]) => ({
-            assessmentId: key,
-            score: value.score,
-          })),
-        ],
-      })),
-    };
-
-    console.log(payload);
-    // mutate(payload);
-  };
-
   useEffect(() => {
-    if (isSuccess && onSubmitSuccess) {
-      onSubmitSuccess();
-    }
-  }, [isSuccess, onSubmitSuccess]);
-
-  useEffect(() => {
-    if (onSubmitTrigger) {
-      onSubmitTrigger(handleSubmit);
-    }
-  }, [mergedData, onSubmitTrigger]);
+    setUpdatedData(mergedData);
+  }, [mergedData]);
 
   if (columns.length === 0) {
     return (

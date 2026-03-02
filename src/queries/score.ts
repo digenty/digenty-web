@@ -1,4 +1,4 @@
 export const scoresKey = {
-  addScore: ["inputScore"],
+  addScore: ["addScore"],
   getScore: ["viewScores"],
 };

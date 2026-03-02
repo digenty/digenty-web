@@ -2,16 +2,18 @@
 
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
-import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
-import ScoresHeader from "./ScoresHeader";
-import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useRef } from "react";
-import { useAddScore } from "@/hooks/queryHooks/useScore";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Assessment } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
+import { ScoreType, SubmitScorePayload } from "@/components/ScoreViewBySubject/types";
+import { toast } from "@/components/Toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetGradingsForClass } from "@/hooks/queryHooks/useGrading";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useAddScore } from "@/hooks/queryHooks/useScore";
+import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import ScoresHeader from "./ScoresHeader";
 
 export default function Score() {
   useBreadcrumb([
@@ -21,44 +23,68 @@ export default function Score() {
   ]);
 
   const pathname = usePathname();
-  const router = useRouter();
   const classId = pathname.split("/")[5];
   const subjectId = pathname.split("/")[3];
   const armId = pathname.split("/")[7];
 
+  const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
+
   const { data: StudentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
   const { data: classGrading, isLoading: isGradingLoading } = useGetGradingsForClass(Number(classId), 25);
-
-  const { isPending: isSubmitting } = useAddScore();
+  const { mutate, isPending: isSubmitting } = useAddScore();
 
   const studentsData = StudentsItem?.data?.data?.content ?? [];
-  const assessmentHeader = Object.keys(studentsData[0]?.assessmentScores ?? {});
+  const assessmentHeader = Object.values((studentsData[0]?.assessmentScores ?? {}) as Record<string, Assessment>).map((assessment: Assessment) => ({
+    assessmentId: assessment.assessmentId,
+    assessmentName: assessment.assessmentName,
+    weight: assessment.weight,
+    score: assessment.score,
+  }));
   const gradings = classGrading?.data ?? [];
 
-  const submitScoreRef = useRef<(() => void) | null>(null);
+  const handleSubmit = (status: "SUBMITTED" | "IN_PROGRESS") => {
+    const payload: SubmitScorePayload = {
+      subjectId: Number(subjectId),
+      armId: Number(armId),
+      status,
+      studentReports: updatedData.map(student => ({
+        studentId: student.studentId,
+        scores: [
+          ...Object.entries(student.assessmentScores).map(([key, value]) => ({
+            assessmentId: assessmentHeader.find(header => header.assessmentName === key)?.assessmentId as number,
+            score: value.score,
+          })),
+        ],
+      })),
+    };
 
-  const handleSubmitTrigger = (submitFn: () => void) => {
-    submitScoreRef.current = submitFn;
+    mutate(payload, {
+      onSuccess: () => {
+        toast({
+          title: `${status === "SUBMITTED" ? "Submitted" : "Saved as draft"}`,
+          description: `Scores ${status === "SUBMITTED" ? "submitted" : "saved as draft"} successfully`,
+          type: "success",
+        });
+      },
+      onError: () => {
+        toast({
+          title: `Could not ${status === "SUBMITTED" ? "submit" : "save"}`,
+          description: `Failed to ${status === "SUBMITTED" ? "submit" : "save"} scores`,
+          type: "error",
+        });
+      },
+    });
   };
 
-  const handleSubmit = () => {
-    if (submitScoreRef.current) {
-      submitScoreRef.current();
-    }
-  };
-
-  // const handleSubmitSuccess = () => {
-  //   const params = new URLSearchParams(searchParams.toString());
-  //   params.set("SUBMITTED", "true");
-  //   router.push(`?${params.toString()}`);
-  // };
-
-  console.log(studentsData);
   return (
-    <div className="flex w-full flex-col gap-5 px-4 md:px-8">
+    <div className="flex w-full flex-col gap-5">
       <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} />
 
-      {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
+      {isLoading && (
+        <div className="px-4 md:px-8">
+          <Skeleton className="bg-bg-input-soft h-100 w-full" />
+        </div>
+      )}
 
       {!isLoading && isError && (
         <div className="flex h-80 items-center justify-center">
@@ -76,17 +102,15 @@ export default function Score() {
       )}
 
       {!isLoading && !isError && studentsData.length > 0 && (
-        <div className="">
+        <div className="px-4 md:px-8">
           <ScoreViewBySubject
             scores={studentsData}
             columns={assessmentHeader}
-            // isEditable={!isSubmitted}
             isEditable={true}
             subjectId={Number(subjectId)}
             armId={Number(armId)}
-            onSubmitTrigger={handleSubmitTrigger}
-            onSubmitSuccess={() => {}}
             gradings={gradings}
+            setUpdatedData={setUpdatedData}
           />
         </div>
       )}

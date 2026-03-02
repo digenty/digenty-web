@@ -53,7 +53,7 @@ import React from "react";
 type SubmitScoreModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: () => void;
+  onSubmit: (status: "SUBMITTED" | "IN_PROGRESS") => void;
   isSubmitting?: boolean;
   classArm: string;
   subjectName: string;
@@ -61,8 +61,8 @@ type SubmitScoreModalProps = {
 
 export default function SubmitScoreModal({ open, onOpenChange, onSubmit, isSubmitting, classArm, subjectName }: SubmitScoreModalProps) {
   const handleSubmit = () => {
-    onSubmit();
-    // onOpenChange(false);
+    onSubmit("SUBMITTED");
+    onOpenChange(false);
   };
 
   return (
