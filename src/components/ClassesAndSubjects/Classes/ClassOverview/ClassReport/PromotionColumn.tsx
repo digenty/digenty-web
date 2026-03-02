@@ -1,10 +1,10 @@
 "use client";
 
 import { Avatar } from "@/components/Avatar";
-import { ColumnDef, Row } from "@tanstack/react-table";
-import { StudentRow } from "./students";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { useState } from "react";
+import { StudentRow } from "./students";
 
 const termsOptions = ["FIRST", "SECOND", "THIRD"];
 const actions = ["Promote", "Repeat", "Double Promotion"];
@@ -13,24 +13,22 @@ const RenderAction = (row: Row<StudentRow>) => {
   const [actionSelected, setActionSelected] = useState(actions[0]);
 
   return (
-    <div className="">
-      <Select value={actionSelected} onValueChange={setActionSelected}>
-        <SelectTrigger className="border-border-darker bg-bg-state-secondary! h-8! w-full border">
-          <SelectValue>
-            <div className="flex items-center gap-2">
-              <span className="text-text-default text-sm font-medium">{actionSelected}</span>
-            </div>
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent className="bg-bg-card border-border-default">
-          {actions.map(action => (
-            <SelectItem key={action} value={action} className="text-text-default text-sm">
-              {action}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Select value={actionSelected} onValueChange={setActionSelected}>
+      <SelectTrigger className="border-border-darker bg-bg-state-secondary! h-8! w-full border">
+        <SelectValue>
+          <div className="flex items-center gap-2">
+            <span className="text-text-default text-sm font-medium">{actionSelected}</span>
+          </div>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent className="bg-bg-card border-border-default">
+        {actions.map(action => (
+          <SelectItem key={action} value={action} className="text-text-default text-sm">
+            {action}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 
@@ -77,26 +75,23 @@ export const createPromotionColumns = (data: StudentRow[]): ColumnDef<StudentRow
 
   return [
     {
-      accessorKey: "s/n",
+      id: "s/n",
       header: () => <span className="text-text-muted pr-2 text-sm font-medium">S/N</span>,
       cell: ({ row }) => <span className="text-text-default pr-2 text-sm">{row.index + 1}</span>,
       size: 50,
       maxSize: 50,
     },
-
     {
-      accessorKey: "name",
+      accessorKey: "studentName",
       header: () => (
         <div className="text-text-muted absolute top-0 left-0 flex h-14 w-70 items-center pl-2 text-left! text-sm font-medium">Student Name</div>
       ),
-      cell: ({ row }) => {
-        return (
-          <div className="flex w-70 items-center gap-2">
-            <Avatar className="size-8" />
-            <span className="text-text-default text-sm">{row.original.name}</span>
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <div className="flex w-70 items-center gap-2">
+          <Avatar className="size-8" />
+          <span className="text-text-default text-sm">{row.original.name}</span>
+        </div>
+      ),
       size: 400,
       minSize: 400,
     },
@@ -107,7 +102,7 @@ export const createPromotionColumns = (data: StudentRow[]): ColumnDef<StudentRow
 
     {
       id: "actions",
-      header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
+      header: () => <div className="text-text-muted cursor-pointer text-sm font-medium" />,
       cell: ({ row }) => RenderAction(row),
       size: 209,
       minSize: 209,

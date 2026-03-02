@@ -126,7 +126,7 @@ export const useGetStudentReport = ({ studentId, termId, armId }: { studentId?: 
   return useQuery({
     queryKey: [studentKeys.studentReport, studentId, termId, armId],
     queryFn: () => getStudentReport({ studentId, termId, armId }),
-    enabled: typeof studentId === "number" && !!termId && !!armId,
+    enabled: typeof studentId === "number" && !Number.isNaN(studentId) && !!termId && !!armId,
   });
 };
 

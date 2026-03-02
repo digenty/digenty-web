@@ -98,7 +98,7 @@ export const ClassReportHeader = ({
             <div className="flex items-center gap-2 md:gap-1">
               <Button
                 size="sm"
-                className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-22 flex-1 items-center gap-1 border text-sm md:flex-auto"
+                className="border-border-default bg-bg-state-secondary text-text-default flex h-8 items-center gap-1 border text-sm md:flex-auto"
               >
                 <ShareBox fill="var(--color-icon-default-muted)" /> Export
               </Button>
@@ -107,7 +107,7 @@ export const ClassReportHeader = ({
                 <Button
                   onClick={() => setOpenModal(true)}
                   size="sm"
-                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 w-full items-center gap-1 text-sm font-normal md:w-fit"
+                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 items-center gap-1 text-sm font-normal md:w-fit"
                 >
                   <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
                   Submit

@@ -61,3 +61,27 @@ export const getClassCumulativeReport = async (armId?: number) => {
     throw error;
   }
 };
+
+export const getClassReportPromotion = async (armId: number) => {
+  try {
+    const { data } = await api.get(`/report/class/arm/${armId}/cumulative-report`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
+    throw error;
+  }
+};
+
+export const getStudentClassReport = async (studentId: number, armId: number) => {
+  try {
+    const { data } = await api.get(`/report-card/student/${studentId}/arm/${armId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
+    throw error;
+  }
+};

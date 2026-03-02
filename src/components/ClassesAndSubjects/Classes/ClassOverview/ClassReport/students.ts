@@ -32,6 +32,15 @@ export interface StudentRow {
   terms: TermResult[];
 }
 
+export type PromotionStudent = {
+  studentId: number;
+  studentName: string;
+  firstTermPercentage?: number | string;
+  secondTermPercentage?: number | string;
+  thirdTermPercentage?: number | string;
+  cumulativePercentage?: number | string;
+};
+
 // What the data should look like
 // {
 //   "id": "1",

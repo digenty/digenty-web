@@ -5,7 +5,8 @@ import { useState } from "react";
 import { DataTable } from "../DataTable";
 import { ErrorComponent } from "../Error/ErrorComponent";
 
-type Result = {
+
+export type Result = {
   subject: string;
   ca: number;
   exam: number;
@@ -114,7 +115,6 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
       <div className="flex gap-6 px-4 py-5">
         <div className="w-1/2 space-y-2">
           <h3 className="text-bg-basic-red-accent text-sm font-semibold">ATTENDANCE</h3>
-
           <div className="text-text-subtle border-border-default border text-xs font-medium md:text-sm">
             <div className="border-border-default flex justify-between border-b px-2">
               <div className="line-clamp-1 w-3/4 flex-1 truncate py-2">
@@ -123,7 +123,6 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
               </div>
               <div className="border-border-default w-1/4 border-l py-2 pl-2 text-center">{studentReport.totalSchoolDays}</div>
             </div>
-
             <div className="border-border-default flex justify-between border-b px-2">
               <div className="line-clamp-1 w-3/4 flex-1 truncate py-2">
                 <span className="hidden lg:inline">No. of </span>
@@ -131,7 +130,6 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
               </div>
               <div className="border-border-default w-1/4 border-l py-2 pl-2 text-center">{studentReport.totalPresent}</div>
             </div>
-
             <div className="flex justify-between px-2">
               <div className="line-clamp-1 w-3/4 flex-1 truncate py-2">
                 <span className="hidden lg:inline">No. of </span>
@@ -144,20 +142,17 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
 
         <div className="w-1/2 space-y-2">
           <h3 className="text-bg-basic-red-accent text-xs font-semibold md:text-sm">CONDUCT</h3>
-
           <div className="text-text-subtle border-border-default border text-xs font-medium md:text-sm">
             <div className="border-border-default flex justify-between border-b px-2">
               <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Neatness</div>
               <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center">{studentReport.neatness ?? "--"}</div>
             </div>
-
             <div className="border-border-default flex justify-between border-b px-2">
               <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Punctuality</div>
               <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center">
                 {studentReport.punctuality ?? "--"}
               </div>
             </div>
-
             <div className="flex justify-between px-2">
               <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Diligence</div>
               <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center">
@@ -201,7 +196,6 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
           </div>
         )}
 
-        {/* Summary */}
         <div className="text-text-default mt-4 flex flex-col gap-4 text-sm font-normal">
           <div className="">
             <span>OVERALL PERCENTAGE:</span> <span className="font-medium">{studentReport.overallPercentage}%</span>
@@ -210,12 +204,10 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
             <span className="text-text-subtle">Class Teacher&apos;s Comment: </span>{" "}
             <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{studentReport.classTeacherComment ?? "--"}</span>
           </div>
-
           <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
             <span className="text-text-subtle">Principal&apos;s Comment:</span>{" "}
             <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{studentReport.principalComment ?? "--"}</span>
           </div>
-
           <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
             <span className="text-text-subtle">Next Term Begins:</span>{" "}
             <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">
