@@ -1,17 +1,16 @@
 "use client";
 import { DataTable } from "@/components/DataTable";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetClassTeachersInClass } from "@/hooks/queryHooks/useClass";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useClassesStore } from "@/store/classes";
+import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ClassOverviewCard } from "./ClassOverviewCard";
 import { ClassOverviewHeader } from "./ClassOverviewHeader";
 import { columns } from "./Columns";
 import { NotifyTeacher } from "./NotifyTeacher";
-import { useGetClassTeachersInClass } from "@/hooks/queryHooks/useClass";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useParams, useSearchParams } from "next/navigation";
-import { PageEmptyState } from "@/components/Error/PageEmptyState";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 export interface Subject {
   id: number;
@@ -26,16 +25,18 @@ export const ClassOverview = () => {
     { label: "Classes", url: `/classes-and-subjects` },
     { label: "My Class", url: "" },
   ]);
+
   const { openNotifyTeacher } = useClassesStore();
   const params = useParams();
   const classId = Number(params.classId);
   const searchParams = useSearchParams();
   const classArmName = searchParams.get("classArmName");
-  const { data, isFetching, isError } = useGetClassTeachersInClass(classId);
-  const pageSize = data?.data?.pageable?.pageSize;
+
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
-  console.log(setRowSelection);
+
+  const { data, isFetching, isError } = useGetClassTeachersInClass(classId);
+  const pageSize = data?.data?.pageable?.pageSize;
 
   const classTeachersData = data?.data?.data?.content ?? [];
 
@@ -46,7 +47,7 @@ export const ClassOverview = () => {
 
       <h3 className="text-text-default hidden text-lg font-semibold md:inline">{classArmName}</h3>
 
-      {isFetching && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
+      {isFetching && <Skeleton className="bg-bg-input-soft mt-4 h-100 w-full" />}
 
       {isError && (
         <div className="flex h-80 items-center justify-center">
@@ -60,7 +61,8 @@ export const ClassOverview = () => {
 
       {!isFetching && !isError && classTeachersData.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Subjects" description="No subject teacher has submitted yet" buttonText="Submit report" />
+          {/* TODO: Link this button to creating subjects page */}
+          <ErrorComponent title="No Subjects" description="No subjects for this class yet" buttonText="Assign subjects to class" url="" />
         </div>
       )}
 
@@ -85,9 +87,10 @@ export const ClassOverview = () => {
                 showPagination={false}
               />
             </div>
+
             <div className="flex flex-col gap-4 md:hidden">
               {classTeachersData?.map((subject: Subject) => (
-                <ClassOverviewCard key={subject.id} subject={subject} />
+                <ClassOverviewCard key={subject.subjectName} subject={subject} />
               ))}
             </div>
           </>

@@ -46,7 +46,11 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                   <div>
                     {(cl.reportStatus === "NOT_SUBMITTED" || cl.reportStatus === "IN_PROGRESS") && (
                       <Button
-                        onClick={() => router.push(`/classes-and-subjects/subjects/${subjectId}/arms/${cl.armId}/add-score`)}
+                        onClick={() =>
+                          router.push(
+                            `/classes-and-subjects/subjects/${subjectId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
+                          )
+                        }
                         className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
                       >
                         Enter Score

@@ -5,7 +5,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import ScoresHeader from "./ScoresHeader";
 import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useRef } from "react";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,15 +18,16 @@ export default function Score() {
     { label: "Score Input", url: "" },
   ]);
 
-  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
-  const subjectId = Number(searchParams.get("subjectId"));
-  const armId = Number(searchParams.get("armId"));
-  const { data: StudentsItem, isLoading, isError } = useGetSubjectStudents(subjectId, armId);
+  const subjectId = pathname.split("/")[3];
+  const armId = pathname.split("/")[5];
+
+  const { data: StudentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
   const { isPending: isSubmitting } = useAddScore();
-  const isSubmitted = !!searchParams.get("SUBMITTED");
-  const studentsData = StudentsItem?.data?.content;
-  console.log(studentsData, "Student Items");
+
+  const studentsData = StudentsItem?.data?.data?.content ?? [];
+  const assessmentHeader = Object.keys(studentsData[0]?.assessmentScores ?? {});
 
   const submitScoreRef = useRef<(() => void) | null>(null);
 
@@ -40,21 +41,30 @@ export default function Score() {
     }
   };
 
-  const handleSubmitSuccess = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("SUBMITTED", "true");
-    router.push(`?${params.toString()}`);
-  };
+  // const handleSubmitSuccess = () => {
+  //   const params = new URLSearchParams(searchParams.toString());
+  //   params.set("SUBMITTED", "true");
+  //   router.push(`?${params.toString()}`);
+  // };
 
   return (
     <div className="flex w-full flex-col gap-5">
       <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} />
 
-      {isLoading && <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />}
+      {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
       {!isLoading && isError && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Contact Admin" />
+          {/* TODO: Set URL or action to contact admin */}
+          {error.message === "No assessments configured for this class or branch" ? (
+            <ErrorComponent title="Not Found" description={error.message} buttonText="Contact Admin" url="" />
+          ) : (
+            <ErrorComponent
+              title="No Students"
+              description="This is our problem, we are looking into it so as to serve you better"
+              buttonText="Go to Home page"
+            />
+          )}
         </div>
       )}
 
@@ -62,11 +72,13 @@ export default function Score() {
         <div className="px-4 md:px-8">
           <ScoreViewBySubject
             scores={studentsData}
-            isEditable={!isSubmitted}
-            subjectId={subjectId}
-            armId={armId}
+            columns={assessmentHeader}
+            // isEditable={!isSubmitted}
+            isEditable={true}
+            subjectId={Number(subjectId)}
+            armId={Number(armId)}
             onSubmitTrigger={handleSubmitTrigger}
-            onSubmitSuccess={handleSubmitSuccess}
+            onSubmitSuccess={() => {}}
           />
         </div>
       )}

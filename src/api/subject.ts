@@ -17,7 +17,6 @@ export const getTeacherSubjects = async () => {
 export const getSubjectStudents = async (subjectId: number, amrId: number) => {
   try {
     const data = await api.get(`/report/subject/${subjectId}/arm/${amrId}?page=0&size=15`);
-
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
