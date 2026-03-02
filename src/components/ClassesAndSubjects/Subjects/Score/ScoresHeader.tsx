@@ -20,7 +20,16 @@ export default function ScoresHeader({ onSubmit, isSubmitting, isError }: { onSu
 
   return (
     <>
-      {openModal && <SubmitScoreModal open={openModal} onOpenChange={setOpenModal} onSubmit={onSubmit} isSubmitting={isSubmitting} />}
+      {openModal && (
+        <SubmitScoreModal
+          open={openModal}
+          onOpenChange={setOpenModal}
+          onSubmit={onSubmit}
+          isSubmitting={isSubmitting}
+          classArm={classArm}
+          subjectName={subjectName}
+        />
+      )}
       {openRequest && <RequestEdit open={openRequest} onOpenChange={setOpenRequest} />}
       <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">

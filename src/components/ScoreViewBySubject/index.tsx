@@ -10,6 +10,7 @@ import { Skeleton } from "../ui/skeleton";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
 import { ErrorComponent } from "../Error/ErrorComponent";
 import { toast } from "@/components/Toast";
+import { Grading } from "@/api/types";
 
 export const ScoreViewBySubject = ({
   scores,
@@ -19,6 +20,7 @@ export const ScoreViewBySubject = ({
   onSubmitTrigger,
   onSubmitSuccess,
   columns,
+  gradings,
 }: {
   scores: ScoreType[];
   isEditable?: boolean;
@@ -27,6 +29,7 @@ export const ScoreViewBySubject = ({
   onSubmitTrigger?: (submitFn: () => void) => void;
   onSubmitSuccess?: () => void;
   columns: string[];
+  gradings: Grading[];
 }) => {
   const [page, setPage] = useState(1);
   const [activeStudent, setActiveStudent] = useState<number>();
@@ -66,13 +69,17 @@ export const ScoreViewBySubject = ({
       status: "SUBMITTED",
       studentReports: mergedData.map(student => ({
         studentId: student.studentId,
-        CA1: student.assessmentScores?.["CA1"]?.score ?? 0,
-        CA2: student.assessmentScores?.["CA2"]?.score ?? 0,
-        examScore: student.assessmentScores?.["Exam"]?.score ?? student.assessmentScores?.["examScore"]?.score ?? 0,
+        scores: [
+          ...Object.entries(student.assessmentScores).map(([key, value]) => ({
+            assessmentId: key,
+            score: value.score,
+          })),
+        ],
       })),
     };
 
-    mutate(payload);
+    console.log(payload);
+    // mutate(payload);
   };
 
   useEffect(() => {
@@ -104,7 +111,7 @@ export const ScoreViewBySubject = ({
           rowSelection={{}}
           setRowSelection={() => {}}
           onSelectRows={() => {}}
-          columns={scoreColumns(isEditable, columns)}
+          columns={scoreColumns(isEditable, columns, gradings)}
           data={mergedData}
           meta={{
             updateData: (rowIndex: number, columnId: string, value: unknown) => {

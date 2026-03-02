@@ -10,6 +10,8 @@ import { useRef } from "react";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { useGetGradingsForClass } from "@/hooks/queryHooks/useGrading";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export default function Score() {
   useBreadcrumb([
@@ -20,14 +22,18 @@ export default function Score() {
 
   const pathname = usePathname();
   const router = useRouter();
+  const classId = pathname.split("/")[5];
   const subjectId = pathname.split("/")[3];
-  const armId = pathname.split("/")[5];
+  const armId = pathname.split("/")[7];
 
   const { data: StudentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
+  const { data: classGrading, isLoading: isGradingLoading } = useGetGradingsForClass(Number(classId), 25);
+
   const { isPending: isSubmitting } = useAddScore();
 
   const studentsData = StudentsItem?.data?.data?.content ?? [];
   const assessmentHeader = Object.keys(studentsData[0]?.assessmentScores ?? {});
+  const gradings = classGrading?.data ?? [];
 
   const submitScoreRef = useRef<(() => void) | null>(null);
 
@@ -47,6 +53,7 @@ export default function Score() {
   //   router.push(`?${params.toString()}`);
   // };
 
+  console.log(studentsData);
   return (
     <div className="flex w-full flex-col gap-5">
       <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} />
@@ -79,6 +86,7 @@ export default function Score() {
             armId={Number(armId)}
             onSubmitTrigger={handleSubmitTrigger}
             onSubmitSuccess={() => {}}
+            gradings={gradings}
           />
         </div>
       )}

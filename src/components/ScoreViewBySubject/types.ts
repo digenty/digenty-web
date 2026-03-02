@@ -16,9 +16,7 @@ export type ScoreType = {
 
 export interface StudentReportPayload {
   studentId: number;
-  CA1: number;
-  CA2: number;
-  examScore: number;
+  scores: ScoreUpdate[];
 }
 
 export interface SubmitScorePayload {

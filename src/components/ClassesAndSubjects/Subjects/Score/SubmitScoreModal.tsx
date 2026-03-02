@@ -55,9 +55,11 @@ type SubmitScoreModalProps = {
   onOpenChange: (open: boolean) => void;
   onSubmit: () => void;
   isSubmitting?: boolean;
+  classArm: string;
+  subjectName: string;
 };
 
-export default function SubmitScoreModal({ open, onOpenChange, onSubmit, isSubmitting }: SubmitScoreModalProps) {
+export default function SubmitScoreModal({ open, onOpenChange, onSubmit, isSubmitting, classArm, subjectName }: SubmitScoreModalProps) {
   const handleSubmit = () => {
     onSubmit();
     // onOpenChange(false);
@@ -83,7 +85,7 @@ export default function SubmitScoreModal({ open, onOpenChange, onSubmit, isSubmi
       >
         <div className="flex flex-col gap-4 px-5 py-4">
           <DialogDescription className="text-text-subtle text-sm font-normal">
-            Are you sure you want to submit the scores for Mathematics (SS2B)?
+            Are you sure you want to submit the scores for {subjectName} ({classArm})?
           </DialogDescription>
 
           <div className="border-border-default bg-bg-basic-blue-subtle rounded-sm border px-3 py-2">

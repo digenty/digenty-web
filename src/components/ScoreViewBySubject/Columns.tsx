@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import { ScoreType } from "./types";
+import { Grading } from "@/api/types";
 
 type UpdateDataFn<T> = (rowIndex: number, columnId: string, value: unknown) => void;
 
@@ -77,7 +78,7 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
   );
 };
 
-export const scoreColumns = (isEditable: boolean, columns: string[]): ColumnDef<ScoreType>[] => [
+export const scoreColumns = (isEditable: boolean, columns: string[], gradings: Grading[]): ColumnDef<ScoreType>[] => [
   {
     accessorKey: "s/n",
     header: () => <div className="text-text-muted w-4 text-sm font-medium">S/N</div>,
@@ -126,14 +127,32 @@ export const scoreColumns = (isEditable: boolean, columns: string[]): ColumnDef<
   {
     accessorKey: "grade",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Grade</div>,
-    cell: (cell: CellContext<ScoreType, unknown>) => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
+    cell: ({ row }) => {
+      const totalScore = Object.values(row.original.assessmentScores).reduce((sum, assessment) => sum + assessment.score, 0);
+      const gradeValue = gradings.find(grade => grade.lowerLimit <= totalScore && grade.upperLimit >= totalScore)?.grade;
+
+      return (
+        <div className={cn("text-text-muted flex h-14 items-center justify-center text-sm font-normal")}>
+          <span className="truncate">{gradeValue}</span>
+        </div>
+      );
+    },
     size: 108,
     maxSize: 108,
   },
   {
     accessorKey: "remark",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Remark</div>,
-    cell: (cell: CellContext<ScoreType, unknown>) => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
+    cell: ({ row }) => {
+      const totalScore = Object.values(row.original.assessmentScores).reduce((sum, assessment) => sum + assessment.score, 0);
+      const remarkValue = gradings.find(grade => grade.lowerLimit <= totalScore && grade.upperLimit >= totalScore)?.remark;
+
+      return (
+        <div className={cn("text-text-muted flex h-14 items-center justify-center text-sm font-normal")}>
+          <span className="truncate">{remarkValue}</span>
+        </div>
+      );
+    },
     size: 108,
     maxSize: 108,
   },

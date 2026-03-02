@@ -19,6 +19,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
   const handleOpen = (): void => {
     setOpenRequest(!openRequest);
   };
+  console.log(classes, "@!!!");
 
   return (
     <div className="">
@@ -48,7 +49,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                       <Button
                         onClick={() =>
                           router.push(
-                            `/classes-and-subjects/subjects/${subjectId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
+                            `/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
                           )
                         }
                         className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
