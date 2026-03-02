@@ -9,6 +9,7 @@ import { MobileCard } from "./MobileCard";
 import { Skeleton } from "../ui/skeleton";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
 import { ErrorComponent } from "../Error/ErrorComponent";
+import { toast } from "@/components/Toast";
 
 export const ScoreViewBySubject = ({
   scores,
@@ -110,9 +111,29 @@ export const ScoreViewBySubject = ({
               const student = mergedData[rowIndex];
               if (!student) return;
 
+              const newValue = Number(value);
+
+              // Validate that the total sum does not exceed 100
+              // This applies only if the column being updated is an assessment score
+              if (!isNaN(newValue) && student.assessmentScores && columnId in student.assessmentScores) {
+                const currentTotal = Object.entries(student.assessmentScores).reduce((sum, [id, assessment]) => {
+                  if (id === columnId) return sum + newValue;
+                  return sum + assessment.score;
+                }, 0);
+
+                if (currentTotal > 100) {
+                  toast({
+                    title: "Invalid Score",
+                    description: "The total sum of scores cannot exceed 100.",
+                    type: "error",
+                  });
+                  return; // Don't update if total exceeds 100
+                }
+              }
+
               setScoreUpdates(prev => {
                 const existingStudentIndex = prev.findIndex(u => u.studentId === student.studentId);
-                const score = Number(value);
+                const score = newValue;
 
                 if (existingStudentIndex > -1) {
                   const updatedUpdates = [...prev];
