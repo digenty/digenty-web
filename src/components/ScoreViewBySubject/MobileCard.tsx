@@ -7,7 +7,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import { ScoreType } from "./types";
 
-const RenderCell = ({ initialValue, isEditable }: { initialValue: string | number | undefined; isEditable: boolean }) => {
+const RenderCell = ({
+  initialValue,
+  isEditable,
+  onUpdate,
+}: {
+  initialValue: string | number | undefined;
+  isEditable: boolean;
+  onUpdate: (value: unknown) => void;
+}) => {
   const [value, setValue] = useState<string | number | undefined>(initialValue);
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -18,33 +26,46 @@ const RenderCell = ({ initialValue, isEditable }: { initialValue: string | numbe
     }
   }, [isEditing]);
 
-  const save = (evt: React.TouchEvent<HTMLInputElement>) => {
-    setIsEditing(false);
-    setValue((evt.target as HTMLInputElement).value);
+  // Sync with initialValue if it changes from outside (e.g. desktop view update or total recalculation logic)
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setValue(newValue);
+    onUpdate(newValue); // Trigger real-time update in parent
   };
 
-  const cancel = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(evt.target.value);
+  const save = () => {
     setIsEditing(false);
+  };
+
+  const cancel = () => {
+    setIsEditing(false);
+    setValue(initialValue);
+    onUpdate(initialValue); // Revert parent state
   };
 
   if (isEditing && isEditable) {
     return (
-      // TODO: Restrict the input type to the type of data displayed in teh cell
       <Input
         ref={inputRef}
         value={value ?? ""}
-        onChange={e => setValue(e.target.value)}
+        onChange={handleChange}
         className="text-text-muted bg-bg-input-soft! h-7! w-16 rounded-md border-none px-2 py-1 text-sm outline-none"
-        onTouchEnd={evt => save(evt)}
-        onBlur={cancel}
+        onBlur={save}
+        onKeyDown={e => {
+          if (e.key === "Enter") save();
+          if (e.key === "Escape") cancel();
+        }}
       />
     );
   }
 
   return (
     <div
-      onTouchStart={() => setIsEditing(true)}
+      onClick={() => isEditable && setIsEditing(true)}
       className="text-text-default flex h-full w-20 flex-1 items-center justify-center overflow-y-auto px-4 text-wrap"
     >
       {value ?? 0}
@@ -58,22 +79,23 @@ export const MobileCard = ({
   setActiveStudent,
   isEditable = false,
   gradings,
-  // updateData
+  onUpdateScore,
 }: {
   student: ScoreType;
   activeStudent?: number;
   setActiveStudent: React.Dispatch<React.SetStateAction<number | undefined>>;
   isEditable?: boolean;
   gradings: Grading[];
-  // updateData: (rowIndex: number, columnId: string, value: unknown) => void
+  onUpdateScore: (columnId: string, value: unknown) => void;
 }) => {
   const toggleCard = () => {
     setActiveStudent(prev => (prev === student.studentId ? undefined : student.studentId));
   };
 
   const totalScore = Object.values(student.assessmentScores).reduce((sum, assessment) => sum + assessment.score, 0);
-  const grade = gradings.find(grade => grade.lowerLimit <= totalScore && grade.upperLimit >= totalScore)?.grade;
-  const remark = gradings.find(grade => grade.lowerLimit <= totalScore && grade.upperLimit >= totalScore)?.remark;
+  const activeGrade = gradings.find(grade => grade.lowerLimit <= totalScore && grade.upperLimit >= totalScore);
+  const grade = activeGrade?.grade;
+  const remark = activeGrade?.remark;
 
   return (
     <li key={student.studentId} className="border-border-default w-full rounded-sm border">
@@ -88,7 +110,7 @@ export const MobileCard = ({
             <div className="text-text-default text-sm font-medium">{student.studentName}</div>
             <div className="flex items-center gap-2">
               <div className="text-text-default text-xs font-normal">{totalScore}</div>
-              <Badge className="text-text-subtle border-border-default bg-bg-badge-default h-4 w-4 rounded-md py-2 text-xs font-medium">
+              <Badge className="text-text-subtle border-border-default bg-bg-badge-default h-4 w-auto rounded-md py-2 text-xs font-medium">
                 {grade}
               </Badge>
             </div>
@@ -105,13 +127,13 @@ export const MobileCard = ({
       <div
         className={`text-sm transition-all duration-200 ${activeStudent === student.studentId ? "border-border-default flex max-h-96 flex-col border-t" : "hidden"}`}
       >
-        {Object.entries(student.assessmentScores).map(([assessmentName, assessmentScore], index) => (
+        {Object.entries(student.assessmentScores).map(([assessmentName, assessmentScore]) => (
           <div key={assessmentName} className="border-border-default flex border-b text-center">
             <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
               {assessmentName}
             </span>
             <div className="flex h-12 flex-1 items-center justify-center px-2">
-              <RenderCell initialValue={assessmentScore.score} isEditable={isEditable} />
+              <RenderCell initialValue={assessmentScore.score} isEditable={isEditable} onUpdate={val => onUpdateScore(assessmentName, val)} />
             </div>
           </div>
         ))}

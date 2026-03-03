@@ -335,7 +335,7 @@ export const Sidebar = () => {
           <SheetOverlay className="block md:hidden" />
           <SheetContent
             side="left"
-            className="2xs:w-81 border-border-default bg-bg-sidebar-subtle text-text-subtle flex h-screen w-69 p-4 text-left md:hidden"
+            className="2xs:w-81 hide-scrollbar border-border-default bg-bg-sidebar-subtle text-text-subtle flex h-screen w-69 overflow-y-auto p-4 text-left md:hidden"
           >
             <VisuallyHidden>
               <SheetHeader className="space-y-3 px-4">

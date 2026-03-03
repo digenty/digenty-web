@@ -68,6 +68,56 @@ export const ScoreViewBySubject = ({
     );
   }
 
+  const handleUpdateData = (studentId: number, columnId: string, value: unknown) => {
+    const student = mergedData.find(s => s.studentId === studentId);
+    if (!student) return;
+
+    const newValue = Number(value);
+
+    // Validate that the total sum does not exceed 100
+    // This applies only if the column being updated is an assessment score
+    if (!isNaN(newValue) && student.assessmentScores && columnId in student.assessmentScores) {
+      const currentTotal = Object.entries(student.assessmentScores).reduce((sum, [id, assessment]) => {
+        if (id === columnId) return sum + newValue;
+        return sum + assessment.score;
+      }, 0);
+
+      if (currentTotal > 100) {
+        toast({
+          title: "Invalid Score",
+          description: "The total sum of scores cannot exceed 100.",
+          type: "error",
+        });
+        return; // Don't update if total exceeds 100
+      }
+    }
+
+    setScoreUpdates(prev => {
+      const existingStudentIndex = prev.findIndex(u => u.studentId === studentId);
+      const score = newValue;
+
+      if (existingStudentIndex > -1) {
+        const updatedUpdates = [...prev];
+        const existingScores = [...updatedUpdates[existingStudentIndex].scores];
+        const existingScoreIndex = existingScores.findIndex(s => s.assessmentId === columnId);
+
+        if (existingScoreIndex > -1) {
+          existingScores[existingScoreIndex] = { ...existingScores[existingScoreIndex], score };
+        } else {
+          existingScores.push({ assessmentId: columnId, score });
+        }
+
+        updatedUpdates[existingStudentIndex] = {
+          ...updatedUpdates[existingStudentIndex],
+          scores: existingScores,
+        };
+        return updatedUpdates;
+      }
+
+      return [...prev, { studentId: studentId, scores: [{ assessmentId: columnId, score }] }];
+    });
+  };
+
   return (
     <div>
       <div className="hidden pb-8 md:block">
@@ -82,52 +132,9 @@ export const ScoreViewBySubject = ({
           meta={{
             updateData: (rowIndex: number, columnId: string, value: unknown) => {
               const student = mergedData[rowIndex];
-              if (!student) return;
-
-              const newValue = Number(value);
-
-              // Validate that the total sum does not exceed 100
-              // This applies only if the column being updated is an assessment score
-              if (!isNaN(newValue) && student.assessmentScores && columnId in student.assessmentScores) {
-                const currentTotal = Object.entries(student.assessmentScores).reduce((sum, [id, assessment]) => {
-                  if (id === columnId) return sum + newValue;
-                  return sum + assessment.score;
-                }, 0);
-
-                if (currentTotal > 100) {
-                  toast({
-                    title: "Invalid Score",
-                    description: "The total sum of scores cannot exceed 100.",
-                    type: "error",
-                  });
-                  return; // Don't update if total exceeds 100
-                }
+              if (student) {
+                handleUpdateData(student.studentId, columnId, value);
               }
-
-              setScoreUpdates(prev => {
-                const existingStudentIndex = prev.findIndex(u => u.studentId === student.studentId);
-                const score = newValue;
-
-                if (existingStudentIndex > -1) {
-                  const updatedUpdates = [...prev];
-                  const existingScores = [...updatedUpdates[existingStudentIndex].scores];
-                  const existingScoreIndex = existingScores.findIndex(s => s.assessmentId === columnId);
-
-                  if (existingScoreIndex > -1) {
-                    existingScores[existingScoreIndex] = { ...existingScores[existingScoreIndex], score };
-                  } else {
-                    existingScores.push({ assessmentId: columnId, score });
-                  }
-
-                  updatedUpdates[existingStudentIndex] = {
-                    ...updatedUpdates[existingStudentIndex],
-                    scores: existingScores,
-                  };
-                  return updatedUpdates;
-                }
-
-                return [...prev, { studentId: student.studentId, scores: [{ assessmentId: columnId, score }] }];
-              });
             },
           }}
           totalCount={mergedData.length}
@@ -156,6 +163,7 @@ export const ScoreViewBySubject = ({
                 setActiveStudent={setActiveStudent}
                 isEditable={isEditable}
                 gradings={gradings}
+                onUpdateScore={(columnId, value) => handleUpdateData(student.studentId, columnId, value)}
               />
             );
           })}
