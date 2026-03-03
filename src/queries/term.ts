@@ -1,3 +1,3 @@
 export const termKeys = {
-  termsBySession: ["termsBySession"] as const,
+  terms: (schoolId?: number) => ["terms", schoolId] as const,
 };

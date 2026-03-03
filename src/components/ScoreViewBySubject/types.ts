@@ -1,10 +1,36 @@
 export type ScoreType = {
-  id: number;
+  studentId: number;
   studentName: string;
-  ca1Score: number;
-  ca2Score: number;
-  examScore: number;
-  totalScore: number;
-  grade: string;
-  remark: string;
+  assessmentScores: Record<
+    string,
+    {
+      assessmentName: string;
+      score: number;
+      weight: number;
+    }
+  >;
+  total?: number;
+  grade?: string;
+  remark?: string;
 };
+
+export interface StudentReportPayload {
+  studentId: number;
+  scores: ScoreUpdate[];
+}
+
+export interface SubmitScorePayload {
+  subjectId: number;
+  armId: number;
+  status: "NOT_SUBMITTED" | "SUBMITTED" | "IN_PROGRESS" | "REQUEST_EDIT_ACCESS";
+  studentReports: StudentReportPayload[];
+}
+export interface ScoreUpdate {
+  assessmentId: string | number;
+  score: number;
+}
+
+export interface StudentUpdate {
+  studentId: number;
+  scores: ScoreUpdate[];
+}

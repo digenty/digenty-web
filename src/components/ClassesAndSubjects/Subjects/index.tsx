@@ -1,29 +1,42 @@
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import Subject, { ClassItem } from "./Subject";
+import Subject from "./Subject";
 import SubjectHeader from "./SubjectHeader";
 
-const mathClasses: ClassItem[] = [
-  { id: 0, grade: "JSS 1A", subjectStatus: "Not Started" },
-  { id: 1, grade: "JSS 2A", subjectStatus: "In Progress" },
-  { id: 2, grade: "JSS 3A", subjectStatus: "Submitted" },
-  { id: 3, grade: "SS 1A", subjectStatus: "Request Edit Access" },
-  { id: 4, grade: "SS 2A", subjectStatus: "Submitted" },
-  { id: 5, grade: "SS 3A", subjectStatus: "Submitted" },
-];
+import { Skeleton } from "@/components/ui/skeleton";
 
-export const Subjects = () => {
+type ClassSubjectMainProps = {
+  subjectName: string;
+  subjectId: number;
+  classArmReportDtos: [];
+};
+
+type ClassTeacherSubjectProps = {
+  subjectList: ClassSubjectMainProps[];
+  isLoading: boolean;
+};
+
+export const Subjects = ({ subjectList, isLoading }: ClassTeacherSubjectProps) => {
   useBreadcrumb([
     { label: "Classes and Subjects", url: "/classes-and-subjects" },
     { label: "My Subjects", url: "/classes-and-subjects?tab=subjects" },
   ]);
+
   return (
     <div className="space-y-4 pb-10">
       <SubjectHeader />
-      <div className="flex flex-col gap-6">
-        <Subject title="Mathematics" classes={mathClasses} />
-        <Subject title="English" classes={mathClasses} />
-        <Subject title="Yoruba" classes={mathClasses} />
-      </div>
+      {isLoading ? (
+        <div className="flex flex-col gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="bg-bg-input-soft h-30 w-full md:max-w-219" />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6">
+          {subjectList.map(subject => (
+            <Subject key={subject.subjectId} subjectName={subject.subjectName} classes={subject.classArmReportDtos} subjectId={subject.subjectId} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -140,3 +140,55 @@ export interface StudentAttendance {
   avatar?: string;
   isPresent: boolean;
 }
+
+export interface Grading {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  grade: string;
+  upperLimit: number;
+  lowerLimit: number;
+  remark: string;
+  classId: number;
+  branchId: number;
+  schoolId: number;
+  isDefault: boolean;
+}
+
+export interface Assessment {
+  assessmentId: number;
+  assessmentName: string;
+  score: number;
+  weight: number;
+}
+
+export interface StudentUpdate {
+  studentId: number;
+  studentName: string;
+  assessmentScores: {
+    CA1: {
+      assessmentId: number;
+      assessmentName: string;
+      score: number;
+      weight: number;
+    };
+    CA2: {
+      assessmentId: number;
+      assessmentName: string;
+      score: number;
+      weight: number;
+    };
+    Exam: {
+      assessmentId: number;
+      assessmentName: string;
+      score: number;
+      weight: number;
+    };
+  };
+  total: number;
+  grade: string;
+  remark: string;
+}

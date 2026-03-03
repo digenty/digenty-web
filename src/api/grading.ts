@@ -1,10 +1,9 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
-export const getAllTerms = async (schoolId?: number) => {
+export const getClassGrading = async (classId: number) => {
   try {
-    const { data } = await api.get(`/academic/session/school/${schoolId}/terms`);
-    console.log(data);
+    const { data } = await api.get(`/gradings/class/${classId}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

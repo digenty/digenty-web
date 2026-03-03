@@ -1,6 +1,6 @@
 "use client";
 
-import { ColumnDef, flexRender, getCoreRowModel, Row, useReactTable } from "@tanstack/react-table";
+import { ColumnDef, flexRender, getCoreRowModel, Row, TableMeta, useReactTable } from "@tanstack/react-table";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,7 @@ interface DataTableProps<TData, TValue> {
   loadingContent?: boolean;
   border?: boolean;
   headerBg?: boolean;
+  meta?: TableMeta<TData>;
   classNames?: {
     tableWrapper?: string;
     table?: string;
@@ -53,6 +54,7 @@ export const DataTable = <TData, TValue>({
   border = false,
   headerBg = false,
   classNames,
+  meta,
 }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
     data,
@@ -65,6 +67,7 @@ export const DataTable = <TData, TValue>({
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     manualPagination: true,
+    meta,
     initialState: {
       columnVisibility: {
         id: false,

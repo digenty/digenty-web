@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import { ScoreType } from "./types";
+import { Assessment, Grading } from "@/api/types";
 
 type UpdateDataFn<T> = (rowIndex: number, columnId: string, value: unknown) => void;
 
@@ -54,7 +55,7 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
       // TODO: Restrict the input type to the type of data displayed in teh cell
       <Input
         ref={inputRef}
-        value={value ?? ""}
+        value={value}
         onChange={e => setValue(e.target.value)}
         className="text-text-muted bg-bg-input-soft! h-7! w-full max-w-11 rounded-md border border-none px-2 py-1 text-sm outline-none"
         onBlur={save}
@@ -70,14 +71,14 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
   return (
     <div
       className={cn("text-text-muted flex h-14 items-center justify-center text-sm font-normal", isEditable ? "cursor-text" : "cursor-pointer")}
-      onClick={() => setIsEditing(true)}
+      onClick={() => isEditable && setIsEditing(true)}
     >
-      <span className="max-w-2 truncate">{value}</span>
+      <span className="truncate">{value}</span>
     </div>
   );
 };
 
-export const scoreColumns = (isEditable: boolean): ColumnDef<ScoreType>[] => [
+export const scoreColumns = (isEditable: boolean, columns: Assessment[], gradings: Grading[]): ColumnDef<ScoreType>[] => [
   {
     accessorKey: "s/n",
     header: () => <div className="text-text-muted w-4 text-sm font-medium">S/N</div>,
@@ -98,46 +99,60 @@ export const scoreColumns = (isEditable: boolean): ColumnDef<ScoreType>[] => [
     ),
     size: 340,
   },
-  {
-    accessorKey: "ca1Score",
-    header: () => <div className="text-text-muted text-center text-sm font-medium">CA 1</div>,
-    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
+
+  ...columns.map(column => ({
+    id: String(column.assessmentName),
+    accessorFn: (row: ScoreType) => row.assessmentScores[column.assessmentName]?.score,
+    header: () => <div className="text-text-muted text-center text-sm font-medium">{column.assessmentName}</div>,
+    cell: (cell: CellContext<ScoreType, unknown>) => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
     size: 108,
     maxSize: 108,
-  },
-  {
-    accessorKey: "ca2Score",
-    header: () => <div className="text-text-muted text-center text-sm font-medium">CA 2</div>,
-    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
-    size: 108,
-    maxSize: 108,
-  },
-  {
-    accessorKey: "examScore",
-    header: () => <div className="text-text-muted text-center text-sm font-medium">Exam Score</div>,
-    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
-    size: 108,
-    maxSize: 108,
-  },
+  })),
 
   {
-    accessorKey: "totalScore",
+    accessorKey: "total",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Total</div>,
-    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
+    cell: ({ row }) => {
+      const totalScore = Object.values(row.original.assessmentScores).reduce((sum, assessment) => sum + assessment.score, 0);
+
+      return (
+        <div className={cn("text-text-muted flex h-14 items-center justify-center text-sm font-normal")}>
+          <span className="truncate">{totalScore}</span>
+        </div>
+      );
+    },
     size: 108,
     maxSize: 108,
   },
   {
     accessorKey: "grade",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Grade</div>,
-    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
+    cell: ({ row }) => {
+      const totalScore = Object.values(row.original.assessmentScores).reduce((sum, assessment) => sum + assessment.score, 0);
+      const gradeValue = gradings.find(grade => grade.lowerLimit <= totalScore && grade.upperLimit >= totalScore)?.grade;
+
+      return (
+        <div className={cn("text-text-muted flex h-14 items-center justify-center text-sm font-normal")}>
+          <span className="truncate">{gradeValue}</span>
+        </div>
+      );
+    },
     size: 108,
     maxSize: 108,
   },
   {
     accessorKey: "remark",
     header: () => <div className="text-text-muted text-center text-sm font-medium">Remark</div>,
-    cell: cell => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
+    cell: ({ row }) => {
+      const totalScore = Object.values(row.original.assessmentScores).reduce((sum, assessment) => sum + assessment.score, 0);
+      const remarkValue = gradings.find(grade => grade.lowerLimit <= totalScore && grade.upperLimit >= totalScore)?.remark;
+
+      return (
+        <div className={cn("text-text-muted flex h-14 items-center justify-center text-sm font-normal")}>
+          <span className="truncate">{remarkValue}</span>
+        </div>
+      );
+    },
     size: 108,
     maxSize: 108,
   },
