@@ -26,7 +26,7 @@ const students: Student[] = [
     dateOfBirth: "",
     address: "",
     emergencyContactName: "",
-    emergencyContactNumber: "",
+    emergencyContact: "",
     secondaryPhoneNumber: "",
     studentStatus: AdmissionStatus.Graduated,
     admissionNumber: "",
@@ -39,6 +39,7 @@ const students: Student[] = [
     class: "JSS 1A",
     departmentId: null,
     armId: null,
+    arm: "",
   },
 ];
 
@@ -106,7 +107,6 @@ export const LinkedStudentsTable = () => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Student[]>([]);
-  console.log(selectedRows);
   const router = useRouter();
   const pageSize = 10;
 

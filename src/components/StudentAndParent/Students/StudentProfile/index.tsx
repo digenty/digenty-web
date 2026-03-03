@@ -126,7 +126,7 @@ export const StudentProfile = () => {
                 {student.tags.slice(0, 2).map((tag, index) => tag && <StatusBadge key={`${tag}-${index}`} status={tag} />)}
               </div>
               <p className="text-text-subtle text-sm font-normal">
-                {student.class} {student.armId}
+                {student.class} {student.arm}
               </p>
               <div className="text-text-subtle text-sm font-normal">{student.admissionNumber ?? "--"}</div>
             </div>

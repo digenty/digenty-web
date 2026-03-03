@@ -1,9 +1,9 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
-export const getClassesForASchool = async () => {
+export const getClasses = async (branchId?: number) => {
   try {
-    const { data } = await api.get("/classes?page=0&size=100");
+    const { data } = await api.get(`/classes?page=0&size=100${branchId ? `&branchId=${branchId}` : ""}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

@@ -47,7 +47,7 @@ export const AddStudent = () => {
       dateOfBirth: `${new Date()}`,
       address: "",
       emergencyContactName: "",
-      emergencyContactNumber: "",
+      emergencyContact: "",
       phoneNumber: "",
       secondaryPhoneNumber: "",
       admissionNumber: "",
@@ -110,7 +110,7 @@ export const AddStudent = () => {
     }
   };
 
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
+  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0 && selectedParents.length !== 0;
 
   return (
     <div className="flex h-screen flex-col">

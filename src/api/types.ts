@@ -69,7 +69,7 @@ export interface Student {
   dateOfBirth: string;
   address: string;
   emergencyContactName: string;
-  emergencyContactNumber: string;
+  emergencyContact: string;
   phoneNumber: string;
   secondaryPhoneNumber: string;
   studentStatus: AdmissionStatus;
@@ -83,6 +83,7 @@ export interface Student {
   class: string;
   departmentId: number | null;
   armId: number | null;
+  arm: string;
   image: string | null;
   tags: string[];
   linkedParents: number[];

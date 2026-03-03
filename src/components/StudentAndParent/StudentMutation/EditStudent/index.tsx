@@ -1,24 +1,24 @@
 "use client";
 import { toast } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useAddStudent, useEditStudent, useGetStudent } from "@/hooks/queryHooks/useStudent";
+import { useEditStudent, useGetStudent } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { studentSchema } from "@/schema/student";
 import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
+import { format } from "date-fns";
 import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { StudentInputValues } from "../../types";
+import { LinkParents } from "../LinkParents";
+import { LinkedParents } from "../LinkedParents";
 import { AcademicInformation } from "./AcademicInformation";
 import { ContactInformation } from "./ContactInformation";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
 import { Tags } from "./Tags";
-import { format } from "date-fns";
-import { LinkParents } from "../LinkParents";
-import { LinkedParents } from "../LinkedParents";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export const EditStudent = () => {
   const router = useRouter();
@@ -26,7 +26,6 @@ export const EditStudent = () => {
   const studentId = pathname.split("/")[3] ?? "";
 
   const { data, isPending: loadingStudent } = useGetStudent(Number(studentId));
-
   const [date, setDate] = useState<Date | undefined>();
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
@@ -53,7 +52,7 @@ export const EditStudent = () => {
       dateOfBirth: "",
       address: "",
       emergencyContactName: "",
-      emergencyContactNumber: "",
+      emergencyContact: "",
       phoneNumber: "",
       secondaryPhoneNumber: "",
       admissionNumber: "",
@@ -110,12 +109,14 @@ export const EditStudent = () => {
       formik.setFieldValue("lastName", data.data.lastName);
       formik.setFieldValue("middleName", data.data.middleName);
       formik.setFieldValue("email", data.data.email);
+      formik.setFieldValue("nationality", data.data.nationality);
+      formik.setFieldValue("stateOfOrigin", data.data.stateOfOrigin);
       formik.setFieldValue("phoneNumber", data.data.phoneNumber);
-      formik.setFieldValue("secondaryPhoneNumber", data.data.secondaryPhoneNumber);
+      formik.setFieldValue("secondaryPhoneNumber", data.data.secondaryPhoneNumber ?? "");
       formik.setFieldValue("admissionNumber", data.data.admissionNumber ?? "");
       formik.setFieldValue("medicalInformation", data.data.medicalInformation ?? "");
-      formik.setFieldValue("emergencyContactName", data.data.emergencyContactName);
-      formik.setFieldValue("emergencyContactNumber", data.data.emergencyContactNumber ?? "");
+      formik.setFieldValue("emergencyContactName", data.data.emergencyContactName ?? "");
+      formik.setFieldValue("emergencyContact", data.data.emergencyContact ?? "");
       formik.setFieldValue("gender", data.data.gender);
       formik.setFieldValue("dateOfBirth", data.data.dateOfBirth);
       setDate(new Date(data.data.dateOfBirth));
@@ -150,7 +151,7 @@ export const EditStudent = () => {
     }
   };
 
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
+  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0 && selectedParents.length !== 0;
 
   if (loadingStudent || !data) {
     return (

@@ -98,6 +98,8 @@ export const EditParent = () => {
       formik.setFieldValue("gender", data.data.gender);
       formik.setFieldValue("relationship", data.data.relationship);
       formik.setFieldValue("address", data.data.address);
+      formik.setFieldValue("nationality", data.data.nationality);
+      formik.setFieldValue("stateOfOrigin", data.data.stateOfOrigin);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);

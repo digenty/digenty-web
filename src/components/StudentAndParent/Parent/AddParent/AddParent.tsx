@@ -96,7 +96,7 @@ export const AddParent = () => {
     }
   };
 
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0 && selectedStudents.length !== 0;
+  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
 
   return (
     <div className="flex h-screen flex-col">

@@ -242,8 +242,10 @@ export const PersonalInformation = ({
             disabled={!activeCountryCode}
             value={formik.values.stateOfOrigin}
             onValueChange={value => {
-              const state = states?.find(stat => stat.name === value);
-              formik.setFieldValue("stateOfOrigin", state?.name);
+              if (value) {
+                const state = states?.find(stat => stat.name === value);
+                formik.setFieldValue("stateOfOrigin", state?.name || value);
+              }
             }}
           >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">

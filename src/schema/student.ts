@@ -13,7 +13,7 @@ export const studentSchema = yup.object().shape({
   emergencyContactName: yup.string(),
   nationality: yup.string().required("Nationality is required!"),
   stateOfOrigin: yup.string().required("State of Origin is required!"),
-  emergencyContactNumber: yup.string(),
+  emergencyContact: yup.string(),
   phoneNumber: yup.string(),
   secondaryPhoneNumber: yup.string(),
   admissionStatus: yup

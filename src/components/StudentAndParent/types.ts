@@ -31,7 +31,7 @@ export interface StudentInputValues {
   dateOfBirth: string;
   address: string;
   emergencyContactName: string;
-  emergencyContactNumber: string;
+  emergencyContact: string;
   phoneNumber: string;
   secondaryPhoneNumber: string;
   admissionStatus: AdmissionStatus;
@@ -90,7 +90,7 @@ export interface StudentInputType {
   dateOfBirth: string;
   address: string;
   emergencyContactName: string;
-  emergencyContactNumber: string;
+  emergencyContact: string;
   phoneNumber: string;
   secondaryPhoneNumber: string;
   admissionStatus: AdmissionStatus;

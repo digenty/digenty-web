@@ -170,8 +170,8 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
                 <SelectValue placeholder="Class" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {classes.data.content.map((cls: ClassType) => (
-                  <SelectItem key={cls.id} className="text-text-default" value={cls.name}>
+                {classes.data.content.map((cls: ClassType, index: number) => (
+                  <SelectItem key={`${cls.id}-${index}`} className="text-text-default" value={cls.name}>
                     {cls.name}
                   </SelectItem>
                 ))}
