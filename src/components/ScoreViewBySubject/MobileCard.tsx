@@ -1,3 +1,4 @@
+import { Grading } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import ArrowDown from "@/components/Icons/ArrowDown";
 import ArrowUp from "@/components/Icons/ArrowUp";
@@ -18,10 +19,8 @@ const RenderCell = ({ initialValue, isEditable }: { initialValue: string | numbe
   }, [isEditing]);
 
   const save = (evt: React.TouchEvent<HTMLInputElement>) => {
-    console.log("being called");
     setIsEditing(false);
     setValue((evt.target as HTMLInputElement).value);
-    // Save updated data here
   };
 
   const cancel = (evt: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,15 +57,24 @@ export const MobileCard = ({
   activeStudent,
   setActiveStudent,
   isEditable = false,
+  gradings,
+  // updateData
 }: {
   student: ScoreType;
   activeStudent?: number;
   setActiveStudent: React.Dispatch<React.SetStateAction<number | undefined>>;
   isEditable?: boolean;
+  gradings: Grading[];
+  // updateData: (rowIndex: number, columnId: string, value: unknown) => void
 }) => {
   const toggleCard = () => {
     setActiveStudent(prev => (prev === student.studentId ? undefined : student.studentId));
   };
+
+  const totalScore = Object.values(student.assessmentScores).reduce((sum, assessment) => sum + assessment.score, 0);
+  const grade = gradings.find(grade => grade.lowerLimit <= totalScore && grade.upperLimit >= totalScore)?.grade;
+  const remark = gradings.find(grade => grade.lowerLimit <= totalScore && grade.upperLimit >= totalScore)?.remark;
+
   return (
     <li key={student.studentId} className="border-border-default w-full rounded-sm border">
       <div
@@ -79,9 +87,9 @@ export const MobileCard = ({
           <div className="space-y-1.5 text-left">
             <div className="text-text-default text-sm font-medium">{student.studentName}</div>
             <div className="flex items-center gap-2">
-              {/* <div className="text-text-default text-xs font-normal">{student.totalScore}</div> */}
+              <div className="text-text-default text-xs font-normal">{totalScore}</div>
               <Badge className="text-text-subtle border-border-default bg-bg-badge-default h-4 w-4 rounded-md py-2 text-xs font-medium">
-                {student.grade}
+                {grade}
               </Badge>
             </div>
           </div>
@@ -97,40 +105,28 @@ export const MobileCard = ({
       <div
         className={`text-sm transition-all duration-200 ${activeStudent === student.studentId ? "border-border-default flex max-h-96 flex-col border-t" : "hidden"}`}
       >
-        <div className="border-border-default flex border-b text-center">
-          <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">CA 1</div>
-          <div className="flex h-12 flex-1 items-center justify-center px-2">
-            {/* <RenderCell initialValue={student.CA1} isEditable={isEditable} /> */}
+        {Object.entries(student.assessmentScores).map(([assessmentName, assessmentScore], index) => (
+          <div key={assessmentName} className="border-border-default flex border-b text-center">
+            <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
+              {assessmentName}
+            </span>
+            <div className="flex h-12 flex-1 items-center justify-center px-2">
+              <RenderCell initialValue={assessmentScore.score} isEditable={isEditable} />
+            </div>
           </div>
-        </div>
-
-        <div className="border-border-default flex border-b text-center">
-          <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">CA 2</span>
-          <div className="flex h-12 flex-1 items-center justify-center px-2">
-            {/* <RenderCell initialValue={student.CA2} isEditable={isEditable} /> */}
-          </div>
-        </div>
-
-        <div className="border-border-default flex border-b text-center">
-          <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
-            Exam Score
-          </span>
-          <div className="flex h-12 flex-1 items-center justify-center px-2">
-            {/* <RenderCell initialValue={student.examScore} isEditable={isEditable} /> */}
-          </div>
-        </div>
+        ))}
 
         <div className="border-border-default flex border-b text-center">
           <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">Total</span>
           <div className="flex h-12 flex-1 items-center justify-center px-2">
-            {/* <RenderCell initialValue={student.totalScore} isEditable={isEditable} /> */}
+            <span className="text-text-default flex h-full flex-1 items-center justify-center px-4">{totalScore}</span>
           </div>
         </div>
 
         <div className="border-border-default flex border-b text-center">
           <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">Grade</span>
           <div className="flex h-12 flex-1 items-center justify-center px-2">
-            <RenderCell initialValue={student.grade} isEditable={isEditable} />
+            <span className="text-text-default flex h-full flex-1 items-center justify-center px-4">{grade}</span>
           </div>
         </div>
 
@@ -139,7 +135,7 @@ export const MobileCard = ({
             Remark
           </span>
           <div className="flex flex-1 items-center justify-center px-2">
-            <RenderCell initialValue={student.remark} isEditable={isEditable} />
+            <span className="text-text-default flex h-full flex-1 items-center justify-center px-4">{remark}</span>
           </div>
         </div>
       </div>

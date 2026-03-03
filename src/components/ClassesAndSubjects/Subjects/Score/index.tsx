@@ -30,7 +30,7 @@ export default function Score() {
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
   const { data: StudentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
-  const { data: classGrading, isLoading: isGradingLoading } = useGetGradingsForClass(Number(classId), 25);
+  const { data: classGrading, isLoading: isGradingLoading } = useGetGradingsForClass(Number(classId));
   const { mutate, isPending: isSubmitting } = useAddScore();
 
   const studentsData = StudentsItem?.data?.data?.content ?? [];
@@ -83,6 +83,17 @@ export default function Score() {
       {isLoading && (
         <div className="px-4 md:px-8">
           <Skeleton className="bg-bg-input-soft h-100 w-full" />
+        </div>
+      )}
+
+      {studentsData.length === 0 && !isLoading && !isError && (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent
+            title="No Students"
+            description="No students for this class yet"
+            buttonText="Add Student"
+            url="/student-and-parent-record/add-student"
+          />
         </div>
       )}
 

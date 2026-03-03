@@ -1,9 +1,9 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
-export const getClassGrading = async (classId: number, branchId: number) => {
+export const getClassGrading = async (classId: number) => {
   try {
-    const { data } = await api.get(`/gradings/branch/${branchId}/class/${classId}`);
+    const { data } = await api.get(`/gradings/class/${classId}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

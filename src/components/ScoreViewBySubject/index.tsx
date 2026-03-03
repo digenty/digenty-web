@@ -155,6 +155,7 @@ export const ScoreViewBySubject = ({
                 activeStudent={activeStudent}
                 setActiveStudent={setActiveStudent}
                 isEditable={isEditable}
+                gradings={gradings}
               />
             );
           })}
