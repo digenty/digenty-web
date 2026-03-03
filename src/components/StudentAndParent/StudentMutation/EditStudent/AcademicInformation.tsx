@@ -70,7 +70,14 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
           <Label htmlFor="joinedSchoolSession" className="text-text-default text-sm font-medium">
             Joined School Session<small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select value={values.joinedSchoolSession} onValueChange={value => formik.setFieldValue("joinedSchoolSession", value)}>
+          <Select
+            value={values.joinedSchoolSession}
+            onValueChange={value => {
+              if (value) {
+                formik.setFieldValue("joinedSchoolSession", value);
+              }
+            }}
+          >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="Select Session" />
             </SelectTrigger>
@@ -88,7 +95,14 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
           <Label htmlFor="nationality" className="text-text-default text-sm font-medium">
             Joined School Term<small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select value={values.joinedSchoolTerm} onValueChange={value => formik.setFieldValue("joinedSchoolTerm", value)}>
+          <Select
+            value={values.joinedSchoolTerm}
+            onValueChange={value => {
+              if (value) {
+                formik.setFieldValue("joinedSchoolTerm", value);
+              }
+            }}
+          >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="Select Term" />
             </SelectTrigger>
@@ -131,9 +145,11 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
             <Select
               value={branch}
               onValueChange={value => {
-                const branch = branches.data.content?.find((branch: Branch) => branch.name === value);
-                if (branch) {
-                  formik.setFieldValue("branchId", branch.id);
+                if (value) {
+                  const branch = branches.data.content?.find((branch: Branch) => branch.name === value);
+                  if (branch) {
+                    formik.setFieldValue("branchId", branch.id);
+                  }
                 }
               }}
             >
@@ -161,9 +177,11 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
             <Select
               value={className}
               onValueChange={value => {
-                const classObj = classes.data.content?.find((cls: ClassType) => cls.name === value);
-                formik.setFieldValue("classId", classObj.id);
-                setClassId(classObj.id);
+                if (value) {
+                  const classObj = classes.data.content?.find((cls: ClassType) => cls.name === value);
+                  formik.setFieldValue("classId", classObj.id);
+                  setClassId(classObj.id);
+                }
               }}
             >
               <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -219,9 +237,11 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
               disabled={!classId}
               value={arm}
               onValueChange={value => {
-                const arm = arms.data?.content?.find((arm: Arm) => arm.name === value);
-                if (arm) {
-                  formik.setFieldValue("armId", arm.id);
+                if (value) {
+                  const arm = arms.data?.content?.find((arm: Arm) => arm.name === value);
+                  if (arm) {
+                    formik.setFieldValue("armId", arm.id);
+                  }
                 }
               }}
             >
@@ -279,25 +299,6 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
             </SelectContent>
           </Select>
         </div>
-
-        {/* <div className="space-y-2">
-          <Label htmlFor="role" className="text-text-default text-sm font-medium">
-            Input Role
-          </Label>
-          <Input
-            id="role"
-            onChange={handleChange}
-            placeholder="Input Position"
-            onBlur={handleBlur}
-            value={values.role}
-            type="text"
-            className={cn(
-              "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
-              errors.role && touched.role && "border-border-destructive border",
-            )}
-          />
-          {touched.role && errors.role && <p className="text-text-destructive text-xs font-light">{errors.role}</p>}
-        </div> */}
       </div>
     </div>
   );

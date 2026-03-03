@@ -110,6 +110,46 @@ export const AddStudent = () => {
     }
   };
 
+  const isStepValid = (currentStep: number) => {
+    const { values, errors } = formik;
+    if (currentStep === 1) {
+      return (
+        !!values.firstName &&
+        !!values.lastName &&
+        !!values.gender &&
+        !!values.dateOfBirth &&
+        !!values.nationality &&
+        !!values.stateOfOrigin &&
+        !errors.firstName &&
+        !errors.lastName &&
+        !errors.gender &&
+        !errors.dateOfBirth &&
+        !errors.nationality &&
+        !errors.stateOfOrigin
+      );
+    }
+    if (currentStep === 2) {
+      return !!values.address && selectedParents.length > 0 && !errors.address;
+    }
+    if (currentStep === 3) {
+      return (
+        !!values.branchId &&
+        !!values.classId &&
+        !!values.armId &&
+        !!values.joinedSchoolTerm &&
+        !!values.joinedSchoolSession &&
+        !!values.admissionStatus &&
+        !errors.branchId &&
+        !errors.classId &&
+        !errors.armId &&
+        !errors.joinedSchoolTerm &&
+        !errors.joinedSchoolSession &&
+        !errors.admissionStatus
+      );
+    }
+    return false;
+  };
+
   const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0 && selectedParents.length !== 0;
 
   return (
@@ -173,6 +213,7 @@ export const AddStudent = () => {
             {/* Mobile Next/Submit button */}
             <Button
               onClick={() => handleSteps()}
+              disabled={!isStepValid(step)}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
             >
               {isPending && <Spinner className="text-text-white-default" />}

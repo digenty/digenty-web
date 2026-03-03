@@ -116,6 +116,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
         <div className="space-y-2">
           <Label htmlFor="class" className="text-text-default text-sm font-medium">
             Class <small className="text-text-destructive text-xs">*</small>
+            <span className="text-text-default text-xs font-light">(Classes are grouped by branch)</span>
           </Label>
           {!classes || loadingClasses ? (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />

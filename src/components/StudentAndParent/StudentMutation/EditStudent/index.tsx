@@ -151,7 +151,56 @@ export const EditStudent = () => {
     }
   };
 
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0 && selectedParents.length !== 0;
+  const isStepValid = (currentStep: number) => {
+    const { values, errors } = formik;
+    if (currentStep === 1) {
+      return (
+        !!values.firstName &&
+        !!values.lastName &&
+        !!values.gender &&
+        !!values.dateOfBirth &&
+        !!values.nationality &&
+        !!values.stateOfOrigin &&
+        !errors.firstName &&
+        !errors.lastName &&
+        !errors.gender &&
+        !errors.dateOfBirth &&
+        !errors.nationality &&
+        !errors.stateOfOrigin
+      );
+    }
+    if (currentStep === 2) {
+      return !!values.address && selectedParents.length > 0 && !errors.address;
+    }
+    if (currentStep === 3) {
+      return (
+        !!values.branchId &&
+        !!values.classId &&
+        !!values.armId &&
+        !!values.joinedSchoolTerm &&
+        !!values.joinedSchoolSession &&
+        !!values.admissionStatus &&
+        !errors.branchId &&
+        !errors.classId &&
+        !errors.armId &&
+        !errors.joinedSchoolTerm &&
+        !errors.joinedSchoolSession &&
+        !errors.admissionStatus
+      );
+    }
+    return false;
+  };
+
+  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
+
+  if (loadingStudent || !data) {
+    return (
+      <div className="flex h-screen flex-col p-4 md:p-8">
+        <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />
+      </div>
+    );
+  }
+  console.log(formik.errors, formik.values, data);
 
   if (loadingStudent || !data) {
     return (
@@ -217,7 +266,7 @@ export const EditStudent = () => {
 
             <Button
               onClick={() => handleSteps()}
-              // {...(step === 3 && { type: "submit" })}
+              // disabled={!isStepValid(step)}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
             >
               {isPending && <Spinner className="text-text-white-default" />}

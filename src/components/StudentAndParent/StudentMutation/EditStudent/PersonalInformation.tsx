@@ -132,7 +132,9 @@ export const PersonalInformation = ({
           <Select
             value={formik.values.gender}
             onValueChange={gender => {
-              formik.setFieldValue("gender", gender);
+              if (gender) {
+                formik.setFieldValue("gender", gender);
+              }
             }}
           >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">

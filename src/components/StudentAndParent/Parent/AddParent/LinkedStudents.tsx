@@ -20,9 +20,7 @@ export const LinkedStudents = ({
   };
   return (
     <div className="space-y-6 py-6">
-      <h2 className="text-lg font-semibold">
-        Linked Students <small className="text-text-destructive text-xs">*</small>
-      </h2>
+      <h2 className="text-lg font-semibold">Linked Students</h2>
 
       <div className="grid grid-cols-1 gap-6 sm:gap-5">
         {selectedStudents.map(student => (

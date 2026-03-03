@@ -20,7 +20,9 @@ export const LinkedParents = ({
   };
   return (
     <div className="space-y-6 py-6">
-      <h2 className="text-lg font-semibold">Linked Parents</h2>
+      <h2 className="text-lg font-semibold">
+        Linked Parents <small className="text-text-destructive mb-4 text-xs">*</small>
+      </h2>
 
       <div className="grid grid-cols-1 gap-6 sm:gap-5">
         {selectedParents.map(parent => (
