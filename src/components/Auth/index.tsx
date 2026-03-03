@@ -21,12 +21,12 @@ export const Auth = () => {
           </p>
         </div>
 
-        {!step && (
+        {/* {!step && (
           <div className="mt-7 w-full space-y-3">
-            <GoogleAuth />
-            {/* <AppleAuth /> */}
-          </div>
-        )}
+            <GoogleAuth /> */}
+        {/* <AppleAuth /> */}
+        {/* </div>
+        )} */}
 
         {!step && (
           <div className="my-6 flex w-full items-center justify-stretch gap-3">

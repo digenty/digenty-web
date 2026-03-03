@@ -53,7 +53,7 @@ export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
 
         <Button
           className="border-border-darker bg-bg-state-secondary text-text-default h-8! flex-1 rounded-md border px-1.5! font-medium"
-          onClick={() => router.push(`${pathname}/subjects/${subject.id}`)}
+          onClick={() => router.push(`${pathname}/subjects/${subject.subjectId}`)}
         >
           <Eye fill="var(--color-icon-default-muted)" className="size-4" />
           <span className="text-text-default">View</span>

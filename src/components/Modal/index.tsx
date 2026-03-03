@@ -27,6 +27,7 @@ export const Modal = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
         showCloseButton={showCloseButton}
+        {...(!showCloseButton && { onEscapeKeyDown: e => e.preventDefault() })}
         className={cn("bg-bg-card hidden border-none p-0 shadow-sm sm:max-w-138.5 md:block", className)}
       >
         <DialogHeader className="bg-bg-card-subtle border-border-default rounded-t-xl border-b px-4 py-3 text-left">

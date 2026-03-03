@@ -30,7 +30,7 @@ export default function Score() {
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
   const { data: StudentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
-  const { data: classGrading, isLoading: isGradingLoading } = useGetGradingsForClass(Number(classId));
+  const { data: classGrading } = useGetGradingsForClass(Number(classId));
   const { mutate, isPending: isSubmitting } = useAddScore();
 
   const studentsData = StudentsItem?.data?.data?.content ?? [];
