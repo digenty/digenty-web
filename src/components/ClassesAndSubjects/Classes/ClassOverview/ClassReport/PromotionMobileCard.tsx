@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { StudentRow } from "./students";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const termsOptions = ["First Term", "Second Term", "Third Term"];
+const termsOptions = ["FIRST", "SECOND", "THIRD"];
 const actions = ["Promote", "Repeat", "Double Promotion"];
 
 export const PromotionMobileCard = ({
@@ -14,8 +14,8 @@ export const PromotionMobileCard = ({
   setActiveStudent,
 }: {
   student: StudentRow;
-  activeStudent?: string;
-  setActiveStudent: React.Dispatch<React.SetStateAction<string | undefined>>;
+  activeStudent?: number;
+  setActiveStudent: React.Dispatch<React.SetStateAction<number | undefined>>;
 }) => {
   const [actionSelected, setActionSelected] = useState(actions[0]);
 
@@ -46,14 +46,17 @@ export const PromotionMobileCard = ({
       >
         {termsOptions.map(termOption => {
           const studentScore = student.terms.find(term => term.term === termOption);
-          return (
-            <div key={studentScore?.term} className="border-border-default flex h-12 border-b text-center last:border-b-0">
-              <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
-                {studentScore?.term} %
+          console.log(studentScore);
+          if (studentScore?.term) {
+            return (
+              <div key={`${student.id}-${termOption}`} className="border-border-default flex h-12 border-b text-center last:border-b-0">
+                <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
+                  {studentScore?.term === "FIRST" ? "1st" : studentScore?.term === "SECOND" ? "2nd" : "3rd"} Term %
+                </div>
+                <div className="text-text-default flex flex-1 items-center justify-center text-sm">{studentScore?.totalPercentage}</div>
               </div>
-              <div className="text-text-default flex flex-1 items-center justify-center text-sm">{studentScore?.totalPercentage}</div>
-            </div>
-          );
+            );
+          }
         })}
 
         <div className="flex h-[46px] justify-center px-3 py-1 text-center">

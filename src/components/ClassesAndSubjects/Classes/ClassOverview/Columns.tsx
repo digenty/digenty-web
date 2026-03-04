@@ -64,7 +64,11 @@ export const columns: ColumnDef<Subject>[] = [
         <span
           className={cn(
             "border-border-default rounded-md border px-2 py-0.5 text-xs",
-            row.original.status ? "bg-bg-badge-green text-bg-basic-green-strong" : "bg-bg-badge-red text-bg-basic-red-strong",
+            row.original.status === "SUBMITTED"
+              ? "bg-bg-badge-green text-bg-basic-green-strong"
+              : row.original.status === "IN_PROGRESS"
+                ? "bg-bg-badge-orange text-bg-basic-orange-strong"
+                : "bg-bg-badge-red text-bg-basic-red-strong",
           )}
         >
           {row.original.status?.toLowerCase() ?? "Not Submitted"}

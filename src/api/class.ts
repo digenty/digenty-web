@@ -38,9 +38,45 @@ export const getClassTeachersInClass = async (armId: number) => {
   }
 };
 
-export const getClassReport = async (armId: number, termId: number) => {
+export const getClassReport = async (armId?: number, termId?: number) => {
   try {
-    const { data } = await api.get(`/report/class/arm/${armId}?termId=${termId}&page=0&size=15`);
+    const { data } = await api.get(`/report/class/arm/${armId}?termId=${termId}&page=0&size=100`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
+    throw error;
+  }
+};
+
+export const getClassCumulativeReport = async (armId?: number) => {
+  try {
+    const { data } = await api.get(`/report/class/arm/${armId}/cumulative-report?page=0&size=100`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
+    throw error;
+  }
+};
+
+export const getClassReportPromotion = async (armId: number) => {
+  try {
+    const { data } = await api.get(`/report/class/arm/${armId}/cumulative-report`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
+    throw error;
+  }
+};
+
+export const getStudentClassReport = async (studentId: number, armId: number) => {
+  try {
+    const { data } = await api.get(`/report-card/student/${studentId}/arm/${armId}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

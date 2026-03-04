@@ -34,7 +34,11 @@ export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
           <span
             className={cn(
               "border-border-default rounded-md border px-2 py-0.5 text-xs",
-              subject?.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : "bg-bg-badge-red text-bg-basic-red-strong",
+              subject?.status === "SUBMITTED"
+                ? "bg-bg-badge-green text-bg-basic-green-strong"
+                : subject?.status === "IN_PROGRESS"
+                  ? "bg-bg-badge-orange text-bg-basic-orange-strong"
+                  : "bg-bg-badge-red text-bg-basic-red-strong",
             )}
           >
             {subject?.status?.toLowerCase() ?? "Not Submitted"}
