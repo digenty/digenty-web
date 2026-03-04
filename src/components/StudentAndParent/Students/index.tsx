@@ -165,8 +165,6 @@ export const StudentsTable = () => {
   const handleDeletion = () => {
     deleteStudents(undefined, {
       onSuccess: data => {
-        queryClient.invalidateQueries({ queryKey: studentKeys.all, refetchType: "active" });
-
         toast({
           title: "Successfully deleted students",
           description: data.data.message,
@@ -522,7 +520,7 @@ export const StudentsTable = () => {
           />
         </div>
       )}
-      {loadingStudents && <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />}
+      {loadingStudents && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
       {!loadingStudents && !isError && students.length === 0 && (
         <div className="flex h-80 items-center justify-center">

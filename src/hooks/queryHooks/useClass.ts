@@ -1,11 +1,11 @@
-import { getClassesForASchool, getClassTeachersInClass, getTeacherClass } from "@/api/class";
+import { getClasses, getClassTeachersInClass, getTeacherClass } from "@/api/class";
 import { classKeys } from "@/queries/class";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetClasses = () => {
+export const useGetClasses = (branchId?: number) => {
   return useQuery({
-    queryKey: classKeys.classes,
-    queryFn: getClassesForASchool,
+    queryKey: [classKeys.classes, branchId],
+    queryFn: () => getClasses(branchId),
   });
 };
 

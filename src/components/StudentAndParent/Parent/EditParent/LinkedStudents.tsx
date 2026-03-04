@@ -45,13 +45,13 @@ export const LinkedStudents = ({
           </div>
         ))}
 
-        <Button
+        <div
           onClick={() => setOpen(true)}
-          className="text-text-default border-border-darker bg-bg-state-secondary h-10 w-full border border-dashed! text-sm font-medium"
+          className="text-text-default border-border-darker bg-bg-state-secondary flex h-10 w-full items-center justify-center gap-2 rounded-md border border-dashed! text-sm font-medium"
         >
-          <PlusIcon className="text-icon-default-muted" />
+          <PlusIcon className="text-icon-default-muted size-5" />
           <span>Link Student</span>
-        </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,18 +1,18 @@
-export const uploadImage = async (formData: FormData) => {
+export const uploadImage = async (formData: FormData): Promise<{ url: string } | null> => {
   try {
     const response = await fetch(`/api/image-upload`, {
       method: "POST",
       body: formData,
     });
 
-    const data = await response.json();
-    if (data) {
-      return data;
-    } else {
+    if (!response.ok) {
       return null;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+    const data = await response.json();
+    return data;
   } catch (error) {
-    return [];
+    console.error("Upload failed:", error);
+    return null;
   }
 };

@@ -1,19 +1,21 @@
 "use client";
 import { toast } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useAddStudent, useEditStudent, useGetStudent } from "@/hooks/queryHooks/useStudent";
+import { useEditStudent, useGetStudent } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { studentSchema } from "@/schema/student";
 import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
+import { format } from "date-fns";
 import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { StudentInputValues } from "../../types";
+import { LinkParents } from "../LinkParents";
+import { LinkedParents } from "../LinkedParents";
 import { AcademicInformation } from "./AcademicInformation";
 import { ContactInformation } from "./ContactInformation";
-import { LinkedParents } from "./LinkedParents";
-import { LinkParents } from "./LinkParents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
 import { Tags } from "./Tags";
@@ -24,7 +26,6 @@ export const EditStudent = () => {
   const studentId = pathname.split("/")[3] ?? "";
 
   const { data, isPending: loadingStudent } = useGetStudent(Number(studentId));
-
   const [date, setDate] = useState<Date | undefined>();
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
@@ -51,7 +52,7 @@ export const EditStudent = () => {
       dateOfBirth: "",
       address: "",
       emergencyContactName: "",
-      emergencyContactNumber: "",
+      emergencyContact: "",
       phoneNumber: "",
       secondaryPhoneNumber: "",
       admissionNumber: "",
@@ -73,9 +74,10 @@ export const EditStudent = () => {
       mutate(
         {
           ...values,
+          dateOfBirth: format(new Date(formik.values.dateOfBirth), "yyyy-MM-dd"),
           tags,
 
-          linkedParents: [3],
+          linkedParents: selectedParents.map(parent => parent.id),
           // image: avatar,
           image: null,
           studentId: Number(studentId),
@@ -107,17 +109,32 @@ export const EditStudent = () => {
       formik.setFieldValue("lastName", data.data.lastName);
       formik.setFieldValue("middleName", data.data.middleName);
       formik.setFieldValue("email", data.data.email);
+      formik.setFieldValue("nationality", data.data.nationality);
+      formik.setFieldValue("stateOfOrigin", data.data.stateOfOrigin);
       formik.setFieldValue("phoneNumber", data.data.phoneNumber);
+      formik.setFieldValue("secondaryPhoneNumber", data.data.secondaryPhoneNumber ?? "");
       formik.setFieldValue("admissionNumber", data.data.admissionNumber ?? "");
       formik.setFieldValue("medicalInformation", data.data.medicalInformation ?? "");
-      formik.setFieldValue("emergencyContactNumber", data.data.emergencyContact ?? "");
+      formik.setFieldValue("emergencyContactName", data.data.emergencyContactName ?? "");
+      formik.setFieldValue("emergencyContact", data.data.emergencyContact ?? "");
       formik.setFieldValue("gender", data.data.gender);
       formik.setFieldValue("dateOfBirth", data.data.dateOfBirth);
       setDate(new Date(data.data.dateOfBirth));
       formik.setFieldValue("address", data.data.address);
       formik.setFieldValue("joinedSchoolSession", data.data.joinedSchoolSession);
       formik.setFieldValue("joinedSchoolTerm", data.data.joinedSchoolTerm);
+      formik.setFieldValue("boardingStatus", data.data.boardingStatus);
+      formik.setFieldValue("admissionStatus", data.data.studentStatus);
+      formik.setFieldValue("branchId", null); // Will be set by AcademicInformation lookup
+      formik.setFieldValue("classId", null); // Will be set by AcademicInformation lookup
+      formik.setFieldValue("departmentId", data.data.departmentId);
+      formik.setFieldValue("armId", data.data.armId);
       setTags(data.data.tags);
+
+      // If parents detail is available, map it here
+      // if (data.data.linkedParentsDetails) {
+      //   setSelectedParents(data.data.linkedParentsDetails);
+      // }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
@@ -129,7 +146,6 @@ export const EditStudent = () => {
       formik.handleSubmit();
     }
   };
-  console.log(formik.errors, formik.values);
 
   const handleBack = () => {
     if (step > 0) {
@@ -139,11 +155,66 @@ export const EditStudent = () => {
     }
   };
 
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
+  const isStepValid = (currentStep: number) => {
+    const { values, errors } = formik;
+    if (currentStep === 1) {
+      return (
+        !!values.firstName &&
+        !!values.lastName &&
+        !!values.gender &&
+        !!values.dateOfBirth &&
+        !!values.nationality &&
+        !!values.stateOfOrigin &&
+        !errors.firstName &&
+        !errors.lastName &&
+        !errors.gender &&
+        !errors.dateOfBirth &&
+        !errors.nationality &&
+        !errors.stateOfOrigin
+      );
+    }
+    if (currentStep === 2) {
+      return !!values.address && selectedParents.length > 0 && !errors.address;
+    }
+    if (currentStep === 3) {
+      return (
+        !!values.branchId &&
+        !!values.classId &&
+        !!values.armId &&
+        !!values.joinedSchoolTerm &&
+        !!values.joinedSchoolSession &&
+        !!values.admissionStatus &&
+        !errors.branchId &&
+        !errors.classId &&
+        !errors.armId &&
+        !errors.joinedSchoolTerm &&
+        !errors.joinedSchoolSession &&
+        !errors.admissionStatus
+      );
+    }
+    return false;
+  };
+
+  const isValid = Object.keys(formik.errors).length === 0 && selectedParents.length > 0;
+
+  if (loadingStudent || !data) {
+    return (
+      <div className="flex h-screen flex-col p-4 md:p-8">
+        <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />
+      </div>
+    );
+  }
+  if (loadingStudent || !data) {
+    return (
+      <div className="flex h-screen flex-col p-4 md:p-8">
+        <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col">
-      {/* {open && <LinkParents open={open} setOpen={setOpen} />} */}
+      {open && <LinkParents open={open} setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />}
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">Edit Student</h1>
@@ -156,7 +227,7 @@ export const EditStudent = () => {
         <div className="block md:hidden">
           {step === 1 && (
             <div>
-              <ProfilePicture setAvatar={setAvatar} />
+              <ProfilePicture setAvatar={setAvatar} defaultImageUrl={data.data.image} />
               <PersonalInformation date={date} setDate={setDate} formik={formik} data={data} />
             </div>
           )}
@@ -169,16 +240,16 @@ export const EditStudent = () => {
           {step === 3 && <Tags tags={tags} setTags={setTags} />}
 
           {/* Linked Parents */}
-          {step === 2 && <LinkedParents setOpen={setOpen} />}
+          {step === 2 && <LinkedParents setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />}
         </div>
 
         <div className="hidden md:block">
-          <ProfilePicture setAvatar={setAvatar} />
+          <ProfilePicture setAvatar={setAvatar} defaultImageUrl={data.data.image} />
           <PersonalInformation date={date} setDate={setDate} formik={formik} data={data} />
           <ContactInformation formik={formik} />
           <AcademicInformation formik={formik} data={data} />
           <Tags tags={tags} setTags={setTags} />
-          <LinkedParents setOpen={setOpen} />
+          <LinkedParents setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />
         </div>
 
         <div className="border-border-default bg-bg-default sticky bottom-0 w-full border-t py-3">
@@ -196,8 +267,9 @@ export const EditStudent = () => {
             </Button>
 
             <Button
+              type="button"
               onClick={() => handleSteps()}
-              // {...(step === 3 && { type: "submit" })}
+              disabled={!isStepValid(step)}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
             >
               {isPending && <Spinner className="text-text-white-default" />}

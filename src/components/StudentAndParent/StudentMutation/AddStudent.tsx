@@ -24,7 +24,7 @@ export const AddStudent = () => {
   const [date, setDate] = useState<Date | undefined>();
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
-  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatar, setAvatar] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [selectedParents, setSelectedParents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
 
@@ -44,10 +44,10 @@ export const AddStudent = () => {
       email: "",
       gender: Gender.Female,
       boardingStatus: BoardingStatus.Day,
-      dateOfBirth: "",
+      dateOfBirth: `${new Date()}`,
       address: "",
       emergencyContactName: "",
-      emergencyContactNumber: "",
+      emergencyContact: "",
       phoneNumber: "",
       secondaryPhoneNumber: "",
       admissionNumber: "",
@@ -68,12 +68,10 @@ export const AddStudent = () => {
       mutate(
         {
           ...values,
+          dateOfBirth: format(new Date(formik.values.dateOfBirth), "yyyy-MM-dd"),
           tags,
-
-          linkedParents: [3],
-          // image: avatar,
-          image: null,
-          // dateOfBirth: format(formik.values.dateOfBirth, "dd-MM-yyyy"),
+          linkedParents: selectedParents.map(parent => parent.id),
+          image: avatar,
         },
         {
           onSuccess: data => {
@@ -96,18 +94,13 @@ export const AddStudent = () => {
     },
   });
 
-  console.log(step);
   const handleSteps = () => {
-    console.log("here");
     if (step < 3) {
-      console.log("here 1");
       setStep(prev => prev + 1);
     } else {
-      console.log("here 2");
       formik.handleSubmit();
     }
   };
-  console.log(formik.errors, formik.values);
 
   const handleBack = () => {
     if (step > 0) {
@@ -117,11 +110,51 @@ export const AddStudent = () => {
     }
   };
 
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
+  const isStepValid = (currentStep: number) => {
+    const { values, errors } = formik;
+    if (currentStep === 1) {
+      return (
+        !!values.firstName &&
+        !!values.lastName &&
+        !!values.gender &&
+        !!values.dateOfBirth &&
+        !!values.nationality &&
+        !!values.stateOfOrigin &&
+        !errors.firstName &&
+        !errors.lastName &&
+        !errors.gender &&
+        !errors.dateOfBirth &&
+        !errors.nationality &&
+        !errors.stateOfOrigin
+      );
+    }
+    if (currentStep === 2) {
+      return !!values.address && selectedParents.length > 0 && !errors.address;
+    }
+    if (currentStep === 3) {
+      return (
+        !!values.branchId &&
+        !!values.classId &&
+        !!values.armId &&
+        !!values.joinedSchoolTerm &&
+        !!values.joinedSchoolSession &&
+        !!values.admissionStatus &&
+        !errors.branchId &&
+        !errors.classId &&
+        !errors.armId &&
+        !errors.joinedSchoolTerm &&
+        !errors.joinedSchoolSession &&
+        !errors.admissionStatus
+      );
+    }
+    return false;
+  };
+
+  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0 && selectedParents.length !== 0;
 
   return (
     <div className="flex h-screen flex-col">
-      {/* {open && <LinkParents open={open} setOpen={setOpen} />} */}
+      {open && <LinkParents open={open} setOpen={setOpen} selectedParents={selectedParents} setSelectedParents={setSelectedParents} />}
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">
@@ -149,7 +182,7 @@ export const AddStudent = () => {
           {step === 3 && <Tags tags={tags} setTags={setTags} />}
 
           {/* Linked Parents */}
-          {step === 2 && <LinkedParents setOpen={setOpen} />}
+          {step === 2 && <LinkedParents setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />}
         </div>
 
         <div className="hidden md:block">
@@ -158,7 +191,7 @@ export const AddStudent = () => {
           <ContactInformation formik={formik} />
           <AcademicInformation formik={formik} />
           <Tags tags={tags} setTags={setTags} />
-          <LinkedParents setOpen={setOpen} />
+          <LinkedParents setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />
         </div>
 
         <div className="border-border-default bg-bg-default sticky bottom-0 w-full border-t py-3">
@@ -166,6 +199,8 @@ export const AddStudent = () => {
             <Button onClick={() => handleBack()} className="bg-bg-state-soft text-text-subtle hover:bg-bg-state-soft-hover! h-7! text-sm">
               {step > 1 ? "Back" : "Cancel"}
             </Button>
+
+            {/* Desktop Submit button */}
             <Button
               type="submit"
               disabled={!isValid}
@@ -175,9 +210,10 @@ export const AddStudent = () => {
               Add Student
             </Button>
 
+            {/* Mobile Next/Submit button */}
             <Button
               onClick={() => handleSteps()}
-              // {...(step === 3 && { type: "submit" })}
+              disabled={!isStepValid(step)}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
             >
               {isPending && <Spinner className="text-text-white-default" />}

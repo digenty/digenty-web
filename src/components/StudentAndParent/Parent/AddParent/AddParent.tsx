@@ -96,6 +96,35 @@ export const AddParent = () => {
     }
   };
 
+  const isStepValid = (currentStep: number) => {
+    const { values, errors } = formik;
+    if (currentStep === 1) {
+      return (
+        !!values.firstName &&
+        !!values.lastName &&
+        !!values.gender &&
+        !!values.relationship &&
+        !!values.nationality &&
+        !!values.stateOfOrigin &&
+        !!values.branchId &&
+        !errors.branchId &&
+        !errors.firstName &&
+        !errors.lastName &&
+        !errors.gender &&
+        !errors.nationality &&
+        !errors.relationship &&
+        !errors.stateOfOrigin
+      );
+    }
+    if (currentStep === 2) {
+      return !!values.email && !!values.phoneNumber && !!values.address && !errors.email && !errors.phoneNumber && !errors.address;
+    }
+    if (currentStep === 3) {
+      return true;
+    }
+    return false;
+  };
+
   const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
 
   return (
@@ -125,7 +154,7 @@ export const AddParent = () => {
           {/* Tags */}
           {step === 3 && <Tags tags={tags} setTags={setTags} />}
 
-          {/* Linked Parents */}
+          {/* Linked Students */}
           {step === 3 && <LinkedStudents setOpen={setOpen} setSelectedStudents={setSelectedStudents} selectedStudents={selectedStudents} />}
         </div>
 
@@ -152,8 +181,9 @@ export const AddParent = () => {
           </Button>
 
           <Button
+            type="button"
             onClick={() => handleSteps()}
-            disabled={!isValid && step === 3}
+            disabled={!isStepValid(step) && step === 3}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
           >
             {isPending && <Spinner className="text-text-white-default" />}

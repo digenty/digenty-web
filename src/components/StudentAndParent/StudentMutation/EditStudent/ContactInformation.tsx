@@ -115,23 +115,23 @@ export const ContactInformation = ({ formik }: { formik: FormikProps<StudentInpu
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="emergencyContactNumber" className="text-text-default text-sm font-medium">
+          <Label htmlFor="emergencyContact" className="text-text-default text-sm font-medium">
             Emergency Contact Number
           </Label>
           <Input
-            id="emergencyContactNumber"
+            id="emergencyContact"
             onChange={handleChange}
             placeholder="Input Emergency Contact Number"
             onBlur={handleBlur}
-            value={values.emergencyContactNumber}
+            value={values.emergencyContact}
             type="text"
             className={cn(
               "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
-              errors.emergencyContactNumber && touched.emergencyContactNumber && "border-border-destructive border",
+              errors.emergencyContact && touched.emergencyContact && "border-border-destructive border",
             )}
           />
-          {touched.emergencyContactNumber && errors.emergencyContactNumber && (
-            <p className="text-text-destructive text-xs font-light">{errors.emergencyContactNumber}</p>
+          {touched.emergencyContact && errors.emergencyContact && (
+            <p className="text-text-destructive text-xs font-light">{errors.emergencyContact}</p>
           )}
         </div>
       </div>

@@ -17,9 +17,10 @@ import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 
 export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInputValues> }) => {
   const [classId, setClassId] = useState<number | undefined>();
+  const [branchId, setBranchId] = useState<number | undefined>();
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
-  const { data: classes, isPending: loadingClasses } = useGetClasses();
+  const { data: classes, isPending: loadingClasses } = useGetClasses(branchId);
   const { data: departments, isPending: loadingDepartments } = useGetDepartments();
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
 
@@ -95,6 +96,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
               onValueChange={value => {
                 const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
                 formik.setFieldValue("branchId", branch.id);
+                setBranchId(branch.id);
               }}
             >
               <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -114,6 +116,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
         <div className="space-y-2">
           <Label htmlFor="class" className="text-text-default text-sm font-medium">
             Class <small className="text-text-destructive text-xs">*</small>
+            <span className="text-text-default text-xs font-light">(Classes are grouped by branch)</span>
           </Label>
           {!classes || loadingClasses ? (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
@@ -168,7 +171,8 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
 
         <div className="space-y-2">
           <Label htmlFor="arm" className="text-text-default text-sm font-medium">
-            Arm <small className="text-text-destructive text-xs">*</small>
+            Arm <small className="text-text-destructive text-xs">*</small>{" "}
+            <span className="text-text-default text-xs font-light">{!classId && "(Select a class first)"}</span>
           </Label>
           {!arms || loadingArms ? (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />

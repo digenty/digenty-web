@@ -69,7 +69,7 @@ export interface Student {
   dateOfBirth: string;
   address: string;
   emergencyContactName: string;
-  emergencyContactNumber: string;
+  emergencyContact: string;
   phoneNumber: string;
   secondaryPhoneNumber: string;
   studentStatus: AdmissionStatus;
@@ -83,6 +83,7 @@ export interface Student {
   class: string;
   departmentId: number | null;
   armId: number | null;
+  arm: string;
   image: string | null;
   tags: string[];
   linkedParents: number[];
@@ -97,7 +98,7 @@ export interface Parent {
   middleName: string;
   email: string;
   phoneNumber: string;
-  branchId: number;
+  branch: string;
   gender: Gender;
   relationship: Relationship;
   nationality: string;
@@ -191,4 +192,37 @@ export interface StudentUpdate {
   total: number;
   grade: string;
   remark: string;
+}
+
+export interface SubjectReport {
+  subjectName: string;
+  assessments: [
+    {
+      assessmentName: string;
+      score: number;
+      weight: number;
+    },
+  ];
+  total: number;
+  grade: string;
+  remark: string;
+}
+
+export interface StudentReport {
+  schoolName: string;
+  sessionName: string;
+  studentId: number;
+  studentName: string;
+  className: string;
+  totalSchoolDays: number;
+  totalPresent: number;
+  totalAbsent: number;
+  neatness: string | null;
+  punctuality: string | null;
+  diligence: string | null;
+  subjectReports: SubjectReport[];
+  overallPercentage: number;
+  classTeacherComment: string | null;
+  principalComment: string | null;
+  nextTermBegins: string;
 }

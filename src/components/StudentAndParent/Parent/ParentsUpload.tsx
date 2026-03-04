@@ -12,6 +12,7 @@ import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
 import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
 import { ParentUploadType, Step } from "../BulkUpload/types";
 import * as XLSX from "xlsx";
+import { Branch } from "@/api/types";
 
 const REQUIRED_HEADERS = [
   "firstName",
@@ -40,6 +41,8 @@ export const ParentsUpload = () => {
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [validRows, setValidRows] = useState<Record<string, unknown>[]>([]);
   const [file, setFile] = useState<File | null>(null);
+  const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
+
   const { mutate, isPending } = useUploadParents();
 
   const goToNext = () => {
@@ -207,7 +210,15 @@ export const ParentsUpload = () => {
         {currentStep === steps.length ? (
           <ConfirmUpload entity="Parents" errors={errors} validRows={validRows} downloadErrorReport={downloadErrorReport} />
         ) : (
-          <CSVUpload file={file} setFile={setFile} entity="Parents" setErrors={setErrors} handleValidation={validateFile} />
+          <CSVUpload
+            branchSelected={branchSelected}
+            setBranchSelected={setBranchSelected}
+            file={file}
+            setFile={setFile}
+            entity="Parents"
+            setErrors={setErrors}
+            handleValidation={validateFile}
+          />
         )}
 
         <div className="border-border-default mt-10 flex w-full justify-between border-t py-4">

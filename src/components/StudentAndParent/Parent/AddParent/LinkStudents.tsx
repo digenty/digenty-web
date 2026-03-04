@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetStudents } from "@/hooks/queryHooks/useStudent";
+import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { XIcon } from "lucide-react";
 import Image from "next/image";
@@ -27,11 +28,14 @@ export const LinkStudents = ({
   setSelectedStudents: Dispatch<SetStateAction<{ id: number; name: string; avatar: string | null }[]>>;
 }) => {
   const [branchSelected, setBranchSelected] = useState<Branch>();
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
   const { data: branches, isPending: loadingBranches } = useGetBranches();
 
   const isMobile = useIsMobile();
 
-  const { data, isPending } = useGetStudents({ limit: 50, branchId: branchSelected?.id });
+  const { data, isPending } = useGetStudents({ limit: 50, branchId: branchSelected?.id, search: debouncedSearchQuery });
   const students = data?.pages.flatMap(page => page.content) ?? [];
 
   const removeStudent = (id: number) => {
@@ -73,7 +77,13 @@ export const LinkStudents = ({
           </div>
 
           <div className="space-y-3 px-3 py-4 md:px-6">
-            <SearchInput className="bg-bg-input-soft h-8 rounded-lg border-none" />
+            <SearchInput
+              className="bg-bg-input-soft h-8 rounded-lg border-none"
+              value={searchQuery}
+              onChange={evt => {
+                setSearchQuery(evt.target.value);
+              }}
+            />
             <Button className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! border-border-default h-6 border px-1.5!">
               <XIcon className="text-icon-default-muted size-4" />
               <span className="text-text-default text-xs">Clear All</span>
@@ -192,7 +202,13 @@ export const LinkStudents = ({
           </div>
 
           <div className="space-y-3 px-3 py-4 md:px-6">
-            <SearchInput className="bg-bg-input-soft h-8 rounded-lg border-none" />
+            <SearchInput
+              className="bg-bg-input-soft h-8 rounded-lg border-none"
+              value={searchQuery}
+              onChange={evt => {
+                setSearchQuery(evt.target.value);
+              }}
+            />
             <Button className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! border-border-default h-6 border px-1.5!">
               <XIcon className="text-icon-default-muted size-4" />
               <span className="text-text-default text-xs">Clear All</span>

@@ -16,6 +16,7 @@ import { LinkedStudents } from "./LinkedStudents";
 import { LinkStudents } from "./LinkStudents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "./ProfilePicture";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const EditParent = () => {
   const router = useRouter();
@@ -98,6 +99,8 @@ export const EditParent = () => {
       formik.setFieldValue("gender", data.data.gender);
       formik.setFieldValue("relationship", data.data.relationship);
       formik.setFieldValue("address", data.data.address);
+      formik.setFieldValue("nationality", data.data.nationality);
+      formik.setFieldValue("stateOfOrigin", data.data.stateOfOrigin);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
@@ -118,8 +121,43 @@ export const EditParent = () => {
     }
   };
 
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
+  const isStepValid = (currentStep: number) => {
+    const { values, errors } = formik;
+    if (currentStep === 1) {
+      return (
+        !!values.firstName &&
+        !!values.lastName &&
+        !!values.gender &&
+        !!values.relationship &&
+        !!values.nationality &&
+        !!values.stateOfOrigin &&
+        !!values.branchId &&
+        !errors.branchId &&
+        !errors.firstName &&
+        !errors.lastName &&
+        !errors.gender &&
+        !errors.nationality &&
+        !errors.relationship &&
+        !errors.stateOfOrigin
+      );
+    }
+    if (currentStep === 2) {
+      return !!values.email && !!values.phoneNumber && !!values.address && !errors.email && !errors.phoneNumber && !errors.address;
+    }
+    if (currentStep === 3) {
+      return true;
+    }
+    return false;
+  };
 
+  const isValid = Object.keys(formik.errors).length === 0;
+  if (loadingParent || !data) {
+    return (
+      <div className="flex h-screen flex-col">
+        <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />
+      </div>
+    );
+  }
   return (
     <div className="flex h-screen flex-col">
       {open && <LinkStudents selectedStudents={selectedStudents} setSelectedStudents={setSelectedStudents} open={open} setOpen={setOpen} />}
@@ -165,16 +203,17 @@ export const EditParent = () => {
           <Button
             onClick={() => formik.handleSubmit()}
             disabled={!isValid}
-            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default hidden h-7! md:flex"
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default! hidden h-7! md:flex"
           >
             {isPending && <Spinner className="text-text-white-default" />}
             Edit Parent
           </Button>
 
           <Button
+            type="button"
             onClick={() => handleSteps()}
-            disabled={!isValid && step === 3}
-            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
+            disabled={!isStepValid(step)}
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default! flex h-7! md:hidden"
           >
             {isPending && <Spinner className="text-text-white-default" />}
             {step === 3 ? "Edit Parent" : "Next"}

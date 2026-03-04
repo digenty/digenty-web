@@ -108,7 +108,7 @@ export const ClassReport = () => {
         ) : (
           <div className="max-w-[678px] pt-6">
             {/* TODO: Pass active student here */}
-            <StudentResult />
+            {/* <StudentResult /> */}
           </div>
         )}
       </div>

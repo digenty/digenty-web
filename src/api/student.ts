@@ -47,7 +47,7 @@ export const getStudents = async ({
   }
 };
 
-export const uploadStudents = async ({ file }: { file: File | null }) => {
+export const uploadStudents = async ({ file, branchId }: { file: File | null; branchId?: number }) => {
   if (file) {
     const formData = new FormData();
     formData.append("file", file);
@@ -163,6 +163,17 @@ export const getStudent = async (studentId?: number) => {
 export const editStudent = async (payload: StudentInputType & { studentId: number }) => {
   try {
     const { data } = await api.put("/students", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+export const getStudentReport = async ({ studentId, termId, armId }: { studentId?: number; termId?: number; armId?: number | null }) => {
+  try {
+    const { data } = await api.get(`/report-card/student/${studentId}/arm/${armId}?termId=${termId}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

@@ -23,7 +23,7 @@ export const Biodata = ({ student }: { student: Student }) => {
       icon: <Calendar fill="var(--color-icon-default-muted)" />,
     },
     { bio: "Medical Information", detail: student.medicalInformation, icon: <Calendar fill="var(--color-icon-default-muted)" /> },
-    { bio: "Emergency Contact", detail: student.emergencyContactNumber, icon: <FirstAidKit fill="var(--color-icon-default-muted)" /> },
+    { bio: "Emergency Contact", detail: student.emergencyContact, icon: <FirstAidKit fill="var(--color-icon-default-muted)" /> },
     { bio: "Nationality", detail: student.nationality, icon: <Flag fill="var(--color-icon-default-muted)" /> },
     { bio: "State of Origin", detail: student.stateOfOrigin, icon: <Flag fill="var(--color-icon-default-muted)" /> },
     { bio: "Address", detail: student.address, icon: <Map fill="var(--color-icon-default-muted)" /> },

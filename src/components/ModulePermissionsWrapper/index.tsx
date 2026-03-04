@@ -10,13 +10,13 @@ export const ModulePermissionsWrapper = ({
   permissionUtility: (permissions: string[] | undefined) => boolean;
 }) => {
   const user = useLoggedInUser();
+  const hasPermission = permissionUtility(user?.permissions);
 
   return (
     <>
-      {!user?.permissions && !permissionUtility(user?.permissions) && <Skeleton className="bg-bg-basic-gray-subtle2 h-200 w-full rounded-none" />}
-      {user?.permissions && permissionUtility(user?.permissions) ? (
-        children
-      ) : (
+      {!user?.permissions && <Skeleton className="bg-bg-basic-gray-subtle2 h-200 w-full rounded-none" />}
+
+      {user?.permissions && !hasPermission && (
         <PageEmptyState
           title="You don't have permissions to view this page"
           description="You can ask the Administrator to grant you at least a view permission to view this module"
@@ -24,6 +24,8 @@ export const ModulePermissionsWrapper = ({
           url="/"
         />
       )}
+
+      {user?.permissions && hasPermission && children}
     </>
   );
 };

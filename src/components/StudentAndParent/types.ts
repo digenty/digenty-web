@@ -31,7 +31,7 @@ export interface StudentInputValues {
   dateOfBirth: string;
   address: string;
   emergencyContactName: string;
-  emergencyContactNumber: string;
+  emergencyContact: string;
   phoneNumber: string;
   secondaryPhoneNumber: string;
   admissionStatus: AdmissionStatus;
@@ -90,7 +90,7 @@ export interface StudentInputType {
   dateOfBirth: string;
   address: string;
   emergencyContactName: string;
-  emergencyContactNumber: string;
+  emergencyContact: string;
   phoneNumber: string;
   secondaryPhoneNumber: string;
   admissionStatus: AdmissionStatus;
@@ -104,7 +104,7 @@ export interface StudentInputType {
   classId: number | null;
   departmentId: number | null;
   armId: number | null;
-  image: File | null;
+  image: string | File | null;
   tags: string[];
   linkedParents: number[];
 }
@@ -122,7 +122,7 @@ export interface ParentInputType {
   stateOfOrigin: string;
   relationship: Relationship | null;
   branchId: number | null;
-  image: File | null;
+  image: string | File | null;
   tags: string[];
   linkedStudents: number[];
 }

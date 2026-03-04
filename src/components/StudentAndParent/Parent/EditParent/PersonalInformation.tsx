@@ -43,27 +43,18 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
   }, [activeCountryCode, getStates]);
 
   useEffect(() => {
-    if (data) {
-      const country = countries?.find(ctry => ctry.name === data.data.nationality);
-      console.log(country, "country", data.data.nationality);
+    if (values.nationality && countries.length > 0) {
+      const country = countries?.find(ctry => ctry.name === values.nationality);
       if (country) {
         setActiveCountryCode(country?.iso2);
-        formik.setFieldValue("nationality", country.name);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countries, data]);
-
-  useEffect(() => {
-    if (activeCountryCode && data) {
-      formik.setFieldValue("stateOfOrigin", data.data.stateOfOrigin);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeCountryCode, data]);
+  }, [countries, values]);
 
   useEffect(() => {
     if (data && branches) {
-      const brnch = branches.data.content?.find((brnch: Branch) => brnch.id === data.data.branchId);
+      const brnch = branches.data.content?.find((brnch: Branch) => brnch.name === data.data.branch);
       formik.setFieldValue("branchId", brnch?.id);
       setBranch(brnch?.name);
     }
@@ -140,7 +131,9 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
           <Select
             value={formik.values.gender}
             onValueChange={gender => {
-              formik.setFieldValue("gender", gender);
+              if (gender) {
+                formik.setFieldValue("gender", gender);
+              }
             }}
           >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -163,7 +156,9 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
           <Select
             value={formik.values.relationship}
             onValueChange={rel => {
-              formik.setFieldValue("relationship", rel);
+              if (rel) {
+                formik.setFieldValue("relationship", rel);
+              }
             }}
           >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -246,8 +241,10 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
             value={formik.values.stateOfOrigin}
             disabled={!activeCountryCode}
             onValueChange={value => {
-              const state = states?.find(stat => stat.name === value);
-              formik.setFieldValue("stateOfOrigin", state?.name);
+              if (value) {
+                const state = states?.find(stat => stat.name === value);
+                formik.setFieldValue("stateOfOrigin", state?.name || value);
+              }
             }}
           >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">

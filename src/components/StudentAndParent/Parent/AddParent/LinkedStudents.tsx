@@ -20,9 +20,7 @@ export const LinkedStudents = ({
   };
   return (
     <div className="space-y-6 py-6">
-      <h2 className="text-lg font-semibold">
-        Linked Students <small className="text-text-destructive text-xs">*</small>
-      </h2>
+      <h2 className="text-lg font-semibold">Linked Students</h2>
 
       <div className="grid grid-cols-1 gap-6 sm:gap-5">
         {selectedStudents.map(student => (
@@ -45,13 +43,16 @@ export const LinkedStudents = ({
           </div>
         ))}
 
-        <Button
-          onClick={() => setOpen(true)}
-          className="text-text-default border-border-darker bg-bg-state-secondary h-10 w-full border border-dashed! text-sm font-medium"
+        <div
+          onClick={evt => {
+            evt.stopPropagation();
+            setOpen(true);
+          }}
+          className="text-text-default border-border-darker bg-bg-state-secondary flex h-10 w-full items-center justify-center gap-2 rounded-md border border-dashed! text-sm font-medium"
         >
-          <PlusIcon className="text-icon-default-muted" />
+          <PlusIcon className="text-icon-default-muted size-5" />
           <span>Link Student</span>
-        </Button>
+        </div>
       </div>
     </div>
   );
