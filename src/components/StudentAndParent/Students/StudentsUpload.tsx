@@ -61,6 +61,7 @@ export const StudentsUpload = () => {
       mutate(
         {
           file,
+          branchId: branchSelected?.id,
         },
         {
           onSuccess: data => {

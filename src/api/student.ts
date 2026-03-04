@@ -47,7 +47,7 @@ export const getStudents = async ({
   }
 };
 
-export const uploadStudents = async ({ file }: { file: File | null }) => {
+export const uploadStudents = async ({ file, branchId }: { file: File | null; branchId?: number }) => {
   if (file) {
     const formData = new FormData();
     formData.append("file", file);
