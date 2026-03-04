@@ -181,9 +181,9 @@ export const AddParent = () => {
           </Button>
 
           <Button
+            type="button"
             onClick={() => handleSteps()}
-            // disabled={!isValid && step === 3}
-            // disabled={!isStepValid(step) && step === 3}
+            disabled={!isStepValid(step) && step === 3}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
           >
             {isPending && <Spinner className="text-text-white-default" />}

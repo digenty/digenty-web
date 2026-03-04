@@ -18,7 +18,7 @@ import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 export const AcademicInformation = ({ formik, data }: { formik: FormikProps<StudentInputValues>; data: { data: Student } | undefined }) => {
   const [classId, setClassId] = useState<number | undefined>();
 
-  const { data: branches, isPending: loadingBranches, error } = useGetBranches();
+  const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses();
   const { data: departments, isPending: loadingDepartments } = useGetDepartments();
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
@@ -27,8 +27,6 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
   const [className, setClassName] = useState<string>();
   const [department, setDepartment] = useState<string>();
   const [arm, setArm] = useState<string>();
-  const [boardingStatus, setBoardingStatus] = useState<{ value: string; label: string }>();
-  const [admissionStatus, setAdmissionStatus] = useState<{ value: string; label: string }>();
 
   const { handleBlur, handleChange, errors, touched, values } = formik;
 
@@ -36,19 +34,19 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
     if (data && branches && classes && departments) {
       const branch = branches.data.content?.find((brnch: Branch) => brnch.name === data.data.branch);
       setBranch(branch?.name);
+      if (branch) {
+        formik.setFieldValue("branchId", branch.id);
+      }
 
       const cls = classes.data.content?.find((cls: ClassType) => cls.name === data.data.class);
       setClassName(cls?.name);
       setClassId(cls?.id);
+      if (cls) {
+        formik.setFieldValue("classId", cls.id);
+      }
 
       const department = departments.data.find((dep: Department) => dep.id === data.data.departmentId);
       setDepartment(department?.name);
-
-      const boarding = BoardingStatusValues.find((board: { value: string; label: string }) => board.value === data.data.boardingStatus);
-      setBoardingStatus(boarding);
-
-      const admission = AdmissionStatusValues.find((admission: { value: string; label: string }) => admission.value === data.data.studentStatus);
-      setAdmissionStatus(admission);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, branches, classes, departments]);
@@ -57,6 +55,9 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
     if (arms && data) {
       const arm = arms.data.content.find((arm: Arm) => arm.id === data.data.armId);
       setArm(arm?.name);
+      if (arm) {
+        formik.setFieldValue("armId", arm.id);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [arms, data]);
@@ -149,6 +150,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
                   const branch = branches.data.content?.find((branch: Branch) => branch.name === value);
                   if (branch) {
                     formik.setFieldValue("branchId", branch.id);
+                    setBranch(branch.name);
                   }
                 }
               }}
@@ -179,8 +181,11 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
               onValueChange={value => {
                 if (value) {
                   const classObj = classes.data.content?.find((cls: ClassType) => cls.name === value);
-                  formik.setFieldValue("classId", classObj.id);
-                  setClassId(classObj.id);
+                  if (classObj) {
+                    formik.setFieldValue("classId", classObj.id);
+                    setClassName(classObj.name);
+                    setClassId(classObj.id);
+                  }
                 }
               }}
             >
@@ -209,7 +214,10 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
               value={department}
               onValueChange={value => {
                 const department = departments.data?.find((dept: Department) => dept.name === value);
-                formik.setFieldValue("departmentId", department.id);
+                if (department) {
+                  formik.setFieldValue("departmentId", department.id);
+                  setDepartment(department.name);
+                }
               }}
             >
               <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -241,6 +249,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
                   const arm = arms.data?.content?.find((arm: Arm) => arm.name === value);
                   if (arm) {
                     formik.setFieldValue("armId", arm.id);
+                    setArm(arm.name);
                   }
                 }
               }}
@@ -268,7 +277,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
           <Label htmlFor="boardingStatus" className="text-text-default text-sm font-medium">
             Boarding Status
           </Label>
-          <Select value={boardingStatus?.value} onValueChange={value => formik.setFieldValue("boardingStatus", value)}>
+          <Select value={values.boardingStatus} onValueChange={value => formik.setFieldValue("boardingStatus", value)}>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="Boarding Status" />
             </SelectTrigger>
@@ -286,7 +295,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
           <Label htmlFor="admissionStatus" className="text-text-default text-sm font-medium">
             Admission Status <small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Select value={admissionStatus?.value} onValueChange={value => formik.setFieldValue("admissionStatus", value)}>
+          <Select value={values.admissionStatus} onValueChange={value => formik.setFieldValue("admissionStatus", value)}>
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="Admission Status" />
             </SelectTrigger>

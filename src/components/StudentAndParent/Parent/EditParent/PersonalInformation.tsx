@@ -131,7 +131,9 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
           <Select
             value={formik.values.gender}
             onValueChange={gender => {
-              formik.setFieldValue("gender", gender);
+              if (gender) {
+                formik.setFieldValue("gender", gender);
+              }
             }}
           >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
@@ -154,7 +156,9 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
           <Select
             value={formik.values.relationship}
             onValueChange={rel => {
-              formik.setFieldValue("relationship", rel);
+              if (rel) {
+                formik.setFieldValue("relationship", rel);
+              }
             }}
           >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">

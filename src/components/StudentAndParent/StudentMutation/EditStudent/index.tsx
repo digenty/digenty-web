@@ -125,6 +125,10 @@ export const EditStudent = () => {
       formik.setFieldValue("joinedSchoolTerm", data.data.joinedSchoolTerm);
       formik.setFieldValue("boardingStatus", data.data.boardingStatus);
       formik.setFieldValue("admissionStatus", data.data.studentStatus);
+      formik.setFieldValue("branchId", null); // Will be set by AcademicInformation lookup
+      formik.setFieldValue("classId", null); // Will be set by AcademicInformation lookup
+      formik.setFieldValue("departmentId", data.data.departmentId);
+      formik.setFieldValue("armId", data.data.armId);
       setTags(data.data.tags);
 
       // If parents detail is available, map it here
@@ -191,7 +195,7 @@ export const EditStudent = () => {
     return false;
   };
 
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
+  const isValid = Object.keys(formik.errors).length === 0 && selectedParents.length > 0;
 
   if (loadingStudent || !data) {
     return (
@@ -200,8 +204,6 @@ export const EditStudent = () => {
       </div>
     );
   }
-  console.log(formik.errors, formik.values, data);
-
   if (loadingStudent || !data) {
     return (
       <div className="flex h-screen flex-col p-4 md:p-8">
@@ -265,8 +267,9 @@ export const EditStudent = () => {
             </Button>
 
             <Button
+              type="button"
               onClick={() => handleSteps()}
-              // disabled={!isStepValid(step)}
+              disabled={!isStepValid(step)}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
             >
               {isPending && <Spinner className="text-text-white-default" />}
