@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetClassCumulativeReport, useGetClassReport } from "@/hooks/queryHooks/useClass";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { cn } from "@/lib/utils";
 
 import { Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
@@ -23,8 +24,6 @@ import { PromotionMobileCard } from "./PromotionMobileCard";
 import { createColumns } from "./SpreadsheetColumns";
 import { SpreadsheetMobileCard } from "./SpreadsheetMobileCard";
 import { StudentRow } from "./students";
-
-const PAGE_SIZE = 15;
 
 type ClassArmStudentReport = {
   studentId: number;
@@ -50,6 +49,7 @@ export const ClassReport = () => {
   const [activeStudentId, setActiveStudentId] = useState<number>();
   const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [activeSession, setActiveSession] = useState<string | null>(null);
+  const pageSize = 100;
 
   useBreadcrumb([
     { label: "Classes and Subjects", url: "/classes-and-subjects" },
@@ -86,6 +86,7 @@ export const ClassReport = () => {
             subjectName: sub.subjectName,
             score: sub.score,
           })),
+          totalScore: student.total,
           totalPercentage: student.percentage,
           position: student.position,
         },
@@ -138,7 +139,12 @@ export const ClassReport = () => {
 
       {!isLoadingReport && !isErrorReport && transformedStudents.length > 0 && (
         <>
-          <div className="px-4 md:px-8 oveflow-y-auto h-screen">
+          <div
+            className={cn(
+              "overflow-y-auto px-4 md:h-screen md:px-8",
+              (activeFilter === "spreadsheet" || activeFilter === "promotion") && "hidden md:block",
+            )}
+          >
             {activeFilter === "spreadsheet" && (
               <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
                 {!classReportData || isLoadingReport ? (
@@ -150,7 +156,7 @@ export const ClassReport = () => {
                     totalCount={transformedStudents.length}
                     page={page}
                     setCurrentPage={setPage}
-                    pageSize={PAGE_SIZE}
+                    pageSize={pageSize}
                     showPagination={false}
                     rowSelection={rowSelection}
                     setRowSelection={setRowSelection}
@@ -169,12 +175,13 @@ export const ClassReport = () => {
 
             {activeFilter === "promotion" && (
               <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
-                {isErrorCumulativeReport ? 
-                <ErrorComponent
+                {isErrorCumulativeReport ? (
+                  <ErrorComponent
                     title="Could not get Student's report"
                     description="This is our problem, we are looking into it so as to serve you better"
                     buttonText="Go to the Home page"
-                  /> : !classCumulativeReportData || isLoadingCumulativeReport ? (
+                  />
+                ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
                   <Skeleton className="bg-bg-input-soft h-100 w-full" />
                 ) : (
                   <DataTable
@@ -183,7 +190,7 @@ export const ClassReport = () => {
                     totalCount={transformedStudents.length}
                     page={page}
                     setCurrentPage={setPage}
-                    pageSize={PAGE_SIZE}
+                    pageSize={pageSize}
                     showPagination={false}
                     rowSelection={rowSelection}
                     setRowSelection={setRowSelection}
@@ -204,15 +211,15 @@ export const ClassReport = () => {
               <div>
                 {isErrorStudentReport ? (
                   <div className="flex h-screen items-center justify-center">
-                  <ErrorComponent
-                    title="Could not get Student's report"
-                    description="This is our problem, we are looking into it so as to serve you better"
-                    buttonText="Go to the Home page"
-                  />
+                    <ErrorComponent
+                      title="Could not get Student's report"
+                      description="This is our problem, we are looking into it so as to serve you better"
+                      buttonText="Go to the Home page"
+                    />
                   </div>
                 ) : loadingStudentReport && !studentReportData ? (
                   <div className="pt-6">
-                    <Skeleton className="bg-bg-input-soft h-screen w-[678px] " />
+                    <Skeleton className="bg-bg-input-soft h-screen w-[678px]" />
                   </div>
                 ) : (
                   <div className="max-w-[678px] pt-6">

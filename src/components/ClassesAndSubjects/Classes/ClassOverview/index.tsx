@@ -30,7 +30,7 @@ export const ClassOverview = () => {
   const pathname = usePathname();
   const armId = pathname.split("/")[4];
   const searchParams = useSearchParams();
-  const classArmName = searchParams.get("classArmName")?.replace("-", " ");
+  const classArmName = searchParams.get("classArmName")?.replace("-", " ") || "";
 
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});

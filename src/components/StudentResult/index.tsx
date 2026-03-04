@@ -5,7 +5,6 @@ import { useState } from "react";
 import { DataTable } from "../DataTable";
 import { ErrorComponent } from "../Error/ErrorComponent";
 
-
 export type Result = {
   subject: string;
   ca: number;

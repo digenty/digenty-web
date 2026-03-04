@@ -136,7 +136,7 @@ export const ClassReportHeader = ({
           </div>
 
           {isMobile && (
-            <div className="border-border-default flex gap-2 overflow-x-auto border-t px-4 py-2">
+            <div className="border-border-default hide-scrollbar flex w-screen gap-2 overflow-x-auto border-t px-4 py-2">
               <Button
                 onClick={() => setActiveFilter("spreadsheet")}
                 className={cn(

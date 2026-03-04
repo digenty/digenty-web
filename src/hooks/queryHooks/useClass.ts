@@ -41,5 +41,3 @@ export const useGetClassCumulativeReport = (armId?: number, filter?: string) => 
     enabled: !!armId && filter === "promotion",
   });
 };
-
-

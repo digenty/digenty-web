@@ -20,6 +20,7 @@ export interface SubjectScore {
 export interface TermResult {
   term: string;
   subjects: SubjectScore[];
+  totalScore: number;
   totalPercentage: number;
   position: number;
 }
