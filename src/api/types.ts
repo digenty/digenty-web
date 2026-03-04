@@ -192,7 +192,7 @@ export interface StudentUpdate {
   total: number;
   grade: string;
   remark: string;
-};
+}
 
 export interface SubjectReport {
   subjectName: string;

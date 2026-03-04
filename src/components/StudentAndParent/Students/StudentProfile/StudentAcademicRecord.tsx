@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SelectTrigger, Select, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
-import { useGetTerms } from "@/hooks/queryHooks/useTerms";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { Calendar } from "lucide-react";
 import Image from "next/image";
