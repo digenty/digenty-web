@@ -10,7 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { Subject } from ".";
 import { Avatar } from "../../../Avatar";
 
-const RenderActions = (row: Row<Subject>) => {
+const RenderActions = (row: Row<Subject>, classId: number) => {
   const router = useRouter();
   const pathname = usePathname();
   const { setOpenNotifyTeacher } = useClassesStore();
@@ -27,7 +27,7 @@ const RenderActions = (row: Row<Subject>) => {
 
       <Button
         className="border-border-darker bg-bg-state-secondary text-text-default h-6! rounded-md border px-1.5! font-medium"
-        onClick={() => router.push(`${pathname}/subjects/${row.original.subjectId}`)}
+        onClick={() => router.push(`${pathname}/subjects/${row.original.subjectId}/class/${classId}`)}
       >
         <Eye fill="var(--color-icon-default-muted)" className="size-4" />
         <span className="text-xs">View</span>
@@ -36,50 +36,52 @@ const RenderActions = (row: Row<Subject>) => {
   );
 };
 
-export const columns: ColumnDef<Subject>[] = [
-  {
-    accessorKey: "subjectName",
-    header: () => <div className="text-text-muted text-sm font-medium">Subject</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.subjectName}</span>,
-    size: 600,
-  },
-  {
-    accessorKey: "subjectTeacherName",
-    header: () => <div className="text-text-muted text-sm font-medium">Teacher</div>,
-    cell: ({ row }) => (
-      <div className="flex items-center justify-between gap-4 lg:pr-10">
-        <div className="flex items-center gap-2">
-          <Avatar className="size-5" url="" />
-          <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.subjectTeacherName ?? "--"}</span>
+export const columns = (classId: number): ColumnDef<Subject>[] => {
+  return [
+    {
+      accessorKey: "subjectName",
+      header: () => <div className="text-text-muted text-sm font-medium">Subject</div>,
+      cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.subjectName}</span>,
+      size: 600,
+    },
+    {
+      accessorKey: "subjectTeacherName",
+      header: () => <div className="text-text-muted text-sm font-medium">Teacher</div>,
+      cell: ({ row }) => (
+        <div className="flex items-center justify-between gap-4 lg:pr-10">
+          <div className="flex items-center gap-2">
+            <Avatar className="size-5" url="" />
+            <span className="text-text-default cursor-pointer pl-0 text-sm">{row.original.subjectTeacherName ?? "--"}</span>
+          </div>
         </div>
-      </div>
-    ),
-    size: 400,
-  },
-  {
-    accessorKey: "status",
-    header: () => <div className="text-text-muted text-sm font-medium">Status</div>,
-    cell: ({ row }) => (
-      <div className="flex items-center justify-between gap-4 lg:pr-10">
-        <span
-          className={cn(
-            "border-border-default rounded-md border px-2 py-0.5 text-xs",
-            row.original.status === "SUBMITTED"
-              ? "bg-bg-badge-green text-bg-basic-green-strong"
-              : row.original.status === "IN_PROGRESS"
-                ? "bg-bg-badge-orange text-bg-basic-orange-strong"
-                : "bg-bg-badge-red text-bg-basic-red-strong",
-          )}
-        >
-          {row.original.status?.toLowerCase() ?? "Not Submitted"}
-        </span>
-      </div>
-    ),
-    size: 400,
-  },
-  {
-    id: "actions",
-    header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
-    cell: ({ row }) => RenderActions(row),
-  },
-];
+      ),
+      size: 400,
+    },
+    {
+      accessorKey: "status",
+      header: () => <div className="text-text-muted text-sm font-medium">Status</div>,
+      cell: ({ row }) => (
+        <div className="flex items-center justify-between gap-4 lg:pr-10">
+          <span
+            className={cn(
+              "border-border-default rounded-md border px-2 py-0.5 text-xs",
+              row.original.status === "SUBMITTED"
+                ? "bg-bg-badge-green text-bg-basic-green-strong"
+                : row.original.status === "IN_PROGRESS"
+                  ? "bg-bg-badge-orange text-bg-basic-orange-strong"
+                  : "bg-bg-badge-red text-bg-basic-red-strong",
+            )}
+          >
+            {row.original.status?.toLowerCase() ?? "Not Submitted"}
+          </span>
+        </div>
+      ),
+      size: 400,
+    },
+    {
+      id: "actions",
+      header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
+      cell: ({ row }) => RenderActions(row, classId),
+    },
+  ];
+};

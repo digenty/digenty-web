@@ -71,16 +71,12 @@ export const ClassOverview = () => {
           <>
             <div className="hidden pt-5 md:block">
               <DataTable
-                columns={columns}
+                columns={columns(Number(data?.data?.data?.classId))}
                 data={classTeachersData}
                 totalCount={classTeachersData?.length}
                 page={page}
                 setCurrentPage={setPage}
                 pageSize={pageSize}
-                clickHandler={row => {
-                  console.log(row);
-                  //   router.push(`/student-and-parent-record/${row.original.id}`);
-                }}
                 rowSelection={rowSelection}
                 setRowSelection={() => {}}
                 onSelectRows={() => {}}
@@ -90,7 +86,7 @@ export const ClassOverview = () => {
 
             <div className="flex flex-col gap-4 md:hidden">
               {classTeachersData?.map((subject: Subject) => (
-                <ClassOverviewCard key={subject.subjectId} subject={subject} />
+                <ClassOverviewCard key={subject.subjectId} subject={subject} classId={Number(armId)} />
               ))}
             </div>
           </>
