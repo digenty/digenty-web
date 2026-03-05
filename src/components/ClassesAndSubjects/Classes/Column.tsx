@@ -164,7 +164,7 @@ export const ClassTableColumns: ColumnDef<ClassProps>[] = [
     cell: ({ row }) => (
       <div className="items center flex gap-2">
         <Avatar className="size-5" />
-        <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.teacherName}</span>{" "}
+        <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.subjectTeacherName}</span>{" "}
       </div>
     ),
     size: 252,

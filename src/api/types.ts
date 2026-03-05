@@ -228,36 +228,36 @@ export interface StudentReport {
 }
 
 export interface BranchReport {
-         branchId: number,
-         branchName: string,
-         BranchHeadName: string,
-         numberOfClassArm: number,
-         numberOfClassTeacherSubmitted: number | null,
-         numberOfPendingApprovals: number | null
+  branchId: number;
+  branchName: string;
+  BranchHeadName: string;
+  numberOfClassArm: number;
+  numberOfClassTeacherSubmitted: number | null;
+  numberOfPendingApprovals: number | null;
 }
 
 export interface AllBranchesReport {
-    totalBranchesInSchool: number,
-    totalArmsInSchool: number,
-    totalPendingArmSubmission: number,
-    totalArmSubmitted: number,
-    totalPublishedReport: number,
-    branchReports:BranchReport[]
+  totalBranchesInSchool: number;
+  totalArmsInSchool: number;
+  totalPendingArmSubmission: number;
+  totalArmSubmitted: number;
+  totalPublishedReport: number;
+  branchReports: BranchReport[];
 }
 
 export interface BranchArmReport {
-      classId: number,
-      armId: number,
-      classArmName: string,
-      classTeacherName: string,
-      numberOfSubjects: number,
-      status: string,
-      numberOfEditRequest: number
-    }
+  classId: number;
+  armId: number;
+  classArmName: string;
+  classTeacherName: string;
+  numberOfSubjects: number;
+  status: string;
+  numberOfEditRequest: number;
+}
 
 export interface BranchArmReportResponse {
-  totalArms: number,
-  totalPendingSubmissions: number,
-  totalCompletedSubmissions: number,
-  branchArmReportResponseDtos: BranchArmReport[]
+  totalArms: number;
+  totalPendingSubmissions: number;
+  totalCompletedSubmissions: number;
+  branchArmReportResponseDtos: BranchArmReport[];
 }

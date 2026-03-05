@@ -28,7 +28,7 @@ export const AllClassesMain = () => {
   const pathname = usePathname();
 
   const schoolId = user?.schoolId;
-  const branchId = pathname.split('/')[3];
+  const branchId = pathname.split("/")[3];
 
   const { data: termList, isFetching: isLoadingTerms } = useGetTerms(schoolId!);
   const [selectedTermId, setSelectedTermId] = useState<number | null>(null);

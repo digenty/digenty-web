@@ -93,7 +93,7 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                         <StickyNote fill="var(--color-icon-default-muted)" /> <span className="text-text-muted text-sm">Note</span>
                       </div>
 
-                      <div className="bg-bg-muted text-text-default text-sm font-medium rounded-sm p-3">{selectedStaff.reason}</div>
+                      <div className="bg-bg-muted text-text-default rounded-sm p-3 text-sm font-medium">{selectedStaff.reason}</div>
 
                       <div className="flex items-center gap-3">
                         <Clock3 className="text-text-default size-4 font-light" />
@@ -148,7 +148,7 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                         <StickyNote fill="var(--color-icon-default-muted)" /> <span className="text-text-muted text-sm">Note</span>
                       </div>
 
-                      <div className="bg-bg-muted text-text-default rounded-sm text-sm font-medium p-3">{selectedStaff.reason}</div>
+                      <div className="bg-bg-muted text-text-default rounded-sm p-3 text-sm font-medium">{selectedStaff.reason}</div>
                       <div className="flex items-center gap-3">
                         <Clock3 className="text-text-default size-4 font-light" />
                         <p className="text-text-muted text-sm">Requested {formatRelativeDate(new Date(selectedStaff.dateCreated))}</p>

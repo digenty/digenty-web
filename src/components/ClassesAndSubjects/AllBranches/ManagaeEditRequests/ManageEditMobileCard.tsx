@@ -42,7 +42,7 @@ export const ManageEditMobileCard = ({ staff, decision, onDecision, isSelected, 
               onDecision(staff.editRequestId, "rejected");
             }}
             disabled={!isSelected || decision === "accepted"}
-            className={`text-text-default flex-1 rounded-md border h-8! text-sm transition-colors ${
+            className={`text-text-default h-8! flex-1 rounded-md border text-sm transition-colors ${
               !isSelected || decision === "accepted"
                 ? "border-border-disabled bg-bg-disabled text-text-disabled cursor-not-allowed opacity-50"
                 : decision === "rejected"
@@ -60,7 +60,7 @@ export const ManageEditMobileCard = ({ staff, decision, onDecision, isSelected, 
               onDecision(staff.editRequestId, "accepted");
             }}
             disabled={!isSelected || decision === "rejected"}
-            className={`text-text-default flex-1 rounded-md border h-8! text-sm transition-colors ${
+            className={`text-text-default h-8! flex-1 rounded-md border text-sm transition-colors ${
               !isSelected || decision === "rejected"
                 ? "border-border-disabled bg-bg-disabled text-text-disabled cursor-not-allowed opacity-50"
                 : decision === "accepted"

@@ -94,7 +94,11 @@ export const AllBranchDetailsColumns: ColumnDef<AllBranchesTableProps>[] = [
     accessorKey: "branchStatus",
     header: () => <div className="text-text-muted text-sm font-medium">Branch Status</div>,
     // cell: ({ row }) => <div className="text-text-default text-sm font-medium">{row.original.numberOfClassTeacherSubmitted || 0}</div>,
-    cell: ({ row }) => <div className="text-text-default text-sm font-medium"><StatusBadge status="published" /></div>,
+    cell: ({ row }) => (
+      <div className="text-text-default text-sm font-medium">
+        <StatusBadge status="published" />
+      </div>
+    ),
     size: 140,
   },
 

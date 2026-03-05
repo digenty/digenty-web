@@ -12,18 +12,17 @@ import { useGetAllBranchesDetails } from "@/hooks/queryHooks/useBranch";
 import React from "react";
 
 export const OverviewStats = ({ loadingStats, stats }: { loadingStats: boolean; stats: AllBranchesReport }) => {
-
   if (loadingStats) {
     return (
       <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
-         <Skeleton className="bg-bg-input-soft h-30 w-full" />
-         <Skeleton className="bg-bg-input-soft h-30 w-full" />
-         <Skeleton className="bg-bg-input-soft h-30 w-full" />
-         <Skeleton className="bg-bg-input-soft h-30 w-full" />
-         <Skeleton className="bg-bg-input-soft h-30 w-full" />
+        <Skeleton className="bg-bg-input-soft h-30 w-full" />
+        <Skeleton className="bg-bg-input-soft h-30 w-full" />
+        <Skeleton className="bg-bg-input-soft h-30 w-full" />
+        <Skeleton className="bg-bg-input-soft h-30 w-full" />
+        <Skeleton className="bg-bg-input-soft h-30 w-full" />
       </div>
-    )
-  };
+    );
+  }
 
   return (
     <div>

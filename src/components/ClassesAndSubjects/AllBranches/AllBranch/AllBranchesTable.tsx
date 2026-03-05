@@ -19,7 +19,19 @@ import { Ellipsis } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AllBranchDetailsColumns } from "./Columns";
 
-export const AllBranchesTable = ({ isFetching, allBranchList, searchQuery, setSearchQuery, isError }: { allBranchList: AllBranchesTableProps[]; isFetching: boolean, searchQuery: string, setSearchQuery: (value: string) => void }) => {
+export const AllBranchesTable = ({
+  isFetching,
+  allBranchList,
+  searchQuery,
+  setSearchQuery,
+  isError,
+}: {
+  allBranchList: AllBranchesTableProps[];
+  isFetching: boolean;
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+  isError: boolean;
+}) => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<AllBranchesTableProps[]>([]);
@@ -30,14 +42,14 @@ export const AllBranchesTable = ({ isFetching, allBranchList, searchQuery, setSe
   const pageSize = 15;
   return (
     <div className="flex flex-col gap-4">
-    <SearchInput
-            className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
-            value={searchQuery}
-            onChange={evt => {
-              setSearchQuery(evt.target.value);
-            }}
-          />
-      
+      <SearchInput
+        className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
+        value={searchQuery}
+        onChange={evt => {
+          setSearchQuery(evt.target.value);
+        }}
+      />
+
       {isFetching && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
       {isError && (
@@ -84,7 +96,11 @@ export const AllBranchesTable = ({ isFetching, allBranchList, searchQuery, setSe
                     <MobileDrawer open={isOpen} setIsOpen={setIsOpen} title="Actions">
                       <div className="flex w-full flex-col gap-4 px-3 py-4">
                         <div className="flex flex-col items-center gap-2">
-                          <div role="button" onClick={() => router.push("/classes-and-subjects/all-classes")} className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
+                          <div
+                            role="button"
+                            onClick={() => router.push("/classes-and-subjects/all-classes")}
+                            className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                          >
                             <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Branch
                           </div>
                           <div className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
@@ -122,7 +138,6 @@ export const AllBranchesTable = ({ isFetching, allBranchList, searchQuery, setSe
                     </div>
                   </div>
 
-
                   <div className="border-border-default border-t">
                     <div className="border-border-default flex justify-between px-3 py-2 text-sm">
                       <span className="text-text-muted font-medium">Class Teachers Submitted</span>
@@ -138,15 +153,16 @@ export const AllBranchesTable = ({ isFetching, allBranchList, searchQuery, setSe
                   </div>
 
                   <div className="border-border-default border-t">
-                    <div className="border-border-default flex justify-between  px-3 py-2 text-sm">
+                    <div className="border-border-default flex justify-between px-3 py-2 text-sm">
                       <span className="text-text-muted font-medium">Status</span>
-                      <div className="text-text-default font-medium"><StatusBadge status="published" /></div>
+                      <div className="text-text-default font-medium">
+                        <StatusBadge status="published" />
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })}
-
           </div>
         </div>
       )}

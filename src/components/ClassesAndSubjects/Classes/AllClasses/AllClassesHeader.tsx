@@ -1,6 +1,6 @@
 "use client";
 
-import { Terms } from "@/api/types";
+import { Term } from "@/api/types";
 import Calendar from "@/components/Icons/Calendar";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Toggle } from "@/components/Toggle";
@@ -12,7 +12,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 interface AllClassesHeaderProps {
-  terms: Terms[];
+  terms: Term[];
   selectedTermId: number | null;
   onTermChange: (termId: number) => void;
   isLoadingTerms?: boolean;

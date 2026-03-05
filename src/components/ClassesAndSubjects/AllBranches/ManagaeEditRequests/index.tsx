@@ -29,7 +29,7 @@ export const ManageEditRequest = () => {
       label: "Manage Edit Requests",
       url: "",
     },
-  ])
+  ]);
 
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
@@ -230,7 +230,7 @@ export const ManageEditRequest = () => {
         {selectedCount > 0 && (
           <div className="flex items-center gap-3">
             <span className="text-text-subtle bg-bg-state-soft flex h-7 items-center gap-1 rounded-md p-1.5 text-sm font-medium">
-              {selectedCount} Selected 
+              {selectedCount} Selected
             </span>
             <Button
               onClick={handleApproveAll}
@@ -289,7 +289,7 @@ export const ManageEditRequest = () => {
                 />
               </div>
 
-              <div className="flex flex-col gap-3  md:hidden">
+              <div className="flex flex-col gap-3 md:hidden">
                 {filteredData.map((staff: BranchEditRequestTypes, index) => (
                   <ManageEditMobileCard
                     key={staff.editRequestId}
