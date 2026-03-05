@@ -2,7 +2,7 @@
 
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
-import { Assessment } from "@/api/types";
+import { Assessment, Grading } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import { ScoreType, SubmitScorePayload } from "@/components/ScoreViewBySubject/types";
@@ -14,6 +14,7 @@ import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import ScoresHeader from "./ScoresHeader";
+import { exportToCSV } from "@/lib/export-utils";
 
 export default function Score() {
   useBreadcrumb([
@@ -76,9 +77,42 @@ export default function Score() {
     });
   };
 
+  const handleExport = () => {
+    const headers = ["S/N", "Student Name", ...assessmentHeader.map(h => h.assessmentName), "Total", "Grade", "Remark"];
+
+    const rows =
+      updatedData.length > 0
+        ? updatedData
+        : (StudentsItem?.data?.data?.content ?? []).map((student: ScoreType) => ({
+            ...student,
+            assessmentScores: student.assessmentScores,
+          }));
+
+    const csvRows = rows.map((student: ScoreType, index: number) => {
+      const assessments = assessmentHeader.map(h => student.assessmentScores[h.assessmentName]?.score ?? 0);
+      const totalScore = Object.values(student.assessmentScores).reduce(
+        (
+          sum: number,
+          assessment: {
+            assessmentName: string;
+            score: number;
+            weight: number;
+          },
+        ) => sum + (assessment.score ?? 0),
+        0,
+      );
+      const grading = gradings.find((g: Grading) => g.lowerLimit <= totalScore && g.upperLimit >= totalScore);
+
+      return [index + 1, student.studentName, ...assessments, totalScore, grading?.grade ?? "", grading?.remark ?? ""];
+    });
+
+    const filename = `Scores_${subjectId}_${armId}.csv`;
+    exportToCSV(filename, headers, csvRows);
+  };
+
   return (
     <div className="flex w-full flex-col gap-5">
-      <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} />
+      <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} onExport={handleExport} />
 
       {isLoading && (
         <div className="px-4 md:px-8">

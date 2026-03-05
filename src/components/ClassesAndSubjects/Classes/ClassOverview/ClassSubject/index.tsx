@@ -1,5 +1,5 @@
 "use client";
-import { Assessment } from "@/api/types";
+import { Assessment, Grading } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import { ScoreType } from "@/components/ScoreViewBySubject/types";
@@ -10,6 +10,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ClassSubjectHeader } from "./ClassSubjectHeader";
+import { exportToCSV } from "@/lib/export-utils";
 
 export const SubjectByClass = () => {
   useBreadcrumb([
@@ -23,7 +24,6 @@ export const SubjectByClass = () => {
   const classId = pathname.split("/")[8];
   const subjectId = pathname.split("/")[6];
   const armId = pathname.split("/")[4];
-  console.log(classId);
 
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
@@ -39,9 +39,36 @@ export const SubjectByClass = () => {
   }));
   const gradings = classGrading?.data ?? [];
 
+  const handleExport = () => {
+    const headers = ["S/N", "Student Name", ...assessmentHeader.map(h => h.assessmentName), "Total", "Grade", "Remark"];
+
+    const rows = updatedData.length > 0 ? updatedData : studentsData;
+
+    const csvRows = rows.map((student: ScoreType, index: number) => {
+      const assessments = assessmentHeader.map(h => student.assessmentScores[h.assessmentName]?.score ?? 0);
+      const totalScore = Object.values(student.assessmentScores).reduce(
+        (
+          sum: number,
+          assessment: {
+            assessmentName: string;
+            score: number;
+            weight: number;
+          },
+        ) => sum + (assessment.score ?? 0),
+        0,
+      );
+      const grading = gradings.find((g: Grading) => g.lowerLimit <= totalScore && g.upperLimit >= totalScore);
+
+      return [index + 1, student.studentName, ...assessments, totalScore, grading?.grade ?? "", grading?.remark ?? ""];
+    });
+
+    const filename = `ClassSubject_Scores_${subjectId}_${armId}.csv`;
+    exportToCSV(filename, headers, csvRows);
+  };
+
   return (
     <div className="space-y-4">
-      <ClassSubjectHeader />
+      <ClassSubjectHeader onExport={handleExport} />
 
       {isLoading && (
         <div className="px-4 md:px-8">
