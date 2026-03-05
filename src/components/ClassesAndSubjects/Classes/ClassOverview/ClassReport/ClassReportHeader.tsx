@@ -24,6 +24,7 @@ export const ClassReportHeader = ({
   activeSession,
   setActiveSession,
   classArmName,
+  onExport,
 }: {
   students: StudentRow[];
   activeFilter: string;
@@ -33,6 +34,7 @@ export const ClassReportHeader = ({
   activeSession: string | null;
   setActiveSession: React.Dispatch<React.SetStateAction<string | null>>;
   classArmName: string;
+  onExport?: () => void;
 }) => {
   const isMobile = useIsMobile();
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -98,6 +100,7 @@ export const ClassReportHeader = ({
             <div className="flex items-center gap-2 md:gap-1">
               <Button
                 size="sm"
+                onClick={onExport}
                 className="border-border-default bg-bg-state-secondary text-text-default flex h-8 items-center gap-1 border text-sm md:flex-auto"
               >
                 <ShareBox fill="var(--color-icon-default-muted)" /> Export

@@ -99,10 +99,12 @@ export default function ScoresHeader({
   onSubmit,
   isSubmitting,
   isError,
+  onExport,
 }: {
   onSubmit: (status: "SUBMITTED" | "IN_PROGRESS") => void;
   isSubmitting: boolean;
   isError: boolean;
+  onExport?: () => void;
 }) {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openRequest, setOpenRequest] = useState<boolean>(false);
@@ -136,6 +138,7 @@ export default function ScoresHeader({
             <div className="flex items-center gap-2 md:gap-1">
               <Button
                 disabled={isError}
+                onClick={onExport}
                 size="sm"
                 className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-22 items-center gap-1 border text-sm"
               >

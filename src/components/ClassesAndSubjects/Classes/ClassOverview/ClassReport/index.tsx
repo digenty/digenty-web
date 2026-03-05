@@ -12,6 +12,8 @@ import { useGetClassCumulativeReport, useGetClassReport } from "@/hooks/queryHoo
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
+import { exportToCSV } from "@/lib/export-utils";
+import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
 
 import { Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
@@ -102,6 +104,50 @@ export const ClassReport = () => {
     footerRef.current?.scrollBy?.({ left: 200, behavior: "smooth" });
   };
 
+  const handleExport = () => {
+    if (activeFilter === "spreadsheet") {
+      if (!transformedStudents.length) return;
+      const firstStudent = transformedStudents[0];
+      const termData = firstStudent.terms.find(t => t.term === (termSelected?.term ?? ""));
+      if (!termData) return;
+
+      const subjectHeaders = termData.subjects.map(s => s.subjectName);
+      const headers = ["S/N", "Student Name", ...subjectHeaders, "Total", "Percentage", "Position"];
+
+      const csvRows = transformedStudents.map((student, index) => {
+        const studentTermData = student.terms.find(t => t.term === (termSelected?.term ?? ""));
+        const subjectScores = studentTermData?.subjects.map(s => s.score) ?? [];
+        return [
+          index + 1,
+          student.name,
+          ...subjectScores,
+          studentTermData?.totalScore ?? 0,
+          `${studentTermData?.totalPercentage ?? 0}%`,
+          toOrdinal(studentTermData?.position ?? 0),
+        ];
+      });
+
+      exportToCSV(`ClassReport_Spreadsheet_${classArmName}_${termSelected?.term}.csv`, headers, csvRows);
+    } else if (activeFilter === "promotion") {
+      if (!transformedStudents.length) return;
+      const termsOptions = ["FIRST", "SECOND", "THIRD"];
+      const termHeaders = termsOptions.map(t => `${t === "FIRST" ? "1st" : t === "SECOND" ? "2nd" : "3rd"} Term %`);
+      const headers = ["S/N", "Student Name", ...termHeaders, "Cumulative %"];
+
+      const csvRows = transformedStudents.map((student, index) => {
+        const termScores = termsOptions.map(term => {
+          const tData = student.terms.find(t => t.term === term);
+          return tData?.totalPercentage ?? 0;
+        });
+        const cumulative = student.terms.length > 0 ? student.terms.reduce((acc, t) => acc + t.totalPercentage, 0) / student.terms.length : 0;
+
+        return [index + 1, student.name, ...termScores, Math.floor(cumulative)];
+      });
+
+      exportToCSV(`ClassReport_Promotion_${classArmName}.csv`, headers, csvRows);
+    }
+  };
+
   return (
     <div className="relative">
       <ClassReportHeader
@@ -113,6 +159,7 @@ export const ClassReport = () => {
         activeSession={activeSession}
         setActiveSession={setActiveSession}
         classArmName={classArmName}
+        onExport={handleExport}
       />
 
       {isErrorReport && (

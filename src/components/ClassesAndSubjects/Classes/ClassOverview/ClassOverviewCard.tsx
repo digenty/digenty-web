@@ -8,7 +8,7 @@ import { Avatar } from "@/components/Avatar";
 import { useClassesStore } from "@/store/classes";
 import { usePathname, useRouter } from "next/navigation";
 
-export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
+export const ClassOverviewCard = ({ subject, classId }: { subject: Subject; classId: number }) => {
   const { setOpenNotifyTeacher } = useClassesStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -57,7 +57,7 @@ export const ClassOverviewCard = ({ subject }: { subject: Subject }) => {
 
         <Button
           className="border-border-darker bg-bg-state-secondary text-text-default h-8! flex-1 rounded-md border px-1.5! font-medium"
-          onClick={() => router.push(`${pathname}/subjects/${subject.subjectId}`)}
+          onClick={() => router.push(`${pathname}/subjects/${subject.subjectId}/class/${classId}`)}
         >
           <Eye fill="var(--color-icon-default-muted)" className="size-4" />
           <span className="text-text-default">View</span>
