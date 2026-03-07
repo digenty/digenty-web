@@ -1,6 +1,6 @@
 "use client";
 
-import { Arm, Branch, ClassType, Department } from "@/api/types";
+import { Arm, Branch, ClassType } from "@/api/types";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 
@@ -29,8 +29,6 @@ export const RecordHeader = ({
   loadingClasses,
   arms,
   loadingArms,
-  departments,
-  loadingDepartments,
   totalParents,
 }: {
   tab: string;
@@ -38,19 +36,16 @@ export const RecordHeader = ({
   filter: {
     branchSelected?: Branch;
     classSelected?: ClassType;
-    departmentSelected?: Department;
     armSelected?: Arm;
     statusSelected?: { value: StudentsStatus; label: string };
   };
-  onFilterChange: (filter: string, value: Branch | ClassType | Department | Arm | { value: StudentsStatus; label: string } | undefined) => void;
+  onFilterChange: (filter: string, value: Branch | ClassType | Arm | { value: StudentsStatus; label: string } | undefined) => void;
   branches?: { data: { content: Branch[] } };
   loadingBranches?: boolean;
   classes?: { data: { content: ClassType[] } };
   loadingClasses?: boolean;
   arms?: { data: { content: Arm[] } };
   loadingArms?: boolean;
-  departments?: { data: Department[] };
-  loadingDepartments?: boolean;
 }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
@@ -238,7 +233,7 @@ export const RecordHeader = ({
                   </div>
                 </PermissionCheck>
 
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Group fill="var(--color-icon-black-muted)" className="size-4" />
                     <Label className="text-text-default text-sm font-medium">Department</Label>
@@ -270,7 +265,7 @@ export const RecordHeader = ({
                       </SelectContent>
                     </Select>
                   )}
-                </div>
+                </div> */}
 
                 <PermissionCheck permissionUtility={canManageStudentParentRecords}>
                   <div className="space-y-2">

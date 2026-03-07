@@ -21,16 +21,16 @@ const REQUIRED_HEADERS = [
   "middleName",
   "gender",
   "email",
+  "parentEmail",
   "dateOfBirth",
   "address",
   "nationality",
   "stateOfOrigin",
-  "emergencyContactNumber",
-  "phoneNumber",
+  "phone",
+  "secondaryPhone",
   "admissionNumber",
   "class",
   "arm",
-  "branch",
 ];
 
 const steps: Step[] = [
@@ -47,7 +47,7 @@ export const StudentsUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
 
-  const { mutate, isPending } = useUploadStudents();
+  const { mutate, isPending } = useUploadStudents({ branchId: branchSelected?.id });
 
   const goToNext = () => {
     // Check if the previous step is completed, then add step to completed steps array
@@ -61,7 +61,6 @@ export const StudentsUpload = () => {
       mutate(
         {
           file,
-          branchId: branchSelected?.id,
         },
         {
           onSuccess: data => {
@@ -238,7 +237,7 @@ export const StudentsUpload = () => {
           </Button>
 
           <Button
-            disabled={(file === null && currentStep === 1) || (currentStep === steps.length && errors.length > 0)}
+            disabled={(file === null && currentStep === 1) || (currentStep === steps.length && errors.length > 0) || !branchSelected}
             onClick={goToNext}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
           >

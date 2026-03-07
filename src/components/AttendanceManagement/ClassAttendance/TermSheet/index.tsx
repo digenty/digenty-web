@@ -58,6 +58,7 @@ export const TermSheet = () => {
             title="No Students in this arm"
             description="No term sheet to display. Add students and mark attendance to generate a term sheet"
             buttonText="Add a student"
+            url="/student-and-parent-record/add-student"
           />
         </div>
       )}

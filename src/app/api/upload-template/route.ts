@@ -18,14 +18,28 @@ export async function GET(req: NextRequest) {
       { header: "nationality", key: "nationality" },
       { header: "stateOfOrigin", key: "stateOfOrigin" },
       { header: "address", key: "address" },
-      { header: "branch", key: "branch" },
       { header: "class", key: "class" },
       { header: "arm", key: "arm" },
-      { header: "department", key: "department" },
       { header: "admissionNumber", key: "admissionNumber" },
       { header: "email", key: "email" },
-      { header: "emergencyContactNumber", key: "emergencyContactNumber" },
+      { header: "parentEmail", key: "parentEmail" },
     ];
+
+    worksheet.addRow({
+      firstName: "Chinedu",
+      lastName: "Okafor",
+      middleName: "Emeka",
+      gender: "MALE",
+      dateOfBirth: "2008-03-12",
+      nationality: "Nigeria",
+      stateOfOrigin: "Anambra",
+      address: "12 Palm Street, Ikeja",
+      class: "SS1",
+      arm: "A",
+      admissionNumber: "ADM001",
+      email: "chinedu.okwu@example.com",
+      parentEmail: "emeka.okwu@example.com",
+    });
   } else {
     worksheet.columns = [
       { header: "firstName", key: "firstName" },
@@ -36,11 +50,24 @@ export async function GET(req: NextRequest) {
       { header: "nationality", key: "nationality" },
       { header: "stateOfOrigin", key: "stateOfOrigin" },
       { header: "address", key: "address" },
-      { header: "branch", key: "branch" },
       { header: "phoneNumber", key: "phoneNumber" },
       { header: "secondaryPhoneNumber", key: "secondaryPhoneNumber" },
       { header: "email", key: "email" },
     ];
+
+    worksheet.addRow({
+      firstName: "Chinedu",
+      lastName: "Okafor",
+      middleName: "Emeka",
+      gender: "MALE",
+      nationality: "Nigeria",
+      stateOfOrigin: "Anambra",
+      address: "12 Palm Street, Ikeja",
+      relationship: "FATHER",
+      phoneNumber: "08034567891",
+      secondaryPhoneNumber: "08034567891",
+      email: "chinedu.okwu@example.com",
+    });
   }
 
   // Generate buffer

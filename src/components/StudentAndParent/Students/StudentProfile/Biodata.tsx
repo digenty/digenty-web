@@ -15,8 +15,12 @@ export const Biodata = ({ student }: { student: Student }) => {
   const biodata = [
     { bio: "Branch", detail: student.branch, icon: <Building fill="var(--color-icon-default-muted)" /> },
     { bio: "Joined School", detail: student.joinedSchoolSession, icon: <Calendar fill="var(--color-icon-default-muted)" /> },
-    { bio: "Gender", detail: student.gender.toLowerCase(), icon: <User fill="var(--color-icon-default-muted)" /> },
-    { bio: "Boarding Status", detail: student.boardingStatus.toLowerCase(), icon: <RedPacket fill="var(--color-icon-default-muted)" /> },
+    { bio: "Gender", detail: student.gender ? student.gender.toLowerCase() : "--", icon: <User fill="var(--color-icon-default-muted)" /> },
+    {
+      bio: "Boarding Status",
+      detail: student.boardingStatus ? student.boardingStatus.toLowerCase() : "--",
+      icon: <RedPacket fill="var(--color-icon-default-muted)" />,
+    },
     {
       bio: "Date of Birth",
       detail: `${student.dateOfBirth} • ${getYearDifference(student.dateOfBirth)} Years`,

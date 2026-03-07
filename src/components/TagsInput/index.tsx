@@ -66,7 +66,7 @@ const TagInput: React.FC<TagInputProps> = ({ placeholder = "Add tag", tags, setT
               className={`border-border-default flex items-center gap-1 rounded-md border px-1 text-xs font-medium ${colors[index % colors.length]}`}
             >
               {tag}
-              <Button onClick={() => removeTag(index)} className="h-5 p-0!">
+              <Button type="button" onClick={() => removeTag(index)} className="h-5 p-0!">
                 <XIcon className="text-icon-default-muted size-3.5" />
               </Button>
             </span>

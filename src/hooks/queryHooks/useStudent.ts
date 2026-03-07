@@ -30,7 +30,7 @@ export const useGetStudents = ({
   limit,
   branchId,
   classId,
-  departmentId,
+  // departmentId,
   armId,
   status,
   search,
@@ -38,14 +38,13 @@ export const useGetStudents = ({
   limit: number;
   branchId?: number;
   classId?: number;
-  departmentId?: number;
   armId?: number;
   status?: StudentsStatus;
   search?: string;
 }) => {
   return useInfiniteQuery({
-    queryKey: [studentKeys.all, branchId, classId, departmentId, armId, status, search],
-    queryFn: ({ pageParam }) => getStudents({ pageParam, limit, branchId, classId, departmentId, armId, status, search }),
+    queryKey: [studentKeys.all, branchId, classId, armId, status, search],
+    queryFn: ({ pageParam }) => getStudents({ pageParam, limit, branchId, classId, armId, status, search }),
     initialPageParam: 0,
     getNextPageParam: lastPage => {
       if (lastPage.last) return undefined;
@@ -54,11 +53,11 @@ export const useGetStudents = ({
   });
 };
 
-export const useUploadStudents = () => {
+export const useUploadStudents = ({ branchId }: { branchId?: number }) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: studentKeys.studentsUpload,
-    mutationFn: uploadStudents,
+    mutationFn: ({ file }: { file: File | null }) => uploadStudents({ file, branchId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
       queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });

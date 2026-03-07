@@ -17,7 +17,7 @@ import { LinkedParents } from "../LinkedParents";
 import { AcademicInformation } from "./AcademicInformation";
 import { ContactInformation } from "./ContactInformation";
 import { PersonalInformation } from "./PersonalInformation";
-import { ProfilePicture } from "./ProfilePicture";
+import { ProfilePicture } from "../../ProfilePicture";
 import { Tags } from "./Tags";
 
 export const EditStudent = () => {
@@ -29,9 +29,9 @@ export const EditStudent = () => {
   const [date, setDate] = useState<Date | undefined>();
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
-  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatar, setAvatar] = useState<string>();
   const [step, setStep] = useState(1);
-  const [selectedParents, setSelectedParents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
+  const [selectedParents, setSelectedParents] = useState<{ id: number; fullName: string; avatar: string | null }[]>([]);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -65,7 +65,7 @@ export const EditStudent = () => {
 
       branchId: null,
       classId: null,
-      departmentId: null,
+      // departmentId: null,
       armId: null,
     },
     validationSchema: studentSchema,
@@ -78,8 +78,7 @@ export const EditStudent = () => {
           tags,
 
           linkedParents: selectedParents.map(parent => parent.id),
-          // image: avatar,
-          image: null,
+          image: avatar,
           studentId: Number(studentId),
         },
         {
@@ -127,14 +126,13 @@ export const EditStudent = () => {
       formik.setFieldValue("admissionStatus", data.data.studentStatus);
       formik.setFieldValue("branchId", null); // Will be set by AcademicInformation lookup
       formik.setFieldValue("classId", null); // Will be set by AcademicInformation lookup
-      formik.setFieldValue("departmentId", data.data.departmentId);
       formik.setFieldValue("armId", data.data.armId);
       setTags(data.data.tags);
 
       // If parents detail is available, map it here
-      // if (data.data.linkedParentsDetails) {
-      //   setSelectedParents(data.data.linkedParentsDetails);
-      // }
+      if (data.data.linkedParents) {
+        setSelectedParents(data.data.linkedParents);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);

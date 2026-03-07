@@ -142,7 +142,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           )}
         </div>
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label htmlFor="department" className="text-text-default text-sm font-medium">
             Department
           </Label>
@@ -167,7 +167,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
               </SelectContent>
             </Select>
           )}
-        </div>
+        </div> */}
 
         <div className="space-y-2">
           <Label htmlFor="arm" className="text-text-default text-sm font-medium">

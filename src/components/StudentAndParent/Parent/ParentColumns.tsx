@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { Avatar } from "../../Avatar";
 import DeleteBin from "../../Icons/DeleteBin";
 import Edit from "../../Icons/Edit";
+import { cn } from "@/lib/utils";
 
 const RenderOptions = (row: Row<Parent>) => {
   const router = useRouter();
@@ -82,28 +83,28 @@ export const parentColumns: ColumnDef<Parent>[] = [
     cell: ({ row }) => (
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
-          <Avatar className="size-5" url="" />
+          <Avatar className="size-5" url={row.original.image || ""} />
           <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">
             {row.original.firstName} {row.original.lastName}
           </span>
         </div>
 
-        {/* {row.original.tags.length > 0 && row.original.tags && (
-                  <div className="flex items-center gap-2">
-                    {row.original.tags.slice(0, 3).map((tag, index) => (
-                      <div key={`${tag}-${index}`}>
-                        {tag && (
-                          <span
-                            className={cn("bg-bg-badge-cyan text-bg-basic-cyan-strong border-border-default rounded-lg border px-2 py-0.5 text-xs")}
-                            key={tag}
-                          >
-                            {tag}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )} */}
+        {row.original.tags.length > 0 && row.original.tags && (
+          <div className="flex items-center gap-2">
+            {row.original.tags.slice(0, 3).map((tag, index) => (
+              <div key={`${tag}-${index}`}>
+                {tag && (
+                  <span
+                    className={cn("bg-bg-badge-cyan text-bg-basic-cyan-strong border-border-default rounded-lg border px-2 py-0.5 text-xs")}
+                    key={tag}
+                  >
+                    {tag}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     ),
     size: 600,
@@ -111,7 +112,11 @@ export const parentColumns: ColumnDef<Parent>[] = [
   {
     accessorKey: "gender",
     header: () => <div className="text-text-muted text-sm font-medium">Gender</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal capitalize">{row.original.gender.toLowerCase()}</span>,
+    cell: ({ row }) => (
+      <span className="text-text-muted cursor-pointer text-sm font-normal capitalize">
+        {row.original.gender ? row.original.gender.toLowerCase() : "--"}
+      </span>
+    ),
     size: 150,
   },
   {

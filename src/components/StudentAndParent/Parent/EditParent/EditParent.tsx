@@ -15,7 +15,7 @@ import { ContactInformation } from "./ContactInformation";
 import { LinkedStudents } from "./LinkedStudents";
 import { LinkStudents } from "./LinkStudents";
 import { PersonalInformation } from "./PersonalInformation";
-import { ProfilePicture } from "./ProfilePicture";
+import { ProfilePicture } from "../../ProfilePicture";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const EditParent = () => {
@@ -29,9 +29,9 @@ export const EditParent = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
 
-  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatar, setAvatar] = useState<string>();
   const [step, setStep] = useState(1);
-
+  console.log(data);
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
     { label: "Parents", url: "/student-and-parent-record?tab=Parents" },
@@ -63,8 +63,7 @@ export const EditParent = () => {
           ...values,
           tags,
           linkedStudents: selectedStudents.map(student => student.id),
-          // image: avatar,
-          image: null,
+          image: avatar,
           id: Number(parentId),
         },
         {

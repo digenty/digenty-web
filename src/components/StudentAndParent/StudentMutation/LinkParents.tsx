@@ -24,8 +24,8 @@ export const LinkParents = ({
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  selectedParents: { id: number; name: string; avatar: string | null }[];
-  setSelectedParents: Dispatch<SetStateAction<{ id: number; name: string; avatar: string | null }[]>>;
+  selectedParents: { id: number; fullName: string; avatar: string | null }[];
+  setSelectedParents: Dispatch<SetStateAction<{ id: number; fullName: string; avatar: string | null }[]>>;
 }) => {
   const [branchSelected, setBranchSelected] = useState<Branch>();
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -102,7 +102,7 @@ export const LinkParents = ({
                         onCheckedChange={checked => {
                           setSelectedParents(prev => {
                             if (checked) {
-                              return [...prev, { id: parent.id, name: `${parent.firstName} ${parent.lastName}`, avatar: parent.image }];
+                              return [...prev, { id: parent.id, fullName: `${parent.firstName} ${parent.lastName}`, avatar: parent.image }];
                             }
                             return prev.filter(std => std.id !== parent.id);
                           });
@@ -134,7 +134,7 @@ export const LinkParents = ({
                   className="bg-bg-badge-default border-border-default text-text-subtle flex items-center gap-1 rounded-full border p-1 text-xs"
                 >
                   <Avatar className="size-3.5" />
-                  <span>{std.name}</span>
+                  <span>{std.fullName}</span>
                   <XIcon onClick={() => removeParent(std.id)} className="text-icon-default-muted size-3.5 cursor-pointer" />
                 </div>
               ))}
@@ -227,7 +227,7 @@ export const LinkParents = ({
                         onCheckedChange={checked => {
                           setSelectedParents(prev => {
                             if (checked) {
-                              return [...prev, { id: parent.id, name: `${parent.firstName} ${parent.lastName}`, avatar: parent.image }];
+                              return [...prev, { id: parent.id, fullName: `${parent.firstName} ${parent.lastName}`, avatar: parent.image }];
                             }
                             return prev.filter(std => std.id !== parent.id);
                           });
@@ -259,7 +259,7 @@ export const LinkParents = ({
                   className="bg-bg-badge-default border-border-default text-text-subtle flex items-center gap-1 rounded-full border p-1 text-xs"
                 >
                   <Avatar className="size-3.5" />
-                  <span>{std.name}</span>
+                  <span>{std.fullName}</span>
                   <XIcon onClick={() => removeParent(std.id)} className="text-icon-default-muted size-3.5 cursor-pointer" />
                 </div>
               ))}

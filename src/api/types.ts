@@ -105,6 +105,8 @@ export interface Parent {
   stateOfOrigin: string;
   address: string;
   secondaryPhoneNumber: string;
+  tags: string[];
+  linkedStudents: { id: number; fullName: string; avatar: string | null }[];
 }
 
 export interface AttendanceCard {

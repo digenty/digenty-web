@@ -8,40 +8,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LinkedStudentMobileCard } from "./LinkedStudentMobileCard";
 import { columns } from "./LinkedStudentsColumn";
-
-const students: Student[] = [
-  {
-    id: 1,
-    firstName: "Dayo",
-    lastName: "Muna",
-    phoneNumber: "08123456789",
-    email: "8F5dH@example.com",
-    image: "",
-    tags: [],
-    linkedParents: [],
-    uuid: "",
-    middleName: "",
-    gender: Gender.Male,
-    boardingStatus: BoardingStatus.Day,
-    dateOfBirth: "",
-    address: "",
-    emergencyContactName: "",
-    emergencyContact: "",
-    secondaryPhoneNumber: "",
-    studentStatus: AdmissionStatus.Graduated,
-    admissionNumber: "",
-    medicalInformation: "",
-    nationality: "",
-    stateOfOrigin: "",
-    joinedSchoolTerm: "",
-    joinedSchoolSession: "",
-    branch: "Gbagada",
-    class: "JSS 1A",
-    departmentId: null,
-    armId: null,
-    arm: "",
-  },
-];
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 export const getBadge = (status: string) => {
   switch (status) {
@@ -103,10 +70,10 @@ export const getBadge = (status: string) => {
   }
 };
 
-export const LinkedStudentsTable = () => {
+export const LinkedStudentsTable = ({ students }: { students: { id: number; fullName: string; avatar: string | null }[] }) => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
-  const [selectedRows, setSelectedRows] = useState<Student[]>([]);
+  const [selectedRows, setSelectedRows] = useState<{ id: number; fullName: string; avatar: string | null }[]>([]);
   const router = useRouter();
   const pageSize = 10;
 
@@ -116,31 +83,41 @@ export const LinkedStudentsTable = () => {
         <h2 className="text-text-default text-lg font-semibold">Linked Students</h2>
       </div>
 
-      {/* desktop table */}
-      <div className="hidden md:block">
-        <DataTable
-          columns={columns}
-          data={students}
-          totalCount={students.length}
-          page={page}
-          setCurrentPage={setPage}
-          pageSize={pageSize}
-          clickHandler={row => {
-            router.push(`/student-and-parent-record/students/${row.original.id}`);
-          }}
-          showPagination={false}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          onSelectRows={setSelectedRows}
-        />
-      </div>
+      {students.length === 0 && (
+        <div className="bg-bg-card flex items-center justify-center rounded-md p-4 text-center">
+          <ErrorComponent title="No Linked Students" description="This parent has no linked students" />
+        </div>
+      )}
 
-      {/* Mobile View */}
-      <div className="flex flex-col gap-4 md:hidden">
-        {students.map(student => {
-          return <LinkedStudentMobileCard student={student} key={student.id} />;
-        })}
-      </div>
+      {students.length > 0 && (
+        <>
+          {/* desktop table */}
+          <div className="hidden md:block">
+            <DataTable
+              columns={columns}
+              data={students}
+              totalCount={students.length}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={pageSize}
+              clickHandler={row => {
+                router.push(`/student-and-parent-record/students/${row.original.id}`);
+              }}
+              showPagination={false}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              onSelectRows={setSelectedRows}
+            />
+          </div>
+
+          {/* Mobile View */}
+          <div className="flex flex-col gap-4 md:hidden">
+            {students.map(student => {
+              return <LinkedStudentMobileCard student={student} key={student.id} />;
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 };

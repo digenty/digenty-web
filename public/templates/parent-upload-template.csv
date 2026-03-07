@@ -1,1 +1,4 @@
-firstName,lastName,middleName,gender,relationship,nationality,stateOfOrigin,address,branch,email,phoneNumber,secondaryPhoneNumber
+firstName,lastName,middleName,gender,relationship,nationality,stateOfOrigin,address,email,phoneNumber,secondaryPhoneNumber
+Chiamaka,Okwu,Chioma,FEMALE,MOTHER,Nigeria,Anambra,123 Main St,chiamaka.okwu@example.com,1234567890,1234567890
+Ayomide,Akinola,Adetola,MALE,FATHER,Nigeria,Oyo,123 Main St,ayomide.akinola@example.com,1234567890,1234567890
+Abdul,Mohammed,Hassan,MALE,FATHER,Nigeria,Kano,123 Main St,abdul.mohammed@example.com,1234567890,1234567890

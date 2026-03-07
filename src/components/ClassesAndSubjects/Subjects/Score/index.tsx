@@ -132,7 +132,7 @@ export default function Score() {
       )}
 
       {!isLoading && isError && (
-        <div className="flex h-80 items-center justify-center">
+        <div className="flex h-80 items-center justify-center pt-15">
           {/* TODO: Set URL or action to contact admin */}
           {error.message === "No assessments configured for this class or branch" ? (
             <ErrorComponent title="Not Found" description={error.message} buttonText="Contact Admin" url="" />
