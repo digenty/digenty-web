@@ -5,6 +5,7 @@ import { useAddStudent } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { studentSchema } from "@/schema/student";
 import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
+import { format } from "date-fns";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,18 +16,17 @@ import { ContactInformation } from "./ContactInformation";
 import { LinkedParents } from "./LinkedParents";
 import { LinkParents } from "./LinkParents";
 import { PersonalInformation } from "./PersonalInformation";
-import { ProfilePicture } from "./ProfilePicture";
+import { ProfilePicture } from "../ProfilePicture";
 import { Tags } from "./Tags";
-import { format } from "date-fns";
 
 export const AddStudent = () => {
   const router = useRouter();
   const [date, setDate] = useState<Date | undefined>();
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
-  const [avatar, setAvatar] = useState<string | null>(null);
+  const [avatar, setAvatar] = useState<string>();
   const [step, setStep] = useState(1);
-  const [selectedParents, setSelectedParents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
+  const [selectedParents, setSelectedParents] = useState<{ id: number; fullName: string; avatar: string | null }[]>([]);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/student-and-parent-record" },
@@ -60,7 +60,6 @@ export const AddStudent = () => {
 
       branchId: null,
       classId: null,
-      departmentId: null,
       armId: null,
     },
     validationSchema: studentSchema,

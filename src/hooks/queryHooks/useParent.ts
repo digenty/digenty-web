@@ -25,11 +25,11 @@ export const useGetParents = ({ limit, branchId, search }: { limit: number; bran
   });
 };
 
-export const useUploadParents = () => {
+export const useUploadParents = ({ branchId }: { branchId?: number }) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: parentKeys.parentsUpload,
-    mutationFn: uploadParents,
+    mutationFn: ({ file }: { file: File | null }) => uploadParents({ file, branchId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
     },

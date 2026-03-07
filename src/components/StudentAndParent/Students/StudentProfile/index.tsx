@@ -228,11 +228,11 @@ export const StudentProfile = () => {
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
-        <div className="itmes-center border-border-default flex gap-2 border-b pb-4 md:border-none md:p-0">
+        <div className="itmes-center border-border-default flex items-center gap-2 border-b pb-4 md:border-none md:p-0">
           <p className="text-text-subtle text-sm font-medium">Status:</p> <StatusBadge status={student.studentStatus} />
         </div>
         <div>
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <p className="text-text-subtle text-sm font-medium">Linked Parents:</p>
             <div className="bg-bg-state-secondary border-border-default shadow-light text-text-default flex h-6 items-center justify-center gap-1 rounded-md border p-1">
               <Avatar className="size-4" />
@@ -242,7 +242,7 @@ export const StudentProfile = () => {
               <Avatar className="size-4" />
               <span className="xs:text-xs line-clamp-1 truncate text-[10px] font-medium">Damilare John</span>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

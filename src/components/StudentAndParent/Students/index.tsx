@@ -1,5 +1,5 @@
 "use client";
-import { Arm, Branch, ClassType, Department, Student } from "@/api/types";
+import { Arm, Branch, ClassType, Student } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import GraduationCap from "@/components/Icons/GraduationCap";
@@ -23,7 +23,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
-import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
 import { useDeleteStudents, useExportStudents, useGetStudents, useGetStudentsDistribution, useWithdrawStudents } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
@@ -80,7 +79,6 @@ export const StudentsTable = () => {
   const [filter, setFilter] = useState<{
     branchSelected?: Branch;
     classSelected?: ClassType;
-    departmentSelected?: Department;
     armSelected?: Arm;
     statusSelected?: { value: StudentsStatus; label: string };
   }>({});
@@ -96,7 +94,6 @@ export const StudentsTable = () => {
     limit: pageSize,
     branchId: filter?.branchSelected?.id,
     classId: filter?.classSelected?.id,
-    departmentId: filter?.departmentSelected?.id,
     armId: filter?.armSelected?.id,
     status: filter?.statusSelected?.value,
     search: debouncedSearchQuery,
@@ -106,7 +103,6 @@ export const StudentsTable = () => {
   const { data: distribution } = useGetStudentsDistribution(filter?.branchSelected?.id);
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses();
-  const { data: departments, isPending: loadingDepartments } = useGetDepartments();
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(filter?.classSelected?.id);
 
   const { mutate, isPending: exporting } = useExportStudents({
@@ -185,10 +181,7 @@ export const StudentsTable = () => {
     });
   };
 
-  const handleFilterChange = (
-    filter: string,
-    value: Branch | ClassType | Department | Arm | { value: StudentsStatus; label: string } | undefined,
-  ) => {
+  const handleFilterChange = (filter: string, value: Branch | ClassType | Arm | { value: StudentsStatus; label: string } | undefined) => {
     setFilter(prev => ({ ...prev, [filter]: value }));
   };
 
@@ -366,8 +359,6 @@ export const StudentsTable = () => {
           loadingClasses={loadingClasses}
           arms={arms}
           loadingArms={loadingArms}
-          departments={departments}
-          loadingDepartments={loadingDepartments}
         />
 
         <PermissionCheck permissionUtility={canManageStudentParentRecords}>
@@ -524,7 +515,12 @@ export const StudentsTable = () => {
 
       {!loadingStudents && !isError && students.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Add a student" />
+          <ErrorComponent
+            title="No Students"
+            description="No student has been added yet"
+            buttonText="Add a student"
+            url="/student-and-parent-record/add-student"
+          />
         </div>
       )}
 

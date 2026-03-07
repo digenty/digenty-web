@@ -105,6 +105,8 @@ export interface Parent {
   stateOfOrigin: string;
   address: string;
   secondaryPhoneNumber: string;
+  tags: string[];
+  linkedStudents: { id: number; fullName: string; avatar: string | null }[];
 }
 
 export interface AttendanceCard {
@@ -225,4 +227,39 @@ export interface StudentReport {
   classTeacherComment: string | null;
   principalComment: string | null;
   nextTermBegins: string;
+}
+
+export interface BranchReport {
+  branchId: number;
+  branchName: string;
+  BranchHeadName: string;
+  numberOfClassArm: number;
+  numberOfClassTeacherSubmitted: number | null;
+  numberOfPendingApprovals: number | null;
+}
+
+export interface AllBranchesReport {
+  totalBranchesInSchool: number;
+  totalArmsInSchool: number;
+  totalPendingArmSubmission: number;
+  totalArmSubmitted: number;
+  totalPublishedReport: number;
+  branchReports: BranchReport[];
+}
+
+export interface BranchArmReport {
+  classId: number;
+  armId: number;
+  classArmName: string;
+  classTeacherName: string;
+  numberOfSubjects: number;
+  status: string;
+  numberOfEditRequest: number;
+}
+
+export interface BranchArmReportResponse {
+  totalArms: number;
+  totalPendingSubmissions: number;
+  totalCompletedSubmissions: number;
+  branchArmReportResponseDtos: BranchArmReport[];
 }

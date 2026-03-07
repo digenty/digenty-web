@@ -118,7 +118,6 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
             Gender<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
-            value={values.gender}
             onValueChange={gender => {
               formik.setFieldValue("gender", gender);
             }}
@@ -141,7 +140,6 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
             Relationship<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
-            value={values.relationship}
             onValueChange={rel => {
               formik.setFieldValue("relationship", rel);
             }}

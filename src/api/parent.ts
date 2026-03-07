@@ -39,13 +39,13 @@ export const getParents = async ({
   }
 };
 
-export const uploadParents = async ({ file }: { file: File | null }) => {
+export const uploadParents = async ({ file, branchId }: { file: File | null; branchId?: number }) => {
   if (file) {
     const formData = new FormData();
     formData.append("file", file);
     const { token } = await getSessionToken();
     try {
-      const { data } = await axios.post("/parents/upload", formData, {
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/parents/upload/${branchId}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

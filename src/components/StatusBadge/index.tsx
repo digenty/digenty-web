@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 export default function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     active: "bg-bg-badge-green text-bg-basic-green-strong",
+    published: "bg-bg-badge-green text-bg-basic-green-strong",
+    unpublished: "bg-bg-badge-red text-bg-basic-red-strong",
     graduated: "bg-blue-100 text-blue-700",
     withdrawn: "bg-red-100 text-red-700",
     inactive: "bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong",

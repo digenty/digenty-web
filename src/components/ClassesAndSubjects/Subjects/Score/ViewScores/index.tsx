@@ -1,25 +1,25 @@
 "use client";
 
+import { Term } from "@/api/types";
+import { Avatar } from "@/components/Avatar";
 import { DataTable } from "@/components/DataTable";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import ArrowDown from "@/components/Icons/ArrowDown";
+import ArrowUp from "@/components/Icons/ArrowUp";
+import Calendar from "@/components/Icons/Calendar";
 import Question from "@/components/Icons/Question";
 import ShareBox from "@/components/Icons/ShareBox";
-import { Button } from "@/components/ui/button";
-import React, { useEffect, useState } from "react";
-import { viewScoreColumns } from "./Columns";
 import { ScoreType } from "@/components/ScoreViewBySubject/types";
-import { Avatar } from "@/components/Avatar";
 import { Badge } from "@/components/ui/badge";
-import ArrowUp from "@/components/Icons/ArrowUp";
-import ArrowDown from "@/components/Icons/ArrowDown";
-import { useSearchParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useViewScore } from "@/hooks/queryHooks/useScore";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { Term, Terms } from "@/api/types";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Calendar from "@/components/Icons/Calendar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { viewScoreColumns } from "./Columns";
 
 export const ViewScore = () => {
   const user = useLoggedInUser();

@@ -10,8 +10,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontalIcon } from "lucide-react";
 import FileList2 from "@/components/Icons/FileList2";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export const ClassHeader = () => {
+export const ClassHeader = ({ isLoading, classData }: { isLoading: boolean; classData: [] }) => {
   const router = useRouter();
   const [openNotify, setOpenNotify] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -30,27 +31,39 @@ export const ClassHeader = () => {
             </div>
           </div>
           <div className="border-border-default space-between flex items-center gap-2 border-b px-4 pb-2 md:gap-1 md:border-none md:p-0">
-            <Button
-              onClick={() => setOpenEdit(true)}
-              className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-46 items-center gap-1 rounded-md border text-sm font-medium md:flex"
-            >
-              <Key fill="var(--color-icon-default)" />
-              Manage Edit Request
-            </Button>
-            <Button
-              onClick={() => setOpenNotify(true)}
-              className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-46"
-            >
-              <Notification fill="var(--color-icon-default)" />
-              Notify Class Teacher
-            </Button>
-            <Button
-              onClick={() => router.push("/classes-and-subjects/classes/1/class-report")}
-              className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-32.5"
-            >
-              {" "}
-              <FileList2 fill="var(--color-icon-default)" /> Class Report
-            </Button>
+            {isLoading || classData.length == 0 ? (
+              <Skeleton className="bg-bg-input-soft h-8 w-40" />
+            ) : (
+              <Button
+                onClick={() => setOpenEdit(true)}
+                className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-46 items-center gap-1 rounded-md border text-sm font-medium md:flex"
+              >
+                <Key fill="var(--color-icon-default)" />
+                Manage Edit Request
+              </Button>
+            )}
+            {isLoading || classData.length == 0 ? (
+              <Skeleton className="bg-bg-input-soft h-8 w-40" />
+            ) : (
+              <Button
+                onClick={() => setOpenNotify(true)}
+                className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-46"
+              >
+                <Notification fill="var(--color-icon-default)" />
+                Notify Class Teacher
+              </Button>
+            )}
+            {isLoading || classData.length == 0 ? (
+              <Skeleton className="bg-bg-input-soft h-8 w-40" />
+            ) : (
+              <Button
+                onClick={() => router.push("/classes-and-subjects/classes/1/class-report")}
+                className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-32.5"
+              >
+                {" "}
+                <FileList2 fill="var(--color-icon-default)" /> Class Report
+              </Button>
+            )}
 
             <DropdownMenu open={open} onOpenChange={setOpen}>
               <DropdownMenuTrigger

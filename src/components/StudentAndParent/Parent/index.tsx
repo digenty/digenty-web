@@ -48,7 +48,7 @@ export const ParentsTable = () => {
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Parent[]>([]);
-  const pageSize = 50;
+  const pageSize = 25;
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
@@ -349,9 +349,9 @@ export const ParentsTable = () => {
         </div>
       )}
 
-      {loadingParents && <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />}
+      {loadingParents && !isError && <Skeleton className="bg-bg-input-soft hidden h-100 w-full md:block" />}
 
-      {parents.length === 0 && (
+      {parents.length === 0 && !loadingParents && !isError && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent title="No Parents" description="No parent has been added yet" buttonText="Add a parent" />
         </div>

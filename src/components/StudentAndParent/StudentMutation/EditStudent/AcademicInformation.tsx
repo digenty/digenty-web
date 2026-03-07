@@ -1,60 +1,58 @@
 "use client";
-import { cn, getAcademicYears } from "@/lib/utils";
+import { Arm, Branch, ClassType, Student } from "@/api/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StudentInputValues } from "../../types";
-import { FormikProps } from "formik";
-import { BoardingStatusValues, AdmissionStatusValues } from "../../constants";
-import { terms } from "@/types";
-import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Arm, Branch, ClassType, Department, Student } from "@/api/types";
-import { useGetClasses } from "@/hooks/queryHooks/useClass";
-import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
-import { useEffect, useState } from "react";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetClasses } from "@/hooks/queryHooks/useClass";
+import { cn, getAcademicYears } from "@/lib/utils";
+import { terms } from "@/types";
+import { FormikProps } from "formik";
+import { useEffect, useState } from "react";
+import { AdmissionStatusValues, BoardingStatusValues } from "../../constants";
+import { StudentInputValues } from "../../types";
 
 export const AcademicInformation = ({ formik, data }: { formik: FormikProps<StudentInputValues>; data: { data: Student } | undefined }) => {
   const [classId, setClassId] = useState<number | undefined>();
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses();
-  const { data: departments, isPending: loadingDepartments } = useGetDepartments();
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
 
   const [branch, setBranch] = useState<string>();
   const [className, setClassName] = useState<string>();
-  const [department, setDepartment] = useState<string>();
+  // const [department, setDepartment] = useState<string>();
   const [arm, setArm] = useState<string>();
 
   const { handleBlur, handleChange, errors, touched, values } = formik;
 
   useEffect(() => {
-    if (data && branches && classes && departments) {
+    if (data && branches && classes) {
       const branch = branches.data.content?.find((brnch: Branch) => brnch.name === data.data.branch);
       setBranch(branch?.name);
       if (branch) {
         formik.setFieldValue("branchId", branch.id);
       }
 
-      const cls = classes.data.content?.find((cls: ClassType) => cls.name === data.data.class);
+      const cls = classes.data.content?.find((cls: ClassType) => cls.name === data.data.class && cls.branchId === branch?.id);
       setClassName(cls?.name);
       setClassId(cls?.id);
       if (cls) {
         formik.setFieldValue("classId", cls.id);
       }
 
-      const department = departments.data.find((dep: Department) => dep.id === data.data.departmentId);
-      setDepartment(department?.name);
+      // const department = departments.data.find((dep: Department) => dep.id === data.data.departmentId);
+      // setDepartment(department?.name);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, branches, classes, departments]);
+  }, [data, branches, classes]);
 
   useEffect(() => {
     if (arms && data) {
       const arm = arms.data.content.find((arm: Arm) => arm.id === data.data.armId);
-      setArm(arm?.name);
+      setArm(arm?.id.toString());
       if (arm) {
         formik.setFieldValue("armId", arm.id);
       }
@@ -147,10 +145,10 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
               value={branch}
               onValueChange={value => {
                 if (value) {
-                  const branch = branches.data.content?.find((branch: Branch) => branch.name === value);
-                  if (branch) {
-                    formik.setFieldValue("branchId", branch.id);
-                    setBranch(branch.name);
+                  const branchObj = branches.data.content?.find((branch: Branch) => branch.name === value);
+                  if (branchObj) {
+                    formik.setFieldValue("branchId", branchObj.id);
+                    setBranch(branchObj.name);
                   }
                 }
               }}
@@ -177,10 +175,10 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (
             <Select
-              value={className}
+              value={classId?.toString()}
               onValueChange={value => {
                 if (value) {
-                  const classObj = classes.data.content?.find((cls: ClassType) => cls.name === value);
+                  const classObj = classes.data.content?.find((cls: ClassType) => cls.id.toString() === value);
                   if (classObj) {
                     formik.setFieldValue("classId", classObj.id);
                     setClassName(classObj.name);
@@ -194,7 +192,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
                 {classes.data.content.map((cls: ClassType, index: number) => (
-                  <SelectItem key={`${cls.id}-${index}`} className="text-text-default" value={cls.name}>
+                  <SelectItem key={`${cls.id}-${index}`} className="text-text-default" value={cls.id.toString()}>
                     {cls.name}
                   </SelectItem>
                 ))}
@@ -203,7 +201,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
           )}
         </div>
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <Label htmlFor="department" className="text-text-default text-sm font-medium">
             Department
           </Label>
@@ -232,7 +230,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
               </SelectContent>
             </Select>
           )}
-        </div>
+        </div> */}
 
         <div className="space-y-2">
           <Label htmlFor="arm" className="text-text-default text-sm font-medium">
@@ -246,10 +244,10 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
               value={arm}
               onValueChange={value => {
                 if (value) {
-                  const arm = arms.data?.content?.find((arm: Arm) => arm.name === value);
-                  if (arm) {
-                    formik.setFieldValue("armId", arm.id);
-                    setArm(arm.name);
+                  const armObj = arms.data?.content?.find((arm: Arm) => arm.id.toString() === value);
+                  if (armObj) {
+                    formik.setFieldValue("armId", armObj.id);
+                    setArm(armObj.id.toString());
                   }
                 }
               }}
@@ -264,7 +262,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
                   </SelectItem>
                 )}
                 {arms.data.content.map((arm: Arm) => (
-                  <SelectItem key={arm.id} className="text-text-default" value={arm.name}>
+                  <SelectItem key={arm.id} className="text-text-default" value={arm.id.toString()}>
                     {arm.name}
                   </SelectItem>
                 ))}

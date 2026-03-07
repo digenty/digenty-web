@@ -62,7 +62,7 @@ export const ScoreViewBySubject = ({
 
   if (columns.length === 0) {
     return (
-      <div className="flex h-80 items-center justify-center">
+      <div className="flex h-80 items-center justify-center pt-15">
         <ErrorComponent title="Not Found" description="No assessments configured for this class or branch" buttonText="Contact Admin" />
       </div>
     );

@@ -11,8 +11,8 @@ export const LinkedParents = ({
   setSelectedParents,
 }: {
   setOpen: (open: boolean) => void;
-  selectedParents: { id: number; name: string; avatar: string | null }[];
-  setSelectedParents: Dispatch<SetStateAction<{ id: number; name: string; avatar: string | null }[]>>;
+  selectedParents: { id: number; fullName: string; avatar: string | null }[];
+  setSelectedParents: Dispatch<SetStateAction<{ id: number; fullName: string; avatar: string | null }[]>>;
 }) => {
   const removeParent = (id: number) => {
     const parents = selectedParents.filter(parent => parent.id !== id);
@@ -32,7 +32,7 @@ export const LinkedParents = ({
           >
             <div className="flex items-center gap-2">
               <Avatar className="size-10" url={parent.avatar ?? ""} />
-              <p className="text-text-default text-sm font-medium">{parent.name}</p>
+              <p className="text-text-default text-sm font-medium">{parent.fullName}</p>
             </div>
 
             <Button
@@ -50,7 +50,7 @@ export const LinkedParents = ({
             evt.stopPropagation();
             setOpen(true);
           }}
-          className="text-text-default border-border-darker bg-bg-state-secondary flex h-10 w-full items-center justify-center gap-2 rounded-md border border-dashed! text-sm font-medium"
+          className="text-text-default border-border-darker bg-bg-state-secondary flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed! text-sm font-medium"
         >
           <PlusIcon className="text-icon-default-muted size-5" />
           <span>Link Parent</span>

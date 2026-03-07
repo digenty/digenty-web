@@ -13,6 +13,7 @@ import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
 import { ParentUploadType, Step } from "../BulkUpload/types";
 import * as XLSX from "xlsx";
 import { Branch } from "@/api/types";
+import { Spinner } from "@/components/ui/spinner";
 
 const REQUIRED_HEADERS = [
   "firstName",
@@ -25,8 +26,6 @@ const REQUIRED_HEADERS = [
   "nationality",
   "stateOfOrigin",
   "phoneNumber",
-  "secondaryhoneNumber",
-  "branch",
 ];
 
 const steps: Step[] = [
@@ -43,7 +42,7 @@ export const ParentsUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
 
-  const { mutate, isPending } = useUploadParents();
+  const { mutate, isPending } = useUploadParents({ branchId: branchSelected?.id });
 
   const goToNext = () => {
     // Check if the previous step is completed, then add step to completed steps array
@@ -61,8 +60,8 @@ export const ParentsUpload = () => {
         {
           onSuccess: data => {
             toast({
-              title: "Successfully uploaded parents",
-              description: data.message,
+              title: `Successfully uploaded ${data.data.duplicateEmails ? "some" : "all"} parents`,
+              description: `${data.data.duplicateEmails ? `${data.data.duplicateEmails.split(",").length} parent(s) were not uploaded due to duplicate emails.` : data.message}`,
               type: "success",
             });
             setFile(null);
@@ -231,10 +230,15 @@ export const ParentsUpload = () => {
           </Button>
 
           <Button
-            disabled={(file === null && currentStep === 1) || (currentStep === steps.length && (errors.length > 0 || validRows.length === 0))}
+            disabled={
+              (file === null && currentStep === 1) ||
+              (currentStep === steps.length && (errors.length > 0 || validRows.length === 0)) ||
+              !branchSelected
+            }
             onClick={goToNext}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
           >
+            {isPending && currentStep === steps.length && <Spinner className="text-text-white-default" />}
             <span className="text-sm font-medium">{currentStep === steps.length ? "Confirm & Import" : "Continue"}</span>
           </Button>
         </div>

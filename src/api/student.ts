@@ -20,7 +20,6 @@ export const getStudents = async ({
   pageParam,
   branchId,
   classId,
-  departmentId,
   armId,
   status,
   search,
@@ -29,14 +28,13 @@ export const getStudents = async ({
   pageParam: number;
   branchId?: number;
   classId?: number;
-  departmentId?: number;
   armId?: number;
   status?: StudentsStatus;
   search?: string;
 }) => {
   try {
     const { data } = await api.get(
-      `/students/school?size=${limit}&page=${pageParam}${branchId ? `&branchId=${branchId}` : ""}${classId ? `&classId=${classId}` : ""}${departmentId ? `&departmentId=${departmentId}` : ""}${armId ? `&armId=${armId}` : ""}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`,
+      `/students/school?size=${limit}&page=${pageParam}${branchId ? `&branchId=${branchId}` : ""}${classId ? `&classId=${classId}` : ""}${armId ? `&armId=${armId}` : ""}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`,
     ); // page starts from 0
     return data.data;
   } catch (error: unknown) {
@@ -53,7 +51,7 @@ export const uploadStudents = async ({ file, branchId }: { file: File | null; br
     formData.append("file", file);
     const { token } = await getSessionToken();
     try {
-      const { data } = await axios.post("/students/upload", formData, {
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/students/upload/${branchId}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

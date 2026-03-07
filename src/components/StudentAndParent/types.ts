@@ -43,7 +43,6 @@ export interface StudentInputValues {
   joinedSchoolSession: string;
   branchId: number | null;
   classId: number | null;
-  departmentId: number | null;
   armId: number | null;
 }
 
@@ -102,9 +101,8 @@ export interface StudentInputType {
   joinedSchoolSession: string;
   branchId: number | null;
   classId: number | null;
-  departmentId: number | null;
   armId: number | null;
-  image: string | File | null;
+  image?: string;
   tags: string[];
   linkedParents: number[];
 }
@@ -122,7 +120,7 @@ export interface ParentInputType {
   stateOfOrigin: string;
   relationship: Relationship | null;
   branchId: number | null;
-  image: string | File | null;
+  image?: string;
   tags: string[];
   linkedStudents: number[];
 }

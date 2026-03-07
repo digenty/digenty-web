@@ -66,7 +66,8 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                           <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
                         </Button>
                         <Button
-                          onClick={() => router.push(`/classes-and-subjects/subjects/${subjectId}/arms/${cl.armId}/view-score`)}
+                          onClick={() => router.push(`/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/view-score`)}
+                          // onClick={() => router.push(`/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/view-score`)}
                           className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"
                         >
                           <Eye fill="var(--color-icon-default-muted)" /> View

@@ -127,7 +127,6 @@ export const PersonalInformation = ({
             Gender<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
-            value={values.gender}
             onValueChange={gender => {
               formik.setFieldValue("gender", gender);
             }}

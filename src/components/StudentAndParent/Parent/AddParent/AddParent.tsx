@@ -14,7 +14,7 @@ import { ContactInformation } from "./ContactInformation";
 import { LinkedStudents } from "./LinkedStudents";
 import { LinkStudents } from "./LinkStudents";
 import { PersonalInformation } from "./PersonalInformation";
-import { ProfilePicture } from "./ProfilePicture";
+import { ProfilePicture } from "../../ProfilePicture";
 import { Gender, Relationship } from "@/types";
 
 export const AddParent = () => {
@@ -23,7 +23,7 @@ export const AddParent = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
 
-  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatar, setAvatar] = useState<string>();
   const [step, setStep] = useState(1);
 
   useBreadcrumb([
@@ -56,8 +56,7 @@ export const AddParent = () => {
           ...values,
           tags,
           linkedStudents: selectedStudents.map(student => student.id),
-          // image: avatar,
-          image: null,
+          image: avatar,
         },
         {
           onSuccess: data => {

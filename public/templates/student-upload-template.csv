@@ -1,1 +1,4 @@
-firstName,lastName,middleName,gender,dateOfBirth,nationality,stateOfOrigin,address,branch,class,arm,department,admissionNumber,email,phoneNumber
+firstName,lastName,middleName,gender,dateOfBirth,nationality,stateOfOrigin,address,class,arm,admissionNumber,email,parentEmail,phone,secondaryPhone
+Chinedu,Okwu,Chioma,MALE,2015-01-01,Nigeria,Anambra,123 Main St,JSS1,A,1234567890,chinedu.okwu@example.com,chiamaka.okwu@example.com,1234567890
+Bose,Akinola,Adetola,FEMALE,2015-01-01,Nigeria,Oyo,123 Main St,JSS1,B,1234567890,bose.akinola@example.com,bose.akinola@example.com,1234567890
+Asfat,Mohammed,Hassan,FEMALE,2015-01-01,Nigeria,Kano,123 Main St,JSS1,C,1234567890,asfat.mohammed@example.com,asfat.mohammed@example.com,1234567890

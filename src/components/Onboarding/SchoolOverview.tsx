@@ -58,7 +58,7 @@ export const SchoolOverview = ({ formik }: SchoolOverviewProps) => {
           <div className="bg-bg-card flex flex-col gap-4 rounded-md px-5 py-6">
             <div className="flex flex-col gap-2">
               <Label className="text-text-default flex items-center gap-2 text-sm font-medium">
-                <Map fill="var(--color-icon-default-muted)" /> Branch Name
+                <Map fill="var(--color-icon-default-muted)" /> Branch Name<small className="text-text-destructive text-xs">*</small>
               </Label>
               <Input
                 className="bg-bg-input-soft! text-text-default w-full border-none text-sm"
@@ -70,7 +70,7 @@ export const SchoolOverview = ({ formik }: SchoolOverviewProps) => {
 
             <div className="flex flex-col gap-2">
               <Label className="text-text-default flex items-center gap-2 text-sm font-medium">
-                <Map fill="var(--color-icon-default-muted)" /> Branch Address
+                <Map fill="var(--color-icon-default-muted)" /> Branch Address<small className="text-text-destructive text-xs">*</small>
               </Label>
               <Input
                 className="bg-bg-input-soft! text-text-default w-full border-none text-sm"
@@ -160,7 +160,9 @@ export const SchoolOverview = ({ formik }: SchoolOverviewProps) => {
 
                 <div className="bg-bg-card flex flex-col gap-4 rounded-md px-5 py-6">
                   <div className="flex flex-col gap-2">
-                    <Label className="text-text-default text-sm font-medium">Branch Name</Label>
+                    <Label className="text-text-default text-sm font-medium">
+                      Branch Name<small className="text-text-destructive text-xs">*</small>
+                    </Label>
                     <Input
                       className="bg-bg-input-soft! text-text-default w-full border-none text-sm"
                       placeholder={`e.g Branch ${index + 1}`}
@@ -171,7 +173,7 @@ export const SchoolOverview = ({ formik }: SchoolOverviewProps) => {
 
                   <div className="flex flex-col gap-2">
                     <Label className="text-text-default flex items-center gap-2 text-sm font-medium">
-                      <Map fill="var(--color-icon-default-muted)" /> Branch Address
+                      <Map fill="var(--color-icon-default-muted)" /> Branch Address<small className="text-text-destructive text-xs">*</small>
                     </Label>
                     <Input
                       className="bg-bg-input-soft! text-text-default w-full border-none text-sm"

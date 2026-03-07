@@ -22,6 +22,7 @@ import { Skeleton } from "../../../ui/skeleton";
 import { Spinner } from "../../../ui/spinner";
 import { Biodata } from "./Biodata";
 import { LinkedStudentsTable } from "./LinkedStudentsTable";
+import StatusBadge from "@/components/StatusBadge";
 
 export const ParentProfile = () => {
   const pathname = usePathname();
@@ -93,9 +94,9 @@ export const ParentProfile = () => {
                 <span>
                   {parent.firstName} {parent.lastName}
                 </span>
-                {/* {parent.tags && parent.tags.slice(0, 2).map((tag, index) => (tag && <StatusBadge key={`${tag}-${index}`} status="Prefect" />))} */}
+                {parent.tags && parent.tags.slice(0, 2).map((tag, index) => tag && <StatusBadge key={`${tag}-${index}`} status="Prefect" />)}
               </div>
-              <p className="text-text-subtle text-sm font-normal capitalize">{parent.relationship.toLowerCase()}</p>
+              <p className="text-text-subtle text-sm font-normal capitalize">{parent.relationship ? parent.relationship.toLowerCase() : "--"}</p>
             </div>
           </div>
 
@@ -158,7 +159,7 @@ export const ParentProfile = () => {
 
       <div className="space-y-6 md:space-y-8">
         <Biodata parent={parent} />
-        <LinkedStudentsTable />
+        <LinkedStudentsTable students={parent.linkedStudents} />
       </div>
     </div>
   );

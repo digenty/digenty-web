@@ -1,6 +1,7 @@
 export const subjectKeys = {
   mysubjects: ["subjects"] as const,
   studentsBySubjectClass: (subjectId: number, amrId: number) => [subjectId, amrId, "students"] as const,
+  branchClassSubjects: [" branchClassSubjects"],
 };
 
 export const REPORT_STATUS_CONFIG = {

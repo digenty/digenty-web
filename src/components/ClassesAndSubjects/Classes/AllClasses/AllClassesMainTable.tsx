@@ -20,45 +20,29 @@ import { useState } from "react";
 import { AllClassessTableMainColumns } from "../Column";
 import { AllClassesMainTableProps } from "../types";
 import { ApproveModal, NotifyTeacherModal } from "./AllClassesModal";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { filter } from "lodash";
 
-const allClassesTableData: AllClassesMainTableProps[] = [
-  {
-    id: 1,
-    className: "JSS 1A",
-    teacherName: "Damilare John",
-    subjectSheet: 13,
-    editRequest: "-",
-    status: "Approved",
-  },
-  {
-    id: 2,
-    className: "JSS 1A",
-    teacherName: "Damilare John",
-    subjectSheet: 13,
-    editRequest: "-",
-    status: "Pending Approval",
-  },
-  {
-    id: 3,
-    className: "JSS 1A",
-    teacherName: "Damilare John",
-    subjectSheet: 13,
-    editRequest: "-",
-    status: "Not Submitted",
-  },
-  {
-    id: 4,
-    className: "JSS 1A",
-    teacherName: "Damilare John",
-    subjectSheet: 13,
-    editRequest: "1 Pending",
-    status: "Edit Request",
-  },
+type LevelFilter = "All" | "Primary School" | "Secondary School";
+
+const LEVEL_FILTERS: { label: LevelFilter; prefix: string | null }[] = [
+  { label: "All", prefix: null },
+  { label: "Primary School", prefix: "pr" },
+  { label: "Secondary School", prefix: "s" },
 ];
 
-export const AllClassesMainTable = () => {
+interface AllClassesMainTableProps_Component {
+  data: AllClassesMainTableProps[];
+  isFetchingBranch: boolean;
+  isError: boolean;
+}
+
+export const AllClassesMainTable = ({ data, isFetchingBranch, isError }: AllClassesMainTableProps_Component) => {
   const [page, setPage] = useState(1);
   const [isLevelFilterOpen, setIsLevelFilterOpen] = useState(false);
+  const [selectedLevel, setSelectedLevel] = useState<LevelFilter>("All");
+  const [pendingLevel, setPendingLevel] = useState<LevelFilter>("All");
   const [openMobileDrawer, setOpenMobilerDrawer] = useState(false);
   const [openNotifyModalMobile, setOpenNotifyModalMobile] = useState(false);
   const [openApproveModalMobile, setOpenApproveModalMobile] = useState(false);
@@ -66,13 +50,25 @@ export const AllClassesMainTable = () => {
 
   useBreadcrumb([
     { label: "All Classes", url: "/classes-and-subjects/all-classes" },
-    { label: `JSS 1A`, url: "" },
+    { label: "JSS 1A", url: "" },
   ]);
+
+  const filteredData = data.filter(item => {
+    const filter = LEVEL_FILTERS.find(f => f.label === selectedLevel);
+    if (!filter?.prefix) return true;
+    return item.classArmName.toLowerCase().startsWith(filter.prefix);
+  });
+
+  const applyLevelFilter = () => {
+    setSelectedLevel(pendingLevel);
+    setIsLevelFilterOpen(false);
+  };
 
   return (
     <div className="px-4 py-3 md:px-8">
       <div className="mb-4 flex h-8 w-full items-center gap-3 md:w-92">
-        <SearchInput className="bg-bg-input-soft h-7! border-none md:h-8!" />
+        <SearchInput className="bg-bg-input-soft h-7! rounded-md border-none md:h-8!" />
+
         <DropdownMenu open={isLevelFilterOpen} onOpenChange={setIsLevelFilterOpen}>
           <DropdownMenuTrigger asChild>
             <div>
@@ -85,146 +81,176 @@ export const AllClassesMainTable = () => {
             </div>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent className="bg-bg-card border-border-default text-text-default hidden py-2.5 shadow-sm md:block">
-            <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3">All</DropdownMenuItem>
-
-            <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3">Primary School</DropdownMenuItem>
-
-            <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3">Secondary School</DropdownMenuItem>
+          <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
+            {LEVEL_FILTERS.map(({ label }) => (
+              <DropdownMenuItem
+                key={label}
+                className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+                onClick={() => {
+                  setSelectedLevel(label);
+                  setIsLevelFilterOpen(false);
+                }}
+              >
+                {label}
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
         <MobileDrawer open={isLevelFilterOpen} setIsOpen={setIsLevelFilterOpen} title="Filter">
           <div className="flex w-full flex-col gap-4 px-3 py-4">
             <div className="space-y-2">
-              <p className="text-text-default px-3 text-sm">All</p>
-
-              <p className="text-text-default px-3 text-sm">Primary School</p>
-
-              <p className="text-text-default px-3 text-sm">Secondary School</p>
+              {LEVEL_FILTERS.map(({ label }) => (
+                <p
+                  key={label}
+                  onClick={() => setPendingLevel(label)}
+                  className={`text-text-default cursor-pointer px-3 text-sm ${pendingLevel === label ? "font-semibold" : ""}`}
+                >
+                  {label}
+                </p>
+              ))}
             </div>
           </div>
-
           <DrawerFooter className="border-border-default border-t">
             <div className="flex justify-between">
               <DrawerClose asChild>
                 <Button className="bg-bg-state-soft text-text-subtle h-8! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
               </DrawerClose>
-
-              <Button className="bg-bg-state-primary text-text-white-default h-8! rounded-md! px-4 py-2 text-sm tracking-[0.1rem]">
-                <span>Apply</span>
+              <Button
+                className="bg-bg-state-primary text-text-white-default h-8! rounded-md! px-4 py-2 text-sm tracking-[0.1rem]"
+                onClick={applyLevelFilter}
+              >
+                Apply
               </Button>
             </div>
           </DrawerFooter>
         </MobileDrawer>
       </div>
 
-      <div className="hidden md:block">
-        <DataTable
-          pageSize={10}
-          clickHandler={() => {}}
-          rowSelection={{}}
-          setRowSelection={() => {}}
-          onSelectRows={() => {}}
-          columns={AllClassessTableMainColumns}
-          data={allClassesTableData}
-          totalCount={allClassesTableData.length}
-          page={page}
-          setCurrentPage={setPage}
-          showPagination={false}
-        />
-      </div>
+      {isFetchingBranch && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
-      {/* Mobile  */}
-      <div className="flex flex-col gap-4 pb-8 md:hidden">
-        <>
-          {openNotifyModalMobile && <NotifyTeacherModal openNotifyModal={openNotifyModalMobile} setOpenNotifyModal={setOpenNotifyModalMobile} />}
-          {openApproveModalMobile && <ApproveModal openApproveModal={openApproveModalMobile} setOpenApproveModal={setOpenApproveModalMobile} />}
+      {isError && (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent
+            title="Could not get Branch Details"
+            description="This is our problem, we are looking into it so as to serve you better"
+            buttonText="Go to the Home page"
+          />
+        </div>
+      )}
 
-          {openMobileDrawer && (
-            <MobileDrawer open={openMobileDrawer} setIsOpen={setOpenMobilerDrawer} title="Actions">
-              <div className="flex flex-col gap-2 px-4 py-3">
-                <Button
-                  // onClick={() => router.push(`/classes-and-subjects/all-classes/${item.id}`)}
-                  className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
-                >
-                  <div className="flex items-center gap-1">
-                    <Eye fill="var(--color-icon-default-muted)" /> <span className="text-text-default text-sm font-medium">View Class</span>
-                  </div>
-                </Button>
-                <Button
-                  onClick={() => setOpenApproveModalMobile(true)}
-                  className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
-                >
-                  <div className="flex items-center gap-1">
-                    <CheckboxCircle fill="var(--color-icon-default-muted)" className="size-4" />
-                    <span className="text-text-default text-sm font-medium">Approve Submission</span>
-                  </div>
-                </Button>
-                <Button
-                  onClick={() => setOpenNotifyModalMobile(true)}
-                  className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
-                >
-                  <div className="flex items-center gap-1">
-                    <Notification fill="var(--color-icon-default-muted)" className="size-4" />
-                    <span className="text-text-default text-sm font-medium">Notify Class Teacher</span>
-                  </div>
-                </Button>
+      {!isFetchingBranch && !isError && filteredData.length === 0 && (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent title="No Branch" description="No branch details yet" buttonText="Add a branch" />
+        </div>
+      )}
 
-                <Button className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2">
-                  <div className="flex items-center gap-1">
-                    <Key fill="var(--color-icon-default-muted)" className="size-4" />
-                    <span className="text-text-default text-sm font-medium">Manage Edit Requests</span>
-                  </div>
-                </Button>
-              </div>
-            </MobileDrawer>
-          )}
+      <div className="flex flex-col gap-4 pb-8">
+        {openNotifyModalMobile && <NotifyTeacherModal openNotifyModal={openNotifyModalMobile} setOpenNotifyModal={setOpenNotifyModalMobile} />}
+        {openApproveModalMobile && <ApproveModal openApproveModal={openApproveModalMobile} setOpenApproveModal={setOpenApproveModalMobile} />}
 
-          {allClassesTableData.map(item => (
-            <div key={item.id} className="border-border-default bg-bg-subtle rounded-md border">
-              <div className="border-border-default border-b">
-                <div className="flex h-9.5 items-center justify-between p-3">
-                  <div className="text-text-default text-sm font-medium">{item.className}</div>
-                  <Button onClick={() => setOpenMobilerDrawer(true)}>
-                    <MoreHorizontalIcon className="text-icon-default-muted size-4" />
-                  </Button>
+        {openMobileDrawer && (
+          <MobileDrawer open={openMobileDrawer} setIsOpen={setOpenMobilerDrawer} title="Actions">
+            <div className="flex flex-col gap-2 px-4 py-3">
+              <Button className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2">
+                <div className="flex items-center gap-1">
+                  <Eye fill="var(--color-icon-default-muted)" />
+                  <span className="text-text-default text-sm font-medium">View Class</span>
                 </div>
-              </div>
-              <div className="border-border-default border-b">
-                <div className="flex items-center justify-between px-3 py-[7px]">
-                  <span className="text-text-muted text-sm font-medium">Class Teacher</span>
-                  <div className="flex items-center gap-2">
-                    <Avatar className="size-6" />
-                    <span className="text-text-default text-sm font-medium">{item.teacherName}</span>
-                  </div>
+              </Button>
+              <Button
+                onClick={() => setOpenApproveModalMobile(true)}
+                className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
+              >
+                <div className="flex items-center gap-1">
+                  <CheckboxCircle fill="var(--color-icon-default-muted)" className="size-4" />
+                  <span className="text-text-default text-sm font-medium">Approve Submission</span>
                 </div>
-              </div>
-              <div className="border-border-default border-b">
-                <div className="flex items-center justify-between px-3 py-[7px]">
-                  <span className="text-text-muted text-sm font-medium">Subject Sheet</span>
-                  <span className="text-text-default text-sm font-medium">
-                    {item.subjectSheet}/{item.subjectSheet}
-                  </span>
+              </Button>
+              <Button
+                onClick={() => setOpenNotifyModalMobile(true)}
+                className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
+              >
+                <div className="flex items-center gap-1">
+                  <Notification fill="var(--color-icon-default-muted)" className="size-4" />
+                  <span className="text-text-default text-sm font-medium">Notify Class Teacher</span>
                 </div>
-              </div>
-              <div className="border-border-default border-b">
-                <div className="flex items-center justify-between px-3 py-1.5">
-                  <span className="text-text-muted text-sm font-medium">Status</span>
-                  <Badge
-                    className={`h-5! ${item.status === "Approved" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "Edit Request" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "Not Submitted" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "Pending Approval" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : null} border-border-default rounded-md border p-1 text-xs font-medium`}
-                  >
-                    {item.status}
-                  </Badge>
+              </Button>
+              <Button className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2">
+                <div className="flex items-center gap-1">
+                  <Key fill="var(--color-icon-default-muted)" className="size-4" />
+                  <span className="text-text-default text-sm font-medium">Manage Edit Requests</span>
                 </div>
-              </div>
-              <div className="flex items-center justify-between px-3 py-2">
-                <span className="text-text-muted text-sm font-medium">Edit Requests</span>
-                <span className="text-text-default text-sm font-medium">{item.editRequest}</span>
-              </div>
+              </Button>
             </div>
-          ))}
-        </>
+          </MobileDrawer>
+        )}
+
+        {!isFetchingBranch && !isError && filteredData.length > 0 && (
+          <div className="">
+            <div className="hidden md:block">
+              <DataTable
+                pageSize={15}
+                clickHandler={() => {}}
+                rowSelection={{}}
+                setRowSelection={() => {}}
+                onSelectRows={() => {}}
+                columns={AllClassessTableMainColumns}
+                data={filteredData}
+                totalCount={filteredData.length}
+                page={page}
+                setCurrentPage={setPage}
+                showPagination={false}
+              />
+            </div>
+
+            <div className="flex flex-col gap-4 md:hidden">
+              {filteredData.map(item => (
+                <div key={item.id} className="border-border-default bg-bg-subtle rounded-md border">
+                  <div className="border-border-default border-b">
+                    <div className="flex h-9.5 items-center justify-between p-3">
+                      <div className="text-text-default text-sm font-medium">{item.classArmName}</div>
+                      <Button onClick={() => setOpenMobilerDrawer(true)}>
+                        <MoreHorizontalIcon className="text-icon-default-muted size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="border-border-default border-b">
+                    <div className="flex items-center justify-between px-3 py-[7px]">
+                      <span className="text-text-muted text-sm font-medium">Class Teacher</span>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="size-6" />
+                        <span className="text-text-default text-sm font-medium">{item.classTeacherName}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-border-default border-b">
+                    <div className="flex items-center justify-between px-3 py-[7px]">
+                      <span className="text-text-muted text-sm font-medium">Subject Sheet</span>
+                      <span className="text-text-default text-sm font-medium">
+                        {item.numberOfSubjects}/{item.numberOfSubjects}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="border-border-default border-b">
+                    <div className="flex items-center justify-between px-3 py-1.5">
+                      <span className="text-text-muted text-sm font-medium">Status</span>
+                      <Badge
+                        className={`h-5! ${item.status === "APPROVED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "EDIT_REQUEST" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "PENDING_APPROVAL" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : ""} border-border-default rounded-md border p-1 text-xs font-medium`}
+                      >
+                        {item.status.toLocaleLowerCase()}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <span className="text-text-muted text-sm font-medium">Edit Requests</span>
+                    <span className="text-text-default text-sm font-medium">{item.numberOfEditRequest}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -25,7 +25,6 @@ export const studentSchema = yup.object().shape({
   branchId: yup.number().required("Branch is required!"),
   classId: yup.number().required("Class is required!"),
   armId: yup.number().required("Arm is required!"),
-  departmentId: yup.number().nullable(),
   joinedSchoolTerm: yup
     .string()
     .oneOf(Object.values(JoinedTermEnum), "Term must be either FIRST, SECOND or THIRD")
@@ -39,14 +38,14 @@ export const studentUploadSchema = yup.object().shape({
   middleName: yup.string(),
   gender: yup.string().oneOf(Object.values(Gender), "Gender is not a valid value!").required("Gender is required!"),
   email: yup.string(),
+  parentEmail: yup.string().email("Invalid email address!").required("Parent Email is required!"),
   dateOfBirth: yup.string().required("Date of Birth is required!"),
   address: yup.string().required("Address is required!"),
   nationality: yup.string().required("Nationality is required!"),
   stateOfOrigin: yup.string().required("State of Origin is required!"),
-  emergencyContactNumber: yup.string(),
-  phoneNumber: yup.string(),
+  phone: yup.string(),
+  secondaryPhone: yup.string(),
   admissionNumber: yup.string(),
-  branch: yup.number().required("Branch is required!"),
   class: yup.string().required("Class is required!"),
   arm: yup.string().required("Arm is required!"),
 });
