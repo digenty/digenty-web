@@ -30,7 +30,7 @@ export const useGetClassReport = (armId?: number, termId?: number) => {
   return useQuery({
     queryKey: classKeys.classReport(armId, termId),
     queryFn: () => getClassReport(armId, termId),
-    enabled: !!armId,
+    enabled: !!armId && !!termId,
   });
 };
 

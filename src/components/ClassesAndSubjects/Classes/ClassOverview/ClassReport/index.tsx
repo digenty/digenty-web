@@ -40,7 +40,7 @@ export const ClassReport = () => {
   const path = usePathname();
   const params = useSearchParams();
   const armId = path.split("/")[4];
-  const classArmName = params.get("classArmName")?.replace("-", " ") || "";
+  const classArmName = params.get("classArmName")?.replaceAll("-", " ") || "";
 
   const isMobile = useIsMobile();
   const footerRef = useRef<HTMLDivElement>(null);
@@ -94,7 +94,7 @@ export const ClassReport = () => {
         },
       ],
     }));
-  }, [classReportData]);
+  }, [classReportData, termSelected]);
 
   const scrollLeft = () => {
     footerRef.current?.scrollBy?.({ left: -200, behavior: "smooth" });
@@ -205,9 +205,9 @@ export const ClassReport = () => {
                     setCurrentPage={setPage}
                     pageSize={pageSize}
                     showPagination={false}
-                    rowSelection={rowSelection}
-                    setRowSelection={setRowSelection}
-                    onSelectRows={setSelectedRows}
+                    // rowSelection={rowSelection}
+                    // setRowSelection={setRowSelection}
+                    // onSelectRows={setSelectedRows}
                     fullBorder
                     classNames={{
                       tableHeadCell: "text-center pr-2 w-34",
@@ -239,9 +239,9 @@ export const ClassReport = () => {
                     setCurrentPage={setPage}
                     pageSize={pageSize}
                     showPagination={false}
-                    rowSelection={rowSelection}
-                    setRowSelection={setRowSelection}
-                    onSelectRows={setSelectedRows}
+                    // rowSelection={rowSelection}
+                    // setRowSelection={setRowSelection}
+                    // onSelectRows={setSelectedRows}
                     fullBorder
                     classNames={{
                       tableHeadCell: "text-center pr-2 w-34",
@@ -269,7 +269,7 @@ export const ClassReport = () => {
                     <Skeleton className="bg-bg-input-soft h-screen w-[678px]" />
                   </div>
                 ) : (
-                  <div className="max-w-[678px] pt-6">
+                  <div className="max-w-[678px] pt-6 pb-10">
                     {/* TODO: Pass active student here */}
                     <StudentResult studentReport={studentReportData?.data} termSelected={termSelected} />
                   </div>

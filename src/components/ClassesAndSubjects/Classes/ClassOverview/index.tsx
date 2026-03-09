@@ -30,10 +30,9 @@ export const ClassOverview = () => {
   const pathname = usePathname();
   const armId = pathname.split("/")[4];
   const searchParams = useSearchParams();
-  const classArmName = searchParams.get("classArmName")?.replace("-", " ") || "";
+  const classArmName = searchParams.get("classArmName")?.replaceAll("-", " ") || "";
 
   const [page, setPage] = useState(1);
-  const [rowSelection, setRowSelection] = useState({});
 
   const { data, isFetching, isError } = useGetClassTeachersInClass(Number(armId));
   const pageSize = data?.data?.pageable?.pageSize;
@@ -77,9 +76,6 @@ export const ClassOverview = () => {
                 page={page}
                 setCurrentPage={setPage}
                 pageSize={pageSize}
-                rowSelection={rowSelection}
-                setRowSelection={() => {}}
-                onSelectRows={() => {}}
                 showPagination={false}
               />
             </div>

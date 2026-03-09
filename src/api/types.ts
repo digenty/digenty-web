@@ -200,6 +200,7 @@ export interface SubjectReport {
   subjectName: string;
   assessments: [
     {
+      assessmentId: number;
       assessmentName: string;
       score: number;
       weight: number;

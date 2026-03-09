@@ -49,7 +49,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
       firstName: "",
       lastName: "",
       schoolName: "",
-      schoolSize: 1,
+      schoolSize: "",
       role: "",
       country: "",
       currency: "",
