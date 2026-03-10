@@ -20,3 +20,11 @@ export const useClassesStore = create<ClassesState>()(set => ({
   deletePayment: false,
   setDeletePayment: (bool: boolean) => set({ deletePayment: bool }),
 }));
+
+export const LEVELS = [
+  { label: "Creche", value: "CRECHE" },
+  { label: "Kindergarten", value: "KINDERGARTEN" },
+  { label: "Nursery", value: "NURSERY" },
+  { label: "Primary", value: "PRIMARY" },
+  { label: "Secondary", value: "SECONDARY" },
+] as const;

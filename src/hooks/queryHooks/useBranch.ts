@@ -2,6 +2,7 @@ import {
   addBranch,
   approveEditRequest,
   approveEditRequestBulk,
+  deleteBranch,
   getAllBranchesDetails,
   getBranchDetails,
   getBranchesForASchool,
@@ -72,5 +73,12 @@ export const useUpdateBranch = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [branchKeys.branches] });
     },
+     });
+};
+
+export const useDeleteBranch = (branchId: number) => {
+  return useMutation({
+    mutationKey: branchKeys.delete,
+    mutationFn: () => deleteBranch(branchId),
   });
 };

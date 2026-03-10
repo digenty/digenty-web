@@ -320,3 +320,73 @@ export interface updateSchoolPayload {
   currency: string;
   timezone: string;
 }
+
+export type NewBranchForm = {
+  id: string;
+  branchName: string;
+  address: string;
+  levels: string[];
+  isSubmitting: boolean;
+};
+
+export type SchoolStructurePayload = {
+  name: string;
+  currentTerm: string;
+  firstTermStartDate?: string;
+  firstTermEndDate?: string;
+  secondTermStartDate?: string;
+  secondTermEndDate?: string;
+  thirdTermStartDate?: string;
+  thirdTermEndDate?: string;
+  branchesAndLevelsDtos: {
+    branchId: number;
+    levels: string[];
+  }[];
+};
+
+export interface AssessmentDefaultPayload {
+  branchId: number;
+  createAssessmentDtoLists: {
+    name: string;
+    weight: number;
+    assessmentType: string;
+  }[];
+}
+
+export interface AssessmentPayload {
+  branchId: number;
+  levelId: number;
+  createAssessmentDtoList: {
+    name: string;
+    weight: number;
+    assessmentType: string;
+  }[];
+}
+
+export interface GradingDefaultPayload {
+  branchId: number;
+  gradingDtoList: {
+    grade: string;
+    upperLimit: number;
+    lowerLimit: number;
+    remark: string;
+  }[];
+}
+
+export interface GradingPayload {
+  branchId: number;
+  levelId: number;
+  gradingDtoList: {
+    grade: string;
+    upperLimit: number;
+    lowerLimit: number;
+    remark: string;
+  }[];
+}
+
+export interface AdmissionNumberPayload {
+  prefix: string;
+  numberFormat: string;
+  startingNumber: number;
+  padding: number;
+}

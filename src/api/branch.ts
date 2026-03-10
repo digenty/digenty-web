@@ -108,3 +108,15 @@ export const getBranchDetails = async (branchId: number, termId?: number) => {
     throw error;
   }
 };
+
+export const deleteBranch = async (branchId: number) => {
+  try {
+    const { data } = await api.delete(`/branches/${branchId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
