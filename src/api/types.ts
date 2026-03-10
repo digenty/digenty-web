@@ -263,3 +263,33 @@ export interface BranchArmReportResponse {
   totalCompletedSubmissions: number;
   branchArmReportResponseDtos: BranchArmReport[];
 }
+
+export interface UpdateAcademicPayload {
+  name: string;
+  firstTermStartDate: string;
+  firstTermEndDate: string;
+  secondTermStartDate: string;
+  secondTermEndDate: string;
+  thirdTermStartDate: string;
+  thirdTermEndDate: string;
+}
+
+export interface AcademicSession {
+  id: number;
+  name: string;
+  isActive: boolean;
+  schoolId: number;
+  firstTermStartDate?: string;
+  firstTermEndDate?: string;
+  secondTermStartDate?: string;
+  secondTermEndDate?: string;
+  thirdTermStartDate?: string;
+  thirdTermEndDate?: string;
+}
+
+export interface UpdateAdmissionNumber {
+  prefix: string;
+  numberFormat: string;
+  startingNumber: number;
+  padding: number;
+}
