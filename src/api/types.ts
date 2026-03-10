@@ -1,4 +1,5 @@
 import { AdmissionStatus, BoardingStatus, Gender, Relationship } from "@/types";
+import { DateRange } from "react-day-picker";
 
 export interface Branch {
   id: number;
@@ -476,4 +477,114 @@ export interface EditRequestResponseTypes {
   dateCreated?: string;
   isApproved: boolean;
   teacherEmail: string;
+}
+
+export interface UpdateAcademicPayload {
+  name: string;
+  currentTerm: string;
+  firstTermStartDate: string;
+  firstTermEndDate: string;
+  secondTermStartDate: string;
+  secondTermEndDate: string;
+  thirdTermStartDate: string;
+  thirdTermEndDate: string;
+}
+
+export interface AcademicSession {
+  id: number;
+  name: string;
+  isActive: boolean;
+  schoolId: number;
+  currentTerm: string;
+  firstTermStartDate?: string;
+  firstTermEndDate?: string;
+  secondTermStartDate?: string;
+  secondTermEndDate?: string;
+  thirdTermStartDate?: string;
+  thirdTermEndDate?: string;
+}
+
+export interface UpdateAdmissionNumber {
+  prefix: string;
+  numberFormat: string;
+  startingNumber: number;
+  padding: number;
+}
+
+
+
+export interface UpdateGradingDefaultPayload {
+  branchId: number;
+  levelIds: [];
+  gradingDtoList: {
+    grade: string;
+    upperLimit: number;
+    lowerLimit: number;
+    remark: string;
+  }[];
+}
+
+export interface ResultCalculationPayload {
+  levelId: number;
+  academicSessionId: number;
+  calculationMethod: "THIRD_TERM_ONLY" | "CUMULATIVE";
+  promotionType: "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE";
+  minimumOverallPercentage: number;
+  minimumPassGrade: string;
+  requiredSubjectIds: number[];
+}
+
+export interface ResultSubmissionPayload {
+  termsDeadline: [
+    {
+      termId: number;
+      openDate: string;
+      closeDate: string;
+      autoLockAfterDeadline: boolean;
+    },
+  ];
+}
+
+export interface TermDeadlineState {
+  openDate: DateRange | undefined;
+  closeDate: DateRange | undefined;
+  autoLockAfterDeadline: boolean;
+}
+
+export interface PrincaleCommentPayload {
+  levelId: number;
+  rows: {
+    minPercentage: number;
+    maxPercentage: number;
+    comment: string;
+  }[];
+}
+
+export interface SchoolGrading {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  grade: string;
+  upperLimit: number;
+  lowerLimit: number;
+  remark: string;
+  levelId: number;
+  branchId: number;
+  schoolId: number;
+  isDefault: boolean;
+}
+
+export interface Levelsubject {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  branchId: number;
+  schoolId: number;
 }
