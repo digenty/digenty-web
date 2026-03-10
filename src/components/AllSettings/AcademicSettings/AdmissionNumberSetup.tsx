@@ -13,7 +13,7 @@ export const AdmissionNumberSetup = () => {
         <div className="flex flex-col gap-2">
           <Label className="text-text-default font-medum text-sm">Admission Number Prefix</Label>
           <Input className="bg-bg-input-soft! text-text-default rounded-md border-none text-sm" placeholder="Input prefix" />
-          <div className="text-text-muted text-xs">Common formats: ADM-, STD-, PUP-</div>
+          <div className="text-text-muted text-sm">Common formats: ADM-, STD-, PUP-</div>
         </div>
         <div className="flex flex-col gap-2">
           <Label className="text-text-default text-sm font-medium">Number Format</Label>
