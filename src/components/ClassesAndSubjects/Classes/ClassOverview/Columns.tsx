@@ -9,6 +9,7 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Subject } from ".";
 import { Avatar } from "../../../Avatar";
+import StatusBadge from "@/components/StatusBadge";
 
 const RenderActions = (row: Row<Subject>, classId: number) => {
   const router = useRouter();
@@ -73,18 +74,9 @@ export const columns = (classId: number): ColumnDef<Subject>[] => {
       header: () => <div className="text-text-muted text-sm font-medium">Subject Status</div>,
       cell: ({ row }) => (
         <div className="flex items-center justify-between gap-4 lg:pr-10">
-          <span
-            className={cn(
-              "border-border-default rounded-md border px-2 py-0.5 text-xs capitalize",
-              row.original.status === "SUBMITTED"
-                ? "bg-bg-badge-green text-bg-basic-green-strong"
-                : row.original.status === "IN_PROGRESS"
-                  ? "bg-bg-badge-orange text-bg-basic-orange-strong"
-                  : "bg-bg-badge-red text-bg-basic-red-strong",
-            )}
-          >
-            {row.original.status ? row.original.status?.toLowerCase() : "Not Submitted"}
-          </span>
+          <StatusBadge
+            status={row.original.status === "SUBMITTED" ? "submitted" : row.original.status === "IN_PROGRESS" ? "in progress" : "not submitted"}
+          />
         </div>
       ),
       size: 400,

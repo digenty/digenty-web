@@ -1,44 +1,65 @@
 "use client";
 
-import { Term } from "@/api/types";
-import { Avatar } from "@/components/Avatar";
+import { Assessment, Term } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import ArrowDown from "@/components/Icons/ArrowDown";
-import ArrowUp from "@/components/Icons/ArrowUp";
 import Calendar from "@/components/Icons/Calendar";
 import Question from "@/components/Icons/Question";
 import ShareBox from "@/components/Icons/ShareBox";
 import { ScoreType } from "@/components/ScoreViewBySubject/types";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useViewScore } from "@/hooks/queryHooks/useScore";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { viewScoreColumns } from "./Columns";
+import { MobileCard } from "./MobileCard";
+import RequestEdit from "../../RequestEdit";
+import { exportToCSV } from "@/lib/export-utils";
+
+export type StudentResult = {
+  studentId: number;
+  studentName: string;
+  total: number;
+  grade: string;
+  remark: string;
+  [key: string]: string | number;
+};
 
 export const ViewScore = () => {
   const user = useLoggedInUser();
   const schoolId = user?.schoolId;
 
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const subjectId = Number(searchParams.get("subjectId"));
-  const armId = Number(searchParams.get("armId"));
+  const subjectId = pathname.split("/")[3];
+  const classId = pathname.split("/")[5];
+  const armId = pathname.split("/")[7];
+  const classArmName = searchParams.get("classArmName")?.replaceAll("-", " ");
+  const subjectName = searchParams.get("subjectName")?.replaceAll("-", " ");
 
   const [page, setPage] = useState(1);
   const [activeStudent, setActiveStudent] = useState<number>();
   const [termSelected, setTermSelected] = useState<Term | null>();
   const [activeSession, setActiveSession] = useState<string | null>();
+  const [openRequest, setOpenRequest] = useState<boolean>(false);
+
   const pageSize = 15;
 
   const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
-  const { data: viewScoreData, isLoading: isLoadingScores, isError } = useViewScore(subjectId, armId, termSelected?.termId);
+  const { data: viewScoreData, isLoading: isLoadingScores, isError } = useViewScore(Number(subjectId), Number(armId), termSelected?.termId);
 
-  const studentsScores: ScoreType[] = viewScoreData?.data?.data ?? [];
+  const studentsScores: ScoreType[] = viewScoreData?.data?.content ?? [];
+
+  useBreadcrumb([
+    { label: "Classes & Subjects", url: "/classes-and-subjects" },
+    { label: "Subjects", url: "/classes-and-subjects?tab=Subjects" },
+    { label: "View Scores", url: "" },
+  ]);
 
   useEffect(() => {
     if (terms) {
@@ -48,16 +69,60 @@ export const ViewScore = () => {
     }
   }, [setActiveSession, setTermSelected, terms]);
 
+  const assessmentHeader = Object.values((studentsScores[0]?.assessmentScores ?? {}) as Record<string, Assessment>).map(
+    (assessment: Assessment) => assessment.assessmentName,
+  );
+
+  const transformAssessmentData = (data: ScoreType[]) => {
+    return data.map(student => {
+      const assessmentScores = Object.values(student.assessmentScores).reduce(
+        (acc, a) => {
+          const key = a.assessmentName;
+          acc[key] = a.score;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+
+      return {
+        studentId: student.studentId,
+        studentName: student.studentName,
+        ...assessmentScores,
+        total: student.total,
+        grade: student.grade ?? "-",
+        remark: student.remark ?? "Poor",
+      } as StudentResult;
+    });
+  };
+
+  const handleExport = () => {
+    const headers = ["S/N", "Student Name", ...assessmentHeader, "Total", "Grade", "Remark"];
+    const rows = transformAssessmentData(studentsScores);
+
+    const csvRows = rows.map((student: StudentResult, index: number) => {
+      const assessments = assessmentHeader.map(headerName => student[headerName] ?? 0);
+      return [index + 1, student.studentName, ...assessments, student.total, student.grade, student.remark];
+    });
+
+    const filename = `Scores_${subjectName?.replaceAll(" ", "_")}_${classArmName?.replaceAll(" ", "_")}.csv`;
+    exportToCSV(filename, headers, csvRows);
+  };
+
   return (
     <div>
+      {openRequest && (
+        <RequestEdit open={openRequest} onOpenChange={setOpenRequest} armId={Number(armId)} subjectId={Number(subjectId)} classId={Number(classId)} />
+      )}
       <>
         <div className="border-border-default border-b md:p-0">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
             <div className="flex items-center gap-3">
-              <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">{/* {classArm}, {subjectName} */}</h2>
+              <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">
+                {classArmName}, <span className="capitalize">{subjectName?.toLowerCase()}</span>
+              </h2>
 
               {!terms || isLoadingTerm ? (
-                <Skeleton className="bg-bg-input-soft h-9 w-full" />
+                <Skeleton className="bg-bg-input-soft h-8 w-41" />
               ) : (
                 <Select
                   onValueChange={value => {
@@ -86,6 +151,7 @@ export const ViewScore = () => {
               <div className="flex items-center gap-2 md:gap-1">
                 <Button
                   disabled={isError || isLoadingScores || studentsScores.length === 0}
+                  onClick={handleExport}
                   size="sm"
                   className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-22 items-center gap-1 border text-sm"
                 >
@@ -94,10 +160,11 @@ export const ViewScore = () => {
 
                 <Button
                   disabled={isError || isLoadingScores || studentsScores.length === 0}
+                  onClick={() => setOpenRequest(true)}
                   size="sm"
-                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto cursor-not-allowed items-center justify-between gap-1 border text-sm"
+                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm"
                 >
-                  <Question fill="var(--color-icon-default-muted)" /> Requested Edit Access
+                  <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
                 </Button>
               </div>
             </div>
@@ -109,7 +176,6 @@ export const ViewScore = () => {
 
       {isError && (
         <div className="flex h-80 items-center justify-center">
-          {" "}
           <ErrorComponent
             title="Could not get Students Scores"
             description="This is our problem, we are looking into it so as to serve you better"
@@ -117,7 +183,7 @@ export const ViewScore = () => {
           />
         </div>
       )}
-      {!isLoadingScores && !isError && studentsScores.length === 0 && (
+      {!isLoadingScores && !isError && viewScoreData?.data?.content?.length === 0 && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Go to the Home page" />
         </div>
@@ -126,79 +192,33 @@ export const ViewScore = () => {
       {/* Table */}
       {!isLoadingScores && !isError && studentsScores.length > 0 && (
         <div className="">
-          <div className="hidden md:block">
+          <div className="hidden px-4 md:block md:px-8">
             <DataTable
               pageSize={pageSize}
-              clickHandler={() => {}}
-              rowSelection={{}}
-              setRowSelection={() => {}}
-              onSelectRows={() => {}}
-              columns={viewScoreColumns()}
-              data={studentsScores}
+              columns={viewScoreColumns(assessmentHeader)}
+              data={transformAssessmentData(studentsScores)}
               totalCount={studentsScores.length}
               page={page}
               setCurrentPage={setPage}
               fullBorder
               showPagination={false}
               classNames={{
-                tableBodyCell: "text-center py-0 pr-2",
+                tableBodyCell: "text-center pr-2 py-4",
                 tableHeadCell: "pr-2",
                 tableHead: "bg-bg-subtle h-13.5",
               }}
             />
           </div>
 
-          <ul className="flex flex-col gap-4 md:hidden">
-            {studentsScores.map((score: ScoreType) => (
-              <li key={score.studentId} className="border-border-default w-full rounded-sm border">
-                <div
-                  onClick={() => setActiveStudent(prev => (prev === score.studentId ? undefined : score.studentId))}
-                  aria-expanded={activeStudent === score.studentId}
-                  className="bg-bg-subtle flex w-full items-center justify-between rounded-sm p-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10" />
-                    <div className="space-y-1.5 text-left">
-                      <div className="text-text-default text-sm font-medium">{score.studentName}</div>
-                      <div className="flex items-center gap-2">
-                        {/* <div className="text-text-default text-xs font-normal">{score.totalScore}</div> */}
-                        <Badge className="text-text-subtle border-border-default bg-bg-badge-default h-4 w-4 rounded-md py-2 text-xs font-medium">
-                          {score.grade}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    {activeStudent === score.studentId ? (
-                      <ArrowUp fill="var(--color-icon-default-muted)" />
-                    ) : (
-                      <ArrowDown fill="var(--color-icon-default-muted)" />
-                    )}
-                  </div>
-                </div>
-
-                {/* <div
-                  className={`text-sm transition-all duration-200 ${
-                    activeStudent === score.studentId ? "border-border-default flex max-h-96 flex-col border-t" : "hidden"
-                  }`}
-                >
-                  {[
-                    { label: "CA 1", value: score.CA1 },
-                    { label: "CA 2", value: score.CA2 },
-                    { label: "Exam Score", value: score.examScore },
-                    { label: "Total", value: score.totalScore },
-                    { label: "Grade", value: score.grade },
-                    { label: "Remark", value: score.remark },
-                  ].map(({ label, value }, idx, arr) => (
-                    <div key={label} className={`flex text-center ${idx < arr.length - 1 ? "border-border-default border-b" : ""}`}>
-                      <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
-                        {label}
-                      </span>
-                      <div className="flex h-12 flex-1 items-center justify-center px-2">{value}</div>
-                    </div>
-                  ))}
-                </div> */}
-              </li>
+          <ul className="flex flex-col gap-4 px-4 md:hidden">
+            {transformAssessmentData(studentsScores).map((score: StudentResult) => (
+              <MobileCard
+                key={score.studentName}
+                student={score}
+                activeStudent={activeStudent}
+                assessmentHeader={assessmentHeader}
+                setActiveStudent={setActiveStudent}
+              />
             ))}
           </ul>
         </div>

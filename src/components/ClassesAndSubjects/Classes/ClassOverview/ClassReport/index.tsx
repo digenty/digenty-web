@@ -12,7 +12,7 @@ import { useGetClassCumulativeReport, useGetClassReport } from "@/hooks/queryHoo
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
-import { exportToCSV } from "@/lib/export-utils";
+import { exportToCSV, exportToPDF } from "@/lib/export-utils";
 import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
 
 import { Term } from "@/api/types";
@@ -45,8 +45,6 @@ export const ClassReport = () => {
   const isMobile = useIsMobile();
   const footerRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
-  const [rowSelection, setRowSelection] = useState({});
-  const [selectedRows, setSelectedRows] = useState<StudentRow[]>([]);
   const [activeFilter, setActiveFilter] = useState("spreadsheet");
   const [activeStudentId, setActiveStudentId] = useState<number>();
   const [termSelected, setTermSelected] = useState<Term | null>(null);
@@ -145,6 +143,10 @@ export const ClassReport = () => {
       });
 
       exportToCSV(`ClassReport_Promotion_${classArmName}.csv`, headers, csvRows);
+    } else {
+      // PDF Export for individual student
+      const studentName = studentReportData?.data?.studentName || "Student_Report";
+      exportToPDF("student-report", `Report_${studentName.replaceAll(" ", "_")}.pdf`);
     }
   };
 
@@ -205,9 +207,6 @@ export const ClassReport = () => {
                     setCurrentPage={setPage}
                     pageSize={pageSize}
                     showPagination={false}
-                    // rowSelection={rowSelection}
-                    // setRowSelection={setRowSelection}
-                    // onSelectRows={setSelectedRows}
                     fullBorder
                     classNames={{
                       tableHeadCell: "text-center pr-2 w-34",
@@ -239,9 +238,6 @@ export const ClassReport = () => {
                     setCurrentPage={setPage}
                     pageSize={pageSize}
                     showPagination={false}
-                    // rowSelection={rowSelection}
-                    // setRowSelection={setRowSelection}
-                    // onSelectRows={setSelectedRows}
                     fullBorder
                     classNames={{
                       tableHeadCell: "text-center pr-2 w-34",

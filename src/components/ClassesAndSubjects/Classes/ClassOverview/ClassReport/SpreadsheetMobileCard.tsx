@@ -32,7 +32,7 @@ export const SpreadsheetMobileCard = ({
           <div className="space-y-1.5 text-left">
             <div className="text-text-default text-sm font-medium">{student.name}</div>
             <div className="flex items-center gap-2">
-              <div className="text-text-default text-xs font-normal">{studentScore?.totalPercentage}%</div>
+              <div className="text-text-default text-xs font-normal">{studentScore?.totalPercentage?.toFixed(0)}%</div>
             </div>
           </div>
         </div>

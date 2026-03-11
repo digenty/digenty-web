@@ -11,6 +11,9 @@ export default function StatusBadge({ status }: { status: string }) {
     inactive: "bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong",
     suspended: "bg-red-100 text-red-700",
     total: "bg-bg-badge-fuchsia text-bg-basic-fuchsia-strong",
+    submitted: "bg-bg-badge-green text-bg-basic-green-strong",
+    "in progress": "bg-bg-badge-orange text-bg-basic-orange-strong",
+    "not submitted": "bg-bg-badge-red text-bg-basic-red-strong",
   };
 
   return (

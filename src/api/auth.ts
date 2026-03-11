@@ -5,14 +5,8 @@ import { isAxiosError } from "axios";
 type Payload = {
   email: string;
   password: string;
-
-  // Remove these when the BE removes it
-  firstName?: string;
-  lastName?: string;
-  phoneNumber?: string;
 };
 
-// export const signup = async (payload: Payload): Promise<Payload[]> => {
 export const signup = async (payload: Payload) => {
   try {
     const { data } = await apiPublic.post("/auth/register", payload);

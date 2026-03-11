@@ -8,7 +8,7 @@ import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import { ScoreType, SubmitScorePayload } from "@/components/ScoreViewBySubject/types";
 import { toast } from "@/components/Toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetGradingsForClass } from "@/hooks/queryHooks/useGrading";
+import { useGetGradingsForLevel } from "@/hooks/queryHooks/useGrading";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
 import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
 import { usePathname } from "next/navigation";
@@ -31,7 +31,7 @@ export default function Score() {
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
   const { data: StudentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
-  const { data: classGrading } = useGetGradingsForClass(Number(classId));
+  const { data: classGrading } = useGetGradingsForLevel(Number(classId));
   const { mutate, isPending: isSubmitting } = useAddScore();
 
   const studentsData = StudentsItem?.data?.data?.content ?? [];
@@ -43,7 +43,7 @@ export default function Score() {
   }));
   const gradings = classGrading?.data ?? [];
 
-  const handleSubmit = (status: "SUBMITTED" | "IN_PROGRESS") => {
+  const handleSubmit = (status: "SUBMITTED" | "IN_PROGRESS", closeModal: (bool: boolean) => void) => {
     const payload: SubmitScorePayload = {
       subjectId: Number(subjectId),
       armId: Number(armId),
@@ -66,6 +66,7 @@ export default function Score() {
           description: `Scores ${status === "SUBMITTED" ? "submitted" : "saved as draft"} successfully`,
           type: "success",
         });
+        closeModal(false);
       },
       onError: () => {
         toast({
@@ -73,6 +74,7 @@ export default function Score() {
           description: `Failed to ${status === "SUBMITTED" ? "submit" : "save"} scores`,
           type: "error",
         });
+        closeModal(false);
       },
     });
   };

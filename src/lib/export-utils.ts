@@ -27,3 +27,40 @@ export const exportToCSV = (filename: string, headers: string[], rows: (string |
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 };
+
+/**
+ * Exports a DOM element to a PDF file.
+ *
+ * @param elementId - The ID of the DOM element to capture
+ * @param filename - The name of the file to be saved (e.g., "report.pdf")
+ */
+export const exportToPDF = async (elementId: string, filename: string) => {
+  const element = document.getElementById(elementId);
+  if (!element) {
+    console.error(`Element with id ${elementId} not found`);
+    return;
+  }
+
+  const { default: html2canvas } = await import("html2canvas");
+  const { jsPDF } = await import("jspdf");
+
+  try {
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "px",
+      format: [canvas.width / 2, canvas.height / 2],
+    });
+
+    pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
+    pdf.save(filename);
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+  }
+};

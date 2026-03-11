@@ -51,7 +51,7 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
     minSize: 136,
     cell: ({ row }: { row: Row<StudentRow> }) => {
       const termData = row.original.terms.find(t => t.term === term);
-      return <span className="text-text-default text-sm">{termData?.totalPercentage ?? 0}%</span>;
+      return <span className="text-text-default text-sm">{termData?.totalPercentage?.toFixed(0) ?? 0}%</span>;
     },
   };
 

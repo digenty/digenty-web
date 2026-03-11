@@ -16,9 +16,9 @@ export type Result = {
 export const columns = (headers: string[]): ColumnDef<Result>[] => [
   {
     accessorKey: "subject",
-    header: () => <div className="text-text-muted flex justify-center text-sm font-medium">Subject</div>,
+    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Subject</div>,
     cell: ({ row }: { row: Row<Result> }) => (
-      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-sm">{row.original.subject}</span>
+      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-xs md:text-sm">{row.original.subject}</span>
     ),
     size: 340,
   },
@@ -26,33 +26,33 @@ export const columns = (headers: string[]): ColumnDef<Result>[] => [
   ...headers.map(column => ({
     id: String(column),
     accessorFn: (row: Result) => row[column],
-    header: () => <div className="text-text-muted flex justify-center text-center text-sm font-medium">{column}</div>,
+    header: () => <div className="text-text-muted flex justify-center text-center text-xs font-medium md:text-sm">{column}</div>,
     cell: ({ row }: { row: Row<Result> }) => (
-      <span className="text-text-default flex justify-center text-sm font-normal">{row.original[column]}</span>
+      <span className="text-text-default flex justify-center text-xs font-normal md:text-sm">{row.original[column]}</span>
     ),
     size: 200,
   })),
   {
     accessorKey: "total",
-    header: () => <div className="text-text-muted flex justify-center text-sm font-medium">Total</div>,
+    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Total</div>,
     cell: ({ row }: { row: Row<Result> }) => (
-      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-sm">{row.original.total}</span>
+      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-xs md:text-sm">{row.original.total}</span>
     ),
     size: 340,
   },
   {
     accessorKey: "grade",
-    header: () => <div className="text-text-muted flex justify-center text-sm font-medium">Grade</div>,
+    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Grade</div>,
     cell: ({ row }: { row: Row<Result> }) => (
-      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-sm">{row.original.grade}</span>
+      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-xs md:text-sm">{row.original.grade}</span>
     ),
     size: 340,
   },
   {
     accessorKey: "remark",
-    header: () => <div className="text-text-muted flex justify-center text-sm font-medium">Remark</div>,
+    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Remark</div>,
     cell: ({ row }: { row: Row<Result> }) => (
-      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-sm">{row.original.remark}</span>
+      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-xs md:text-sm">{row.original.remark}</span>
     ),
     size: 340,
   },
@@ -94,7 +94,10 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
       : ["Total", "Grade", "Remark"];
 
   return (
-    <div className="border-t-bg-basic-cyan-contrast border-x-border-default border-b-border-default mb-10 border-x border-t-2 border-b">
+    <div
+      id="student-report"
+      className="border-t-bg-basic-cyan-contrast border-x-border-default border-b-border-default mb-10 border-x border-t-2 border-b"
+    >
       <div className="flex flex-col items-center justify-center py-3">
         <h1 className="text-bg-basic-cyan-contrast text-xl font-semibold">{studentReport.schoolName}</h1>
         <p className="text-text-muted text-sm font-normal capitalize">
@@ -195,7 +198,7 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
 
         <div className="text-text-default mt-4 flex flex-col gap-4 text-sm font-normal">
           <div className="">
-            <span>OVERALL PERCENTAGE:</span> <span className="font-medium">{studentReport.overallPercentage}%</span>
+            <span>OVERALL PERCENTAGE:</span> <span className="font-medium">{studentReport.overallPercentage.toFixed(0)}%</span>
           </div>
           <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
             <span className="text-text-subtle">Class Teacher&apos;s Comment: </span>{" "}
