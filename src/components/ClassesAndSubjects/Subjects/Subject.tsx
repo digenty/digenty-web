@@ -21,7 +21,6 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
   const handleOpen = (): void => {
     setOpenRequest(!openRequest);
   };
-  console.log(classes, subjectId);
 
   return (
     <div className="">

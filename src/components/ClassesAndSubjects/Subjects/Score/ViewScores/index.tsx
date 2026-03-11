@@ -20,6 +20,7 @@ import { viewScoreColumns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 import RequestEdit from "../../RequestEdit";
 import { exportToCSV } from "@/lib/export-utils";
+import { SubjectReportPermissionWrapper } from "../../SubjectReportPermissionWrapper";
 
 export type StudentResult = {
   studentId: number;
@@ -109,7 +110,7 @@ export const ViewScore = () => {
   };
 
   return (
-    <div>
+    <SubjectReportPermissionWrapper subjectId={Number(subjectId)} isLoading={isLoadingScores}>
       {openRequest && (
         <RequestEdit open={openRequest} onOpenChange={setOpenRequest} armId={Number(armId)} subjectId={Number(subjectId)} classId={Number(classId)} />
       )}
@@ -172,9 +173,7 @@ export const ViewScore = () => {
         </div>
       </>
 
-      <div className="p-2">{isLoadingScores && <Skeleton className="bg-bg-input-soft h-100 w-full" />}</div>
-
-      {isError && (
+      {isError && !isLoadingScores && !viewScoreData && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent
             title="Could not get Students Scores"
@@ -183,7 +182,10 @@ export const ViewScore = () => {
           />
         </div>
       )}
-      {!isLoadingScores && !isError && viewScoreData?.data?.content?.length === 0 && (
+
+      <div className="p-2">{isLoadingScores && <Skeleton className="bg-bg-input-soft h-100 w-full" />}</div>
+
+      {!isLoadingScores && !isError && viewScoreData?.data?.content.length === 0 && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Go to the Home page" />
         </div>
@@ -223,6 +225,6 @@ export const ViewScore = () => {
           </ul>
         </div>
       )}
-    </div>
+    </SubjectReportPermissionWrapper>
   );
 };

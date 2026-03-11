@@ -8,17 +8,18 @@ import { StudentResult } from "@/components/StudentResult";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
 import { useGetClassCumulativeReport, useGetClassReport } from "@/hooks/queryHooks/useClass";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { cn } from "@/lib/utils";
 import { exportToCSV, exportToPDF } from "@/lib/export-utils";
-import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
+import { cn } from "@/lib/utils";
 
 import { Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
 import { usePathname, useSearchParams } from "next/navigation";
+import { ClassPermissionWrapper } from "../../ClassPermissionWrapper";
 import { ClassReportFooter } from "./ClassReportFooter";
 import { ClassReportHeader } from "./ClassReportHeader";
 import { createPromotionColumns } from "./PromotionColumn";
@@ -151,174 +152,176 @@ export const ClassReport = () => {
   };
 
   return (
-    <div className="relative">
-      <ClassReportHeader
-        students={transformedStudents}
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
-        termSelected={termSelected}
-        setTermSelected={setTermSelected}
-        activeSession={activeSession}
-        setActiveSession={setActiveSession}
-        classArmName={classArmName}
-        onExport={handleExport}
-      />
+    <ClassPermissionWrapper armId={Number(armId)} isLoading={isLoadingReport}>
+      <div className="relative">
+        <ClassReportHeader
+          students={transformedStudents}
+          activeFilter={activeFilter}
+          setActiveFilter={setActiveFilter}
+          termSelected={termSelected}
+          setTermSelected={setTermSelected}
+          activeSession={activeSession}
+          setActiveSession={setActiveSession}
+          classArmName={classArmName}
+          onExport={handleExport}
+        />
 
-      {isErrorReport && (
-        <div className="flex h-80 items-center justify-center">
-          <ErrorComponent
-            title="Could not get class report"
-            description="This is our problem, we are looking into it so as to serve you better"
-            buttonText="Go to the Home page"
-          />
-        </div>
-      )}
+        {isErrorReport && (
+          <div className="flex h-80 items-center justify-center">
+            <ErrorComponent
+              title="Could not get class report"
+              description="This is our problem, we are looking into it so as to serve you better"
+              buttonText="Go to the Home page"
+            />
+          </div>
+        )}
 
-      {isLoadingReport && (
-        <div className="flex p-4 md:p-8">
-          <Skeleton className="bg-bg-input-soft h-100 w-full" />
-        </div>
-      )}
+        {isLoadingReport && (
+          <div className="flex p-4 md:p-8">
+            <Skeleton className="bg-bg-input-soft h-100 w-full" />
+          </div>
+        )}
 
-      {!isLoadingReport && !isErrorReport && transformedStudents.length === 0 && (
-        <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Class Report" description="No class report has been generated yet" />
-        </div>
-      )}
+        {!isLoadingReport && !isErrorReport && transformedStudents.length === 0 && (
+          <div className="flex h-80 items-center justify-center">
+            <ErrorComponent title="No Class Report" description="No class report has been generated yet" />
+          </div>
+        )}
 
-      {!isLoadingReport && !isErrorReport && transformedStudents.length > 0 && (
-        <>
-          <div
-            className={cn(
-              "overflow-y-auto px-4 md:h-screen md:px-8",
-              (activeFilter === "spreadsheet" || activeFilter === "promotion") && "hidden md:block",
-            )}
-          >
-            {activeFilter === "spreadsheet" && (
-              <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
-                {!classReportData || isLoadingReport ? (
-                  <Skeleton className="bg-bg-input-soft h-100 w-full" />
-                ) : (
-                  <DataTable
-                    columns={createColumns(transformedStudents, termSelected?.term ?? "")}
-                    data={transformedStudents}
-                    totalCount={transformedStudents.length}
-                    page={page}
-                    setCurrentPage={setPage}
-                    pageSize={pageSize}
-                    showPagination={false}
-                    fullBorder
-                    classNames={{
-                      tableHeadCell: "text-center pr-2 w-34",
-                      tableBodyCell: "text-center pr-2 w-34",
-                      tableRow: "h-14",
-                      table: "table-fixed",
-                    }}
-                  />
-                )}
-              </div>
-            )}
+        {!isLoadingReport && !isErrorReport && transformedStudents.length > 0 && (
+          <>
+            <div
+              className={cn(
+                "overflow-y-auto px-4 md:h-screen md:px-8",
+                (activeFilter === "spreadsheet" || activeFilter === "promotion") && "hidden md:block",
+              )}
+            >
+              {activeFilter === "spreadsheet" && (
+                <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
+                  {!classReportData || isLoadingReport ? (
+                    <Skeleton className="bg-bg-input-soft h-100 w-full" />
+                  ) : (
+                    <DataTable
+                      columns={createColumns(transformedStudents, termSelected?.term ?? "")}
+                      data={transformedStudents}
+                      totalCount={transformedStudents.length}
+                      page={page}
+                      setCurrentPage={setPage}
+                      pageSize={pageSize}
+                      showPagination={false}
+                      fullBorder
+                      classNames={{
+                        tableHeadCell: "text-center pr-2 w-34",
+                        tableBodyCell: "text-center pr-2 w-34",
+                        tableRow: "h-14",
+                        table: "table-fixed",
+                      }}
+                    />
+                  )}
+                </div>
+              )}
 
-            {activeFilter === "promotion" && (
-              <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
-                {isErrorCumulativeReport ? (
-                  <ErrorComponent
-                    title="Could not get Student's report"
-                    description="This is our problem, we are looking into it so as to serve you better"
-                    buttonText="Go to the Home page"
-                  />
-                ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
-                  <Skeleton className="bg-bg-input-soft h-100 w-full" />
-                ) : (
-                  <DataTable
-                    columns={createPromotionColumns(transformedStudents)}
-                    data={transformedStudents}
-                    totalCount={transformedStudents.length}
-                    page={page}
-                    setCurrentPage={setPage}
-                    pageSize={pageSize}
-                    showPagination={false}
-                    fullBorder
-                    classNames={{
-                      tableHeadCell: "text-center pr-2 w-34",
-                      tableBodyCell: "text-center pr-2 w-34",
-                      tableRow: "h-14",
-                      table: "table-fixed",
-                    }}
-                  />
-                )}
-              </div>
-            )}
-
-            {activeFilter !== "spreadsheet" && activeFilter !== "promotion" && (
-              <div>
-                {isErrorStudentReport ? (
-                  <div className="flex h-screen items-center justify-center">
+              {activeFilter === "promotion" && (
+                <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
+                  {isErrorCumulativeReport ? (
                     <ErrorComponent
                       title="Could not get Student's report"
                       description="This is our problem, we are looking into it so as to serve you better"
                       buttonText="Go to the Home page"
                     />
-                  </div>
-                ) : loadingStudentReport && !studentReportData ? (
-                  <div className="pt-6">
-                    <Skeleton className="bg-bg-input-soft h-screen w-[678px]" />
-                  </div>
-                ) : (
-                  <div className="max-w-[678px] pt-6 pb-10">
-                    {/* TODO: Pass active student here */}
-                    <StudentResult studentReport={studentReportData?.data} termSelected={termSelected} />
-                  </div>
-                )}
+                  ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
+                    <Skeleton className="bg-bg-input-soft h-100 w-full" />
+                  ) : (
+                    <DataTable
+                      columns={createPromotionColumns(transformedStudents)}
+                      data={transformedStudents}
+                      totalCount={transformedStudents.length}
+                      page={page}
+                      setCurrentPage={setPage}
+                      pageSize={pageSize}
+                      showPagination={false}
+                      fullBorder
+                      classNames={{
+                        tableHeadCell: "text-center pr-2 w-34",
+                        tableBodyCell: "text-center pr-2 w-34",
+                        tableRow: "h-14",
+                        table: "table-fixed",
+                      }}
+                    />
+                  )}
+                </div>
+              )}
+
+              {activeFilter !== "spreadsheet" && activeFilter !== "promotion" && (
+                <div>
+                  {isErrorStudentReport ? (
+                    <div className="flex h-screen items-center justify-center">
+                      <ErrorComponent
+                        title="Could not get Student's report"
+                        description="This is our problem, we are looking into it so as to serve you better"
+                        buttonText="Go to the Home page"
+                      />
+                    </div>
+                  ) : loadingStudentReport && !studentReportData ? (
+                    <div className="pt-6">
+                      <Skeleton className="bg-bg-input-soft h-screen w-[678px]" />
+                    </div>
+                  ) : (
+                    <div className="max-w-[678px] pt-6 pb-10">
+                      {/* TODO: Pass active student here */}
+                      <StudentResult studentReport={studentReportData?.data} termSelected={termSelected} />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {!isMobile && (
+              <ClassReportFooter students={transformedStudents} activeFilter={activeFilter} setActiveFilter={setActiveFilter} footerRef={footerRef} />
+            )}
+
+            {!isMobile && (
+              <div className="bg-bg-card fixed right-0 bottom-0 flex h-15 w-28 py-4">
+                <div className="border-border-default mr-2 border-l" />
+                <Button
+                  onClick={scrollLeft}
+                  className="bg-bg-state-ghost hover:bg-bg-state-ghost-hover! flex size-8 items-center justify-center rounded-md"
+                >
+                  <ChevronLeft className="text-icon-default-subtle size-5" />
+                </Button>
+                <Button
+                  onClick={scrollRight}
+                  className="bg-bg-state-ghost hover:bg-bg-state-ghost-hover! flex size-8 items-center justify-center rounded-md"
+                >
+                  <ChevronRight className="text-icon-default-subtle size-5" />
+                </Button>
               </div>
             )}
-          </div>
 
-          {!isMobile && (
-            <ClassReportFooter students={transformedStudents} activeFilter={activeFilter} setActiveFilter={setActiveFilter} footerRef={footerRef} />
-          )}
-
-          {!isMobile && (
-            <div className="bg-bg-card fixed right-0 bottom-0 flex h-15 w-28 py-4">
-              <div className="border-border-default mr-2 border-l" />
-              <Button
-                onClick={scrollLeft}
-                className="bg-bg-state-ghost hover:bg-bg-state-ghost-hover! flex size-8 items-center justify-center rounded-md"
-              >
-                <ChevronLeft className="text-icon-default-subtle size-5" />
-              </Button>
-              <Button
-                onClick={scrollRight}
-                className="bg-bg-state-ghost hover:bg-bg-state-ghost-hover! flex size-8 items-center justify-center rounded-md"
-              >
-                <ChevronRight className="text-icon-default-subtle size-5" />
-              </Button>
-            </div>
-          )}
-
-          <ul className="flex flex-col gap-3 px-4 py-6 pb-8 md:hidden">
-            {transformedStudents.map(student => {
-              if (activeFilter === "spreadsheet") {
-                return (
-                  <SpreadsheetMobileCard
-                    key={student.id}
-                    student={student}
-                    activeStudent={activeStudentId}
-                    setActiveStudent={setActiveStudentId}
-                    selectedTerm={termSelected?.term ?? ""}
-                  />
-                );
-              }
-              if (activeFilter === "promotion") {
-                return (
-                  <PromotionMobileCard key={student.id} student={student} activeStudent={activeStudentId} setActiveStudent={setActiveStudentId} />
-                );
-              }
-              return null;
-            })}
-          </ul>
-        </>
-      )}
-    </div>
+            <ul className="flex flex-col gap-3 px-4 py-6 pb-8 md:hidden">
+              {transformedStudents.map(student => {
+                if (activeFilter === "spreadsheet") {
+                  return (
+                    <SpreadsheetMobileCard
+                      key={student.id}
+                      student={student}
+                      activeStudent={activeStudentId}
+                      setActiveStudent={setActiveStudentId}
+                      selectedTerm={termSelected?.term ?? ""}
+                    />
+                  );
+                }
+                if (activeFilter === "promotion") {
+                  return (
+                    <PromotionMobileCard key={student.id} student={student} activeStudent={activeStudentId} setActiveStudent={setActiveStudentId} />
+                  );
+                }
+                return null;
+              })}
+            </ul>
+          </>
+        )}
+      </div>
+    </ClassPermissionWrapper>
   );
 };
