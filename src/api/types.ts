@@ -153,6 +153,8 @@ export interface Term {
   termId: number;
   term: string;
   isActiveTerm: boolean;
+  startDate: string;
+  endDate: string;
 }
 
 export interface Terms {
@@ -510,8 +512,6 @@ export interface UpdateAdmissionNumber {
   startingNumber: number;
   padding: number;
 }
-
-
 
 export interface UpdateGradingDefaultPayload {
   branchId: number;
