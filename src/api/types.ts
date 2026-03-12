@@ -311,3 +311,14 @@ export interface Level {
     },
   ];
 }
+
+export interface UpdateGradingDefaultPayload {
+  branchId: number;
+  levelIds: [];
+  gradingDtoList: {
+    grade: string;
+    upperLimit: number;
+    lowerLimit: number;
+    remark: string;
+  }[];
+}
