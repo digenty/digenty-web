@@ -1,4 +1,4 @@
-import { getClasses, getClassTeachersInClass, getTeacherClass, getClassReport, getClassCumulativeReport, requestEditAccess } from "@/api/class";
+import { getClasses, getClassTeachersInClass, getTeacherClass, getClassReport, getClassCumulativeReport, getClassLevels, requestEditAccess } from "@/api/class";
 import { classKeys } from "@/queries/class";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -46,5 +46,12 @@ export const useRequestEditAccess = () => {
   return useMutation({
     mutationKey: classKeys.requestEditAccess,
     mutationFn: requestEditAccess,
+    });
+};
+
+export const useGetClassLevel = () => {
+  return useQuery({
+    queryKey: classKeys.classLevel,
+    queryFn: getClassLevels,
   });
 };

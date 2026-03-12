@@ -16,7 +16,7 @@ export const getLevelGrading = async (levelId: number) => {
 
 export const addGradingDefault = async (payload: GradingDefaultPayload) => {
   try {
-    const { data } = await api.post("/grading/default", payload);
+    const { data } = await api.post("/gradings/school-default", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
@@ -28,7 +28,7 @@ export const addGradingDefault = async (payload: GradingDefaultPayload) => {
 
 export const addGrading = async (payload: GradingPayload) => {
   try {
-    const { data } = await api.post("/gradings", payload);
+    const { data } = await api.post("/gradings/branch-default", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

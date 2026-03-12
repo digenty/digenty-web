@@ -93,7 +93,7 @@ export const GradingAndAssessmentSheet = ({ onApplyToAll }: GradingAndAssessment
                           placeholder="20"
                           type="number"
                         />
-                        <span className="text-text-muted">%</span>
+                        <span className="text-text-muted w-7">%</span>
                       </div>
                       <Button type="button" onClick={() => removeAssessment(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit">
                         <DeleteBin2 fill="var(--color-icon-default-subtle)" />

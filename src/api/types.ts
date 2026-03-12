@@ -1,3 +1,4 @@
+import { LevelFormValues } from "@/components/AllSettings/AcademicSettings/GradingAndAssessmentSheet";
 import { AdmissionStatus, BoardingStatus, Gender, Relationship } from "@/types";
 
 export interface Branch {
@@ -346,7 +347,7 @@ export type SchoolStructurePayload = {
 
 export interface AssessmentDefaultPayload {
   branchId: number;
-  createAssessmentDtoLists: {
+  assessments: {
     name: string;
     weight: number;
     assessmentType: string;
@@ -356,7 +357,7 @@ export interface AssessmentDefaultPayload {
 export interface AssessmentPayload {
   branchId: number;
   levelId: number;
-  createAssessmentDtoList: {
+  assessments: {
     name: string;
     weight: number;
     assessmentType: string;
@@ -389,4 +390,80 @@ export interface AdmissionNumberPayload {
   numberFormat: string;
   startingNumber: number;
   padding: number;
+}
+
+export interface Level {
+  branchId: number;
+  branchName: string;
+  classLevels: [
+    {
+      ids: number;
+      levelName: string;
+      levelType: string;
+      classNamePrefix: string | undefined;
+      classStart: string | undefined;
+      classEnd: string | undefined;
+    },
+  ];
+}
+
+export interface ClassLevel {
+  ids: number[];
+  levelName: string;
+  levelType: string;
+}
+
+export interface BranchLevel {
+  branchId: number;
+  branchName: string;
+  classLevels: ClassLevel[];
+}
+
+export interface LevelTab {
+  label: string;
+  levelId: number;
+  levelType: string;
+}
+
+export interface LevelFormHandle {
+  submit: () => Promise<LevelSubmitResult | null | undefined>;
+  reset: (values: LevelFormValues) => void;
+}
+
+export interface LevelSubmitResult {
+  levelId: number;
+  values: LevelFormValues;
+}
+
+export interface AssessmentRow {
+  name: string;
+  weight: string;
+}
+export interface GradeRow {
+  grade: string;
+  upperLimit: string;
+  lowerLimit: string;
+  remark: string;
+}
+
+export interface BranchSubmitResult {
+  branchId: number;
+  levelResults: LevelSubmitResult[];
+}
+
+export interface BranchFormHandle {
+  submit: () => Promise<BranchSubmitResult | null>;
+  applyToAll: (values: LevelFormValues) => void;
+}
+
+export interface BranchFormPanelProps {
+  branchId: number;
+  isActive: boolean;
+  levelTabs: LevelTab[];
+}
+
+export interface LevelTabsContainerProps {
+  levelTabs: LevelTab[];
+  levelRefs: Record<number, React.RefObject<LevelFormHandle>>;
+  onApplyToAll: (values: LevelFormValues) => void;
 }

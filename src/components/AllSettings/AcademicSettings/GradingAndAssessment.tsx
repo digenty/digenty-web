@@ -15,64 +15,33 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { Label } from "@/components/ui/label";
 import BookOpen from "@/components/Icons/BookOpen";
 import School from "@/components/Icons/School";
-import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/Toast";
 import { useAddAssessmentDefault, useAddAssessment } from "@/hooks/queryHooks/useAssessment";
 import { useAddGradingDefault, useAddGrading } from "@/hooks/queryHooks/useGrading";
-import { Branch } from "@/api/types";
-
-// TODO: replace with real levelIds from API when ready
-const LEVEL_TABS = [
-  { label: "Nursery", levelId: 1 },
-  { label: "Primary", levelId: 2 },
-  { label: "Secondary", levelId: 3 },
-] as const;
+import {
+  AssessmentRow,
+  BranchFormHandle,
+  BranchFormPanelProps,
+  BranchLevel,
+  BranchSubmitResult,
+  GradeRow,
+  LevelFormHandle,
+  LevelSubmitResult,
+  LevelTab,
+  LevelTabsContainerProps,
+} from "@/api/types";
 
 export type GradingAndAssessmentHandle = {
   submit: () => Promise<boolean>;
 };
 
-type LevelFormHandle = {
-  submit: () => Promise<LevelSubmitResult | null | undefined>;
-  reset: (values: LevelFormValues) => void;
-};
-
-type LevelSubmitResult = {
-  levelId: number;
-  values: LevelFormValues;
-};
-
-type AssessmentRow = { name: string; weight: string };
-type GradeRow = { grade: string; upperLimit: string; lowerLimit: string; remark: string };
-
-type BranchSubmitResult = {
-  branchId: number;
-  levelResults: LevelSubmitResult[];
-};
-
-type BranchFormHandle = {
-  submit: () => Promise<BranchSubmitResult | null>;
-  applyToAll: (values: LevelFormValues) => void;
-};
-
-type BranchFormPanelProps = {
-  branchId: number;
-  isActive: boolean;
-};
 export type { LevelFormValues };
-type LevelTabsContainerProps = {
-  levelRefs: Record<number, React.RefObject<LevelFormHandle>>;
-  onApplyToAll: (values: LevelFormValues) => void;
-};
 
 const emptyAssessmentRow = (): AssessmentRow => ({ name: "", weight: "" });
 const emptyGradeRow = (): GradeRow => ({ grade: "", upperLimit: "", lowerLimit: "", remark: "" });
-
-const emptyFormValues = (): LevelFormValues => ({
-  assessments: [emptyAssessmentRow()],
-  grades: [emptyGradeRow()],
-});
+const emptyFormValues = (): LevelFormValues => ({ assessments: [emptyAssessmentRow()], grades: [emptyGradeRow()] });
 
 const getTotalWeight = (assessments: AssessmentRow[]) => assessments.reduce((sum, a) => sum + (parseFloat(a.weight) || 0), 0);
 
@@ -99,13 +68,8 @@ const AssessmentFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) =>
                 placeholder="Continuous Assessment 1"
               />
               <div className="bg-bg-input-soft flex h-9 w-17 items-center gap-1 rounded-md p-1">
-                <Input
-                  {...register(`assessments.${index}.weight`)}
-                  className="text-text-default h-7! w-full border-none bg-none! p-0"
-                  placeholder="20"
-                  type="number"
-                />
-                <span className="text-text-muted">%</span>
+                <Input {...register(`assessments.${index}.weight`)} className="text-text-default h-7! w-full border-none bg-none!" placeholder="20" />
+                <span className="text-text-muted w-3">%</span>
               </div>
               <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit">
                 <DeleteBin2 fill="var(--color-icon-default-subtle)" />
@@ -113,7 +77,6 @@ const AssessmentFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) =>
             </div>
           ))}
         </div>
-
         <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <Button type="button" className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm" onClick={() => append(emptyAssessmentRow())}>
             <AddFill fill="var(--color-icon-default-muted)" /> Add Continuous Assessment
@@ -137,7 +100,6 @@ const GradingFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) => {
     <div className="bg-bg-state-soft overflow-x-auto rounded-md p-2">
       <div className="text-text-default text-md px-4 py-2 font-semibold">Grading</div>
 
-      {/* Desktop */}
       <div className="bg-bg-card border-border-default hidden w-full rounded-md border px-5 py-6 md:block">
         <table className="w-full border-none">
           <thead>
@@ -159,7 +121,7 @@ const GradingFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) => {
                       {...register(`grades.${index}.grade`)}
                       type="text"
                       placeholder="A"
-                      className="text-text-default h-7! w-full border-none bg-transparent p-0"
+                      className="text-text-default h-7! w-full border-none bg-transparent"
                     />
                   </div>
                 </td>
@@ -169,7 +131,7 @@ const GradingFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) => {
                       {...register(`grades.${index}.lowerLimit`)}
                       type="number"
                       placeholder="70"
-                      className="text-text-default h-7! w-full border-none bg-transparent p-0"
+                      className="text-text-default h-7! w-full border-none bg-transparent"
                     />
                   </div>
                 </td>
@@ -180,7 +142,7 @@ const GradingFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) => {
                       {...register(`grades.${index}.upperLimit`)}
                       type="number"
                       placeholder="100"
-                      className="text-text-default h-7! w-full border-none bg-transparent p-0"
+                      className="text-text-default h-7! w-full border-none bg-transparent"
                     />
                   </div>
                 </td>
@@ -202,7 +164,6 @@ const GradingFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) => {
         </table>
       </div>
 
-      {/* Mobile */}
       <div className="flex flex-col gap-2 md:hidden">
         {fields.map((field, index) => (
           <div key={field.id} className="bg-bg-card border-border-default flex w-full flex-col gap-3 rounded-md border px-5 py-6">
@@ -255,10 +216,7 @@ const GradingFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) => {
   );
 };
 
-type LevelFormPanelProps = {
-  levelId: number;
-  isActive: boolean;
-};
+type LevelFormPanelProps = { levelId: number; isActive: boolean };
 
 const LevelFormPanel = forwardRef<LevelFormHandle, LevelFormPanelProps>(({ levelId, isActive }, ref) => {
   const form = useForm<LevelFormValues>({ defaultValues: emptyFormValues() });
@@ -271,13 +229,11 @@ const LevelFormPanel = forwardRef<LevelFormHandle, LevelFormPanelProps>(({ level
           resolve(null);
           return;
         }
-
         form.handleSubmit(
           filledValues => resolve({ levelId, values: filledValues }),
           () => resolve(undefined),
         )();
       }),
-
     reset: (values: LevelFormValues) => {
       form.reset(values);
     },
@@ -295,9 +251,11 @@ const LevelFormPanel = forwardRef<LevelFormHandle, LevelFormPanelProps>(({ level
 
 LevelFormPanel.displayName = "LevelFormPanel";
 
-const LevelTabsContainer = ({ levelRefs, onApplyToAll }: LevelTabsContainerProps) => {
+const LevelTabsContainer = ({ levelTabs, levelRefs, onApplyToAll }: LevelTabsContainerProps) => {
   const isMobile = useIsMobile();
   const [activeIndex, setActiveIndex] = React.useState(0);
+
+  if (levelTabs.length === 0) return null;
 
   return (
     <div className="w-full">
@@ -309,11 +267,11 @@ const LevelTabsContainer = ({ levelRefs, onApplyToAll }: LevelTabsContainerProps
           <Select value={String(activeIndex)} onValueChange={v => setActiveIndex(Number(v))}>
             <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-sm">
               <SelectValue>
-                <span className="text-text-default text-sm">{LEVEL_TABS[activeIndex].label}</span>
+                <span className="text-text-default text-sm">{levelTabs[activeIndex]?.label}</span>
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-bg-default border-border-default">
-              {LEVEL_TABS.map((tab, idx) => (
+              {levelTabs.map((tab, idx) => (
                 <SelectItem key={tab.levelId} value={String(idx)} className="text-text-default text-sm">
                   {tab.label}
                 </SelectItem>
@@ -324,7 +282,7 @@ const LevelTabsContainer = ({ levelRefs, onApplyToAll }: LevelTabsContainerProps
       ) : (
         <div className="flex w-full items-center justify-between">
           <div className="bg-bg-state-soft flex w-fit items-center gap-2.5 rounded-full p-0.5">
-            {LEVEL_TABS.map((tab, index) => {
+            {levelTabs.map((tab, index) => {
               const isActive = index === activeIndex;
               return (
                 <button
@@ -339,18 +297,11 @@ const LevelTabsContainer = ({ levelRefs, onApplyToAll }: LevelTabsContainerProps
                   )}
                 >
                   <span>{tab.label}</span>
-                  <span className="flex items-center">
-                    {isActive ? (
-                      <Loader2Fill fill="var(--color-icon-informative)" className="size-4" />
-                    ) : (
-                      <Loader2Fill fill="var(--color-icon-default-muted)" className="size-4" />
-                    )}
-                  </span>
+                  <Loader2Fill fill={isActive ? "var(--color-icon-informative)" : "var(--color-icon-default-muted)"} className="size-4" />
                 </button>
               );
             })}
           </div>
-
           <GradingAndAssessmentSheet onApplyToAll={onApplyToAll} />
         </div>
       )}
@@ -362,7 +313,7 @@ const LevelTabsContainer = ({ levelRefs, onApplyToAll }: LevelTabsContainerProps
       )}
 
       <div className="mt-8">
-        {LEVEL_TABS.map((tab, index) => (
+        {levelTabs.map((tab, index) => (
           <LevelFormPanel key={tab.levelId} ref={levelRefs[tab.levelId]} levelId={tab.levelId} isActive={activeIndex === index} />
         ))}
       </div>
@@ -370,21 +321,19 @@ const LevelTabsContainer = ({ levelRefs, onApplyToAll }: LevelTabsContainerProps
   );
 };
 
-const BranchFormPanel = forwardRef<BranchFormHandle, BranchFormPanelProps>(({ branchId, isActive }, ref) => {
+const BranchFormPanel = forwardRef<BranchFormHandle, BranchFormPanelProps>(({ branchId, isActive, levelTabs }, ref) => {
   const levelRefs = useRef<Record<number, React.RefObject<LevelFormHandle>>>(
-    Object.fromEntries(LEVEL_TABS.map(tab => [tab.levelId, React.createRef<LevelFormHandle>()])),
+    Object.fromEntries(levelTabs.map(tab => [tab.levelId, React.createRef<LevelFormHandle>()])),
   );
 
   const applyToAll = (values: LevelFormValues) => {
-    LEVEL_TABS.forEach(tab => levelRefs.current[tab.levelId].current?.reset(values));
+    levelTabs.forEach(tab => levelRefs.current[tab.levelId]?.current?.reset(values));
   };
 
   useImperativeHandle(ref, () => ({
     submit: async (): Promise<BranchSubmitResult | null> => {
-      const results = await Promise.all(LEVEL_TABS.map(tab => levelRefs.current[tab.levelId].current?.submit()));
-
+      const results = await Promise.all(levelTabs.map(tab => levelRefs.current[tab.levelId]?.current?.submit()));
       if (results.some(r => r === undefined)) return null;
-
       const filled = results.filter((r): r is LevelSubmitResult => r !== null && r !== undefined);
       return { branchId, levelResults: filled };
     },
@@ -393,7 +342,7 @@ const BranchFormPanel = forwardRef<BranchFormHandle, BranchFormPanelProps>(({ br
 
   return (
     <div className={isActive ? "block" : "hidden"}>
-      <LevelTabsContainer levelRefs={levelRefs.current} onApplyToAll={applyToAll} />
+      <LevelTabsContainer levelTabs={levelTabs} levelRefs={levelRefs.current} onApplyToAll={applyToAll} />
     </div>
   );
 });
@@ -403,12 +352,12 @@ BranchFormPanel.displayName = "BranchFormPanel";
 const BranchTabSwitch = ({
   activeTab,
   setActiveTab,
-  branches,
+  branchLevels,
   isLoading,
 }: {
   activeTab: string;
   setActiveTab: (t: string) => void;
-  branches: Branch[];
+  branchLevels: BranchLevel[];
   isLoading: boolean;
 }) => {
   const isMobile = useIsMobile();
@@ -424,13 +373,13 @@ const BranchTabSwitch = ({
         <Select value={activeTab} onValueChange={setActiveTab}>
           <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-sm">
             <SelectValue>
-              <span className="text-text-default text-sm">{branches.find(b => String(b.id) === activeTab)?.name ?? ""}</span>
+              <span className="text-text-default text-sm">{branchLevels.find(b => String(b.branchId) === activeTab)?.branchName ?? ""}</span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-bg-default border-border-default">
-            {branches.map(branch => (
-              <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm">
-                {branch.name}
+            {branchLevels.map(b => (
+              <SelectItem key={b.branchId} value={String(b.branchId)} className="text-text-default text-sm">
+                {b.branchName}
               </SelectItem>
             ))}
           </SelectContent>
@@ -441,20 +390,20 @@ const BranchTabSwitch = ({
 
   return (
     <div className="flex items-center gap-3">
-      {branches.map(branch => {
-        const isActive = activeTab === String(branch.id);
+      {branchLevels.map(b => {
+        const isActive = activeTab === String(b.branchId);
         return (
           <Button
-            key={branch.id}
+            key={b.branchId}
             type="button"
-            onClick={() => setActiveTab(String(branch.id))}
+            onClick={() => setActiveTab(String(b.branchId))}
             className={cn(
               "hover:bg-bg-none! cursor-pointer rounded-none py-2.5 transition-all duration-150",
               isActive && "border-border-informative border-b-[1.5px]",
             )}
           >
-            <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.name}</span>
-            {isActive ? <Loader2Fill fill="var(--color-icon-informative)" /> : <Loader2Fill fill="var(--color-icon-default-muted)" />}
+            <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{b.branchName}</span>
+            <Loader2Fill fill={isActive ? "var(--color-icon-informative)" : "var(--color-icon-default-muted)"} />
           </Button>
         );
       })}
@@ -466,16 +415,33 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
   const [activeTab, setActiveTab] = React.useState<string>("");
   const [forBranch, setForBranch] = React.useState(false);
 
-  const { data, isLoading } = useGetBranches();
-  const branches = data?.data?.content ?? [];
+  const { data: classLevelData, isLoading } = useGetClassLevel();
+  const branchLevels: BranchLevel[] = classLevelData?.data ?? [];
 
-  const defaultLevelRefs = useRef<Record<number, React.RefObject<LevelFormHandle>>>(
-    Object.fromEntries(LEVEL_TABS.map(tab => [tab.levelId, React.createRef<LevelFormHandle>()])),
-  );
+  const dedupedLevelTabs: LevelTab[] = React.useMemo(() => {
+    const seen = new Set<string>();
+    const tabs: LevelTab[] = [];
+    for (const b of branchLevels) {
+      for (const cl of b.classLevels) {
+        if (!seen.has(cl.levelType)) {
+          seen.add(cl.levelType);
+          tabs.push({ label: cl.levelName, levelId: cl.ids[0], levelType: cl.levelType });
+        }
+      }
+    }
+    return tabs;
+  }, [branchLevels]);
+
+  const defaultLevelRefs = useRef<Record<number, React.RefObject<LevelFormHandle>>>({});
+  dedupedLevelTabs.forEach(tab => {
+    if (!defaultLevelRefs.current[tab.levelId]) {
+      defaultLevelRefs.current[tab.levelId] = React.createRef<LevelFormHandle>();
+    }
+  });
 
   const branchPanelRefs = useRef<Record<string, React.RefObject<BranchFormHandle>>>({});
-  branches.forEach(branch => {
-    const key = String(branch.id);
+  branchLevels.forEach(b => {
+    const key = String(b.branchId);
     if (!branchPanelRefs.current[key]) {
       branchPanelRefs.current[key] = React.createRef<BranchFormHandle>();
     }
@@ -487,20 +453,21 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
   const { mutateAsync: submitGrading } = useAddGrading();
 
   const handleDefaultApplyToAll = (values: LevelFormValues) => {
-    LEVEL_TABS.forEach(tab => defaultLevelRefs.current[tab.levelId].current?.reset(values));
+    dedupedLevelTabs.forEach(tab => defaultLevelRefs.current[tab.levelId]?.current?.reset(values));
   };
 
   useEffect(() => {
-    if (branches.length > 0 && !activeTab) {
-      setActiveTab(String(branches[0].id));
+    if (branchLevels.length > 0 && !activeTab) {
+      setActiveTab(String(branchLevels[0].branchId));
     }
-  }, [branches, activeTab]);
+  }, [branchLevels, activeTab]);
 
   useImperativeHandle(ref, () => ({
     submit: async (): Promise<boolean> => {
       try {
         if (!forBranch) {
-          const results = await Promise.all(LEVEL_TABS.map(tab => defaultLevelRefs.current[tab.levelId].current?.submit()));
+          const results = await Promise.all(dedupedLevelTabs.map(tab => defaultLevelRefs.current[tab.levelId]?.current?.submit()));
+
           if (results.some(r => r === undefined)) {
             toast({
               title: "Please complete all fields",
@@ -527,18 +494,22 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
           }
 
           await Promise.all(
-            branches.flatMap(branch =>
-              filled.flatMap(({ values }) => [
+            filled.flatMap(({ levelId, values }) => {
+              const levelType = dedupedLevelTabs.find(t => t.levelId === levelId)?.levelType;
+              const targets = branchLevels.flatMap(b =>
+                b.classLevels.filter(cl => cl.levelType === levelType).map(cl => ({ branchId: b.branchId, levelId: cl.ids[0] })),
+              );
+              return targets.flatMap(({ branchId }) => [
                 submitAssessmentDefault({
-                  branchId: branch.id,
-                  createAssessmentDtoLists: values.assessments.map(a => ({
+                  branchId,
+                  assessments: values.assessments.map(a => ({
                     name: a.name,
                     weight: parseFloat(a.weight),
                     assessmentType: "CONTINUOUS_ASSESSMENT" as const,
                   })),
                 }),
                 submitGradingDefault({
-                  branchId: branch.id,
+                  branchId,
                   gradingDtoList: values.grades.map(g => ({
                     grade: g.grade,
                     upperLimit: parseFloat(g.upperLimit),
@@ -546,16 +517,16 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
                     remark: g.remark,
                   })),
                 }),
-              ]),
-            ),
+              ]);
+            }),
           );
         } else {
-          if (branches.length === 0) {
+          if (branchLevels.length === 0) {
             toast({ title: "No branches found", description: "Please add branches before setting up grading.", type: "error" });
             return false;
           }
 
-          const branchResults = await Promise.all(branches.map(branch => branchPanelRefs.current[String(branch.id)].current?.submit()));
+          const branchResults = await Promise.all(branchLevels.map(b => branchPanelRefs.current[String(b.branchId)]?.current?.submit()));
 
           if (branchResults.some(r => r === null || r === undefined)) {
             toast({ title: "Please complete all fields", description: "All branches must have at least one level completed.", type: "warning" });
@@ -575,7 +546,7 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
                 submitAssessment({
                   branchId,
                   levelId,
-                  createAssessmentDtoList: values.assessments.map(a => ({
+                  assessments: values.assessments.map(a => ({
                     name: a.name,
                     weight: parseFloat(a.weight),
                     assessmentType: "CONTINUOUS_ASSESSMENT" as const,
@@ -600,11 +571,7 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
         return true;
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
-        toast({
-          title: "Failed to save grading & assessment",
-          description: message,
-          type: "error",
-        });
+        toast({ title: "Failed to save grading & assessment", description: message, type: "error" });
         return false;
       }
     },
@@ -620,19 +587,25 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
         <Toggle checked={forBranch} onChange={e => setForBranch((e.target as HTMLInputElement).checked)} />
       </div>
 
-      {!forBranch && <LevelTabsContainer levelRefs={defaultLevelRefs.current} onApplyToAll={handleDefaultApplyToAll} />}
-      {forBranch && (
+      {isLoading && <Skeleton className="h-40 w-full" />}
+
+      {!isLoading && !forBranch && (
+        <LevelTabsContainer levelTabs={dedupedLevelTabs} levelRefs={defaultLevelRefs.current} onApplyToAll={handleDefaultApplyToAll} />
+      )}
+
+      {!isLoading && forBranch && (
         <>
           <div className="border-border-default mb-5 w-full border-b md:w-fit">
-            <BranchTabSwitch activeTab={activeTab} setActiveTab={setActiveTab} branches={branches} isLoading={isLoading} />
+            <BranchTabSwitch activeTab={activeTab} setActiveTab={setActiveTab} branchLevels={branchLevels} isLoading={isLoading} />
           </div>
 
-          {branches.map(branch => (
+          {branchLevels.map(b => (
             <BranchFormPanel
-              key={branch.id}
-              ref={branchPanelRefs.current[String(branch.id)]}
-              branchId={branch.id}
-              isActive={activeTab === String(branch.id)}
+              key={b.branchId}
+              ref={branchPanelRefs.current[String(b.branchId)]}
+              branchId={b.branchId}
+              isActive={activeTab === String(b.branchId)}
+              levelTabs={b.classLevels.map(cl => ({ label: cl.levelName, levelId: cl.ids[0], levelType: cl.levelType }))}
             />
           ))}
         </>

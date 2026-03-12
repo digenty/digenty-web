@@ -79,10 +79,10 @@ export const SchoolStructure = forwardRef<SchoolStructureHandle>((_, ref) => {
   const toggleExistingBranchLevel = (branchId: number, level: string) => {
     const current = branchLevels[branchId] ?? [];
     const updated = current.includes(level) ? current.filter(l => l !== level) : [...current, level];
-    setValue(`branchLevels.${branchId}`, updated);
+    setValue(`branchLevels.${branchId}` as `branchLevels.${number}`, updated);
   };
 
-  const updateNewBranch = (id: string, field: keyof NewBranchForm, value: any) => {
+  const updateNewBranch = (id: string, field: keyof NewBranchForm, value: string | string[] | boolean) => {
     setNewBranches(prev => prev.map(b => (b.id === id ? { ...b, [field]: value } : b)));
   };
 

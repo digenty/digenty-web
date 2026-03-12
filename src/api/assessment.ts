@@ -4,7 +4,7 @@ import { AssessmentDefaultPayload, AssessmentPayload } from "./types";
 
 export const addAssessmentDefault = async (payload: AssessmentDefaultPayload) => {
   try {
-    const { data } = await api.post("/assessments/default", payload);
+    const { data } = await api.post("/assessments/school-default", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
@@ -16,7 +16,7 @@ export const addAssessmentDefault = async (payload: AssessmentDefaultPayload) =>
 
 export const addAssessment = async (payload: AssessmentPayload) => {
   try {
-    const { data } = await api.post("/assessments", payload);
+    const { data } = await api.post("/assessments/branch-default", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
