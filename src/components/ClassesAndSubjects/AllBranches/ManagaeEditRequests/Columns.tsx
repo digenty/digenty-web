@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import GraduationCap from "@/components/Icons/GraduationCap";
 import { BranchEditRequestTypes } from "./types";
 import { formatRelativeDate } from "@/lib/utils";
+import { Message3 } from "@/components/Icons/Message3";
 
 const RenderOptions = ({
   row,
@@ -99,8 +100,8 @@ export const createManageEditTableColumns = (
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         <GraduationCap fill="var(--color-icon-default-muted)" className="size-4" />
-        <span className="text-text-default flex cursor-pointer items-center gap-1 text-sm font-normal">
-          {row.original.classArmName} {row.original.subjectName}
+        <span className="text-text-default flex cursor-pointer items-center gap-1 text-sm font-normal capitalize">
+          {row.original.classArmName} {row.original.subjectName ? row.original.subjectName.toLowerCase() : ""}
         </span>
       </div>
     ),
@@ -109,7 +110,15 @@ export const createManageEditTableColumns = (
   {
     accessorKey: "reason",
     header: () => <div className="text-text-muted text-sm font-medium">Reason</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.reason}</span>,
+    cell: ({ row }) => (
+      <div className="flex flex-col">
+        <span className="text-text-default w-40 cursor-pointer truncate text-sm font-medium">{row.original.reason}</span>
+        <div className="flex items-center gap-2">
+          <Message3 fill="var(--color-icon-default-muted)" className="size-4" />
+          <span className="text-text-muted w-40 cursor-pointer truncate text-xs font-normal">{row.original.additionalDetails || "None"}</span>
+        </div>
+      </div>
+    ),
     size: 32,
   },
   {

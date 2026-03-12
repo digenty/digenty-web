@@ -4,6 +4,7 @@ export interface BranchEditRequestTypes {
   classArmName: string;
   subjectName: string;
   reason: string;
+  additionalDetails: string;
   dateCreated: string;
   isApproved: boolean;
 }
