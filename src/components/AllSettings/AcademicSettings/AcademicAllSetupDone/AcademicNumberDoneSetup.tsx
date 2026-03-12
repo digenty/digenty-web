@@ -11,7 +11,7 @@ import { useGetAdmissionNumberDetails, useUpdateAdmissionNumber } from "@/hooks/
 import React, { useEffect, useState } from "react";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
-const DIGITS = [2, 3, 4, 5, 6, 7, 8, 9];
+const DIGITS = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 const buildPreview = (prefix: string, startingNumber: string, padding: string): string => {
   const seq = String(parseInt(startingNumber) || 1).padStart(Number(padding) || 2, "0");

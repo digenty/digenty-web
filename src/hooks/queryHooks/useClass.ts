@@ -75,7 +75,7 @@ export const useDeleteClass = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
-    });
+  });
 };
 
 export const useGetClassLevel = () => {

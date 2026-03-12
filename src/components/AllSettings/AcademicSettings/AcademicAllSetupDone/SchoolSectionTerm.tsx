@@ -33,7 +33,7 @@ const toDateString = (range: DateRange | undefined): string => (range?.from ? fo
 
 const ViewField = ({ label, value }: { label: string; value: string }) => (
   <div className="flex flex-col gap-1">
-    <Label className="text-text-muted text-xs">{label}</Label>
+    <Label className="text-text-default text-sm font-medium">{label}</Label>
     <div className="text-text-default bg-bg-input-soft rounded-md p-2 text-sm font-medium">{value || "—"}</div>
   </div>
 );

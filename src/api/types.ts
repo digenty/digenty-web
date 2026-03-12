@@ -588,3 +588,14 @@ export interface Levelsubject {
   branchId: number;
   schoolId: number;
 }
+
+export interface UpdateGradingDefaultPayload {
+  branchId: number;
+  levelIds: [];
+  gradingDtoList: {
+    grade: string;
+    upperLimit: number;
+    lowerLimit: number;
+    remark: string;
+  }[];
+}
