@@ -116,7 +116,8 @@ export const ClassTable = ({
                     <div className="flex items-center justify-between p-3">
                       <span className="text-text-muted text-sm font-medium">Status</span>
                       <Badge
-                        className={`capitalize ${item.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "REQUESTED_EDIT_ACCESS" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "PENDING_APPROVAL" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : null} border-border-default rounded-md border p-1 text-xs font-medium`}
+                        // className={`capitalize ${item.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "REQUESTED_EDIT_ACCESS" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "PENDING_APPROVAL" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : null} border-border-default rounded-md border p-1 text-xs font-medium`}
+                        className={`capitalize ${item.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "REQUESTED_EDIT_ACCESS" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} border-border-default rounded-md border p-1 text-xs font-medium`}
                       >
                         {item.status ? item.status.toLowerCase() : ""}
                       </Badge>
