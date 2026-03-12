@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { ClassReportProps } from "../types";
+import { ClassReportProps } from "../../types";
 import { Avatar } from "@/components/Avatar";
 
 export const ClassReportColumns: ColumnDef<ClassReportProps>[] = [

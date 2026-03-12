@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { ClassProps } from "../types";
-import { ClassTableColumns } from "../Column";
+
+import { ClassTableColumns } from "../../Column";
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontalIcon } from "lucide-react";
@@ -14,6 +14,7 @@ import { Notification } from "@/components/Icons/Notification";
 import { Key } from "@/components/Icons/Key";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { ClassProps } from "../../types";
 
 export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean; isLoading: boolean; classData: [] }) => {
   const [page, setPage] = useState(1);
@@ -103,7 +104,7 @@ export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean
                     <div className="flex items-center justify-between p-3">
                       <span className="text-text-muted text-sm font-medium">Status</span>
                       <Badge
-                        className={`capitalize ${item.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "EDIT_REQUEST" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "PENDING_APPROVAL" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : null} border-border-default rounded-md border p-1 text-xs font-medium`}
+                        className={`capitalize ${item.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "REQUESTED_EDIT_ACCESS" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "PENDING_APPROVAL" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : null} border-border-default rounded-md border p-1 text-xs font-medium`}
                       >
                         {item.status ? item.status.toLowerCase() : ""}
                       </Badge>

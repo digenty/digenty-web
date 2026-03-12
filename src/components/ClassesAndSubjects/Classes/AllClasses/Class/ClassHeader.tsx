@@ -1,19 +1,19 @@
 "use client";
 
 import { Avatar } from "@/components/Avatar";
+import FileList2 from "@/components/Icons/FileList2";
 import { Key } from "@/components/Icons/Key";
 import { Notification } from "@/components/Icons/Notification";
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
-import { EditModal, NotifyTeacherModal } from "../AllClasses/AllClassesModal";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
-import { MoreHorizontalIcon } from "lucide-react";
-import FileList2 from "@/components/Icons/FileList2";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
+import { MoreHorizontalIcon } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { EditModal, NotifyTeacherModal } from "../AllClassesModal";
 
-export const ClassHeader = ({ isLoading, classData }: { isLoading: boolean; classData: [] }) => {
+export const ClassHeader = ({ isLoading, classData, armId, classId }: { isLoading: boolean; classData: []; armId: string; classId: string }) => {
   const router = useRouter();
   const params = useSearchParams();
   const classArmName = params.get("classArmName") || "";
@@ -67,10 +67,9 @@ export const ClassHeader = ({ isLoading, classData }: { isLoading: boolean; clas
               <Skeleton className="bg-bg-input-soft h-8 w-40" />
             ) : (
               <Button
-                onClick={() => router.push("/classes-and-subjects/classes/1/class-report")}
+                onClick={() => router.push(`/classes-and-subjects/all-classes/${classId}/arm/${armId}/class-report?classArmName=${classArmName}`)}
                 className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-32.5"
               >
-                {" "}
                 <FileList2 fill="var(--color-icon-default-muted)" /> Class Report
               </Button>
             )}

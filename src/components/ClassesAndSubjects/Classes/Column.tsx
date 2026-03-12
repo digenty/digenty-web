@@ -1,19 +1,19 @@
 "use client ";
 
-import { ColumnDef, Row } from "@tanstack/react-table";
-import { AllClassesMainTableProps, ClassProps } from "./types";
-import { DropdownMenuSeparator, DropdownMenu, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuContent } from "@/components/ui/dropdown-menu";
-import { MoreHorizontalIcon } from "lucide-react";
-import { useState } from "react";
-import Eye from "@/components/Icons/Eye";
-import { Badge } from "@/components/ui/badge";
-import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
 import { Avatar } from "@/components/Avatar";
-import { Key } from "@/components/Icons/Key";
-import { useRouter } from "next/navigation";
-import { Notification } from "@/components/Icons/Notification";
-import { Button } from "@/components/ui/button";
 import { CheckboxCircle } from "@/components/Icons/CheckboxCircle";
+import Eye from "@/components/Icons/Eye";
+import { Key } from "@/components/Icons/Key";
+import { Notification } from "@/components/Icons/Notification";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { MoreHorizontalIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
+import { AllClassesMainTableProps, ClassProps } from "./types";
 
 const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
   const router = useRouter();

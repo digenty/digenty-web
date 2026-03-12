@@ -1,4 +1,4 @@
-import ClassReport from "@/components/ClassesAndSubjects/Classes/ClassReports";
+import ClassReport from "@/components/ClassesAndSubjects/Classes/AllClasses/AdminClassReport";
 
 const page = () => {
   return (
