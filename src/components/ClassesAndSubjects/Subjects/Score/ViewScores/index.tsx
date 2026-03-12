@@ -6,6 +6,7 @@ import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import Calendar from "@/components/Icons/Calendar";
 import Question from "@/components/Icons/Question";
 import ShareBox from "@/components/Icons/ShareBox";
+import { MobileDrawer } from "@/components/MobileDrawer";
 import { ScoreType } from "@/components/ScoreViewBySubject/types";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
@@ -14,13 +15,14 @@ import { useViewScore } from "@/hooks/queryHooks/useScore";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { exportToCSV } from "@/lib/export-utils";
+import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import RequestEdit from "../../RequestEdit";
+import { SubjectReportPermissionWrapper } from "../../SubjectReportPermissionWrapper";
 import { viewScoreColumns } from "./Columns";
 import { MobileCard } from "./MobileCard";
-import RequestEdit from "../../RequestEdit";
-import { exportToCSV } from "@/lib/export-utils";
-import { SubjectReportPermissionWrapper } from "../../SubjectReportPermissionWrapper";
 
 export type StudentResult = {
   studentId: number;
@@ -48,6 +50,7 @@ export const ViewScore = () => {
   const [termSelected, setTermSelected] = useState<Term | null>();
   const [activeSession, setActiveSession] = useState<string | null>();
   const [openRequest, setOpenRequest] = useState<boolean>(false);
+  const [termFilterOpen, setTermFilterOpen] = useState<boolean>(false);
 
   const pageSize = 15;
 
@@ -110,42 +113,70 @@ export const ViewScore = () => {
   };
 
   return (
-    <SubjectReportPermissionWrapper subjectId={Number(subjectId)} isLoading={isLoadingScores}>
+    <SubjectReportPermissionWrapper subjectId={Number(subjectId)} isLoading={isLoadingScores} type="view">
       {openRequest && (
         <RequestEdit open={openRequest} onOpenChange={setOpenRequest} armId={Number(armId)} subjectId={Number(subjectId)} classId={Number(classId)} />
       )}
       <>
         <div className="border-border-default border-b md:p-0">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
-            <div className="flex items-center gap-3">
-              <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">
+            <div className="md:justify-auto flex items-center justify-between gap-3">
+              <h2 className="text-text-default w-60 truncate px-4 py-2 text-base font-semibold md:w-fit md:p-0 md:text-lg">
                 {classArmName}, <span className="capitalize">{subjectName?.toLowerCase()}</span>
               </h2>
 
-              {!terms || isLoadingTerm ? (
-                <Skeleton className="bg-bg-input-soft h-8 w-41" />
-              ) : (
-                <Select
-                  onValueChange={value => {
-                    const term = terms.data.terms?.find((term: Term) => term.termId === Number(value));
-                    setTermSelected(term);
-                  }}
-                >
-                  <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
-                    <Calendar fill="var(--color-icon-default-muted )" className="size-4" />
-                    <span className="text-text-default text-sm font-medium capitalize">
-                      {activeSession} {termSelected?.term.toLowerCase()}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent className="bg-bg-card border-border-default">
-                    {terms.data.terms.map((term: Term) => (
-                      <SelectItem key={term.termId} value={String(term.termId)} className="text-text-default text-sm font-medium capitalize">
-                        {activeSession} {term.term.toLowerCase()}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+              <div className="pr-4">
+                <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setTermFilterOpen(true)}>
+                  <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+                </Button>
+                {!terms || isLoadingTerm ? (
+                  <Skeleton className="bg-bg-input-soft h-8 w-41" />
+                ) : (
+                  <Select
+                    onValueChange={value => {
+                      const term = terms.data.terms?.find((term: Term) => term.termId === Number(value));
+                      setTermSelected(term);
+                    }}
+                  >
+                    <SelectTrigger className="border-border-darker hidden h-8! w-fit border focus-visible:ring-0 md:flex">
+                      <Calendar fill="var(--color-icon-default-muted )" className="size-4" />
+                      <span className="text-text-default text-sm font-medium capitalize">
+                        {activeSession} {termSelected?.term.toLowerCase()}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-bg-card border-border-default">
+                      {terms.data.terms.map((term: Term) => (
+                        <SelectItem key={term.termId} value={String(term.termId)} className="text-text-default text-sm font-medium capitalize">
+                          {activeSession} {term.term.toLowerCase()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+
+                <MobileDrawer open={termFilterOpen} setIsOpen={setTermFilterOpen} title="Select Term">
+                  <div className="flex w-full flex-col gap-4 px-4 py-4">
+                    {!terms || isLoadingTerm ? (
+                      <Skeleton className="bg-bg-input-soft h-8 w-41" />
+                    ) : (
+                      <div className="bg-bg-card border-border-default flex flex-col items-start">
+                        {terms.data.terms.map((term: Term) => (
+                          <Button
+                            key={term.termId}
+                            onClick={() => {
+                              setTermSelected(term);
+                              setTermFilterOpen(false);
+                            }}
+                            className="text-text-default pl-0 text-sm font-medium capitalize"
+                          >
+                            {activeSession} {term.term.toLowerCase()}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </MobileDrawer>
+              </div>
             </div>
 
             <div className="border-border-default overflow-x-auto border-t px-4 py-2 md:border-none md:p-0">
@@ -159,14 +190,16 @@ export const ViewScore = () => {
                   <ShareBox fill="var(--color-icon-default-muted)" /> Export
                 </Button>
 
-                <Button
-                  disabled={isError || isLoadingScores || studentsScores.length === 0}
-                  onClick={() => setOpenRequest(true)}
-                  size="sm"
-                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm"
-                >
-                  <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
-                </Button>
+                {user && !user.isMain && (
+                  <Button
+                    disabled={isError || isLoadingScores || studentsScores.length === 0}
+                    onClick={() => setOpenRequest(true)}
+                    size="sm"
+                    className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm"
+                  >
+                    <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
+                  </Button>
+                )}
               </div>
             </div>
           </div>

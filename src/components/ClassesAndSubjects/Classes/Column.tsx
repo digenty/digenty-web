@@ -59,7 +59,7 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
   );
 };
 
-const RenderActions = (row: Row<ClassProps>) => {
+const RenderActions = (row: Row<ClassProps>, armId: number, classId: number, classArmName: string) => {
   const router = useRouter();
   const [openNotifyMobile, setOpenNotifyMobile] = useState(false);
   const [openEditMobile, setOpenEditMobile] = useState(false);
@@ -84,7 +84,11 @@ const RenderActions = (row: Row<ClassProps>) => {
           Notify Teacher
         </Button>
         <Button
-          onClick={() => router.push(`/classes-and-subjects/all-classes/class-report`)}
+          onClick={() =>
+            router.push(
+              `/classes-and-subjects/subjects/${row.original.subjectId}/classes/${classId}/arms/${armId}/view-score?classArmName=${classArmName.replaceAll(" ", "-")}&subjectName=${row.original.subjectName.replaceAll(" ", "-")}`,
+            )
+          }
           className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
         >
           <Eye fill="var(--color-icon-default-muted)" /> View
@@ -157,7 +161,7 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
 ];
 
 //  Table for Class
-export const ClassTableColumns: ColumnDef<ClassProps>[] = [
+export const ClassTableColumns = (armId: number, classId: number, classArmName: string): ColumnDef<ClassProps>[] => [
   {
     accessorKey: "subject",
     header: () => <div className="text-text-muted text-sm font-medium">Subject</div>,
@@ -205,6 +209,6 @@ export const ClassTableColumns: ColumnDef<ClassProps>[] = [
   {
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
-    cell: ({ row }) => RenderActions(row),
+    cell: ({ row }) => RenderActions(row, armId, classId, classArmName),
   },
 ];

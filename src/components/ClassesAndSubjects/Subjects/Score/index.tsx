@@ -116,7 +116,7 @@ export default function Score() {
   };
 
   return (
-    <SubjectReportPermissionWrapper subjectId={Number(subjectId)} isLoading={isLoading}>
+    <SubjectReportPermissionWrapper subjectId={Number(subjectId)} isLoading={isLoading} type="edit">
       <div className="flex w-full flex-col gap-5">
         <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} onExport={handleExport} />
         {!isLoading && isError && !studentsItem && (

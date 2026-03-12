@@ -64,6 +64,7 @@ interface User {
   email: string;
   name: string;
   subjectIds: number[];
+  isMain: boolean;
 }
 
 export type JWTPayload = JwtPayload & User;

@@ -1,28 +1,40 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 
-import { ClassTableColumns } from "../../Column";
+import { Avatar } from "@/components/Avatar";
 import { DataTable } from "@/components/DataTable";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import Eye from "@/components/Icons/Eye";
+import { Key } from "@/components/Icons/Key";
+import { Notification } from "@/components/Icons/Notification";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontalIcon } from "lucide-react";
-import { MobileDrawer } from "@/components/MobileDrawer";
-import Eye from "@/components/Icons/Eye";
-import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/Avatar";
-import { Notification } from "@/components/Icons/Notification";
-import { Key } from "@/components/Icons/Key";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { ClassTableColumns } from "../../Column";
 import { ClassProps } from "../../types";
 
-export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean; isLoading: boolean; classData: [] }) => {
+export const ClassTable = ({
+  classData,
+  isLoading,
+  isError,
+  classId,
+  armId,
+  classArmName,
+}: {
+  isError: boolean;
+  isLoading: boolean;
+  classData: [];
+  classId: number;
+  armId: number;
+  classArmName: string;
+}) => {
   const [page, setPage] = useState(1);
   const [action, setAction] = useState(false);
 
   return (
     <div className="px-4 py-3 md:px-8">
-      {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
       {isError && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent
@@ -44,7 +56,7 @@ export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean
           <div className="hidden md:block">
             <DataTable
               pageSize={10}
-              columns={ClassTableColumns}
+              columns={ClassTableColumns(armId, classId, classArmName)}
               data={classData}
               totalCount={classData.length}
               page={page}
