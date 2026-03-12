@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/Toast";
 import { useGetAdmissionNumberDetails, useUpdateAdmissionNumber } from "@/hooks/queryHooks/useAdmisssion";
 import React, { useEffect, useState } from "react";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 const DIGITS = [2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -95,8 +96,22 @@ export const AdmissionNumberSetupDone = () => {
           <div className="mb-5 flex w-full items-start justify-between">
             <div className="text-text-default text-xl font-semibold">Admission Number</div>
 
-            {isLoading && <Skeleton className="bg-bg-input-soft h-7 w-20" />}
-            {isError && ""}
+            {isLoading && (
+              <div className="flex flex-col gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="bg-bg-input-soft h-15 w-full" />
+                ))}
+              </div>
+            )}
+            {isError && (
+              <div className="flex h-80 items-center justify-center">
+                <ErrorComponent
+                  title="Could not get Admission Numbers"
+                  description="This is our problem, we are looking into it so as to serve you better"
+                  buttonText="Go to the Home page"
+                />
+              </div>
+            )}
             {!isLoading && !isError && (
               <>
                 {" "}
@@ -113,13 +128,7 @@ export const AdmissionNumberSetupDone = () => {
             )}
           </div>
 
-          {isLoading ? (
-            <div className="flex flex-col gap-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="bg-bg-input-soft h-12 w-full" />
-              ))}
-            </div>
-          ) : (
+          {!isLoading && !isError && (
             <>
               <div className="flex flex-col gap-2">
                 <Label className="text-text-default text-sm font-medium">Admission Number Prefix</Label>
