@@ -129,6 +129,8 @@ export interface Term {
   termId: number;
   term: string;
   isActiveTerm: boolean;
+  startDate: string;
+  endDate: string;
 }
 
 export interface Terms {
@@ -266,6 +268,7 @@ export interface BranchArmReportResponse {
 
 export interface UpdateAcademicPayload {
   name: string;
+  currentTerm: string;
   firstTermStartDate: string;
   firstTermEndDate: string;
   secondTermStartDate: string;
@@ -279,6 +282,7 @@ export interface AcademicSession {
   name: string;
   isActive: boolean;
   schoolId: number;
+  currentTerm: string;
   firstTermStartDate?: string;
   firstTermEndDate?: string;
   secondTermStartDate?: string;
@@ -292,4 +296,18 @@ export interface UpdateAdmissionNumber {
   numberFormat: string;
   startingNumber: number;
   padding: number;
+}
+export interface Level {
+  branchId: number;
+  branchName: string;
+  classLevels: [
+    {
+      ids: number;
+      levelName: string;
+      levelType: string;
+      classNamePrefix: string | undefined;
+      classStart: string | undefined;
+      classEnd: string | undefined;
+    },
+  ];
 }

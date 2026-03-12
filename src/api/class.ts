@@ -86,3 +86,15 @@ export const getStudentClassReport = async (studentId: number, armId: number) =>
     throw error;
   }
 };
+
+export const getClassLevels = async () => {
+  try {
+    const { data } = await api.get(`/class-levels/names?`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
+    throw error;
+  }
+};

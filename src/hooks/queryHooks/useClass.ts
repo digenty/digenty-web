@@ -1,4 +1,4 @@
-import { getClasses, getClassTeachersInClass, getTeacherClass, getClassReport, getClassCumulativeReport } from "@/api/class";
+import { getClasses, getClassTeachersInClass, getTeacherClass, getClassReport, getClassCumulativeReport, getClassLevels } from "@/api/class";
 import { classKeys } from "@/queries/class";
 import { useQuery } from "@tanstack/react-query";
 
@@ -39,5 +39,12 @@ export const useGetClassCumulativeReport = (armId?: number, filter?: string) => 
     queryKey: classKeys.classCumulativeReport(armId),
     queryFn: () => getClassCumulativeReport(armId),
     enabled: !!armId && filter === "promotion",
+  });
+};
+
+export const useGetClassLevel = () => {
+  return useQuery({
+    queryKey: classKeys.classLevel,
+    queryFn: getClassLevels,
   });
 };

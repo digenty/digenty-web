@@ -1,6 +1,6 @@
 "use client";
 
-import { AcademicSession, Branch, Term } from "@/api/types";
+import { AcademicSession, Level, Term } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Button } from "@/components/ui/button";
@@ -8,16 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetAcademic, useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
+import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { toast } from "@/components/Toast";
+import { getAcademicYears } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { Edit2 } from "lucide-react";
-import { useGetAcademic, useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
 
 const toDateRange = (dateStr: string | undefined): DateRange | undefined => {
   if (!dateStr) return undefined;
@@ -41,56 +41,104 @@ const ViewField = ({ label, value }: { label: string; value: string }) => (
 export const SchoolSectionAndTerm = () => {
   const user = useLoggedInUser();
   const schoolId = user?.schoolId;
+
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [term, setTerm] = useState("");
+  const [sessionName, setSessionName] = useState("");
+  const [currentTerm, setCurrentTerm] = useState("");
   const [firstTermStart, setFirstTermStart] = useState<DateRange | undefined>();
   const [firstTermEnd, setFirstTermEnd] = useState<DateRange | undefined>();
   const [secondTermStart, setSecondTermStart] = useState<DateRange | undefined>();
   const [secondTermEnd, setSecondTermEnd] = useState<DateRange | undefined>();
   const [thirdTermStart, setThirdTermStart] = useState<DateRange | undefined>();
   const [thirdTermEnd, setThirdTermEnd] = useState<DateRange | undefined>();
+
   const { data: academicResponse, isLoading: isLoadingAcademic } = useGetAcademic();
   const { data: termList } = useGetTerms(schoolId);
-  const { data: branchData, isLoading: isLoadingBranch, isError: isBranchError } = useGetBranches();
+  const { data: levelsData, isLoading: isLoadingLevels, isError: isLevelError } = useGetClassLevel();
   const { mutateAsync: updateAcademic } = useUpdateAcademic();
+
   const session: AcademicSession | undefined = academicResponse?.data?.[0];
   const terms: Term[] = termList?.data?.terms ?? [];
-  const branches = branchData?.data?.content ?? [];
+  const levels = levelsData?.data ?? [];
+
+  const findTerm = (name: string) => terms.find(t => t.term === name);
 
   useEffect(() => {
     if (!session) return;
-    setTerm(session.name ?? "");
-    setFirstTermStart(toDateRange(session.firstTermStartDate));
-    setFirstTermEnd(toDateRange(session.firstTermEndDate));
-    setSecondTermStart(toDateRange(session.secondTermStartDate));
-    setSecondTermEnd(toDateRange(session.secondTermEndDate));
-    setThirdTermStart(toDateRange(session.thirdTermStartDate));
-    setThirdTermEnd(toDateRange(session.thirdTermEndDate));
+    setSessionName(session.name ?? "");
+    setCurrentTerm(session.currentTerm ?? "");
   }, [session]);
+
+  useEffect(() => {
+    if (!terms.length) return;
+    const first = findTerm("FIRST");
+    const second = findTerm("SECOND");
+    const third = findTerm("THIRD");
+    if (first) {
+      setFirstTermStart(toDateRange(first.startDate));
+      setFirstTermEnd(toDateRange(first.endDate));
+    }
+    if (second) {
+      setSecondTermStart(toDateRange(second.startDate));
+      setSecondTermEnd(toDateRange(second.endDate));
+    }
+    if (third) {
+      setThirdTermStart(toDateRange(third.startDate));
+      setThirdTermEnd(toDateRange(third.endDate));
+    }
+  }, [terms]);
+
+  const handleTermChange = (selected: string) => {
+    setCurrentTerm(selected);
+    const matched = findTerm(selected);
+    if (!matched) return;
+    if (selected === "FIRST") {
+      setFirstTermStart(toDateRange(matched.startDate));
+      setFirstTermEnd(toDateRange(matched.endDate));
+    } else if (selected === "SECOND") {
+      setSecondTermStart(toDateRange(matched.startDate));
+      setSecondTermEnd(toDateRange(matched.endDate));
+    } else if (selected === "THIRD") {
+      setThirdTermStart(toDateRange(matched.startDate));
+      setThirdTermEnd(toDateRange(matched.endDate));
+    }
+  };
 
   const handleEdit = () => setIsEditing(true);
 
   const handleCancel = () => {
     if (session) {
-      setTerm(session.name ?? "");
-      setFirstTermStart(toDateRange(session.firstTermStartDate));
-      setFirstTermEnd(toDateRange(session.firstTermEndDate));
-      setSecondTermStart(toDateRange(session.secondTermStartDate));
-      setSecondTermEnd(toDateRange(session.secondTermEndDate));
-      setThirdTermStart(toDateRange(session.thirdTermStartDate));
-      setThirdTermEnd(toDateRange(session.thirdTermEndDate));
+      setSessionName(session.name ?? "");
+      setCurrentTerm(session.currentTerm ?? "");
+    }
+    const first = findTerm("FIRST");
+    const second = findTerm("SECOND");
+    const third = findTerm("THIRD");
+    if (first) {
+      setFirstTermStart(toDateRange(first.startDate));
+      setFirstTermEnd(toDateRange(first.endDate));
+    }
+    if (second) {
+      setSecondTermStart(toDateRange(second.startDate));
+      setSecondTermEnd(toDateRange(second.endDate));
+    }
+    if (third) {
+      setThirdTermStart(toDateRange(third.startDate));
+      setThirdTermEnd(toDateRange(third.endDate));
     }
     setIsEditing(false);
   };
 
   const handleSave = async () => {
     if (!session?.id) return;
+
     setIsSaving(true);
     try {
       await updateAcademic({
         payload: {
-          name: term,
+          name: sessionName,
+          currentTerm: currentTerm,
           firstTermStartDate: toDateString(firstTermStart),
           firstTermEndDate: toDateString(firstTermEnd),
           secondTermStartDate: toDateString(secondTermStart),
@@ -107,7 +155,7 @@ export const SchoolSectionAndTerm = () => {
       const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
 
       toast({
-        title: "Failed to update session",
+        title: "Failed to update",
         description: message,
         type: "error",
       });
@@ -120,19 +168,17 @@ export const SchoolSectionAndTerm = () => {
     <div className="">
       <div className="mx-auto flex w-full flex-col gap-4 md:w-150 md:px-4">
         <div className="flex items-center justify-between">
-          <div className="text-text-default text-xl font-semibold">School, Session & Term</div>
+          <div className="text-text-default text-lg font-semibold">Academic Session & Term</div>
           {!isEditing && (
             <Button
               type="button"
               onClick={handleEdit}
-              className="bg-bg-state-secondary border-border-default text-text-default flex items-center gap-1.5 rounded-md border text-sm"
+              className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle border-border-darker flex h-7 items-center gap-1.5 border text-sm"
             >
               <Edit2 className="h-3.5 w-3.5" /> Edit
             </Button>
           )}
         </div>
-
-        <div className="text-text-default text-lg font-semibold">Academic Session & Term</div>
 
         {isLoadingAcademic ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -144,9 +190,26 @@ export const SchoolSectionAndTerm = () => {
           <div className="border-border-default grid w-full grid-cols-1 items-start gap-6 border-b pb-6 md:grid-cols-2">
             <div className="flex flex-col gap-2">
               <Label className="text-text-default text-sm font-medium">Academic Session</Label>
-              <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm font-medium">
-                {session?.name || "—"}
-              </div>
+              {isEditing ? (
+                <Select value={sessionName} onValueChange={setSessionName}>
+                  <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
+                    <SelectValue>
+                      <span className="text-text-default text-sm font-medium">{sessionName || "Select session"}</span>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-card border-border-default">
+                    {getAcademicYears().map(year => (
+                      <SelectItem key={year} value={year} className="text-text-default text-sm font-medium">
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm font-medium">
+                  {sessionName || "—"}
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -154,10 +217,10 @@ export const SchoolSectionAndTerm = () => {
                 Current Term <span className="text-text-destructive">*</span>
               </Label>
               {isEditing ? (
-                <Select value={term} onValueChange={setTerm}>
+                <Select value={currentTerm} onValueChange={handleTermChange}>
                   <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
                     <SelectValue>
-                      <span className="text-text-default text-sm font-medium">{term || "Select term"}</span>
+                      <span className="text-text-default text-sm font-medium">{currentTerm || "Select term"}</span>
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
@@ -169,7 +232,9 @@ export const SchoolSectionAndTerm = () => {
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm font-medium">{term || "—"}</div>
+                <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm font-medium">
+                  {currentTerm || "—"}
+                </div>
               )}
             </div>
 
@@ -225,9 +290,9 @@ export const SchoolSectionAndTerm = () => {
           </div>
         )}
 
-        {isLoadingBranch && <Skeleton className="bg-bg-input-soft h-50 w-full" />}
+        {isLoadingLevels && <Skeleton className="bg-bg-input-soft h-50 w-full" />}
 
-        {isBranchError && (
+        {isLevelError && (
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent
               title="Could not get Branch"
@@ -238,34 +303,35 @@ export const SchoolSectionAndTerm = () => {
           </div>
         )}
 
-        {!isLoadingBranch && !isBranchError && branches.length === 0 && (
+        {!isLoadingLevels && !isLevelError && levels.length === 0 && (
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent title="No Branch" description="No Branch has been added yet" buttonText="Add a branch" url="/settings/general" />
           </div>
         )}
 
-        {!isLoadingBranch && !isBranchError && branches.length > 0 && (
+        <div className="text-text-default text-lg font-semibold">Branches & Levels</div>
+
+        {!isLoadingLevels && !isLevelError && levels.length > 0 && (
           <div className="flex flex-col gap-6">
-            {branches.map((branch: Branch, index: number) => (
-              <div key={branch.id} className="bg-bg-state-soft rounded-md p-1">
+            {levels.map((level: Level, index: number) => (
+              <div key={level.branchId} className="bg-bg-state-soft rounded-md p-1">
                 <div className="flex items-center justify-between px-5 py-2">
                   <Badge className="bg-bg-badge-default! text-text-subtle rounded-md">Branch {index + 1}</Badge>
                 </div>
                 <div className="bg-bg-card flex flex-col gap-4 rounded-md px-5 py-6">
                   <div className="flex flex-col gap-2">
                     <Label className="text-text-default text-sm font-medium">Branch Name</Label>
-                    <Input className="bg-bg-input-soft! text-text-muted rounded-md border-none" value={String(branch.name)} readOnly />
+                    <div className="bg-bg-input-soft! text-text-muted rounded-md border-none p-2">{level.branchName}</div>
                   </div>
                   <div className="border-border-darker rounded-md border p-3">
                     <div className="text-text-default mb-3 text-sm font-medium">Levels</div>
                     <div className="flex flex-wrap gap-3">
-                      {["Creche", "Kindergarten", "Nursery", "Primary", "Secondary"].map(level => (
+                      {level.classLevels.map(lvl => (
                         <div
-                          key={level}
+                          key={lvl.ids}
                           className="bg-bg-card text-text-default border-border-darker flex h-8 items-center gap-3 rounded-md border p-2.5 text-sm shadow-xs md:h-9"
                         >
-                          {/* <Checkbox checked={branch.levels?.includes(level.toUpperCase())} disabled /> */}
-                          {level}
+                          {lvl.levelName}
                         </div>
                       ))}
                     </div>
