@@ -189,7 +189,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
                 {arms.data.content.length === 0 && (
-                  <SelectItem className="text-text-default" value="none">
+                  <SelectItem disabled className="text-text-default" value="none">
                     No Arms Found
                   </SelectItem>
                 )}

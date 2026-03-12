@@ -8,13 +8,15 @@ import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import { ScoreType, SubmitScorePayload } from "@/components/ScoreViewBySubject/types";
 import { toast } from "@/components/Toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetGradingsForClass } from "@/hooks/queryHooks/useGrading";
+import { useGetGradingsForLevel } from "@/hooks/queryHooks/useGrading";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
 import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { exportToCSV } from "@/lib/export-utils";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { SubjectReportPermissionWrapper } from "../SubjectReportPermissionWrapper";
 import ScoresHeader from "./ScoresHeader";
-import { exportToCSV } from "@/lib/export-utils";
 
 export default function Score() {
   useBreadcrumb([
@@ -30,11 +32,12 @@ export default function Score() {
 
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
-  const { data: StudentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
-  const { data: classGrading } = useGetGradingsForClass(Number(classId));
+  const { data: studentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
+  const { data: classGrading } = useGetGradingsForLevel(Number(classId));
   const { mutate, isPending: isSubmitting } = useAddScore();
+  const user = useLoggedInUser();
 
-  const studentsData = StudentsItem?.data?.data?.content ?? [];
+  const studentsData = studentsItem?.data?.data?.content ?? [];
   const assessmentHeader = Object.values((studentsData[0]?.assessmentScores ?? {}) as Record<string, Assessment>).map((assessment: Assessment) => ({
     assessmentId: assessment.assessmentId,
     assessmentName: assessment.assessmentName,
@@ -43,7 +46,7 @@ export default function Score() {
   }));
   const gradings = classGrading?.data ?? [];
 
-  const handleSubmit = (status: "SUBMITTED" | "IN_PROGRESS") => {
+  const handleSubmit = (status: "SUBMITTED" | "IN_PROGRESS", closeModal: (bool: boolean) => void) => {
     const payload: SubmitScorePayload = {
       subjectId: Number(subjectId),
       armId: Number(armId),
@@ -66,6 +69,7 @@ export default function Score() {
           description: `Scores ${status === "SUBMITTED" ? "submitted" : "saved as draft"} successfully`,
           type: "success",
         });
+        closeModal(false);
       },
       onError: () => {
         toast({
@@ -73,6 +77,7 @@ export default function Score() {
           description: `Failed to ${status === "SUBMITTED" ? "submit" : "save"} scores`,
           type: "error",
         });
+        closeModal(false);
       },
     });
   };
@@ -83,7 +88,7 @@ export default function Score() {
     const rows =
       updatedData.length > 0
         ? updatedData
-        : (StudentsItem?.data?.data?.content ?? []).map((student: ScoreType) => ({
+        : (studentsItem?.data?.data?.content ?? []).map((student: ScoreType) => ({
             ...student,
             assessmentScores: student.assessmentScores,
           }));
@@ -111,54 +116,55 @@ export default function Score() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-5">
-      <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} onExport={handleExport} />
+    <SubjectReportPermissionWrapper subjectId={Number(subjectId)} isLoading={isLoading} type="edit">
+      <div className="flex w-full flex-col gap-5">
+        <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} onExport={handleExport} />
+        {!isLoading && isError && !studentsItem && (
+          <div className="flex h-80 items-center justify-center pt-15">
+            {/* TODO: Set URL or action to contact admin */}
+            {error.message === "No assessments configured for this class or branch" ? (
+              <ErrorComponent title="Not Found" description={error.message} buttonText="Contact Admin" url="" />
+            ) : (
+              <ErrorComponent
+                title="No Students"
+                description="This is our problem, we are looking into it so as to serve you better"
+                buttonText="Go to Home page"
+              />
+            )}
+          </div>
+        )}
 
-      {isLoading && (
-        <div className="px-4 md:px-8">
-          <Skeleton className="bg-bg-input-soft h-100 w-full" />
-        </div>
-      )}
+        {isLoading && (
+          <div className="px-4 md:px-8">
+            <Skeleton className="bg-bg-input-soft h-100 w-full" />
+          </div>
+        )}
 
-      {studentsData.length === 0 && !isLoading && !isError && (
-        <div className="flex h-80 items-center justify-center">
-          <ErrorComponent
-            title="No Students"
-            description="No students for this class yet"
-            buttonText="Add Student"
-            url="/student-and-parent-record/add-student"
-          />
-        </div>
-      )}
-
-      {!isLoading && isError && (
-        <div className="flex h-80 items-center justify-center pt-15">
-          {/* TODO: Set URL or action to contact admin */}
-          {error.message === "No assessments configured for this class or branch" ? (
-            <ErrorComponent title="Not Found" description={error.message} buttonText="Contact Admin" url="" />
-          ) : (
+        {studentsItem?.data?.data?.content.length === 0 && !isLoading && !isError && (
+          <div className="flex h-80 items-center justify-center">
             <ErrorComponent
               title="No Students"
-              description="This is our problem, we are looking into it so as to serve you better"
-              buttonText="Go to Home page"
+              description="No students for this class yet"
+              buttonText="Add Student"
+              url="/student-and-parent-record/add-student"
             />
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
-      {!isLoading && !isError && studentsData.length > 0 && (
-        <div className="px-4 md:px-8">
-          <ScoreViewBySubject
-            scores={studentsData}
-            columns={assessmentHeader}
-            isEditable={true}
-            subjectId={Number(subjectId)}
-            armId={Number(armId)}
-            gradings={gradings}
-            setUpdatedData={setUpdatedData}
-          />
-        </div>
-      )}
-    </div>
+        {!isLoading && !isError && studentsData.length > 0 && (
+          <div className="px-4 md:px-8">
+            <ScoreViewBySubject
+              scores={studentsData}
+              columns={assessmentHeader}
+              isEditable={true}
+              subjectId={Number(subjectId)}
+              armId={Number(armId)}
+              gradings={gradings}
+              setUpdatedData={setUpdatedData}
+            />
+          </div>
+        )}
+      </div>
+    </SubjectReportPermissionWrapper>
   );
 }

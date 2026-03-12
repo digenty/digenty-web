@@ -39,6 +39,7 @@ import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const StudentsTable = () => {
   const router = useRouter();
@@ -513,7 +514,7 @@ export const StudentsTable = () => {
       )}
       {loadingStudents && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
-      {!loadingStudents && !isError && students.length === 0 && (
+      {!loadingStudents && !isError && (students.length === 0 || students.every(student => !student)) && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent
             title="No Students"
@@ -524,7 +525,7 @@ export const StudentsTable = () => {
         </div>
       )}
 
-      {!loadingStudents && !isError && students.length > 0 && (
+      {!loadingStudents && !isError && students.length > 0 && students.every(student => student) && (
         <div>
           <div className="hidden md:block">
             <DataTable

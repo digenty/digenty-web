@@ -6,13 +6,17 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useClassesStore } from "@/store/classes";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Subject } from ".";
 import { Avatar } from "../../../Avatar";
+import StatusBadge from "@/components/StatusBadge";
 
 const RenderActions = (row: Row<Subject>, classId: number) => {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const classArmName = searchParams.get("classArmName") || "";
+
   const { setOpenNotifyTeacher } = useClassesStore();
 
   return (
@@ -27,7 +31,11 @@ const RenderActions = (row: Row<Subject>, classId: number) => {
 
       <Button
         className="border-border-darker bg-bg-state-secondary text-text-default h-6! rounded-md border px-1.5! font-medium"
-        onClick={() => router.push(`${pathname}/subjects/${row.original.subjectId}/class/${classId}`)}
+        onClick={() =>
+          router.push(
+            `${pathname}/subjects/${row.original.subjectId}/class/${classId}?classArmName=${classArmName}&subject=${row.original.subjectName}`,
+          )
+        }
       >
         <Eye fill="var(--color-icon-default-muted)" className="size-4" />
         <span className="text-xs">View</span>
@@ -41,7 +49,11 @@ export const columns = (classId: number): ColumnDef<Subject>[] => {
     {
       accessorKey: "subjectName",
       header: () => <div className="text-text-muted text-sm font-medium">Subject</div>,
-      cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.subjectName}</span>,
+      cell: ({ row }) => (
+        <span className="text-text-default cursor-pointer text-sm font-normal capitalize">
+          {row.original.subjectName && row.original.subjectName.toLowerCase()}
+        </span>
+      ),
       size: 600,
     },
     {
@@ -59,21 +71,20 @@ export const columns = (classId: number): ColumnDef<Subject>[] => {
     },
     {
       accessorKey: "status",
-      header: () => <div className="text-text-muted text-sm font-medium">Status</div>,
+      header: () => <div className="text-text-muted text-sm font-medium">Subject Status</div>,
       cell: ({ row }) => (
         <div className="flex items-center justify-between gap-4 lg:pr-10">
-          <span
-            className={cn(
-              "border-border-default rounded-md border px-2 py-0.5 text-xs",
+          <StatusBadge
+            status={
               row.original.status === "SUBMITTED"
-                ? "bg-bg-badge-green text-bg-basic-green-strong"
-                : row.original.status === "IN_PROGRESS"
-                  ? "bg-bg-badge-orange text-bg-basic-orange-strong"
-                  : "bg-bg-badge-red text-bg-basic-red-strong",
-            )}
-          >
-            {row.original.status?.toLowerCase() ?? "Not Submitted"}
-          </span>
+                ? "submitted"
+                : row.original.status === "REQUESTED_EDIT_ACCESS"
+                  ? "requested edit access"
+                  : row.original.status === "IN_PROGRESS"
+                    ? "in progress"
+                    : "not submitted"
+            }
+          />
         </div>
       ),
       size: 400,

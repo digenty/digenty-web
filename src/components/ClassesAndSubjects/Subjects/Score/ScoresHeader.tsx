@@ -101,7 +101,7 @@ export default function ScoresHeader({
   isError,
   onExport,
 }: {
-  onSubmit: (status: "SUBMITTED" | "IN_PROGRESS") => void;
+  onSubmit: (status: "SUBMITTED" | "IN_PROGRESS", closeModal: (bool: boolean) => void) => void;
   isSubmitting: boolean;
   isError: boolean;
   onExport?: () => void;
@@ -150,7 +150,7 @@ export default function ScoresHeader({
                   <Button
                     disabled={isError}
                     size="sm"
-                    onClick={() => onSubmit("IN_PROGRESS")}
+                    onClick={() => onSubmit("IN_PROGRESS", setOpenModal)}
                     className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-33 items-center justify-between gap-1 border text-sm"
                   >
                     {isSubmitting ? <Spinner /> : <Save fill="var(--color-icon-default-muted)" className="size-3" />}
@@ -169,7 +169,7 @@ export default function ScoresHeader({
                 </div>
               )}
 
-              {isSubmitted && !isRequested && (
+              {/* {isSubmitted && !isRequested && (
                 <Button
                   disabled={isError}
                   size="sm"
@@ -188,7 +188,7 @@ export default function ScoresHeader({
                 >
                   <Question fill="var(--color-icon-default-muted)" /> Requested Edit Access
                 </Button>
-              )}
+              )} */}
             </div>
           </div>
         </div>

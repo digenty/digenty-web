@@ -17,8 +17,10 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
   const subjectColumns: ColumnDef<StudentRow>[] = subjects.map((subject, index) => ({
     id: `subject-${index}`,
     header: () => (
-      <span className="text-text-muted truncate text-sm font-medium">
-        {subject.subjectName.length > 15 ? subject.subjectName.slice(0, 15) + "..." : subject.subjectName}
+      <span className="text-text-muted truncate text-sm font-medium capitalize">
+        {subject.subjectName && subject.subjectName.length > 15
+          ? subject.subjectName.toLowerCase().slice(0, 15) + "..."
+          : subject.subjectName.toLowerCase()}
       </span>
     ),
     size: 136,
@@ -49,7 +51,7 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
     minSize: 136,
     cell: ({ row }: { row: Row<StudentRow> }) => {
       const termData = row.original.terms.find(t => t.term === term);
-      return <span className="text-text-default text-sm">{termData?.totalPercentage ?? 0}%</span>;
+      return <span className="text-text-default text-sm">{termData?.totalPercentage?.toFixed(0) ?? 0}%</span>;
     },
   };
 

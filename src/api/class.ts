@@ -1,6 +1,14 @@
 import api from "@/lib/axios/axios-auth";
-import { useQuery } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
+
+interface EditAccessPayload {
+  reason?: string;
+  additionalDetails?: string;
+  armId?: number;
+  classId?: number;
+  subjectId?: number;
+  branchId?: number;
+}
 
 export const getClasses = async (branchId?: number) => {
   try {
@@ -82,6 +90,18 @@ export const getStudentClassReport = async (studentId: number, armId: number) =>
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.message;
+    }
+    throw error;
+  }
+};
+
+export const requestEditAccess = async (payload: EditAccessPayload) => {
+  try {
+    const { data } = await api.post("/edit-access", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
     }
     throw error;
   }

@@ -55,7 +55,7 @@ export const useApproveEditRequestBulk = () => {
   });
 };
 
-export const useGetBranchDetail = (branchId: number, termId: number) => {
+export const useGetBranchDetails = (branchId: number, termId?: number) => {
   return useQuery({
     queryKey: branchKeys.branchDetail(branchId, termId),
     queryFn: () => getBranchDetails(branchId, termId),

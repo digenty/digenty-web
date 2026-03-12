@@ -9,8 +9,7 @@ import { FormikProps } from "formik";
 import { Skeleton } from "../ui/skeleton";
 import { CreateSchoolTypes, OnBoardingCountry } from "./types";
 import { currencies } from "@/store/currenciesCode";
-
-const schoolSizes = [1, 2, 3, 4];
+import { schoolSizes } from "./constants";
 
 export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolTypes> }) => {
   const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
@@ -94,18 +93,18 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
             School Size<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
-            value={values.schoolSize?.toString()}
+            value={values.schoolSize}
             onValueChange={value => {
-              formik.setFieldValue("schoolSize", Number(value));
+              formik.setFieldValue("schoolSize", value);
             }}
           >
             <SelectTrigger className="bg-bg-input-soft! text-text-default w-full border-none">
               <SelectValue placeholder="School size" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-border-default border">
-              {schoolSizes.map(ss => (
-                <SelectItem key={ss} value={ss.toString()} className="text-text-default">
-                  {ss}
+              {schoolSizes.map(size => (
+                <SelectItem key={size.value} value={size.value} className="text-text-default">
+                  {size.label}
                 </SelectItem>
               ))}
             </SelectContent>

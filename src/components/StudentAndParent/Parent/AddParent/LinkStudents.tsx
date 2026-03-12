@@ -1,6 +1,7 @@
 "use client";
 import { Branch, Student } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { SearchInput } from "@/components/SearchInput";
@@ -93,6 +94,16 @@ export const LinkStudents = ({
               <Skeleton className="h-75" />
             ) : (
               <div className="border-border-default h-75 space-y-3 overflow-y-auto rounded-sm border p-3">
+                {students.length === 0 && !isPending && (
+                  <div className="flex h-full items-center justify-center">
+                    <ErrorComponent
+                      title="No Students yet"
+                      description="No Students have been added yet"
+                      buttonText="Add Student"
+                      url="/student-and-parent-record/add-student"
+                    />
+                  </div>
+                )}
                 {students.map((student: Student) => {
                   const isChecked = selectedStudents.find(std => std.id === student.id);
                   return (

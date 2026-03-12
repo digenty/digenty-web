@@ -123,10 +123,6 @@ export const ScoreViewBySubject = ({
       <div className="hidden pb-8 md:block">
         <DataTable
           pageSize={10}
-          clickHandler={() => {}}
-          rowSelection={{}}
-          setRowSelection={() => {}}
-          onSelectRows={() => {}}
           columns={scoreColumns(isEditable, columns, gradings)}
           data={mergedData}
           meta={{

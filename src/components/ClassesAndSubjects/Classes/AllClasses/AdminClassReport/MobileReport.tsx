@@ -2,7 +2,7 @@ import { Avatar } from "@/components/Avatar";
 import ArrowDown from "@/components/Icons/ArrowDown";
 import ArrowUp from "@/components/Icons/ArrowUp";
 
-import { ClassReportProps } from "../types";
+import { ClassReportProps } from "../../types";
 
 export const MobileReport = ({
   student,

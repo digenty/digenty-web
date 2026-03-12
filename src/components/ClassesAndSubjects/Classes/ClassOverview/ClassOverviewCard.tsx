@@ -38,7 +38,9 @@ export const ClassOverviewCard = ({ subject, classId }: { subject: Subject; clas
                 ? "bg-bg-badge-green text-bg-basic-green-strong"
                 : subject?.status === "IN_PROGRESS"
                   ? "bg-bg-badge-orange text-bg-basic-orange-strong"
-                  : "bg-bg-badge-red text-bg-basic-red-strong",
+                  : subject?.status === "REQUESTED_EDIT_ACCESS"
+                    ? "bg-bg-badge-red text-bg-basic-red-strong"
+                    : "bg-bg-badge-red text-bg-basic-red-strong",
             )}
           >
             {subject?.status?.toLowerCase() ?? "Not Submitted"}

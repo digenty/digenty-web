@@ -1,4 +1,4 @@
-import Class from "@/components/ClassesAndSubjects/Classes/Class";
+import Class from "@/components/ClassesAndSubjects/Classes/AllClasses/Class";
 
 function page() {
   return (

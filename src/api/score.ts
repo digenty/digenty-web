@@ -16,7 +16,7 @@ export const addScoreToStudent = async (payload: SubmitScorePayload) => {
 
 export const viewStudentScore = async (subjectId: number, armId: number, termId?: number) => {
   try {
-    const { data } = await api.get(`/report/subject/${subjectId}/${armId}?term=${termId}`);
+    const { data } = await api.get(`/report/subject/${subjectId}/arm/${armId}?term=${termId}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

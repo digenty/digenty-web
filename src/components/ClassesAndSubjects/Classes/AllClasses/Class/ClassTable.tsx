@@ -1,27 +1,40 @@
 "use client";
 
-import React, { useState } from "react";
-import { ClassProps } from "../types";
-import { ClassTableColumns } from "../Column";
+import { useState } from "react";
+
+import { Avatar } from "@/components/Avatar";
 import { DataTable } from "@/components/DataTable";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import Eye from "@/components/Icons/Eye";
+import { Key } from "@/components/Icons/Key";
+import { Notification } from "@/components/Icons/Notification";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontalIcon } from "lucide-react";
-import { MobileDrawer } from "@/components/MobileDrawer";
-import Eye from "@/components/Icons/Eye";
-import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/Avatar";
-import { Notification } from "@/components/Icons/Notification";
-import { Key } from "@/components/Icons/Key";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { ClassTableColumns } from "../../Column";
+import { ClassProps } from "../../types";
 
-export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean; isLoading: boolean; classData: [] }) => {
+export const ClassTable = ({
+  classData,
+  isLoading,
+  isError,
+  classId,
+  armId,
+  classArmName,
+}: {
+  isError: boolean;
+  isLoading: boolean;
+  classData: [];
+  classId: number;
+  armId: number;
+  classArmName: string;
+}) => {
   const [page, setPage] = useState(1);
   const [action, setAction] = useState(false);
 
   return (
     <div className="px-4 py-3 md:px-8">
-      {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
       {isError && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent
@@ -43,11 +56,7 @@ export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean
           <div className="hidden md:block">
             <DataTable
               pageSize={10}
-              clickHandler={() => {}}
-              rowSelection={{}}
-              setRowSelection={() => {}}
-              onSelectRows={() => {}}
-              columns={ClassTableColumns}
+              columns={ClassTableColumns(armId, classId, classArmName)}
               data={classData}
               totalCount={classData.length}
               page={page}
@@ -87,7 +96,7 @@ export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean
                 <div key={item.subjectId} className="border-border-default bg-bg-subtle rounded-sm border">
                   <div className="border-border-default border-b">
                     <div className="flex h-11 items-center justify-between p-3">
-                      <div className="text-text-default text-sm font-medium">{item.subject}</div>
+                      <div className="text-text-default text-sm font-medium capitalize">{item.subjectName ? item.subjectName.toLowerCase() : ""}</div>
                       <Button onClick={() => setAction(true)}>
                         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
                       </Button>
@@ -107,9 +116,10 @@ export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean
                     <div className="flex items-center justify-between p-3">
                       <span className="text-text-muted text-sm font-medium">Status</span>
                       <Badge
-                        className={`${item.status === "Submitted" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "Edit Request" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "Not Submitted" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "Pending Approval" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : null} border-border-default rounded-md border p-1 text-xs font-medium`}
+                        // className={`capitalize ${item.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "REQUESTED_EDIT_ACCESS" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "PENDING_APPROVAL" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : null} border-border-default rounded-md border p-1 text-xs font-medium`}
+                        className={`capitalize ${item.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "REQUESTED_EDIT_ACCESS" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} border-border-default rounded-md border p-1 text-xs font-medium`}
                       >
-                        {item.status}
+                        {item.status ? item.status.toLowerCase() : ""}
                       </Badge>
                     </div>
                   </div>

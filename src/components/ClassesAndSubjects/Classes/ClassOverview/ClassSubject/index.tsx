@@ -4,13 +4,14 @@ import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import { ScoreType } from "@/components/ScoreViewBySubject/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetGradingsForClass } from "@/hooks/queryHooks/useGrading";
+import { useGetGradingsForLevel } from "@/hooks/queryHooks/useGrading";
 import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ClassSubjectHeader } from "./ClassSubjectHeader";
 import { exportToCSV } from "@/lib/export-utils";
+import { ClassPermissionWrapper } from "../../ClassPermissionWrapper";
 
 export const SubjectByClass = () => {
   useBreadcrumb([
@@ -28,7 +29,7 @@ export const SubjectByClass = () => {
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
   const { data: StudentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
-  const { data: classGrading } = useGetGradingsForClass(Number(classId));
+  const { data: classGrading } = useGetGradingsForLevel(9);
 
   const studentsData = StudentsItem?.data?.data?.content ?? [];
   const assessmentHeader = Object.values((studentsData[0]?.assessmentScores ?? {}) as Record<string, Assessment>).map((assessment: Assessment) => ({
@@ -67,54 +68,56 @@ export const SubjectByClass = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <ClassSubjectHeader onExport={handleExport} />
+    <ClassPermissionWrapper armId={Number(armId)} isLoading={isLoading}>
+      <div className="space-y-4">
+        <ClassSubjectHeader onExport={handleExport} />
 
-      {isLoading && (
-        <div className="px-4 md:px-8">
-          <Skeleton className="bg-bg-input-soft h-100 w-full" />
-        </div>
-      )}
+        {isLoading && (
+          <div className="px-4 md:px-8">
+            <Skeleton className="bg-bg-input-soft h-100 w-full" />
+          </div>
+        )}
 
-      {studentsData.length === 0 && !isLoading && !isError && (
-        <div className="flex h-80 items-center justify-center">
-          <ErrorComponent
-            title="No Students"
-            description="No students for this class yet"
-            buttonText="Add Student"
-            url="/student-and-parent-record/add-student"
-          />
-        </div>
-      )}
-
-      {!isLoading && isError && (
-        <div className="flex h-80 items-center justify-center pt-15">
-          {/* TODO: Set URL or action to contact admin */}
-          {error.message === "No assessments configured for this class or branch" ? (
-            <ErrorComponent title="Not Found" description={error.message} buttonText="Contact Admin" url="" />
-          ) : (
+        {studentsData.length === 0 && !isLoading && !isError && (
+          <div className="flex h-80 items-center justify-center">
             <ErrorComponent
               title="No Students"
-              description="This is our problem, we are looking into it so as to serve you better"
-              buttonText="Go to Home page"
+              description="No students for this class yet"
+              buttonText="Add Student"
+              url="/student-and-parent-record/add-student"
             />
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
-      {!isLoading && !isError && studentsData.length > 0 && (
-        <div className="px-4 md:px-8">
-          <ScoreViewBySubject
-            scores={studentsData}
-            columns={assessmentHeader}
-            isEditable={false}
-            subjectId={Number(subjectId)}
-            armId={Number(armId)}
-            gradings={gradings}
-            setUpdatedData={setUpdatedData}
-          />
-        </div>
-      )}
-    </div>
+        {!isLoading && isError && (
+          <div className="flex h-80 items-center justify-center pt-15">
+            {/* TODO: Set URL or action to contact admin */}
+            {error.message === "No assessments configured for this class or branch" ? (
+              <ErrorComponent title="Not Found" description={error.message} buttonText="Contact Admin" url="" />
+            ) : (
+              <ErrorComponent
+                title="No Students"
+                description="This is our problem, we are looking into it so as to serve you better"
+                buttonText="Go to Home page"
+              />
+            )}
+          </div>
+        )}
+
+        {!isLoading && !isError && studentsData.length > 0 && (
+          <div className="px-4 md:px-8">
+            <ScoreViewBySubject
+              scores={studentsData}
+              columns={assessmentHeader}
+              isEditable={false}
+              subjectId={Number(subjectId)}
+              armId={Number(armId)}
+              gradings={gradings}
+              setUpdatedData={setUpdatedData}
+            />
+          </div>
+        )}
+      </div>
+    </ClassPermissionWrapper>
   );
 };

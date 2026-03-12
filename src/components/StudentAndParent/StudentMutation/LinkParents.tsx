@@ -1,6 +1,7 @@
 "use client";
 import { Branch, Parent } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { SearchInput } from "@/components/SearchInput";
@@ -93,6 +94,17 @@ export const LinkParents = ({
               <Skeleton className="h-75" />
             ) : (
               <div className="border-border-default h-75 space-y-3 overflow-y-auto rounded-sm border p-3">
+                {parents.length === 0 && !isPending && (
+                  <div className="flex h-full items-center justify-center">
+                    <ErrorComponent
+                      title="No Parents yet"
+                      description="No Parents have been added yet"
+                      buttonText="Add Parent"
+                      url="/student-and-parent-record/add-parent"
+                    />
+                  </div>
+                )}
+
                 {parents.map((parent: Parent) => {
                   const isChecked = selectedParents.find(std => std.id === parent.id);
                   return (
@@ -218,6 +230,17 @@ export const LinkParents = ({
               <Skeleton className="bg-bg-input-soft h-20 w-full" />
             ) : (
               <div className="border-border-default h-75 space-y-3 overflow-y-auto rounded-sm border p-3">
+                {parents.length === 0 && !isPending && (
+                  <div className="flex h-full items-center justify-center">
+                    <ErrorComponent
+                      title="No Parents yet"
+                      description="No Parents have been added yet"
+                      buttonText="Add Parent"
+                      url="/student-and-parent-record/add-parent"
+                    />
+                  </div>
+                )}
+
                 {parents.map((parent: Parent) => {
                   const isChecked = selectedParents.find(std => std.id === parent.id);
                   return (
