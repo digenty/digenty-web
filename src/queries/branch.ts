@@ -5,5 +5,5 @@ export const branchKeys = {
   addBranch: ["addBranch"] as const,
   stats: ["stats"] as const,
   editRequest: (branchId: number) => ["editRequest", branchId] as const,
-  branchDetail: (branchId: number, termId: number) => ["branchDetail", branchId, termId] as const,
+  branchDetail: (branchId: number, termId?: number) => ["branchDetail", branchId, termId] as const,
 };

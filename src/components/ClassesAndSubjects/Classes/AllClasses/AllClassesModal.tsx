@@ -218,7 +218,9 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal }: EditReq
           <div className="border-border-default border-t">
             <DialogFooter className="flex justify-between px-6 py-4">
               <DrawerClose asChild>
-                <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
+                <Button className="bg-bg-state-destructive text-text-white-default h-7! rounded-md! px-4 py-2 text-sm font-medium">
+                  Reject Access
+                </Button>
               </DrawerClose>
               <Button
                 onClick={() => setEditRequestModal(false)}
@@ -235,6 +237,14 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal }: EditReq
         setOpen={setEditRequestModal}
         className="hidden md:block"
         title="Manage edit access request"
+        cancelButton={
+          <Button
+            onClick={() => setEditRequestModal(false)}
+            className="bg-bg-state-destructive text-text-white-default h-7! rounded-md! px-4 py-2 text-sm font-medium"
+          >
+            Reject Access
+          </Button>
+        }
         ActionButton={
           <Button
             onClick={() => setEditRequestModal(false)}

@@ -14,6 +14,7 @@ export default function StatusBadge({ status }: { status: string }) {
     submitted: "bg-bg-badge-green text-bg-basic-green-strong",
     "in progress": "bg-bg-badge-orange text-bg-basic-orange-strong",
     "not submitted": "bg-bg-badge-red text-bg-basic-red-strong",
+    "requested edit access": "bg-bg-badge-orange text-bg-basic-orange-strong",
   };
 
   return (

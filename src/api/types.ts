@@ -264,3 +264,18 @@ export interface BranchArmReportResponse {
   totalCompletedSubmissions: number;
   branchArmReportResponseDtos: BranchArmReport[];
 }
+
+export interface ClassLevel {
+  ids: number[];
+  levelName: string;
+  levelType: "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR SECONDARY" | "SENIOR SECONDARY";
+  classNamePrefix: string;
+  classStart: number;
+  classEnd: number;
+}
+
+export interface Level {
+  branchId: number;
+  branchName: string;
+  classLevels: ClassLevel[];
+}

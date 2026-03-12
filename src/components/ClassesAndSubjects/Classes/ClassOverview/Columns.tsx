@@ -75,7 +75,15 @@ export const columns = (classId: number): ColumnDef<Subject>[] => {
       cell: ({ row }) => (
         <div className="flex items-center justify-between gap-4 lg:pr-10">
           <StatusBadge
-            status={row.original.status === "SUBMITTED" ? "submitted" : row.original.status === "IN_PROGRESS" ? "in progress" : "not submitted"}
+            status={
+              row.original.status === "SUBMITTED"
+                ? "submitted"
+                : row.original.status === "REQUESTED_EDIT_ACCESS"
+                  ? "requested edit access"
+                  : row.original.status === "IN_PROGRESS"
+                    ? "in progress"
+                    : "not submitted"
+            }
           />
         </div>
       ),

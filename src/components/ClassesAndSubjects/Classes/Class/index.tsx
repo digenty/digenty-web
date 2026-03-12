@@ -1,14 +1,16 @@
 "use client";
 
-import React from "react";
+import { useGetBranchTeachersClassSubjects } from "@/hooks/queryHooks/useSubject";
+import { usePathname } from "next/navigation";
 import { ClassHeader } from "./ClassHeader";
 import { ClassTable } from "./ClassTable";
-import { useGetBranchTeachersClassSubjects } from "@/hooks/queryHooks/useSubject";
 
 export default function Class() {
-  const armId = 7;
-  const { data, isLoading, isError } = useGetBranchTeachersClassSubjects(armId);
-  const classData = data?.data.content ?? [];
+  const pathname = usePathname();
+  const armId = pathname.split("/")[5];
+  const { data, isLoading, isError } = useGetBranchTeachersClassSubjects(Number(armId));
+  const classData = data?.data?.data?.subjectReportResponseDtoList ?? [];
+
   return (
     <div className="flex flex-col gap-4">
       <ClassHeader classData={classData} isLoading={isLoading} />

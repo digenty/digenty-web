@@ -1,5 +1,6 @@
 export type AllClassesMainTableProps = {
-  id: number;
+  armId: number;
+  classId: number;
   classArmName: string;
   classTeacherName: string;
   numberOfSubjects: number;
@@ -9,9 +10,9 @@ export type AllClassesMainTableProps = {
 
 export type ClassProps = {
   subjectId: number;
-  subject: string;
+  subjectName: string;
   subjectTeacherName: string;
-  status: string;
+  status: "SUBMITTED" | "NOT_SUBMITTED" | "IN_PROGRESS" | "REQUESTED_EDIT_ACCESS";
 };
 
 export type ClassReportProps = {

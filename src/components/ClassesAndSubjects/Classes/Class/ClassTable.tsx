@@ -43,10 +43,6 @@ export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean
           <div className="hidden md:block">
             <DataTable
               pageSize={10}
-              clickHandler={() => {}}
-              rowSelection={{}}
-              setRowSelection={() => {}}
-              onSelectRows={() => {}}
               columns={ClassTableColumns}
               data={classData}
               totalCount={classData.length}
@@ -87,7 +83,7 @@ export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean
                 <div key={item.subjectId} className="border-border-default bg-bg-subtle rounded-sm border">
                   <div className="border-border-default border-b">
                     <div className="flex h-11 items-center justify-between p-3">
-                      <div className="text-text-default text-sm font-medium">{item.subject}</div>
+                      <div className="text-text-default text-sm font-medium capitalize">{item.subjectName ? item.subjectName.toLowerCase() : ""}</div>
                       <Button onClick={() => setAction(true)}>
                         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
                       </Button>
@@ -107,9 +103,9 @@ export const ClassTable = ({ classData, isLoading, isError }: { isError: boolean
                     <div className="flex items-center justify-between p-3">
                       <span className="text-text-muted text-sm font-medium">Status</span>
                       <Badge
-                        className={`${item.status === "Submitted" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "Edit Request" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "Not Submitted" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "Pending Approval" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : null} border-border-default rounded-md border p-1 text-xs font-medium`}
+                        className={`capitalize ${item.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "EDIT_REQUEST" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "PENDING_APPROVAL" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : null} border-border-default rounded-md border p-1 text-xs font-medium`}
                       >
-                        {item.status}
+                        {item.status ? item.status.toLowerCase() : ""}
                       </Badge>
                     </div>
                   </div>

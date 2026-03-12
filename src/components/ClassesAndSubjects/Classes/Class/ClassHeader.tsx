@@ -9,28 +9,38 @@ import { EditModal, NotifyTeacherModal } from "../AllClasses/AllClassesModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { MoreHorizontalIcon } from "lucide-react";
 import FileList2 from "@/components/Icons/FileList2";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 export const ClassHeader = ({ isLoading, classData }: { isLoading: boolean; classData: [] }) => {
   const router = useRouter();
+  const params = useSearchParams();
+  const classArmName = params.get("classArmName") || "";
   const [openNotify, setOpenNotify] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [open, setOpen] = useState(false);
+
+  useBreadcrumb([
+    { label: "All Classes", url: "/classes-and-subjects/all-classes" },
+    { label: classArmName.replaceAll("-", " "), url: "" },
+  ]);
 
   return (
     <>
       {openEdit && <EditModal openEditRequestModal={openEdit} setEditRequestModal={setOpenEdit} />}
       {openNotify && <NotifyTeacherModal openNotifyModal={openNotify} setOpenNotifyModal={setOpenNotify} />}
       <div className="border-border-default border-b">
-        <div className="flex flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-8">
-          <div className="flex flex-col gap-1">
-            <h2 className="border-border-default text-text-default border-b px-4 py-2 text-lg font-semibold md:border-none md:p-0">JSS 1A</h2>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between md:gap-4 md:py-3">
+          <div className="flex flex-col gap-1 md:pl-8">
+            <h2 className="border-border-default text-text-default border-b px-4 py-2 text-lg font-semibold md:border-none md:p-0">
+              {classArmName.replaceAll("-", " ")}
+            </h2>
             <div className="border-border-default flex items-center gap-1 border-b px-4 py-2 md:border-none md:p-0">
-              <Avatar className="size-4" /> <span className="text-text-subtle text-sm font-normal">Damilare John</span>
+              <Avatar className="size-5" /> <span className="text-text-subtle text-sm font-normal">Damilare John</span>
             </div>
           </div>
-          <div className="border-border-default space-between flex items-center gap-2 border-b px-4 pb-2 md:gap-1 md:border-none md:p-0">
+          <div className="space-between flex items-center gap-2 px-4 py-2 pr-4 md:gap-1 md:border-none md:p-0 md:pr-8">
             {isLoading || classData.length == 0 ? (
               <Skeleton className="bg-bg-input-soft h-8 w-40" />
             ) : (
@@ -38,7 +48,7 @@ export const ClassHeader = ({ isLoading, classData }: { isLoading: boolean; clas
                 onClick={() => setOpenEdit(true)}
                 className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-46 items-center gap-1 rounded-md border text-sm font-medium md:flex"
               >
-                <Key fill="var(--color-icon-default)" />
+                <Key fill="var(--color-icon-default-muted)" />
                 Manage Edit Request
               </Button>
             )}
@@ -49,7 +59,7 @@ export const ClassHeader = ({ isLoading, classData }: { isLoading: boolean; clas
                 onClick={() => setOpenNotify(true)}
                 className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-46"
               >
-                <Notification fill="var(--color-icon-default)" />
+                <Notification fill="var(--color-icon-default-muted)" />
                 Notify Class Teacher
               </Button>
             )}
@@ -61,7 +71,7 @@ export const ClassHeader = ({ isLoading, classData }: { isLoading: boolean; clas
                 className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-32.5"
               >
                 {" "}
-                <FileList2 fill="var(--color-icon-default)" /> Class Report
+                <FileList2 fill="var(--color-icon-default-muted)" /> Class Report
               </Button>
             )}
 

@@ -54,7 +54,7 @@ export const ViewScore = () => {
   const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
   const { data: viewScoreData, isLoading: isLoadingScores, isError } = useViewScore(Number(subjectId), Number(armId), termSelected?.termId);
 
-  const studentsScores: ScoreType[] = viewScoreData?.data?.content ?? [];
+  const studentsScores: ScoreType[] = viewScoreData?.data?.response?.content ?? [];
 
   useBreadcrumb([
     { label: "Classes & Subjects", url: "/classes-and-subjects" },
@@ -185,7 +185,7 @@ export const ViewScore = () => {
 
       <div className="p-2">{isLoadingScores && <Skeleton className="bg-bg-input-soft h-100 w-full" />}</div>
 
-      {!isLoadingScores && !isError && viewScoreData?.data?.content.length === 0 && (
+      {!isLoadingScores && !isError && viewScoreData?.data?.response?.content.length === 0 && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Go to the Home page" />
         </div>
