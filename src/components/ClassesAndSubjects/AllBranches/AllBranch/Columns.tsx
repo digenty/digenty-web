@@ -20,11 +20,11 @@ const RenderOptions = ({ row }: { row: Row<AllBranchesTableProps> }) => {
         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        onClick={() => router.push(`/classes-and-subjects/all-branches/${row.original.branchId}/all-classes`)}
-        className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm"
-      >
-        <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3">
+      <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
+        <DropdownMenuItem
+          onClick={() => router.push(`/classes-and-subjects/all-branches/${row.original.branchId}/all-classes`)}
+          className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
+        >
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View branch</span>
         </DropdownMenuItem>
@@ -80,7 +80,11 @@ export const AllBranchDetailsColumns: ColumnDef<AllBranchesTableProps>[] = [
   {
     accessorKey: "numberOfClassTeacherSubmitted",
     header: () => <div className="text-text-muted text-sm font-medium">Class Teacher Submitted</div>,
-    cell: ({ row }) => <div className="text-text-default text-sm font-medium">{row.original.numberOfClassTeacherSubmitted || 0}/0</div>,
+    cell: ({ row }) => (
+      <div className="text-text-default text-sm font-medium">
+        {row.original.numberOfClassTeacherSubmitted || 0}/{row.original.numberOfClassArm}
+      </div>
+    ),
     size: 140,
   },
   {

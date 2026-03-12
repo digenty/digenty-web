@@ -1,15 +1,23 @@
-import { Avatar } from "@/components/Avatar";
-import { ScoreType } from "@/components/ScoreViewBySubject/types";
-import { Result } from "@/components/StudentResult";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { StudentResult } from ".";
+import { Avatar } from "@/components/Avatar";
 
 export const viewScoreColumns = (headers: string[]): ColumnDef<StudentResult>[] => [
   {
+    accessorKey: "s/n",
+    header: () => <div className="text-text-muted inline-block text-sm font-medium">S/N</div>,
+    cell: ({ row }) => <span className="text-text-default inline-block h-6 cursor-pointer text-sm">{row.index + 1}</span>,
+    size: 20,
+    maxSize: 200,
+  },
+  {
     accessorKey: "studentName",
-    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Student Name</div>,
+    header: () => <div className="text-text-muted flex justify-start text-xs font-medium md:text-sm">Student Name</div>,
     cell: ({ row }: { row: Row<StudentResult> }) => (
-      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-xs md:text-sm">{row.original.studentName}</span>
+      <div className="flex items-center gap-2">
+        <Avatar className="size-8" />
+        <span className="text-text-default flex cursor-pointer justify-start pl-0 text-xs md:text-sm">{row.original.studentName}</span>
+      </div>
     ),
     size: 340,
   },

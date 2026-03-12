@@ -15,7 +15,7 @@ import { useState } from "react";
 import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
 import { AllClassesMainTableProps, ClassProps } from "./types";
 
-const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
+const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -49,7 +49,10 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
             <Notification fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Notify class teacher</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3">
+          <DropdownMenuItem
+            onClick={() => router.push(`/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
+            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+          >
             <Key fill="var(--color-icon-default-subtle)" className="size-4" />
             <span className="">Manage edit requests</span>
           </DropdownMenuItem>
@@ -98,7 +101,7 @@ const RenderActions = (row: Row<ClassProps>, armId: number, classId: number, cla
   );
 };
 //  Table for AllClass
-export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] = [
+export const AllClassessTableMainColumns = (branchId: number): ColumnDef<AllClassesMainTableProps>[] => [
   {
     accessorKey: "class",
     header: () => <div className="text-text-muted text-sm font-medium">Class</div>,
@@ -139,7 +142,7 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
 
       return (
         <Badge
-          className={`border-border-default h-4 rounded-md border p-1 text-xs font-medium capitalize ${statusStyles[status || "NOT_SUBMITTED"]} `}
+          className={`border-border-default h-4 rounded-md border px-1 py-2 text-xs font-medium capitalize ${statusStyles[status || "NOT_SUBMITTED"]} `}
         >
           {status ? status.replaceAll("_", " ").toLowerCase() : "not submitted"}
         </Badge>
@@ -155,7 +158,7 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
   {
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
-    cell: ({ row }) => RenderOptions(row),
+    cell: ({ row }) => RenderOptions(row, branchId),
     size: 11,
   },
 ];

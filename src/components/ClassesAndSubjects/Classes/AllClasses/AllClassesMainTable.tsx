@@ -41,9 +41,17 @@ interface AllClassesMainTableProps_Component {
   isError: boolean;
   levelSelected: ClassLevel | null;
   setLevelSelected: (level: ClassLevel | null) => void;
+  branchId: number;
 }
 
-export const AllClassesMainTable = ({ data, isFetchingBranch, isError, levelSelected, setLevelSelected }: AllClassesMainTableProps_Component) => {
+export const AllClassesMainTable = ({
+  data,
+  isFetchingBranch,
+  isError,
+  levelSelected,
+  setLevelSelected,
+  branchId,
+}: AllClassesMainTableProps_Component) => {
   const [page, setPage] = useState(1);
   const [isLevelFilterOpen, setIsLevelFilterOpen] = useState(false);
   const [openMobileDrawer, setOpenMobilerDrawer] = useState(false);
@@ -193,7 +201,10 @@ export const AllClassesMainTable = ({ data, isFetchingBranch, isError, levelSele
                   <span className="text-text-default text-sm font-medium">Notify Class Teacher</span>
                 </div>
               </Button>
-              <Button className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2">
+              <Button
+                onClick={() => router.push(`/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
+                className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
+              >
                 <div className="flex items-center gap-1">
                   <Key fill="var(--color-icon-default-muted)" className="size-4" />
                   <span className="text-text-default text-sm font-medium">Manage Edit Requests</span>
@@ -208,7 +219,7 @@ export const AllClassesMainTable = ({ data, isFetchingBranch, isError, levelSele
             <div className="hidden md:block">
               <DataTable
                 pageSize={100}
-                columns={AllClassessTableMainColumns}
+                columns={AllClassessTableMainColumns(branchId)}
                 data={data}
                 totalCount={data.length}
                 page={page}

@@ -224,32 +224,35 @@ export const ManageEditRequest = () => {
         <SearchInput
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="bg-bg-input-soft w-full rounded-md border-none md:w-71"
+          className="bg-bg-input-soft h-8 w-full rounded-md border-none md:w-71"
         />
 
         {selectedCount > 0 && (
-          <div className="flex items-center gap-3">
-            <span className="text-text-subtle bg-bg-state-soft flex h-7 items-center gap-1 rounded-md p-1.5 text-sm font-medium">
-              {selectedCount} Selected
+          <div className="flex items-center gap-1.5">
+            <span className="text-text-subtle bg-bg-state-soft flex h-7 items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium">
+              {selectedCount} Selected Items
             </span>
-            <Button
-              onClick={handleApproveAll}
-              disabled={bulkAction !== null}
-              size="sm"
-              className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 rounded-md border shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <span className="text-bg-basic-green-accent font-semibold">✓</span>
-              <span>{bulkAction === "approve" ? "Approving..." : "Approve All"}</span>
-            </Button>
-            <Button
-              onClick={handleRejectAll}
-              disabled={bulkAction !== null}
-              size="sm"
-              className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 border disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <span className="text-bg-basic-red-accent text-sm font-semibold">✕</span>
-              <span>{bulkAction === "reject" ? "Rejecting..." : "Reject All"}</span>
-            </Button>
+            <div className="bg-border-default h-6 w-px" />
+            <div className="flex items-center gap-1">
+              <Button
+                onClick={handleApproveAll}
+                disabled={bulkAction !== null}
+                size="sm"
+                className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 rounded-md border shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <span className="text-bg-basic-green-accent font-semibold">✓</span>
+                <span>{bulkAction === "approve" ? "Approving..." : "Approve All"}</span>
+              </Button>
+              <Button
+                onClick={handleRejectAll}
+                disabled={bulkAction !== null}
+                size="sm"
+                className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 border disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <span className="text-bg-basic-red-accent text-sm font-semibold">✕</span>
+                <span>{bulkAction === "reject" ? "Rejecting..." : "Reject All"}</span>
+              </Button>
+            </div>
           </div>
         )}
 

@@ -17,13 +17,14 @@ export const AllClassesMain = () => {
   const pathname = usePathname();
 
   const schoolId = user?.schoolId;
-  const branchId = pathname.split("/")[3];
+  // const branchId = pathname.split("/")[3];
+  const branchId = 11;
 
   const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [activeSession, setActiveSession] = useState<string | null>(null);
   const [levelSelected, setLevelSelected] = useState<ClassLevel | null>(null);
 
-  const { data, isPending: isFetchingBranch, isError } = useGetBranchDetails(11, termSelected?.termId); // Add leveId to this query levelSelected?.ids[0]
+  const { data, isPending: isFetchingBranch, isError } = useGetBranchDetails(branchId, termSelected?.termId); // Add leveId to this query levelSelected?.ids[0]
   const branchDetail = data?.data?.data;
 
   const tableData: AllClassesMainTableProps[] =
@@ -83,6 +84,7 @@ export const AllClassesMain = () => {
         isError={isError}
         levelSelected={levelSelected}
         setLevelSelected={setLevelSelected}
+        branchId={branchId}
       />
     </div>
   );
