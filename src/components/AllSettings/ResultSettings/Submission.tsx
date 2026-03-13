@@ -1,15 +1,60 @@
+import { Term, TermDeadlineState } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
+import { toast } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import React, { useState } from "react";
-import { DateRange } from "react-day-picker";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAddSubmission } from "@/hooks/queryHooks/useResult";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useState } from "react";
 
 export const Submission = () => {
-  const [firstTermStartValue, setFirstTermStartValue] = useState<DateRange | undefined>();
-  const [firstTermEndValue, setFirstTermEndValue] = useState<DateRange | undefined>();
-  const [secondTermStartValue, setSecondTermStartValue] = useState<DateRange | undefined>();
-  const [secondTermEndtValue, setSecondTermEndtValue] = useState<DateRange | undefined>();
-  const [thirdTermStartValue, setThirdTermStartValue] = useState<DateRange | undefined>();
-  const [thirdTermEndtValue, setThirdTermEndValue] = useState<DateRange | undefined>();
+  const user = useLoggedInUser();
+  const [termStates, setTermStates] = useState<Record<number, TermDeadlineState>>({});
+  const { data: termLists, isLoading } = useGetTerms(user.schoolId);
+  const { mutate: addSubmission, isPending } = useAddSubmission();
+  const terms = termLists?.data?.terms ?? [];
+
+  const getTermState = (termId: number): TermDeadlineState =>
+    termStates[termId] ?? { openDate: undefined, closeDate: undefined, autoLockAfterDeadline: false };
+
+  const updateTermState = (termId: number, updates: Partial<TermDeadlineState>) => {
+    setTermStates(prev => ({
+      ...prev,
+      [termId]: { ...getTermState(termId), ...updates },
+    }));
+  };
+
+  const handleSave = () => {
+    const termsDeadline = terms.map((term: Term) => {
+      const state = getTermState(term.termId);
+      return {
+        termId: term.termId,
+        openDate: state.openDate?.from?.toISOString().split("T")[0] ?? "",
+        closeDate: state.closeDate?.from?.toISOString().split("T")[0] ?? "",
+        autoLockAfterDeadline: state.autoLockAfterDeadline,
+      };
+    });
+
+    addSubmission(
+      { termsDeadline },
+      {
+        onSuccess: () => {
+          toast({ title: "Successful ", description: "Submission deadlines saved successfully.", type: "success" });
+        },
+        onError: (error: unknown) => {
+          const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+
+          toast({
+            title: "Failed to add submission deadlines",
+            description: message,
+            type: "error",
+          });
+        },
+      },
+    );
+  };
 
   return (
     <div className="mx-auto my-8 flex w-full max-w-181 items-center justify-center">
@@ -17,71 +62,66 @@ export const Submission = () => {
         <div className="flex justify-between">
           <div className="text-text-default text-xl font-semibold">Submission Deadline</div>
         </div>
-        <div className="bg-bg-card border-border-darker w-full rounded-md border p-4 md:p-6">
-          <div className="text-text-default text-md mb-4 font-semibold">First Term</div>
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <DateRangePicker
-              label="Open Date"
-              value={firstTermStartValue}
-              onChange={setFirstTermStartValue}
-              className="bg-bg-input-soft! text-text-default h-9! w-full"
-            />
-            <DateRangePicker
-              label="close Date"
-              value={firstTermEndValue}
-              onChange={setFirstTermEndValue}
-              className="bg-bg-input-soft! text-text-default h-9! w-full"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Checkbox />
-            <div className="text-text-muted text-sm font-medium">Auto-lock after deadline</div>
-          </div>
-        </div>
 
-        <div className="bg-bg-card border-border-darker w-full rounded-md border p-4 md:p-6">
-          <div className="text-text-default text-md mb-4 font-semibold">Second Term</div>
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <DateRangePicker
-              label="Open Date"
-              value={secondTermStartValue}
-              onChange={setSecondTermStartValue}
-              className="bg-bg-input-soft! text-text-default h-9! w-full"
-            />
-            <DateRangePicker
-              label="Close Date"
-              value={secondTermEndtValue}
-              onChange={setSecondTermEndtValue}
-              className="bg-bg-input-soft! text-text-default h-9! w-full"
-            />
+        {isLoading && (
+          <div className="flex flex-col gap-4">
+            <Skeleton className="bg-bg-input-soft h-40 w-full" />
+            <Skeleton className="bg-bg-input-soft h-40 w-full" />
+            <Skeleton className="bg-bg-input-soft h-40 w-full" />
           </div>
-          <div className="flex items-center gap-2">
-            <Checkbox />
-            <div className="text-text-muted text-sm font-medium">Auto-lock after deadline</div>
-          </div>
-        </div>
+        )}
 
-        <div className="bg-bg-card border-border-darker w-full rounded-md border p-4 md:p-6">
-          <div className="text-text-default text-md mb-4 font-semibold">Third Term</div>
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <DateRangePicker
-              label="Open Date"
-              value={thirdTermStartValue}
-              onChange={setThirdTermStartValue}
-              className="bg-bg-input-soft! text-text-default h-9! w-full"
-            />
-            <DateRangePicker
-              label="Close Date"
-              value={thirdTermEndtValue}
-              onChange={setThirdTermEndValue}
-              className="bg-bg-input-soft! text-text-default h-9! w-full"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Checkbox />
-            <div className="text-text-muted text-sm font-medium">Auto-lock after deadline</div>
-          </div>
-        </div>
+        {!isLoading && (
+          <>
+            {terms.map((term: Term) => {
+              const state = getTermState(term.termId);
+              return (
+                <div key={term.termId} className="bg-bg-card border-border-darker w-full rounded-md border p-4 md:p-6">
+                  <div className="text-text-default text-md mb-4 font-semibold">{term.term} Term</div>
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <DateRangePicker
+                      label="Open Date"
+                      value={state.openDate}
+                      onChange={val => updateTermState(term.termId, { openDate: val, closeDate: undefined })}
+                      className="bg-bg-input-soft! text-text-default h-9! w-full"
+                    />
+                    <DateRangePicker
+                      label="Close Date"
+                      value={state.closeDate}
+                      disabled={
+                        state.openDate?.from
+                          ? { before: new Date(new Date(state.openDate.from).setDate(state.openDate.from.getDate() + 1)) }
+                          : undefined
+                      }
+                      onChange={val => updateTermState(term.termId, { closeDate: val })}
+                      className="bg-bg-input-soft! text-text-default h-9! w-full"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={state.autoLockAfterDeadline}
+                      onCheckedChange={checked => updateTermState(term.termId, { autoLockAfterDeadline: checked === true })}
+                    />
+                    <div className="text-text-muted text-sm font-medium">Auto-lock after deadline</div>
+                  </div>
+                </div>
+              );
+            })}
+
+            <div className="flex w-full items-center justify-between">
+              <Button className="bg-bg-state-soft! text-text-subtle rounded-md" onClick={() => setTermStates({})}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isPending}
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default"
+              >
+                {isPending ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -130,7 +130,7 @@ export const deleteClass = async (classroomId: number) => {
 };
 export const getClassLevels = async () => {
   try {
-    const { data } = await api.get(`/class-levels/names?`);
+    const { data } = await api.get(`/class-levels/names`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

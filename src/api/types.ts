@@ -599,3 +599,39 @@ export interface UpdateGradingDefaultPayload {
     remark: string;
   }[];
 }
+
+export interface ResultCalculationPayload {
+  levelId: 0;
+  academicSessionId: 0;
+  calculationMethod: "THIRD_TERM_ONLY" | "CUMULATIVE ";
+  promotionType: "PROMOTE_ALL" | "MANUAL" | "PROMOTE_ALL";
+  minimumOverallPercentage: number;
+  minimumPassGrade: string;
+  requiredSubjectIds: [];
+}
+
+export interface ResultSubmissionPayload {
+  termsDeadline: [
+    {
+      termId: number;
+      openDate: string;
+      closeDate: string;
+      autoLockAfterDeadline: boolean;
+    },
+  ];
+}
+
+export interface TermDeadlineState {
+  openDate: DateRange | undefined;
+  closeDate: DateRange | undefined;
+  autoLockAfterDeadline: boolean;
+}
+
+export interface PrincaleCommentPayload {
+  levelId: number;
+  rows: {
+    minPercentage: number;
+    maxPercentage: number;
+    comment: string;
+  }[];
+}
