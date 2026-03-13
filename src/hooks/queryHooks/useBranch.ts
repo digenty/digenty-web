@@ -9,7 +9,7 @@ import {
   updateBranch,
 } from "@/api/branch";
 import { branchKeys } from "@/queries/branch";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetBranches = () => {
   return useQuery({
@@ -64,8 +64,13 @@ export const useGetBranchDetails = (branchId: number, termId?: number) => {
 };
 
 export const useUpdateBranch = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: branchKeys.updateBranch,
     mutationFn: updateBranch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [branchKeys.branches] });
+    },
   });
 };

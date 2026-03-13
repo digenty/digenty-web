@@ -30,7 +30,6 @@ export const useGetStudents = ({
   limit,
   branchId,
   classId,
-  // departmentId,
   armId,
   status,
   search,

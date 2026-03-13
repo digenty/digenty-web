@@ -32,6 +32,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Timezones } from "@/store/timeZone";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Country } from "@/components/StudentAndParent/types";
+import { Branch } from "@/api/types";
 
 type EditProps = "editName" | "editSchoolName" | "motto" | "editPhoneNum" | "editBranch" | "newBranch" | null;
 
@@ -56,8 +57,9 @@ export const General = () => {
   const [branchName, setBranchName] = useState("");
   const [branchAddress, setBranchAddress] = useState("");
   const [activeBranchId, setActiveBranchId] = useState<number | null>(null);
+  const [branchList, setBranchList] = useState<Branch[]>([]);
 
-  const { data: schoolResponse, isLoading: isLoadingSchool } = useGetSchoolDetails();
+  const { data: schoolResponse } = useGetSchoolDetails();
   const { data: branchesResponse, isFetching: isLoadingBranch } = useGetBranches();
   const { data: countries = [] } = useGetCountries();
 
@@ -67,6 +69,7 @@ export const General = () => {
   const addBranch = useAddBranch();
   const updateBranch = useUpdateBranch();
 
+  console.log(branches, "branches", branchList);
   useEffect(() => {
     if (!school) return;
     setSchoolName(school.schoolName ?? "");
@@ -78,7 +81,8 @@ export const General = () => {
     setCurrency(school.currency ?? "");
     setTimezone(school.timezone ?? "Select");
     setLogoUrl(school.logo ?? "");
-  }, [school]);
+    setBranchList(branches ?? []);
+  }, [school, branchesResponse]);
 
   useBreadcrumb([
     { label: "Settings", url: "/settings" },
@@ -146,8 +150,10 @@ export const General = () => {
           branchDtos: [{ branchName: branchName, address: branchAddress }],
         },
         {
-          onSuccess: () => {
-            toast({ title: "Saved", description: "Branch added.", type: "success" });
+          onSuccess: data => {
+            console.log(data, "data");
+            toast({ title: "Saved", description: "Branch added", type: "success" });
+            setBranchList([...branchList, data.data[0].branch]);
             resetBranchForm();
           },
           onError: () => {
@@ -528,7 +534,7 @@ export const General = () => {
         ) : (
           <>
             {" "}
-            {branches.map((branch: { id: number; name: string; address: string | null }, index: number) => (
+            {branchList.map((branch: Branch, index: number) => (
               <div key={branch.id} className="border-border-default border-b py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col gap-2">
@@ -547,7 +553,7 @@ export const General = () => {
                   <Button
                     onClick={() => {
                       setActiveBranchId(branch.id);
-                      setBranchName(branch.name);
+                      setBranchName(branch.name || "");
                       setBranchAddress(branch.address ?? "");
                       setEdit("editBranch");
                     }}
