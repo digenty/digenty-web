@@ -119,7 +119,7 @@ export const EditStaff = () => {
         .filter(assignment => assignment.branchId !== null)
         .map(assgnmnt => ({
           branchId: assgnmnt.branchId as number,
-          roleIds: assgnmnt.roleIds.map(role => role.id),
+          roleIds: assgnmnt.roleIds.map(role => role.roleId),
         }));
 
       await mutate(

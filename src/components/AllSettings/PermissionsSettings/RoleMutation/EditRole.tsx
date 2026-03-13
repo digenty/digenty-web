@@ -3,11 +3,13 @@
 import { Tabs } from "@/components/Tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import React from "react";
+import { useState } from "react";
 import { ModulePermission } from "./ModulePermission";
 import { TeacherAssignments } from "./TeacherAssignments";
 
 export const EditRoleSettings = () => {
+  const [permissionIds, setPermissionIds] = useState<number[]>([]);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="bg-bg-card-subtle border-border-default border-b p-3">
@@ -33,7 +35,7 @@ export const EditRoleSettings = () => {
             items={[
               {
                 label: "Module Permission",
-                content: <ModulePermission />,
+                content: <ModulePermission permissionIds={permissionIds} setPermissionIds={setPermissionIds} />,
               },
               {
                 label: "Teacher Assignments",
