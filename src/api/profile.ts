@@ -3,7 +3,7 @@ import { isAxiosError } from "axios";
 
 export const getUserProfileDetails = async () => {
   try {
-    const { data } = await api.get(``);
+    const { data } = await api.get("/users/profile");
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
