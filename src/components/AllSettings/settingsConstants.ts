@@ -7,6 +7,7 @@ import Group from "../Icons/Group";
 import { IdCard } from "../Icons/IdCard";
 import School from "../Icons/School";
 import { Shield } from "../Icons/Shield";
+import User from "../Icons/User";
 
 export const SETTINGS_NAV = [
   { label: "General Settings", url: "/settings/general", icon: School },
@@ -17,5 +18,6 @@ export const SETTINGS_NAV = [
   { label: "Permissions", url: "/settings/permissions", icon: Group },
   { label: "Stock", url: "/settings/stock", icon: Box3 },
   { label: "KYC", url: "/settings/kyc", icon: IdCard },
+  { label: "Profile", url: "/settings/profile", icon: User },
   { label: "Security", url: "/settings/security", icon: Shield },
 ];
