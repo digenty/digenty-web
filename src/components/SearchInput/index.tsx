@@ -7,8 +7,9 @@ import { Button } from "../ui/button";
 export const SearchInput = ({
   className,
   placeholder = "Search",
+  inputClassName,
   ...props
-}: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>): JSX.Element => {
+}: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & { inputClassName?: string }): JSX.Element => {
   return (
     <div
       className={cn(
@@ -16,7 +17,7 @@ export const SearchInput = ({
         className,
       )}
     >
-      <InputGroupInput className="text-text-muted text-sm" placeholder={placeholder} {...props} />
+      <InputGroupInput className={cn("text-text-muted h-8 pt-0! text-sm", inputClassName)} placeholder={placeholder} {...props} />
       <InputGroupAddon>
         <Search className="text-icon-default-muted" />
       </InputGroupAddon>

@@ -13,7 +13,7 @@ export const PageEmptyState = ({ title, description, buttonText, url }: { title:
         <p className="text-text-muted text-center text-xs font-normal">{description}</p>
         <Button
           onClick={() => router.push(url ?? "/")}
-          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2"
+          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2"
         >
           {buttonText}
         </Button>

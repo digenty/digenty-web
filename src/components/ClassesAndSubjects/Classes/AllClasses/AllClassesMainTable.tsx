@@ -73,7 +73,7 @@ export const AllClassesMainTable = ({
     <div className="px-4 py-3 md:px-8">
       <div className="mb-4 flex h-8 w-full items-center gap-3 md:w-92">
         <SearchInput
-          className="bg-bg-input-soft h-8 rounded-lg border-none"
+          className="bg-bg-input-soft rounded-lg border-none"
           // value={searchQuery}
           // onChange={evt => {
           //   setSearchQuery(evt.target.value);

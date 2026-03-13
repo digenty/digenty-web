@@ -2,17 +2,20 @@
 import { useRouter } from "next/navigation";
 import { QuickReferenceAll } from "../Icons/QuickReferenceAll";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 export const ErrorComponent = ({
   title,
   description,
   buttonText,
   url,
+  buttonStyle,
 }: {
   title: string;
   description: string;
   buttonText?: string;
   url?: string;
+  buttonStyle?: string;
 }) => {
   const router = useRouter();
   return (
@@ -23,7 +26,7 @@ export const ErrorComponent = ({
       {buttonText && (
         <Button
           onClick={() => router.push(url ?? "/")}
-          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2"
+          className={cn("bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2", buttonStyle)}
         >
           {buttonText}
         </Button>

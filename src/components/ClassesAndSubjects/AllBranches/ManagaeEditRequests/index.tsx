@@ -186,7 +186,7 @@ export const ManageEditRequest = () => {
         <SearchInput
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="bg-bg-input-soft h-8 w-full rounded-md border-none md:w-71"
+          className="bg-bg-input-soft w-full rounded-md border-none md:w-71"
         />
 
         {selectedCount > 0 && (

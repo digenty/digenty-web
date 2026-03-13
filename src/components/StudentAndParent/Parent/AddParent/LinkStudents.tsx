@@ -79,7 +79,7 @@ export const LinkStudents = ({
 
           <div className="space-y-3 px-3 py-4 md:px-6">
             <SearchInput
-              className="bg-bg-input-soft h-8 rounded-lg border-none"
+              className="bg-bg-input-soft rounded-lg border-none"
               value={searchQuery}
               onChange={evt => {
                 setSearchQuery(evt.target.value);
@@ -214,7 +214,7 @@ export const LinkStudents = ({
 
           <div className="space-y-3 px-3 py-4 md:px-6">
             <SearchInput
-              className="bg-bg-input-soft h-8 rounded-lg border-none"
+              className="bg-bg-input-soft rounded-lg border-none"
               value={searchQuery}
               onChange={evt => {
                 setSearchQuery(evt.target.value);

@@ -10,6 +10,7 @@ import UserMinus from "@/components/Icons/UserMinus";
 import WarningIcon from "@/components/Icons/WarningIcon";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { OverviewCard } from "@/components/OverviewCard";
 import { SearchInput } from "@/components/SearchInput";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
@@ -27,7 +28,7 @@ import { useDeleteStudents, useExportStudents, useGetStudents, useGetStudentsDis
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { studentKeys } from "@/queries/student";
+import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { useStudentStore } from "@/store/student";
 import { useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
@@ -37,9 +38,6 @@ import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
-import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
-import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const StudentsTable = () => {
   const router = useRouter();
@@ -407,7 +405,7 @@ export const StudentsTable = () => {
         {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
           <SearchInput
-            className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
+            className="bg-bg-input-soft! w-full rounded-lg border-none md:w-70.5"
             value={searchQuery}
             onChange={evt => {
               setSearchQuery(evt.target.value);

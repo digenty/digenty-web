@@ -1,7 +1,6 @@
 "use client";
 
-import { AddFill } from "@/components/Icons/AddFill";
-import { QuickReferenceAll } from "@/components/Icons/QuickReferenceAll";
+import { Branch } from "@/api/types";
 import ShareBox from "@/components/Icons/ShareBox";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
@@ -9,17 +8,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import React, { useState } from "react";
 
 type PermissionModalProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
+  branches: Branch[];
+  setBranchSelected: (branchSelected?: Branch) => void;
+  branchSelected?: Branch;
+  loadingBranches: boolean;
+  filteredCount: number;
 };
-const branches = ["All Branches", "Lawanson", "Ilasamaja"];
-export const SettingPermissionModalExport = ({ open, setOpen }: PermissionModalProps) => {
-  const [branchSelected, setBranchSelected] = useState(branches[0]);
+export const SettingPermissionModalExport = ({
+  open,
+  setOpen,
+  branches,
+  setBranchSelected,
+  branchSelected,
+  loadingBranches,
+  filteredCount = 0,
+}: PermissionModalProps) => {
   const isMobile = useIsMobile();
   return (
     <div>
@@ -30,26 +40,37 @@ export const SettingPermissionModalExport = ({ open, setOpen }: PermissionModalP
               <h2 className="text-text-default text-sm font-bold">Filter Selection</h2>
 
               <div className="space-y-2">
-                <Label className="text-text-default text-sm font-medium">Branch</Label>
-
-                <Select value={branchSelected} onValueChange={setBranchSelected}>
-                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-                    <SelectValue>
-                      <span className="text-text-default text-sm">{branchSelected}</span>
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="bg-bg-default border-border-default">
-                    {branches.map(branch => (
-                      <SelectItem key={branch} value={branch} className="text-text-default text-sm">
-                        {branch}
+                <div className="flex items-center gap-2">
+                  <Label className="text-text-default text-sm font-medium">Branch</Label>
+                </div>
+                {!branches || loadingBranches ? (
+                  <Skeleton className="bg-bg-input-soft h-9 w-full" />
+                ) : (
+                  <Select
+                    onValueChange={value => {
+                      const branch = branches.find((branch: Branch) => branch.uuid === value);
+                      setBranchSelected(branch);
+                    }}
+                  >
+                    <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                      <span className="text-text-default text-sm font-medium">{branchSelected ? branchSelected?.name : "All Branches"}</span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-bg-card border-border-default">
+                      <SelectItem value="none" className="text-text-default text-sm font-medium">
+                        All Branches
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      {branches.map((branch: Branch) => (
+                        <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
+                          {branch.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <Badge className="border-border-default bg-bg-badge-green text-bg-basic-green-strong flex items-center rounded-xs p-0.5">
-                14 Staff Found
+                {filteredCount} Staff Found
               </Badge>
             </div>
 
@@ -87,26 +108,37 @@ export const SettingPermissionModalExport = ({ open, setOpen }: PermissionModalP
               <h2 className="text-text-default text-sm font-bold">Filter Selection</h2>
 
               <div className="space-y-2">
-                <Label className="text-text-default text-sm font-medium">Branch</Label>
-
-                <Select value={branchSelected} onValueChange={setBranchSelected}>
-                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-                    <SelectValue>
-                      <span className="text-text-default text-sm">{branchSelected}</span>
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="bg-bg-default border-border-default">
-                    {branches.map(branch => (
-                      <SelectItem key={branch} value={branch} className="text-text-default text-sm">
-                        {branch}
+                <div className="flex items-center gap-2">
+                  <Label className="text-text-default text-sm font-medium">Branch</Label>
+                </div>
+                {!branches || loadingBranches ? (
+                  <Skeleton className="bg-bg-input-soft h-9 w-full" />
+                ) : (
+                  <Select
+                    onValueChange={value => {
+                      const branch = branches.find((branch: Branch) => branch.uuid === value);
+                      setBranchSelected(branch);
+                    }}
+                  >
+                    <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                      <span className="text-text-default text-sm font-medium">{branchSelected ? branchSelected?.name : "All Branches"}</span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-bg-card border-border-default">
+                      <SelectItem value="none" className="text-text-default text-sm font-medium">
+                        All Branches
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      {branches.map((branch: Branch) => (
+                        <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
+                          {branch.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               <Badge className="border-border-default bg-bg-badge-green text-bg-basic-green-strong flex items-center rounded-sm p-0.5">
-                14 Staff Found
+                {filteredCount} Staff Found
               </Badge>
             </div>
           </Modal>
