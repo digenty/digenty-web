@@ -42,7 +42,7 @@ export const AllBranchesTable = ({
   return (
     <div className="flex flex-col gap-4">
       <SearchInput
-        className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
+        className="bg-bg-input-soft! rounded-lg border-none md:w-70.5"
         value={searchQuery}
         onChange={evt => {
           setSearchQuery(evt.target.value);

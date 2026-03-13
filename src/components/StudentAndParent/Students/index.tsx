@@ -405,7 +405,7 @@ export const StudentsTable = () => {
         {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
           <SearchInput
-            className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
+            className="bg-bg-input-soft! w-full rounded-lg border-none md:w-70.5"
             value={searchQuery}
             onChange={evt => {
               setSearchQuery(evt.target.value);

@@ -109,7 +109,7 @@ export const Staffs = () => {
       <div className="flex flex-col gap-3 py-6 md:flex-row md:items-center md:justify-between md:gap-0">
         <div className="flex items-center gap-1">
           <SearchInput
-            className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
+            className="bg-bg-input-soft! rounded-lg border-none md:w-70.5"
             value={searchQuery}
             onChange={evt => {
               setSearchQuery(evt.target.value);

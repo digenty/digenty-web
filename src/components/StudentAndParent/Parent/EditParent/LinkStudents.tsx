@@ -73,7 +73,7 @@ export const LinkStudents = ({
           </div>
 
           <div className="space-y-3 px-3 py-4 md:px-6">
-            <SearchInput className="bg-bg-input-soft h-8 rounded-lg border-none" />
+            <SearchInput className="bg-bg-input-soft rounded-lg border-none" />
             <Button className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! border-border-default h-6 border px-1.5!">
               <XIcon className="text-icon-default-muted size-4" />
               <span className="text-text-default text-xs">Clear All</span>
@@ -192,7 +192,7 @@ export const LinkStudents = ({
           </div>
 
           <div className="space-y-3 px-3 py-4 md:px-6">
-            <SearchInput className="bg-bg-input-soft h-8 rounded-lg border-none" />
+            <SearchInput className="bg-bg-input-soft rounded-lg border-none" />
             <Button className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! border-border-default h-6 border px-1.5!">
               <XIcon className="text-icon-default-muted size-4" />
               <span className="text-text-default text-xs">Clear All</span>
