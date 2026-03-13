@@ -1,4 +1,4 @@
-import { addSchool, getSchools, updateSchool } from "@/api/school";
+import { addSchool, getSchoolDetails, getSchools, updateSchool } from "@/api/school";
 import { schoolsKey } from "@/queries/school";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -20,5 +20,12 @@ export const useGetSchools = () => {
   return useQuery({
     queryKey: schoolsKey.getSchool,
     queryFn: getSchools,
+  });
+};
+
+export const useGetSchoolDetails = () => {
+  return useQuery({
+    queryKey: schoolsKey.getSchoolDetails,
+    queryFn: getSchoolDetails,
   });
 };

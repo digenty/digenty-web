@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useAddBranch, useGetBranches, useUpdateBranch } from "@/hooks/queryHooks/useBranch";
-import { useGetSchools, usePutSchool } from "@/hooks/queryHooks/useSchool";
+import { useGetSchoolDetails, usePutSchool } from "@/hooks/queryHooks/useSchool";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { PlusIcon } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
@@ -31,13 +31,15 @@ import { currencies } from "@/store/currenciesCode";
 import { Spinner } from "@/components/ui/spinner";
 import { Timezones } from "@/store/timeZone";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Country } from "@/components/StudentAndParent/types";
 
-type EditProps = "editName" | "editSchoolName" | "moto" | "editPhoneNum" | "editBranch" | "newBranch" | null;
+type EditProps = "editName" | "editSchoolName" | "motto" | "editPhoneNum" | "editBranch" | "newBranch" | null;
 
 export const General = () => {
   const user = useLoggedInUser();
   const schoolId = user?.schoolId as number;
   const adminId = user?.id;
+
   const inputRef = useRef<HTMLInputElement | null>(null);
   const prevUrl = useRef<string | null>(null);
   const [currency, setCurrency] = useState(currencies[0]);
@@ -54,26 +56,27 @@ export const General = () => {
   const [branchName, setBranchName] = useState("");
   const [branchAddress, setBranchAddress] = useState("");
   const [activeBranchId, setActiveBranchId] = useState<number | null>(null);
-  const { data: schoolsResponse } = useGetSchools();
+
+  const { data: schoolResponse, isLoading: isLoadingSchool } = useGetSchoolDetails();
   const { data: branchesResponse, isFetching: isLoadingBranch } = useGetBranches();
   const { data: countries = [] } = useGetCountries();
-  const schools: SchoolData[] = schoolsResponse?.data ?? [];
-  const school = schools.find(s => s.id === schoolId);
+
+  const school = schoolResponse?.data;
   const branches = branchesResponse?.data?.content ?? [];
-  const putSchool = usePutSchool();
+  const { mutate, isPending: isSavingSchool } = usePutSchool();
   const addBranch = useAddBranch();
   const updateBranch = useUpdateBranch();
 
   useEffect(() => {
     if (!school) return;
-    setSchoolName(school.name ?? "");
+    setSchoolName(school.schoolName ?? "");
     setFirstName(school.firstName ?? "");
     setLastName(school.lastName ?? "");
     setMotto(school.motto ?? "");
     setPhoneNumber(school.phoneNumber ?? "");
     setCountryId(school.country ?? "");
     setCurrency(school.currency ?? "");
-    setTimezone(school.timezone ?? "");
+    setTimezone(school.timezone ?? "Select");
     setLogoUrl(school.logo ?? "");
   }, [school]);
 
@@ -88,7 +91,7 @@ export const General = () => {
     };
   }, []);
 
-  const buildSchoolPayload = (overrides: Partial<Parameters<typeof putSchool.mutate>[0]> = {}) => ({
+  const buildSchoolPayload = (overrides: Partial<Parameters<typeof mutate>[0]> = {}) => ({
     schoolId,
     adminId: Number(adminId),
     logo: logoUrl,
@@ -102,6 +105,8 @@ export const General = () => {
     timezone,
     ...overrides,
   });
+
+  console.log(buildSchoolPayload(), "buildSchoolPayload");
   const resetBranchForm = () => {
     setEdit(null);
     setBranchName("");
@@ -109,8 +114,8 @@ export const General = () => {
     setActiveBranchId(null);
   };
 
-  const handleSaveSchool = (overrides?: Partial<Parameters<typeof putSchool.mutate>[0]>) => {
-    putSchool.mutate(buildSchoolPayload(overrides), {
+  const handleSaveSchool = (overrides?: Partial<Parameters<typeof mutate>[0]>) => {
+    mutate(buildSchoolPayload(overrides), {
       onSuccess: () => {
         toast({ title: "Saved", description: "Settings updated.", type: "success" });
         setEdit(null);
@@ -184,14 +189,13 @@ export const General = () => {
       handleSaveSchool({ logo: uploadedUrl });
       toast({ title: "Logo updated", description: "School logo saved.", type: "success" });
     } catch {
-      toast({ title: "Upload failed", description: "Could not upload image.", type: "error" });
+      toast({ title: "Upload failed", description: "Could not upload logo.", type: "error" });
       setImage(undefined);
     }
     e.currentTarget.value = "";
   };
 
-  const selectedCountry = countries.find(c => c.id === countryId);
-  const isSavingSchool = putSchool.isPending;
+  const selectedCountry = countries.find((country: Country) => country.id === countryId);
   const isSavingBranch = addBranch.isPending || updateBranch.isPending;
 
   return (
@@ -227,7 +231,7 @@ export const General = () => {
                     <User fill="var(--color-icon-default-muted)" />
                     <div className="text-text-default text-sm font-medium">Admin Name</div>
                   </div>
-                  <div className="text-text-muted text-sm">{firstName || lastName ? `${firstName} ${lastName}`.trim() : "—"}</div>
+                  <div className="text-text-muted text-sm">{firstName || lastName ? `${firstName} ${lastName}`.trim() : "—-"}</div>
                 </div>
                 <Button
                   onClick={() => setEdit("editName")}
@@ -266,11 +270,10 @@ export const General = () => {
                     </Button>
 
                     <Button
-                      className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
+                      className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
                       onClick={() => handleSaveSchool({ firstName, lastName })}
-                      disabled={isSavingSchool}
                     >
-                      Save
+                      {isSavingSchool && <Spinner className="text-text-white-default size-3" />} Save
                     </Button>
                   </div>
                 </div>
@@ -286,7 +289,7 @@ export const General = () => {
                 <School fill="var(--color-icon-default-muted)" />
                 <div className="text-text-default text-sm font-medium">School name</div>
               </div>
-              <div className="text-text-muted text-sm">{schoolName || "—"}</div>
+              <div className="text-text-muted text-sm">{schoolName || "—-"}</div>
             </div>
             <Button
               onClick={() => setEdit("editSchoolName")}
@@ -314,7 +317,7 @@ export const General = () => {
                   Cancel
                 </Button>
                 <Button
-                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! items-center gap-1"
+                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! flex h-7! items-center gap-1"
                   onClick={() => handleSaveSchool({ schoolName })}
                   disabled={isSavingSchool}
                 >
@@ -332,16 +335,16 @@ export const General = () => {
                 <LightBulb fill="var(--color-icon-default-muted)" />
                 <div className="text-text-default text-sm font-medium">Motto</div>
               </div>
-              <div className="text-text-muted text-sm">{motto || "—"}</div>
+              <div className="text-text-muted text-sm">{motto || "-—"}</div>
             </div>
             <Button
-              onClick={() => setEdit("moto")}
+              onClick={() => setEdit("motto")}
               className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
             >
               <Edit fill="var(--color-icon-default-muted)" /> Edit
             </Button>
           </div>
-          {edit === "moto" && (
+          {edit === "motto" && (
             <div className="mt-4 flex flex-col gap-4">
               <div className="flex flex-col gap-2">
                 <Label className="text-text-default text-sm font-medium">Motto</Label>
@@ -360,7 +363,7 @@ export const General = () => {
                   Cancel
                 </Button>
                 <Button
-                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
+                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
                   onClick={() => handleSaveSchool({ motto })}
                   disabled={isSavingSchool}
                 >
@@ -378,7 +381,7 @@ export const General = () => {
                 <Phone fill="var(--color-icon-default-muted)" />
                 <div className="text-text-default text-sm font-medium">Phone Number</div>
               </div>
-              <div className="text-text-muted text-sm">{phoneNumber || "—"}</div>
+              <div className="text-text-muted text-sm">{phoneNumber || "-—"}</div>
             </div>
             <Button
               onClick={() => setEdit("editPhoneNum")}
@@ -406,7 +409,7 @@ export const General = () => {
                   Cancel
                 </Button>
                 <Button
-                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
+                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
                   onClick={() => handleSaveSchool({ phoneNumber: Number(phoneNumber) })}
                   disabled={isSavingSchool}
                 >
@@ -423,7 +426,7 @@ export const General = () => {
               <Mail fill="var(--color-icon-default-muted)" />
               <div className="text-text-default text-sm font-medium">Email Address</div>
             </div>
-            <div className="text-text-muted text-sm">{school?.email || "—"}</div>
+            <div className="text-text-muted text-sm">{school?.email || "—-"}</div>
           </div>
         </div>
 
@@ -433,7 +436,7 @@ export const General = () => {
               <Flag fill="var(--color-icon-default-muted)" />
               <div className="text-text-default text-sm font-medium">Country</div>
             </div>
-            <div className="text-text-muted text-sm">{selectedCountry?.name || "—"}</div>
+            <div className="text-text-muted text-sm">{selectedCountry?.name || "-—"}</div>
           </div>
           <Select
             value={countryId}
@@ -448,9 +451,9 @@ export const General = () => {
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-border-default">
-              {countries.map(c => (
-                <SelectItem key={c.id} value={c.id} className="text-text-default text-sm font-medium">
-                  {c.name}
+              {countries.map((country: Country) => (
+                <SelectItem key={country.id} value={country.id} className="text-text-default text-sm font-medium">
+                  {country.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -506,6 +509,9 @@ export const General = () => {
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-border-default">
+              <SelectItem key={"Select"} value={"Select"} className="text-text-default text-sm font-medium">
+                Select
+              </SelectItem>
               {Timezones.map(tz => (
                 <SelectItem key={tz} value={tz} className="text-text-default text-sm font-medium">
                   {tz}
@@ -515,7 +521,7 @@ export const General = () => {
           </Select>
         </div>
 
-        <div className="text-text-default border-border-default flex h-20 items-center border-b py-4 text-lg font-semibold">Branch Information</div>
+        <div className="text-text-default border-border-default flex h-16 items-center border-b py-4 text-lg font-semibold">Branch Information</div>
 
         {isLoadingBranch ? (
           <Skeleton className="bg-bg-input-soft h-50 w-full" />
@@ -525,8 +531,8 @@ export const General = () => {
             {branches.map((branch: { id: number; name: string; address: string | null }, index: number) => (
               <div key={branch.id} className="border-border-default border-b py-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex flex-col gap-4">
-                    <Badge className="border-border-default bg-bg-badge-default! text-text-subtle w-20! rounded-md border p-1 text-xs">
+                  <div className="flex flex-col gap-2">
+                    <Badge className="border-border-default bg-bg-badge-default! text-text-subtle h-6 rounded-md border py-1 text-xs">
                       Branch {index + 1}
                     </Badge>
                     <div className="flex items-center gap-2">
@@ -535,7 +541,7 @@ export const General = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Map fill="var(--color-icon-default-muted)" />
-                      <div className="text-text-muted text-sm">{branch.address || "—"}</div>
+                      <div className="text-text-muted text-sm">{branch.address || "—-"}</div>
                     </div>
                   </div>
                   <Button
@@ -594,11 +600,11 @@ export const General = () => {
                         Cancel
                       </Button>
                       <Button
-                        className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
+                        className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
                         onClick={handleSaveBranch}
                         disabled={isSavingBranch}
                       >
-                        {isSavingBranch ? "Saving..." : "Save"}
+                        {isSavingBranch && <Spinner className="text-text-white-default size-3" />} Save
                       </Button>
                     </div>
                   </div>
@@ -640,11 +646,11 @@ export const General = () => {
                 Cancel
               </Button>
               <Button
-                className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
+                className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
                 onClick={handleSaveBranch}
                 disabled={isSavingBranch}
               >
-                {isSavingBranch ? "Saving..." : "Save"}
+                {isSavingBranch && <Spinner className="text-text-white-default size-3" />} Save
               </Button>
             </div>
           </div>

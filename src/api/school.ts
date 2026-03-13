@@ -38,3 +38,15 @@ export const getSchools = async () => {
     throw error;
   }
 };
+
+export const getSchoolDetails = async () => {
+  try {
+    const { data } = await api.get("/schools/details");
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
