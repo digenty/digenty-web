@@ -180,18 +180,18 @@ export const General = () => {
     prevUrl.current = previewUrl;
     setImage(previewUrl);
 
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const result = await uploadImage(formData);
-      const uploadedUrl = result.url;
-      setLogoUrl(uploadedUrl);
-      handleSaveSchool({ logo: uploadedUrl });
-      toast({ title: "Logo updated", description: "School logo saved.", type: "success" });
-    } catch {
-      toast({ title: "Upload failed", description: "Could not upload logo.", type: "error" });
-      setImage(undefined);
-    }
+    // try {
+    //   const formData = new FormData();
+    //   formData.append("file", file);
+    //   const result = await uploadImage(formData);
+    //   const uploadedUrl = result.url;
+    //   setLogoUrl(uploadedUrl);
+    //   handleSaveSchool({ logo: uploadedUrl });
+    //   toast({ title: "Logo updated", description: "School logo saved.", type: "success" });
+    // } catch {
+    //   toast({ title: "Upload failed", description: "Could not upload logo.", type: "error" });
+    //   setImage(undefined);
+    // }
     e.currentTarget.value = "";
   };
 
@@ -214,7 +214,7 @@ export const General = () => {
                 onChange={handleFileChange}
                 aria-label="Upload school logo"
               />
-              <Avatar className="size-10" url={image ?? logoUrl} />
+              <Avatar className="border-border-default size-10 border" url={image ?? logoUrl} />
               <Button
                 onClick={handleUploadClick}
                 className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"

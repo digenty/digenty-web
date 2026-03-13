@@ -6,7 +6,7 @@ import {
   getBranchDetails,
   getBranchesForASchool,
   getRequestEdit,
-  updateBranch
+  updateBranch,
 } from "@/api/branch";
 import { branchKeys } from "@/queries/branch";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -60,7 +60,7 @@ export const useGetBranchDetails = (branchId: number, termId?: number) => {
   return useQuery({
     queryKey: branchKeys.branchDetail(branchId, termId),
     queryFn: () => getBranchDetails(branchId, termId),
-     });
+  });
 };
 
 export const useUpdateBranch = () => {
