@@ -554,6 +554,16 @@ export interface ResultSubmissionPayload {
     },
   ];
 }
+export interface UpdateSubmissionDeadlinePayload {
+  termsDeadline: [
+    {
+      termId: number;
+      openDate: string;
+      closeDate: string;
+      autoLockAfterDeadline: boolean;
+    },
+  ];
+}
 
 export interface TermDeadlineState {
   openDate: DateRange | undefined;
@@ -674,3 +684,4 @@ export interface Levelsubject {
   branchId: number;
   schoolId: number;
 }
+   
