@@ -1,7 +1,7 @@
 "use client";
 
-import React, { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
-import { useForm, useFieldArray, UseFormReturn } from "react-hook-form";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { useFormik, FieldArray, FormikProvider } from "formik";
 import Loader2Fill from "@/components/Icons/Loader2Fill";
 import { Toggle } from "@/components/Toggle";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/Toast";
 import { useAddAssessmentDefault, useAddAssessment } from "@/hooks/queryHooks/useAssessment";
 import { useAddGradingDefault, useAddGrading } from "@/hooks/queryHooks/useGrading";
+
 import {
   AssessmentRow,
   BranchFormHandle,
@@ -32,6 +33,7 @@ import {
   LevelTab,
   LevelTabsContainerProps,
 } from "@/api/types";
+import { levelFormSchema } from "@/schema/academic";
 
 export type GradingAndAssessmentHandle = {
   submit: () => Promise<boolean>;
@@ -44,62 +46,91 @@ const emptyGradeRow = (): GradeRow => ({ grade: "", upperLimit: "", lowerLimit: 
 const emptyFormValues = (): LevelFormValues => ({ assessments: [emptyAssessmentRow()], grades: [emptyGradeRow()] });
 
 const getTotalWeight = (assessments: AssessmentRow[]) => assessments.reduce((sum, a) => sum + (parseFloat(a.weight) || 0), 0);
-
 const isLevelTouched = (values: LevelFormValues): boolean =>
-  values.assessments.some(a => a.name.trim() || a.weight.trim()) ||
-  values.grades.some(g => g.grade.trim() || g.upperLimit.trim() || g.lowerLimit.trim() || g.remark.trim());
+  values.assessments.some(a => a.name.trim() !== "" || a.weight.trim() !== "") ||
+  values.grades.some(g => g.grade.trim() !== "" || g.upperLimit.trim() !== "" || g.lowerLimit.trim() !== "" || g.remark.trim() !== "");
 
-const AssessmentFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) => {
-  const { control, register, watch } = form;
-  const { fields, append, remove } = useFieldArray({ control, name: "assessments" });
-  const totalWeight = getTotalWeight(watch("assessments"));
+type AssessmentFieldsProps = {
+  values: LevelFormValues;
+  handleChange: React.ChangeEventHandler;
+  handleBlur: React.FocusEventHandler;
+};
+
+const AssessmentFields = ({ values, handleChange, handleBlur }: AssessmentFieldsProps) => {
+  const totalWeight = getTotalWeight(values.assessments);
   const isOverWeight = totalWeight > 100;
 
   return (
     <div className="bg-bg-state-soft rounded-md p-2">
       <div className="text-text-default text-md px-4 py-2 font-semibold">Assessment</div>
       <div className="bg-bg-card border-border-default rounded-md border px-5 py-6">
-        <div className="flex flex-col gap-4">
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex items-center justify-between gap-2">
-              <Input
-                {...register(`assessments.${index}.name`)}
-                className="bg-bg-input-soft! text-text-default h-9! flex-1 border-none"
-                placeholder="Continuous Assessment 1"
-              />
-              <div className="bg-bg-input-soft flex h-9 w-17 items-center gap-1 rounded-md p-1">
-                <Input {...register(`assessments.${index}.weight`)} className="text-text-default h-7! w-full border-none bg-none!" placeholder="20" />
-                <span className="text-text-muted w-3">%</span>
+        <FieldArray name="assessments">
+          {({ remove, push }) => (
+            <>
+              <div className="flex flex-col gap-4">
+                {values.assessments.map((_, index) => (
+                  <div key={index} className="flex items-center justify-between gap-2">
+                    <Input
+                      name={`assessments.${index}.name`}
+                      value={values.assessments[index].name}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className="bg-bg-input-soft! text-text-default h-9! flex-1 border-none"
+                      placeholder="Continuous Assessment 1"
+                    />
+                    <div className="bg-bg-input-soft flex h-9 w-17 items-center gap-1 rounded-md p-1">
+                      <Input
+                        name={`assessments.${index}.weight`}
+                        value={values.assessments[index].weight}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className="text-text-default h-7! w-full border-none bg-none!"
+                        placeholder="20"
+                      />
+                      <span className="text-text-muted w-3">%</span>
+                    </div>
+                    <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit">
+                      <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                    </Button>
+                  </div>
+                ))}
               </div>
-              <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit">
-                <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-              </Button>
-            </div>
-          ))}
-        </div>
-        <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <Button type="button" className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm" onClick={() => append(emptyAssessmentRow())}>
-            <AddFill fill="var(--color-icon-default-muted)" /> Add Continuous Assessment
-          </Button>
-          <div className="flex items-center gap-2">
-            <span className="text-text-subtle text-sm">Total Weight</span>
-            <span className={cn("text-sm font-medium", isOverWeight ? "text-text-destructive" : "text-text-default")}>{totalWeight}%</span>
-          </div>
-        </div>
-        {isOverWeight && <p className="text-text-destructive mt-2 text-xs">Total assessment weight cannot exceed 100%</p>}
+              <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <Button
+                  type="button"
+                  className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm"
+                  onClick={() => push(emptyAssessmentRow())}
+                >
+                  <AddFill fill="var(--color-icon-default-muted)" /> Add Continuous Assessment
+                </Button>
+                <div className="flex items-center gap-2">
+                  <span className="text-text-subtle text-sm">Total Weight</span>
+                  <span className={cn("text-sm font-medium", isOverWeight ? "text-text-destructive" : "text-text-default")}>{totalWeight}%</span>
+                </div>
+              </div>
+              {isOverWeight && <p className="text-text-destructive mt-2 text-xs">Total assessment weight cannot exceed 100%</p>}
+            </>
+          )}
+        </FieldArray>
       </div>
     </div>
   );
 };
 
-const GradingFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) => {
-  const { control, register } = form;
-  const { fields, append, remove } = useFieldArray({ control, name: "grades" });
+type GradingFieldsProps = {
+  values: LevelFormValues;
+  handleChange: React.ChangeEventHandler;
+  handleBlur: React.FocusEventHandler;
+};
+
+const GradingFields = ({ values, handleChange, handleBlur }: GradingFieldsProps) => {
+  const isMobile = useIsMobile();
 
   return (
     <div className="bg-bg-state-soft overflow-x-auto rounded-md p-2">
       <div className="text-text-default text-md px-4 py-2 font-semibold">Grading</div>
 
+      {/* Desktop */}
       <div className="bg-bg-card border-border-default hidden w-full rounded-md border px-5 py-6 md:block">
         <table className="w-full border-none">
           <thead>
@@ -113,105 +144,152 @@ const GradingFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) => {
             </tr>
           </thead>
           <tbody>
-            {fields.map((field, index) => (
-              <tr key={field.id}>
-                <td className="px-3 py-2">
-                  <div className="bg-bg-input-soft flex h-9 w-27 items-center rounded-md px-2">
-                    <Input
-                      {...register(`grades.${index}.grade`)}
-                      type="text"
-                      placeholder="A"
-                      className="text-text-default h-7! w-full border-none bg-transparent"
-                    />
-                  </div>
-                </td>
-                <td className="px-3 py-2">
-                  <div className="bg-bg-input-soft flex h-9 w-27 items-center rounded-md px-2">
-                    <Input
-                      {...register(`grades.${index}.lowerLimit`)}
-                      type="number"
-                      placeholder="70"
-                      className="text-text-default h-7! w-full border-none bg-transparent"
-                    />
-                  </div>
-                </td>
-                <td className="text-text-subtle w-1">-</td>
-                <td className="px-3 py-2">
-                  <div className="bg-bg-input-soft flex h-9 w-27 items-center rounded-md px-2">
-                    <Input
-                      {...register(`grades.${index}.upperLimit`)}
-                      type="number"
-                      placeholder="100"
-                      className="text-text-default h-7! w-full border-none bg-transparent"
-                    />
-                  </div>
-                </td>
-                <td className="w-full px-3 py-2">
-                  <Input
-                    {...register(`grades.${index}.remark`)}
-                    className="bg-bg-input-soft! text-text-default h-9! w-full border-none"
-                    placeholder="Excellent"
-                  />
-                </td>
-                <td className="px-3 py-2">
-                  <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! h-8 w-8 p-0">
-                    <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
+            <FieldArray name="grades">
+              {({ remove, push }) => (
+                <>
+                  {values.grades.map((_, index) => (
+                    <tr key={index}>
+                      <td className="px-3 py-2">
+                        <div className="bg-bg-input-soft flex h-9 w-27 items-center rounded-md px-2">
+                          <Input
+                            name={`grades.${index}.grade`}
+                            value={values.grades[index].grade}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            type="text"
+                            placeholder="A"
+                            className="text-text-default h-7! w-full border-none bg-transparent"
+                          />
+                        </div>
+                      </td>
+                      <td className="px-3 py-2">
+                        <div className="bg-bg-input-soft flex h-9 w-27 items-center rounded-md px-2">
+                          <Input
+                            name={`grades.${index}.lowerLimit`}
+                            value={values.grades[index].lowerLimit}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            type="number"
+                            placeholder="70"
+                            className="text-text-default h-7! w-full border-none bg-transparent"
+                          />
+                        </div>
+                      </td>
+                      <td className="text-text-subtle w-1">-</td>
+                      <td className="px-3 py-2">
+                        <div className="bg-bg-input-soft flex h-9 w-27 items-center rounded-md px-2">
+                          <Input
+                            name={`grades.${index}.upperLimit`}
+                            value={values.grades[index].upperLimit}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            type="number"
+                            placeholder="100"
+                            className="text-text-default h-7! w-full border-none bg-transparent"
+                          />
+                        </div>
+                      </td>
+                      <td className="w-full px-3 py-2">
+                        <Input
+                          name={`grades.${index}.remark`}
+                          value={values.grades[index].remark}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          className="bg-bg-input-soft! text-text-default h-9! w-full border-none"
+                          placeholder="Excellent"
+                        />
+                      </td>
+                      <td className="px-3 py-2">
+                        <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! h-8 w-8 p-0">
+                          <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td colSpan={6} className="px-3 pt-4">
+                      <Button
+                        type="button"
+                        className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm"
+                        onClick={() => push(emptyGradeRow())}
+                      >
+                        <AddFill fill="var(--color-icon-default-muted)" /> Add Grade Row
+                      </Button>
+                    </td>
+                  </tr>
+                </>
+              )}
+            </FieldArray>
           </tbody>
         </table>
       </div>
 
+      {/* Mobile */}
       <div className="flex flex-col gap-2 md:hidden">
-        {fields.map((field, index) => (
-          <div key={field.id} className="bg-bg-card border-border-default flex w-full flex-col gap-3 rounded-md border px-5 py-6">
-            <div className="flex flex-col gap-1">
-              <Label className="text-text-default text-sm font-medium">Grade</Label>
-              <Input
-                {...register(`grades.${index}.grade`)}
-                type="text"
-                placeholder="A"
-                className="text-text-default bg-bg-input-soft! h-7! w-full border-none"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-text-default text-sm font-medium">Score</Label>
-              <div className="flex w-full items-center gap-2">
-                <Input
-                  {...register(`grades.${index}.lowerLimit`)}
-                  type="number"
-                  placeholder="70"
-                  className="text-text-default bg-bg-input-soft! h-7! w-full border-none"
-                />
-                <span className="text-text-default text-xs">to</span>
-                <Input
-                  {...register(`grades.${index}.upperLimit`)}
-                  type="number"
-                  placeholder="100"
-                  className="text-text-default bg-bg-input-soft! h-7! w-full border-none"
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-text-default text-sm font-medium">Remark</Label>
-              <Input
-                {...register(`grades.${index}.remark`)}
-                className="bg-bg-input-soft! text-text-default h-7! w-full border-none"
-                placeholder="Excellent"
-              />
-            </div>
-            <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! h-8 w-8 p-0">
-              <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-            </Button>
-          </div>
-        ))}
+        <FieldArray name="grades">
+          {({ remove, push }) => (
+            <>
+              {values.grades.map((_, index) => (
+                <div key={index} className="bg-bg-card border-border-default flex w-full flex-col gap-3 rounded-md border px-5 py-6">
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-text-default text-sm font-medium">Grade</Label>
+                    <Input
+                      name={`grades.${index}.grade`}
+                      value={values.grades[index].grade}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      type="text"
+                      placeholder="A"
+                      className="text-text-default bg-bg-input-soft! h-7! w-full border-none"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-text-default text-sm font-medium">Score</Label>
+                    <div className="flex w-full items-center gap-2">
+                      <Input
+                        name={`grades.${index}.lowerLimit`}
+                        value={values.grades[index].lowerLimit}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        type="number"
+                        placeholder="70"
+                        className="text-text-default bg-bg-input-soft! h-7! w-full border-none"
+                      />
+                      <span className="text-text-default text-xs">to</span>
+                      <Input
+                        name={`grades.${index}.upperLimit`}
+                        value={values.grades[index].upperLimit}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        type="number"
+                        placeholder="100"
+                        className="text-text-default bg-bg-input-soft! h-7! w-full border-none"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-text-default text-sm font-medium">Remark</Label>
+                    <Input
+                      name={`grades.${index}.remark`}
+                      value={values.grades[index].remark}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      className="bg-bg-input-soft! text-text-default h-7! w-full border-none"
+                      placeholder="Excellent"
+                    />
+                  </div>
+                  <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! h-8 w-8 p-0">
+                    <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                  </Button>
+                </div>
+              ))}
+              <Button type="button" className="text-text-subtle hover:bg-bg-none! mt-2 w-fit bg-none! text-sm" onClick={() => push(emptyGradeRow())}>
+                <AddFill fill="var(--color-icon-default-muted)" /> Add Grade Row
+              </Button>
+            </>
+          )}
+        </FieldArray>
       </div>
-
-      <Button type="button" className="text-text-subtle hover:bg-bg-none! mt-2 w-fit bg-none! text-sm" onClick={() => append(emptyGradeRow())}>
-        <AddFill fill="var(--color-icon-default-muted)" /> Add Grade Row
-      </Button>
     </div>
   );
 };
@@ -219,32 +297,39 @@ const GradingFields = ({ form }: { form: UseFormReturn<LevelFormValues> }) => {
 type LevelFormPanelProps = { levelId: number; isActive: boolean };
 
 const LevelFormPanel = forwardRef<LevelFormHandle, LevelFormPanelProps>(({ levelId, isActive }, ref) => {
-  const form = useForm<LevelFormValues>({ defaultValues: emptyFormValues() });
+  const formik = useFormik<LevelFormValues>({
+    initialValues: emptyFormValues(),
+    validationSchema: levelFormSchema,
+    onSubmit: () => {},
+  });
 
   useImperativeHandle(ref, () => ({
-    submit: () =>
-      new Promise<LevelSubmitResult | null | undefined>(resolve => {
-        const values = form.getValues();
-        if (!isLevelTouched(values)) {
-          resolve(null);
-          return;
-        }
-        form.handleSubmit(
-          filledValues => resolve({ levelId, values: filledValues }),
-          () => resolve(undefined),
-        )();
-      }),
+    submit: async (): Promise<LevelSubmitResult | null | undefined> => {
+      if (!isLevelTouched(formik.values)) return null;
+
+      const errors = await formik.validateForm();
+      if (Object.keys(errors).length > 0) {
+        formik.setTouched({
+          assessments: formik.values.assessments.map(() => ({ name: true, weight: true })),
+          grades: formik.values.grades.map(() => ({ grade: true, upperLimit: true, lowerLimit: true, remark: true })),
+        });
+        return undefined;
+      }
+      return { levelId, values: formik.values };
+    },
     reset: (values: LevelFormValues) => {
-      form.reset(values);
+      formik.resetForm({ values });
     },
   }));
 
   return (
     <div className={isActive ? "block" : "hidden"}>
-      <div className="flex flex-col gap-6">
-        <AssessmentFields form={form} />
-        <GradingFields form={form} />
-      </div>
+      <FormikProvider value={formik}>
+        <div className="flex flex-col gap-6">
+          <AssessmentFields values={formik.values} handleChange={formik.handleChange} handleBlur={formik.handleBlur} />
+          <GradingFields values={formik.values} handleChange={formik.handleChange} handleBlur={formik.handleBlur} />
+        </div>
+      </FormikProvider>
     </div>
   );
 });
@@ -412,9 +497,8 @@ const BranchTabSwitch = ({
 };
 
 export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, ref) => {
-  const [activeTab, setActiveTab] = React.useState<string>("");
-  const [forBranch, setForBranch] = React.useState(false);
-
+  const [activeTab, setActiveTab] = useState<string>("");
+  const [forBranch, setForBranch] = useState(false);
   const { data: classLevelData, isLoading } = useGetClassLevel();
   const branchLevels: BranchLevel[] = classLevelData?.data ?? [];
 
@@ -425,7 +509,7 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
       for (const cl of b.classLevels) {
         if (!seen.has(cl.levelType)) {
           seen.add(cl.levelType);
-          tabs.push({ label: cl.levelName, levelId: cl.ids[0], levelType: cl.levelType });
+          tabs.push({ label: cl.levelName, levelId: cl.id, levelType: cl.levelType });
         }
       }
     }
@@ -497,7 +581,7 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
             filled.flatMap(({ levelId, values }) => {
               const levelType = dedupedLevelTabs.find(t => t.levelId === levelId)?.levelType;
               const targets = branchLevels.flatMap(b =>
-                b.classLevels.filter(cl => cl.levelType === levelType).map(cl => ({ branchId: b.branchId, levelId: cl.ids[0] })),
+                b.classLevels.filter(cl => cl.levelType === levelType).map(cl => ({ branchId: b.branchId, levelId: cl.id })),
               );
               return targets.flatMap(({ branchId }) => [
                 submitAssessmentDefault({
@@ -605,7 +689,7 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
               ref={branchPanelRefs.current[String(b.branchId)]}
               branchId={b.branchId}
               isActive={activeTab === String(b.branchId)}
-              levelTabs={b.classLevels.map(cl => ({ label: cl.levelName, levelId: cl.ids[0], levelType: cl.levelType }))}
+              levelTabs={b.classLevels.map(cl => ({ label: cl.levelName, levelId: cl.id, levelType: cl.levelType }))}
             />
           ))}
         </>

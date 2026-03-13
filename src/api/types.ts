@@ -408,7 +408,7 @@ export interface Level {
 }
 
 export interface ClassLevel {
-  ids: number[];
+  id: number;
   levelName: string;
   levelType: string;
 }
