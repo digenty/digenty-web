@@ -1,22 +1,10 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
+import { UpdateAssessmentLevelPayload, UpdateASssessmentBranchPayload, UpdateASssessmentDefaultPayload } from "./types";
 
-// This is not yet , just put it incase
-// export const getAssessmentForSchool = async () => {
-//   try {
-//     const { data } = await api.get(`assessment/school`);
-//     return data;
-//   } catch (error: unknown) {
-//     if (isAxiosError(error)) {
-//       throw error.response?.data;
-//     }
-//     throw error;
-//   }
-// };
-
-export const getAssessmentForBranch = async (branchId: number) => {
+export const getAssessmentForSchool = async () => {
   try {
-    const { data } = await api.get(`/assessment/branch/${branchId}`);
+    const { data } = await api.get(`/assessments/school-default`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
@@ -26,9 +14,33 @@ export const getAssessmentForBranch = async (branchId: number) => {
   }
 };
 
-export const getAssessmentForSchoolLevel = async () => {
+export const updateAssessmentForSchool = async (payload: UpdateASssessmentDefaultPayload) => {
   try {
-    const { data } = await api.get(`/assessments/class`);
+    const { data } = await api.put(`/assessments/school-default`, payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const updateAssessmentForBranch = async (payload: UpdateASssessmentBranchPayload) => {
+  try {
+    const { data } = await api.put(`/assessments/school-default`, payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const updateAssessmentForLevel = async (payload: UpdateAssessmentLevelPayload) => {
+  try {
+    const { data } = await api.put(`/assessments/school-default`, payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

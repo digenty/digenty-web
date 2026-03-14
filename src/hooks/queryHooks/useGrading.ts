@@ -1,4 +1,11 @@
-import { getBranchGradings, getClassGrading, getSchoolGradings, updateSchoolGradings } from "@/api/grading";
+import {
+  getBranchGradings,
+  getClassGrading,
+  getSchoolGradings,
+  updateBranchGradings,
+  updateLevelGradings,
+  updateSchoolGradings,
+} from "@/api/grading";
 import { gradingKeys } from "@/queries/grading";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -26,5 +33,18 @@ export const useUpdateSchoolGradings = () => {
   return useMutation({
     mutationKey: gradingKeys.updateSchoolGrading,
     mutationFn: updateSchoolGradings,
+  });
+};
+export const useUpdateBranchGradings = () => {
+  return useMutation({
+    mutationKey: gradingKeys.updateBranchGrading,
+    mutationFn: updateBranchGradings,
+  });
+};
+
+export const useUpdateLevelGradings = () => {
+  return useMutation({
+    mutationKey: gradingKeys.updateLevelGrading,
+    mutationFn: updateLevelGradings,
   });
 };

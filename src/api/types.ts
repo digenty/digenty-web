@@ -312,9 +312,9 @@ export interface Level {
   ];
 }
 
-export interface UpdateGradingDefaultPayload {
+export interface UpdateGradingLevelPayload {
   branchId: number;
-  levelIds: [];
+  levelId: number;
   gradingDtoList: {
     grade: string;
     upperLimit: number;
@@ -322,3 +322,77 @@ export interface UpdateGradingDefaultPayload {
     remark: string;
   }[];
 }
+
+export interface UpdateGradingDefaultPayload {
+  gradingDtoList: {
+    grade: string;
+    upperLimit: number;
+    lowerLimit: number;
+    remark: string;
+  }[];
+}
+
+export interface UpdateGradingBranchPayload {
+  branchId: number;
+  levelId: number;
+  gradingDtoList: {
+    grade: string;
+    upperLimit: number;
+    lowerLimit: number;
+    remark: string;
+  }[];
+}
+
+export interface UpdateASssessmentDefaultPayload {
+  assessments: {
+    name: string;
+    weight: number;
+    assessmentType: "CONTINUOUS_ASSESSMENT";
+  }[];
+}
+
+export interface UpdateASssessmentBranchPayload {
+  branchId: number;
+  assessments: {
+    name: string;
+    weight: number;
+    assessmentType: "CONTINUOUS_ASSESSMENT";
+  }[];
+}
+
+export interface UpdateAssessmentLevelPayload {
+  branchId: number;
+  levelId: number;
+  assessments: {
+    name: string;
+    weight: number;
+    assessmentType: "CONTINUOUS_ASSESSMENT";
+  }[];
+}
+
+export interface ClassLevel {
+  id: number;
+  levelName: string;
+  levelType: string;
+}
+export interface BranchLevel {
+  branchId: number;
+  branchName: string;
+  classLevels: ClassLevel[];
+}
+
+export type GradeRow = {
+  grade: string;
+  upperLimit: string;
+  lowerLimit: string;
+  remark: string;
+};
+
+export type AssessmentRow = {
+  name: string;
+  weight: string;
+};
+export type FormValues = {
+  grades: GradeRow[];
+  assessments: AssessmentRow[];
+};
