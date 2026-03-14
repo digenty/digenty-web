@@ -47,6 +47,7 @@ import { canViewPortalOverview } from "@/lib/permissions/portal-overview";
 import { canViewDomain } from "@/lib/permissions/domain";
 import { useQueryClient } from "@tanstack/react-query";
 import { log } from "console";
+import { SetupGuideProgress } from "./SetupGuideProgress";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -330,6 +331,8 @@ export const Sidebar = () => {
           })}
         </div>
 
+        {isSidebarOpen && <SetupGuideProgress />}
+
         <nav onClick={logout} className={cn("flex cursor-pointer items-center gap-[11px] py-2", !isSidebarOpen && "justify-center")}>
           <Logout fill="var(--color-icon-default-subtle)" />
           {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">Sign out</p>}
@@ -389,6 +392,8 @@ export const Sidebar = () => {
                 );
               })}
             </div>
+
+            <SetupGuideProgress />
 
             <nav onClick={logout} className={cn("flex cursor-pointer gap-2.75 py-2 pr-2")}>
               <Logout fill="var(--color-icon-default-subtle)" />
