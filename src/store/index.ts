@@ -1,3 +1,4 @@
 import { useSidebarStore } from "./sidebar";
+import { useOnboardingStore } from "./onboarding";
 
-export { useSidebarStore };
+export { useSidebarStore, useOnboardingStore };
