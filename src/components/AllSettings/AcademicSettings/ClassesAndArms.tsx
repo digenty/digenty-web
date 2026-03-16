@@ -190,7 +190,12 @@ export const ClassesAndArms = () => {
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
   const { data: branchLevels } = useGetBranchLevels(activeBranch?.id);
   const levels = extractUniqueLevelsByType(branchLevels?.data || []);
-  console.log(levels);
+
+  useEffect(() => {
+    if (!activeLevel) {
+      setActiveLevel(levels[0]);
+    }
+  }, [levels]);
 
   return (
     <div className="mx-auto flex w-full flex-col gap-4 px-4 lg:px-36">
