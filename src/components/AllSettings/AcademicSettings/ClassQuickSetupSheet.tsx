@@ -2,6 +2,7 @@ import { ClassLevel } from "@/api/types";
 import { CloseFill } from "@/components/Icons/CloseFill";
 import Settings4 from "@/components/Icons/Settings4";
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Spinner } from "@/components/ui/spinner";
+import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -18,7 +21,7 @@ import * as yup from "yup";
 
 const startclasses = ["1", "2", "3", "4", "5", "6"];
 const endClasses = ["1", "2", "3", "4", "5", "6"];
-export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLevel | null; branchSpecific: boolean }) => {
+export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLevel; branchSpecific: boolean }) => {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [arms, setArms] = useState<string[]>([]);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -26,11 +29,12 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
   const [armsEnabled, setArmsEnabled] = useState(false);
   const isMobile = useIsMobile();
 
-  console.log(level);
+  const { mutate, isPending } = useUpdateLevel();
+
   const formik = useFormik({
     initialValues: {
-      levelName: level?.levelName,
-      classNamePrefix: level?.levelName,
+      levelName: level?.levelName || "",
+      classNamePrefix: level?.classNamePrefix || "",
       startClass: level?.classStart,
       endClass: level?.classEnd,
       subject: "",
@@ -44,7 +48,34 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
       endClass: yup.string().required("End class is required"),
     }),
     onSubmit: values => {
-      console.log(values);
+      mutate(
+        {
+          levelId: level?.id,
+          levelName: values.levelName,
+          levelType: level?.levelType,
+          classNamePrefix: values.classNamePrefix,
+          classStart: values.startClass,
+          classEnd: values.endClass,
+          branchSpecific,
+        },
+        {
+          onSuccess: () => {
+            setSheetOpen(false);
+            toast({
+              title: "Level updated successfully",
+              description: "The level has been updated",
+              type: "success",
+            });
+          },
+          onError: error => {
+            toast({
+              title: "Failed to update level",
+              description: error?.message || "Could not update level",
+              type: "error",
+            });
+          },
+        },
+      );
     },
   });
 
@@ -96,12 +127,12 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
         <Input
           id="levelName"
           onChange={handleChange}
-          placeholder={`${level?.levelName}`}
+          placeholder={`${level?.levelName.replaceAll("_", " ").toLowerCase()}`}
           onBlur={handleBlur}
-          value={values.levelName}
+          value={values.levelName.replaceAll("_", " ").toLowerCase()}
           type="text"
           className={cn(
-            "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
+            "text-text-muted bg-bg-input-soft! border-none text-sm font-normal capitalize",
             errors.levelName && touched.levelName && "border-border-destructive border",
           )}
         />
@@ -115,7 +146,7 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
         <Input
           id="classNamePrefix"
           onChange={handleChange}
-          placeholder={`${level?.classNamePrefix}`}
+          placeholder="Enter class label"
           onBlur={handleBlur}
           value={values.classNamePrefix}
           type="text"
@@ -185,7 +216,11 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
                     can offer different sets of subjects or focus areas.
                   </div>
                 </div>
-                <Toggle checked={departmentsEnabled} onChange={e => setDepartmentsEnabled((e.target as HTMLInputElement).checked)} />
+                <Toggle
+                  withBorder={false}
+                  checked={departmentsEnabled}
+                  onChange={e => setDepartmentsEnabled((e.target as HTMLInputElement).checked)}
+                />
               </div>
               {departmentsEnabled && (
                 <>
@@ -322,7 +357,7 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
                     parallel divisions of the same class (e.g., Class A, Class B).
                   </span>
                 </div>
-                <Toggle checked={armsEnabled} onChange={e => setArmsEnabled((e.target as HTMLInputElement).checked)} />
+                <Toggle withBorder={false} checked={armsEnabled} onChange={e => setArmsEnabled((e.target as HTMLInputElement).checked)} />
               </div>
             </div>
             {armsEnabled && (
@@ -416,9 +451,11 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
                     </Button>
                   </SheetClose>
                   <Button
-                    type="submit"
+                    type="button"
+                    onClick={() => formik.handleSubmit()}
                     className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
                   >
+                    {isPending && <Spinner className="text-text-white-default" />}
                     Save
                   </Button>
                 </div>
@@ -443,9 +480,11 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
                 </Button>
               </SheetClose>
               <Button
-                type="submit"
+                type="button"
+                onClick={() => formik.handleSubmit()}
                 className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
               >
+                {isPending && <Spinner className="text-text-white-default" />}
                 Save
               </Button>
             </div>

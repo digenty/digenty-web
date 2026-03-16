@@ -1,31 +1,30 @@
 "use client";
 
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { useFormik, FieldArray, FormikProvider } from "formik";
+import { AddFill } from "@/components/Icons/AddFill";
+import BookOpen from "@/components/Icons/BookOpen";
+import { DeleteBin2 } from "@/components/Icons/DeleteBin2";
 import Loader2Fill from "@/components/Icons/Loader2Fill";
+import School from "@/components/Icons/School";
+import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { AddFill } from "@/components/Icons/AddFill";
 import { Input } from "@/components/ui/input";
-import { DeleteBin2 } from "@/components/Icons/DeleteBin2";
-import { GradingAndAssessmentSheet, LevelFormValues } from "./GradingAndAssessmentSheet";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import { Label } from "@/components/ui/label";
-import BookOpen from "@/components/Icons/BookOpen";
-import School from "@/components/Icons/School";
-import { useGetBranchLevels } from "@/hooks/queryHooks/useClass";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "@/components/Toast";
-import { useAddAssessmentDefault, useAddAssessment } from "@/hooks/queryHooks/useAssessment";
-import { useAddGradingDefault, useAddGrading } from "@/hooks/queryHooks/useGrading";
+import { useAddAssessment, useAddAssessmentDefault } from "@/hooks/queryHooks/useAssessment";
+import { useAddGrading, useAddGradingDefault } from "@/hooks/queryHooks/useGrading";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { cn } from "@/lib/utils";
+import { FieldArray, FormikProvider, useFormik } from "formik";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { GradingAndAssessmentSheet, LevelFormValues } from "./GradingAndAssessmentSheet";
 
 import {
   AssessmentRow,
   BranchFormHandle,
   BranchFormPanelProps,
-  BranchLevel,
+  Level,
   BranchSubmitResult,
   GradeRow,
   LevelFormHandle,
@@ -33,6 +32,7 @@ import {
   LevelTab,
   LevelTabsContainerProps,
 } from "@/api/types";
+import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { levelFormSchema } from "@/schema/academic";
 
 export type GradingAndAssessmentHandle = {
@@ -442,7 +442,7 @@ const BranchTabSwitch = ({
 }: {
   activeTab: string;
   setActiveTab: (t: string) => void;
-  branchLevels: BranchLevel[];
+  branchLevels: Level[];
   isLoading: boolean;
 }) => {
   const isMobile = useIsMobile();
@@ -499,8 +499,8 @@ const BranchTabSwitch = ({
 export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, ref) => {
   const [activeTab, setActiveTab] = useState<string>("");
   const [forBranch, setForBranch] = useState(false);
-  const { data: classLevelData, isLoading } = useGetBranchLevels();
-  const branchLevels: BranchLevel[] = classLevelData?.data ?? [];
+  const { data: classLevelData, isLoading } = useGetLevels();
+  const branchLevels: Level[] = classLevelData?.data ?? [];
 
   const dedupedLevelTabs: LevelTab[] = React.useMemo(() => {
     const seen = new Set<string>();

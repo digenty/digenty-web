@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAddSchoolStructure } from "@/hooks/queryHooks/useAcademic";
 import { useAddBranch, useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { getAcademicYears } from "@/lib/utils";
 import { schoolStructureSchema } from "@/schema/academic";
 import { LEVELS } from "@/store/classes";
@@ -52,7 +53,7 @@ const emptyNewBranch = (): NewBranchForm => ({
 
 export const SchoolStructure = forwardRef<SchoolStructureHandle>((_, ref) => {
   const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
-
+  console.log(useLoggedInUser());
   const existingBranches: Branch[] = branchesData?.data?.content ?? [];
   const [newBranches, setNewBranches] = useState<NewBranchForm[]>([]);
   const { mutateAsync: submitSchoolStructure } = useAddSchoolStructure();

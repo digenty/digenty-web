@@ -23,6 +23,7 @@ import { Branch, ClassLevel } from "@/api/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetBranchLevels } from "@/hooks/queryHooks/useClass";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 
 const tabs = ["Lawanson", "Ilasamaja"] as const;
 type Tab = (typeof tabs)[number];
@@ -126,13 +127,13 @@ function ClassesResponsiveTabs({
         >
           <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
             <SelectValue>
-              <span className="text-text-default text-sm">{levels[activeIndex].levelName}</span>
+              <span className="text-text-default text-sm capitalize">{levels[activeIndex].levelName.replaceAll("_", " ").toLowerCase()}</span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-bg-default border-border-default">
             {levels.map((level, idx) => (
-              <SelectItem key={level.levelName} value={String(idx)} className="text-text-default text-sm">
-                {level.levelName}
+              <SelectItem key={level.levelName} value={String(idx)} className="text-text-default text-sm capitalize">
+                {level.levelName.replaceAll("_", " ").toLowerCase()}
               </SelectItem>
             ))}
           </SelectContent>
@@ -143,9 +144,12 @@ function ClassesResponsiveTabs({
   }
 
   return (
-    <div>
-      <div className="h-9 w-full md:w-fit">
-        <div className="bg-bg-state-soft flex w-full items-center justify-between gap-2.5 rounded-full p-0.5">
+    <div className="w-full overflow-hidden">
+      <div className="h-9 w-full">
+        <div
+          className="bg-bg-state-soft hide-scrollbar flex max-w-150 items-center gap-2.5 overflow-x-auto rounded-full p-0.5 lg:max-w-160 xl:max-w-216"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
           {levels.map((level, index) => {
             const isActive = level.levelName === activeLevel?.levelName;
 
@@ -154,13 +158,13 @@ function ClassesResponsiveTabs({
                 key={level.levelName}
                 onClick={() => setActiveLevel(level)}
                 className={cn(
-                  "transit flex justify-center px-4 py-2 text-sm font-medium",
+                  "transit flex shrink-0 justify-center px-4 py-2 text-sm font-medium whitespace-nowrap capitalize",
                   isActive
                     ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
                     : "text-text-muted flex h-8 items-center gap-1",
                 )}
               >
-                <span>{level.levelName}</span>
+                <span>{level.levelName.replaceAll("_", " ").toLowerCase()}</span>
                 {/* {(isActive ? item.activeIcon : item.icon) && <span className="mr-1 flex items-center">{isActive ? item.activeIcon : item.icon}</span>} */}
                 {/* {(isActive ? item.activeIcon : item.icon) && <span className="mr-1 flex items-center">{isActive ? item.activeIcon : item.icon}</span>} */}
                 {isActive ? (
@@ -188,7 +192,7 @@ export const ClassesAndArms = () => {
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
   const [branchSpecific, setBranchSpecific] = useState(false);
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
-  const { data: branchLevels } = useGetBranchLevels(activeBranch?.id);
+  const { data: branchLevels } = useGetLevels(activeBranch?.id);
   const levels = extractUniqueLevelsByType(branchLevels?.data || []);
 
   useEffect(() => {
@@ -205,6 +209,7 @@ export const ClassesAndArms = () => {
           <div className="text-text-subtle text-sm font-normal">Turn ON for branch-specific structures. Keep OFF to share one setup.</div>
         </div>
         <Toggle
+          withBorder={false}
           checked={branchSpecific}
           onChange={evt => {
             setBranchSpecific(!branchSpecific);
@@ -219,12 +224,10 @@ export const ClassesAndArms = () => {
       )}
 
       <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="flex-1">
+        <div className="w-full min-w-0 flex-1">
           <ClassesSetup levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
         </div>
-        <div className="shrink-0">
-          <ClassQuickSetupSheet level={activeLevel} branchSpecific={branchSpecific} />
-        </div>
+        <div className="shrink-0">{activeLevel && <ClassQuickSetupSheet level={activeLevel} branchSpecific={branchSpecific} />}</div>
       </div>
     </div>
   );

@@ -90,7 +90,7 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="schoolSize" className="text-text-default text-sm font-semibold">
-            School Size<small className="text-text-destructive text-xs">*</small>
+            Student Population<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
             value={values.schoolSize}
@@ -99,7 +99,7 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
             }}
           >
             <SelectTrigger className="bg-bg-input-soft! text-text-default w-full border-none">
-              <SelectValue placeholder="School size" />
+              <SelectValue placeholder="Student Population" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-border-default border">
               {schoolSizes.map(size => (

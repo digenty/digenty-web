@@ -106,15 +106,3 @@ export const requestEditAccess = async (payload: EditAccessPayload) => {
     throw error;
   }
 };
-
-export const getBranchLevels = async (branchId?: number) => {
-  try {
-    const { data } = await api.get(`/class-levels/names${branchId ? `?branchId=${branchId}` : ""}`);
-    return data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) {
-      throw error.message;
-    }
-    throw error;
-  }
-};

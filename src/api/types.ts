@@ -266,15 +266,6 @@ export interface BranchArmReportResponse {
   branchArmReportResponseDtos: BranchArmReport[];
 }
 
-export interface ClassLevel {
-  ids: number[];
-  levelName: string;
-  levelType: "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR SECONDARY" | "SENIOR SECONDARY";
-  classNamePrefix: string;
-  classStart: number;
-  classEnd: number;
-}
-
 export interface Level {
   branchId: number;
   branchName: string;
@@ -444,10 +435,10 @@ export interface LevelTabsContainerProps {
 export interface ClassLevel {
   id: number;
   levelName: string;
-  levelType: "CRECHE" | "NURSERY" | "PRIMARY" | "JUNIOR_SECONDARY" | "SENIOR_SECONDARY";
-  classNamePrefix: string | null;
-  classStart: number | null;
-  classEnd: number | null;
+  levelType: "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR SECONDARY" | "SENIOR SECONDARY";
+  classNamePrefix: string;
+  classStart: number;
+  classEnd: number;
 }
 
 export interface BranchLevels {
