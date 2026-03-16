@@ -1,3 +1,4 @@
+import { ClassLevel } from "@/api/types";
 import { CloseFill } from "@/components/Icons/CloseFill";
 import Settings4 from "@/components/Icons/Settings4";
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -12,15 +13,16 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useState } from "react";
 
-const startclasses = ["Primary 1", "Primary 2", "Primary 3", "Primary 4", "Primary 5", "Primary 6"];
-const endClasses = ["Primary 1", "Primary 2", "Primary 3", "Primary 4", "Primary 5", "Primary 6"];
-export const ClassQuickSetupSheet = () => {
+const startclasses = ["1", "2", "3", "4", "5", "6"];
+const endClasses = ["1", "2", "3", "4", "5", "6"];
+export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLevel | null; branchSpecific: boolean }) => {
   const [startClass, setStartClass] = useState(startclasses[0]);
   const [endClass, setEndClass] = useState(endClasses[0]);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [departmentsEnabled, setDepartmentsEnabled] = useState(false);
   const [armsEnabled, setArmsEnabled] = useState(false);
   const isMobile = useIsMobile();
+  console.log(level);
   return (
     <div className="">
       <Button
@@ -48,13 +50,30 @@ export const ClassQuickSetupSheet = () => {
                   <Label className="text-text-default text-sm font-medium">
                     Level name <span className="text-text-destructive">*</span>{" "}
                   </Label>
-                  <Input type="text" className="bg-bg-input-soft! text-text-default w-full rounded-md border-none text-sm" placeholder="Creche" />
+                  <Input
+                    value={level?.levelName}
+                    type="text"
+                    className="bg-bg-input-soft! text-text-default w-full rounded-md border-none text-sm"
+                    placeholder={`${level?.levelName}`}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label className="text-text-default text-sm font-medium">
+                    Class Label <span className="text-text-destructive">*</span>{" "}
+                  </Label>
+                  <Input
+                    type="text"
+                    className="bg-bg-input-soft! text-text-default w-full rounded-md border-none text-sm"
+                    placeholder={`${level?.levelName}`}
+                  />
+                  <small className="text-text-muted text-xs">Select the label that appears before the class number or type a custom one</small>
                 </div>
                 <div className="border-border-default flex items-center justify-between gap-3 border-b pb-6">
                   <div className="flex w-full flex-col gap-2">
                     <Select value={startClass} onValueChange={setStartClass}>
                       <div className="flex flex-col gap-2">
-                        <Label className="text-text-default text-sm font-medium">Class Start</Label>
+                        <Label className="text-text-default text-sm font-medium">Start level</Label>
                         <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
                           <SelectValue>
                             <span className="text-text-default text-sm font-medium">{startClass}</span>
@@ -69,12 +88,12 @@ export const ClassQuickSetupSheet = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <span className="text-text-muted text-xs">e.g Primary 1</span>
+                    <span className="text-text-muted text-xs">e.g {level?.levelName} 1</span>
                   </div>
                   <div className="flex w-full flex-col gap-2">
                     <Select value={endClass} onValueChange={setEndClass}>
                       <div className="flex flex-col gap-2">
-                        <Label className="text-text-default text-sm font-medium">Class End</Label>
+                        <Label className="text-text-default text-sm font-medium">End level</Label>
                         <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
                           <SelectValue>
                             <span className="text-text-default text-sm font-medium">{endClass}</span>
@@ -89,7 +108,7 @@ export const ClassQuickSetupSheet = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                    <span className="text-text-muted text-xs">e.g Primary 6</span>
+                    <span className="text-text-muted text-xs">e.g {level?.levelName} 3</span>
                   </div>
                 </div>
 

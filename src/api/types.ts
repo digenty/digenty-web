@@ -392,33 +392,6 @@ export interface AdmissionNumberPayload {
   padding: number;
 }
 
-export interface Level {
-  branchId: number;
-  branchName: string;
-  classLevels: [
-    {
-      ids: number;
-      levelName: string;
-      levelType: string;
-      classNamePrefix: string | undefined;
-      classStart: string | undefined;
-      classEnd: string | undefined;
-    },
-  ];
-}
-
-export interface ClassLevel {
-  id: number;
-  levelName: string;
-  levelType: string;
-}
-
-export interface BranchLevel {
-  branchId: number;
-  branchName: string;
-  classLevels: ClassLevel[];
-}
-
 export interface LevelTab {
   label: string;
   levelId: number;
@@ -466,4 +439,19 @@ export interface LevelTabsContainerProps {
   levelTabs: LevelTab[];
   levelRefs: Record<number, React.RefObject<LevelFormHandle>>;
   onApplyToAll: (values: LevelFormValues) => void;
+}
+
+export interface ClassLevel {
+  id: number;
+  levelName: string;
+  levelType: "CRECHE" | "NURSERY" | "PRIMARY" | "JUNIOR_SECONDARY" | "SENIOR_SECONDARY";
+  classNamePrefix: string | null;
+  classStart: number | null;
+  classEnd: number | null;
+}
+
+export interface BranchLevels {
+  branchId: number;
+  branchName: string;
+  classLevels: ClassLevel[];
 }

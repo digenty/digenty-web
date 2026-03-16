@@ -15,7 +15,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { Label } from "@/components/ui/label";
 import BookOpen from "@/components/Icons/BookOpen";
 import School from "@/components/Icons/School";
-import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
+import { useGetBranchLevels } from "@/hooks/queryHooks/useClass";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/Toast";
 import { useAddAssessmentDefault, useAddAssessment } from "@/hooks/queryHooks/useAssessment";
@@ -499,7 +499,7 @@ const BranchTabSwitch = ({
 export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, ref) => {
   const [activeTab, setActiveTab] = useState<string>("");
   const [forBranch, setForBranch] = useState(false);
-  const { data: classLevelData, isLoading } = useGetClassLevel();
+  const { data: classLevelData, isLoading } = useGetBranchLevels();
   const branchLevels: BranchLevel[] = classLevelData?.data ?? [];
 
   const dedupedLevelTabs: LevelTab[] = React.useMemo(() => {

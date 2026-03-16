@@ -46,25 +46,26 @@ export function AcademicSetup() {
 
     const currentRef = stepRefMap[currentStep];
 
-    if (currentRef) {
-      setIsSubmitting(true);
-      const success = await currentRef.submit();
-      setIsSubmitting(false);
-      if (!success) return;
-    }
+    // if (currentRef) {
+    //   setIsSubmitting(true);
+    //   const success = await currentRef.submit();
+    //   setIsSubmitting(false);
+    //   if (!success) return;
+    // }
 
-    setCompletedSteps(prev => (prev.includes(currentStep) ? prev : [...prev, currentStep]));
+    // setCompletedSteps(prev => (prev.includes(currentStep) ? prev : [...prev, currentStep]));
 
-    if (isLastStep) {
-      router.push("/settings/academic/academic-setup-done");
-    } else {
-      setCurrentStep(prev => prev + 1);
-    }
+    // if (isLastStep) {
+    //   router.push("/settings/academic/academic-setup-done");
+    // } else {
+    //   setCurrentStep(prev => prev + 1);
+    // }
+    setCurrentStep(prev => prev + 1);
   };
 
   return (
-    <section className="my-6 flex w-full items-center justify-center">
-      <div className="w-full space-y-4 px-4 md:space-y-6">
+    <section className="mt-6 flex min-h-[calc(100vh-120px)] w-full flex-col">
+      <div className="w-full flex-1 space-y-4 px-4 pb-10 md:space-y-6">
         <div className="mx-auto flex w-full flex-col gap-4 lg:px-36">
           <CSVUploadProgress currentStep={currentStep} steps={steps} completedSteps={completedSteps} className="flex w-full" />
         </div>
@@ -81,32 +82,31 @@ export function AcademicSetup() {
         <div className={currentStep === 4 ? "block" : "hidden"}>
           <AdmissionNumberSetup ref={admissionRef} />
         </div>
+      </div>
+      <div className="border-border-default bg-bg-default sticky bottom-0 flex w-full justify-between border-t px-4 pt-3 lg:px-36">
+        <Button
+          className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+          disabled={currentStep === 1 || isSubmitting}
+          onClick={() => setCurrentStep(prev => prev - 1)}
+        >
+          Previous
+        </Button>
 
-        <div className="border-border-default bg-bg-default sticky bottom-0 flex w-full justify-between border-t pt-3 lg:px-36">
-          <Button
-            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle"
-            disabled={currentStep === 1 || isSubmitting}
-            onClick={() => setCurrentStep(prev => prev - 1)}
-          >
-            Previous
-          </Button>
-
-          <Button
-            onClick={handleNext}
-            disabled={isSubmitting}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-3 h-4 w-4 animate-spin" /> Saving...
-              </>
-            ) : isLastStep ? (
-              "Finish"
-            ) : (
-              "Next"
-            )}
-          </Button>
-        </div>
+        <Button
+          onClick={handleNext}
+          disabled={isSubmitting}
+          className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-3 h-4 w-4 animate-spin" /> Saving...
+            </>
+          ) : isLastStep ? (
+            "Finish"
+          ) : (
+            "Next"
+          )}
+        </Button>
       </div>
     </section>
   );

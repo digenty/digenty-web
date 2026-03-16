@@ -9,8 +9,8 @@ import Loader2Fill from "@/components/Icons/Loader2Fill";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import { cn, extractUniqueLevelsByType } from "@/lib/utils";
+import React, { useEffect, useState } from "react";
 import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
@@ -18,54 +18,78 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { Label } from "@/components/ui/label";
 import BookOpen from "@/components/Icons/BookOpen";
 import School from "@/components/Icons/School";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { Branch, ClassLevel } from "@/api/types";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetBranchLevels } from "@/hooks/queryHooks/useClass";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 const tabs = ["Lawanson", "Ilasamaja"] as const;
 type Tab = (typeof tabs)[number];
 
-function MobileTabSwitch({ activeTab, setActiveTab }: { activeTab: Tab; setActiveTab: (t: Tab) => void }) {
+function MobileTabSwitch({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (t: Branch | null) => void }) {
+  const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
+
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (branchesData?.data?.content?.length > 0) {
+      setActiveBranch(branchesData?.data?.content[0]);
+    }
+  }, [branchesData]);
 
   if (isMobile) {
     return (
       <div className="w-full">
-        <Select value={activeTab} onValueChange={value => setActiveTab(value as Tab)}>
-          <Label className="text-text-default mb-2 text-sm font-medium">
-            {" "}
-            <School fill="var(--color-icon-default-muted)" /> Select Branch
-          </Label>
-          <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-            <SelectValue>
-              <span className="text-text-default text-sm">{activeTab}</span>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent className="bg-bg-default border-border-default">
-            {tabs.map(tab => (
-              <SelectItem key={tab} value={tab} className="text-text-default text-sm">
-                {tab}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {isLoadingBranches || !branchesData ? (
+          <Skeleton />
+        ) : (
+          <Select
+            value={activeBranch?.name || ""}
+            onValueChange={value => {
+              const branch = branchesData?.data?.content?.find((branch: Branch) => branch.name === value);
+              setActiveBranch(branch || null);
+            }}
+          >
+            <Label className="text-text-default mb-2 text-sm font-medium">
+              {" "}
+              <School fill="var(--color-icon-default-muted)" /> Select Branch
+            </Label>
+            <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+              <SelectValue>
+                <span className="text-text-default text-sm">{activeBranch?.name}</span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-bg-default border-border-default">
+              {branchesData?.data?.content?.map((branch: Branch) => (
+                <SelectItem key={branch.name} value={branch.name || ""} className="text-text-default text-sm">
+                  {branch.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
     );
   }
 
   return (
     <div className="flex w-auto max-w-64 items-center gap-3">
-      {tabs.map(tab => {
-        const isActive = activeTab === tab;
+      {isLoadingBranches && <Skeleton className="h-9 w-1/2" />}
+      {branchesData?.data?.content?.map((branch: Branch) => {
+        const isActive = activeBranch?.name === branch.name;
 
         return (
           <Button
-            key={tab}
+            key={branch.name}
             type="button"
-            onClick={() => setActiveTab(tab)}
+            onClick={() => setActiveBranch(branch)}
             className={cn(
               "hover:bg-bg-none! w-1/2 cursor-pointer rounded-none py-2.5 text-center transition-all duration-150",
               isActive && "border-border-informative border-b-[1.5px]",
             )}
           >
-            <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{tab}</span>
+            <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.name}</span>
             {isActive ? <Loader2Fill fill="var(--color-icon-informative)" /> : <Loader2Fill fill="var(--color-icon-default-muted)" />}
           </Button>
         );
@@ -75,9 +99,14 @@ function MobileTabSwitch({ activeTab, setActiveTab }: { activeTab: Tab; setActiv
 }
 
 function ClassesResponsiveTabs({
-  items,
+  levels,
+  activeLevel,
+  setActiveLevel,
 }: {
-  items: { label: string; content: React.ReactNode; icon?: React.ReactNode; activeIcon?: React.ReactNode }[];
+  // levels: { label: string; content: React.ReactNode; icon?: React.ReactNode; activeIcon?: React.ReactNode }[];
+  levels: ClassLevel[];
+  activeLevel: ClassLevel | null;
+  setActiveLevel: (level: ClassLevel) => void;
 }) {
   const isMobile = useIsMobile();
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -86,24 +115,29 @@ function ClassesResponsiveTabs({
     return (
       <div className="w-full">
         <Label className="text-text-default mb-2 text-sm font-medium">
-          {" "}
-          <BookOpen fill="var(--color-icon-default-muted)" /> Select Class
+          <BookOpen fill="var(--color-icon-default-muted)" /> Select Level
         </Label>
-        <Select value={String(activeIndex)} onValueChange={value => setActiveIndex(Number(value))}>
+        <Select
+          value={String(activeIndex)}
+          onValueChange={value => {
+            setActiveIndex(Number(value));
+            setActiveLevel(levels[Number(value)]);
+          }}
+        >
           <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
             <SelectValue>
-              <span className="text-text-default text-sm">{items[activeIndex].label}</span>
+              <span className="text-text-default text-sm">{levels[activeIndex].levelName}</span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-bg-default border-border-default">
-            {items.map((it, idx) => (
-              <SelectItem key={it.label} value={String(idx)} className="text-text-default text-sm">
-                {it.label}
+            {levels.map((level, idx) => (
+              <SelectItem key={level.levelName} value={String(idx)} className="text-text-default text-sm">
+                {level.levelName}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <div className="mt-4">{items[activeIndex].content}</div>
+        {/* <div className="mt-4">{levels[activeIndex].content}</div> */}
       </div>
     );
   }
@@ -112,13 +146,13 @@ function ClassesResponsiveTabs({
     <div>
       <div className="h-9 w-full md:w-fit">
         <div className="bg-bg-state-soft flex w-full items-center justify-between gap-2.5 rounded-full p-0.5">
-          {items.map((item, index) => {
-            const isActive = index === activeIndex;
+          {levels.map((level, index) => {
+            const isActive = level.levelName === activeLevel?.levelName;
 
             return (
               <button
-                key={index}
-                onClick={() => setActiveIndex(index)}
+                key={level.levelName}
+                onClick={() => setActiveLevel(level)}
                 className={cn(
                   "transit flex justify-center px-4 py-2 text-sm font-medium",
                   isActive
@@ -126,8 +160,14 @@ function ClassesResponsiveTabs({
                     : "text-text-muted flex h-8 items-center gap-1",
                 )}
               >
-                <span>{item.label}</span>
-                {(isActive ? item.activeIcon : item.icon) && <span className="mr-1 flex items-center">{isActive ? item.activeIcon : item.icon}</span>}
+                <span>{level.levelName}</span>
+                {/* {(isActive ? item.activeIcon : item.icon) && <span className="mr-1 flex items-center">{isActive ? item.activeIcon : item.icon}</span>} */}
+                {/* {(isActive ? item.activeIcon : item.icon) && <span className="mr-1 flex items-center">{isActive ? item.activeIcon : item.icon}</span>} */}
+                {isActive ? (
+                  <Loader2Fill fill="var(--color-icon-informative)" className="size-4" />
+                ) : (
+                  <Loader2Fill fill="var(--color-icon-default-muted)" className="size-4" />
+                )}
               </button>
             );
           })}
@@ -135,8 +175,9 @@ function ClassesResponsiveTabs({
       </div>
 
       <div className="mt-4 w-full">
-        <div className="flex w-full">
-          <div className="flex-1">{items[activeIndex].content}</div>
+        <div className="flex w-full items-center justify-center pt-15">
+          {/* <div className="flex-1">{levels[activeIndex].content}</div> */}
+          <ErrorComponent title="No Classes added yet" description="Use the Quick Setup to add classes" />
         </div>
       </div>
     </div>
@@ -144,7 +185,13 @@ function ClassesResponsiveTabs({
 }
 
 export const ClassesAndArms = () => {
-  const [activeTab, setActiveTab] = useState<Tab>("Lawanson");
+  const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
+  const [branchSpecific, setBranchSpecific] = useState(false);
+  const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
+  const { data: branchLevels } = useGetBranchLevels(activeBranch?.id);
+  const levels = extractUniqueLevelsByType(branchLevels?.data || []);
+  console.log(levels);
+
   return (
     <div className="mx-auto flex w-full flex-col gap-4 px-4 lg:px-36">
       <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
@@ -152,39 +199,44 @@ export const ClassesAndArms = () => {
           <div className="text-text-default text-md font-semibold">Do academic structures differ by school branch?</div>
           <div className="text-text-subtle text-sm font-normal">Turn ON for branch-specific structures. Keep OFF to share one setup.</div>
         </div>
-        <Toggle />
+        <Toggle
+          checked={branchSpecific}
+          onChange={evt => {
+            setBranchSpecific(!branchSpecific);
+            if (!evt.target.checked) setActiveBranch(null);
+          }}
+        />
       </div>
-      <div className="border-border-default mb-5 flex w-full items-center gap-3">
-        <MobileTabSwitch activeTab={activeTab} setActiveTab={setActiveTab} />
-      </div>
+      {branchSpecific && (
+        <div className="border-border-default mb-5 flex w-full items-center gap-3">
+          <MobileTabSwitch activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
+        </div>
+      )}
 
-      {activeTab === "Lawanson" && (
-        <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="flex-1">
-            <ClassesSetup />
-          </div>
-          <div className="shrink-0">
-            <ClassQuickSetupSheet />
-          </div>
+      <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="flex-1">
+          <ClassesSetup levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
         </div>
-      )}
-      {activeTab === "Ilasamaja" && (
-        <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="flex-1">
-            <ClassesSetup />
-          </div>
-          <div className="shrink-0">
-            <ClassQuickSetupSheet />
-          </div>
+        <div className="shrink-0">
+          <ClassQuickSetupSheet level={activeLevel} branchSpecific={branchSpecific} />
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export const ClassesSetup = () => {
+export const ClassesSetup = ({
+  levels,
+  activeLevel,
+  setActiveLevel,
+}: {
+  levels: ClassLevel[];
+  activeLevel: ClassLevel | null;
+  setActiveLevel: (level: ClassLevel) => void;
+}) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
+  console.log(levels);
   const openDelete = () => {
     setOpenDeleteModal(true);
   };
@@ -193,34 +245,7 @@ export const ClassesSetup = () => {
     <div>
       {openDeleteModal && <DeleteClass setOpenDeleteModal={setOpenDeleteModal} open={openDeleteModal} />}
       <div className="w-full">
-        <ClassesResponsiveTabs
-          items={[
-            {
-              label: "Nusery",
-              content: <NurserySetup onOpenDelete={openDelete} />,
-              icon: <Loader2Fill fill="var(--color-icon-default-muted)" className="size-4" />,
-              activeIcon: <Loader2Fill fill="var(--color-icon-informative)" className="size-4" />,
-            },
-            {
-              label: "Primary",
-              content: <NurserySetup onOpenDelete={openDelete} />,
-              icon: <Loader2Fill fill="var(--color-icon-default-muted)" className="size-4" />,
-              activeIcon: <Loader2Fill fill="var(--color-icon-informative)" className="size-4" />,
-            },
-            {
-              label: "Junior Secondary",
-              content: <NurserySetup onOpenDelete={openDelete} />,
-              icon: <Loader2Fill fill="var(--color-icon-default-muted)" className="size-4" />,
-              activeIcon: <Loader2Fill fill="var(--color-icon-informative)" className="size-4" />,
-            },
-            {
-              label: "Senior Secondary",
-              content: <SecondarySetup onOpenDelete={openDelete} />,
-              icon: <Loader2Fill fill="var(--color-icon-default-muted)" className="size-4" />,
-              activeIcon: <Loader2Fill fill="var(--color-icon-informative)" className="size-4" />,
-            },
-          ]}
-        />
+        <ClassesResponsiveTabs levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
       </div>
     </div>
   );
@@ -247,14 +272,14 @@ export const NurserySetup = ({ onOpenDelete }: { onOpenDelete?: (target?: { id: 
             </div>
           </div>
           <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-6">
-            <div className="p-3">
+            <div className="">
               <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
                 {" "}
                 <BookFill fill="var(--color-bg-basic-blue-accent)" /> Subjects
               </div>
               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-                  <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+                {["English Language", "English Language2", "English Language3", "English Language4"].map((sub, i) => (
+                  <Badge key={i} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
                     {sub}
                   </Badge>
                 ))}

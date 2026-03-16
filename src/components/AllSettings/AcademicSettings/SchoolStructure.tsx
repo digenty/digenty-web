@@ -52,6 +52,7 @@ const emptyNewBranch = (): NewBranchForm => ({
 
 export const SchoolStructure = forwardRef<SchoolStructureHandle>((_, ref) => {
   const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
+
   const existingBranches: Branch[] = branchesData?.data?.content ?? [];
   const [newBranches, setNewBranches] = useState<NewBranchForm[]>([]);
   const { mutateAsync: submitSchoolStructure } = useAddSchoolStructure();

@@ -95,21 +95,9 @@ export const getStudentClassReport = async (studentId: number, armId: number) =>
   }
 };
 
-export const requestEditAccess = async (payload: EditAccessPayload) => {
+export const getBranchLevels = async (branchId?: number) => {
   try {
-    const { data } = await api.post("/edit-access", payload);
-    return data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) {
-      throw error.response?.data;
-    }
-    throw error;
-  }
-};
-
-export const getClassLevels = async () => {
-  try {
-    const { data } = await api.get(`/class-levels/names?`);
+    const { data } = await api.get(`/class-levels/names${branchId ? `?branchId=${branchId}` : ""}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
