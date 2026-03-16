@@ -73,7 +73,7 @@ export const useUpdateBranch = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [branchKeys.branches] });
     },
-     });
+  });
 };
 
 export const useDeleteBranch = (branchId: number) => {
