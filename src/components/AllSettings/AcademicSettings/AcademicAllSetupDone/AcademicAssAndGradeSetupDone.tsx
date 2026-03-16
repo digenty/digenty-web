@@ -24,6 +24,7 @@ import { gradingKeys } from "@/queries/grading";
 import { assessmentKeys } from "@/queries/assessment";
 import { AssessmentAndGradingSchema } from "@/schema/academic";
 import { AssessmentRow, BranchLevel, FormValues, GradeRow } from "@/api/types";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 const emptyGradeRow = (): GradeRow => ({ grade: "", upperLimit: "", lowerLimit: "", remark: "" });
 const emptyAssessmentRow = (): AssessmentRow => ({ name: "", weight: "" });
@@ -416,9 +417,9 @@ export const AcademicAssAndGradeSetupDone = () => {
   const [activeTab, setActiveTab] = useState<string>("");
   const [activeLevelIndex, setActiveLevelIndex] = useState(0);
 
-  const { data: classLevelData, isLoading: isLoadingLevels } = useGetClassLevel();
-  const { data: gradingsResponse, isLoading: isLoadingGradings } = useGetSchoolGradings();
-  const { data: assessmentsResponse, isLoading: isLoadingAssessments } = useGetSchoolAssessment();
+  const { data: classLevelData, isLoading: isLoadingLevels, isError: isLevelsError } = useGetClassLevel();
+  const { data: gradingsResponse, isLoading: isLoadingGradings, isError: isGradingsError } = useGetSchoolGradings();
+  const { data: assessmentsResponse, isLoading: isLoadingAssessments, isError: isAssessmentError } = useGetSchoolAssessment();
   const { mutateAsync: updateGradings } = useUpdateSchoolGradings();
   const { mutateAsync: updateAssessments } = useUpdateSchoolAssessment();
 
@@ -427,6 +428,7 @@ export const AcademicAssAndGradeSetupDone = () => {
   // TOdo: replace with actual fields once backend fixes assessment GET response
   const assessmentRows = assessmentsResponse?.data ?? [];
   const isLoading = isLoadingLevels || isLoadingGradings || isLoadingAssessments;
+  const isError = isLevelsError || isGradingsError || isAssessmentError;
 
   const formik = useFormik<FormValues>({
     initialValues: {
@@ -544,12 +546,23 @@ export const AcademicAssAndGradeSetupDone = () => {
         )}
       </div>
 
-      {isLoading ? (
+      {isLoading && (
         <div className="flex flex-col gap-4">
           <Skeleton className="bg-bg-input-soft h-9 w-64" />
           <Skeleton className="bg-bg-input-soft h-40 w-full" />
         </div>
-      ) : (
+      )}
+      {isError && (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent
+            title="Could not get Assessment and Gradings"
+            description="This is our problem, we are looking into it so as to serve you better"
+            buttonText="Go to the Home page"
+          />
+        </div>
+      )}
+
+      {!isLoading && !isError && (
         <>
           <div className="border-border-default mb-5 w-full border-b md:w-fit">
             <BranchTabSwitch
