@@ -263,3 +263,19 @@ export interface BranchArmReportResponse {
   totalCompletedSubmissions: number;
   branchArmReportResponseDtos: BranchArmReport[];
 }
+
+export interface InvoiceSettingPayload {
+  numberFormat: string;
+  startNumber: number;
+  numberPadding: number;
+  lastGeneratedNumber: number;
+  // branchId: number;
+  image: string;
+  invoicePrefix: string;
+  padding: string;
+  defaultInvoiceNote: string;
+  defaultDueDate: string;
+  noOfDaysBeforeDueDate: number;
+  noOfDaysAfterDueDate: number;
+  repeatFrequency: number;
+}
