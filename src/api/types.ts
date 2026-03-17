@@ -601,13 +601,13 @@ export interface UpdateGradingDefaultPayload {
 }
 
 export interface ResultCalculationPayload {
-  levelId: 0;
-  academicSessionId: 0;
-  calculationMethod: "THIRD_TERM_ONLY" | "CUMULATIVE ";
-  promotionType: "PROMOTE_ALL" | "MANUAL" | "PROMOTE_ALL";
+  levelId: number;
+  academicSessionId: number;
+  calculationMethod: "THIRD_TERM_ONLY" | "CUMULATIVE";
+  promotionType: "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE";
   minimumOverallPercentage: number;
   minimumPassGrade: string;
-  requiredSubjectIds: [];
+  requiredSubjectIds: number[];
 }
 
 export interface ResultSubmissionPayload {
@@ -634,4 +634,33 @@ export interface PrincaleCommentPayload {
     maxPercentage: number;
     comment: string;
   }[];
+}
+
+export interface SchoolGrading {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  grade: string;
+  upperLimit: number;
+  lowerLimit: number;
+  remark: string;
+  levelId: number;
+  branchId: number;
+  schoolId: number;
+  isDefault: boolean;
+}
+
+export interface Levelsubject {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  branchId: number;
+  schoolId: number;
 }
