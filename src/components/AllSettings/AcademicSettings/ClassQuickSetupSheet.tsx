@@ -12,12 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
-import { useAddSubject } from "@/hooks/queryHooks/useSubject";
+import { useAddSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as yup from "yup";
 
 const startclasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
@@ -42,7 +42,19 @@ export const ClassQuickSetupSheet = ({
   const isMobile = useIsMobile();
 
   const { mutate, isPending } = useUpdateLevel();
-  const { mutate: mutateSubject, isPending: isSubjectPending } = useAddSubject();
+  const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubject();
+
+  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.id, branchId ?? 25);
+
+  useEffect(() => {
+    if (subjectsData) {
+      const names: string[] = Array.isArray(subjectsData)
+        ? subjectsData.map((s: { name: string }) => s.name)
+        : (subjectsData?.content ?? subjectsData?.data ?? []).map((s: { name: string }) => s.name);
+      setSubjects(names);
+    }
+  }, [subjectsData]);
+  console.log(subjects, subjectsData);
 
   const formik = useFormik({
     initialValues: {
@@ -386,6 +398,7 @@ export const ClassQuickSetupSheet = ({
                   onClick={() => addSubject(formik.values.subject)}
                   className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
                 >
+                  {isAddingSubject && <Spinner className="text-text-white-default size-3" />}
                   Add
                 </Button>
               </div>
@@ -397,7 +410,7 @@ export const ClassQuickSetupSheet = ({
                     key={subject}
                     className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                   >
-                    <span className="text-text-subtle text-xs">{subject}</span>{" "}
+                    <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
                     <button
                       type="button"
                       className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"

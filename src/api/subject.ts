@@ -44,6 +44,18 @@ export const getBranchTeachersClassSubjects = async (armId: number) => {
   }
 };
 
+export const getSubjectsByLevel = async (levelId?: number, branchId?: number) => {
+  try {
+    const { data } = await api.get(`/subjects/level?levelId=${levelId}${branchId ? `&branchId=${branchId}` : ""}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const addSubject = async (payload: AddSubjectPayload) => {
   try {
     const { data } = await api.post("/subjects/level", payload);
