@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
+import { useAddSubject } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -19,10 +20,21 @@ import { useFormik } from "formik";
 import { useState } from "react";
 import * as yup from "yup";
 
-const startclasses = ["1", "2", "3", "4", "5", "6"];
-const endClasses = ["1", "2", "3", "4", "5", "6"];
-export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLevel; branchSpecific: boolean }) => {
+const startclasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+const endClasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+export const ClassQuickSetupSheet = ({
+  level,
+  branchSpecific,
+  setActiveLevel,
+  branchId,
+}: {
+  level: ClassLevel;
+  branchSpecific: boolean;
+  setActiveLevel: (level: ClassLevel) => void;
+  branchId?: number;
+}) => {
   const [subjects, setSubjects] = useState<string[]>([]);
+  const [departments, setDepartments] = useState<string[]>([]);
   const [arms, setArms] = useState<string[]>([]);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [departmentsEnabled, setDepartmentsEnabled] = useState(false);
@@ -30,6 +42,7 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
   const isMobile = useIsMobile();
 
   const { mutate, isPending } = useUpdateLevel();
+  const { mutate: mutateSubject, isPending: isSubjectPending } = useAddSubject();
 
   const formik = useFormik({
     initialValues: {
@@ -39,6 +52,7 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
       endClass: level?.classEnd,
       subject: "",
       arm: "",
+      department: "",
     },
     enableReinitialize: true,
     validationSchema: yup.object({
@@ -60,6 +74,13 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
         },
         {
           onSuccess: () => {
+            setActiveLevel({
+              ...level,
+              levelName: values.levelName,
+              classNamePrefix: values.classNamePrefix,
+              classStart: values.startClass,
+              classEnd: values.endClass,
+            });
             setSheetOpen(false);
             toast({
               title: "Level updated successfully",
@@ -88,7 +109,29 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
       .map(str => str.trim().replace(/^,+|,+$/g, ""))
       .filter(str => str !== "" && !subjects.includes(str));
 
-    setSubjects([...subjects, ...newSubjects]);
+    newSubjects.forEach(name => {
+      mutateSubject(
+        { name, levelId: level?.id, branchId: branchId ?? 25 },
+        {
+          onSuccess: () => {
+            setSubjects(prev => [...prev, name]);
+            toast({
+              title: "Subject added",
+              description: `"${name}" has been added successfully`,
+              type: "success",
+            });
+          },
+          onError: error => {
+            toast({
+              title: "Failed to add subject",
+              description: (error as { message?: string })?.message || `Could not add "${name}"`,
+              type: "error",
+            });
+          },
+        },
+      );
+    });
+
     formik.setFieldValue("subject", "");
   };
 
@@ -109,6 +152,21 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
 
   const removeArm = (armToRemove: string) => {
     setArms(arms.filter(arm => arm !== armToRemove));
+  };
+
+  const addDepartment = (departmentString: string) => {
+    if (!departmentString.trim()) return;
+    const newDepartments = departmentString
+      .split(",")
+      .map(str => str.trim().replace(/^,+|,+$/g, ""))
+      .filter(str => str !== "" && !departments.includes(str));
+
+    setDepartments([...departments, ...newDepartments]);
+    formik.setFieldValue("department", "");
+  };
+
+  const removeDepartment = (departmentToRemove: string) => {
+    setDepartments(departments.filter(department => department !== departmentToRemove));
   };
 
   const contentNode = (
@@ -204,145 +262,161 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
 
       <div className="flex flex-col gap-6">
         {/* Departments */}
-        {level?.levelName === "JUNIOR_SECONDARY" ||
-          (level?.levelName === "SENIOR_SECONDARY" && (
-            <div>
-              <div className="text-text-default text-xl font-semibold">Departments</div>
-              <div className="flex items-start justify-between gap-2">
-                <div className="">
-                  <div className="text-text-default text-sm font-medium">Enable Departments</div>
-                  <div className="text-text-subtle text-sm">
-                    Departments let you organize students within the same level into different academic paths. This way, classes under the same level
-                    can offer different sets of subjects or focus areas.
-                  </div>
+        {(level?.levelType === "JUNIOR_SECONDARY" || level?.levelType === "SENIOR_SECONDARY") && (
+          <div className="flex flex-col gap-6">
+            <div className="text-text-default text-xl font-semibold">Departments</div>
+            <div className="flex items-start justify-between gap-2">
+              <div className="">
+                <div className="text-text-default text-sm font-medium">Enable Departments</div>
+                <div className="text-text-subtle text-sm">
+                  Departments let you organize students within the same level into different academic paths. This way, classes under the same level
+                  can offer different sets of subjects or focus areas.
                 </div>
-                <Toggle
-                  withBorder={false}
-                  checked={departmentsEnabled}
-                  onChange={e => setDepartmentsEnabled((e.target as HTMLInputElement).checked)}
-                />
               </div>
-              {departmentsEnabled && (
-                <>
-                  <div className="border-border-default flex flex-col gap-3 border-b pt-4 pb-4">
-                    <div className="text-text-default text-sm font-medium">Departments</div>
-                    <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-                      <Input
-                        type="text"
-                        className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
-                        placeholder="Add Department"
-                      />
-                      <Button className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs">
-                        Add
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {" "}
-                      {["Mathematics", "English Language", "Basic Science"].map(subject => (
-                        <Badge
-                          key={subject}
-                          className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                        >
-                          <span className="text-text-subtle text-xs">{subject}</span>{" "}
-                          <CloseFill fill="var(--color-icon-default-muted)" className="size-2 cursor-pointer" />
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="text-text-muted text-xs">
-                      You can add multiple departments at once by separating with a comma e.g Art, Commercial, Science
-                    </div>
-                  </div>
-
-                  <div className="text-text-default text-xl font-semibold">Department Subjects</div>
-                  <div className="flex flex-col gap-3 pt-4 pb-4">
-                    <Label className="text-text-default text-sm font-medium">Art Subjects</Label>
-                    <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-                      <Input
-                        type="text"
-                        className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
-                        placeholder="Add Department"
-                      />
-                      <Button className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs">
-                        Add
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {" "}
-                      {["Mathematics", "English Language", "Basic Science"].map(subject => (
-                        <Badge
-                          key={subject}
-                          className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                        >
-                          <span className="text-text-subtle text-xs">{subject}</span>{" "}
-                          <CloseFill fill="var(--color-icon-default-muted)" className="size-2 cursor-pointer" />
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="text-text-muted text-xs">
-                      You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.{" "}
-                    </div>
-                  </div>
-                </>
-              )}
+              <Toggle withBorder={false} checked={departmentsEnabled} onChange={e => setDepartmentsEnabled((e.target as HTMLInputElement).checked)} />
             </div>
-          ))}
+            {departmentsEnabled && (
+              <>
+                <div className="border-border-default flex flex-col gap-3 border-b pb-6">
+                  <div className="text-text-default text-sm font-medium">Departments</div>
+                  <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
+                    <Input
+                      id="department"
+                      onChange={formik.handleChange}
+                      placeholder="Enter Departments"
+                      value={formik.values.department}
+                      type="text"
+                      onKeyDown={e => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addDepartment(formik.values.department);
+                        }
+                      }}
+                      className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
+                    />
+                    <Button className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs">
+                      Add
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {" "}
+                    {departments.map(department => (
+                      <Badge
+                        key={department}
+                        className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
+                      >
+                        <span className="text-text-subtle text-xs">{department}</span>{" "}
+                        <CloseFill
+                          onClick={() => removeDepartment(department)}
+                          fill="var(--color-icon-default-muted)"
+                          className="size-2! cursor-pointer"
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                  <small className="text-text-muted text-xs">
+                    You can add multiple departments at once by separating with a comma e.g Art, Commercial, Science
+                  </small>
+                </div>
+
+                {departments.length > 0 && (
+                  <>
+                    <div className="text-text-default text-xl font-semibold">Department Subjects</div>
+                    {departments.map(dept => (
+                      <div key={dept} className="flex flex-col gap-3">
+                        <Label className="text-text-default text-sm font-medium">{dept} Subjects</Label>
+                        <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
+                          <Input
+                            type="text"
+                            className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
+                            placeholder="Add Department"
+                          />
+                          <Button className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs">
+                            Add
+                          </Button>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {" "}
+                          {["Mathematics", "English Language", "Basic Science"].map(subject => (
+                            <Badge
+                              key={subject}
+                              className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
+                            >
+                              <span className="text-text-subtle text-xs">{subject}</span>{" "}
+                              <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
+                            </Badge>
+                          ))}
+                        </div>
+                        <div className="text-text-muted text-xs">
+                          You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.{" "}
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        )}
 
         {/* Subjects */}
-        <div className="">
-          <div className="text-text-default mb-6 text-xl font-semibold">Subjects</div>
-          <div className="flex flex-col gap-2">
-            <Label className="text-text-default text-sm font-medium">Subjects</Label>
-            <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-              <Input
-                id="subject"
-                onChange={formik.handleChange}
-                placeholder="Enter Subjects"
-                value={formik.values.subject}
-                type="text"
-                onKeyDown={e => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addSubject(formik.values.subject);
-                  }
-                }}
-                className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
-              />
-
-              <Button
-                type="button"
-                onClick={() => addSubject(formik.values.subject)}
-                className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-              >
-                Add
-              </Button>
-            </div>
-
-            <div className="flex flex-wrap gap-1">
-              {" "}
-              {subjects.map(subject => (
-                <Badge
-                  key={subject}
-                  className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                >
-                  <span className="text-text-subtle text-xs">{subject}</span>{" "}
-                  <button
-                    type="button"
-                    className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"
-                    onClick={e => {
+        {!departmentsEnabled && (
+          <div className="">
+            <div className="text-text-default mb-6 text-xl font-semibold">Subjects</div>
+            <div className="flex flex-col gap-2">
+              <Label className="text-text-default text-sm font-medium">Subjects</Label>
+              <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
+                <Input
+                  id="subject"
+                  onChange={formik.handleChange}
+                  placeholder="Enter Subjects"
+                  value={formik.values.subject}
+                  type="text"
+                  onKeyDown={e => {
+                    if (e.key === "Enter") {
                       e.preventDefault();
-                      removeSubject(subject);
-                    }}
+                      addSubject(formik.values.subject);
+                    }
+                  }}
+                  className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
+                />
+
+                <Button
+                  type="button"
+                  onClick={() => addSubject(formik.values.subject)}
+                  className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+                >
+                  Add
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap gap-1">
+                {" "}
+                {subjects.map(subject => (
+                  <Badge
+                    key={subject}
+                    className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                   >
-                    <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
-                  </button>
-                </Badge>
-              ))}
-              <div className="text-text-muted mt-1 text-xs">
-                You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.
+                    <span className="text-text-subtle text-xs">{subject}</span>{" "}
+                    <button
+                      type="button"
+                      className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"
+                      onClick={e => {
+                        e.preventDefault();
+                        removeSubject(subject);
+                      }}
+                    >
+                      <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
+                    </button>
+                  </Badge>
+                ))}
+                <div className="text-text-muted mt-1 text-xs">
+                  You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div>
           {/* Arms */}
@@ -420,7 +494,11 @@ export const ClassQuickSetupSheet = ({ level, branchSpecific }: { level: ClassLe
   return (
     <div className="">
       <Button
-        onClick={() => setSheetOpen(true)}
+        onClick={() => {
+          setDepartmentsEnabled(false);
+          setArmsEnabled(false);
+          setSheetOpen(true);
+        }}
         className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
       >
         <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup

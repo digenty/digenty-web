@@ -70,18 +70,26 @@ export function AcademicSetup() {
           <CSVUploadProgress currentStep={currentStep} steps={steps} completedSteps={completedSteps} className="flex w-full" />
         </div>
 
-        <div className={currentStep === 1 ? "block" : "hidden"}>
-          <SchoolStructure ref={schoolStructureRef} />
-        </div>
-        <div className={currentStep === 2 ? "block" : "hidden"}>
-          <ClassesAndArms />
-        </div>
-        <div className={currentStep === 3 ? "block" : "hidden"}>
-          <GradingAndAssessment ref={assessmentAndGradingRef} />
-        </div>
-        <div className={currentStep === 4 ? "block" : "hidden"}>
-          <AdmissionNumberSetup ref={admissionRef} />
-        </div>
+        {currentStep === 1 && (
+          <div>
+            <SchoolStructure ref={schoolStructureRef} />
+          </div>
+        )}
+        {currentStep === 2 && (
+          <div>
+            <ClassesAndArms />
+          </div>
+        )}
+        {currentStep === 3 && (
+          <div>
+            <GradingAndAssessment ref={assessmentAndGradingRef} />
+          </div>
+        )}
+        {currentStep === 4 && (
+          <div>
+            <AdmissionNumberSetup ref={admissionRef} />
+          </div>
+        )}
       </div>
       <div className="border-border-default bg-bg-default sticky bottom-0 flex w-full justify-between border-t px-4 pt-3 lg:px-36">
         <Button

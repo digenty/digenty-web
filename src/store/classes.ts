@@ -26,5 +26,6 @@ export const LEVELS = [
   { label: "Kindergarten", value: "KINDERGARTEN" },
   { label: "Nursery", value: "NURSERY" },
   { label: "Primary", value: "PRIMARY" },
-  { label: "Secondary", value: "SECONDARY" },
+  { label: "Junior Secondary", value: "JUNIOR_SECONDARY" },
+  { label: "Senior Secondary", value: "SENIOR_SECONDARY" },
 ] as const;

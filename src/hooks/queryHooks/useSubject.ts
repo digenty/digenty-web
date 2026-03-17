@@ -1,6 +1,6 @@
-import { getBranchTeachersClassSubjects, getSubjectStudents, getTeacherSubjects } from "@/api/subject";
+import { addSubject, getBranchTeachersClassSubjects, getSubjectStudents, getTeacherSubjects, updateSubject } from "@/api/subject";
 import { subjectKeys } from "@/queries/subject";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetTeacherSubjects = () => {
   return useQuery({
@@ -23,5 +23,16 @@ export const useGetBranchTeachersClassSubjects = (armId: number) => {
     queryKey: subjectKeys.mysubjects,
     queryFn: () => getBranchTeachersClassSubjects(armId),
     retry: false,
+  });
+};
+
+export const useAddSubject = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subjectKeys.addSubject,
+    mutationFn: addSubject,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: subjectKeys.mysubjects });
+    },
   });
 };

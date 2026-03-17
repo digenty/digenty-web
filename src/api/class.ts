@@ -106,3 +106,15 @@ export const requestEditAccess = async (payload: EditAccessPayload) => {
     throw error;
   }
 };
+
+export const getClassesByLevel = async (levelId?: number) => {
+  try {
+    const { data } = await api.get(`/classes/${levelId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

@@ -17,6 +17,29 @@ export interface Branch {
   country: string | null;
 }
 
+export type LevelType = "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR_SECONDARY" | "SENIOR_SECONDARY";
+
+export interface BranchClassLevel {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  levelName: string;
+  levelType: LevelType;
+  classNamePrefix: string | null;
+  classStart: number | null;
+  classEnd: number | null;
+  branchId: number;
+  schoolId: number;
+}
+
+export interface BranchWithClassLevels {
+  branch: Branch;
+  classLevels: BranchClassLevel[];
+}
+
 export interface ClassType {
   id: number;
   uuid: string;
@@ -435,7 +458,7 @@ export interface LevelTabsContainerProps {
 export interface ClassLevel {
   id: number;
   levelName: string;
-  levelType: "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR SECONDARY" | "SENIOR SECONDARY";
+  levelType: "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR_SECONDARY" | "SENIOR_SECONDARY";
   classNamePrefix: string;
   classStart: number;
   classEnd: number;

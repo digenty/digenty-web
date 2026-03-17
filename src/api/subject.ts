@@ -1,6 +1,12 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
+type AddSubjectPayload = {
+  name: string;
+  levelId: number;
+  branchId: number;
+};
+
 export const getTeacherSubjects = async () => {
   try {
     const data = await api.get("/teacher/subject/my");
@@ -29,6 +35,18 @@ export const getSubjectStudents = async (subjectId: number, armId: number) => {
 export const getBranchTeachersClassSubjects = async (armId: number) => {
   try {
     const data = await api.get(`/report/subject/arm/${armId}?page=0&size=15`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const addSubject = async (payload: AddSubjectPayload) => {
+  try {
+    const { data } = await api.post("/subjects/level", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

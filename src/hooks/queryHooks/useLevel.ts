@@ -1,5 +1,5 @@
-import { getLevels } from "@/api/level";
-import { levelKeys, updateLevel } from "@/queries/level";
+import { getLevels, updateLevel } from "@/api/level";
+import { levelKeys } from "@/queries/level";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetLevels = (branchId?: number) => {
@@ -15,7 +15,7 @@ export const useUpdateLevel = () => {
     mutationKey: levelKeys.updateLevel,
     mutationFn: updateLevel,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: levelKeys.levels });
+      queryClient.invalidateQueries({ queryKey: [levelKeys.levels] });
     },
   });
 };

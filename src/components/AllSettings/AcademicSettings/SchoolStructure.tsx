@@ -1,6 +1,6 @@
 "use client";
 
-import { Branch, NewBranchForm, SchoolStructurePayload } from "@/api/types";
+import { Branch, BranchWithClassLevels, NewBranchForm, SchoolStructurePayload } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { AddFill } from "@/components/Icons/AddFill";
@@ -22,7 +22,7 @@ import { LEVELS } from "@/store/classes";
 import { terms } from "@/types";
 import { format } from "date-fns";
 import { useFormik } from "formik";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { DateRange } from "react-day-picker";
 
 export type SchoolStructureHandle = {
@@ -53,8 +53,7 @@ const emptyNewBranch = (): NewBranchForm => ({
 
 export const SchoolStructure = forwardRef<SchoolStructureHandle>((_, ref) => {
   const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
-  console.log(useLoggedInUser());
-  const existingBranches: Branch[] = branchesData?.data?.content ?? [];
+  const existingBranches: BranchWithClassLevels[] = branchesData?.data ?? [];
   const [newBranches, setNewBranches] = useState<NewBranchForm[]>([]);
   const { mutateAsync: submitSchoolStructure } = useAddSchoolStructure();
   const { mutateAsync: createBranch } = useAddBranch();
@@ -69,7 +68,18 @@ export const SchoolStructure = forwardRef<SchoolStructureHandle>((_, ref) => {
     onSubmit: () => {},
   });
 
+  useEffect(() => {
+    if (existingBranches.length > 0) {
+      const branchLevels: Record<number, string[]> = {};
+      existingBranches.forEach(branch => {
+        branchLevels[branch.branch.id] = branch.classLevels.map(level => level.levelType);
+      });
+      formik.setFieldValue("branchLevels", branchLevels);
+    }
+  }, [existingBranches]);
+
   const toggleExistingBranchLevel = (branchId: number, level: string) => {
+    console.log(branchId, level);
     const current = formik.values.branchLevels[branchId] ?? [];
     const updated = current.includes(level) ? current.filter(l => l !== level) : [...current, level];
     formik.setFieldValue("branchLevels", { ...formik.values.branchLevels, [branchId]: updated });
@@ -137,8 +147,8 @@ export const SchoolStructure = forwardRef<SchoolStructureHandle>((_, ref) => {
 
       try {
         const branchesAndLevelsDtos = existingBranches
-          .filter(branch => (values.branchLevels[branch.id] ?? []).length > 0)
-          .map(branch => ({ branchId: branch.id, levels: values.branchLevels[branch.id] }));
+          .filter(branch => (values.branchLevels[branch.branch.id] ?? []).length > 0)
+          .map(branch => ({ branchId: branch.branch.id, levels: values.branchLevels[branch.branch.id] }));
 
         if (branchesAndLevelsDtos.length === 0) {
           toast({
@@ -256,7 +266,7 @@ export const SchoolStructure = forwardRef<SchoolStructureHandle>((_, ref) => {
         />
       </div>
 
-      {isLoadingBranches && <Skeleton className="h-40 w-full" />}
+      {isLoadingBranches && <Skeleton className="bg-bg-state-soft! h-100 w-full" />}
       {isError && (
         <ErrorComponent
           title="Could not get Branch"
@@ -268,33 +278,33 @@ export const SchoolStructure = forwardRef<SchoolStructureHandle>((_, ref) => {
       {!isLoadingBranches && existingBranches.length > 0 && (
         <div className="flex flex-col gap-6">
           {existingBranches.map(branch => (
-            <div key={branch.id} className="bg-bg-state-soft rounded-md p-1">
+            <div key={branch.branch.id} className="bg-bg-state-soft rounded-md p-1">
               <div className="flex items-center justify-between px-5 py-2">
-                <Badge className="bg-bg-badge-default! text-text-subtle rounded-md">{branch.name}</Badge>
+                <Badge className="bg-bg-badge-default! text-text-subtle rounded-md">{branch.branch.name}</Badge>
               </div>
               <div className="bg-bg-card flex flex-col gap-4 rounded-md px-5 py-6">
                 <div className="flex flex-col gap-2">
                   <Label className="text-text-default text-sm font-medium">Branch Name</Label>
-                  <Input className="bg-bg-input-soft! text-text-muted rounded-md border-none" disabled value={String(branch.name)} />
+                  <Input className="bg-bg-input-soft! text-text-muted rounded-md border-none" disabled value={String(branch.branch.name)} />
                 </div>
                 <div className="flex flex-col gap-2">
                   <Label className="text-text-default text-sm font-medium">
                     <Map fill="var(--color-icon-default-muted)" /> Branch Address
                   </Label>
-                  <Input className="bg-bg-input-soft! text-text-muted rounded-md border-none" disabled value={String(branch.address)} />
+                  <Input className="bg-bg-input-soft! text-text-muted rounded-md border-none" disabled value={String(branch.branch.address)} />
                 </div>
                 <div className="border-border-darker rounded-md border p-3">
                   <div className="text-text-default mb-3 text-sm font-medium">Select Levels</div>
                   <div className="flex flex-wrap gap-3">
                     {LEVELS.map(level => {
-                      const selected = (formik.values.branchLevels[branch.id] ?? []).includes(level.value);
+                      const checked = (formik.values.branchLevels[branch.branch.id] ?? []).includes(level.value);
                       return (
                         <div
                           key={level.value}
-                          onClick={() => toggleExistingBranchLevel(branch.id, level.value)}
+                          onClick={() => toggleExistingBranchLevel(branch.branch.id, level.value)}
                           className="bg-bg-card text-text-default border-border-darker flex h-8 cursor-pointer items-center gap-3 rounded-md border p-2.5 text-sm shadow-xs md:h-9"
                         >
-                          <Checkbox checked={selected} onCheckedChange={() => toggleExistingBranchLevel(branch.id, level.value)} />
+                          <Checkbox checked={checked} onCheckedChange={() => toggleExistingBranchLevel(branch.branch.id, level.value)} />
                           {level.label}
                         </div>
                       );
@@ -380,7 +390,7 @@ export const SchoolStructure = forwardRef<SchoolStructureHandle>((_, ref) => {
         className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit text-sm"
         onClick={() => setNewBranches(prev => [...prev, emptyNewBranch()])}
       >
-        <AddFill fill="var(--color-icon-default-muted)" /> Add Branch
+        <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Branch
       </Button>
     </div>
   );

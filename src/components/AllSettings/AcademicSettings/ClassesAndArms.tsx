@@ -1,41 +1,38 @@
 "use client";
 
+import { Branch, BranchWithClassLevels, ClassLevel } from "@/api/types";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { BookFill } from "@/components/Icons/BookFill";
+import BookOpen from "@/components/Icons/BookOpen";
 import DeleteBin from "@/components/Icons/DeleteBin";
 import Edit from "@/components/Icons/Edit";
 import { GitMergeFill } from "@/components/Icons/GitMergeFill";
 import GraduationCapFill from "@/components/Icons/GraduationCapFill";
 import Loader2Fill from "@/components/Icons/Loader2Fill";
+import School from "@/components/Icons/School";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetLevels } from "@/hooks/queryHooks/useLevel";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
 import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { Label } from "@/components/ui/label";
-import BookOpen from "@/components/Icons/BookOpen";
-import School from "@/components/Icons/School";
-import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { Branch, ClassLevel } from "@/api/types";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useGetBranchLevels } from "@/hooks/queryHooks/useClass";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { useGetLevels } from "@/hooks/queryHooks/useLevel";
+import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
 
-const tabs = ["Lawanson", "Ilasamaja"] as const;
-type Tab = (typeof tabs)[number];
-
-function MobileTabSwitch({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (t: Branch | null) => void }) {
+function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (t: Branch | null) => void }) {
   const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
-
+  console.log(branchesData?.data);
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (branchesData?.data?.content?.length > 0) {
-      setActiveBranch(branchesData?.data?.content[0]);
+    if (branchesData?.data?.length > 0) {
+      setActiveBranch(branchesData?.data[0].branch);
     }
   }, [branchesData]);
 
@@ -48,7 +45,7 @@ function MobileTabSwitch({ activeBranch, setActiveBranch }: { activeBranch: Bran
           <Select
             value={activeBranch?.name || ""}
             onValueChange={value => {
-              const branch = branchesData?.data?.content?.find((branch: Branch) => branch.name === value);
+              const branch = branchesData?.data?.find((branch: Branch) => branch?.name === value);
               setActiveBranch(branch || null);
             }}
           >
@@ -62,7 +59,7 @@ function MobileTabSwitch({ activeBranch, setActiveBranch }: { activeBranch: Bran
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-bg-default border-border-default">
-              {branchesData?.data?.content?.map((branch: Branch) => (
+              {branchesData?.data?.map((branch: Branch) => (
                 <SelectItem key={branch.name} value={branch.name || ""} className="text-text-default text-sm">
                   {branch.name}
                 </SelectItem>
@@ -77,20 +74,20 @@ function MobileTabSwitch({ activeBranch, setActiveBranch }: { activeBranch: Bran
   return (
     <div className="flex w-auto max-w-64 items-center gap-3">
       {isLoadingBranches && <Skeleton className="h-9 w-1/2" />}
-      {branchesData?.data?.content?.map((branch: Branch) => {
-        const isActive = activeBranch?.name === branch.name;
+      {branchesData?.data?.map((branch: BranchWithClassLevels) => {
+        const isActive = activeBranch?.name === branch.branch.name;
 
         return (
           <Button
-            key={branch.name}
+            key={branch.branch.name}
             type="button"
-            onClick={() => setActiveBranch(branch)}
+            onClick={() => setActiveBranch(branch?.branch)}
             className={cn(
               "hover:bg-bg-none! w-1/2 cursor-pointer rounded-none py-2.5 text-center transition-all duration-150",
               isActive && "border-border-informative border-b-[1.5px]",
             )}
           >
-            <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.name}</span>
+            <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.branch.name}</span>
             {isActive ? <Loader2Fill fill="var(--color-icon-informative)" /> : <Loader2Fill fill="var(--color-icon-default-muted)" />}
           </Button>
         );
@@ -111,6 +108,8 @@ function ClassesResponsiveTabs({
 }) {
   const isMobile = useIsMobile();
   const [activeIndex, setActiveIndex] = React.useState(0);
+
+  const { data: levelClasses, isFetching: isLoadingLevelClasses } = useGetClassesByLevel(activeLevel?.id);
 
   if (isMobile) {
     return (
@@ -150,7 +149,7 @@ function ClassesResponsiveTabs({
           className="bg-bg-state-soft hide-scrollbar flex max-w-150 items-center gap-2.5 overflow-x-auto rounded-full p-0.5 lg:max-w-160 xl:max-w-216"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {levels.map((level, index) => {
+          {levels.map(level => {
             const isActive = level.levelName === activeLevel?.levelName;
 
             return (
@@ -165,8 +164,6 @@ function ClassesResponsiveTabs({
                 )}
               >
                 <span>{level.levelName.replaceAll("_", " ").toLowerCase()}</span>
-                {/* {(isActive ? item.activeIcon : item.icon) && <span className="mr-1 flex items-center">{isActive ? item.activeIcon : item.icon}</span>} */}
-                {/* {(isActive ? item.activeIcon : item.icon) && <span className="mr-1 flex items-center">{isActive ? item.activeIcon : item.icon}</span>} */}
                 {isActive ? (
                   <Loader2Fill fill="var(--color-icon-informative)" className="size-4" />
                 ) : (
@@ -181,7 +178,57 @@ function ClassesResponsiveTabs({
       <div className="mt-4 w-full">
         <div className="flex w-full items-center justify-center pt-15">
           {/* <div className="flex-1">{levels[activeIndex].content}</div> */}
-          <ErrorComponent title="No Classes added yet" description="Use the Quick Setup to add classes" />
+          {<ErrorComponent title="No Classes added yet" description="Use the Quick Setup to add classes" />}
+
+          {/* <div className="mt-8 flex w-full flex-col gap-6">
+      {nurseryClasses.map(nc => (
+        <div key={nc.id} className="bg-bg-state-soft rounded-md p-1">
+          <div className="flex items-center justify-between px-5 py-2">
+            <div className="text-text-default text-sm font-medium">Nusery </div>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => onOpenDelete?.({ id: nc.id, name: "Nusery" })}
+                className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
+              >
+                <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
+              </Button>
+              <Button className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2">
+                <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
+              </Button>
+            </div>
+          </div>
+          <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-6">
+            <div className="">
+              <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
+                {" "}
+                <BookFill fill="var(--color-bg-basic-blue-accent)" /> Subjects
+              </div>
+              <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+                {["English Language", "English Language2", "English Language3", "English Language4"].map((sub, i) => (
+                  <Badge key={i} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+                    {sub}
+                  </Badge>
+                ))}
+              </div>
+              <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
+                {" "}
+                <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
+              </div>
+
+              <div className="flex flex-wrap gap-1">
+                {["A", "B", "C"].map(arm => (
+                  <div key={arm} className="">
+                    <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
+                      {arm}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div> */}
         </div>
       </div>
     </div>
@@ -219,7 +266,7 @@ export const ClassesAndArms = () => {
       </div>
       {branchSpecific && (
         <div className="border-border-default mb-5 flex w-full items-center gap-3">
-          <MobileTabSwitch activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
+          <BranchTabs activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
         </div>
       )}
 
@@ -227,7 +274,11 @@ export const ClassesAndArms = () => {
         <div className="w-full min-w-0 flex-1">
           <ClassesSetup levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
         </div>
-        <div className="shrink-0">{activeLevel && <ClassQuickSetupSheet level={activeLevel} branchSpecific={branchSpecific} />}</div>
+        <div className="shrink-0">
+          {activeLevel && (
+            <ClassQuickSetupSheet level={activeLevel} branchSpecific={branchSpecific} setActiveLevel={setActiveLevel} branchId={activeBranch?.id} />
+          )}
+        </div>
       </div>
     </div>
   );
