@@ -2,13 +2,13 @@
 
 import { CSVUploadProgress } from "@/components/StudentAndParent/BulkUpload/CSVUploadProgress";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { SchoolStructure, SchoolStructureHandle } from "./SchoolStructure";
+import { AdmissionNumberSetup, AdmissionNumberSetupHandle } from "./AdmissionNumberSetup";
 import { ClassesAndArms } from "./ClassesAndArms";
 import { GradingAndAssessment, GradingAndAssessmentHandle } from "./GradingAndAssessment";
-import { AdmissionNumberSetup, AdmissionNumberSetupHandle } from "./AdmissionNumberSetup";
-import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { SchoolStructure, SchoolStructureHandle } from "./SchoolStructure";
 
 const academicSteps = [
   { id: 1, label: "School Structure", completed: false },
@@ -25,7 +25,6 @@ export function AcademicSetup() {
 
   const schoolStructureRef = useRef<SchoolStructureHandle>(null);
   const assessmentAndGradingRef = useRef<GradingAndAssessmentHandle>(null);
-  // const classesAndArmsRef = useRef<ClassesAndArmsHandle>(null);
   const admissionRef = useRef<AdmissionNumberSetupHandle>(null);
 
   const steps = academicSteps.map(({ id, label }) => ({
@@ -46,20 +45,20 @@ export function AcademicSetup() {
 
     const currentRef = stepRefMap[currentStep];
 
-    // if (currentRef) {
-    //   setIsSubmitting(true);
-    //   const success = await currentRef.submit();
-    //   setIsSubmitting(false);
-    //   if (!success) return;
-    // }
+    if (currentRef) {
+      setIsSubmitting(true);
+      const success = await currentRef.submit();
+      setIsSubmitting(false);
+      if (!success) return;
+    }
 
-    // setCompletedSteps(prev => (prev.includes(currentStep) ? prev : [...prev, currentStep]));
+    setCompletedSteps(prev => (prev.includes(currentStep) ? prev : [...prev, currentStep]));
 
-    // if (isLastStep) {
-    //   router.push("/settings/academic/academic-setup-done");
-    // } else {
-    //   setCurrentStep(prev => prev + 1);
-    // }
+    if (isLastStep) {
+      router.push("/settings/academic/academic-setup-done");
+    } else {
+      setCurrentStep(prev => prev + 1);
+    }
     setCurrentStep(prev => prev + 1);
   };
 
@@ -105,15 +104,7 @@ export function AcademicSetup() {
           disabled={isSubmitting}
           className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
         >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-3 h-4 w-4 animate-spin" /> Saving...
-            </>
-          ) : isLastStep ? (
-            "Finish"
-          ) : (
-            "Next"
-          )}
+          {isSubmitting ? <Spinner className="text-text-white-default mr-3 h-4 w-4" /> : isLastStep ? "Finish" : "Next"}
         </Button>
       </div>
     </section>

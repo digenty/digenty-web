@@ -75,7 +75,7 @@ const AssessmentFields = ({ values, handleChange, handleBlur }: AssessmentFields
                       value={values.assessments[index].name}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      className="bg-bg-input-soft! text-text-default h-9! flex-1 border-none"
+                      className="bg-bg-input-soft! text-text-default h-9! flex-1 border-none text-sm"
                       placeholder="Continuous Assessment 1"
                     />
                     <div className="bg-bg-input-soft flex h-9 w-17 items-center gap-1 rounded-md p-1">
@@ -84,7 +84,7 @@ const AssessmentFields = ({ values, handleChange, handleBlur }: AssessmentFields
                         value={values.assessments[index].weight}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        className="text-text-default h-7! w-full border-none bg-none!"
+                        className="text-text-default h-7! w-full border-none bg-none! text-sm"
                         placeholder="20"
                       />
                       <span className="text-text-muted w-3">%</span>
@@ -101,7 +101,7 @@ const AssessmentFields = ({ values, handleChange, handleBlur }: AssessmentFields
                   className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm"
                   onClick={() => push(emptyAssessmentRow())}
                 >
-                  <AddFill fill="var(--color-icon-default-muted)" /> Add Continuous Assessment
+                  <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Continuous Assessment
                 </Button>
                 <div className="flex items-center gap-2">
                   <span className="text-text-subtle text-sm">Total Weight</span>
@@ -213,7 +213,7 @@ const GradingFields = ({ values, handleChange, handleBlur }: GradingFieldsProps)
                         className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm"
                         onClick={() => push(emptyGradeRow())}
                       >
-                        <AddFill fill="var(--color-icon-default-muted)" /> Add Grade Row
+                        <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Grade Row
                       </Button>
                     </td>
                   </tr>
@@ -240,7 +240,7 @@ const GradingFields = ({ values, handleChange, handleBlur }: GradingFieldsProps)
                       onBlur={handleBlur}
                       type="text"
                       placeholder="A"
-                      className="text-text-default bg-bg-input-soft! h-7! w-full border-none"
+                      className="text-text-default bg-bg-input-soft! h-7! w-full border-none text-sm"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
@@ -253,7 +253,7 @@ const GradingFields = ({ values, handleChange, handleBlur }: GradingFieldsProps)
                         onBlur={handleBlur}
                         type="number"
                         placeholder="70"
-                        className="text-text-default bg-bg-input-soft! h-7! w-full border-none"
+                        className="text-text-default bg-bg-input-soft! h-7! w-full border-none text-sm"
                       />
                       <span className="text-text-default text-xs">to</span>
                       <Input
@@ -263,7 +263,7 @@ const GradingFields = ({ values, handleChange, handleBlur }: GradingFieldsProps)
                         onBlur={handleBlur}
                         type="number"
                         placeholder="100"
-                        className="text-text-default bg-bg-input-soft! h-7! w-full border-none"
+                        className="text-text-default bg-bg-input-soft! h-7! w-full border-none text-sm"
                       />
                     </div>
                   </div>
@@ -352,13 +352,13 @@ const LevelTabsContainer = ({ levelTabs, levelRefs, onApplyToAll }: LevelTabsCon
           <Select value={String(activeIndex)} onValueChange={v => setActiveIndex(Number(v))}>
             <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-sm">
               <SelectValue>
-                <span className="text-text-default text-sm">{levelTabs[activeIndex]?.label}</span>
+                <span className="text-text-default text-sm capitalize">{levelTabs[activeIndex]?.label.replaceAll("_", " ").toLowerCase()}</span>
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-bg-default border-border-default">
               {levelTabs.map((tab, idx) => (
-                <SelectItem key={tab.levelId} value={String(idx)} className="text-text-default text-sm">
-                  {tab.label}
+                <SelectItem key={tab.levelId} value={String(idx)} className="text-text-default text-sm capitalize">
+                  {tab.label.replaceAll("_", " ").toLowerCase()}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -366,7 +366,7 @@ const LevelTabsContainer = ({ levelTabs, levelRefs, onApplyToAll }: LevelTabsCon
         </div>
       ) : (
         <div className="flex w-full items-center justify-between">
-          <div className="bg-bg-state-soft flex w-fit items-center gap-2.5 rounded-full p-0.5">
+          <div className="bg-bg-state-soft flex max-w-160 items-center gap-2.5 overflow-x-auto rounded-full p-0.5">
             {levelTabs.map((tab, index) => {
               const isActive = index === activeIndex;
               return (
@@ -375,13 +375,13 @@ const LevelTabsContainer = ({ levelTabs, levelRefs, onApplyToAll }: LevelTabsCon
                   type="button"
                   onClick={() => setActiveIndex(index)}
                   className={cn(
-                    "flex items-center gap-1 px-4 py-2 text-sm font-medium transition-all duration-150",
+                    "flex items-center gap-1 px-4 py-2 text-sm font-medium whitespace-nowrap capitalize transition-all duration-150",
                     isActive
                       ? "bg-bg-state-secondary border-border-darker text-text-default h-8 justify-center rounded-full border shadow-sm"
                       : "text-text-muted h-8",
                   )}
                 >
-                  <span>{tab.label}</span>
+                  <span>{tab.label.replaceAll("_", " ").toLowerCase()}</span>
                   <Loader2Fill fill={isActive ? "var(--color-icon-informative)" : "var(--color-icon-default-muted)"} className="size-4" />
                 </button>
               );
@@ -389,6 +389,37 @@ const LevelTabsContainer = ({ levelTabs, levelRefs, onApplyToAll }: LevelTabsCon
           </div>
           <GradingAndAssessmentSheet onApplyToAll={onApplyToAll} />
         </div>
+        //   <div className="h-9 w-full">
+        //   <div
+        //     className="bg-bg-state-soft hide-scrollbar flex max-w-150 items-center gap-2.5 overflow-x-auto rounded-full p-0.5 lg:max-w-160 xl:max-w-216"
+        //     style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        //   >
+        //     {levelTabs.map((tab, index) => {
+        //       const isActive = index === activeIndex;
+
+        //       return (
+        //         <button
+        //           key={tab.levelId}
+        //           type="button"
+        //           onClick={() => setActiveIndex(index)}
+        //           className={cn(
+        //             "transit flex shrink-0 justify-center px-4 py-2 text-sm font-medium whitespace-nowrap capitalize",
+        //             isActive
+        //               ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
+        //               : "text-text-muted flex h-8 items-center gap-1",
+        //           )}
+        //         >
+        //           <span>{tab.label.replaceAll("_", " ").toLowerCase()}</span>
+        //           {isActive ? (
+        //             <Loader2Fill fill="var(--color-icon-informative)" className="size-4" />
+        //           ) : (
+        //             <Loader2Fill fill="var(--color-icon-default-muted)" className="size-4" />
+        //           )}
+        //         </button>
+        //       );
+        //     })}
+        //   </div>
+        // </div>
       )}
 
       {isMobile && (
@@ -408,7 +439,7 @@ const LevelTabsContainer = ({ levelTabs, levelRefs, onApplyToAll }: LevelTabsCon
 
 const BranchFormPanel = forwardRef<BranchFormHandle, BranchFormPanelProps>(({ branchId, isActive, levelTabs }, ref) => {
   const levelRefs = useRef<Record<number, React.RefObject<LevelFormHandle>>>(
-    Object.fromEntries(levelTabs.map(tab => [tab.levelId, React.createRef<LevelFormHandle>()])),
+    Object.fromEntries(levelTabs.map(tab => [tab.levelId, React.createRef<LevelFormHandle>()])) as Record<number, React.RefObject<LevelFormHandle>>,
   );
 
   const applyToAll = (values: LevelFormValues) => {
@@ -516,18 +547,18 @@ export const GradingAndAssessment = forwardRef<GradingAndAssessmentHandle>((_, r
     return tabs;
   }, [branchLevels]);
 
-  const defaultLevelRefs = useRef<Record<number, React.RefObject<LevelFormHandle>>>({});
+  const defaultLevelRefs = useRef<Record<number, React.RefObject<LevelFormHandle | null>>>({});
   dedupedLevelTabs.forEach(tab => {
     if (!defaultLevelRefs.current[tab.levelId]) {
       defaultLevelRefs.current[tab.levelId] = React.createRef<LevelFormHandle>();
     }
   });
 
-  const branchPanelRefs = useRef<Record<string, React.RefObject<BranchFormHandle>>>({});
+  const branchPanelRefs = useRef<Record<string, React.RefObject<BranchFormHandle | null>>>({});
   branchLevels.forEach(b => {
     const key = String(b.branchId);
     if (!branchPanelRefs.current[key]) {
-      branchPanelRefs.current[key] = React.createRef<BranchFormHandle>();
+      branchPanelRefs.current[key] = React.createRef<BranchFormHandle | null>();
     }
   });
 
