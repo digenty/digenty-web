@@ -11,9 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetArmsByLevel } from "@/hooks/queryHooks/useArm";
+import { useGetArmsByLevel, useDeleteArm, useAddArm } from "@/hooks/queryHooks/useArm";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
-import { useAddSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
+import { useAddSubject, useDeleteSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -40,10 +40,15 @@ export const ClassQuickSetupSheet = ({
   const [sheetOpen, setSheetOpen] = useState(false);
   const [departmentsEnabled, setDepartmentsEnabled] = useState(false);
   const [armsEnabled, setArmsEnabled] = useState(false);
+  const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
+  const [deletingArmName, setDeletingArmName] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   const { mutate, isPending } = useUpdateLevel();
   const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubject();
+  const { mutate: deleteSubject } = useDeleteSubject();
+  const { mutate: deleteArm } = useDeleteArm();
+  const { mutate: mutateArm, isPending: isAddingArm } = useAddArm();
 
   const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.id, branchId ?? 25);
   const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.id, branchId ?? 25);
@@ -159,7 +164,37 @@ export const ClassQuickSetupSheet = ({
   };
 
   const removeSubject = (subjectToRemove: string) => {
-    setSubjects(subjects.filter(subject => subject !== subjectToRemove));
+    const subjectsList = Array.isArray(subjectsData) ? subjectsData : (subjectsData?.content ?? subjectsData?.data ?? []);
+
+    const subjectObj = subjectsList.find((s: { id: number; name: string }) => s.name === subjectToRemove);
+
+    if (subjectObj && level?.id) {
+      setDeletingSubjectName(subjectToRemove);
+      deleteSubject(
+        { subjectId: subjectObj.id, levelId: level.id },
+        {
+          onSuccess: () => {
+            setSubjects(subjects.filter(subject => subject !== subjectToRemove));
+            setDeletingSubjectName(null);
+            toast({
+              title: "Subject deleted",
+              description: `"${subjectToRemove}" has been deleted successfully`,
+              type: "success",
+            });
+          },
+          onError: error => {
+            setDeletingSubjectName(null);
+            toast({
+              title: "Failed to delete subject",
+              description: (error as { message?: string })?.message || `Could not delete "${subjectToRemove}"`,
+              type: "error",
+            });
+          },
+        },
+      );
+    } else {
+      setSubjects(subjects.filter(subject => subject !== subjectToRemove));
+    }
   };
 
   const addArm = (armString: string) => {
@@ -169,12 +204,61 @@ export const ClassQuickSetupSheet = ({
       .map(str => str.trim().replace(/^,+|,+$/g, ""))
       .filter(str => str !== "" && !arms.includes(str));
 
-    setArms([...arms, ...newArms]);
+    if (!newArms.length) return;
+
+    newArms.forEach(name => {
+      mutateArm(
+        { name, levelId: level.id, branchId: branchId ?? 25 },
+        {
+          onSuccess: () => {
+            setArms(prev => [...prev, name]);
+          },
+          onError: error => {
+            toast({
+              title: "Failed to add arm",
+              description: (error as { message?: string })?.message || `Could not add "${name}"`,
+              type: "error",
+            });
+          },
+        },
+      );
+    });
+
     formik.setFieldValue("arm", "");
   };
 
   const removeArm = (armToRemove: string) => {
-    setArms(arms.filter(arm => arm !== armToRemove));
+    const armsList = Array.isArray(armsData) ? armsData : (armsData?.content ?? armsData?.data ?? []);
+
+    const armObj = armsList.find((a: { id: number; name: string }) => a.name === armToRemove);
+
+    if (armObj && level?.id) {
+      setDeletingArmName(armToRemove);
+      deleteArm(
+        { armId: armObj.id, levelId: level.id },
+        {
+          onSuccess: () => {
+            setArms(arms.filter(arm => arm !== armToRemove));
+            setDeletingArmName(null);
+            toast({
+              title: "Arm deleted",
+              description: `"${armToRemove}" has been deleted successfully`,
+              type: "success",
+            });
+          },
+          onError: error => {
+            setDeletingArmName(null);
+            toast({
+              title: "Failed to delete arm",
+              description: (error as { message?: string })?.message || `Could not delete "${armToRemove}"`,
+              type: "error",
+            });
+          },
+        },
+      );
+    } else {
+      setArms(arms.filter(arm => arm !== armToRemove));
+    }
   };
 
   const addDepartment = (departmentString: string) => {
@@ -424,13 +508,18 @@ export const ClassQuickSetupSheet = ({
                     <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
                     <button
                       type="button"
-                      className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"
+                      className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
+                      disabled={deletingSubjectName === subject}
                       onClick={e => {
                         e.preventDefault();
                         removeSubject(subject);
                       }}
                     >
-                      <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
+                      {deletingSubjectName === subject ? (
+                        <Spinner className="text-text-subtle size-2" />
+                      ) : (
+                        <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
+                      )}
                     </button>
                   </Badge>
                 ))}
@@ -482,6 +571,7 @@ export const ClassQuickSetupSheet = ({
                     onClick={() => addArm(formik.values.arm)}
                     className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
                   >
+                    {isAddingArm && <Spinner className="text-text-white-default size-3" />}
                     Add
                   </Button>
                 </div>
@@ -493,16 +583,21 @@ export const ClassQuickSetupSheet = ({
                       key={arm}
                       className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                     >
-                      <span className="text-text-subtle text-xs">{arm}</span>{" "}
+                      <span className="text-text-subtle text-xs capitalize">{arm.toLowerCase()}</span>{" "}
                       <button
                         type="button"
-                        className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"
+                        className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
+                        disabled={deletingArmName === arm}
                         onClick={e => {
                           e.preventDefault();
                           removeArm(arm);
                         }}
                       >
-                        <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
+                        {deletingArmName === arm ? (
+                          <Spinner className="text-text-subtle size-2" />
+                        ) : (
+                          <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
+                        )}
                       </button>
                     </Badge>
                   ))}

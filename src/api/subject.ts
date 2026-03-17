@@ -67,3 +67,15 @@ export const addSubject = async (payload: AddSubjectPayload) => {
     throw error;
   }
 };
+
+export const deleteSubjectByLevel = async (subjectId: number, levelId: number) => {
+  try {
+    const { data } = await api.delete(`/subjects/level?subjectId=${subjectId}&levelId=${levelId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

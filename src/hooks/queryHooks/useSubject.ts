@@ -1,4 +1,11 @@
-import { addSubject, getBranchTeachersClassSubjects, getSubjectsByLevel, getSubjectStudents, getTeacherSubjects } from "@/api/subject";
+import {
+  addSubject,
+  deleteSubjectByLevel,
+  getBranchTeachersClassSubjects,
+  getSubjectsByLevel,
+  getSubjectStudents,
+  getTeacherSubjects,
+} from "@/api/subject";
 import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -43,6 +50,19 @@ export const useAddSubject = () => {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: subjectKeys.subjectsByLevel(variables.levelId, variables.branchId),
+      });
+    },
+  });
+};
+
+export const useDeleteSubject = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subjectKeys.deleteSubject,
+    mutationFn: ({ subjectId, levelId }: { subjectId: number; levelId: number }) => deleteSubjectByLevel(subjectId, levelId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: subjectKeys.subjectsByLevel(variables.levelId),
       });
     },
   });
