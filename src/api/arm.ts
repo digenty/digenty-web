@@ -12,3 +12,15 @@ export const getArmsByClass = async (classId?: number) => {
     throw error;
   }
 };
+
+export const getArmsByLevel = async (levelId?: number, branchId?: number) => {
+  try {
+    const { data } = await api.get(`/arms/level?levelId=${levelId}${branchId ? `&branchId=${branchId}` : ""}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

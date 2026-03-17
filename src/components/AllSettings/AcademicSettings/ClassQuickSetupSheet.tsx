@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
+import { useGetArmsByLevel } from "@/hooks/queryHooks/useArm";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -45,6 +46,7 @@ export const ClassQuickSetupSheet = ({
   const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubject();
 
   const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.id, branchId ?? 25);
+  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.id, branchId ?? 25);
 
   useEffect(() => {
     if (subjectsData) {
@@ -54,7 +56,16 @@ export const ClassQuickSetupSheet = ({
       setSubjects(names);
     }
   }, [subjectsData]);
-  console.log(subjects, subjectsData);
+
+  useEffect(() => {
+    if (armsData) {
+      const names: string[] = Array.isArray(armsData)
+        ? armsData.map((s: { name: string }) => s.name)
+        : (armsData?.content ?? armsData?.data ?? []).map((s: { name: string }) => s.name);
+      setArms(names);
+    }
+  }, [armsData]);
+  console.log(arms, armsData);
 
   const formik = useFormik({
     initialValues: {
