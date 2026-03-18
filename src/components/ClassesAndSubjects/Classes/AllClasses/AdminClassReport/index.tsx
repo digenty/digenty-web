@@ -15,13 +15,44 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { cn } from "@/lib/utils";
-import { exportToCSV, exportToPDF } from "@/lib/export-utils";
+import { exportToCSV } from "@/lib/export-utils";
 import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
 
 import { ClassReportFooter } from "@/components/ClassesAndSubjects/Classes/ClassOverview/ClassReport/ClassReportFooter";
 import { createColumns } from "@/components/ClassesAndSubjects/Classes/ClassOverview/ClassReport/SpreadsheetColumns";
 import { SpreadsheetMobileCard } from "@/components/ClassesAndSubjects/Classes/ClassOverview/ClassReport/SpreadsheetMobileCard";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+
+// export const exportToPDF = async (elementId: string, filename: string) => {
+//   const element = document.getElementById(elementId);
+//   if (!element) {
+//     console.error(`Element with id ${elementId} not found`);
+//     return;
+//   }
+
+//   const { default: html2canvas } = await import("html2canvas");
+//   const { jsPDF } = await import("jspdf");
+
+//   try {
+//     const canvas = await html2canvas(element, {
+//       scale: 2,
+//       useCORS: true,
+//       logging: false,
+//     });
+
+//     const imgData = canvas.toDataURL("image/png");
+//     const pdf = new jsPDF({
+//       orientation: "portrait",
+//       unit: "px",
+//       format: [canvas.width / 2, canvas.height / 2],
+//     });
+
+//     pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
+//     pdf.save(filename);
+//   } catch (error) {
+//     console.error("Error generating PDF:", error);
+//   }
+// };
 
 type ClassArmStudentReport = {
   studentId: number;
@@ -130,7 +161,7 @@ const ClassReport = () => {
     } else {
       // PDF Export for individual student
       const studentName = studentReportData?.data?.studentName || "Student_Report";
-      exportToPDF("student-report", `Report_${studentName.replaceAll(" ", "_")}.pdf`);
+      // exportToPDF("student-report", `Report_${studentName.replaceAll(" ", "_")}.pdf`);
     }
   };
 

@@ -1,11 +1,18 @@
 import { ViewScore } from "@/components/ClassesAndSubjects/Subjects/Score/ViewScores";
-import React from "react";
+import { Spinner } from "@/components/ui/spinner";
+import { Suspense } from "react";
 
 const ViewScoresPage = () => {
   return (
-    <div>
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <Spinner className="size-16" />
+        </div>
+      }
+    >
       <ViewScore />
-    </div>
+    </Suspense>
   );
 };
 
