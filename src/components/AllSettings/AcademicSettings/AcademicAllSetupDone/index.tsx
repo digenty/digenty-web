@@ -73,11 +73,7 @@ export const AcademicAllSetupDone = () => {
         </div>
       </div>
       <div className="mt-5 px-4">
-        {activeTab === "School, Session & Term" && (
-          <div className="">
-            <SchoolStructure />
-          </div>
-        )}
+        {activeTab === "School, Session & Term" && <div className="">{/* <SchoolStructure /> */}</div>}
         {activeTab === "Classes & Arms" && (
           <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
             <AcademicDoneClassAndArms />

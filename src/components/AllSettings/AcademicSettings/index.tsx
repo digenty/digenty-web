@@ -1,6 +1,6 @@
 "use client";
 
-import { CSVUploadProgress } from "@/components/StudentAndParent/BulkUpload/CSVUploadProgress";
+import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { AdmissionNumberSetup } from "./AdmissionNumberSetup";
@@ -30,7 +30,7 @@ export const AcademicSetup = () => {
     <section className="flex w-full flex-1 flex-col pt-4 pb-20">
       <div className="w-full flex-1 space-y-4 md:space-y-6">
         <div className="mx-auto flex w-full flex-col gap-4 lg:px-36">
-          <CSVUploadProgress currentStep={step} steps={steps} completedSteps={completedSteps} className="flex w-full" />
+          <ProgressIndicator currentStep={step} steps={steps} completedSteps={completedSteps} className="flex w-full" />
         </div>
 
         {step === "school-structure" && (

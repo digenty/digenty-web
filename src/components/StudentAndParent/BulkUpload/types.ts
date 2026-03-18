@@ -1,9 +1,9 @@
 import { Gender, Relationship } from "@/types";
 
 export type Step = {
-  id: string;
+  id: number;
   label: string;
-  // completed: boolean;
+  completed: boolean;
 };
 
 export type StudentUploadType = {

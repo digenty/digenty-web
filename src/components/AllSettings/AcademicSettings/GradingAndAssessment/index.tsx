@@ -473,14 +473,14 @@ export const GradingAndAssessment = ({
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
 
   const { data: classLevelData, isLoading } = useGetLevels(activeBranch?.id);
-  const branchLevels: Level[] = classLevelData?.data ?? [];
+  const branchLevels: Level[] = React.useMemo(() => classLevelData?.data ?? [], [classLevelData]);
   const levels = extractUniqueLevelsByType(classLevelData?.data || []);
 
   useEffect(() => {
     if (!activeLevel) {
       setActiveLevel(levels[0]);
     }
-  }, [levels]);
+  }, [activeLevel, levels]);
 
   useEffect(() => {
     if (branchLevels.length > 0 && !activeTab) {

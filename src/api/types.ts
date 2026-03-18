@@ -1,4 +1,3 @@
-import { LevelFormValues } from "@/components/AllSettings/AcademicSettings/ClassesAndArms/GradingAndAssessment/GradingAndAssessmentSheet";
 import { AdmissionStatus, BoardingStatus, Gender, Relationship } from "@/types";
 
 export interface Branch {
@@ -412,16 +411,6 @@ export interface LevelTab {
   levelType: string;
 }
 
-export interface LevelFormHandle {
-  submit: () => Promise<LevelSubmitResult | null | undefined>;
-  reset: (values: LevelFormValues) => void;
-}
-
-export interface LevelSubmitResult {
-  levelId: number;
-  values: LevelFormValues;
-}
-
 export interface AssessmentRow {
   name: string;
   weight: string;
@@ -431,16 +420,6 @@ export interface GradeRow {
   upperLimit: string;
   lowerLimit: string;
   remark: string;
-}
-
-export interface BranchSubmitResult {
-  branchId: number;
-  levelResults: LevelSubmitResult[];
-}
-
-export interface BranchFormHandle {
-  submit: () => Promise<BranchSubmitResult | null>;
-  applyToAll: (values: LevelFormValues) => void;
 }
 
 export interface BranchFormPanelProps {
