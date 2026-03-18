@@ -1,6 +1,6 @@
 "use client";
 
-import { Branch, BranchWithClassLevels, ClassLevel } from "@/api/types";
+import { Branch, BranchWithClassLevels, ClassInLevel, ClassLevel } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { BookFill } from "@/components/Icons/BookFill";
 import BookOpen from "@/components/Icons/BookOpen";
@@ -107,6 +107,174 @@ function ClassesResponsiveTabs({
 }) {
   const isMobile = useIsMobile();
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const [openDelete, setOpenDelete] = React.useState(false);
+  const [classId, setClassId] = React.useState<number | null>(null);
+
+  const { data: classesByLevelData, isPending } = useGetClassesByLevel(activeLevel?.id);
+  console.log(classesByLevelData);
+
+  const Classes = () => {
+    return (
+      <>
+        {openDelete && <DeleteClass setOpenDeleteModal={setOpenDelete} open={openDelete} classId={classId} />}
+
+        {isPending && !classesByLevelData && <Skeleton className="bg-bg-state-soft h-80 w-full" />}
+        {!isPending && classesByLevelData && classesByLevelData?.data?.length === 0 && (
+          <div className="flex w-full items-center justify-center">
+            <ErrorComponent title="No Classes added yet" description="Use the Quick Setup to add classes" />
+          </div>
+        )}
+        {!isPending && classesByLevelData && activeLevel?.levelType !== "SENIOR_SECONDARY" && (
+          <div className="mt-8 flex w-full flex-col gap-6">
+            {classesByLevelData?.data?.map((clss: ClassInLevel) => (
+              <div key={clss.id} className="bg-bg-state-soft rounded-md p-1">
+                <div className="flex items-center justify-between px-5 py-2">
+                  <div className="text-text-default text-sm font-medium capitalize">{clss.name} </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => {
+                        setOpenDelete(true);
+                        setClassId(clss.id);
+                      }}
+                      className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
+                    >
+                      <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
+                    </Button>
+                    <Button className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2">
+                      <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
+                    </Button>
+                  </div>
+                </div>
+                <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-6">
+                  <div className="">
+                    <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
+                      {" "}
+                      <BookFill fill="var(--color-bg-basic-blue-accent)" /> Subjects
+                    </div>
+                    <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+                      {["English Language", "English Language2", "English Language3", "English Language4"].map((sub, i) => (
+                        <Badge key={i} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+                          {sub}
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
+                      {" "}
+                      <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
+                    </div>
+
+                    <div className="flex flex-wrap gap-1">
+                      {["A", "B", "C"].map(arm => (
+                        <div key={arm} className="">
+                          <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
+                            {arm}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!isPending && classesByLevelData && activeLevel?.levelType === "SENIOR_SECONDARY" && (
+          <div className="mt-8 flex flex-col gap-6">
+            {classesByLevelData?.data?.map((clss: ClassInLevel) => (
+              <div key={clss.id} className="bg-bg-state-soft rounded-md p-1">
+                <div className="flex items-center justify-between px-5 py-2">
+                  <div className="text-text-default text-sm font-medium">{clss.name} </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => {
+                        setClassId(clss.id);
+                        setOpenDelete(true);
+                      }}
+                      className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
+                    >
+                      <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
+                    </Button>
+                    <Button className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2">
+                      <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
+                    </Button>
+                  </div>
+                </div>
+                <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-2">
+                  <div className="p-3">
+                    <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
+                      {" "}
+                      <GraduationCapFill fill="var(--color-bg-basic-blue-accent) " className="size-4" /> Departments
+                    </div>
+                    <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+                      {["English Language"].map(sub => (
+                        <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+                          {sub}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
+                      {" "}
+                      <BookFill fill="var(--color-bg-basic-blue-accent)" />
+                      Art Subjects
+                    </div>
+                    <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+                      {["English Language"].map(sub => (
+                        <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+                          {sub}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
+                      {" "}
+                      <BookFill fill="var(--color-bg-basic-blue-accent)" />
+                      Commercial Subjects
+                    </div>
+                    <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+                      {["English Language"].map(sub => (
+                        <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+                          {sub}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
+                      {" "}
+                      <BookFill fill="var(--color-bg-basic-blue-accent)" />
+                      Science Subjects
+                    </div>
+                    <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+                      {["English Language"].map(sub => (
+                        <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+                          {sub}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
+                      <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
+                    </div>
+
+                    <div className="flex flex-wrap gap-1">
+                      {["A", "B", "C"].map(arm => (
+                        <div key={arm} className="">
+                          <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
+                            {arm}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  };
 
   if (isMobile) {
     return (
@@ -134,7 +302,7 @@ function ClassesResponsiveTabs({
             ))}
           </SelectContent>
         </Select>
-        {/* <div className="mt-4">{levels[activeIndex].content}</div> */}
+        <div className="mt-4">{<Classes />}</div>
       </div>
     );
   }
@@ -172,62 +340,7 @@ function ClassesResponsiveTabs({
         </div>
       </div>
 
-      <div className="mt-4 w-full">
-        <div className="flex w-full items-center justify-center pt-15">
-          {/* <div className="flex-1">{levels[activeIndex].content}</div> */}
-          {<ErrorComponent title="No Classes added yet" description="Use the Quick Setup to add classes" />}
-
-          {/* <div className="mt-8 flex w-full flex-col gap-6">
-      {nurseryClasses.map(nc => (
-        <div key={nc.id} className="bg-bg-state-soft rounded-md p-1">
-          <div className="flex items-center justify-between px-5 py-2">
-            <div className="text-text-default text-sm font-medium">Nusery </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => onOpenDelete?.({ id: nc.id, name: "Nusery" })}
-                className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
-              >
-                <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
-              </Button>
-              <Button className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2">
-                <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
-              </Button>
-            </div>
-          </div>
-          <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-6">
-            <div className="">
-              <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
-                <BookFill fill="var(--color-bg-basic-blue-accent)" /> Subjects
-              </div>
-              <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language2", "English Language3", "English Language4"].map((sub, i) => (
-                  <Badge key={i} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
-              </div>
-              <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
-                {" "}
-                <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
-              </div>
-
-              <div className="flex flex-wrap gap-1">
-                {["A", "B", "C"].map(arm => (
-                  <div key={arm} className="">
-                    <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
-                      {arm}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div> */}
-        </div>
-      </div>
+      <div className="mt-4 w-full">{<Classes />}</div>
     </div>
   );
 }
@@ -324,7 +437,7 @@ export const ClassesSetup = ({
 
   return (
     <div>
-      {openDeleteModal && <DeleteClass setOpenDeleteModal={setOpenDeleteModal} open={openDeleteModal} />}
+      {/* {openDeleteModal && <DeleteClass setOpenDeleteModal={setOpenDeleteModal} open={openDeleteModal} />} */}
       <div className="w-full">
         {levels.length > 0 && <ClassesResponsiveTabs levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />}
       </div>

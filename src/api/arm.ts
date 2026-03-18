@@ -1,11 +1,12 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
+import { LevelType } from "./types";
 
 type AddArmPayload = {
-  name: string;
-  levelId: number;
-  branchId: number;
-  departmentId?: number;
+  names: string[];
+  levelType: LevelType;
+  branchId?: number;
+  branchSpecific: boolean;
 };
 
 export const getArmsByClass = async (classId?: number) => {
@@ -20,9 +21,9 @@ export const getArmsByClass = async (classId?: number) => {
   }
 };
 
-export const getArmsByLevel = async (levelId?: number, branchId?: number) => {
+export const getArmsByLevel = async (levelType?: LevelType, branchId?: number) => {
   try {
-    const { data } = await api.get(`/arms/level?levelId=${levelId}${branchId ? `&branchId=${branchId}` : ""}`);
+    const { data } = await api.get(`/arms/level?levelType=${levelType}${branchId ? `&branchId=${branchId}` : ""}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

@@ -1,10 +1,12 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
+import { LevelType } from "./types";
 
 type AddSubjectPayload = {
-  name: string;
-  levelId: number;
-  branchId: number;
+  names: string[];
+  levelType: LevelType;
+  branchId?: number;
+  branchSpecific: boolean;
 };
 
 export const getTeacherSubjects = async () => {
@@ -44,9 +46,9 @@ export const getBranchTeachersClassSubjects = async (armId: number) => {
   }
 };
 
-export const getSubjectsByLevel = async (levelId?: number, branchId?: number) => {
+export const getSubjectsByLevel = async (levelType?: LevelType, branchId?: number) => {
   try {
-    const { data } = await api.get(`/subjects/level?levelId=${levelId}${branchId ? `&branchId=${branchId}` : ""}`);
+    const { data } = await api.get(`/subjects/level?levelType=${levelType}${branchId ? `&branchId=${branchId}` : ""}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

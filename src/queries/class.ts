@@ -7,4 +7,5 @@ export const classKeys = {
   classReportPromotion: (armId: number) => ["classReportPromotion", armId] as const,
   requestEditAccess: ["requestEditAccess"] as const,
   classesByLevel: (levelId?: number) => ["classesByLevel", levelId] as const,
+  deleteClass: ["deleteClass"] as const,
 };

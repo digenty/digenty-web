@@ -449,3 +449,16 @@ export interface BranchLevels {
   branchName: string;
   classLevels: ClassLevel[];
 }
+
+export interface ClassInLevel {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  levelId: number;
+  branchId: number;
+  schoolId: number;
+}

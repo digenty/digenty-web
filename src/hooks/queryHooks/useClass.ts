@@ -6,9 +6,10 @@ import {
   getClassCumulativeReport,
   requestEditAccess,
   getClassesByLevel,
+  deleteClass,
 } from "@/api/class";
 import { classKeys } from "@/queries/class";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetClasses = (branchId?: number) => {
   return useQuery({
@@ -62,5 +63,16 @@ export const useGetClassesByLevel = (levelId?: number) => {
     queryKey: classKeys.classesByLevel(levelId),
     queryFn: () => getClassesByLevel(levelId),
     enabled: !!levelId,
+  });
+};
+
+export const useDeleteClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: classKeys.deleteClass,
+    mutationFn: (classroomId: number) => deleteClass(classroomId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+    },
   });
 };
