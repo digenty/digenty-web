@@ -129,9 +129,8 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
       }
 
       mutateBranch(payload, {
-        onError: () => {
-          toast({ title: "Branch(es) created successfully", type: "success" });
-          setShowModal(false);
+        onError: error => {
+          toast({ title: "Could not create branch(es)", description: error?.message || "Could not create branch(es)", type: "error" });
         },
         onSuccess: () => {
           // reauthenticate user to pass user's schoolid into token

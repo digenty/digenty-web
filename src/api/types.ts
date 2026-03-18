@@ -16,6 +16,29 @@ export interface Branch {
   country: string | null;
 }
 
+export type LevelType = "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR_SECONDARY" | "SENIOR_SECONDARY";
+
+export interface BranchClassLevel {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  levelName: string;
+  levelType: LevelType;
+  classNamePrefix: string | null;
+  classStart: number | null;
+  classEnd: number | null;
+  branchId: number;
+  schoolId: number;
+}
+
+export interface BranchWithClassLevels {
+  branch: Branch;
+  classLevels: BranchClassLevel[];
+}
+
 export interface ClassType {
   id: number;
   uuid: string;
@@ -265,15 +288,6 @@ export interface BranchArmReportResponse {
   branchArmReportResponseDtos: BranchArmReport[];
 }
 
-export interface ClassLevel {
-  ids: number[];
-  levelName: string;
-  levelType: "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR SECONDARY" | "SENIOR SECONDARY";
-  classNamePrefix: string;
-  classStart: number;
-  classEnd: number;
-}
-
 export interface Level {
   branchId: number;
   branchName: string;
@@ -319,4 +333,119 @@ export interface updateSchoolPayload {
   country: string;
   currency: string;
   timezone: string;
+}
+
+export type NewBranchForm = {
+  id: string;
+  branchName: string;
+  address: string;
+  levels: string[];
+  isSubmitting: boolean;
+};
+
+export type SchoolStructurePayload = {
+  name: string;
+  currentTerm: string;
+  firstTermStartDate?: string;
+  firstTermEndDate?: string;
+  secondTermStartDate?: string;
+  secondTermEndDate?: string;
+  thirdTermStartDate?: string;
+  thirdTermEndDate?: string;
+  branchesAndLevelsDtos: {
+    branchId: number;
+    levels: string[];
+  }[];
+};
+
+export interface AssessmentDefaultPayload {
+  branchId: number;
+  assessments: {
+    name: string;
+    weight: number;
+    assessmentType: string;
+  }[];
+}
+
+export interface AssessmentPayload {
+  branchId?: number;
+  levelId?: number;
+  assessments: {
+    name: string;
+    weight: number;
+    assessmentType: string;
+  }[];
+}
+
+export interface GradingDefaultPayload {
+  branchId: number;
+  gradingDtoList: {
+    grade: string;
+    upperLimit: number;
+    lowerLimit: number;
+    remark: string;
+  }[];
+}
+
+export interface GradingPayload {
+  branchId?: number;
+  levelId?: number;
+  gradingDtoList: {
+    grade: string;
+    upperLimit: number;
+    lowerLimit: number;
+    remark: string;
+  }[];
+}
+
+export interface AdmissionNumberPayload {
+  prefix: string;
+  numberFormat: string;
+  startingNumber: number;
+  padding: number;
+}
+
+export interface LevelTab {
+  label: string;
+  levelId: number;
+  levelType: string;
+}
+
+export interface AssessmentRow {
+  name: string;
+  weight: string;
+}
+export interface GradeRow {
+  grade: string;
+  upperLimit: string;
+  lowerLimit: string;
+  remark: string;
+}
+
+export interface BranchFormPanelProps {
+  branchId: number;
+  isActive: boolean;
+  levelTabs: LevelTab[];
+}
+
+export interface LevelTabsContainerProps {
+  levels: ClassLevel[];
+  activeLevel: ClassLevel | null;
+  setActiveLevel: (level: ClassLevel) => void;
+  branchId?: number;
+}
+
+export interface ClassLevel {
+  id: number;
+  levelName: string;
+  levelType: "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR_SECONDARY" | "SENIOR_SECONDARY";
+  classNamePrefix: string;
+  classStart: number;
+  classEnd: number;
+}
+
+export interface BranchLevels {
+  branchId: number;
+  branchName: string;
+  classLevels: ClassLevel[];
 }

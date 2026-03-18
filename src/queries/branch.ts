@@ -7,4 +7,5 @@ export const branchKeys = {
   editRequest: (branchId: number) => ["editRequest", branchId] as const,
   branchDetail: (branchId: number, termId?: number) => ["branchDetail", branchId, termId] as const,
   updateBranch: ["updateBranch"] as const,
+  delete: ["deleteBranch"] as const,
 };

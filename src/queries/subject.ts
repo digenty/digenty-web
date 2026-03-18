@@ -2,6 +2,9 @@ export const subjectKeys = {
   mysubjects: ["subjects"] as const,
   studentsBySubjectClass: (subjectId: number, amrId: number) => [subjectId, amrId, "students"] as const,
   branchClassSubjects: [" branchClassSubjects"],
+  addSubject: ["addSubject"] as const,
+  deleteSubject: ["deleteSubject"] as const,
+  subjectsByLevel: (levelId?: number, branchId?: number) => ["subjectsByLevel", levelId, branchId] as const,
 };
 
 export const REPORT_STATUS_CONFIG = {
