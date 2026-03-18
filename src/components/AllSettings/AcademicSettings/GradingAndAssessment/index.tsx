@@ -51,6 +51,7 @@ const AssessmentFields = ({ values, handleChange, handleBlur, levelId, branchId 
   const isOverWeight = totalWeight > 100;
 
   const { mutateAsync: addAssessment } = useAddAssessment();
+
   const submitAssessment = () => {
     const payload = {
       branchId,
@@ -447,7 +448,7 @@ const LevelTabsContainer = ({ levels, activeLevel, setActiveLevel, branchId }: L
           </div>
         </div>
 
-        <GradingAndAssessmentSheet />
+        <GradingAndAssessmentSheet branchId={branchId} />
       </div>
 
       <div className="flex w-full items-center justify-center pt-10">

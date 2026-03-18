@@ -70,7 +70,6 @@ export const ClassQuickSetupSheet = ({
       setArms(names);
     }
   }, [armsData]);
-  console.log(arms, armsData);
 
   const formik = useFormik({
     initialValues: {
