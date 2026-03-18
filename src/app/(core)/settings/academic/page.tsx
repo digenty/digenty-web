@@ -16,7 +16,7 @@ const AcedmicSettingPage = () => {
           <div className="text-text-muted text-xs">You’ve not set up your academic structure. Click below to set it up.</div>
         </div>
         <Button
-          onClick={() => route.push("/settings/academic/academic-setup")}
+          onClick={() => route.push("/settings/academic/academic-setup?step=school-structure")}
           className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md"
         >
           Set Up <ArrowRightCircleFill fill="var(--color-icon-white-default)" />

@@ -24,10 +24,10 @@ import React, { useEffect, useState } from "react";
 import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
 import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
+import { usePathname, useRouter } from "next/navigation";
 
 function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (t: Branch | null) => void }) {
   const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
-  console.log(branchesData?.data);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -45,8 +45,8 @@ function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | 
           <Select
             value={activeBranch?.name || ""}
             onValueChange={value => {
-              const branch = branchesData?.data?.find((branch: Branch) => branch?.name === value);
-              setActiveBranch(branch || null);
+              const branch = branchesData?.data?.find((branch: BranchWithClassLevels) => branch?.branch?.name === value);
+              setActiveBranch(branch?.branch || null);
             }}
           >
             <Label className="text-text-default mb-2 text-sm font-medium">
@@ -59,9 +59,9 @@ function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | 
               </SelectValue>
             </SelectTrigger>
             <SelectContent className="bg-bg-default border-border-default">
-              {branchesData?.data?.map((branch: Branch) => (
-                <SelectItem key={branch.name} value={branch.name || ""} className="text-text-default text-sm">
-                  {branch.name}
+              {branchesData?.data?.map((branch: BranchWithClassLevels) => (
+                <SelectItem key={branch.branch.name} value={branch.branch.name || ""} className="text-text-default text-sm">
+                  {branch.branch.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -101,15 +101,12 @@ function ClassesResponsiveTabs({
   activeLevel,
   setActiveLevel,
 }: {
-  // levels: { label: string; content: React.ReactNode; icon?: React.ReactNode; activeIcon?: React.ReactNode }[];
   levels: ClassLevel[];
   activeLevel: ClassLevel | null;
   setActiveLevel: (level: ClassLevel) => void;
 }) {
   const isMobile = useIsMobile();
   const [activeIndex, setActiveIndex] = React.useState(0);
-
-  const { data: levelClasses, isFetching: isLoadingLevelClasses } = useGetClassesByLevel(activeLevel?.id);
 
   if (isMobile) {
     return (
@@ -126,7 +123,7 @@ function ClassesResponsiveTabs({
         >
           <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
             <SelectValue>
-              <span className="text-text-default text-sm capitalize">{levels[activeIndex].levelName.replaceAll("_", " ").toLowerCase()}</span>
+              {/* <span className="text-text-default text-sm capitalize">{levels[activeIndex].levelName.replaceAll("_", " ").toLowerCase()}</span> */}
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-bg-default border-border-default">
@@ -235,7 +232,9 @@ function ClassesResponsiveTabs({
   );
 }
 
-export const ClassesAndArms = () => {
+export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompletedSteps: (step: string[]) => void; completedSteps: string[] }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
   const [branchSpecific, setBranchSpecific] = useState(false);
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
@@ -249,38 +248,62 @@ export const ClassesAndArms = () => {
   }, [levels]);
 
   return (
-    <div className="mx-auto flex w-full flex-col gap-4 px-4 lg:px-36">
-      <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
-        <div className="">
-          <div className="text-text-default text-md font-semibold">Do academic structures differ by school branch?</div>
-          <div className="text-text-subtle text-sm font-normal">Turn ON for branch-specific structures. Keep OFF to share one setup.</div>
+    <section className="flex flex-1 flex-col">
+      <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 lg:px-36">
+        <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
+          <div className="">
+            <div className="text-text-default text-md font-semibold">Do academic structures differ by school branch?</div>
+            <div className="text-text-subtle text-sm font-normal">Turn ON for branch-specific structures. Keep OFF to share one setup.</div>
+          </div>
+          <Toggle
+            withBorder={false}
+            checked={branchSpecific}
+            onChange={evt => {
+              setBranchSpecific(!branchSpecific);
+              if (!evt.target.checked) setActiveBranch(null);
+            }}
+          />
         </div>
-        <Toggle
-          withBorder={false}
-          checked={branchSpecific}
-          onChange={evt => {
-            setBranchSpecific(!branchSpecific);
-            if (!evt.target.checked) setActiveBranch(null);
-          }}
-        />
-      </div>
-      {branchSpecific && (
-        <div className="border-border-default mb-5 flex w-full items-center gap-3">
-          <BranchTabs activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
-        </div>
-      )}
+        {branchSpecific && (
+          <div className="border-border-default mb-5 flex w-full items-center gap-3">
+            <BranchTabs activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
+          </div>
+        )}
 
-      <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
-        <div className="w-full min-w-0 flex-1">
-          <ClassesSetup levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
-        </div>
-        <div className="shrink-0">
-          {activeLevel && (
-            <ClassQuickSetupSheet level={activeLevel} branchSpecific={branchSpecific} setActiveLevel={setActiveLevel} branchId={activeBranch?.id} />
-          )}
+        <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="w-full min-w-0 flex-1">
+            <ClassesSetup levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
+          </div>
+          <div className="shrink-0">
+            {activeLevel && (
+              <ClassQuickSetupSheet level={activeLevel} branchSpecific={branchSpecific} setActiveLevel={setActiveLevel} branchId={activeBranch?.id} />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      <div className="border-border-default bg-bg-default absolute bottom-0 mt-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+        <Button
+          className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+          onClick={() => {
+            router.push(`${pathname}?step=school-structure`);
+          }}
+        >
+          Previous
+        </Button>
+
+        <Button
+          type="button"
+          onClick={() => {
+            setCompletedSteps([...completedSteps, "class-and-arms"]);
+            router.push(`${pathname}?step=grading-and-assessment`);
+          }}
+          className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+        >
+          Next
+        </Button>
+      </div>
+    </section>
   );
 };
 
@@ -295,7 +318,6 @@ export const ClassesSetup = ({
 }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
-  console.log(levels);
   const openDelete = () => {
     setOpenDeleteModal(true);
   };
@@ -304,7 +326,7 @@ export const ClassesSetup = ({
     <div>
       {openDeleteModal && <DeleteClass setOpenDeleteModal={setOpenDeleteModal} open={openDeleteModal} />}
       <div className="w-full">
-        <ClassesResponsiveTabs levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
+        {levels.length > 0 && <ClassesResponsiveTabs levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />}
       </div>
     </div>
   );

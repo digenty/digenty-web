@@ -16,7 +16,7 @@ export const addAssessmentDefault = async (payload: AssessmentDefaultPayload) =>
 
 export const addAssessment = async (payload: AssessmentPayload) => {
   try {
-    const { data } = await api.post("/assessments/branch-default", payload);
+    const { data } = await api.post("/assessments/branch-level", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

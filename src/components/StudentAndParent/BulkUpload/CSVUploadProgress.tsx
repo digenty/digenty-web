@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Step } from "./types";
 import Loader2Fill from "@/components/Icons/Loader2Fill";
 import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
+import { useSearchParams } from "next/navigation";
 
 export const CSVUploadProgress = ({
   className,
@@ -10,10 +11,13 @@ export const CSVUploadProgress = ({
   completedSteps,
 }: {
   className?: string;
-  currentStep: number;
+  currentStep: string;
   steps: Step[];
-  completedSteps: number[];
+  completedSteps: string[];
 }) => {
+  const params = useSearchParams();
+  const step = params.get("step");
+
   return (
     <div
       className={cn(
@@ -22,16 +26,16 @@ export const CSVUploadProgress = ({
         className,
       )}
     >
-      {steps.map(step => (
+      {steps.map((step, index) => (
         <div key={step.id} className="w-full space-y-4">
           <div className="after:border-border-darker flex items-center after:mx-1 after:w-full after:border-t">
-            {currentStep === step.id ? (
+            {step.id === currentStep ? (
               <Loader2Fill fill="var(--color-icon-informative)" className="size-6" />
             ) : completedSteps.includes(step.id) ? (
               <CheckboxCircleFill fill="var(--color-icon-success)" />
             ) : (
               <div className="bg-bg-subtle border-border-darker text-text-default flex aspect-square size-6 items-center justify-center rounded-full border text-xs font-semibold">
-                {step.id}
+                {index + 1}
               </div>
             )}
           </div>

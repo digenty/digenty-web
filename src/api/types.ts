@@ -1,4 +1,4 @@
-import { LevelFormValues } from "@/components/AllSettings/AcademicSettings/GradingAndAssessmentSheet";
+import { LevelFormValues } from "@/components/AllSettings/AcademicSettings/ClassesAndArms/GradingAndAssessment/GradingAndAssessmentSheet";
 import { AdmissionStatus, BoardingStatus, Gender, Relationship } from "@/types";
 
 export interface Branch {
@@ -369,8 +369,8 @@ export interface AssessmentDefaultPayload {
 }
 
 export interface AssessmentPayload {
-  branchId: number;
-  levelId: number;
+  branchId?: number;
+  levelId?: number;
   assessments: {
     name: string;
     weight: number;
@@ -389,8 +389,8 @@ export interface GradingDefaultPayload {
 }
 
 export interface GradingPayload {
-  branchId: number;
-  levelId: number;
+  branchId?: number;
+  levelId?: number;
   gradingDtoList: {
     grade: string;
     upperLimit: number;
@@ -450,9 +450,10 @@ export interface BranchFormPanelProps {
 }
 
 export interface LevelTabsContainerProps {
-  levelTabs: LevelTab[];
-  levelRefs: Record<number, React.RefObject<LevelFormHandle>>;
-  onApplyToAll: (values: LevelFormValues) => void;
+  levels: ClassLevel[];
+  activeLevel: ClassLevel | null;
+  setActiveLevel: (level: ClassLevel) => void;
+  branchId?: number;
 }
 
 export interface ClassLevel {

@@ -1,9 +1,8 @@
 import { AcademicSetup } from "@/components/AllSettings/AcademicSettings";
-import React from "react";
 
 const AcademicSetupPage = () => {
   return (
-    <div>
+    <div className="flex min-h-screen flex-col">
       <AcademicSetup />
     </div>
   );

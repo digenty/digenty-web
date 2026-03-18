@@ -28,7 +28,7 @@ const emptyAssessmentRow = (): AssessmentRow => ({ name: "", weight: "" });
 const emptyGradeRow = (): GradeRow => ({ grade: "", upperLimit: "", lowerLimit: "", remark: "" });
 const getTotalWeight = (assessments: AssessmentRow[]) => assessments.reduce((sum, a) => sum + (parseFloat(a.weight) || 0), 0);
 
-export const GradingAndAssessmentSheet = ({ onApplyToAll }: GradingAndAssessmentSheetProps) => {
+export const GradingAndAssessmentSheet = () => {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const formik = useFormik<LevelFormValues>({
@@ -38,7 +38,7 @@ export const GradingAndAssessmentSheet = ({ onApplyToAll }: GradingAndAssessment
     },
     validationSchema: levelFormSchema,
     onSubmit: values => {
-      onApplyToAll(values);
+      // onApplyToAll(values);
       setSheetOpen(false);
     },
   });
