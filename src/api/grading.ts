@@ -2,9 +2,9 @@ import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 import { GradingDefaultPayload, GradingPayload } from "./types";
 
-export const getLevelGrading = async (levelId: number) => {
+export const getClassGrading = async (classId: number) => {
   try {
-    const { data } = await api.get(`/gradings/level${levelId ? `?levelId=${levelId}` : ""}`);
+    const { data } = await api.get(`/gradings/class${classId ? `?classId=${classId}` : ""}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

@@ -1,5 +1,5 @@
 "use client";
-import { Branch, Parent } from "@/api/types";
+import { Branch, BranchWithClassLevels, Parent } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -55,7 +55,7 @@ export const LinkParents = ({
             ) : (
               <Select
                 onValueChange={value => {
-                  const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
                   setBranchSelected(branch);
                 }}
               >
@@ -67,9 +67,9 @@ export const LinkParents = ({
                   <SelectItem value="none" className="text-text-default text-sm font-semibold">
                     All Branches
                   </SelectItem>
-                  {branches.data.content.map((branch: Branch) => (
-                    <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-semibold">
-                      {branch.name}
+                  {branches.data.map((branch: BranchWithClassLevels) => (
+                    <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-semibold">
+                      {branch.branch.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -191,7 +191,7 @@ export const LinkParents = ({
             ) : (
               <Select
                 onValueChange={value => {
-                  const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
                   setBranchSelected(branch);
                 }}
               >
@@ -203,9 +203,9 @@ export const LinkParents = ({
                   <SelectItem value="none" className="text-text-default text-sm font-semibold">
                     All Branches
                   </SelectItem>
-                  {branches.data.content.map((branch: Branch) => (
-                    <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-semibold">
-                      {branch.name}
+                  {branches.data.map((branch: BranchWithClassLevels) => (
+                    <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-semibold">
+                      {branch.branch.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

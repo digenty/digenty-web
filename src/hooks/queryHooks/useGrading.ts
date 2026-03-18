@@ -1,11 +1,11 @@
-import { addGrading, addGradingDefault, getLevelGrading } from "@/api/grading";
+import { addGrading, addGradingDefault, getClassGrading } from "@/api/grading";
 import { gradingKeys } from "@/queries/grading";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-export const useGetGradingsForLevel = (levelId: number) => {
+export const useGetGradingsForClass = (classId: number) => {
   return useQuery({
     queryKey: gradingKeys.getClassGrading,
-    queryFn: () => getLevelGrading(levelId),
+    queryFn: () => getClassGrading(classId),
   });
 };
 
