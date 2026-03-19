@@ -62,12 +62,10 @@ export const AllClassesMainTable = ({
   const [activeArmName, setActiveArmName] = useState<string>("");
   const router = useRouter();
 
-  const { data: levels, isLoading: loadingLevels } = useGetLevels(11);
+  const { data: levels, isLoading: loadingLevels } = useGetLevels();
+  console.log(levels);
 
-  useBreadcrumb([
-    { label: "All Classes", url: "/classes-and-subjects/all-classes" },
-    // { label: "JSS 1A", url: "" },
-  ]);
+  useBreadcrumb([{ label: "All Classes", url: "/classes-and-subjects/all-classes" }]);
 
   return (
     <div className="px-4 py-3 md:px-8">
@@ -99,12 +97,12 @@ export const AllClassesMainTable = ({
               {levels?.data[0].classLevels.map((level: ClassLevel) => (
                 <DropdownMenuItem
                   key={level.levelName}
-                  className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+                  className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3 capitalize"
                   onClick={() => {
                     setLevelSelected(level);
                   }}
                 >
-                  {level.levelName}
+                  {level.levelName.replace("_", " ").toLowerCase()}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
