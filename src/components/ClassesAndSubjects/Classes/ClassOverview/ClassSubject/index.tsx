@@ -29,9 +29,9 @@ export const SubjectByClass = () => {
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
   const { data: StudentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
-  const { data: classGrading } = useGetGradingsForClass(9);
+  const { data: classGrading } = useGetGradingsForClass(Number(classId));
 
-  const studentsData = StudentsItem?.data?.data?.content ?? [];
+  const studentsData = StudentsItem?.data?.data?.response?.content ?? [];
   const assessmentHeader = Object.values((studentsData[0]?.assessmentScores ?? {}) as Record<string, Assessment>).map((assessment: Assessment) => ({
     assessmentId: assessment.assessmentId,
     assessmentName: assessment.assessmentName,

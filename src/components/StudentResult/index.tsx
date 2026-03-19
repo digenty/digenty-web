@@ -4,6 +4,9 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { DataTable } from "../DataTable";
 import { ErrorComponent } from "../Error/ErrorComponent";
+import Edit from "../Icons/Edit";
+import { Button } from "../ui/button";
+import { EditTeacherInputModal } from "./EditTeacherInputModal";
 
 export type Result = {
   subject: string;
@@ -58,10 +61,23 @@ export const columns = (headers: string[]): ColumnDef<Result>[] => [
   },
 ];
 
-export const StudentResult = ({ studentReport, termSelected }: { studentReport: StudentReport; termSelected: Term | null }) => {
+export const StudentResult = ({
+  studentReport,
+  termSelected,
+  isEditable = false,
+  armId,
+  branchId,
+}: {
+  studentReport: StudentReport;
+  termSelected: Term | null;
+  isEditable?: boolean;
+  armId?: number;
+  branchId?: number;
+}) => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Result[]>([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   function toTitleCase(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -112,6 +128,13 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
         <span>
           Class: <span className="font-medium">{studentReport.className}</span>
         </span>
+        {isEditable && (
+          <Button className="bg-bg-state-secondary! border-border-default h-6! border px-1! text-xs" onClick={() => setIsEditModalOpen(true)}>
+            {" "}
+            <Edit fill="var(--color-icon-default-muted)" />
+            Edit Input
+          </Button>
+        )}
       </div>
 
       <div className="flex gap-6 px-4 py-5">
@@ -147,18 +170,20 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
           <div className="text-text-subtle border-border-default border text-xs font-medium md:text-sm">
             <div className="border-border-default flex justify-between border-b px-2">
               <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Neatness</div>
-              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center">{studentReport.neatness ?? "--"}</div>
+              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
+                {studentReport.neatness?.toLowerCase() ?? "--"}
+              </div>
             </div>
             <div className="border-border-default flex justify-between border-b px-2">
               <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Punctuality</div>
-              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center">
-                {studentReport.punctuality ?? "--"}
+              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
+                {studentReport.punctuality?.toLowerCase() ?? "--"}
               </div>
             </div>
             <div className="flex justify-between px-2">
               <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Diligence</div>
-              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center">
-                {studentReport.diligence ?? "--"}
+              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
+                {studentReport.diligence?.toLowerCase() ?? "--"}
               </div>
             </div>
           </div>
@@ -216,6 +241,19 @@ export const StudentResult = ({ studentReport, termSelected }: { studentReport: 
           </div>
         </div>
       </div>
+      <EditTeacherInputModal
+        open={isEditModalOpen}
+        setIsOpen={setIsEditModalOpen}
+        studentId={studentReport?.studentId}
+        armId={armId}
+        branchId={branchId}
+        initialData={{
+          neatness: studentReport?.neatness,
+          punctuality: studentReport?.punctuality,
+          diligence: studentReport?.diligence,
+          classTeacherComment: studentReport?.classTeacherComment,
+        }}
+      />
     </div>
   );
 };

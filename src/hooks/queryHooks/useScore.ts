@@ -1,11 +1,18 @@
 import { addScoreToStudent, viewStudentScore } from "@/api/score";
 import { scoresKey } from "@/queries/score";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { subjectKeys } from "@/queries/subject";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAddScore = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: scoresKey.addScore,
     mutationFn: addScoreToStudent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [subjectKeys.studentsBySubjectClass],
+      });
+    },
   });
 };
 

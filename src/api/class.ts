@@ -7,7 +7,6 @@ interface EditAccessPayload {
   armId?: number;
   classId?: number;
   subjectId?: number;
-  branchId?: number;
 }
 
 export const getClasses = async (branchId?: number) => {

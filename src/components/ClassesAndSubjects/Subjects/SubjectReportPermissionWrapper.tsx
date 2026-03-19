@@ -27,7 +27,8 @@ export const SubjectReportPermissionWrapper = ({
         </div>
       )}
 
-      {userExists && !hasSubjectAccess && adminEditAccess && !isLoading && (
+      {/* {userExists && !hasSubjectAccess && adminEditAccess && !isLoading && ( */}
+      {userExists && (!hasSubjectAccess || adminEditAccess) && !isLoading && (
         <div className="flex h-80 items-center justify-center pt-15">
           <PageEmptyState title="Unauthorized" description="You are not authorized to view this page" buttonText="Go to Home page" url="/" />
         </div>

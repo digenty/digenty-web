@@ -20,7 +20,7 @@ export const useGetTeacherSubjects = () => {
 
 export const useGetSubjectStudents = (subjectId: number, amrId: number) => {
   return useQuery({
-    queryKey: subjectKeys.studentsBySubjectClass(subjectId, amrId),
+    queryKey: [subjectKeys.studentsBySubjectClass, subjectId, amrId],
     queryFn: () => getSubjectStudents(subjectId, amrId),
     retry: false,
   });

@@ -74,7 +74,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                         <Button
                           onClick={() =>
                             router.push(
-                              `/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/view-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
+                              `/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
                             )
                           }
                           className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"
@@ -88,7 +88,11 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
 
                     {cl.reportStatus === "REQUEST_EDIT_ACCESS" ? (
                       <Button
-                        onClick={() => router.push(`/classes-and-subjects/subject=${subjectId}/add-score?${cl.armId}&requested=true`)}
+                        onClick={() =>
+                          router.push(
+                            `/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
+                          )
+                        }
                         className="border-border-darker text-text-default bg-bg-state-secondary shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"
                       >
                         <Eye fill="var(--color-icon-default-muted)" /> View

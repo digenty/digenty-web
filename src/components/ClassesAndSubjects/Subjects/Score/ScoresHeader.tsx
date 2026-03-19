@@ -100,11 +100,13 @@ export default function ScoresHeader({
   isSubmitting,
   isError,
   onExport,
+  status,
 }: {
   onSubmit: (status: "SUBMITTED" | "IN_PROGRESS", closeModal: (bool: boolean) => void) => void;
   isSubmitting: boolean;
   isError: boolean;
   onExport?: () => void;
+  status: string;
 }) {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openRequest, setOpenRequest] = useState<boolean>(false);
@@ -145,7 +147,7 @@ export default function ScoresHeader({
                 <ShareBox fill="var(--color-icon-default-muted)" /> Export
               </Button>
 
-              {!isSubmitted && !isRequested && (
+              {(status === "NOT_SUBMITTED" || status === "IN_PROGRESS") && (
                 <div className="flex items-center gap-2 md:gap-1">
                   <Button
                     disabled={isError}
@@ -169,7 +171,7 @@ export default function ScoresHeader({
                 </div>
               )}
 
-              {/* {isSubmitted && !isRequested && (
+              {status === "SUBMITTED" && (
                 <Button
                   disabled={isError}
                   size="sm"
@@ -180,7 +182,7 @@ export default function ScoresHeader({
                 </Button>
               )}
 
-              {isRequested && (
+              {status === "REQUEST_EDIT_ACCESS" && (
                 <Button
                   disabled={isError}
                   size="sm"
@@ -188,7 +190,7 @@ export default function ScoresHeader({
                 >
                   <Question fill="var(--color-icon-default-muted)" /> Requested Edit Access
                 </Button>
-              )} */}
+              )}
             </div>
           </div>
         </div>
