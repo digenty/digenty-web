@@ -4,6 +4,7 @@ export type AllClassesMainTableProps = {
   classArmName: string;
   classTeacherName: string;
   numberOfSubjects: number;
+  numberOfSubmittedSubjects: number;
   numberOfEditRequest: 0;
   status: "APPROVED" | "PENDING_APPROVAL" | "NOT_SUBMITTED" | "EDIT_REQUEST";
 };

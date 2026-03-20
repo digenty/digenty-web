@@ -22,7 +22,7 @@ export interface StudentReportPayload {
 export interface SubmitScorePayload {
   subjectId: number;
   armId: number;
-  status: "NOT_SUBMITTED" | "SUBMITTED" | "IN_PROGRESS" | "REQUEST_EDIT_ACCESS";
+  status: "NOT_SUBMITTED" | "SUBMITTED" | "IN_PROGRESS" | "REQUESTED_EDIT_ACCESS";
   studentReports: StudentReportPayload[];
 }
 export interface ScoreUpdate {

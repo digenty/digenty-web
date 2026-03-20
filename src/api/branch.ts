@@ -96,9 +96,11 @@ export const approveEditRequestBulk = async (editAccessIds: number[], isApproved
   }
 };
 
-export const getBranchDetails = async (branchId: number, termId?: number) => {
+export const getBranchDetails = async (branchId: number, termId?: number, search?: string) => {
   try {
-    const data = await api.get(`/report/class/arm/branch/${branchId}?page=0&size=100${termId ? `&termId=${termId}` : ""}`);
+    const data = await api.get(
+      `/report/class/arm/branch/${branchId}?page=0&size=100${termId ? `&termId=${termId}` : ""}${search ? `&search=${search}` : ""}`,
+    );
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

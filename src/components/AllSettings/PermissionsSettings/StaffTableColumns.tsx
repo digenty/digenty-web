@@ -95,13 +95,13 @@ export const StaffColumns: ColumnDef<Staff>[] = [
     accessorKey: "role",
     header: () => <div className="text-text-muted text-sm font-medium">Role</div>,
     cell: ({ row }) => <span className="">{row.original.roleName ? staffStatusBadge(row.original.roleName) : "--"}</span>,
-    size: 150,
+    // size: 150,
   },
   {
     accessorKey: "email",
     header: () => <div className="text-text-muted text-sm font-medium">Email</div>,
     cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.email}</span>,
-    size: 150,
+    // size: 150,
   },
   {
     accessorKey: "status",
@@ -109,25 +109,25 @@ export const StaffColumns: ColumnDef<Staff>[] = [
     cell: ({ row }) => (
       <span className="text-text-muted cursor-pointer text-sm font-normal">{getStatusBadge(row.original.status ? "Active" : "Inactive")}</span>
     ),
-    size: 32,
+    // size: 32,
   },
   {
     accessorKey: "branch",
     header: () => <div className="text-text-muted text-sm font-medium">Branch</div>,
     cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.branchName}</span>,
-    size: 150,
+    // size: 150,
   },
   {
     accessorKey: "lastLogin",
     header: () => <div className="text-text-muted text-sm font-medium">Last Login</div>,
     cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{formatRelativeDate(row.original.lastLogin)}</span>,
-    size: 32,
+    // size: 32,
   },
 
   {
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
     cell: ({ row }) => RenderOptions(row),
-    size: 11,
+    // size: 11,
   },
 ];

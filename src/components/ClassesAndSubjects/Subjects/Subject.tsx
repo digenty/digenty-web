@@ -40,7 +40,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                     <Badge
                       className={`border-border-default flex h-5 items-center gap-1 rounded-md border p-1 text-xs font-medium ${statusUpdate.className}`}
                     >
-                      {cl.reportStatus === "REQUEST_EDIT_ACCESS" && <RequestLoader fill="var(--color-bg-basic-orange-strong)" />}
+                      {cl.reportStatus === "REQUESTED_EDIT_ACCESS" && <RequestLoader fill="var(--color-bg-basic-orange-strong)" />}
                       {statusUpdate.label}
                     </Badge>
                   </div>
@@ -86,7 +86,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                       ""
                     )}
 
-                    {cl.reportStatus === "REQUEST_EDIT_ACCESS" ? (
+                    {cl.reportStatus === "REQUESTED_EDIT_ACCESS" ? (
                       <Button
                         onClick={() =>
                           router.push(

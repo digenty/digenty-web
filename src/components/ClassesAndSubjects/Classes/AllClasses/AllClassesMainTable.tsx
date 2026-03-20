@@ -42,6 +42,8 @@ interface AllClassesMainTableProps_Component {
   levelSelected: ClassLevel | null;
   setLevelSelected: (level: ClassLevel | null) => void;
   branchId: number;
+  searchQuery: string;
+  setSearchQuery: (searchQuery: string) => void;
 }
 
 export const AllClassesMainTable = ({
@@ -51,6 +53,8 @@ export const AllClassesMainTable = ({
   levelSelected,
   setLevelSelected,
   branchId,
+  searchQuery,
+  setSearchQuery,
 }: AllClassesMainTableProps_Component) => {
   const [page, setPage] = useState(1);
   const [isLevelFilterOpen, setIsLevelFilterOpen] = useState(false);
@@ -63,7 +67,7 @@ export const AllClassesMainTable = ({
   const router = useRouter();
 
   const { data: levels, isLoading: loadingLevels } = useGetLevels();
-  console.log(levels);
+  console.log(data);
 
   useBreadcrumb([{ label: "All Classes", url: "/classes-and-subjects/all-classes" }]);
 
@@ -72,10 +76,10 @@ export const AllClassesMainTable = ({
       <div className="mb-4 flex h-8 w-full items-center gap-3 md:w-92">
         <SearchInput
           className="bg-bg-input-soft rounded-lg border-none"
-          // value={searchQuery}
-          // onChange={evt => {
-          //   setSearchQuery(evt.target.value);
-          // }}
+          value={searchQuery}
+          onChange={evt => {
+            setSearchQuery(evt.target.value);
+          }}
         />
 
         {loadingLevels && !levels ? (

@@ -23,7 +23,7 @@ export const REPORT_STATUS_CONFIG = {
     label: "Submitted",
     className: "bg-bg-badge-green text-bg-basic-green-strong",
   },
-  REQUEST_EDIT_ACCESS: {
+  REQUESTED_EDIT_ACCESS: {
     label: "Edit Requested",
     className: "bg-bg-badge-orange text-bg-basic-orange-strong",
   },

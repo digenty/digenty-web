@@ -42,7 +42,7 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
   }, [activeCountryCode, getStates]);
 
   useEffect(() => {
-    if (countries.length > 0 && values.nationality && !activeCountryCode) {
+    if (countries && countries.length > 0 && values.nationality && !activeCountryCode) {
       const countryMatch = countries.find(ctry => ctry.name === values.nationality);
       if (countryMatch) {
         setActiveCountryCode(countryMatch.iso2);
