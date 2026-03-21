@@ -15,7 +15,7 @@ export default function SettingsBigScreenLayout({
 
   return (
     <>
-      <div className="hidden lg:block">
+      <div className="hidden w-full max-w-full overflow-hidden lg:block">
         <SettingsHeader />
 
         <section>{children}</section>
@@ -29,7 +29,7 @@ export default function SettingsBigScreenLayout({
         ) : (
           <div className="">
             <div className="mb-4 hidden">
-              <Link href="/settings" className="text-primary-600 inline-flex items-center gap-2 text-sm">
+              <Link href="/settings" className="text-text-default inline-flex items-center gap-2 text-sm">
                 <span aria-hidden className="text-lg">
                   ←
                 </span>

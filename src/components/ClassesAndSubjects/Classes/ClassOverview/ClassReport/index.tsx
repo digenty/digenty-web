@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ClassPermissionWrapper } from "../../ClassPermissionWrapper";
 import { ClassReportFooter } from "./ClassReportFooter";
@@ -72,6 +73,8 @@ export const ClassReport = () => {
   const path = usePathname();
   const params = useSearchParams();
   const armId = path.split("/")[4];
+  const { branchIds } = useLoggedInUser();
+  const branchId = branchIds?.[0];
   const classArmName = params.get("classArmName")?.replaceAll("-", " ") || "";
 
   const isMobile = useIsMobile();
@@ -213,13 +216,13 @@ export const ClassReport = () => {
           </div>
         )}
 
-        {!isLoadingReport && !isErrorReport && transformedStudents.length === 0 && (
+        {!isLoadingReport && !isErrorReport && classReportData && classReportData?.data?.classArmStudentReports?.length === 0 && (
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent title="No Class Report" description="No class report has been generated yet" />
           </div>
         )}
 
-        {!isLoadingReport && !isErrorReport && transformedStudents.length > 0 && (
+        {!isLoadingReport && !isErrorReport && classReportData && classReportData?.data?.classArmStudentReports?.length > 0 && (
           <>
             <div
               className={cn(
@@ -300,7 +303,13 @@ export const ClassReport = () => {
                   ) : (
                     <div className="max-w-[678px] pt-6 pb-10">
                       {/* TODO: Pass active student here */}
-                      <StudentResult studentReport={studentReportData?.data} termSelected={termSelected} />
+                      <StudentResult
+                        studentReport={studentReportData?.data}
+                        termSelected={termSelected}
+                        isEditable={true}
+                        armId={Number(armId)}
+                        branchId={branchId}
+                      />
                     </div>
                   )}
                 </div>

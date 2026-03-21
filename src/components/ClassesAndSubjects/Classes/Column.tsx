@@ -41,7 +41,11 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
             <Eye fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>View class</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3" onClick={() => setOpenApproveModal(true)}>
+          <DropdownMenuItem
+            disabled={row.original.status === "NOT_SUBMITTED"}
+            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+            onClick={() => setOpenApproveModal(true)}
+          >
             <CheckboxCircle fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Approve submission</span>
           </DropdownMenuItem>
@@ -122,7 +126,7 @@ export const AllClassessTableMainColumns = (branchId: number): ColumnDef<AllClas
     header: () => <div className="text-text-muted text-sm font-medium">Subject Sheet</div>,
     cell: ({ row }) => (
       <span className="text-text-default cursor-pointer text-sm font-medium">
-        {row.original.numberOfSubjects}/{row.original.numberOfSubjects}
+        {row.original.numberOfSubmittedSubjects}/{row.original.numberOfSubjects}
       </span>
     ),
   },

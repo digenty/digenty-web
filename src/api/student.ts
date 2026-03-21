@@ -180,3 +180,23 @@ export const getStudentReport = async ({ studentId, termId, armId }: { studentId
     throw error;
   }
 };
+
+export const addTeacherInput = async (payload: {
+  studentId: number;
+  armId: number;
+  branchId: number;
+  neatness: string;
+  punctuality: string;
+  diligence: string;
+  classTeacherComment: string;
+}) => {
+  try {
+    const { data } = await api.post("/teacher-input", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

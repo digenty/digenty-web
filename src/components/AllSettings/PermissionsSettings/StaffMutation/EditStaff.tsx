@@ -1,6 +1,6 @@
 "use client";
 
-import { Branch, Role } from "@/api/types";
+import { Branch, BranchWithClassLevels, Role } from "@/api/types";
 import Accordion from "@/components/Accordion";
 import DeleteBin from "@/components/Icons/DeleteBin";
 import Mail from "@/components/Icons/Mail";
@@ -104,7 +104,6 @@ export const EditStaff = () => {
     );
   };
 
-  console.log(assignments);
   const formik = useFormik<StaffInputValues>({
     initialValues: {
       firstName: "",
@@ -273,9 +272,9 @@ export const EditStaff = () => {
                             <SelectValue placeholder="Branch" />
                           </SelectTrigger>
                           <SelectContent className="bg-bg-card border-none">
-                            {branches?.data.content.map((branch: Branch) => (
-                              <SelectItem key={branch.id} className="text-text-default" value={String(branch.id)}>
-                                {branch.name}
+                            {branches?.data.map((branch: BranchWithClassLevels) => (
+                              <SelectItem key={branch.branch.id} className="text-text-default" value={String(branch.branch.id)}>
+                                {branch.branch.name}
                               </SelectItem>
                             ))}
                           </SelectContent>

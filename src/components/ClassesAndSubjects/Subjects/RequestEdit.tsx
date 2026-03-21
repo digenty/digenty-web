@@ -48,7 +48,6 @@ export default function RequestEdit({ open, onOpenChange, classId, armId, subjec
         armId,
         classId,
         subjectId,
-        branchId: 11,
       },
       {
         onSuccess: data => {
@@ -210,52 +209,3 @@ export default function RequestEdit({ open, onOpenChange, classId, armId, subjec
     </>
   );
 }
-
-const levels = {
-  levels: [
-    {
-      branchId: 11,
-      branchName: "Maitama Branch",
-      classLevels: [
-        {
-          ids: 8,
-          levelName: "Creche",
-          levelType: "CRECHE",
-          classNamePrefix: null,
-          classStart: null,
-          classEnd: null,
-        },
-        {
-          ids: 10,
-          levelName: "Nursery",
-          levelType: "NURSERY",
-          classNamePrefix: "Nursery",
-          classStart: 1,
-          classEnd: 3,
-        },
-        {
-          ids: 9,
-          levelName: "Primary",
-          levelType: "PRIMARY",
-          classNamePrefix: "Primary",
-          classStart: 1,
-          classEnd: 6,
-        },
-      ],
-    },
-    {
-      branchId: 12,
-      branchName: "Garki Annex",
-      classLevels: [
-        {
-          ids: 11,
-          levelName: "Nursery",
-          levelType: "NURSERY",
-          classNamePrefix: "Nursery",
-          classStart: 1,
-          classEnd: 3,
-        },
-      ],
-    },
-  ],
-};

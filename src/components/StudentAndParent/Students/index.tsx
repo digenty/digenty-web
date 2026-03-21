@@ -30,7 +30,6 @@ import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { useStudentStore } from "@/store/student";
-import { useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -41,7 +40,6 @@ import { MobileCard } from "./MobileCard";
 
 export const StudentsTable = () => {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const {
     openWithdraw,
@@ -265,7 +263,8 @@ export const StudentsTable = () => {
       >
         <div className="space-y-5 px-6 py-5">
           <DialogDescription className="text-text-subtle text-sm font-normal">
-            Are you sure you want to withdraw <span className="font-normal">Damilare John?</span>{" "}
+            {/* Are you sure you want to withdraw <span className="font-normal">Damilare John?</span>{" "} */}
+            Are you sure you want to withdraw <span className="font-normal">this student</span>{" "}
           </DialogDescription>
           <div className="bg-bg-basic-orange-subtle shadow-light border-border-default text-text-subtle rounded-sm border px-2.5 py-2.5 text-sm font-normal">
             <p>

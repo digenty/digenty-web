@@ -2,22 +2,10 @@ import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
-export const SubjectReportPermissionWrapper = ({
-  children,
-  subjectId,
-  isLoading,
-  type,
-}: {
-  children: React.ReactNode;
-  subjectId: number;
-  isLoading: boolean;
-  type: "view" | "edit";
-}) => {
+export const ClassesAndSubjectsPermissionWrapper = ({ children, isLoading }: { children: React.ReactNode; isLoading: boolean }) => {
   const user = useLoggedInUser();
   const userExists = user && Object.keys(user).length > 0;
-  const adminEditAccess = userExists && user.isMain && type === "edit";
-  const adminViewAccess = userExists && user.isMain && type === "view";
-  const hasSubjectAccess = userExists && user.subjectIds?.includes(Number(subjectId));
+  const hasAccess = userExists && user.subjectIds && user.armIds && (user.subjectIds?.length > 0 || user?.armIds?.length > 0);
 
   return (
     <>
@@ -27,14 +15,13 @@ export const SubjectReportPermissionWrapper = ({
         </div>
       )}
 
-      {/* {userExists && !hasSubjectAccess && adminEditAccess && !isLoading && ( */}
-      {userExists && (!hasSubjectAccess || adminEditAccess) && !isLoading && (
+      {userExists && !hasAccess && !isLoading && (
         <div className="flex h-80 items-center justify-center pt-15">
           <PageEmptyState title="Unauthorized" description="You are not authorized to view this page" buttonText="Go to Home page" url="/" />
         </div>
       )}
 
-      {userExists && (hasSubjectAccess || adminViewAccess) && children}
+      {userExists && hasAccess && children}
     </>
   );
 };

@@ -8,7 +8,7 @@ import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import { ScoreType, SubmitScorePayload } from "@/components/ScoreViewBySubject/types";
 import { toast } from "@/components/Toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetGradingsForLevel } from "@/hooks/queryHooks/useGrading";
+import { useGetGradingsForClass } from "@/hooks/queryHooks/useGrading";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
 import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -33,11 +33,12 @@ export default function Score() {
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
   const { data: studentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
-  const { data: classGrading } = useGetGradingsForLevel(Number(classId));
+  const { data: classGrading } = useGetGradingsForClass(Number(classId));
   const { mutate, isPending: isSubmitting } = useAddScore();
-  const user = useLoggedInUser();
 
-  const studentsData = studentsItem?.data?.data?.content ?? [];
+  const studentsData = studentsItem?.data?.data?.response?.content ?? [];
+  const status = studentsItem && studentsItem?.data?.data?.status;
+
   const assessmentHeader = Object.values((studentsData[0]?.assessmentScores ?? {}) as Record<string, Assessment>).map((assessment: Assessment) => ({
     assessmentId: assessment.assessmentId,
     assessmentName: assessment.assessmentName,
@@ -118,7 +119,7 @@ export default function Score() {
   return (
     <SubjectReportPermissionWrapper subjectId={Number(subjectId)} isLoading={isLoading} type="edit">
       <div className="flex w-full flex-col gap-5">
-        <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} onExport={handleExport} />
+        <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} onExport={handleExport} status={status} />
         {!isLoading && isError && !studentsItem && (
           <div className="flex h-80 items-center justify-center pt-15">
             {/* TODO: Set URL or action to contact admin */}
@@ -140,7 +141,7 @@ export default function Score() {
           </div>
         )}
 
-        {studentsItem?.data?.data?.content.length === 0 && !isLoading && !isError && (
+        {studentsItem?.data?.data?.response?.content.length === 0 && !isLoading && !isError && (
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent
               title="No Students"
@@ -156,7 +157,7 @@ export default function Score() {
             <ScoreViewBySubject
               scores={studentsData}
               columns={assessmentHeader}
-              isEditable={true}
+              isEditable={status === "IN_PROGRESS" || status === "NOT_SUBMITTED"}
               subjectId={Number(subjectId)}
               armId={Number(armId)}
               gradings={gradings}

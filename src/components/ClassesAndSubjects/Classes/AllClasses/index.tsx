@@ -11,6 +11,7 @@ import { useState } from "react";
 import { AllClassesMainTableProps } from "../types";
 import { AllClassesHeader } from "./AllClassesHeader";
 import { AllClassesMainTable } from "./AllClassesMainTable";
+import useDebounce from "@/hooks/useDebounce";
 
 export const AllClassesMain = () => {
   const user = useLoggedInUser();
@@ -18,13 +19,16 @@ export const AllClassesMain = () => {
 
   const schoolId = user?.schoolId;
   // const branchId = pathname.split("/")[3];
-  const branchId = 11;
+  const branchId = 30;
 
   const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [activeSession, setActiveSession] = useState<string | null>(null);
   const [levelSelected, setLevelSelected] = useState<ClassLevel | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const { data, isPending: isFetchingBranch, isError } = useGetBranchDetails(branchId, termSelected?.termId); // Add leveId to this query levelSelected?.ids[0]
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  const { data, isPending: isFetchingBranch, isError } = useGetBranchDetails(branchId, termSelected?.termId, debouncedSearchQuery); // Add leveId to this query levelSelected?.ids[0]
   const branchDetail = data?.data?.data;
 
   const tableData: AllClassesMainTableProps[] =
@@ -34,6 +38,7 @@ export const AllClassesMain = () => {
       classArmName: arm.classArmName,
       classTeacherName: arm.classTeacherName,
       numberOfSubjects: arm.numberOfSubjects,
+      numberOfSubmittedSubjects: arm.numberOfSubmittedSubjects,
       numberOfEditRequest: arm.numberOfEditRequest > 0 ? `${arm.numberOfEditRequest} Pending` : "-",
       status: arm.status,
     })) ?? [];
@@ -85,6 +90,8 @@ export const AllClassesMain = () => {
         levelSelected={levelSelected}
         setLevelSelected={setLevelSelected}
         branchId={branchId}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
     </div>
   );

@@ -229,11 +229,13 @@ export const ManageEditRequest = () => {
           </div>
         )}
         {!isPending && !isError && filteredData.length === 0 && (
-          <PageEmptyState
-            title="All caught up!"
-            buttonText="Go Back"
-            description="You’ve reviewed every edit request. New requests will appear here when submitted."
-          />
+          <div className="flex items-center justify-center pt-15">
+            <ErrorComponent
+              title="All caught up!"
+              buttonText="Go Back"
+              description="You’ve reviewed every edit request. New requests will appear here when submitted."
+            />
+          </div>
         )}
         <div>
           {!isPending && !isError && filteredData.length > 0 && (
