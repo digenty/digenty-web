@@ -6,6 +6,7 @@ import {
   getSubjectStudents,
   getTeacherSubjects,
 } from "@/api/subject";
+import { LevelType } from "@/api/types";
 import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -33,11 +34,11 @@ export const useGetBranchTeachersClassSubjects = (armId: number) => {
   });
 };
 
-export const useGetSubjectsByLevel = (levelId?: number, branchId?: number) => {
+export const useGetSubjectsByLevel = (levelType?: LevelType, branchId?: number) => {
   return useQuery({
-    queryKey: subjectKeys.subjectsByLevel(levelId, branchId),
-    queryFn: () => getSubjectsByLevel(levelId, branchId),
-    enabled: !!levelId,
+    queryKey: subjectKeys.subjectsByLevel(levelType, branchId),
+    queryFn: () => getSubjectsByLevel(levelType, branchId),
+    enabled: !!levelType,
     retry: false,
   });
 };
@@ -47,11 +48,11 @@ export const useAddSubject = () => {
   return useMutation({
     mutationKey: subjectKeys.addSubject,
     mutationFn: addSubject,
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: subjectKeys.subjectsByLevel(variables.levelId, variables.branchId),
-      });
-    },
+    // onSuccess: (_data, variables) => {
+    //   queryClient.invalidateQueries({
+    //     queryKey: subjectKeys.subjectsByLevel(variables.levelId, variables.branchId),
+    //   });
+    // },
   });
 };
 
@@ -60,10 +61,10 @@ export const useDeleteSubject = () => {
   return useMutation({
     mutationKey: subjectKeys.deleteSubject,
     mutationFn: ({ subjectId, levelId }: { subjectId: number; levelId: number }) => deleteSubjectByLevel(subjectId, levelId),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: subjectKeys.subjectsByLevel(variables.levelId),
-      });
-    },
+    // onSuccess: (_data, variables) => {
+    //   queryClient.invalidateQueries({
+    //     queryKey: subjectKeys.subjectsByLevel(variables.levelId),
+    //   });
+    // },
   });
 };

@@ -50,26 +50,82 @@ export const ClassQuickSetupSheet = ({
   const { mutate: deleteArm } = useDeleteArm();
   const { mutate: mutateArm, isPending: isAddingArm } = useAddArm();
 
-  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.id, branchId ?? 25);
-  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.id, branchId ?? 25);
+  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.levelType, branchId);
+  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.levelType, branchId);
 
-  useEffect(() => {
-    if (subjectsData) {
-      const names: string[] = Array.isArray(subjectsData)
-        ? subjectsData.map((s: { name: string }) => s.name)
-        : (subjectsData?.content ?? subjectsData?.data ?? []).map((s: { name: string }) => s.name);
-      setSubjects(names);
-    }
-  }, [subjectsData]);
+  // console.log(subjectsData, armsData)
 
-  useEffect(() => {
-    if (armsData) {
-      const names: string[] = Array.isArray(armsData)
-        ? armsData.map((s: { name: string }) => s.name)
-        : (armsData?.content ?? armsData?.data ?? []).map((s: { name: string }) => s.name);
-      setArms(names);
-    }
-  }, [armsData]);
+  // useEffect(() => {
+  //   if (subjectsData) {
+  //     const names: string[] = Array.isArray(subjectsData)
+  //       ? subjectsData.map((s: { name: string }) => s.name)
+  //       : (subjectsData?.content ?? subjectsData?.data ?? []).map((s: { name: string }) => s.name);
+  //     setSubjects(names);
+  //   }
+  // }, [subjectsData]);
+
+  //   useEffect(() => {
+  //   if (!subjectsData) return;
+
+  //   const raw = subjectsData?.data ?? subjectsData?.content ?? subjectsData;
+
+  //   let names: string[] = [];
+
+  //   if (Array.isArray(raw)) {
+  //     // Case 1: flat subjects array OR nested branches
+  //     names = raw.flatMap((item: any) => {
+  //       // If it's a branch with subjects
+  //       if (Array.isArray(item.subjects)) {
+  //         return item.subjects.map((s: { name: string }) => s.name);
+  //       }
+
+  //       // If it's already a subject
+  //       if (item.name) {
+  //         return [item.name];
+  //       }
+
+  //       return [];
+  //     });
+  //   }
+
+  //   setSubjects(names);
+  // }, [subjectsData]);
+
+  // useEffect(() => {
+  //   if (armsData) {
+  //     const names: string[] = Array.isArray(armsData.data)
+  //       ? armsData.data.map((s: { name: string }) => s.name)
+  //       : (armsData?.content ?? armsData?.data ?? []).map((s: { name: string }) => s.name);
+  //     setArms(names);
+  //   }
+  // }, [armsData]);
+
+  //   useEffect(() => {
+  //   if (!armsData) return;
+
+  //   const raw = armsData?.data ?? armsData?.content ?? armsData;
+
+  //   let names: string[] = [];
+
+  //   if (Array.isArray(raw)) {
+  //     // Case 1: flat subjects array OR nested branches
+  //     names = raw.flatMap((item: any) => {
+  //       // If it's a branch with subjects
+  //       if (Array.isArray(item.arms)) {
+  //         return item.arms.map((s: { name: string }) => s.name);
+  //       }
+
+  //       // If it's already a subject
+  //       if (item.name) {
+  //         return [item.name];
+  //       }
+
+  //       return [];
+  //     });
+  //   }
+
+  //   setSubjects(names);
+  // }, [subjectsData]);
 
   const formik = useFormik({
     initialValues: {
@@ -138,7 +194,7 @@ export const ClassQuickSetupSheet = ({
 
     newSubjects.forEach(name => {
       mutateSubject(
-        { name, levelId: level?.id, branchId: branchId ?? 25 },
+        { names: newSubjects, levelType: level?.levelType, branchId, branchSpecific },
         {
           onSuccess: () => {
             setSubjects(prev => [...prev, name]);
@@ -207,7 +263,7 @@ export const ClassQuickSetupSheet = ({
 
     newArms.forEach(name => {
       mutateArm(
-        { name, levelId: level.id, branchId: branchId ?? 25 },
+        { names: newArms, levelType: level.levelType, branchId, branchSpecific },
         {
           onSuccess: () => {
             setArms(prev => [...prev, name]);

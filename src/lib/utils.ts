@@ -1,9 +1,9 @@
+import { BranchLevels } from "@/api/types";
 import { JWTPayload } from "@/types";
 import { clsx, type ClassValue } from "clsx";
+import { differenceInDays, differenceInMonths, differenceInWeeks, isToday, isYesterday } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 import { twMerge } from "tailwind-merge";
-import { differenceInDays, differenceInWeeks, differenceInMonths, isToday, isYesterday } from "date-fns";
-import { Branch, BranchLevels } from "@/api/types";
 
 export const MOBILE_VIEWPORT = 768;
 
