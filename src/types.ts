@@ -94,3 +94,37 @@ export const relationships = [
     value: Relationship.Guardian,
   },
 ];
+
+export const boardings = [
+  {
+    label: "Day",
+    value: BoardingStatus.Day,
+  },
+  {
+    label: "Boarding",
+    value: BoardingStatus.Boarding,
+  },
+];
+
+export const admissions = [
+  {
+    label: "Graduated",
+    value: AdmissionStatus.Graduated,
+  },
+  {
+    label: "Active",
+    value: AdmissionStatus.Active,
+  },
+  {
+    label: "Suspended",
+    value: AdmissionStatus.Suspended,
+  },
+  {
+    label: "withdrawn",
+    value: AdmissionStatus.Withdrawn,
+  },
+  {
+    label: "Inactive",
+    value: AdmissionStatus.Inactive,
+  },
+];
