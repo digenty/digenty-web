@@ -124,8 +124,6 @@ export const EditStudent = () => {
       formik.setFieldValue("joinedSchoolTerm", data.data.joinedSchoolTerm);
       formik.setFieldValue("boardingStatus", data.data.boardingStatus);
       formik.setFieldValue("admissionStatus", data.data.studentStatus);
-      formik.setFieldValue("branchId", null); // Will be set by AcademicInformation lookup
-      formik.setFieldValue("classId", null); // Will be set by AcademicInformation lookup
       formik.setFieldValue("armId", data.data.armId);
       setTags(data.data.tags);
 
@@ -192,6 +190,7 @@ export const EditStudent = () => {
     }
     return false;
   };
+  console.log(formik.errors);
 
   const isValid = Object.keys(formik.errors).length === 0 && selectedParents.length > 0;
 
@@ -252,7 +251,11 @@ export const EditStudent = () => {
 
         <div className="border-border-default bg-bg-default sticky bottom-0 w-full border-t py-3">
           <div className="flex items-center justify-between gap-2">
-            <Button onClick={() => handleBack()} className="bg-bg-state-soft text-text-subtle hover:bg-bg-state-soft-hover! h-7! text-sm">
+            <Button
+              type="button"
+              onClick={() => handleBack()}
+              className="bg-bg-state-soft text-text-subtle hover:bg-bg-state-soft-hover! h-7! text-sm"
+            >
               {step > 1 ? "Back" : "Cancel"}
             </Button>
             <Button

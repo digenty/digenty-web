@@ -1,5 +1,5 @@
 "use client";
-import { Branch, Student } from "@/api/types";
+import { Branch, BranchWithClassLevels, Student } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
@@ -50,8 +50,8 @@ export const LinkStudents = ({
             ) : (
               <Select
                 onValueChange={value => {
-                  const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
-                  setBranchSelected(branch);
+                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch?.branch?.uuid === value);
+                  setBranchSelected(branch?.branch);
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
@@ -62,9 +62,9 @@ export const LinkStudents = ({
                   <SelectItem value="none" className="text-text-default text-sm font-semibold">
                     All Branches
                   </SelectItem>
-                  {branches.data.content.map((branch: Branch) => (
-                    <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-semibold">
-                      {branch.name}
+                  {branches.data?.map((branch: BranchWithClassLevels) => (
+                    <SelectItem key={branch?.branch?.id} value={branch?.branch?.uuid} className="text-text-default text-sm font-semibold">
+                      {branch?.branch?.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -169,8 +169,8 @@ export const LinkStudents = ({
             ) : (
               <Select
                 onValueChange={value => {
-                  const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
-                  setBranchSelected(branch);
+                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch?.branch?.uuid === value);
+                  setBranchSelected(branch?.branch);
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
@@ -181,9 +181,9 @@ export const LinkStudents = ({
                   <SelectItem value="none" className="text-text-default text-sm font-semibold">
                     All Branches
                   </SelectItem>
-                  {branches.data.content.map((branch: Branch) => (
-                    <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-semibold">
-                      {branch.name}
+                  {branches.data?.map((branch: BranchWithClassLevels) => (
+                    <SelectItem key={branch?.branch?.id} value={branch?.branch?.uuid} className="text-text-default text-sm font-semibold">
+                      {branch?.branch?.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
