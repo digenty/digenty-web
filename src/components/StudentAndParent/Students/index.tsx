@@ -10,6 +10,7 @@ import UserMinus from "@/components/Icons/UserMinus";
 import WarningIcon from "@/components/Icons/WarningIcon";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { OverviewCard } from "@/components/OverviewCard";
 import { SearchInput } from "@/components/SearchInput";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
@@ -27,9 +28,8 @@ import { useDeleteStudents, useExportStudents, useGetStudents, useGetStudentsDis
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { studentKeys } from "@/queries/student";
+import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { useStudentStore } from "@/store/student";
-import { useQueryClient } from "@tanstack/react-query";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -37,12 +37,9 @@ import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
-import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
-import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 
 export const StudentsTable = () => {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const {
     openWithdraw,
@@ -266,7 +263,8 @@ export const StudentsTable = () => {
       >
         <div className="space-y-5 px-6 py-5">
           <DialogDescription className="text-text-subtle text-sm font-normal">
-            Are you sure you want to withdraw <span className="font-normal">Damilare John?</span>{" "}
+            {/* Are you sure you want to withdraw <span className="font-normal">Damilare John?</span>{" "} */}
+            Are you sure you want to withdraw <span className="font-normal">this student</span>{" "}
           </DialogDescription>
           <div className="bg-bg-basic-orange-subtle shadow-light border-border-default text-text-subtle rounded-sm border px-2.5 py-2.5 text-sm font-normal">
             <p>
@@ -406,7 +404,7 @@ export const StudentsTable = () => {
         {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
           <SearchInput
-            className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
+            className="bg-bg-input-soft! w-full rounded-lg border-none md:w-70.5"
             value={searchQuery}
             onChange={evt => {
               setSearchQuery(evt.target.value);
@@ -513,7 +511,7 @@ export const StudentsTable = () => {
       )}
       {loadingStudents && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
-      {!loadingStudents && !isError && students.length === 0 && (
+      {!loadingStudents && !isError && (students.length === 0 || students.every(student => !student)) && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent
             title="No Students"
@@ -524,7 +522,7 @@ export const StudentsTable = () => {
         </div>
       )}
 
-      {!loadingStudents && !isError && students.length > 0 && (
+      {!loadingStudents && !isError && students.length > 0 && students.every(student => student) && (
         <div>
           <div className="hidden md:block">
             <DataTable

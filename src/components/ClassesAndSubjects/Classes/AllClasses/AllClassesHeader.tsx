@@ -6,24 +6,47 @@ import { MobileDrawer } from "@/components/MobileDrawer";
 import { Toggle } from "@/components/Toggle";
 import { Button } from "@/components/ui/button";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface AllClassesHeaderProps {
-  terms: Term[];
-  selectedTermId: number | null;
-  onTermChange: (termId: number) => void;
+  termSelected: Term | null;
+  setTermSelected: React.Dispatch<React.SetStateAction<Term | null>>;
   isLoadingTerms?: boolean;
+  activeSession: string | null;
+  setActiveSession: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export const AllClassesHeader = ({ terms, selectedTermId, onTermChange, isLoadingTerms }: AllClassesHeaderProps) => {
+export const AllClassesHeader = ({ termSelected, setTermSelected, activeSession, setActiveSession }: AllClassesHeaderProps) => {
   const [draft, setDraft] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [pendingTermId, setPendingTermId] = useState<number | null>(selectedTermId);
+  const user = useLoggedInUser();
 
-  const selectedTerm = terms.find(t => t.termId === selectedTermId);
+  useBreadcrumb([
+    {
+      label: "Classes and Subjects",
+      url: "/classes-and-subjects/all-classes",
+    },
+    {
+      label: "All Classes",
+      url: "/classes-and-subjects/all-classes",
+    },
+  ]);
+
+  const { data: terms, isPending: loadingTerms } = useGetTerms(user.schoolId);
+
+  useEffect(() => {
+    if (terms) {
+      const activeTerm = terms.data.terms.find((term: Term) => term.isActiveTerm);
+      setTermSelected(activeTerm);
+      setActiveSession(terms.data.academicSessionName);
+    }
+  }, [setActiveSession, setTermSelected, terms]);
 
   return (
     <div className="border-border-default border-b">
@@ -31,27 +54,28 @@ export const AllClassesHeader = ({ terms, selectedTermId, onTermChange, isLoadin
         <h2 className="text-text-default text-lg font-semibold md:text-xl">All Classes</h2>
 
         <div className="flex items-center gap-2">
-          <Toggle label={draft ? "Published" : "Draft"} checked={draft} onChange={e => setDraft(e.target.checked)} />
+          <Toggle label={draft ? "Live" : "Not Live"} checked={draft} onChange={e => setDraft(e.target.checked)} />
 
           <div className="hidden gap-1 align-middle md:flex">
-            {isLoadingTerms ? (
-              <Skeleton className="bg-bg-input-soft h-8 w-30" />
+            {!terms || loadingTerms ? (
+              <Skeleton className="bg-bg-input-soft h-9 w-full" />
             ) : (
-              <Select value={selectedTermId?.toString()} onValueChange={val => onTermChange(Number(val))} disabled={isLoadingTerms}>
-                <SelectTrigger className="border-border-darker h-8 w-auto border">
-                  <SelectValue>
-                    <div className="flex items-center gap-2">
-                      <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
-                      <span className="text-text-default text-sm font-semibold">
-                        {isLoadingTerms ? "Loading..." : (selectedTerm?.term ?? "Select Term")}
-                      </span>
-                    </div>
-                  </SelectValue>
+              <Select
+                onValueChange={value => {
+                  const term = terms.data.terms?.find((term: Term) => term.termId === Number(value));
+                  setTermSelected(term);
+                }}
+              >
+                <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
+                  <Calendar fill="var(--color-icon-default-muted )" className="size-4" />
+                  <span className="text-text-default text-sm font-medium capitalize">
+                    {activeSession} {termSelected?.term.toLowerCase()}
+                  </span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
-                  {terms.map(term => (
-                    <SelectItem key={term.termId} value={term.termId.toString()} className="text-text-default text-sm font-semibold">
-                      {term.term}
+                  {terms.data.terms.map((term: Term) => (
+                    <SelectItem key={term.termId} value={String(term.termId)} className="text-text-default text-sm font-medium capitalize">
+                      {activeSession} {term.term.toLowerCase()}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -66,17 +90,21 @@ export const AllClassesHeader = ({ terms, selectedTermId, onTermChange, isLoadin
 
         <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
           <div className="flex w-full flex-col gap-4 px-3 py-4">
-            <div className="space-y-4">
-              {terms.map(term => (
-                <p
-                  key={term.termId}
-                  onClick={() => setPendingTermId(term.termId)}
-                  className={`text-text-default cursor-pointer px-3 pl-9 text-sm ${pendingTermId === term.termId ? "font-semibold" : ""}`}
-                >
-                  {term.term}
-                </p>
-              ))}
-            </div>
+            {!terms && loadingTerms ? (
+              <Skeleton className="bg-bg-input-soft h-9 w-full" />
+            ) : (
+              <div className="space-y-4">
+                {terms.data.terms.map((term: Term) => (
+                  <p
+                    key={term.termId}
+                    onClick={() => setTermSelected(term)}
+                    className={`text-text-default cursor-pointer px-3 pl-9 text-sm ${termSelected?.termId === term.termId ? "font-semibold" : ""}`}
+                  >
+                    {term.term}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
 
           <DrawerFooter className="border-border-default border-t">
@@ -87,7 +115,7 @@ export const AllClassesHeader = ({ terms, selectedTermId, onTermChange, isLoadin
               <DrawerClose asChild>
                 <Button
                   className="bg-bg-state-primary text-text-white-default h-8! rounded-md! px-4 py-2 text-sm tracking-[0.1rem]"
-                  onClick={() => pendingTermId && onTermChange(pendingTermId)}
+                  // onClick={() => pendingTermId && onTermChange(pendingTermId)}
                 >
                   Apply
                 </Button>

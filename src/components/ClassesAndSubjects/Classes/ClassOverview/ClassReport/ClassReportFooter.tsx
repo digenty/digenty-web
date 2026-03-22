@@ -7,11 +7,13 @@ export const ClassReportFooter = ({
   activeFilter,
   setActiveFilter,
   footerRef,
+  type = "teacher",
 }: {
   students: StudentRow[];
   activeFilter: string;
   setActiveFilter: (filter: string) => void;
   footerRef: React.RefObject<HTMLDivElement | null>;
+  type?: "admin" | "teacher";
 }) => {
   return (
     <div
@@ -27,16 +29,18 @@ export const ClassReportFooter = ({
       >
         Spreadsheet
       </Button>
-      <div className="border-border-default h-7 border-r" />
-      <Button
-        onClick={() => setActiveFilter("promotion")}
-        className={cn(
-          "bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
-          activeFilter === "promotion" && "bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default",
-        )}
-      >
-        Promotion
-      </Button>
+      {type === "teacher" && <div className="border-border-default h-7 border-r" />}
+      {type === "teacher" && (
+        <Button
+          onClick={() => setActiveFilter("promotion")}
+          className={cn(
+            "bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
+            activeFilter === "promotion" && "bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default",
+          )}
+        >
+          Promotion
+        </Button>
+      )}
       <div className="border-border-default h-7 border-r" />
       {students.map(student => (
         <Button

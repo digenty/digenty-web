@@ -4,45 +4,53 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatRelativeDate } from "@/lib/utils";
 import { BranchEditRequestTypes } from "./types";
+import { Message3 } from "@/components/Icons/Message3";
 
 interface ManageEditMobileCardProps {
-  staff: BranchEditRequestTypes;
+  request: BranchEditRequestTypes;
   decision: "accepted" | "rejected" | null;
   onDecision: (staffId: number, action: "accepted" | "rejected") => void;
   isSelected: boolean;
   onSelect: (editRequestId: number, selected: boolean) => void;
 }
 
-export const ManageEditMobileCard = ({ staff, decision, onDecision, isSelected, onSelect }: ManageEditMobileCardProps) => {
+export const ManageEditMobileCard = ({ request, decision, onDecision, isSelected, onSelect }: ManageEditMobileCardProps) => {
   return (
     <div className="border-border-default bg-bg-card flex w-full items-start gap-4 rounded-md border p-4">
-      <Checkbox checked={isSelected} onCheckedChange={(value: boolean) => onSelect(staff.editRequestId, value)} />
+      <Checkbox checked={isSelected} onCheckedChange={(value: boolean) => onSelect(request.editRequestId, value)} />
       <div className="flex flex-1 flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Avatar className="size-8" url="" />
-            <span className="text-text-default text-sm font-medium">{staff.teacherName}</span>
+            <Avatar className="size-6" url="" />
+            <span className="text-text-default text-sm font-medium">{request.teacherName}</span>
           </div>
-          <span className="text-text-subtle text-xs">{formatRelativeDate(new Date(staff.dateCreated))}</span>
+          <span className="text-text-subtle text-xs">{formatRelativeDate(new Date(request.dateCreated))}</span>
         </div>
 
         <div className="flex items-center gap-2">
           <GraduationCap fill="var(--color-icon-default-muted)" className="size-4" />
-          <span className="text-text-subtle text-sm">
-            {staff.classArmName} {staff.subjectName}
+          <span className="text-text-subtle text-sm capitalize">
+            {request.classArmName} {request.subjectName ? request.subjectName.toLowerCase() : ""}
           </span>
         </div>
 
-        <div className="text-text-default text-sm font-medium">{staff.reason}</div>
+        <div className="text-text-default flex flex-col gap-2 text-sm font-medium">
+          {request.reason}
+
+          <div className="flex items-center gap-2">
+            <Message3 fill="var(--color-icon-default-muted)" className="size-4" />
+            <span className="text-text-muted w-40 cursor-pointer truncate text-xs font-normal">{request.additionalDetails || "None"}</span>
+          </div>
+        </div>
 
         <div className="flex gap-3">
           <Button
             onClick={e => {
               e.stopPropagation();
-              onDecision(staff.editRequestId, "rejected");
+              onDecision(request.editRequestId, "rejected");
             }}
-            disabled={!isSelected || decision === "accepted"}
-            className={`text-text-default h-8! flex-1 rounded-md border text-sm transition-colors ${
+            // disabled={!isSelected || decision === "accepted"}
+            className={`text-text-default border-border-darker! h-8! flex-1 rounded-md border text-sm transition-colors ${
               !isSelected || decision === "accepted"
                 ? "border-border-disabled bg-bg-disabled text-text-disabled cursor-not-allowed opacity-50"
                 : decision === "rejected"
@@ -57,10 +65,10 @@ export const ManageEditMobileCard = ({ staff, decision, onDecision, isSelected, 
           <Button
             onClick={e => {
               e.stopPropagation();
-              onDecision(staff.editRequestId, "accepted");
+              onDecision(request.editRequestId, "accepted");
             }}
-            disabled={!isSelected || decision === "rejected"}
-            className={`text-text-default h-8! flex-1 rounded-md border text-sm transition-colors ${
+            // disabled={!isSelected || decision === "rejected"}
+            className={`text-text-default border-border-darker! h-8! flex-1 rounded-md border text-sm transition-colors ${
               !isSelected || decision === "rejected"
                 ? "border-border-disabled bg-bg-disabled text-text-disabled cursor-not-allowed opacity-50"
                 : decision === "accepted"

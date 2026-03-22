@@ -144,7 +144,7 @@ export const ClassReportHeader = ({
                 onClick={() => setActiveFilter("spreadsheet")}
                 className={cn(
                   "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
-                  activeFilter === "spreadsheet" && "bg-bg-state-primary text-text-white-default",
+                  activeFilter === "spreadsheet" && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
                 )}
               >
                 Spreadsheet
@@ -153,7 +153,7 @@ export const ClassReportHeader = ({
                 onClick={() => setActiveFilter("promotion")}
                 className={cn(
                   "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
-                  activeFilter === "promotion" && "bg-bg-state-primary text-text-white-default",
+                  activeFilter === "promotion" && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
                 )}
               >
                 Promotion
@@ -165,7 +165,7 @@ export const ClassReportHeader = ({
                   key={student.id}
                   className={cn(
                     "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
-                    activeFilter === student.id.toString() && "bg-bg-state-primary text-text-white-default",
+                    activeFilter === student.id.toString() && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
                   )}
                 >
                   {student.name}

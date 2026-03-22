@@ -2,13 +2,15 @@ import {
   addBranch,
   approveEditRequest,
   approveEditRequestBulk,
+  deleteBranch,
   getAllBranchesDetails,
   getBranchDetails,
   getBranchesForASchool,
   getRequestEdit,
+  updateBranch,
 } from "@/api/branch";
 import { branchKeys } from "@/queries/branch";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetBranches = () => {
   return useQuery({
@@ -55,9 +57,28 @@ export const useApproveEditRequestBulk = () => {
   });
 };
 
-export const useGetBranchDetail = (branchId: number, termId: number) => {
+export const useGetBranchDetails = (branchId: number, termId?: number, search?: string) => {
   return useQuery({
-    queryKey: branchKeys.branchDetail(branchId, termId),
-    queryFn: () => getBranchDetails(branchId, termId),
+    queryKey: branchKeys.branchDetail(branchId, termId, search),
+    queryFn: () => getBranchDetails(branchId, termId, search),
+  });
+};
+
+export const useUpdateBranch = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: branchKeys.updateBranch,
+    mutationFn: updateBranch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [branchKeys.branches] });
+    },
+  });
+};
+
+export const useDeleteBranch = (branchId: number) => {
+  return useMutation({
+    mutationKey: branchKeys.delete,
+    mutationFn: () => deleteBranch(branchId),
   });
 };

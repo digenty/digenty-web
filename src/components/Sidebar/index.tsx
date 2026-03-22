@@ -45,6 +45,9 @@ import { canViewCommunication } from "@/lib/permissions/communication";
 import { canViewPortalCustomization } from "@/lib/permissions/portal-customization";
 import { canViewPortalOverview } from "@/lib/permissions/portal-overview";
 import { canViewDomain } from "@/lib/permissions/domain";
+import { useQueryClient } from "@tanstack/react-query";
+import { log } from "console";
+import { SetupGuideProgress } from "./SetupGuideProgress";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -238,10 +241,16 @@ export const Sidebar = () => {
   const isMobile = useIsMobile();
   const [showLogo, setShowLogo] = useState(true);
   const { setIsSidebarOpen, isSidebarOpen, activeNav, setActiveNav } = useSidebarStore();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setActiveNav(pathname.split("/")[1]);
   }, [pathname, setActiveNav]);
+
+  const logout = () => {
+    queryClient.clear();
+    deleteSession();
+  };
 
   return (
     <aside className="h-screen">
@@ -322,7 +331,9 @@ export const Sidebar = () => {
           })}
         </div>
 
-        <nav onClick={() => deleteSession()} className={cn("flex cursor-pointer items-center gap-[11px] py-2", !isSidebarOpen && "justify-center")}>
+        {isSidebarOpen && <SetupGuideProgress />}
+
+        <nav onClick={logout} className={cn("flex cursor-pointer items-center gap-[11px] py-2", !isSidebarOpen && "justify-center")}>
           <Logout fill="var(--color-icon-default-subtle)" />
           {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">Sign out</p>}
         </nav>
@@ -366,7 +377,7 @@ export const Sidebar = () => {
                         <nav
                           key={menu.title}
                           className={cn(
-                            "flex cursor-pointer gap-[11px] p-2",
+                            "flex cursor-pointer gap-2.75 p-2",
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
@@ -382,7 +393,9 @@ export const Sidebar = () => {
               })}
             </div>
 
-            <nav onClick={() => deleteSession()} className={cn("flex cursor-pointer gap-[11px] py-2 pr-2")}>
+            <SetupGuideProgress />
+
+            <nav onClick={logout} className={cn("flex cursor-pointer gap-2.75 py-2 pr-2")}>
               <Logout fill="var(--color-icon-default-subtle)" />
               <p className="text-sm leading-5 font-medium">Sign out</p>
             </nav>

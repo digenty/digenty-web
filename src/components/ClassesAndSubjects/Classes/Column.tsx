@@ -1,21 +1,21 @@
 "use client ";
 
-import { ColumnDef, Row } from "@tanstack/react-table";
-import { AllClassesMainTableProps, ClassProps } from "./types";
-import { DropdownMenuSeparator, DropdownMenu, DropdownMenuTrigger, DropdownMenuItem, DropdownMenuContent } from "@/components/ui/dropdown-menu";
-import { MoreHorizontalIcon } from "lucide-react";
-import { useState } from "react";
-import Eye from "@/components/Icons/Eye";
-import { Badge } from "@/components/ui/badge";
-import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
 import { Avatar } from "@/components/Avatar";
-import { Key } from "@/components/Icons/Key";
-import { useRouter } from "next/navigation";
-import { Notification } from "@/components/Icons/Notification";
-import { Button } from "@/components/ui/button";
 import { CheckboxCircle } from "@/components/Icons/CheckboxCircle";
+import Eye from "@/components/Icons/Eye";
+import { Key } from "@/components/Icons/Key";
+import { Notification } from "@/components/Icons/Notification";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { MoreHorizontalIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
+import { AllClassesMainTableProps, ClassProps } from "./types";
 
-const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
+const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
@@ -32,12 +32,20 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
         <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
           <DropdownMenuItem
             className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
-            onClick={() => router.push(`/classes-and-subjects/all-classes/${row.original.id}`)}
+            onClick={() =>
+              router.push(
+                `/classes-and-subjects/all-classes/${row.original.classId}/arm/${row.original.armId}?classArmName=${row.original.classArmName.replaceAll(" ", "-")}`,
+              )
+            }
           >
             <Eye fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>View class</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3" onClick={() => setOpenApproveModal(true)}>
+          <DropdownMenuItem
+            disabled={row.original.status === "NOT_SUBMITTED"}
+            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+            onClick={() => setOpenApproveModal(true)}
+          >
             <CheckboxCircle fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Approve submission</span>
           </DropdownMenuItem>
@@ -45,7 +53,10 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
             <Notification fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Notify class teacher</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3">
+          <DropdownMenuItem
+            onClick={() => router.push(`/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
+            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+          >
             <Key fill="var(--color-icon-default-subtle)" className="size-4" />
             <span className="">Manage edit requests</span>
           </DropdownMenuItem>
@@ -55,7 +66,7 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>) => {
   );
 };
 
-const RenderModals = (row: Row<ClassProps>) => {
+const RenderActions = (row: Row<ClassProps>, armId: number, classId: number, classArmName: string) => {
   const router = useRouter();
   const [openNotifyMobile, setOpenNotifyMobile] = useState(false);
   const [openEditMobile, setOpenEditMobile] = useState(false);
@@ -69,18 +80,22 @@ const RenderModals = (row: Row<ClassProps>) => {
           onClick={() => setOpenEditMobile(true)}
           className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
         >
-          <Key fill="var(--color-icon-default-muted)" />
+          <Key fill="var(--color-icon-default-muted)" className="size-4" />
           Manage Edit Request
         </Button>
         <Button
           onClick={() => setOpenNotifyMobile(true)}
           className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
         >
-          <Notification fill="var(--color-icon-default-muted)" />
+          <Notification fill="var(--color-icon-default-muted)" className="size-4" />
           Notify Teacher
         </Button>
         <Button
-          onClick={() => router.push(`/classes-and-subjects/all-classes/class-report`)}
+          onClick={() =>
+            router.push(
+              `/classes-and-subjects/subjects/${row.original.subjectId}/classes/${classId}/arms/${armId}/view-score?classArmName=${classArmName.replaceAll(" ", "-")}&subjectName=${row.original.subjectName.replaceAll(" ", "-")}`,
+            )
+          }
           className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
         >
           <Eye fill="var(--color-icon-default-muted)" /> View
@@ -90,7 +105,7 @@ const RenderModals = (row: Row<ClassProps>) => {
   );
 };
 //  Table for AllClass
-export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] = [
+export const AllClassessTableMainColumns = (branchId: number): ColumnDef<AllClassesMainTableProps>[] => [
   {
     accessorKey: "class",
     header: () => <div className="text-text-muted text-sm font-medium">Class</div>,
@@ -111,7 +126,7 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
     header: () => <div className="text-text-muted text-sm font-medium">Subject Sheet</div>,
     cell: ({ row }) => (
       <span className="text-text-default cursor-pointer text-sm font-medium">
-        {row.original.numberOfSubjects}/{row.original.numberOfSubjects}
+        {row.original.numberOfSubmittedSubjects}/{row.original.numberOfSubjects}
       </span>
     ),
   },
@@ -130,8 +145,10 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
       };
 
       return (
-        <Badge className={`border-border-default rounded-md border p-1 text-xs font-medium ${statusStyles[status]} `}>
-          {status.toLocaleLowerCase()}
+        <Badge
+          className={`border-border-default h-4 rounded-md border px-1 py-2 text-xs font-medium capitalize ${statusStyles[status || "NOT_SUBMITTED"]} `}
+        >
+          {status ? status.replaceAll("_", " ").toLowerCase() : "not submitted"}
         </Badge>
       );
     },
@@ -145,17 +162,21 @@ export const AllClassessTableMainColumns: ColumnDef<AllClassesMainTableProps>[] 
   {
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
-    cell: ({ row }) => RenderOptions(row),
+    cell: ({ row }) => RenderOptions(row, branchId),
     size: 11,
   },
 ];
 
 //  Table for Class
-export const ClassTableColumns: ColumnDef<ClassProps>[] = [
+export const ClassTableColumns = (armId: number, classId: number, classArmName: string): ColumnDef<ClassProps>[] => [
   {
     accessorKey: "subject",
     header: () => <div className="text-text-muted text-sm font-medium">Subject</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.subject}</span>,
+    cell: ({ row }) => (
+      <span className="text-text-default cursor-pointer text-sm capitalize">
+        {row.original.subjectName ? row.original.subjectName.toLowerCase() : ""}
+      </span>
+    ),
     size: 252,
   },
   {
@@ -164,7 +185,7 @@ export const ClassTableColumns: ColumnDef<ClassProps>[] = [
     cell: ({ row }) => (
       <div className="items center flex gap-2">
         <Avatar className="size-5" />
-        <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.subjectTeacherName}</span>{" "}
+        <span className="text-text-default cursor-pointer text-sm">{row.original.subjectTeacherName}</span>{" "}
       </div>
     ),
     size: 252,
@@ -172,16 +193,29 @@ export const ClassTableColumns: ColumnDef<ClassProps>[] = [
   {
     accessorKey: "status",
     header: () => <div className="text-text-muted text-sm font-medium">Status</div>,
-    cell: ({ row }) => (
-      <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default w-17 rounded-md border p-0.5 text-xs font-medium">
-        {row.original.status}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const statusStyles = {
+        SUBMITTED: "bg-bg-badge-green text-bg-basic-green-strong ",
+        IN_PROGRESS: "bg-bg-badge-orange text-bg-basic-orange-strong ",
+        NOT_SUBMITTED: "bg-bg-badge-red text-bg-basic-red-strong ",
+        REQUESTED_EDIT_ACCESS: "bg-bg-badge-lime text-bg-basic-lime-strong ",
+      };
+
+      return (
+        <Badge
+          className={`border-border-default w-auto rounded-md border px-1 py-0.5 text-xs font-medium capitalize ${
+            statusStyles[row.original.status || "NOT_SUBMITTED"]
+          }`}
+        >
+          {row.original.status ? row.original.status.toLowerCase() : "not submitted"}
+        </Badge>
+      );
+    },
     size: 252,
   },
   {
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
-    cell: ({ row }) => RenderModals(row),
+    cell: ({ row }) => RenderActions(row, armId, classId, classArmName),
   },
 ];

@@ -1,7 +1,13 @@
+import { LevelType } from "@/api/types";
+
 export const subjectKeys = {
   mysubjects: ["subjects"] as const,
-  studentsBySubjectClass: (subjectId: number, amrId: number) => [subjectId, amrId, "students"] as const,
+  // studentsBySubjectClass: (subjectId: number, amrId: number) => [subjectId, amrId, "students"] as const,
+  studentsBySubjectClass: ["studentsBySubjectClass"] as const,
   branchClassSubjects: [" branchClassSubjects"],
+  addSubject: ["addSubject"] as const,
+  deleteSubject: ["deleteSubject"] as const,
+  subjectsByLevel: (levelType?: LevelType, branchId?: number) => ["subjectsByLevel", levelType, branchId] as const,
 };
 
 export const REPORT_STATUS_CONFIG = {
@@ -17,7 +23,7 @@ export const REPORT_STATUS_CONFIG = {
     label: "Submitted",
     className: "bg-bg-badge-green text-bg-basic-green-strong",
   },
-  REQUEST_EDIT_ACCESS: {
+  REQUESTED_EDIT_ACCESS: {
     label: "Edit Requested",
     className: "bg-bg-badge-orange text-bg-basic-orange-strong",
   },

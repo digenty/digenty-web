@@ -43,7 +43,7 @@ export const LoginPasswordForm = ({ email }: { email: string }) => {
           },
           onError: error => {
             toast({
-              title: error.message ?? "Something went wrong",
+              title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
               description: "Could not log you in",
               type: "error",
             });

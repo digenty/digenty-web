@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Branch } from "@/api/types";
+import { Branch, BranchWithClassLevels } from "@/api/types";
 
 export type ValidationError = {
   row: number;
@@ -136,17 +136,17 @@ export const CSVUpload = ({
           ) : (
             <Select
               onValueChange={value => {
-                const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
-                setBranchSelected(branch);
+                const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
+                setBranchSelected(branch?.branch);
               }}
             >
               <SelectTrigger className="bg-bg-input-soft! h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-light!">
                 <span className="text-text-default! text-sm font-medium">{branchSelected ? branchSelected?.name : "Select a branch"}</span>
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
-                {branches.data.content.map((branch: Branch) => (
-                  <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
-                    {branch.name}
+                {branches.data?.map((branch: BranchWithClassLevels) => (
+                  <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-medium">
+                    {branch.branch.name}
                   </SelectItem>
                 ))}
               </SelectContent>

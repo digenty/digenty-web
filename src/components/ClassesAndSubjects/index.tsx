@@ -9,6 +9,7 @@ import { useGetTeacherSubjects } from "@/hooks/queryHooks/useSubject";
 import { useGetTeacherClasses } from "@/hooks/queryHooks/useClass";
 import { Skeleton } from "../ui/skeleton";
 import { PageEmptyState } from "../Error/PageEmptyState";
+import { ClassesAndSubjectsPermissionWrapper } from "./ClassesAndSubjectsPermissionWrapper";
 
 const tabs = [
   { id: "classes", label: "My Classes" },
@@ -41,61 +42,63 @@ const ClassesAndSubjects = () => {
   }, [activeTab, showTabs, hasSubjects, setBreadcrumbs]);
 
   return (
-    <div className="flex flex-col gap-4 px-4 py-4 md:px-8">
-      {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full md:h-150" />}
+    <ClassesAndSubjectsPermissionWrapper isLoading={isLoading}>
+      <div className="flex flex-col gap-4 px-4 py-4 md:px-8">
+        {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full md:h-150" />}
 
-      {!isLoading && (
-        <>
-          {/* Case 1: Class teacher with subjects — show tabs */}
-          {showTabs && (
-            <>
-              <div className="border-border-default mb-0 flex w-auto max-w-105 items-center gap-3 border-b">
-                {tabs.map(tab => {
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <div
-                      role="button"
-                      onClick={() => router.push(`/classes-and-subjects?tab=${tab.id}`)}
-                      key={tab.id}
-                      className={cn(
-                        "w-1/2 cursor-pointer py-2.5 text-center transition-all duration-150",
-                        isActive && "border-border-informative border-b-[1.5px]",
-                      )}
-                    >
-                      <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{tab.label}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              {activeTab === "classes" ? (
+        {!isLoading && (
+          <>
+            {/* Case 1: Class teacher with subjects — show tabs */}
+            {showTabs && (
+              <>
+                <div className="border-border-default mb-0 flex w-auto max-w-105 items-center gap-3 border-b">
+                  {tabs.map(tab => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <div
+                        role="button"
+                        onClick={() => router.push(`/classes-and-subjects?tab=${tab.id}`)}
+                        key={tab.id}
+                        className={cn(
+                          "w-1/2 cursor-pointer py-2.5 text-center transition-all duration-150",
+                          isActive && "border-border-informative border-b-[1.5px]",
+                        )}
+                      >
+                        <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{tab.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {activeTab === "classes" ? (
+                  <MyClasses classes={classes} isLoading={isLoadingClasses} />
+                ) : (
+                  <Subjects subjectList={subjectList} isLoading={isLoadingSubjects} />
+                )}
+              </>
+            )}
+
+            {/* Case 2: Subject teacher only */}
+            {!hasClasses && hasSubjects && <Subjects subjectList={subjectList} isLoading={isLoadingSubjects} />}
+
+            {/* Case 3: Class teacher only */}
+            {hasClasses && !hasSubjects && (
+              <div className="flex flex-col gap-4 pb-10">
+                <h2 className="text-text-default hidden text-lg font-semibold md:inline md:text-xl">My Classes</h2>
                 <MyClasses classes={classes} isLoading={isLoadingClasses} />
-              ) : (
-                <Subjects subjectList={subjectList} isLoading={isLoadingSubjects} />
-              )}
-            </>
-          )}
+              </div>
+            )}
 
-          {/* Case 2: Subject teacher only */}
-          {!hasClasses && hasSubjects && <Subjects subjectList={subjectList} isLoading={isLoadingSubjects} />}
-
-          {/* Case 3: Class teacher only */}
-          {hasClasses && !hasSubjects && (
-            <div className="flex flex-col gap-4 pb-10">
-              <h2 className="text-text-default hidden text-lg font-semibold md:inline md:text-xl">My Classes</h2>
-              <MyClasses classes={classes} isLoading={isLoadingClasses} />
-            </div>
-          )}
-
-          {!hasClasses && !hasSubjects && (
-            <PageEmptyState
-              title="No class or subject found"
-              description="No active class or subject available for you at the moment, kindly contact admin."
-              buttonText="Go back"
-            />
-          )}
-        </>
-      )}
-    </div>
+            {!hasClasses && !hasSubjects && (
+              <PageEmptyState
+                title="No class or subject found"
+                description="No active class or subject available for you at the moment, kindly contact admin."
+                buttonText="Go back"
+              />
+            )}
+          </>
+        )}
+      </div>
+    </ClassesAndSubjectsPermissionWrapper>
   );
 };
 

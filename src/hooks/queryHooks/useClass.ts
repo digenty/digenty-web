@@ -1,6 +1,15 @@
-import { getClasses, getClassTeachersInClass, getTeacherClass, getClassReport, getClassCumulativeReport } from "@/api/class";
+import {
+  getClasses,
+  getClassTeachersInClass,
+  getTeacherClass,
+  getClassReport,
+  getClassCumulativeReport,
+  requestEditAccess,
+  getClassesByLevel,
+  deleteClass,
+} from "@/api/class";
 import { classKeys } from "@/queries/class";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetClasses = (branchId?: number) => {
   return useQuery({
@@ -30,7 +39,7 @@ export const useGetClassReport = (armId?: number, termId?: number) => {
   return useQuery({
     queryKey: classKeys.classReport(armId, termId),
     queryFn: () => getClassReport(armId, termId),
-    enabled: !!armId,
+    enabled: !!armId && !!termId,
   });
 };
 
@@ -39,5 +48,31 @@ export const useGetClassCumulativeReport = (armId?: number, filter?: string) => 
     queryKey: classKeys.classCumulativeReport(armId),
     queryFn: () => getClassCumulativeReport(armId),
     enabled: !!armId && filter === "promotion",
+  });
+};
+
+export const useRequestEditAccess = () => {
+  return useMutation({
+    mutationKey: classKeys.requestEditAccess,
+    mutationFn: requestEditAccess,
+  });
+};
+
+export const useGetClassesByLevel = (levelId?: number) => {
+  return useQuery({
+    queryKey: classKeys.classesByLevel(levelId),
+    queryFn: () => getClassesByLevel(levelId),
+    enabled: !!levelId,
+  });
+};
+
+export const useDeleteClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: classKeys.deleteClass,
+    mutationFn: (classroomId: number) => deleteClass(classroomId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+    },
   });
 };

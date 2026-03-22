@@ -1,11 +1,13 @@
-import Link from "next/link";
-import { SETTINGS_NAV } from "../settingsConstants";
-import { usePathname } from "next/navigation";
-import { ArrowRightS } from "@/components/Icons/ArrowRightS";
 import { Avatar } from "@/components/Avatar";
+import { ArrowRightS } from "@/components/Icons/ArrowRightS";
+import { useGetSchoolDetails } from "@/hooks/queryHooks/useSchool";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { SETTINGS_NAV } from "../settingsConstants";
 
 export const SettingsMobileNav = () => {
   const pathname = usePathname();
+  const { data: schoolResponse } = useGetSchoolDetails();
 
   return (
     <div className="">
@@ -13,8 +15,8 @@ export const SettingsMobileNav = () => {
       <div className="bg-bg-muted mt-3 mb-6 flex items-center gap-3 rounded-md p-3">
         <Avatar className="size-10" />
         <div className="flex flex-col gap-1">
-          <div className="text-text-default text-sm font-semibold">Digenty Technology School</div>
-          <div className="text-text-muted text-xs">damilarejohn@gmail.com</div>
+          <div className="text-text-default text-sm font-semibold">{schoolResponse?.data?.schoolName || "--"}</div>
+          <div className="text-text-muted text-xs">{schoolResponse?.data?.email || "--"}</div>
         </div>
       </div>
       <div className="flex flex-col gap-2 rounded-md p-0">

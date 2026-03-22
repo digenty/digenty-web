@@ -1,19 +1,21 @@
 "use client";
 
-import Question from "@/components/Icons/Question";
 import Eye from "@/components/Icons/Eye";
+import Question from "@/components/Icons/Question";
 
+import RequestLoader from "@/components/Icons/RequestLoader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { REPORT_STATUS_CONFIG } from "@/queries/subject";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import RequestEdit from "./RequestEdit";
-import RequestLoader from "@/components/Icons/RequestLoader";
-import { useRouter } from "next/navigation";
-import { REPORT_STATUS_CONFIG } from "@/queries/subject";
 import { SubjectProps } from "./types";
 
 export default function Subject({ subjectName, classes, subjectId }: SubjectProps) {
   const [openRequest, setOpenRequest] = useState<boolean>(false);
+  const [classId, setClassId] = useState<number>();
+  const [armId, setArmId] = useState<number>();
   const router = useRouter();
 
   const handleOpen = (): void => {
@@ -22,7 +24,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
 
   return (
     <div className="">
-      {openRequest && <RequestEdit open={openRequest} onOpenChange={setOpenRequest} />}
+      {openRequest && <RequestEdit open={openRequest} onOpenChange={setOpenRequest} classId={classId} armId={armId} subjectId={subjectId} />}
 
       <div className="flex-start bg-bg-muted flex w-full flex-col gap-1.5 rounded-lg pt-1 pr-1 pb-2 pl-1 md:max-w-219 md:gap-3 md:pt-1 md:pr-3 md:pb-3 md:pl-3">
         <h2 className="text-text-default text-md px-3 pt-1.5 font-semibold md:px-5 md:pt-3">{subjectName}</h2>
@@ -38,7 +40,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                     <Badge
                       className={`border-border-default flex h-5 items-center gap-1 rounded-md border p-1 text-xs font-medium ${statusUpdate.className}`}
                     >
-                      {cl.reportStatus === "REQUEST_EDIT_ACCESS" && <RequestLoader fill="var(--color-bg-basic-orange-strong)" />}
+                      {cl.reportStatus === "REQUESTED_EDIT_ACCESS" && <RequestLoader fill="var(--color-bg-basic-orange-strong)" />}
                       {statusUpdate.label}
                     </Badge>
                   </div>
@@ -60,14 +62,21 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                     {cl.reportStatus === "SUBMITTED" ? (
                       <div className="flex gap-2 md:items-center md:justify-between md:gap-1">
                         <Button
-                          onClick={handleOpen}
+                          onClick={() => {
+                            setArmId(cl.armId);
+                            setClassId(cl.classId);
+                            handleOpen();
+                          }}
                           className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! shadow-light h-7 w-44 rounded-md border px-2 py-1 text-sm font-medium"
                         >
                           <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
                         </Button>
                         <Button
-                          onClick={() => router.push(`/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/view-score`)}
-                          // onClick={() => router.push(`/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/view-score`)}
+                          onClick={() =>
+                            router.push(
+                              `/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
+                            )
+                          }
                           className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"
                         >
                           <Eye fill="var(--color-icon-default-muted)" /> View
@@ -77,9 +86,13 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                       ""
                     )}
 
-                    {cl.reportStatus === "REQUEST_EDIT_ACCESS" ? (
+                    {cl.reportStatus === "REQUESTED_EDIT_ACCESS" ? (
                       <Button
-                        onClick={() => router.push(`/classes-and-subjects/subject=${subjectId}/add-score?${cl.armId}&requested=true`)}
+                        onClick={() =>
+                          router.push(
+                            `/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
+                          )
+                        }
                         className="border-border-darker text-text-default bg-bg-state-secondary shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"
                       >
                         <Eye fill="var(--color-icon-default-muted)" /> View

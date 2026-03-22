@@ -1,7 +1,7 @@
 import Edit from "@/components/Icons/Edit";
 import { GroupWorkT } from "@/components/Icons/GroupWorkT";
 import { Gtbank } from "@/components/Icons/Gtbank";
-import { Tabs } from "@/components/Tab";
+import { Tabs } from "@/components/Tabs";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { FeesMode } from "../FeesMode";

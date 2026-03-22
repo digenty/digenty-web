@@ -1,8 +1,9 @@
+import { BranchLevels } from "@/api/types";
 import { JWTPayload } from "@/types";
 import { clsx, type ClassValue } from "clsx";
+import { differenceInDays, differenceInMonths, differenceInWeeks, isToday, isYesterday } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 import { twMerge } from "tailwind-merge";
-import { differenceInDays, differenceInWeeks, differenceInMonths, isToday, isYesterday } from "date-fns";
 
 export const MOBILE_VIEWPORT = 768;
 
@@ -136,4 +137,21 @@ export const formatRelativeDate = (date: Date) => {
   const months = differenceInMonths(now, date);
   if (months === 1) return "Last month";
   return `${months} months ago`;
+};
+
+export const extractUniqueLevelsByType = (branches: BranchLevels[]) => {
+  const uniqueLevels = new Set();
+
+  return branches
+    .flatMap(branch =>
+      branch.classLevels.map(level => ({
+        ...level,
+        branchId: branch?.branchId,
+      })),
+    )
+    .filter(level => {
+      if (uniqueLevels.has(level.levelType)) return false;
+      uniqueLevels.add(level.levelType);
+      return true;
+    });
 };

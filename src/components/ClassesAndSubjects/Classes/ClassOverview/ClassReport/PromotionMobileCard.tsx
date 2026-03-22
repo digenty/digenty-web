@@ -46,7 +46,6 @@ export const PromotionMobileCard = ({
       >
         {termsOptions.map(termOption => {
           const studentScore = student.terms.find(term => term.term === termOption);
-          console.log(studentScore);
           if (studentScore?.term) {
             return (
               <div key={`${student.id}-${termOption}`} className="border-border-default flex h-12 border-b text-center last:border-b-0">

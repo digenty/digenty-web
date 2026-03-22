@@ -55,10 +55,16 @@ export const terms = [
 ];
 
 interface User {
-  id: string;
-  branchId: number;
+  id: number;
   schoolId: number;
   permissions: string[];
+  armIds: number[];
+  branchIds: number[];
+  created: number;
+  email: string;
+  name: string;
+  subjectIds: number[];
+  isMain: boolean;
 }
 
 export type JWTPayload = JwtPayload & User;

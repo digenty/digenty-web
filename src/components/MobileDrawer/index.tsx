@@ -16,7 +16,7 @@ export const MobileDrawer = ({
   open: boolean;
   setIsOpen: (bool: boolean) => void;
   children: React.ReactNode;
-  title: React.ReactNode | string;
+  title?: React.ReactNode | string;
   showCloseButton?: boolean;
   className?: string;
 }) => {
@@ -34,20 +34,22 @@ export const MobileDrawer = ({
             <DrawerDescription>{title}</DrawerDescription>
           </DrawerHeader>
         </VisuallyHidden>
-        <div className="bg-bg-card-subtle border-border-default flex h-14 items-center justify-between rounded-t-xl border-b px-4">
-          <h2 className="text-text-default text-base font-semibold">{title}</h2>
-          {showCloseButton && (
-            <Button
-              variant="ghost"
-              onClick={evt => {
-                evt.stopPropagation();
-                setIsOpen(false);
-              }}
-            >
-              <XIcon className="text-icon-default-muted h-5 w-5" />
-            </Button>
-          )}
-        </div>
+        {title && (
+          <div className="bg-bg-card-subtle border-border-default flex h-14 items-center justify-between rounded-t-xl border-b px-4">
+            <h2 className="text-text-default text-base font-semibold">{title}</h2>
+            {showCloseButton && (
+              <Button
+                variant="ghost"
+                onClick={evt => {
+                  evt.stopPropagation();
+                  setIsOpen(false);
+                }}
+              >
+                <XIcon className="text-icon-default-muted h-5 w-5" />
+              </Button>
+            )}
+          </div>
+        )}
 
         {children}
       </DrawerContent>

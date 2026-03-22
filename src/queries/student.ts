@@ -9,4 +9,5 @@ export const studentKeys = {
   withdrawStudents: ["withdrawStudents"] as const,
   deleteStudents: ["deleteStudents"] as const,
   studentReport: ["studentReport"] as const,
+  teacherInput: ["teacherInput"] as const,
 };
