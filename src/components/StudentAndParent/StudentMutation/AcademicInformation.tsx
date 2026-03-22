@@ -140,33 +140,6 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           )}
         </div>
 
-        {/* <div className="space-y-2">
-          <Label htmlFor="department" className="text-text-default text-sm font-medium">
-            Department
-          </Label>
-          {!departments || loadingDepartments ? (
-            <Skeleton className="bg-bg-input-soft h-9 w-full" />
-          ) : (
-            <Select
-              onValueChange={value => {
-                const department = departments.data?.find((dept: Department) => dept.uuid === value);
-                formik.setFieldValue("departmentId", department.id);
-              }}
-            >
-              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-                <SelectValue placeholder="Department" />
-              </SelectTrigger>
-              <SelectContent className="bg-bg-card border-none">
-                {departments.data.map((dept: Department) => (
-                  <SelectItem key={dept.id} className="text-text-default" value={dept.uuid}>
-                    {dept.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div> */}
-
         <div className="space-y-2">
           <Label htmlFor="arm" className="text-text-default text-sm font-medium">
             Arm <small className="text-text-destructive text-xs">*</small>{" "}
@@ -186,12 +159,12 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
                 <SelectValue placeholder="Arm" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {arms.data.content.length === 0 && (
+                {arms.data.length === 0 && (
                   <SelectItem disabled className="text-text-default" value="none">
                     No Arms Found
                   </SelectItem>
                 )}
-                {arms.data.content.map((arm: Arm) => (
+                {arms.data.map((arm: Arm) => (
                   <SelectItem key={arm.id} className="text-text-default" value={arm.uuid}>
                     {arm.name}
                   </SelectItem>
@@ -236,25 +209,6 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
             </SelectContent>
           </Select>
         </div>
-
-        {/* <div className="space-y-2">
-          <Label htmlFor="role" className="text-text-default text-sm font-medium">
-            Input Role
-          </Label>
-          <Input
-            id="role"
-            onChange={handleChange}
-            placeholder="Input Position"
-            onBlur={handleBlur}
-            value={values.role}
-            type="text"
-            className={cn(
-              "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
-              errors.role && touched.role && "border-border-destructive border",
-            )}
-          />
-          {touched.role && errors.role && <p className="text-text-destructive text-xs font-light">{errors.role}</p>}
-        </div> */}
       </div>
     </div>
   );

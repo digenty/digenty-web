@@ -7,7 +7,7 @@ export const studentSchema = yup.object().shape({
   middleName: yup.string(),
   gender: yup.string().oneOf(Object.values(Gender), "Gender is not a valid value!").required("Gender is required!"),
   email: yup.string(),
-  boardingStatus: yup.string().oneOf(Object.values(BoardingStatus), "Boarding status is not a valid value!").required("Boarding status is required!"),
+  boardingStatus: yup.string().oneOf(Object.values(BoardingStatus), "Boarding status is not a valid value!"),
   dateOfBirth: yup.string().required("Date of Birth is required!"),
   address: yup.string().required("Address is required!"),
   emergencyContactName: yup.string(),

@@ -94,7 +94,7 @@ export const ParentProfile = () => {
                 <span>
                   {parent.firstName} {parent.lastName}
                 </span>
-                {parent.tags && parent.tags.slice(0, 2).map((tag, index) => tag && <StatusBadge key={`${tag}-${index}`} status="Prefect" />)}
+                {parent.tags && parent.tags.slice(0, 2).map((tag, index) => tag && <StatusBadge key={`${tag}-${index}`} status={tag} />)}
               </div>
               <p className="text-text-subtle text-sm font-normal capitalize">{parent.relationship ? parent.relationship.toLowerCase() : "--"}</p>
             </div>

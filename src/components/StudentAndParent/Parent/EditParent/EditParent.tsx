@@ -86,6 +86,7 @@ export const EditParent = () => {
       );
     },
   });
+  console.log(data);
 
   useEffect(() => {
     if (data) {
@@ -100,6 +101,8 @@ export const EditParent = () => {
       formik.setFieldValue("address", data.data.address);
       formik.setFieldValue("nationality", data.data.nationality);
       formik.setFieldValue("stateOfOrigin", data.data.stateOfOrigin);
+      setTags(data.data.tags);
+      setSelectedStudents(data.data.linkedStudents);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
