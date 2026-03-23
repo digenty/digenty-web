@@ -99,7 +99,11 @@ export const ManageEditModal = ({ open, closeModal, selectedRequest, pendingActi
 
                       <div className="flex items-center gap-3">
                         <Clock3 className="text-text-default size-4 font-light" />
-                        <p className="text-text-muted text-sm">Requested {formatRelativeDate(new Date(selectedRequest.dateCreated))}</p>
+                        {selectedRequest.dateCreated ? (
+                          <p className="text-text-muted text-sm">Requested {formatRelativeDate(new Date(selectedRequest.dateCreated))}</p>
+                        ) : (
+                          "--"
+                        )}
                       </div>
                     </div>
                   </div>
@@ -153,7 +157,11 @@ export const ManageEditModal = ({ open, closeModal, selectedRequest, pendingActi
                       <div className="bg-bg-muted text-text-default rounded-sm p-3 text-sm font-medium">{selectedRequest?.reason}</div>
                       <div className="flex items-center gap-3">
                         <Clock3 className="text-text-default size-4 font-light" />
-                        <p className="text-text-muted text-sm">Requested {formatRelativeDate(new Date(selectedRequest?.dateCreated))}</p>
+                        {selectedRequest?.dateCreated ? (
+                          <p className="text-text-muted text-sm">Requested {formatRelativeDate(new Date(selectedRequest?.dateCreated))}</p>
+                        ) : (
+                          "--"
+                        )}
                       </div>
                     </div>
                   </div>

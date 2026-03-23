@@ -109,7 +109,9 @@ export const createManageEditTableColumns = (
     accessorKey: "date",
     header: () => <div className="text-text-muted text-sm font-medium">Date/Time</div>,
     cell: ({ row }) => (
-      <span className="text-text-default cursor-pointer text-sm font-normal">{formatRelativeDate(new Date(row.original.dateCreated))}</span>
+      <span className="text-text-default cursor-pointer text-sm font-normal">
+        {row.original.dateCreated ? formatRelativeDate(new Date(row.original.dateCreated)) : "--"}
+      </span>
     ),
     size: 32,
   },

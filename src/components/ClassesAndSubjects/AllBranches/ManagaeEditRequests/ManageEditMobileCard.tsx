@@ -23,7 +23,7 @@ export const ManageEditMobileCard = ({ request, openModal, isSelected, onSelect 
             <Avatar className="size-6" url="" />
             <span className="text-text-default text-sm font-medium">{request.teacherName}</span>
           </div>
-          <span className="text-text-subtle text-xs">{formatRelativeDate(new Date(request.dateCreated))}</span>
+          <span className="text-text-subtle text-xs">{request.dateCreated ? formatRelativeDate(new Date(request.dateCreated)) : "--"}</span>
         </div>
 
         <div className="flex items-center gap-2">
