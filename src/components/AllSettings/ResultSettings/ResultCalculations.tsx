@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { useGetAcademic } from "@/hooks/queryHooks/useAcademic";
 import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import { useGetSchoolGradings } from "@/hooks/queryHooks/useGrading";
@@ -18,7 +19,7 @@ import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import React, { useState } from "react";
 import { defaultFormState, LevelFormProps, LevelFormState } from "./types";
 
-function ClassesResponsiveTabs({ items, isLoading }: { isLoading: boolean; items: { label: string; content: React.ReactNode }[] }) {
+function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; levels: { label: string; content: React.ReactNode }[] }) {
   const isMobile = useIsMobile();
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -26,23 +27,23 @@ function ClassesResponsiveTabs({ items, isLoading }: { isLoading: boolean; items
     return (
       <div className="mt-4 w-full">
         {isLoading && <Skeleton className="bg-bg-input-soft h-8 w-full rounded-3xl" />}
-        {!isLoading && items.length > 0 && (
+        {!isLoading && levels.length > 0 && (
           <>
             <Select value={String(activeIndex)} onValueChange={value => setActiveIndex(Number(value))}>
               <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
                 <SelectValue>
-                  <span className="text-text-default text-sm">{items[activeIndex].label}</span>
+                  <span className="text-text-default text-sm">{levels[activeIndex].label}</span>
                 </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-bg-default border-border-default">
-                {items.map((it, idx) => (
-                  <SelectItem key={it.label} value={String(idx)} className="text-text-default text-sm">
-                    {it.label}
+                {levels.map((level, idx) => (
+                  <SelectItem key={level.label} value={String(idx)} className="text-text-default text-sm capitalize">
+                    {level.label.replaceAll("_", " ")}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <div className="mt-4">{items[activeIndex].content}</div>
+            <div className="mt-4">{levels[activeIndex].content}</div>
           </>
         )}
       </div>
@@ -53,22 +54,22 @@ function ClassesResponsiveTabs({ items, isLoading }: { isLoading: boolean; items
     <div>
       <div className="h-9 w-full p-4 md:w-fit md:p-8">
         {isLoading && <Skeleton className="bg-bg-input-soft h-8 w-50 rounded-3xl" />}
-        {!isLoading && items.length > 0 && (
+        {!isLoading && levels.length > 0 && (
           <div className="bg-bg-state-soft flex w-full items-center justify-between gap-2.5 rounded-full p-0.5">
-            {items.map((item, index) => {
+            {levels.map((level, index) => {
               const isActive = index === activeIndex;
               return (
                 <button
                   key={index}
                   onClick={() => setActiveIndex(index)}
                   className={cn(
-                    "transit flex justify-center px-4 py-2 text-sm font-medium",
+                    "transit flex justify-center px-4 py-2 text-sm font-medium capitalize",
                     isActive
                       ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
                       : "text-text-muted flex h-8 items-center gap-1",
                   )}
                 >
-                  <span>{item.label}</span>
+                  <span>{level.label.replace("_", " ")}</span>
                 </button>
               );
             })}
@@ -77,9 +78,9 @@ function ClassesResponsiveTabs({ items, isLoading }: { isLoading: boolean; items
       </div>
       <div className="mt-4 w-full">
         {isLoading && <Skeleton className="bg-bg-input-soft h-80 w-full rounded-md" />}
-        {!isLoading && items.length > 0 && (
+        {!isLoading && levels.length > 0 && (
           <div className="flex w-full">
-            <div className="flex-1">{items[activeIndex].content}</div>
+            <div className="flex-1">{levels[activeIndex].content}</div>
           </div>
         )}
       </div>
@@ -106,7 +107,7 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
       <div className="flex w-full flex-col gap-6">
         <div className="flex justify-between">
           <div className="text-text-default text-xl font-semibold">Result Calculation</div>
-          <Button className="text-text-default border-border-darker rounded-md border">
+          <Button className="text-text-default border-border-darker h-8! rounded-md border">
             <Edit fill="var(--color-icon-default-muted)" /> Edit
           </Button>
         </div>
@@ -139,113 +140,140 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
           <div className="text-text-default text-md font-semibold">Promotion Rules</div>
           <div className="text-text-muted text-sm">Decide how students are promoted at the end of the session.</div>
         </div>
-        <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-6">
+        <div className="bg-bg-card border-border-darker flex flex-col gap-6 rounded-md border p-6">
           <div className="flex items-start gap-2">
-            <RoundedCheckbox checked={formState.promotionType === "PROMOTE_ALL"} onChange={() => onChange({ promotionType: "PROMOTE_ALL" })} />
             <div className="flex flex-col gap-1">
-              <div className="text-text-default text-sm font-medium">Promote All</div>
-              <div className="text-text-subtle text-sm">Automatically promote every student.</div>
+              <div className="flex items-center gap-2">
+                <RoundedCheckbox checked={formState.promotionType === "PROMOTE_ALL"} onChange={() => onChange({ promotionType: "PROMOTE_ALL" })} />
+                <div className="text-text-default text-sm font-medium">Promote All</div>
+              </div>
+
+              <div className="text-text-subtle pl-6 text-sm">Automatically promote every student.</div>
             </div>
           </div>
           <div className="flex items-start gap-2">
-            <RoundedCheckbox checked={formState.promotionType === "MANUAL"} onChange={() => onChange({ promotionType: "MANUAL" })} />
             <div className="flex flex-col gap-1">
-              <div className="text-text-default text-sm font-medium">Manual Promotion</div>
-              <div className="text-text-subtle text-sm">Decide each student&apos;s promotion manually.</div>
+              <div className="flex items-center gap-2">
+                <RoundedCheckbox checked={formState.promotionType === "MANUAL"} onChange={() => onChange({ promotionType: "MANUAL" })} />
+                <div className="text-text-default text-sm font-medium">Manual Promotion</div>
+              </div>
+              <div className="text-text-subtle pl-6 text-sm">Decide each student&apos;s promotion manually.</div>
             </div>
           </div>
           <div className="flex items-start gap-2">
-            <RoundedCheckbox checked={formState.promotionType === "BY_PERFORMANCE"} onChange={() => onChange({ promotionType: "BY_PERFORMANCE" })} />
             <div className="flex flex-col gap-1">
-              <div className="text-text-default text-sm font-medium">By Performance</div>
-              <div className="text-text-subtle text-sm">Promote students who meet a minimum score (either cumulative or final term)</div>
-              <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
-              <div className="bg-bg-input-soft! text-text-muted flex h-7 w-32 items-center justify-between rounded-md">
-                <Input
-                  type="number"
-                  className="text-text-muted border-none"
-                  placeholder="100"
-                  value={formState.minimumOverallPercentage}
-                  onChange={e => onChange({ minimumOverallPercentage: e.target.value })}
+              <div className="flex items-center gap-2">
+                <RoundedCheckbox
+                  checked={formState.promotionType === "BY_PERFORMANCE"}
+                  onChange={() => onChange({ promotionType: "BY_PERFORMANCE" })}
                 />
-                <div className="text-text-muted">%</div>
+                <div className="text-text-default text-sm font-medium">By Performance</div>
+              </div>
+              <div className="text-text-subtle pl-6 text-sm">Promote students who meet a minimum score (either cumulative or final term)</div>
+
+              <div className="pl-6">
+                <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
+                <div className="bg-bg-input-soft! text-text-muted flex h-7 w-32 items-center justify-between rounded-md">
+                  <Input
+                    type="number"
+                    className="text-text-muted border-none text-sm"
+                    placeholder="100"
+                    value={formState.minimumOverallPercentage}
+                    onChange={e => onChange({ minimumOverallPercentage: e.target.value })}
+                  />
+                  <div className="text-text-muted">%</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex items-start gap-2">
-            <RoundedCheckbox checked={false} onChange={() => {}} />
+          <div className="flex items-start gap-4">
             <div className="flex flex-col gap-1">
-              <div className="text-text-default text-sm font-medium">Subject Combination</div>
-              <div className="text-text-subtle text-sm">Set specific subject requirements and performance criteria</div>
-              <Label className="text-text-default text-sm font-medium">A. Required passes (Compulsory)</Label>
-              <div className="text-text-subtle text-sm">Multi-select subjects that student must pass</div>
+              <div className="flex items-center gap-2">
+                <RoundedCheckbox checked={false} onChange={() => {}} />
+                <div className="text-text-default text-sm font-medium">Subject Combination</div>
+              </div>
+              <div className="text-text-subtle pl-6 text-sm">Set specific subject requirements and performance criteria</div>
 
-              {isLoadingSubjects ? (
-                <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
-              ) : (
-                <>
-                  <Select value="">
-                    <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-                      <SelectValue placeholder="Select subjects" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-bg-default border-border-default">
-                      {subjects.map((sub: Levelsubject) => (
-                        <SelectItem key={sub.id} value={String(sub.id)} className="text-text-default text-sm" onSelect={() => toggleSubject(sub.id)}>
-                          <div className="flex items-center gap-2">
-                            <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} onChange={() => toggleSubject(sub.id)} />
-                            {sub.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {formState.requiredSubjectIds.length > 0 && (
-                    <div className="mt-1 flex flex-wrap items-center gap-1">
-                      {subjects
-                        .filter((s: Levelsubject) => formState.requiredSubjectIds.includes(s.id))
-                        .map((s: Levelsubject) => (
-                          <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
-                            <span>{s.name}</span>
-                            <button onClick={() => toggleSubject(s.id)} className="text-text-muted hover:text-text-default">
-                              ×
-                            </button>
-                          </div>
+              <div className="mt-4 flex flex-col gap-1 pl-6">
+                <Label className="text-text-default text-sm font-medium">A. Required passes (Compulsory)</Label>
+                <div className="text-text-subtle text-sm">Multi-select subjects that student must pass</div>
+
+                {isLoadingSubjects ? (
+                  <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
+                ) : (
+                  <>
+                    <Select value="">
+                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+                        <SelectValue placeholder="Select subjects" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-bg-default border-border-default">
+                        {subjects.map((sub: Levelsubject) => (
+                          <SelectItem
+                            key={sub.id}
+                            value={String(sub.id)}
+                            className="text-text-default text-sm"
+                            onSelect={() => toggleSubject(sub.id)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} onChange={() => toggleSubject(sub.id)} />
+                              {sub.name}
+                            </div>
+                          </SelectItem>
                         ))}
-                    </div>
-                  )}
-                  <div className="text-text-muted text-xs">Condition: Must pass all selected</div>
-                </>
-              )}
+                      </SelectContent>
+                    </Select>
+                    {formState.requiredSubjectIds.length > 0 && (
+                      <div className="mt-1 flex flex-wrap items-center gap-1">
+                        {subjects
+                          .filter((s: Levelsubject) => formState.requiredSubjectIds.includes(s.id))
+                          .map((s: Levelsubject) => (
+                            <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
+                              <span>{s.name}</span>
+                              <button onClick={() => toggleSubject(s.id)} className="text-text-muted hover:text-text-default">
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                    <div className="text-text-muted text-xs">Condition: Must pass all selected</div>
+                  </>
+                )}
+              </div>
 
-              {isLoadingGradings ? (
-                <Skeleton className="bg-bg-input-soft h-9 w-57 rounded-md" />
-              ) : (
-                <Select value={formState.minimumPassGrade} onValueChange={val => onChange({ minimumPassGrade: val })}>
-                  <Label className="text-text-default text-sm font-medium">Grade required to pass a subject</Label>
-                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal md:w-57">
-                    <SelectValue placeholder="Select grade">
-                      <span className="text-text-default text-sm">{formState.minimumPassGrade}</span>
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="bg-bg-default border-border-default">
-                    {gradings.map((g: SchoolGrading) => (
-                      <SelectItem key={g.id} value={g.grade} className="text-text-default text-sm">
-                        {g.grade}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+              <div className="mt-4 pl-6">
+                {isLoadingGradings ? (
+                  <Skeleton className="bg-bg-input-soft h-9 w-57 rounded-md" />
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-text-default text-sm font-medium">Grade required to pass a subject</Label>
+                    <Select value={formState.minimumPassGrade} onValueChange={val => onChange({ minimumPassGrade: val })}>
+                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal md:w-57">
+                        <SelectValue placeholder="Select grade">
+                          <span className="text-text-default text-sm">{formState.minimumPassGrade}</span>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="bg-bg-default border-border-default">
+                        {gradings.map((g: SchoolGrading) => (
+                          <SelectItem key={g.id} value={g.grade} className="text-text-default text-sm">
+                            {g.grade}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
 
-              <div className="flex flex-col gap-1">
+              <div className="mt-4 flex flex-col gap-2 pl-6">
                 <div className="text-text-default text-sm font-medium">B. Overall Performance</div>
                 <div className="text-text-subtle text-sm">Set minimum overall percentage</div>
                 <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
                 <div className="bg-bg-input-soft! text-text-muted flex h-7 w-32 items-center justify-between rounded-md">
                   <Input
                     type="number"
-                    className="text-text-muted border-none"
+                    className="text-text-muted border-none text-xs"
                     placeholder="100"
                     value={formState.subjectCombinationMinPercentage}
                     onChange={e => onChange({ subjectCombinationMinPercentage: e.target.value })}
@@ -257,16 +285,17 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
           </div>
         </div>
 
-        <div className="border-border-default mt-5 flex items-center justify-between border-t py-4">
-          <Button className="bg-bg-state-soft! text-text-subtle rounded-md" onClick={onCancel}>
+        <div className="border-border-default mt-5 flex items-center justify-between border-t py-2">
+          <Button className="bg-bg-state-soft! text-text-subtle h-7! rounded-md" onClick={onCancel}>
             Cancel
           </Button>
           <Button
             onClick={onSave}
             disabled={isPending}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default rounded-md"
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7! rounded-md"
           >
-            {isPending ? "Saving..." : "Save Changes"}
+            {isPending && <Spinner className="text-text-white-default" />}
+            Save Changes
           </Button>
         </div>
       </div>
@@ -340,7 +369,7 @@ export const ClassesSetup = () => {
     <div>
       <ClassesResponsiveTabs
         isLoading={isLoadingLevels}
-        items={levels.map(({ levelName, levelType, id }) => ({
+        levels={levels.map(({ levelName, levelType, id }) => ({
           label: levelName.charAt(0) + levelName.slice(1).toLowerCase(),
           content: (
             <LevelForm

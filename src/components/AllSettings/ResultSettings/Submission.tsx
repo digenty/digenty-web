@@ -4,6 +4,7 @@ import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { useAddSubmission } from "@/hooks/queryHooks/useResult";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -77,8 +78,8 @@ export const Submission = () => {
               const state = getTermState(term.termId);
               return (
                 <div key={term.termId} className="bg-bg-card border-border-darker w-full rounded-md border p-4 md:p-6">
-                  <div className="text-text-default text-md mb-4 font-semibold">{term.term} Term</div>
-                  <div className="mb-2 flex items-center justify-between gap-2">
+                  <div className="text-text-default text-md mb-4 font-semibold capitalize">{term.term.toLowerCase()} Term</div>
+                  <div className="mb-2 flex flex-col items-center justify-between gap-2 gap-5 md:flex-row">
                     <DateRangePicker
                       label="Open Date"
                       value={state.openDate}
@@ -109,15 +110,16 @@ export const Submission = () => {
             })}
 
             <div className="flex w-full items-center justify-between">
-              <Button className="bg-bg-state-soft! text-text-subtle rounded-md" onClick={() => setTermStates({})}>
+              <Button className="bg-bg-state-soft! text-text-subtle h-7! rounded-md" onClick={() => setTermStates({})}>
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={isPending}
-                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default"
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
               >
-                {isPending ? "Saving..." : "Save Changes"}
+                {isPending && <Spinner className="text-text-white-default" />}
+                Save Changes
               </Button>
             </div>
           </>

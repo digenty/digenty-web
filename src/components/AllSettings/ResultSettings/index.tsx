@@ -4,13 +4,18 @@ import { useState } from "react";
 import { PrincipaleComment } from "./PrincipaleComment";
 import { ClassesSetup } from "./ResultCalculations";
 import { Submission } from "./Submission";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 const tabs = ["Result Calculation", "Submission Deadline", "Principal’s Comment"];
 
 export const SettingsResult = () => {
   const [activeTab, setActiveTab] = useState("Result Calculation");
+  useBreadcrumb([
+    { label: "Settings", url: "/settings" },
+    { label: "Result Settings", url: "/settings/result" },
+  ]);
   return (
-    <div className="md:p-8">
+    <div className="px-4 md:p-8">
       <div className="border-border-default flex w-auto max-w-120 items-center gap-3 border-b">
         {tabs.map(tab => {
           const isActive = activeTab === tab;
