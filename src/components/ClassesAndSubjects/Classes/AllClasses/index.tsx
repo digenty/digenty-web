@@ -19,7 +19,7 @@ export const AllClassesMain = () => {
 
   const schoolId = user?.schoolId;
   // const branchId = pathname.split("/")[3];
-  const branchId = 30;
+  const branchId = 37;
 
   const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [activeSession, setActiveSession] = useState<string | null>(null);
@@ -28,7 +28,7 @@ export const AllClassesMain = () => {
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  const { data, isPending: isFetchingBranch, isError } = useGetBranchDetails(branchId, termSelected?.termId, debouncedSearchQuery); // Add leveId to this query levelSelected?.ids[0]
+  const { data, isPending: isFetchingBranch, isError } = useGetBranchDetails(branchId, termSelected?.termId, debouncedSearchQuery, levelSelected?.id); // Add leveId to this query levelSelected?.ids[0]
   const branchDetail = data?.data?.data;
 
   const tableData: AllClassesMainTableProps[] =

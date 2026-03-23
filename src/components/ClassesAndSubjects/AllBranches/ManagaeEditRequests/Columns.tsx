@@ -1,37 +1,28 @@
 import { ColumnDef, Row } from "@tanstack/react-table";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { EditRequestResponseTypes } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import { Button } from "@/components/ui/button";
 import GraduationCap from "@/components/Icons/GraduationCap";
-import { BranchEditRequestTypes } from "./types";
-import { formatRelativeDate } from "@/lib/utils";
 import { Message3 } from "@/components/Icons/Message3";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { formatRelativeDate } from "@/lib/utils";
 
 const RenderOptions = ({
   row,
-  decision,
-  onDecision,
+  openModal,
 }: {
-  row: Row<BranchEditRequestTypes>;
-  decision: "accepted" | "rejected" | null;
-  onDecision: (id: number, value: "accepted" | "rejected") => void;
+  row: Row<EditRequestResponseTypes>;
+  openModal: (request: EditRequestResponseTypes, action: "accepted" | "rejected") => void;
 }) => {
   return (
     <div className="flex gap-2">
       <Button
         onClick={e => {
           e.stopPropagation();
-          onDecision(row.original.editRequestId, "rejected");
+          openModal(row.original, "rejected");
         }}
-        disabled={decision === "accepted"}
-        className={`bg-bg-state-secondary flex h-7 w-20 items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors ${
-          decision === "accepted"
-            ? "border-border-disabled bg-bg-disabled text-text-disabled cursor-not-allowed! opacity-50"
-            : decision === "rejected"
-              ? "border-border-default bg-bg-state-secondary text-text-default hover:bg-bg-state-secondary-hover!"
-              : "border-border-default bg-bg-state-secondary text-text-default hover:bg-bg-state-secondary!"
-        }`}
+        className="bg-bg-state-secondary border-border-default flex h-7 w-20 items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors"
       >
         <span className="text-text-destructive text-xs font-semibold">✕</span>
         <span>Reject</span>
@@ -40,16 +31,9 @@ const RenderOptions = ({
       <Button
         onClick={e => {
           e.stopPropagation();
-          onDecision(row.original.editRequestId, "accepted");
+          openModal(row.original, "accepted");
         }}
-        disabled={decision === "rejected"}
-        className={`bg-bg-state-secondary flex h-7 w-fit items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors ${
-          decision === "rejected"
-            ? "border-border-disabled bg-bg-disabled text-text-disabled cursor-not-allowed opacity-50"
-            : decision === "accepted"
-              ? "border-border-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-default"
-              : "border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover!"
-        }`}
+        className="bg-bg-state-secondary border-border-default flex h-7 w-fit items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors"
       >
         <span className="text-text-success text-xs font-semibold">✓</span>
         <span>Approve</span>
@@ -59,9 +43,9 @@ const RenderOptions = ({
 };
 
 export const createManageEditTableColumns = (
-  decisions: Record<number, "accepted" | "rejected" | null>,
-  onDecision: (id: number, value: "accepted" | "rejected") => void,
-): ColumnDef<BranchEditRequestTypes>[] => [
+  requestStatus: Record<number, "accepted" | "rejected" | null>,
+  openModal: (request: EditRequestResponseTypes, action: "accepted" | "rejected") => void,
+): ColumnDef<EditRequestResponseTypes>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -132,7 +116,7 @@ export const createManageEditTableColumns = (
   {
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
-    cell: ({ row }) => <RenderOptions row={row} decision={decisions[row.original.editRequestId] || null} onDecision={onDecision} />,
+    cell: ({ row }) => <RenderOptions row={row} openModal={openModal} />,
     size: 200,
   },
 ];

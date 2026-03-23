@@ -1,11 +1,10 @@
-import { CellContext, ColumnDef } from "@tanstack/react-table";
-
+import { Assessment, Grading } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import { cn } from "@/lib/utils";
+import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import { ScoreType } from "./types";
-import { Assessment, Grading } from "@/api/types";
 
 type UpdateDataFn<T> = (rowIndex: number, columnId: string, value: unknown) => void;
 
@@ -56,8 +55,9 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
       <Input
         ref={inputRef}
         value={value}
+        type="number"
         onChange={e => setValue(e.target.value)}
-        className="text-text-muted bg-bg-input-soft! h-7! w-full max-w-11 rounded-md border border-none px-2 py-1 text-sm outline-none"
+        className="text-text-muted bg-bg-input-soft! h-7! w-full max-w-11 [appearance:textfield] rounded-md border border-none px-2 py-1 text-sm outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         onBlur={save}
         onKeyDown={e => {
           if (e.key === "Enter") save();
@@ -103,7 +103,11 @@ export const scoreColumns = (isEditable: boolean, columns: Assessment[], grading
   ...columns.map(column => ({
     id: String(column.assessmentName),
     accessorFn: (row: ScoreType) => row.assessmentScores[column.assessmentName]?.score,
-    header: () => <div className="text-text-muted text-center text-sm font-medium">{column.assessmentName}</div>,
+    header: () => (
+      <div className="text-text-muted text-center text-sm font-medium">
+        {column.assessmentName} <span className="text-text-muted text-center text-xs font-light">({column.weight})</span>
+      </div>
+    ),
     cell: (cell: CellContext<ScoreType, unknown>) => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
     size: 108,
     maxSize: 108,

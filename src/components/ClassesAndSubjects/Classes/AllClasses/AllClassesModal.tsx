@@ -23,6 +23,8 @@ type ApproveModalProps = {
 type EditRequestProps = {
   openEditRequestModal: boolean;
   setEditRequestModal: (openEditRequestModal: boolean) => void;
+  subjectId: number;
+  armId: number;
 };
 
 export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal }: NotifyModalProps) => {
@@ -156,7 +158,8 @@ export const ApproveModal = ({ openApproveModal, setOpenApproveModal }: ApproveM
   );
 };
 
-export const EditModal = ({ openEditRequestModal, setEditRequestModal }: EditRequestProps) => {
+export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId, armId }: EditRequestProps) => {
+  // const
   return (
     <>
       <div className="block md:hidden">

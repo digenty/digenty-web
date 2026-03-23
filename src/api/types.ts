@@ -463,3 +463,17 @@ export interface ClassInLevel {
   branchId: number;
   schoolId: number;
 }
+
+export interface EditRequestResponseTypes {
+  editRequestId: number;
+  teacherName: string;
+  classArmName: string;
+  subjectName: string;
+  reason: string;
+  additionalDetails: string;
+  sessionName: string;
+  termName: string;
+  dateCreated: string;
+  isApproved: boolean;
+  teacherEmail: string;
+}

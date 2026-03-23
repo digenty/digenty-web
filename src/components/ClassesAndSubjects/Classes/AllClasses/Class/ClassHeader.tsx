@@ -13,7 +13,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { EditModal, NotifyTeacherModal } from "../AllClassesModal";
 
-export const ClassHeader = ({ isLoading, classData, armId, classId }: { isLoading: boolean; classData: []; armId: string; classId: string }) => {
+export const ClassHeader = ({
+  isLoading,
+  classData,
+  armId,
+  classId,
+  classTeacherName,
+}: {
+  isLoading: boolean;
+  classData: [];
+  armId: string;
+  classId: string;
+  classTeacherName: string;
+}) => {
   const router = useRouter();
   const params = useSearchParams();
   const classArmName = params.get("classArmName") || "";
@@ -37,7 +49,7 @@ export const ClassHeader = ({ isLoading, classData, armId, classId }: { isLoadin
               {classArmName.replaceAll("-", " ")}
             </h2>
             <div className="border-border-default flex items-center gap-1 border-b px-4 py-2 md:border-none md:p-0">
-              <Avatar className="size-5" /> <span className="text-text-subtle text-sm font-normal">Damilare John</span>
+              <Avatar className="size-5" /> <span className="text-text-subtle text-sm font-normal">{classTeacherName}</span>
             </div>
           </div>
           <div className="space-between flex items-center gap-2 px-4 py-2 pr-4 md:gap-1 md:border-none md:p-0 md:pr-8">
