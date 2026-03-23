@@ -1,4 +1,4 @@
-import { approveEditRequest, approveEditRequestBulk, getEditRequests, getRequestEdit } from "@/api/request";
+import { approveEditRequest, approveEditRequestBulk, getEditRequestBySubjectAndArm, getEditRequests, getRequestEdit } from "@/api/request";
 import { requestKeys } from "@/queries/request";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -7,6 +7,14 @@ export const useGetEditRequests = (branchId: number, search?: string) => {
     queryKey: [requestKeys.requestsByBranch, branchId, search],
     queryFn: () => getEditRequests(branchId, search),
     enabled: !!branchId,
+  });
+};
+
+export const useGetEditRequestBySubjectAndArm = (subjectId: number, armId: number) => {
+  return useQuery({
+    queryKey: [requestKeys.editRequestBySubjectAndArm, subjectId, armId],
+    queryFn: () => getEditRequestBySubjectAndArm(subjectId, armId),
+    enabled: !!subjectId && !!armId,
   });
 };
 
@@ -25,6 +33,7 @@ export const useApproveEditRequest = () => {
     mutationFn: ({ editAccessId, isApproved }: { editAccessId: number; isApproved: boolean }) => approveEditRequest(editAccessId, isApproved),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [requestKeys.requestsByBranch] });
+      queryClient.invalidateQueries({ queryKey: [requestKeys.editRequestBySubjectAndArm] });
     },
   });
 };

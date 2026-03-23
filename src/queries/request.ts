@@ -4,4 +4,5 @@ export const requestKeys = {
   approveEditRequestBulk: ["approve-edit-request-bulk"] as const,
   approveEditRequest: ["approve-edit-request"] as const,
   editRequest: (branchId: number) => ["editRequest", branchId] as const,
+  editRequestBySubjectAndArm: ["editRequestBySubjectAndArm"] as const,
 };

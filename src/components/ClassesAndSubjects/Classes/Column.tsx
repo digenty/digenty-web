@@ -70,6 +70,7 @@ const RenderActions = (row: Row<ClassProps>, armId: number, classId: number, cla
   const router = useRouter();
   const [openNotifyMobile, setOpenNotifyMobile] = useState(false);
   const [openEditMobile, setOpenEditMobile] = useState(false);
+
   return (
     <>
       {openNotifyMobile && <NotifyTeacherModal openNotifyModal={openNotifyMobile} setOpenNotifyModal={setOpenNotifyMobile} />}
@@ -78,13 +79,15 @@ const RenderActions = (row: Row<ClassProps>, armId: number, classId: number, cla
       )}
 
       <div className="flex items-center gap-1">
-        <Button
-          onClick={() => setOpenEditMobile(true)}
-          className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
-        >
-          <Key fill="var(--color-icon-default-muted)" className="size-4" />
-          Manage Edit Request
-        </Button>
+        {row.original.status === "REQUESTED_EDIT_ACCESS" && (
+          <Button
+            onClick={() => setOpenEditMobile(true)}
+            className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
+          >
+            <Key fill="var(--color-icon-default-muted)" className="size-4" />
+            Manage Edit Request
+          </Button>
+        )}
         <Button
           onClick={() => setOpenNotifyMobile(true)}
           className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"

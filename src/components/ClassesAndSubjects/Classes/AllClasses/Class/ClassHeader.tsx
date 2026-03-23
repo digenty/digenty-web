@@ -40,7 +40,7 @@ export const ClassHeader = ({
 
   return (
     <>
-      {openEdit && <EditModal openEditRequestModal={openEdit} setEditRequestModal={setOpenEdit} />}
+      {/* {openEdit && <EditModal openEditRequestModal={openEdit} setEditRequestModal={setOpenEdit} />} */}
       {openNotify && <NotifyTeacherModal openNotifyModal={openNotify} setOpenNotifyModal={setOpenNotify} />}
       <div className="border-border-default border-b">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:gap-4 md:py-3">
@@ -53,7 +53,7 @@ export const ClassHeader = ({
             </div>
           </div>
           <div className="space-between flex items-center gap-2 px-4 py-2 pr-4 md:gap-1 md:border-none md:p-0 md:pr-8">
-            {isLoading || classData.length == 0 ? (
+            {/* {isLoading || classData.length == 0 ? (
               <Skeleton className="bg-bg-input-soft h-8 w-40" />
             ) : (
               <Button
@@ -63,7 +63,7 @@ export const ClassHeader = ({
                 <Key fill="var(--color-icon-default-muted)" />
                 Manage Edit Request
               </Button>
-            )}
+            )} */}
             {isLoading || classData.length == 0 ? (
               <Skeleton className="bg-bg-input-soft h-8 w-40" />
             ) : (
@@ -86,7 +86,7 @@ export const ClassHeader = ({
               </Button>
             )}
 
-            <DropdownMenu open={open} onOpenChange={setOpen}>
+            {/* <DropdownMenu open={open} onOpenChange={setOpen}>
               <DropdownMenuTrigger
                 onClick={() => setOpen(true)}
                 className="bg-bg-state-secondary border-border-default text-text-default flex h-8 w-8 cursor-pointer content-center items-center justify-center rounded-md border focus-visible:ring-0 focus-visible:outline-none md:hidden"
@@ -104,7 +104,7 @@ export const ClassHeader = ({
                   </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
           </div>
         </div>
       </div>

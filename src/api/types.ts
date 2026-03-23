@@ -473,7 +473,7 @@ export interface EditRequestResponseTypes {
   additionalDetails: string;
   sessionName: string;
   termName: string;
-  dateCreated: string;
+  dateCreated?: string;
   isApproved: boolean;
   teacherEmail: string;
 }

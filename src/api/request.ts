@@ -14,6 +14,18 @@ export const getEditRequests = async (branchId: number, search?: string): Promis
   }
 };
 
+export const getEditRequestBySubjectAndArm = async (subjectId: number, armId: number): Promise<{ data: EditRequestResponseTypes }> => {
+  try {
+    const { data } = await api.get(`/edit-access/subject/${subjectId}/arm/${armId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getRequestEdit = async (branchId: number) => {
   try {
     const { data } = await api.get(`/edit-access/branch/${branchId}`);
