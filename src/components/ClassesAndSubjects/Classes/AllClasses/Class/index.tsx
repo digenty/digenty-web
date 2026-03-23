@@ -12,9 +12,11 @@ export default function Class() {
   const classId = pathname.split("/")[3];
   const { data, isLoading, isError } = useGetBranchTeachersClassSubjects(Number(armId));
   const classData = data?.data?.data?.subjectReportResponseDtoList ?? [];
+  const classTeacherName = data?.data?.data?.classTeacherName || "--";
+  console.log(data);
   return (
     <div className="flex flex-col gap-4">
-      <ClassHeader classData={classData} isLoading={isLoading} armId={armId} classId={classId} />
+      <ClassHeader classData={classData} isLoading={isLoading} armId={armId} classId={classId} classTeacherName={classTeacherName} />
 
       {isLoading && !data && (
         <div className="px-4 py-4 md:px-8">

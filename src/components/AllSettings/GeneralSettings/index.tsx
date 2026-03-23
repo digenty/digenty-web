@@ -31,7 +31,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Timezones } from "@/store/timeZone";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Country } from "@/components/StudentAndParent/types";
-import { Branch } from "@/api/types";
+import { Branch, BranchWithClassLevels } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 
 type EditProps = "editName" | "editSchoolName" | "motto" | "editPhoneNum" | "editBranch" | "newBranch" | null;
@@ -63,7 +63,7 @@ export const General = () => {
   const { data: countries = [] } = useGetCountries();
 
   const school = schoolResponse?.data;
-  const branches = branchesResponse?.data?.content ?? [];
+  const branches = branchesResponse?.data ?? [];
   const { mutate, isPending: isSavingSchool } = usePutSchool();
   const addBranch = useAddBranch();
   const updateBranch = useUpdateBranch();
@@ -79,7 +79,7 @@ export const General = () => {
     setCurrency(school.currency ?? "");
     setTimezone(school.timezone ?? "Select");
     setLogoUrl(school.logo ?? "");
-    setBranchList(branches ?? []);
+    setBranchList(branches.map((branch: BranchWithClassLevels) => ({ ...branch.branch })) ?? []);
   }, [school, branchesResponse]);
 
   useBreadcrumb([
@@ -639,7 +639,7 @@ export const General = () => {
           )}
 
           <Button
-            className="bg-bg-state-soft text-text-default mt-4 self-start"
+            className="bg-bg-state-soft text-text-default mt-4 h-8! self-start"
             onClick={() => {
               setActiveBranchId(null);
               setBranchName("");

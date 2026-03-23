@@ -70,19 +70,24 @@ const RenderActions = (row: Row<ClassProps>, armId: number, classId: number, cla
   const router = useRouter();
   const [openNotifyMobile, setOpenNotifyMobile] = useState(false);
   const [openEditMobile, setOpenEditMobile] = useState(false);
+
   return (
     <>
       {openNotifyMobile && <NotifyTeacherModal openNotifyModal={openNotifyMobile} setOpenNotifyModal={setOpenNotifyMobile} />}
-      {openEditMobile && <EditModal openEditRequestModal={openEditMobile} setEditRequestModal={setOpenEditMobile} />}
+      {openEditMobile && (
+        <EditModal openEditRequestModal={openEditMobile} setEditRequestModal={setOpenEditMobile} subjectId={row.original.subjectId} armId={armId} />
+      )}
 
       <div className="flex items-center gap-1">
-        <Button
-          onClick={() => setOpenEditMobile(true)}
-          className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
-        >
-          <Key fill="var(--color-icon-default-muted)" className="size-4" />
-          Manage Edit Request
-        </Button>
+        {row.original.status === "REQUESTED_EDIT_ACCESS" && (
+          <Button
+            onClick={() => setOpenEditMobile(true)}
+            className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
+          >
+            <Key fill="var(--color-icon-default-muted)" className="size-4" />
+            Manage Edit Request
+          </Button>
+        )}
         <Button
           onClick={() => setOpenNotifyMobile(true)}
           className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"
@@ -104,6 +109,7 @@ const RenderActions = (row: Row<ClassProps>, armId: number, classId: number, cla
     </>
   );
 };
+
 //  Table for AllClass
 export const AllClassessTableMainColumns = (branchId: number): ColumnDef<AllClassesMainTableProps>[] => [
   {
@@ -170,7 +176,7 @@ export const AllClassessTableMainColumns = (branchId: number): ColumnDef<AllClas
 //  Table for Class
 export const ClassTableColumns = (armId: number, classId: number, classArmName: string): ColumnDef<ClassProps>[] => [
   {
-    accessorKey: "subject",
+    accessorKey: "subjectName",
     header: () => <div className="text-text-muted text-sm font-medium">Subject</div>,
     cell: ({ row }) => (
       <span className="text-text-default cursor-pointer text-sm capitalize">
@@ -180,12 +186,12 @@ export const ClassTableColumns = (armId: number, classId: number, classArmName: 
     size: 252,
   },
   {
-    accessorKey: "teacherName",
+    accessorKey: "subjectTeacherName",
     header: () => <div className="text-text-muted text-sm font-medium">Teacher</div>,
     cell: ({ row }) => (
       <div className="items center flex gap-2">
         <Avatar className="size-5" />
-        <span className="text-text-default cursor-pointer text-sm">{row.original.subjectTeacherName}</span>{" "}
+        <span className="text-text-default cursor-pointer text-sm">{row.original.subjectTeacherName || "--"}</span>{" "}
       </div>
     ),
     size: 252,
@@ -207,7 +213,7 @@ export const ClassTableColumns = (armId: number, classId: number, classArmName: 
             statusStyles[row.original.status || "NOT_SUBMITTED"]
           }`}
         >
-          {row.original.status ? row.original.status.toLowerCase() : "not submitted"}
+          {row.original.status ? row.original.status.replaceAll("_", " ").toLowerCase() : "not submitted"}
         </Badge>
       );
     },

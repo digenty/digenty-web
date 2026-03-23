@@ -1,14 +1,4 @@
-import {
-  addBranch,
-  approveEditRequest,
-  approveEditRequestBulk,
-  deleteBranch,
-  getAllBranchesDetails,
-  getBranchDetails,
-  getBranchesForASchool,
-  getRequestEdit,
-  updateBranch,
-} from "@/api/branch";
+import { addBranch, deleteBranch, getAllBranchesDetails, getBranchDetails, getBranchesForASchool, updateBranch } from "@/api/branch";
 import { branchKeys } from "@/queries/branch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -34,33 +24,10 @@ export const useGetAllBranchesDetails = (termId?: number, search?: string) => {
   });
 };
 
-export const useGetEditRequest = (branchId: number) => {
+export const useGetBranchDetails = (branchId: number, termId?: number, search?: string, levelId?: number) => {
   return useQuery({
-    queryKey: branchKeys.editRequest(branchId),
-    queryFn: () => getRequestEdit(branchId),
-    retry: false,
-  });
-};
-
-export const useApproveEditRequest = () => {
-  return useMutation({
-    mutationFn: ({ editAccessId, isApproved }: { editAccessId: number; isApproved: boolean }) => approveEditRequest(editAccessId, isApproved),
-    mutationKey: ["approve-edit-request"],
-  });
-};
-
-export const useApproveEditRequestBulk = () => {
-  return useMutation({
-    mutationFn: ({ editAccessIds, isApproved }: { editAccessIds: number[]; isApproved: boolean }) =>
-      approveEditRequestBulk(editAccessIds, isApproved),
-    mutationKey: ["approve-edit-request-bulk"],
-  });
-};
-
-export const useGetBranchDetails = (branchId: number, termId?: number, search?: string) => {
-  return useQuery({
-    queryKey: branchKeys.branchDetail(branchId, termId, search),
-    queryFn: () => getBranchDetails(branchId, termId, search),
+    queryKey: branchKeys.branchDetail(branchId, termId, search, levelId),
+    queryFn: () => getBranchDetails(branchId, termId, search, levelId),
   });
 };
 

@@ -1,27 +1,27 @@
+import { EditRequestResponseTypes } from "@/api/types";
+import { Avatar } from "@/components/Avatar";
+import Calendar from "@/components/Icons/Calendar";
+import GraduationCap from "@/components/Icons/GraduationCap";
+import { StickyNote } from "@/components/Icons/StickyNote";
+import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";
-import { Avatar } from "@/components/Avatar";
-import GraduationCap from "@/components/Icons/GraduationCap";
-import { BranchEditRequestTypes } from "./types";
-import Calendar from "@/components/Icons/Calendar";
-import { StickyNote } from "@/components/Icons/StickyNote";
-import { formatDate, formatRelativeDate } from "@/lib/utils";
-import { MobileDrawer } from "@/components/MobileDrawer";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import { DrawerFooter } from "@/components/ui/drawer";
-import { Clock3 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { formatRelativeDate } from "@/lib/utils";
+import { Clock3 } from "lucide-react";
 
 interface ManageEditModalProps {
   open: boolean;
   closeModal: () => void;
-  selectedStaff: BranchEditRequestTypes | null;
+  selectedRequest: EditRequestResponseTypes | null;
   pendingAction: "accepted" | "rejected" | null;
   handleConfirm: (action: "accepted" | "rejected") => void;
   isSubmitting?: boolean;
 }
 
-export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction, handleConfirm, isSubmitting }: ManageEditModalProps) => {
+export const ManageEditModal = ({ open, closeModal, selectedRequest, pendingAction, handleConfirm, isSubmitting }: ManageEditModalProps) => {
   const isMobile = useIsMobile();
 
   return (
@@ -40,7 +40,8 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                     disabled={isSubmitting}
                     className="bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {isSubmitting ? <Spinner /> : "Reject Access"}
+                    {isSubmitting && <Spinner />}
+                    Reject Access
                   </Button>
                 ) : (
                   <Button
@@ -48,23 +49,24 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                     disabled={isSubmitting}
                     className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {isSubmitting ? <Spinner /> : "Approve Access"}
+                    {isSubmitting && <Spinner />}
+                    Approve Access
                   </Button>
                 )}
               </div>
             }
           >
             <div className="flex flex-col gap-5 px-6 py-4">
-              {selectedStaff && (
+              {selectedRequest?.teacherName && (
                 <div className="flex flex-col gap-4">
                   <div className="text-text-subtle text-sm">Review the teacher&apos;s request for edit access</div>
                   <div className="border-border-default flex flex-col rounded-md border py-3">
                     <div className="border-border-default flex flex-col gap-2 border-b px-3 pb-3">
                       <div className="flex items-center gap-2">
-                        <Avatar className="size-5" url="" /> <p className="text-text-default text-sm font-medium">{selectedStaff.teacherName}</p>
+                        <Avatar className="size-5" url="" /> <p className="text-text-default text-sm font-medium">{selectedRequest.teacherName}</p>
                       </div>
 
-                      <div className="text-text-muted text-xs">damilarejohn@gmail.com</div>
+                      <div className="text-text-muted text-xs">{selectedRequest.teacherEmail || "--"}</div>
                     </div>
 
                     <div className="border-border-default flex flex-col gap-3 border-b p-3">
@@ -72,32 +74,36 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                         <GraduationCap fill="var(--color-icon-default-muted)" className="5" />
                         <span className="text-text-muted text-sm">Class/Subject:</span>
                         <span className="text-text-default text-sm font-medium">
-                          {selectedStaff.classArmName} {selectedStaff.subjectName}
+                          {selectedRequest.classArmName} {selectedRequest.subjectName}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <Calendar fill="var(--color-icon-default-muted)" className="size-4" />
                         <span className="text-text-muted text-sm">Term:</span>
-                        <span className="text-text-default text-sm font-medium">First Term 24/25</span>
+                        <span className="text-text-default text-sm font-medium">{selectedRequest.termName}</span>
                       </div>
                     </div>
 
                     <div className="flex flex-col gap-3 px-3 pt-3">
                       <div className="flex items-center gap-2">
                         <span className="text-text-muted text-sm">Reason:</span>
-                        <span className="text-text-default text-sm">{selectedStaff.reason}</span>
+                        <span className="text-text-default text-sm">{selectedRequest.reason}</span>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <StickyNote fill="var(--color-icon-default-muted)" /> <span className="text-text-muted text-sm">Note</span>
                       </div>
 
-                      <div className="bg-bg-muted text-text-default rounded-sm p-3 text-sm font-medium">{selectedStaff.reason}</div>
+                      <div className="bg-bg-muted text-text-default rounded-sm p-3 text-sm font-medium">{selectedRequest.reason}</div>
 
                       <div className="flex items-center gap-3">
                         <Clock3 className="text-text-default size-4 font-light" />
-                        <p className="text-text-muted text-sm">Requested {formatRelativeDate(new Date(selectedStaff.dateCreated))}</p>
+                        {selectedRequest.dateCreated ? (
+                          <p className="text-text-muted text-sm">Requested {formatRelativeDate(new Date(selectedRequest.dateCreated))}</p>
+                        ) : (
+                          "--"
+                        )}
                       </div>
                     </div>
                   </div>
@@ -110,16 +116,16 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
         <div className="md:hidden">
           <MobileDrawer open={open} setIsOpen={closeModal} title="Manage edit access request">
             <div className="flex flex-col gap-5 p-4">
-              {selectedStaff && (
+              {selectedRequest && (
                 <div className="flex flex-col gap-4">
                   <div className="text-text-subtle text-sm">Review the teacher&apos;s request for edit access</div>
                   <div className="border-border-default flex flex-col rounded-md border py-3">
                     <div className="border-border-default flex flex-col gap-2 border-b px-3 pb-3">
                       <div className="flex items-center gap-2">
-                        <Avatar className="size-5" url="" /> <p className="text-text-default text-sm font-medium">{selectedStaff.teacherName}</p>
+                        <Avatar className="size-5" url="" /> <p className="text-text-default text-sm font-medium">{selectedRequest?.teacherName}</p>
                       </div>
 
-                      <div className="text-text-muted text-xs">damilarejohn@gmail.com</div>
+                      <div className="text-text-muted text-xs">{selectedRequest?.teacherEmail || "--"}</div>
                     </div>
 
                     <div className="border-border-default flex flex-col gap-3 border-b p-3">
@@ -127,7 +133,7 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                         <GraduationCap fill="var(--color-icon-default-muted)" className="5" />
                         <span className="text-text-muted text-sm">Class/Subject:</span>
                         <span className="text-text-default text-sm font-medium">
-                          {selectedStaff.classArmName} {selectedStaff.subjectName}
+                          {selectedRequest?.classArmName} {selectedRequest?.subjectName}
                         </span>
                       </div>
 
@@ -141,17 +147,21 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                     <div className="flex flex-col gap-3 px-3 pt-3">
                       <div className="flex items-center gap-2">
                         <span className="text-text-muted text-sm">Reason:</span>
-                        <span className="text-text-default text-sm">{selectedStaff.reason}</span>
+                        <span className="text-text-default text-sm">{selectedRequest?.reason}</span>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <StickyNote fill="var(--color-icon-default-muted)" /> <span className="text-text-muted text-sm">Note</span>
                       </div>
 
-                      <div className="bg-bg-muted text-text-default rounded-sm p-3 text-sm font-medium">{selectedStaff.reason}</div>
+                      <div className="bg-bg-muted text-text-default rounded-sm p-3 text-sm font-medium">{selectedRequest?.reason}</div>
                       <div className="flex items-center gap-3">
                         <Clock3 className="text-text-default size-4 font-light" />
-                        <p className="text-text-muted text-sm">Requested {formatRelativeDate(new Date(selectedStaff.dateCreated))}</p>
+                        {selectedRequest?.dateCreated ? (
+                          <p className="text-text-muted text-sm">Requested {formatRelativeDate(new Date(selectedRequest?.dateCreated))}</p>
+                        ) : (
+                          "--"
+                        )}
                       </div>
                     </div>
                   </div>
@@ -166,7 +176,8 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                   disabled={isSubmitting}
                   className="bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isSubmitting ? <Spinner /> : "Reject Access"}
+                  {isSubmitting && <Spinner />}
+                  Reject Access
                 </Button>
 
                 <Button
@@ -174,7 +185,8 @@ export const ManageEditModal = ({ open, closeModal, selectedStaff, pendingAction
                   disabled={isSubmitting}
                   className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isSubmitting ? <Spinner /> : "Approve Access"}
+                  {isSubmitting && <Spinner />}
+                  Approve Access
                 </Button>
               </div>
             </DrawerFooter>
