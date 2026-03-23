@@ -141,7 +141,7 @@ export const Nursery = () => {
       <div className="flex flex-col gap-6">
         <div className="flex justify-between">
           <div className="text-text-default text-xl font-semibold">Result Calculation</div>
-          <Button className="text-text-default border-border-darker rounded-md border">
+          <Button className="text-text-default border-border-darker h-8! rounded-md border">
             <Edit fill="var(--color-icon-default-muted)" /> Edit
           </Button>
         </div>
@@ -276,7 +276,7 @@ export const Secondary = () => {
       <div className="flex flex-col gap-6">
         <div className="flex justify-between">
           <div className="text-text-default text-xl font-semibold">Result Calculation</div>
-          <Button className="text-text-default border-border-darker rounded-md border">
+          <Button className="text-text-default border-border-darker h-8! rounded-md border">
             <Edit fill="var(--color-icon-default-muted)" /> Edit
           </Button>
         </div>

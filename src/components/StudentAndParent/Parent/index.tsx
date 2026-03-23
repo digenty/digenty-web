@@ -353,7 +353,12 @@ export const ParentsTable = () => {
 
       {parents.length === 0 && !loadingParents && !isError && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Parents" description="No parent has been added yet" buttonText="Add a parent" />
+          <ErrorComponent
+            title="No Parents"
+            description="No parent has been added yet"
+            buttonText="Add a parent"
+            url="/student-and-parent-record/add-parent"
+          />
         </div>
       )}
 

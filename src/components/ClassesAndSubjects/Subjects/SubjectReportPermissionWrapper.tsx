@@ -19,6 +19,8 @@ export const SubjectReportPermissionWrapper = ({
   const adminViewAccess = userExists && user.isMain && type === "view";
   const hasSubjectAccess = userExists && user.subjectIds?.includes(Number(subjectId));
 
+  console.log(user, type);
+
   return (
     <>
       {!userExists && (
@@ -28,7 +30,7 @@ export const SubjectReportPermissionWrapper = ({
       )}
 
       {/* {userExists && !hasSubjectAccess && adminEditAccess && !isLoading && ( */}
-      {userExists && (!hasSubjectAccess || adminEditAccess) && !isLoading && (
+      {userExists && !hasSubjectAccess && adminEditAccess && !isLoading && (
         <div className="flex h-80 items-center justify-center pt-15">
           <PageEmptyState title="Unauthorized" description="You are not authorized to view this page" buttonText="Go to Home page" url="/" />
         </div>

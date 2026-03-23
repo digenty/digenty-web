@@ -1,13 +1,13 @@
 "use client";
 
+import { EditRequestResponseTypes } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useApproveEditRequest, useApproveEditRequestBulk } from "@/hooks/queryHooks/useBranch";
-import { useGetEditRequests } from "@/hooks/queryHooks/useRequests";
+import { Spinner } from "@/components/ui/spinner";
+import { useApproveEditRequest, useApproveEditRequestBulk, useGetEditRequests } from "@/hooks/queryHooks/useRequests";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -15,7 +15,6 @@ import { toast } from "sonner";
 import { createManageEditTableColumns } from "./Columns";
 import { ManageEditMobileCard } from "./ManageEditMobileCard";
 import { ManageEditModal } from "./ManageEditModal";
-import { BranchEditRequestTypes } from "./types";
 
 export const ManageEditRequest = () => {
   const params = useParams();
@@ -27,6 +26,10 @@ export const ManageEditRequest = () => {
       url: "/classes-and-subjects",
     },
     {
+      label: "All Classes",
+      url: `/classes-and-subjects/all-classes`,
+    },
+    {
       label: "Manage Edit Requests",
       url: "",
     },
@@ -34,40 +37,35 @@ export const ManageEditRequest = () => {
 
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState<Record<number, boolean>>({});
-  const [selectedRows, setSelectedRows] = useState<BranchEditRequestTypes[]>([]);
+  const [selectedRows, setSelectedRows] = useState<EditRequestResponseTypes[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [decisions, setDecisions] = useState<Record<number, "accepted" | "rejected" | null>>({});
+  const [requestStatus, setRequestStatus] = useState<Record<number, "accepted" | "rejected" | null>>({});
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState<BranchEditRequestTypes | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<EditRequestResponseTypes | null>(null);
   const [pendingAction, setPendingAction] = useState<"accepted" | "rejected" | null>(null);
   const [bulkAction, setBulkAction] = useState<"approve" | "reject" | null>(null);
 
   const { data: requestList, isPending, isError } = useGetEditRequests(branchId, searchQuery);
   const { mutate: approveSingle, isPending: isApprovingSingle } = useApproveEditRequest();
-  const { mutate: approveBulk } = useApproveEditRequestBulk();
+  const { mutate: approveBulk, isPending: isApprovingBulk } = useApproveEditRequestBulk();
 
   const data = requestList?.data || [];
 
-  const openModal = (editRequestId: number, action: "accepted" | "rejected") => {
-    const staff = data.find((s: BranchEditRequestTypes) => s.editRequestId === editRequestId);
-    setSelectedStaff(staff || null);
+  const openModal = (request: EditRequestResponseTypes, action: "accepted" | "rejected") => {
+    setSelectedRequest(request);
     setPendingAction(action);
     setModalOpen(true);
   };
 
   const handleConfirm = (action: "accepted" | "rejected") => {
-    if (!selectedStaff) return;
+    if (!selectedRequest) return;
 
     const isApproved = action === "accepted";
 
     approveSingle(
-      { editAccessId: selectedStaff.editRequestId, isApproved },
+      { editAccessId: selectedRequest.editRequestId, isApproved },
       {
         onSuccess: () => {
-          setDecisions(prev => ({
-            ...prev,
-            [selectedStaff.editRequestId]: action,
-          }));
           toast.success(`Request ${isApproved ? "approved" : "rejected"} successfully`);
           closeModal();
         },
@@ -81,7 +79,7 @@ export const ManageEditRequest = () => {
 
   const closeModal = () => {
     setModalOpen(false);
-    setSelectedStaff(null);
+    setSelectedRequest(null);
     setPendingAction(null);
   };
 
@@ -97,11 +95,6 @@ export const ManageEditRequest = () => {
       {
         onSuccess: () => {
           setBulkAction(null);
-          const newDecisions = { ...decisions };
-          selectedRows.forEach(row => {
-            newDecisions[row.editRequestId] = "accepted";
-          });
-          setDecisions(newDecisions);
           setRowSelection({});
           setSelectedRows([]);
           toast.success(`${editAccessIds.length} request(s) approved successfully`);
@@ -128,11 +121,6 @@ export const ManageEditRequest = () => {
       {
         onSuccess: () => {
           setBulkAction(null);
-          const newDecisions = { ...decisions };
-          selectedRows.forEach(row => {
-            newDecisions[row.editRequestId] = "rejected";
-          });
-          setDecisions(newDecisions);
           setRowSelection({});
           setSelectedRows([]);
           toast.success(`${editAccessIds.length} request(s) rejected successfully`);
@@ -150,12 +138,12 @@ export const ManageEditRequest = () => {
     setRowSelection(prev => {
       const newSelection = { ...prev };
       if (selected) {
-        const index = filteredData.findIndex((item: BranchEditRequestTypes) => item.editRequestId === editRequestId);
+        const index = filteredData.findIndex((item: EditRequestResponseTypes) => item.editRequestId === editRequestId);
         if (index !== -1) {
           newSelection[index] = true;
         }
       } else {
-        const index = filteredData.findIndex((item: BranchEditRequestTypes) => item.editRequestId === editRequestId);
+        const index = filteredData.findIndex((item: EditRequestResponseTypes) => item.editRequestId === editRequestId);
         if (index !== -1) {
           delete newSelection[index];
         }
@@ -163,7 +151,7 @@ export const ManageEditRequest = () => {
       return newSelection;
     });
     if (selected) {
-      const staff = filteredData.find((s: BranchEditRequestTypes) => s.editRequestId === editRequestId);
+      const staff = filteredData.find((s: EditRequestResponseTypes) => s.editRequestId === editRequestId);
       if (staff && !selectedRows.find(r => r.editRequestId === editRequestId)) {
         setSelectedRows(prev => [...prev, staff]);
       }
@@ -176,7 +164,7 @@ export const ManageEditRequest = () => {
 
   const selectedCount = Object.keys(rowSelection).length;
 
-  const columns = useMemo(() => createManageEditTableColumns(decisions, openModal), [decisions]);
+  const columns = useMemo(() => createManageEditTableColumns(requestStatus, openModal), [requestStatus]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -202,8 +190,8 @@ export const ManageEditRequest = () => {
                 size="sm"
                 className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 rounded-md border shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <span className="text-bg-basic-green-accent font-semibold">✓</span>
-                <span>{bulkAction === "approve" ? "Approving..." : "Approve All"}</span>
+                {isApprovingBulk ? <Spinner className="" /> : <span className="text-bg-basic-green-accent font-semibold">✓</span>}
+                <span>Approve All</span>
               </Button>
               <Button
                 onClick={handleRejectAll}
@@ -230,11 +218,7 @@ export const ManageEditRequest = () => {
         )}
         {!isPending && !isError && filteredData.length === 0 && (
           <div className="flex items-center justify-center pt-15">
-            <ErrorComponent
-              title="All caught up!"
-              buttonText="Go Back"
-              description="You’ve reviewed every edit request. New requests will appear here when submitted."
-            />
+            <ErrorComponent title="All caught up!" description="You’ve reviewed every edit request. New requests will appear here when submitted." />
           </div>
         )}
         <div>
@@ -247,7 +231,7 @@ export const ManageEditRequest = () => {
                   totalCount={filteredData?.length}
                   page={page}
                   setCurrentPage={setPage}
-                  pageSize={10}
+                  pageSize={100}
                   rowSelection={rowSelection}
                   setRowSelection={setRowSelection}
                   onSelectRows={setSelectedRows}
@@ -257,12 +241,11 @@ export const ManageEditRequest = () => {
               </div>
 
               <div className="flex flex-col gap-3 md:hidden">
-                {filteredData.map((request: BranchEditRequestTypes, index: number) => (
+                {filteredData.map((request: EditRequestResponseTypes, index: number) => (
                   <ManageEditMobileCard
                     key={request.editRequestId}
                     request={request}
-                    decision={decisions[request.editRequestId] || null}
-                    onDecision={openModal}
+                    openModal={openModal}
                     isSelected={!!rowSelection[index]}
                     onSelect={handleMobileSelect}
                   />
@@ -276,7 +259,7 @@ export const ManageEditRequest = () => {
       <ManageEditModal
         open={modalOpen}
         closeModal={closeModal}
-        selectedStaff={selectedStaff}
+        selectedRequest={selectedRequest}
         pendingAction={pendingAction}
         handleConfirm={handleConfirm}
         isSubmitting={isApprovingSingle}
