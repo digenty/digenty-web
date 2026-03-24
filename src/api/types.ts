@@ -448,6 +448,16 @@ export interface ClassLevel {
   classEnd: number;
 }
 
+export interface ClassLevelWithBranch {
+  branchId: number;
+  id: number;
+  levelName: string;
+  levelType: "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR_SECONDARY" | "SENIOR_SECONDARY";
+  classNamePrefix: string;
+  classStart: number;
+  classEnd: number;
+}
+
 export interface BranchLevels {
   branchId: number;
   branchName: string;

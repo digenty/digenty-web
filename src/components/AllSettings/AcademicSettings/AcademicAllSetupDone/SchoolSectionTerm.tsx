@@ -1,6 +1,6 @@
 "use client";
 
-import { AcademicSession, Level, Term } from "@/api/types";
+import { AcademicSession, ClassLevel, ClassLevelWithBranch, Level, Term } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { toast } from "@/components/Toast";
-import { getAcademicYears } from "@/lib/utils";
+import { extractUniqueLevelsByType, getAcademicYears } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
@@ -60,6 +60,7 @@ export const SchoolSectionAndTerm = () => {
 
   const session: AcademicSession | undefined = academicResponse?.data?.[0];
   const terms: Term[] = termList?.data?.terms ?? [];
+  // const levels = extractUniqueLevelsByType(levelsData?.data) ?? [];
   const levels = levelsData?.data ?? [];
 
   const findTerm = (name: string) => terms.find(t => t.term === name);
@@ -328,7 +329,7 @@ export const SchoolSectionAndTerm = () => {
                     <div className="flex flex-wrap gap-3">
                       {level.classLevels.map(lvl => (
                         <div
-                          key={lvl.ids}
+                          key={lvl.id}
                           className="bg-bg-card text-text-default border-border-darker flex h-8 items-center gap-3 rounded-md border p-2.5 text-sm shadow-xs md:h-9"
                         >
                           {lvl.levelName}
