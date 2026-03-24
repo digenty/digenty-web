@@ -20,7 +20,7 @@ export const useAddGrading = () => {
   return useMutation({
     mutationKey: gradingKeys.addGrading,
     mutationFn: addGrading,
-     });
+  });
 };
 
 export const useGetBranchGradings = (branchId: number) => {

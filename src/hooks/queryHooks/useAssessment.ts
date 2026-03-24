@@ -13,9 +13,8 @@ export const useAddAssessment = () => {
   return useMutation({
     mutationKey: assessmentKeys.add,
     mutationFn: addAssessment,
-      });
+  });
 };
-
 
 export const useGetBranchAssessment = (branchId: number) => {
   return useQuery({

@@ -12,7 +12,7 @@ export const addAssessmentDefault = async (payload: AssessmentDefaultPayload) =>
     }
     throw error;
   }
-}
+};
 
 // This is not yet , just put it incase
 // export const getAssessmentForSchool = async () => {

@@ -32,7 +32,7 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
             <Select value={String(activeIndex)} onValueChange={value => setActiveIndex(Number(value))}>
               <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
                 <SelectValue>
-                  <span className="text-text-default text-sm">{levels[activeIndex].label}</span>
+                  <span className="text-text-default text-sm capitalize">{levels[activeIndex].label.replaceAll("_", " ").toLowerCase()}</span>
                 </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-bg-default border-border-default">
@@ -171,12 +171,12 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
               </div>
               <div className="text-text-subtle pl-6 text-sm">Promote students who meet a minimum score (either cumulative or final term)</div>
 
-              <div className="pl-6">
+              <div className="space-y-2 pl-6">
                 <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
-                <div className="bg-bg-input-soft! text-text-muted flex h-7 w-32 items-center justify-between rounded-md">
+                <div className="bg-bg-input-soft! text-text-muted flex w-32 items-center justify-between rounded-md">
                   <Input
                     type="number"
-                    className="text-text-muted border-none text-sm"
+                    className="text-text-muted h-9! border-none text-sm"
                     placeholder="100"
                     value={formState.minimumOverallPercentage}
                     onChange={e => onChange({ minimumOverallPercentage: e.target.value })}
@@ -270,10 +270,10 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
                 <div className="text-text-default text-sm font-medium">B. Overall Performance</div>
                 <div className="text-text-subtle text-sm">Set minimum overall percentage</div>
                 <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
-                <div className="bg-bg-input-soft! text-text-muted flex h-7 w-32 items-center justify-between rounded-md">
+                <div className="bg-bg-input-soft! text-text-muted flex w-32 items-center justify-between rounded-md">
                   <Input
                     type="number"
-                    className="text-text-muted border-none text-xs"
+                    className="text-text-muted h-9! border-none text-xs"
                     placeholder="100"
                     value={formState.subjectCombinationMinPercentage}
                     onChange={e => onChange({ subjectCombinationMinPercentage: e.target.value })}
@@ -292,7 +292,7 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
           <Button
             onClick={onSave}
             disabled={isPending}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7! rounded-md"
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
           >
             {isPending && <Spinner className="text-text-white-default" />}
             Save Changes
@@ -310,7 +310,6 @@ export const ClassesSetup = () => {
   const levels = extractUniqueLevelsByType(classLevel?.data || []);
 
   const academicSessionId = academicData?.data?.find((s: AcademicSession) => s.isActive)?.id ?? academicData?.data?.[0]?.id;
-
 
   const [formStates, setFormStates] = useState<Record<string, LevelFormState>>({});
 
@@ -331,7 +330,7 @@ export const ClassesSetup = () => {
       return;
     }
 
-    const payload ={
+    const payload = {
       levelId,
       academicSessionId,
       calculationMethod: state.calculationMethod!,
@@ -346,10 +345,10 @@ export const ClassesSetup = () => {
         onSuccess: () => {
           toast({ title: "Success", description: `Result saved for ${levelName}`, type: "success" });
         },
-        onError: (error) => {
-          const message = error instanceof Error ? error.message : `Could not save result settings for ${levelName}`;
+        onError: error => {
+          const message = error?.message || `Could not save result settings for ${levelName}`;
           toast({ title: "Failed to save", description: message, type: "error" });
-        }
+        },
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";

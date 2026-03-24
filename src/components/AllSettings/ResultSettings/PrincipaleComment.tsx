@@ -22,7 +22,17 @@ const defaultRow = (): CommentRow => ({
   comment: "",
 });
 
-function LevelsTabs({ levels, isLoadingLevels, activeLevel, setActiveLevel }: { isLoadingLevels: boolean; levels: ClassLevel[]; activeLevel?: ClassLevel; setActiveLevel: (level?: ClassLevel) => void }) {
+function LevelsTabs({
+  levels,
+  isLoadingLevels,
+  activeLevel,
+  setActiveLevel,
+}: {
+  isLoadingLevels: boolean;
+  levels: ClassLevel[];
+  activeLevel?: ClassLevel;
+  setActiveLevel: (level?: ClassLevel) => void;
+}) {
   const isMobile = useIsMobile();
 
   const [levelRowsState, setLevelRowsState] = useState<LevelRowsState>({});
@@ -31,16 +41,14 @@ function LevelsTabs({ levels, isLoadingLevels, activeLevel, setActiveLevel }: { 
   const getRows = (levelName: string): CommentRow[] => levelRowsState[levelName] ?? [defaultRow()];
   const updateRows = (levelName: string, rows: CommentRow[]) => setLevelRowsState(prev => ({ ...prev, [levelName]: rows }));
 
-
   const handleSave = async () => {
-    const rows = getRows(activeLevel?.levelName!);
+    const rows = getRows(activeLevel?.levelName || "");
     const payload = {
-      levelId: activeLevel?.id!,
+      levelId: activeLevel?.id,
       rows: rows.map(row => ({
         minPercentage: Number(row.minPercentage),
         maxPercentage: Number(row.maxPercentage),
         comment: row.comment,
-        // commentId: ,
       })),
     };
 
@@ -52,51 +60,55 @@ function LevelsTabs({ levels, isLoadingLevels, activeLevel, setActiveLevel }: { 
         toast({ title: "Error", description: `Failed to save comment for ${activeLevel?.levelName}`, type: "error" });
       },
     });
-
-  }
+  };
 
   const handleCancel = () => {
     setLevelRowsState({});
-  }
+  };
 
   if (isMobile) {
     return (
       <div className="mt-4 w-full">
-        {isLoadingLevels && <Skeleton className="bg-bg-input-soft h-8 w-full rounded-3xl" />}
-        {!isLoadingLevels && levels.length > 0 && (
-          <>
-            <Select value={String(activeLevel?.id)} onValueChange={value => {
-              const level = levels.find(level => level.id === Number(value));
-              setActiveLevel(level);
-            }}>
-              <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-                <SelectValue>
-                  <span className="text-text-default text-sm">{activeLevel?.levelName}</span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="bg-bg-default border-border-default">
-                {levels.map((level, idx) => (
-                  <SelectItem key={level.levelName} value={String(level.id)} className="text-text-default text-sm">
-                    {level.levelName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <div className="mt-4">
-              <CommentSetup rows={getRows(activeLevel?.levelName!)} onChange={rows => updateRows(activeLevel?.levelName!, rows)} />
-            </div>
-          </>
-        )}
+        <div className="mb-20">
+          {isLoadingLevels && <Skeleton className="bg-bg-input-soft h-8 w-full rounded-3xl" />}
+          {!isLoadingLevels && levels.length > 0 && (
+            <>
+              <Select
+                value={String(activeLevel?.id)}
+                onValueChange={value => {
+                  const level = levels.find(level => level.id === Number(value));
+                  setActiveLevel(level);
+                }}
+              >
+                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+                  <SelectValue>
+                    <span className="text-text-default text-sm capitalize">{activeLevel?.levelName.replaceAll("_", " ").toLowerCase()}</span>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-bg-default border-border-default">
+                  {levels.map((level, idx) => (
+                    <SelectItem key={level.levelName} value={String(level.id)} className="text-text-default text-sm capitalize">
+                      {level.levelName.replaceAll("_", " ").toLowerCase()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="mt-4">
+                <CommentSetup rows={getRows(activeLevel?.levelName || "")} onChange={rows => updateRows(activeLevel?.levelName || "", rows)} />
+              </div>
+            </>
+          )}
+        </div>
 
         <div className="border-border-default bg-bg-default fixed right-0 bottom-0 mx-auto flex w-full place-content-center items-center border-t md:left-30 md:max-w-200">
-          <div className="flex w-full items-center justify-between pt-6">
-            <Button onClick={handleCancel} className="bg-bg-state-soft! text-text-subtle rounded-md" >
+          <div className="flex w-full items-center justify-between px-4 pt-6">
+            <Button onClick={handleCancel} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
               Cancel
             </Button>
             <Button
               onClick={handleSave}
               disabled={isPending}
-              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default"
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
             >
               {isPending && <Spinner className="text-text-white-default" />}
               Save Changes
@@ -120,13 +132,13 @@ function LevelsTabs({ levels, isLoadingLevels, activeLevel, setActiveLevel }: { 
                   key={index}
                   onClick={() => setActiveLevel(level)}
                   className={cn(
-                    "transit flex justify-center px-4 py-2 text-sm font-medium",
+                    "transit flex justify-center px-4 py-2 text-sm font-medium capitalize",
                     isActive
                       ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
                       : "text-text-muted flex h-8 items-center gap-1",
                   )}
                 >
-                  <span>{level.levelName}</span>
+                  <span>{level.levelName.replaceAll("_", " ").toLowerCase()}</span>
                 </button>
               );
             })}
@@ -135,25 +147,28 @@ function LevelsTabs({ levels, isLoadingLevels, activeLevel, setActiveLevel }: { 
       </div>
       <div className="mx-auto mt-6 flex w-full items-center justify-center md:max-w-150">
         {isLoadingLevels && <Skeleton className="bg-bg-input-soft h-50 w-full rounded-md" />}
-        {!isLoadingLevels && levels.length > 0 && <div className="flex-1">
-          <CommentSetup rows={getRows(activeLevel?.levelName!)} onChange={rows => updateRows(activeLevel?.levelName!, rows)} /></div>}
+        {!isLoadingLevels && levels.length > 0 && (
+          <div className="flex-1">
+            <CommentSetup rows={getRows(activeLevel?.levelName || "")} onChange={rows => updateRows(activeLevel?.levelName || "", rows)} />
+          </div>
+        )}
       </div>
 
       <div className="border-border-default bg-bg-default fixed right-0 bottom-0 mx-auto flex w-full place-content-center items-center border-t md:left-30 md:max-w-200">
-          <div className="flex w-full items-center justify-between pt-6">
-            <Button onClick={handleCancel} className="bg-bg-state-soft! text-text-subtle rounded-md" >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={isPending}
-              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default"
-            >
-              {isPending && <Spinner className="text-text-white-default" />}
-              Save Changes
-            </Button>
-          </div>
+        <div className="flex w-full items-center justify-between pt-6">
+          <Button onClick={handleCancel} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={isPending}
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
+          >
+            {isPending && <Spinner className="text-text-white-default" />}
+            Save Changes
+          </Button>
         </div>
+      </div>
     </div>
   );
 }
@@ -183,7 +198,7 @@ export const CommentSetup = ({ rows, onChange }: CommentSetupProps) => {
                 <Label className="text-text-muted text-sm font-medium">Percentage</Label>
                 <div className="flex items-center gap-2">
                   <Input
-                    className="bg-bg-input-soft! text-text-default h-9! border-none md:w-24"
+                    className="bg-bg-input-soft! text-text-default placeholder:text-text-muted/40 h-9! border-none text-sm md:w-24"
                     placeholder="1"
                     type="number"
                     value={row.minPercentage}
@@ -191,7 +206,7 @@ export const CommentSetup = ({ rows, onChange }: CommentSetupProps) => {
                   />
                   <span className="text-text-muted">-</span>
                   <Input
-                    className="bg-bg-input-soft! text-text-default h-9! border-none md:w-24"
+                    className="bg-bg-input-soft! text-text-default placeholder:text-text-muted/40 h-9! border-none text-sm md:w-24"
                     placeholder="51"
                     type="number"
                     value={row.maxPercentage}
@@ -203,7 +218,7 @@ export const CommentSetup = ({ rows, onChange }: CommentSetupProps) => {
                 <Label className="text-text-muted text-sm font-medium">Comment</Label>
                 <div className="bg-bg-input-soft flex h-9 items-center gap-1 rounded-md p-1">
                   <Input
-                    className="text-text-default h-7! w-full border-none bg-none! p-0"
+                    className="text-text-default placeholder:text-text-muted/40 h-7! w-full border-none bg-none! px-2 py-0 text-sm"
                     placeholder="Good"
                     type="text"
                     value={row.comment}
@@ -226,8 +241,8 @@ export const CommentSetup = ({ rows, onChange }: CommentSetupProps) => {
           ))}
         </div>
 
-        <Button className="text-text-subtle hover:bg-bg-none! rounde-md w-fit bg-none! text-sm" onClick={addRow}>
-          <AddFill fill="var(--color-icon-default-muted)" /> Add Row
+        <Button className="text-text-subtle hover:bg-bg-none! rounde-md w-fit bg-none! text-xs" onClick={addRow}>
+          <AddFill fill="var(--color-icon-default-muted)" className="size-2" /> Add Row
         </Button>
       </div>
     </div>
@@ -248,12 +263,7 @@ export const PrincipaleComment = () => {
 
   return (
     <div>
-      <LevelsTabs
-        isLoadingLevels={isLoadingLevels}
-        levels={levels}
-        activeLevel={activeLevel}
-        setActiveLevel={setActiveLevel}
-      />
+      <LevelsTabs isLoadingLevels={isLoadingLevels} levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
     </div>
   );
 };

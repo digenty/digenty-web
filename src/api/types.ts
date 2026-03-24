@@ -552,7 +552,7 @@ export interface TermDeadlineState {
 }
 
 export interface PrincaleCommentPayload {
-  levelId: number;
+  levelId?: number;
   rows: {
     minPercentage: number;
     maxPercentage: number;
@@ -628,7 +628,7 @@ export interface TermDeadlineState {
 }
 
 export interface PrincaleCommentPayload {
-  levelId: number;
+  levelId?: number;
   rows: {
     minPercentage: number;
     maxPercentage: number;

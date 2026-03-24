@@ -14,7 +14,6 @@ export const addSchoolStructure = async (payload: SchoolStructurePayload) => {
   }
 };
 
-
 export const getAcademic = async () => {
   try {
     const { data } = await api.get(`/academic/session`);
