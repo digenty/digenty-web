@@ -14,6 +14,8 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StudentRow } from "./students";
 import { SubmitClassReportModal } from "./SubmitClassReportModal";
+import { useSubmitClassReport } from "@/hooks/queryHooks/class";
+import { toast } from "@/components/Toast";
 
 export const ClassReportHeader = ({
   students,
@@ -25,6 +27,7 @@ export const ClassReportHeader = ({
   setActiveSession,
   classArmName,
   onExport,
+  classArmReportId,
 }: {
   students: StudentRow[];
   activeFilter: string;
@@ -35,6 +38,7 @@ export const ClassReportHeader = ({
   setActiveSession: React.Dispatch<React.SetStateAction<string | null>>;
   classArmName: string;
   onExport?: () => void;
+  classArmReportId?: number;
 }) => {
   const isMobile = useIsMobile();
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -57,9 +61,36 @@ export const ClassReportHeader = ({
     }
   }, [setActiveSession, setTermSelected, terms]);
 
+  const handleOpenModal = () => {
+    if (activeFilter !== "spreadsheet") return;
+    setOpenModal(true);
+  };
+
+  const { mutate: submitReport, isPending: isSubmitting } = useSubmitClassReport();
+
+  const handleSubmit = () => {
+    if (classArmReportId) {
+      submitReport(
+        {
+          classArmReportId: classArmReportId,
+          status: "APPROVED",
+        },
+        {
+          onSuccess: () => {
+            toast({ title: "Submitted", description: "Class report submitted successfully", type: "success" });
+            setOpenModal(false);
+          },
+          onError: () => {
+            toast({ title: "Failed to submit", description: "Failed to submit class report", type: "error" });
+          },
+        },
+      );
+    }
+  };
+
   return (
     <>
-      {openModal && <SubmitClassReportModal open={openModal} onOpenChange={setOpenModal} />}
+      {openModal && <SubmitClassReportModal open={openModal} onOpenChange={setOpenModal} onConfirm={handleSubmit} isLoading={isSubmitting} />}
 
       <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
@@ -108,9 +139,12 @@ export const ClassReportHeader = ({
 
               {!isSubmitted && !isRequested && (
                 <Button
-                  onClick={() => setOpenModal(true)}
+                  onClick={handleOpenModal}
                   size="sm"
-                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 items-center gap-1 text-sm font-normal md:w-fit"
+                  className={cn(
+                    "text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 items-center gap-1 text-sm font-normal md:w-fit",
+                    activeFilter !== "spreadsheet" && "cursor-not-allowed opacity-50",
+                  )}
                 >
                   <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
                   Submit

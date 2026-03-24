@@ -139,3 +139,15 @@ export const getClassLevels = async () => {
     throw error;
   }
 };
+
+export const submitClassReport = async (payload: { classArmReportId: number; status: "APPROVED" }) => {
+  try {
+    const { data } = await api.put("/report/class/arm", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

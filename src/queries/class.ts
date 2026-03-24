@@ -9,4 +9,5 @@ export const classKeys = {
   classesByLevel: (levelId?: number) => ["classesByLevel", levelId] as const,
   deleteClass: ["deleteClass"] as const,
   classLevel: ["classLevel"] as const,
+  submitClassReport: ["submitClassReport"] as const,
 };

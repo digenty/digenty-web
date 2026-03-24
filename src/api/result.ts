@@ -2,7 +2,6 @@ import api from "@/lib/axios/axios-auth";
 import { PrincaleCommentPayload, ResultCalculationPayload, ResultSubmissionPayload, UpdateSubmissionDeadlinePayload } from "./types";
 import { isAxiosError } from "axios";
 
-
 export const addResultCalculations = async (payload: ResultCalculationPayload) => {
   try {
     const { data } = await api.post(`/result-settings`, payload);
@@ -10,11 +9,10 @@ export const addResultCalculations = async (payload: ResultCalculationPayload) =
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;
-       }
+    }
     throw error;
   }
 };
-
 
 export const getSubmissionDeadline = async () => {
   try {
@@ -46,7 +44,7 @@ export const addSubmission = async (payload: ResultSubmissionPayload) => {
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;
-       }
+    }
     throw error;
   }
 };
@@ -70,7 +68,7 @@ export const addPrincipaleComment = async (payload: PrincaleCommentPayload) => {
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;
-       }
+    }
     throw error;
   }
 };

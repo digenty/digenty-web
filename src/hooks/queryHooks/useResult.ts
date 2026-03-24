@@ -1,4 +1,12 @@
-import { addPrincipaleComment, addResultCalculations, addSubmission, deletePrincipalComment, getPrincipalComment, getSubmissionDeadline, updateSubmissionDeadline } from "@/api/result";
+import {
+  addPrincipaleComment,
+  addResultCalculations,
+  addSubmission,
+  deletePrincipalComment,
+  getPrincipalComment,
+  getSubmissionDeadline,
+  updateSubmissionDeadline,
+} from "@/api/result";
 import { resultKeys } from "@/queries/result";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -20,7 +28,7 @@ export const useAddPrinciapleComment = () => {
   return useMutation({
     mutationKey: resultKeys.addPrincipaleComment,
     mutationFn: addPrincipaleComment,
-    });
+  });
 };
 
 export const useGetSubmissionDeadline = () => {

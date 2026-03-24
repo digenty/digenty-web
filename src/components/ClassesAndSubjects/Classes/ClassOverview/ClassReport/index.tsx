@@ -23,8 +23,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { ClassPermissionWrapper } from "../../ClassPermissionWrapper";
 import { ClassReportFooter } from "./ClassReportFooter";
 import { ClassReportHeader } from "./ClassReportHeader";
-import { createPromotionColumns } from "./PromotionColumn";
-import { PromotionMobileCard } from "./PromotionMobileCard";
+import { Promotion } from "./Promotion";
+import { PromotionMobileCard } from "./Promotion/PromotionMobileCard";
 import { createColumns } from "./SpreadsheetColumns";
 import { SpreadsheetMobileCard } from "./SpreadsheetMobileCard";
 import { StudentRow } from "./students";
@@ -99,6 +99,7 @@ export const ClassReport = () => {
     isLoading: isLoadingCumulativeReport,
     isError: isErrorCumulativeReport,
   } = useGetClassCumulativeReport(Number(armId), activeFilter);
+
   const {
     data: studentReportData,
     isPending: loadingStudentReport,
@@ -198,6 +199,7 @@ export const ClassReport = () => {
           setActiveSession={setActiveSession}
           classArmName={classArmName}
           onExport={handleExport}
+          classArmReportId={classReportData?.data?.classArmReportId}
         />
 
         {isErrorReport && (
@@ -248,7 +250,7 @@ export const ClassReport = () => {
                         tableHeadCell: "text-center pr-2 w-34",
                         tableBodyCell: "text-center pr-2 w-34",
                         tableRow: "h-14",
-                        table: "table-fixed",
+                        // table: "table-fixed",
                       }}
                     />
                   )}
@@ -266,22 +268,7 @@ export const ClassReport = () => {
                   ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
                     <Skeleton className="bg-bg-input-soft h-100 w-full" />
                   ) : (
-                    <DataTable
-                      columns={createPromotionColumns(transformedStudents)}
-                      data={transformedStudents}
-                      totalCount={transformedStudents.length}
-                      page={page}
-                      setCurrentPage={setPage}
-                      pageSize={pageSize}
-                      showPagination={false}
-                      fullBorder
-                      classNames={{
-                        tableHeadCell: "text-center pr-2 w-34",
-                        tableBodyCell: "text-center pr-2 w-34",
-                        tableRow: "h-14",
-                        table: "table-fixed",
-                      }}
-                    />
+                    <Promotion cumulativeReport={classCumulativeReportData?.data} />
                   )}
                 </div>
               )}

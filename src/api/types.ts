@@ -684,4 +684,16 @@ export interface Levelsubject {
   branchId: number;
   schoolId: number;
 }
-   
+
+export interface StudentCumulative {
+  studentId: number;
+  studentName: string;
+  firstTermPercentage: number;
+  secondTermPercentage: number;
+  thirdTermPercentage: number;
+  cumulativePercentage: number;
+}
+
+export interface CumulativeReport {
+  studentCumulative: StudentCumulative[];
+}
