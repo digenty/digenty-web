@@ -8,4 +8,5 @@ export const classKeys = {
   requestEditAccess: ["requestEditAccess"] as const,
   classesByLevel: (levelId?: number) => ["classesByLevel", levelId] as const,
   deleteClass: ["deleteClass"] as const,
+  classLevel: ["classLevel"] as const,
 };

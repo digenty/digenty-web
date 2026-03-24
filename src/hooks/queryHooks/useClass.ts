@@ -1,12 +1,13 @@
 import {
+  deleteClass,
+  getClassCumulativeReport,
   getClasses,
+  getClassesByLevel,
+  getClassLevels,
+  getClassReport,
   getClassTeachersInClass,
   getTeacherClass,
-  getClassReport,
-  getClassCumulativeReport,
   requestEditAccess,
-  getClassesByLevel,
-  deleteClass,
 } from "@/api/class";
 import { classKeys } from "@/queries/class";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -74,5 +75,12 @@ export const useDeleteClass = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
+  });
+};
+
+export const useGetClassLevel = () => {
+  return useQuery({
+    queryKey: classKeys.classLevel,
+    queryFn: getClassLevels,
   });
 };

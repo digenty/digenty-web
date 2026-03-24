@@ -128,3 +128,14 @@ export const deleteClass = async (classroomId: number) => {
     throw error;
   }
 };
+export const getClassLevels = async () => {
+  try {
+    const { data } = await api.get(`/class-levels/names`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
+    throw error;
+  }
+};

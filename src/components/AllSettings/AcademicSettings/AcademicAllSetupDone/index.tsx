@@ -3,13 +3,13 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import React, { useState } from "react";
-import { SchoolStructure } from "../SchoolStructure";
 import { AcademicDoneClassAndArms } from "./AcademicDoneClassAndArms";
 import { AcademicAssAndGradeSetupDone } from "./AcademicAssAndGradeSetupDone";
 import { AdmissionNumberSetupDone } from "./AcademicNumberDoneSetup";
 import { AddFill } from "@/components/Icons/AddFill";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Calendar from "@/components/Icons/Calendar";
+import { SchoolSectionAndTerm } from "./SchoolSectionTerm";
 const termsOptions = ["24/25 Session", "24/25 Session", "24/25 Session"];
 const tabs = ["School, Session & Term", "Classes & Arms", "Assessment & Grading", "Admission Number"] as const;
 type Tab = (typeof tabs)[number];
@@ -73,7 +73,12 @@ export const AcademicAllSetupDone = () => {
         </div>
       </div>
       <div className="mt-5 px-4">
-        {activeTab === "School, Session & Term" && <div className="">{/* <SchoolStructure /> */}</div>}
+        {/* {activeTab === "School, Session & Term" && <div className=""><SchoolStructure /></div>} */}
+        {activeTab === "School, Session & Term" && (
+          <div className="">
+            <SchoolSectionAndTerm />
+          </div>
+        )}
         {activeTab === "Classes & Arms" && (
           <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
             <AcademicDoneClassAndArms />
@@ -89,11 +94,6 @@ export const AcademicAllSetupDone = () => {
             <AdmissionNumberSetupDone />
           </div>
         )}
-      </div>
-
-      <div className="border-border-default bg-bg-default sticky bottom-0 mx-auto flex w-full justify-between border-t py-3 md:px-36">
-        <Button className="bg-bg-state-soft! text-text-subtle rounded-md">Cancel</Button>
-        <Button className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default rounded-md">Save changes</Button>
       </div>
     </div>
   );
