@@ -45,3 +45,7 @@ export interface LevelFormProps {
   onCancel: () => void;
   isPending: boolean;
 }
+
+export interface CommentViewProps {
+  rows: { id: number; minPercentage: number; maxPercentage: number; comment: string }[];
+}
