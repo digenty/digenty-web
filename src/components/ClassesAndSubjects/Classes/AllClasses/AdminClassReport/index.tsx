@@ -65,7 +65,7 @@ type ClassArmStudentReport = {
 
 const ClassReport = () => {
   const pathname = usePathname();
-  const armId = pathname.split("/")[5];
+  const armId = pathname.split("/staff/")[5];
   const params = useSearchParams();
   const classArmName = params.get("classArmName")?.replaceAll("-", " ") || "";
 
@@ -92,7 +92,7 @@ const ClassReport = () => {
       id: student.studentId,
       serial: index + 1,
       name: student.studentName,
-      avatar: "/avatar.png",
+      avatar: "/staff/avatar.png",
       terms: [
         {
           term: termSelected?.term ?? "FIRST",

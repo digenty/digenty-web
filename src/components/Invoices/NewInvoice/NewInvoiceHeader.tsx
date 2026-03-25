@@ -21,7 +21,7 @@ export const NewInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps)
   const total = INVOICE_STEPS.length;
 
   useBreadcrumb([
-    { label: "Invoices", url: "/invoices" },
+    { label: "Invoices", url: "/staff/invoices" },
     { label: "New Invoice", url: "" },
   ]);
 

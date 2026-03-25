@@ -34,7 +34,7 @@ export const StockHistoryHeader = () => {
           <DropdownMenu open={openBranch} onOpenChange={setOpenBranch}>
             <DropdownMenuTrigger asChild>
               <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed text-sm md:flex">
-                <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+                <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
                 Branch
               </Badge>
             </DropdownMenuTrigger>
@@ -52,7 +52,7 @@ export const StockHistoryHeader = () => {
           <DropdownMenu open={openReasons} onOpenChange={setOpenReasons}>
             <DropdownMenuTrigger asChild>
               <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed text-sm md:flex">
-                <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+                <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
                 Reason
               </Badge>
             </DropdownMenuTrigger>
@@ -71,7 +71,7 @@ export const StockHistoryHeader = () => {
           <DropdownMenu open={openChangeBy} onOpenChange={setOpenchangeBy}>
             <DropdownMenuTrigger asChild>
               <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed text-sm md:flex">
-                <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+                <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
                 Changed By
               </Badge>
             </DropdownMenuTrigger>
@@ -89,7 +89,7 @@ export const StockHistoryHeader = () => {
         </div>
 
         <Button onClick={() => setOpenFilter(true)} className="border-border-darker bg-bg-state-secondary block w-fit rounded-md p-1 md:hidden">
-          <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+          <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
         </Button>
 
         {isMobile && (

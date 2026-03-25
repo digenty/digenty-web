@@ -33,10 +33,10 @@ const ClassesAndSubjects = () => {
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Classes and Subjects", url: "/classes-and-subjects" },
+      { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
       {
         label: showTabs ? (tabs.find(tab => tab.id === activeTab)?.label ?? "") : hasSubjects ? "My Subjects" : "My Classes",
-        url: `/classes-and-subjects${showTabs ? `?tab=${activeTab}` : ""}`,
+        url: `/staff/classes-and-subjects${showTabs ? `?tab=${activeTab}` : ""}`,
       },
     ]);
   }, [activeTab, showTabs, hasSubjects, setBreadcrumbs]);
@@ -57,7 +57,7 @@ const ClassesAndSubjects = () => {
                     return (
                       <div
                         role="button"
-                        onClick={() => router.push(`/classes-and-subjects?tab=${tab.id}`)}
+                        onClick={() => router.push(`/staff/classes-and-subjects?tab=${tab.id}`)}
                         key={tab.id}
                         className={cn(
                           "w-1/2 cursor-pointer py-2.5 text-center transition-all duration-150",

@@ -36,7 +36,7 @@ export const InvoicePaymentSummary = () => {
 
       <div className="mt-10">
         <Button
-          onClick={() => router.push("/invoices/add-payment")}
+          onClick={() => router.push("/staff/invoices/add-payment")}
           className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default mt-6 flex w-full items-center gap-1.5"
         >
           <AddFill fill="var(--color-icon-white-default)" />

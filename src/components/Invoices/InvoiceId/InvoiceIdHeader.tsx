@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 export const InvoiceIdHeader = () => {
   const router = useRouter();
   useBreadcrumb([
-    { label: "Invoices", url: "/invoices" },
+    { label: "Invoices", url: "/staff/invoices" },
     { label: "Invoice Details", url: "" },
   ]);
 
@@ -24,7 +24,7 @@ export const InvoiceIdHeader = () => {
         </Button>
         <Button
           role="button"
-          onClick={() => router.push("/invoices/add-payment")}
+          onClick={() => router.push("/staff/invoices/add-payment")}
           className="bg-bg-state-secondary border-border-darker text-text-default hover:bg-bg-state-secondary-hover! flex h-8 w-30.5 items-center gap-1 border"
         >
           <Edit fill="var(--color-icon-default-muted)" />

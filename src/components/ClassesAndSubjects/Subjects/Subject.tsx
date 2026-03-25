@@ -50,7 +50,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                       <Button
                         onClick={() =>
                           router.push(
-                            `/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
+                            `/staff/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
                           )
                         }
                         className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
@@ -74,7 +74,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                         <Button
                           onClick={() =>
                             router.push(
-                              `/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
+                              `/staff/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
                             )
                           }
                           className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"
@@ -90,7 +90,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                       <Button
                         onClick={() =>
                           router.push(
-                            `/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
+                            `/staff/classes-and-subjects/subjects/${subjectId}/classes/${cl.classId}/arms/${cl.armId}/add-score?classArmName=${cl.classArmName.replaceAll(" ", "-")}&subjectName=${subjectName}`,
                           )
                         }
                         className="border-border-darker text-text-default bg-bg-state-secondary shadow-light h-7 w-18 rounded-md border px-2 py-1 text-sm font-medium"

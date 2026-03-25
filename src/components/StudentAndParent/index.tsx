@@ -16,7 +16,7 @@ const StudentAndParentRecord = () => {
 
   useEffect(() => {
     if (!activeTab) {
-      router.push(`/student-and-parent-record?tab=Students`);
+      router.push(`/staff/student-and-parent-record?tab=Students`);
     }
   }, [activeTab, router]);
 
@@ -31,7 +31,7 @@ const StudentAndParentRecord = () => {
               <div
                 role="button"
                 onClick={() => {
-                  router.push(`/student-and-parent-record?tab=${tab}`);
+                  router.push(`/staff/student-and-parent-record?tab=${tab}`);
                 }}
                 key={tab}
                 className={cn(

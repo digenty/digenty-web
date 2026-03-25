@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
-import { getSessionData } from "../actions/auth";
+import { getSessionData } from "../../actions/auth";
 import { OnboardingFlow } from "@/components/Onboarding/OnboardingFlow";
 
 export default async function CoreLayout({

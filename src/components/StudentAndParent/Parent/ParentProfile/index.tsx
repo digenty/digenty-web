@@ -27,7 +27,7 @@ import StatusBadge from "@/components/StatusBadge";
 export const ParentProfile = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const parentId = pathname.split("/")[3] ?? "";
+  const parentId = pathname.split("/staff/")[3] ?? "";
 
   const { openDelete, setOpenDelete, parentIds, setParentIds } = useParentStore();
 
@@ -37,8 +37,8 @@ export const ParentProfile = () => {
   const { mutate: deleteParents, isPending: deleting } = useDeleteParents(parentIds);
 
   useBreadcrumb([
-    { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Parents", url: "/student-and-parent-record?tab=Parents" },
+    { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
+    { label: "Parents", url: "/staff/student-and-parent-record?tab=Parents" },
     { label: "Parent", url: "" },
   ]);
 
@@ -53,7 +53,7 @@ export const ParentProfile = () => {
           type: "success",
         });
         setOpenDelete(false);
-        router.push("/student-and-parent-record?tab=Parents");
+        router.push("/staff/student-and-parent-record?tab=Parents");
       },
       onError: error => {
         toast({
@@ -111,7 +111,7 @@ export const ParentProfile = () => {
               {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
             </Button>
             <Button
-              onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}/edit`)}
+              onClick={() => router.push(`/staff/student-and-parent-record/parents/${parent.id}/edit`)}
               className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm"
             >
               <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Parent Information

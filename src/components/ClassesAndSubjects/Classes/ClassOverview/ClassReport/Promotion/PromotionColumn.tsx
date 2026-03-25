@@ -1,156 +1,52 @@
 "use client";
 
 import { Avatar } from "@/components/Avatar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ColumnDef, Row } from "@tanstack/react-table";
-import { useState } from "react";
-import { PromotionStudent } from "../students";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { ChevronDown } from "lucide-react";
+import { PromotionStudent } from "../students";
+import { PromotionBySubjectReport } from "@/api/types";
 
-const termsOptions = ["FIRST", "SECOND", "THIRD"];
-const actions = ["Promote", "Repeat", "Double Promotion"];
-
-const RenderAction = (row: Row<PromotionStudent>) => {
-  const [actionSelected, setActionSelected] = useState(actions[0]);
+const RenderAction = (
+  row: Row<PromotionStudent>, 
+  onSetDecision: (student: PromotionStudent) => void,
+  decisions: { studentId: number; className?: string; armName?: string; status: string }[],
+  promotionType: string
+) => {
+  const decision = decisions.find(d => d.studentId === row.original.studentId);
+  
+  const getButtonText = () => {
+    if (!decision) return "Set Decision";
+    if (promotionType === "PROMOTE_ALL") return "Next Class";
+    if (decision.status === "PROMOTED" && decision.className && decision.armName) {
+      return `Promote to ${decision.className} ${decision.armName}`;
+    }
+    if (decision.status === "REPEATED") return "Repeat";
+    if (decision.status === "GRADUATED") return "Graduate";
+    return "Set Decision";
+  };
 
   return (
-    <Select value={actionSelected} onValueChange={setActionSelected}>
-      <SelectTrigger className="border-border-darker bg-bg-state-secondary! h-8! w-full border">
-        <SelectValue>
-          <div className="flex items-center gap-2">
-            <span className="text-text-default text-sm font-medium">{actionSelected}</span>
-          </div>
-        </SelectValue>
-      </SelectTrigger>
-      <SelectContent className="bg-bg-card border-border-default">
-        {actions.map(action => (
-          <SelectItem key={action} value={action} className="text-text-default text-sm">
-            {action}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <Button 
+      className="border-border-darker bg-bg-state-secondary! h-7! px-4 text-text-muted font-normal w-fit border"
+      onClick={() => onSetDecision(row.original)}
+    >
+      {getButtonText()}
+      <ChevronDown className="text-text-muted" />
+    </Button>
   );
 };
 
-// export const createPromotionColumns = (data: StudentRow[]): ColumnDef<StudentRow>[] => {
-//   if (!data.length) return [];
-//   const firstStudent = data[0];
-
-//   const termScores = termsOptions.flatMap((term, index) => {
-//     const activeTerm = firstStudent.terms.find(t => t.term === term);
-
-//     if (!activeTerm) return [];
-
-//     const percentageScoreForTerm = activeTerm.totalPercentage ?? 0;
-
-//     return [
-//       {
-//         id: `subject-${index}`,
-//         header: () => (
-//           <span className="text-text-muted truncate text-sm font-medium">
-//             {activeTerm?.term === "FIRST" ? "1st" : activeTerm?.term === "SECOND" ? "2nd" : "3rd"} Term %
-//           </span>
-//         ),
-//         size: 136,
-//         minSize: 136,
-//         cell: () => {
-//           return <span className="text-text-default text-sm">{Math.floor(percentageScoreForTerm)}</span>;
-//         },
-//       },
-//     ];
-//   });
-
-//   const cumulativeScore: ColumnDef<StudentRow> = {
-//     id: "cumulative",
-//     header: () => <span className="text-text-muted truncate text-sm font-medium">Cumulative %</span>,
-//     size: 136,
-//     minSize: 136,
-//     cell: ({ row }: { row: Row<StudentRow> }) => {
-//       const student = data[row.index];
-//       const terms = student.terms;
-//       const cumulative = terms.length > 0 ? terms.reduce((acc, t) => acc + t.totalPercentage, 0) / terms.length : 0;
-//       return <span className="text-text-default text-sm">{Math.floor(cumulative)}</span>;
-//     },
-//   };
-
-//   return [
-//     {
-//       id: "s/n",
-//       header: () => <span className="text-text-muted pr-2 text-sm font-medium">S/N</span>,
-//       cell: ({ row }) => <span className="text-text-default pr-2 text-sm">{row.index + 1}</span>,
-//       size: 50,
-//       maxSize: 50,
-//     },
-//     {
-//       accessorKey: "studentName",
-//       header: () => (
-//         <div className="text-text-muted absolute top-0 left-0 flex h-14 w-70 items-center pl-2 text-left! text-sm font-medium">Student Name</div>
-//       ),
-//       cell: ({ row }) => (
-//         <div className="flex w-70 items-center gap-2">
-//           <Avatar className="size-8" />
-//           <span className="text-text-default text-sm">{row.original.name}</span>
-//         </div>
-//       ),
-//       size: 400,
-//       minSize: 400,
-//     },
-
-//     ...termScores,
-
-//     cumulativeScore,
-
-//     {
-//       id: "actions",
-//       header: () => <div className="text-text-muted cursor-pointer text-sm font-medium" />,
-//       cell: ({ row }) => RenderAction(row),
-//       size: 209,
-//       minSize: 209,
-//     },
-//   ];
-// };
-
-export const createPromotionColumns = (data: PromotionStudent[]): ColumnDef<PromotionStudent>[] => {
+export const createPromotionColumns = (
+  data: PromotionStudent[], 
+  onSetDecision: (student: PromotionStudent) => void,
+  decisions: { studentId: number; className?: string; armName?: string; status: string }[],
+  promotionType: string
+): ColumnDef<PromotionStudent>[] => {
   if (!data.length) return [];
-  // const firstStudent = data[0];
-
-  // const termScores = termsOptions.flatMap((term, index) => {
-  //   const activeTerm = firstStudent.terms.find(t => t.term === term);
-
-  //   if (!activeTerm) return [];
-
-  //   const percentageScoreForTerm = activeTerm.totalPercentage ?? 0;
-
-  //   return [
-  //     {
-  //       id: `subject-${index}`,
-  //       header: () => (
-  //         <span className="text-text-muted truncate text-sm font-medium">
-  //           {activeTerm?.term === "FIRST" ? "1st" : activeTerm?.term === "SECOND" ? "2nd" : "3rd"} Term %
-  //         </span>
-  //       ),
-  //       size: 136,
-  //       minSize: 136,
-  //       cell: () => {
-  //         return <span className="text-text-default text-sm">{Math.floor(percentageScoreForTerm)}</span>;
-  //       },
-  //     },
-  //   ];
-  // });
-
-  // const cumulativeScore: ColumnDef<StudentRow> = {
-  //   id: "cumulative",
-  //   header: () => <span className="text-text-muted truncate text-sm font-medium">Cumulative %</span>,
-  //   size: 136,
-  //   minSize: 136,
-  //   cell: ({ row }: { row: Row<StudentRow> }) => {
-  //     const student = data[row.index];
-  //     const terms = student.terms;
-  //     const cumulative = terms.length > 0 ? terms.reduce((acc, t) => acc + t.totalPercentage, 0) / terms.length : 0;
-  //     return <span className="text-text-default text-sm">{Math.floor(cumulative)}</span>;
-  //   },
-  // };
 
   return [
     {
@@ -193,10 +89,6 @@ export const createPromotionColumns = (data: PromotionStudent[]): ColumnDef<Prom
       minSize: 400,
     },
 
-    // ...termScores,
-
-    // cumulativeScore,
-
     {
       accessorKey: "firstTermPercentage",
       header: () => <span className="text-text-muted truncate text-sm font-medium">1st Term %</span>,
@@ -221,12 +113,118 @@ export const createPromotionColumns = (data: PromotionStudent[]): ColumnDef<Prom
       minSize: 136,
     },
 
+    // {
+    //   accessorKey: "suggestion",
+    //   header: () => <span className="text-text-muted truncate text-sm font-medium">Suggestion</span>,
+    //   cell: ({ row }) => {
+    //     // const suggestion = promotionType === "PROMOTE_ALL" ? "Promote" : (promotionType === "MANUAL" && row.original?.cumulativePercentage >= 50) ? "Promote" : (promotionType === "MANUAL" && row.original?.cumulativePercentage < 50) ? "Repeat" : promotionType === "BY_PERFORMANCE" ? "Promote" : "Repeat";
+    //     const suggestion = "Repeat";
+    //     return (
+    //     <span className="text-text-default text-sm"><Badge className={cn("border border-border-default rounded-md", suggestion === "Promote" && "text-text-success", suggestion === "Repeat" && "text-text-warning")}>{suggestion}</Badge></span>
+    //   )},
+    //   size: 136,
+    //   minSize: 136,
+    // },
+
     {
       id: "actions",
-      header: () => <div className="text-text-muted cursor-pointer text-sm font-medium" />,
-      cell: ({ row }) => RenderAction(row),
+      header: () => <div className="text-text-muted cursor-pointer text-sm font-medium">{promotionType === "PROMOTE_ALL" ? "Next Class" : "Promotion Decision"}</div>,
+      cell: ({ row }) => RenderAction(row, onSetDecision, decisions, promotionType),
       size: 209,
       minSize: 209,
     },
   ];
+};
+
+export const createSubjectCombinationColumns = (
+  subjectNames: string[],
+  onSetDecision: (student: PromotionBySubjectReport) => void,
+  decisions: { studentId: number; className?: string; armName?: string; status: string }[],
+  promotionType: string
+): ColumnDef<PromotionBySubjectReport>[] => {
+  const baseColumns = createPromotionColumns([], onSetDecision as any, decisions, promotionType);
+  
+  // Find Student Name column to insert subjects after it
+  const selectCol = {
+    id: "select",
+    header: ({ table }) => (
+      <div className="flex items-center justify-center">
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected()}
+          onCheckedChange={(value: boolean) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className="flex items-center justify-center">
+        <Checkbox checked={row.getIsSelected()} onCheckedChange={(value: boolean) => row.toggleSelected(!!value)} aria-label="Select row" />
+      </div>
+    ),
+    size: 50,
+  };
+
+  const nameCol = {
+    accessorKey: "studentName",
+    header: () => (
+      <div className="text-text-muted flex h-14 items-center pl-2 text-left! text-sm font-medium">Student Name</div>
+    ),
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <Avatar className="size-8" />
+        <span className="text-text-default text-sm">{row.original.studentName}</span>
+      </div>
+    ),
+    size: 250,
+    minSize: 250,
+  };
+
+  const subjectColumns = subjectNames.map(subject => ({
+    id: subject,
+    header: () => <span className="text-text-muted truncate text-sm font-medium">{subject}</span>,
+    cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => {
+      const subjectScore = row.original.subjects?.find((s) => s.subjectName === subject);
+      return <span className="text-text-default text-sm">{subjectScore?.score ?? 0}</span>;
+    },
+    size: 100,
+    minSize: 100,
+  }));
+
+  const statsColumns = [
+    {
+      accessorKey: "total",
+      header: () => <span className="text-text-muted truncate text-sm font-medium">Total</span>,
+      cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => <span className="text-text-default text-sm">{row.original.total ?? 0}</span>,
+      size: 100,
+    },
+    {
+      accessorKey: "percentage",
+      header: () => <span className="text-text-muted truncate text-sm font-medium">Percentage %</span>,
+      cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => <span className="text-text-default text-sm">{row.original.percentage ?? 0}%</span>,
+      size: 120,
+    },
+    {
+      accessorKey: "suggestion",
+      header: () => <span className="text-text-muted truncate text-sm font-medium">Suggestion</span>,
+      cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => {
+        const suggestion = row.original.percentage >= 50 ? "Promote" : "Repeat"; // Simple logic for mock
+        return (
+          <Badge className={cn("border border-border-default rounded-md px-2 py-0.5 font-normal", 
+            suggestion === "Promote" ? "text-text-success bg-bg-success-soft" : "text-text-warning bg-bg-warning-soft")}>
+            {suggestion}
+          </Badge>
+        );
+      },
+      size: 120,
+    },
+  ];
+
+  const actionCol = {
+    id: "actions",
+    header: () => <div className="text-text-muted text-sm font-medium">Promotion Decision</div>,
+    cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => RenderAction(row as any, onSetDecision as any, decisions, promotionType),
+    size: 200,
+  };
+
+  return [selectCol, nameCol, ...subjectColumns, ...statsColumns, actionCol] as ColumnDef<PromotionBySubjectReport>[];
 };

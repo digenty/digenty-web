@@ -96,7 +96,7 @@ export const AllBranchesTable = ({
                         <div className="flex flex-col items-center gap-2">
                           <div
                             role="button"
-                            onClick={() => router.push("/classes-and-subjects/all-classes")}
+                            onClick={() => router.push("/staff/classes-and-subjects/all-classes")}
                             className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                           >
                             <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Branch
@@ -106,7 +106,7 @@ export const AllBranchesTable = ({
                           </div>
 
                           <div
-                            onClick={() => router.push(`/classes-and-subjects/all-branches/${item.branchId}/manage-edits`)}
+                            onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${item.branchId}/manage-edits`)}
                             role="button"
                             className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                           >

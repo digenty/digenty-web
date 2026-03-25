@@ -8,8 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Class() {
   const pathname = usePathname();
-  const armId = pathname.split("/")[5];
-  const classId = pathname.split("/")[3];
+  const armId = pathname.split("/staff/")[5];
+  const classId = pathname.split("/staff/")[3];
   const { data, isLoading, isError } = useGetBranchTeachersClassSubjects(Number(armId));
   const classData = data?.data?.data?.subjectReportResponseDtoList ?? [];
   const classTeacherName = data?.data?.data?.classTeacherName || "--";

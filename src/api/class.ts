@@ -151,3 +151,35 @@ export const submitClassReport = async (payload: { classArmReportId: number; sta
     throw error;
   }
 };
+
+export const setPromotionDecision = async (payload: {
+  armId: number;
+  sessionId: number;
+  decisions: {
+    studentId: number;
+    status: string;
+    toClassId?: number;
+    toArmId?: number;
+  }[];
+}) => {
+  try {
+    const { data } = await api.post("/student-promotion/submit", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+export const getRequiredSubjectReport = async (armId: number) => {
+  try {
+    const { data } = await api.get(`/report/class/arm/${armId}/required-subject-report`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.message;
+    }
+    throw error;
+  }
+};

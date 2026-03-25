@@ -2,7 +2,7 @@ import { Auth } from "@/components/Auth";
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 
-export default function SignupPage() {
+export default function StaffSignupPage() {
   return (
     <div>
       <Suspense
@@ -12,7 +12,7 @@ export default function SignupPage() {
           </div>
         }
       >
-        <Auth />
+        <Auth userType="SCHOOL_STAFF" />
       </Suspense>
     </div>
   );

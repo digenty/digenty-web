@@ -22,7 +22,7 @@ const steps = [{ label: "Choose Mode" }, { label: "Account Setup" }, { label: "R
 export const FeesSetup = () => {
   const [activeStep, setActiveStep] = useState(-1);
   const [flow, setFlow] = useState<FlowType | null>(null);
-  useBreadcrumb([{ label: "Fee Collection", url: "/fee-collection" }]);
+  useBreadcrumb([{ label: "Fee Collection", url: "/staff/fee-collection" }]);
 
   const next = () => setActiveStep(s => Math.min(s + 1, steps.length - 1));
 

@@ -18,7 +18,7 @@ export const AllClassesMain = () => {
   const pathname = usePathname();
 
   const schoolId = user?.schoolId;
-  // const branchId = pathname.split("/")[3];
+  // const branchId = pathname.split("/staff/")[3];
   const branchId = 37;
 
   const [termSelected, setTermSelected] = useState<Term | null>(null);

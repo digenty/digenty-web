@@ -101,7 +101,7 @@ export const StockSheet = () => {
                     <div key={sf.id} className="border-border-darker bg-bg-card rounded-md border p-4">
                       <div className="flex w-full items-start gap-2.5">
                         <Image
-                          src="/images/noImage.png"
+                          src="/staff/images/noImage.png"
                           alt="no image"
                           width={32}
                           height={32}
@@ -166,7 +166,7 @@ export const StockSheet = () => {
               {sheetFees.map(sf => (
                 <div key={sf.id} className="border-border-darker bg-bg-card rounded-md border p-4">
                   <div className="flex w-full items-start gap-2.5">
-                    <Image src="/images/noImage.png" alt="no image" width={32} height={32} className="rounded-full" />
+                    <Image src="/staff/images/noImage.png" alt="no image" width={32} height={32} className="rounded-full" />
 
                     <div className="w-full">
                       <div className="border-border-default flex w-full flex-col gap-2 border-b pb-4">

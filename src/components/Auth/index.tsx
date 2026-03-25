@@ -2,10 +2,9 @@
 import { AuthLayout } from "@/components/Auth/AuthLayout";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
-import { GoogleAuth } from "./GoogleAuth";
 import { ValidateEmail } from "./ValidateEmail";
 
-export const Auth = () => {
+export const Auth = ({ userType }: { userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const params = useSearchParams();
   const step = params.get("step");
 
@@ -36,7 +35,7 @@ export const Auth = () => {
           </div>
         )}
         <div className={cn("w-full", step && "mt-7")}>
-          <ValidateEmail />
+          <ValidateEmail userType={userType} />
         </div>
       </div>
     </AuthLayout>

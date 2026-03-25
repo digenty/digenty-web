@@ -20,15 +20,15 @@ import ScoresHeader from "./ScoresHeader";
 
 export default function Score() {
   useBreadcrumb([
-    { label: "Classes and Subjects", url: "/classes-and-subjects" },
-    { label: "My Subjects", url: "/classes-and-subjects?tab=subjects" },
+    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+    { label: "My Subjects", url: "/staff/classes-and-subjects?tab=subjects" },
     { label: "Score Input", url: "" },
   ]);
 
   const pathname = usePathname();
-  const classId = pathname.split("/")[5];
-  const subjectId = pathname.split("/")[3];
-  const armId = pathname.split("/")[7];
+  const classId = pathname.split("/staff/")[5];
+  const subjectId = pathname.split("/staff/")[3];
+  const armId = pathname.split("/staff/")[7];
 
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
@@ -147,7 +147,7 @@ export default function Score() {
               title="No Students"
               description="No students for this class yet"
               buttonText="Add Student"
-              url="/student-and-parent-record/add-student"
+              url="/staff/student-and-parent-record/add-student"
             />
           </div>
         )}

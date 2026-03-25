@@ -12,7 +12,7 @@ import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 
-export const LoginPasswordForm = ({ email }: { email: string }) => {
+export const LoginPasswordForm = ({ email, userType }: { email: string, userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const { mutate, isPending } = useLogin();
@@ -31,6 +31,7 @@ export const LoginPasswordForm = ({ email }: { email: string }) => {
         {
           email: values.email,
           password: values.password,
+          userType,
         },
         {
           onSuccess: data => {
@@ -39,7 +40,7 @@ export const LoginPasswordForm = ({ email }: { email: string }) => {
               description: data.message,
               type: "success",
             });
-            createSession(data.data.token);
+            createSession(data.data.token, userType);
           },
           onError: error => {
             toast({

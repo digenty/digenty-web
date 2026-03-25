@@ -22,14 +22,14 @@ export interface Subject {
 
 export const ClassOverview = () => {
   useBreadcrumb([
-    { label: "Classes and Subjects", url: "/classes-and-subjects" },
-    { label: "Classes", url: `/classes-and-subjects` },
+    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+    { label: "Classes", url: `/staff/classes-and-subjects` },
     { label: "My Class", url: "" },
   ]);
 
   const { openNotifyTeacher } = useClassesStore();
   const pathname = usePathname();
-  const armId = pathname.split("/")[4];
+  const armId = pathname.split("/staff/")[4];
   const searchParams = useSearchParams();
   const classArmName = searchParams.get("classArmName")?.replaceAll("-", " ") || "";
 

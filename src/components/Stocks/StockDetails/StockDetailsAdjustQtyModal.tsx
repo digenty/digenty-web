@@ -44,7 +44,7 @@ export const StockDetailsAdjustQtyModal = ({ open, setOpen }: Qtyprops) => {
           <div className="flex w-full flex-col gap-4 px-3 py-4">
             <div className="border-border-default tems-center flex justify-between gap-3 rounded-md border p-3 md:p-6">
               <div className="flex items-center gap-2">
-                <Image src="/images/image.png" alt="stock image" width={32} height={32} />
+                <Image src="/staff/images/image.png" alt="stock image" width={32} height={32} />
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1">
                     <div className="text-text-default text-sm font-semibold">Textbook</div>
@@ -144,7 +144,7 @@ export const StockDetailsAdjustQtyModal = ({ open, setOpen }: Qtyprops) => {
           <div className="flex w-full flex-col gap-4 px-3 py-4">
             <div className="border-border-default tems-center flex justify-between gap-3 rounded-md border p-3 md:p-6">
               <div className="flex items-center gap-2">
-                <Image src="/images/image.png" alt="stock image" width={32} height={32} />
+                <Image src="/staff/images/image.png" alt="stock image" width={32} height={32} />
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-1">
                     <div className="text-text-default text-sm font-semibold">Textbook</div>

@@ -244,7 +244,7 @@ export const Sidebar = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setActiveNav(pathname.split("/")[1]);
+    setActiveNav(pathname.split("/staff/")[1]);
   }, [pathname, setActiveNav]);
 
   const logout = () => {
@@ -317,7 +317,7 @@ export const Sidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          onClick={() => router.push(`/${menu.url}`)}
+                          onClick={() => router.push(`/staff/${menu.url}`)}
                         >
                           <menu.icon fill="var(--color-icon-default-subtle)" />
                           {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
@@ -381,7 +381,7 @@ export const Sidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          onClick={() => router.push(`/${menu.url}`)}
+                          onClick={() => router.push(`/staff/${menu.url}`)}
                         >
                           <menu.icon fill="var(--color-icon-default-subtle)" />
                           <p className="text-sm leading-5 font-medium">{menu.title}</p>

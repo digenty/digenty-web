@@ -122,7 +122,7 @@ export const Staffs = () => {
             <DropdownMenu open={openFilter} onOpenChange={setOpenFilter}>
               <DropdownMenuTrigger asChild>
                 <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex">
-                  <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+                  <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
                   Branch
                 </Badge>
               </DropdownMenuTrigger>
@@ -146,7 +146,7 @@ export const Staffs = () => {
 
         <div className="flex items-center justify-between gap-1">
           <Button onClick={() => setOpenFilter(true)} className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden">
-            <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
           </Button>
 
           <Button
@@ -158,7 +158,7 @@ export const Staffs = () => {
 
           <div className="flex items-center gap-1">
             <Button
-              onClick={() => router.push("/settings/permissions/add-staff")}
+              onClick={() => router.push("/staff/settings/permissions/add-staff")}
               className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
             >
               <PlusIcon className="text-icon-white-default size-4" />
@@ -215,7 +215,7 @@ export const Staffs = () => {
 
       {!isPending && !isError && staff.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Staff" description="No staff has been added yet" buttonText="Add a staff" url="/settings/permissions/add-staff" />
+          <ErrorComponent title="No Staff" description="No staff has been added yet" buttonText="Add a staff" url="/staff/settings/permissions/add-staff" />
         </div>
       )}
 

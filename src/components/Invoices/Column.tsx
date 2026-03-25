@@ -24,14 +24,14 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
         <DropdownMenuItem
           onClick={evt => {
             evt.stopPropagation();
-            router.push(`/invoices/${row.original.id}`);
+            router.push(`/staff/invoices/${row.original.id}`);
           }}
           className="hover:bg-bg-state-ghost-hover cursor-pointer gap-2.5 px-3"
         >
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View invoice</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/invoices/edit-invoice")} className="hover:bg-bg-state-ghost-hover gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => router.push("/staff/invoices/edit-invoice")} className="hover:bg-bg-state-ghost-hover gap-2.5 px-3">
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit invoice</span>
         </DropdownMenuItem>

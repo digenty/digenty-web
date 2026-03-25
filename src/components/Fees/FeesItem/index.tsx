@@ -19,8 +19,8 @@ const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term
 export const FeesItem = () => {
   const router = useRouter();
   useBreadcrumb([
-    { label: "Fees", url: "/fees" },
-    { label: "Fee Items", url: "/fees?tab=Fee Items" },
+    { label: "Fees", url: "/staff/fees" },
+    { label: "Fee Items", url: "/staff/fees?tab=Fee Items" },
   ]);
   const [branchSelected, setBranchSelected] = useState(branches[0]);
   const [termSelected, setTermSelected] = useState(termsOptions[0]);
@@ -71,7 +71,7 @@ export const FeesItem = () => {
           setCurrentPage={setPage}
           pageSize={pageSize}
           clickHandler={row => {
-            router.push(`/fees/fee-item/${row.original.id}`);
+            router.push(`/staff/fees/fee-item/${row.original.id}`);
           }}
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}

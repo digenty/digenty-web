@@ -11,8 +11,8 @@ const tabs = ["Result Calculation", "Submission Deadline", "Principal’s Commen
 export const SettingsResult = () => {
   const [activeTab, setActiveTab] = useState("Result Calculation");
   useBreadcrumb([
-    { label: "Settings", url: "/settings" },
-    { label: "Result Settings", url: "/settings/result" },
+    { label: "Settings", url: "/staff/settings" },
+    { label: "Result Settings", url: "/staff/settings/result" },
   ]);
   return (
     <div className="px-4 md:p-8">

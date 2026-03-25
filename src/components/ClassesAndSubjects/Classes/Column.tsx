@@ -34,7 +34,7 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
             className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
             onClick={() =>
               router.push(
-                `/classes-and-subjects/all-classes/${row.original.classId}/arm/${row.original.armId}?classArmName=${row.original.classArmName.replaceAll(" ", "-")}`,
+                `/staff/classes-and-subjects/all-classes/${row.original.classId}/arm/${row.original.armId}?classArmName=${row.original.classArmName.replaceAll(" ", "-")}`,
               )
             }
           >
@@ -54,7 +54,7 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
             <span>Notify class teacher</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => router.push(`/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
+            onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
             className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
           >
             <Key fill="var(--color-icon-default-subtle)" className="size-4" />
@@ -98,7 +98,7 @@ const RenderActions = (row: Row<ClassProps>, armId: number, classId: number, cla
         <Button
           onClick={() =>
             router.push(
-              `/classes-and-subjects/subjects/${row.original.subjectId}/classes/${classId}/arms/${armId}/view-score?classArmName=${classArmName.replaceAll(" ", "-")}&subjectName=${row.original.subjectName.replaceAll(" ", "-")}`,
+              `/staff/classes-and-subjects/subjects/${row.original.subjectId}/classes/${classId}/arms/${armId}/view-score?classArmName=${classArmName.replaceAll(" ", "-")}&subjectName=${row.original.subjectName.replaceAll(" ", "-")}`,
             )
           }
           className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"

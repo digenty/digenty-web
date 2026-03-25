@@ -49,7 +49,7 @@ export const ReportHeader = ({
   const user = useLoggedInUser();
 
   useBreadcrumb([
-    { label: "All Classes", url: "/all-classes" },
+    { label: "All Classes", url: "/staff/all-classes" },
     { label: classArmName, url: "" },
     { label: "Class Report", url: "" },
   ]);

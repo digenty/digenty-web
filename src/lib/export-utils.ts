@@ -9,7 +9,7 @@ export const exportToCSV = (filename: string, headers: string[], rows: (string |
   const escapeCSV = (field: string | number) => {
     const stringField = String(field);
     if (stringField.includes(",") || stringField.includes('"') || stringField.includes("\n")) {
-      return `"${stringField.replace(/"/g, '""')}"`;
+      return `"${stringField.replace(/"/staff/g, '""')}"`;
     }
     return stringField;
   };

@@ -141,10 +141,7 @@ export const ClassReportHeader = ({
                 <Button
                   onClick={handleOpenModal}
                   size="sm"
-                  className={cn(
-                    "text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 items-center gap-1 text-sm font-normal md:w-fit",
-                    activeFilter !== "spreadsheet" && "cursor-not-allowed opacity-50",
-                  )}
+                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 items-center gap-1 text-sm font-normal md:w-fit"
                 >
                   <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
                   Submit

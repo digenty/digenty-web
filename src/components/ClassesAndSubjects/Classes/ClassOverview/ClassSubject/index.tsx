@@ -15,16 +15,16 @@ import { ClassPermissionWrapper } from "../../ClassPermissionWrapper";
 
 export const SubjectByClass = () => {
   useBreadcrumb([
-    { label: "Classes and Subjects", url: "/classes-and-subjects" },
-    { label: "Classes", url: `/classes-and-subjects` },
-    { label: "My Class", url: "/classes-and-subjects" },
+    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+    { label: "Classes", url: `/staff/classes-and-subjects` },
+    { label: "My Class", url: "/staff/classes-and-subjects" },
     { label: "View Score", url: "" },
   ]);
 
   const pathname = usePathname();
-  const classId = pathname.split("/")[8];
-  const subjectId = pathname.split("/")[6];
-  const armId = pathname.split("/")[4];
+  const classId = pathname.split("/staff/")[8];
+  const subjectId = pathname.split("/staff/")[6];
+  const armId = pathname.split("/staff/")[4];
 
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
@@ -84,7 +84,7 @@ export const SubjectByClass = () => {
               title="No Students"
               description="No students for this class yet"
               buttonText="Add Student"
-              url="/student-and-parent-record/add-student"
+              url="/staff/student-and-parent-record/add-student"
             />
           </div>
         )}

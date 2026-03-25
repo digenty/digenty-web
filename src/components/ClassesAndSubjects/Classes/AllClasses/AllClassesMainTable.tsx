@@ -69,7 +69,7 @@ export const AllClassesMainTable = ({
   const { data: levels, isLoading: loadingLevels } = useGetLevels();
   console.log(data);
 
-  useBreadcrumb([{ label: "All Classes", url: "/classes-and-subjects/all-classes" }]);
+  useBreadcrumb([{ label: "All Classes", url: "/staff/classes-and-subjects/all-classes" }]);
 
   return (
     <div className="px-4 py-3 md:px-8">
@@ -161,7 +161,7 @@ export const AllClassesMainTable = ({
 
       {!isFetchingBranch && !isError && data.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Classes" description="No classes to view " buttonText="Add a class" url="/settings/academic/academic-setup" />
+          <ErrorComponent title="No Classes" description="No classes to view " buttonText="Add a class" url="/staff/settings/academic/academic-setup" />
         </div>
       )}
 
@@ -175,7 +175,7 @@ export const AllClassesMainTable = ({
               <Button
                 onClick={() =>
                   router.push(
-                    `/classes-and-subjects/all-classes/${activeClassId}/arm/${activeArmId}?classArmName=${activeArmName.replaceAll(" ", "-")}`,
+                    `/staff/classes-and-subjects/all-classes/${activeClassId}/arm/${activeArmId}?classArmName=${activeArmName.replaceAll(" ", "-")}`,
                   )
                 }
                 className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
@@ -204,7 +204,7 @@ export const AllClassesMainTable = ({
                 </div>
               </Button>
               <Button
-                onClick={() => router.push(`/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
+                onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
                 className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
               >
                 <div className="flex items-center gap-1">

@@ -2,12 +2,18 @@ import api from "@/lib/axios/axios-auth";
 import apiPublic from "@/lib/axios/axios-public";
 import { isAxiosError } from "axios";
 
-type Payload = {
+type LoginPayload = {
+  email: string;
+  password: string;
+  userType: "SCHOOL_STAFF" | "PARENT";
+};
+
+type SignupPayload = {
   email: string;
   password: string;
 };
 
-export const signup = async (payload: Payload) => {
+export const signup = async (payload: SignupPayload) => {
   try {
     const { data } = await apiPublic.post("/auth/register", payload);
     return data;
@@ -19,7 +25,7 @@ export const signup = async (payload: Payload) => {
   }
 };
 
-export const login = async (payload: Payload) => {
+export const login = async (payload: LoginPayload) => {
   try {
     const { data } = await apiPublic.post("/auth/login", payload);
     return data;

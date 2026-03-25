@@ -143,7 +143,7 @@ export default function StudentInvoiceTable() {
 
         <div className="md:hidden">
           <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
-            <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
           </Button>
 
           <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
@@ -213,7 +213,7 @@ export default function StudentInvoiceTable() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-bg-card border-border-default w-[192px] rounded-sm border shadow-sm">
                     <DropdownMenuItem
-                      onClick={() => router.push(`/invoices/${invoice.id}`)}
+                      onClick={() => router.push(`/staff/invoices/${invoice.id}`)}
                       className="text-text-default hover:bg-bg-muted flex items-center gap-2 p-2 text-sm"
                     >
                       <Eye className="size-4" /> View Invoice

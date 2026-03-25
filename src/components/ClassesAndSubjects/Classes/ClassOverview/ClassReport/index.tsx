@@ -15,7 +15,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { exportToCSV } from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
 
-import { Term } from "@/api/types";
+import { StudentCumulative, Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -72,7 +72,7 @@ type ClassArmStudentReport = {
 export const ClassReport = () => {
   const path = usePathname();
   const params = useSearchParams();
-  const armId = path.split("/")[4];
+  const armId = path.split("/staff/")[4];
   const { branchIds } = useLoggedInUser();
   const branchId = branchIds?.[0];
   const classArmName = params.get("classArmName")?.replaceAll("-", " ") || "";
@@ -87,9 +87,9 @@ export const ClassReport = () => {
   const pageSize = 100;
 
   useBreadcrumb([
-    { label: "Classes and Subjects", url: "/classes-and-subjects" },
-    { label: "Classes", url: "/classes-and-subjects" },
-    { label: "My Class", url: `/classes-and-subjects/classes/overview/${armId}?classArmName=${classArmName}` },
+    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+    { label: "Classes", url: "/staff/classes-and-subjects" },
+    { label: "My Class", url: `/staff/classes-and-subjects/classes/overview/${armId}?classArmName=${classArmName}` },
     { label: "Class Report", url: "" },
   ]);
 
@@ -268,7 +268,7 @@ export const ClassReport = () => {
                   ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
                     <Skeleton className="bg-bg-input-soft h-100 w-full" />
                   ) : (
-                    <Promotion cumulativeReport={classCumulativeReportData?.data} />
+                    <Promotion cumulativeReport={classCumulativeReportData?.data} armId={Number(armId)} promotionType={classCumulativeReportData?.data?.promotionType} />
                   )}
                 </div>
               )}
@@ -338,13 +338,15 @@ export const ClassReport = () => {
                     />
                   );
                 }
-                if (activeFilter === "promotion") {
-                  return (
-                    <PromotionMobileCard key={student.id} student={student} activeStudent={activeStudentId} setActiveStudent={setActiveStudentId} />
-                  );
-                }
-                return null;
               })}
+
+              {activeFilter === "promotion" && (
+                <>
+                  {classCumulativeReportData?.data?.studentCumulative.map((student: StudentCumulative) => (
+                    <PromotionMobileCard key={student.studentId} student={student} activeStudent={activeStudentId} setActiveStudent={setActiveStudentId} />
+                  ))}
+                </>
+              )}
             </ul>
           </>
         )}

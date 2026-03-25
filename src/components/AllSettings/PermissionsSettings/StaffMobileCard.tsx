@@ -34,14 +34,14 @@ export const StaffMobileCard = ({ staff }: { staff: Staff }) => {
           <div className="flex w-full flex-col gap-4 px-3 py-4">
             <div className="flex flex-col items-center gap-2">
               <div
-                onClick={() => router.push(`/settings/permissions/staff/${staff.staffId}`)}
+                onClick={() => router.push(`/staff/settings/permissions/staff/${staff.staffId}`)}
                 className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
               >
                 <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Staff
               </div>
               <div
                 role="button"
-                onClick={() => router.push(`/settings/permissions/edit-staff/${staff.staffId}`)}
+                onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staff.staffId}`)}
                 className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
               >
                 <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Staff

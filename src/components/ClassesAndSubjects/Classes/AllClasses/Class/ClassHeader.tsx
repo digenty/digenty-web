@@ -34,7 +34,7 @@ export const ClassHeader = ({
   const [open, setOpen] = useState(false);
 
   useBreadcrumb([
-    { label: "All Classes", url: "/classes-and-subjects/all-classes" },
+    { label: "All Classes", url: "/staff/classes-and-subjects/all-classes" },
     { label: classArmName.replaceAll("-", " "), url: "" },
   ]);
 
@@ -79,7 +79,7 @@ export const ClassHeader = ({
               <Skeleton className="bg-bg-input-soft h-8 w-40" />
             ) : (
               <Button
-                onClick={() => router.push(`/classes-and-subjects/all-classes/${classId}/arm/${armId}/class-report?classArmName=${classArmName}`)}
+                onClick={() => router.push(`/staff/classes-and-subjects/all-classes/${classId}/arm/${armId}/class-report?classArmName=${classArmName}`)}
                 className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-32.5"
               >
                 <FileList2 fill="var(--color-icon-default-muted)" /> Class Report

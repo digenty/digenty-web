@@ -33,14 +33,14 @@ export const ClassAttendanceHeader = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const attendanceId = pathname.split("/")[5] ?? "";
-  const armId = pathname.split("/")[3] ?? "";
+  const attendanceId = pathname.split("/staff/")[5] ?? "";
+  const armId = pathname.split("/staff/")[3] ?? "";
 
   const { mutate: saveAttendance, isPending: saving } = useMarkAttendance();
   const { mutate: markAllAttendance, isPending: markingAll } = useMarkAllAttendance();
 
   useBreadcrumb([
-    { label: "Attendance Management", url: "/attendance" },
+    { label: "Attendance Management", url: "/staff/attendance" },
     { label: `${classArmName} Attendance`, url: "" },
   ]);
 
@@ -127,7 +127,7 @@ export const ClassAttendanceHeader = ({
       <div className="hide-scrollbar w-screen overflow-x-auto px-4 py-2 md:w-auto md:overflow-x-visible md:px-8 md:py-0">
         <div className="flex w-max items-center gap-2 md:w-auto">
           <Button
-            onClick={() => router.push(`/attendance/${classArmName.split(" ").join("-")}/${armId}/term-sheet`)}
+            onClick={() => router.push(`/staff/attendance/${classArmName.split(" ").join("-")}/${armId}/term-sheet`)}
             className="border-border-darker flex h-8! items-center gap-2 border"
           >
             <ListCheck fill="var(--color-icon-default-muted)" className="size-3" />

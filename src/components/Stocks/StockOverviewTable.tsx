@@ -39,7 +39,7 @@ export const StockOverviewTable = () => {
           setRowSelection={setRowSelection}
           onSelectRows={setSelectedRows}
           clickHandler={row => {
-            router.push(`/stock/${row.original.id}`);
+            router.push(`/staff/stock/${row.original.id}`);
           }}
           showPagination={true}
         />
@@ -77,7 +77,7 @@ export const StockOverviewTable = () => {
               <div className="">
                 <div className="border-border-default flex justify-between border-b px-3 py-1 text-sm">
                   <div className="flex items-center gap-2">
-                    <Image src="/images/image.png" alt={stock.itemName} width={20} height={20} />
+                    <Image src="/staff/images/image.png" alt={stock.itemName} width={20} height={20} />
                     <span className="text-text-default text-sm font-medium">{stock.itemName}</span>
                   </div>{" "}
                   <Button onClick={() => setIsOpen(true)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">

@@ -27,8 +27,8 @@ export const AddParent = () => {
   const [step, setStep] = useState(1);
 
   useBreadcrumb([
-    { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Parents", url: "/student-and-parent-record?tab=Parents" },
+    { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
+    { label: "Parents", url: "/staff/student-and-parent-record?tab=Parents" },
     { label: "Add Parent", url: "" },
   ]);
 

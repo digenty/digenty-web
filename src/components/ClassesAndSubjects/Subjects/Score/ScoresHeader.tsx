@@ -30,9 +30,9 @@ export default function ScoresHeader({
   const classArm = searchParams.get("classArmName")?.replaceAll("-", " ") || "";
   const subjectName = searchParams.get("subjectName") || "";
 
-  const classId = pathname.split("/")[5];
-  const subjectId = pathname.split("/")[3];
-  const armId = pathname.split("/")[7];
+  const classId = pathname.split("/staff/")[5];
+  const subjectId = pathname.split("/staff/")[3];
+  const armId = pathname.split("/staff/")[7];
 
   return (
     <>

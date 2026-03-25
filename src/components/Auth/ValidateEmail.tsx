@@ -12,7 +12,7 @@ import { Spinner } from "../ui/spinner";
 import { LoginPasswordForm } from "./Login/LoginPasswordForm";
 import { SignupPasswordForm } from "./Signup/SignupPasswordForm";
 
-export const ValidateEmail = () => {
+export const ValidateEmail = ({ userType }: { userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const [checkEmail, setCheckEmail] = useState(false);
   const [email, setEmail] = useState("");
   const router = useRouter();
@@ -37,13 +37,13 @@ export const ValidateEmail = () => {
     if (isSuccess) {
       formik.resetForm();
       setCheckEmail(false);
-      router.push(`/auth?step=login`);
+      router.push(`/auth/${userType === "SCHOOL_STAFF" ? "staff" : "parent"}?step=login`);
     }
 
     if (isError) {
       formik.resetForm();
       setCheckEmail(false);
-      router.push(`/auth?step=signup`);
+      router.push(`/auth/${userType === "SCHOOL_STAFF" ? "staff" : "parent"}?step=signup`);
     }
   }, [isSuccess, isError, error, data, router, formik]);
 
@@ -84,9 +84,9 @@ export const ValidateEmail = () => {
           </div>
         </form>
       ) : step === "login" ? (
-        <LoginPasswordForm email={email} />
+        <LoginPasswordForm email={email} userType={userType} />
       ) : (
-        <SignupPasswordForm email={email} />
+        <SignupPasswordForm email={email} userType={userType} />
       )}
     </div>
   );

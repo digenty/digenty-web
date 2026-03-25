@@ -299,14 +299,14 @@ export const SchoolSectionAndTerm = () => {
               title="Could not get Branch"
               description="This is our problem, we are looking into it so as to serve you better"
               buttonText="Go to the Home page"
-              url="/"
+              url="/staff/"
             />
           </div>
         )}
 
         {!isLoadingLevels && !isLevelError && levels.length === 0 && (
           <div className="flex h-80 items-center justify-center">
-            <ErrorComponent title="No Branch" description="No Branch has been added yet" buttonText="Add a branch" url="/settings/general" />
+            <ErrorComponent title="No Branch" description="No Branch has been added yet" buttonText="Add a branch" url="/staff/settings/general" />
           </div>
         )}
 

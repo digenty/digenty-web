@@ -39,9 +39,9 @@ export const ViewScore = () => {
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const subjectId = pathname.split("/")[3];
-  const classId = pathname.split("/")[5];
-  const armId = pathname.split("/")[7];
+  const subjectId = pathname.split("/staff/")[3];
+  const classId = pathname.split("/staff/")[5];
+  const armId = pathname.split("/staff/")[7];
   const classArmName = searchParams.get("classArmName")?.replaceAll("-", " ");
   const subjectName = searchParams.get("subjectName")?.replaceAll("-", " ");
 
@@ -60,8 +60,8 @@ export const ViewScore = () => {
   const studentsScores: ScoreType[] = viewScoreData?.data?.response?.content ?? [];
 
   useBreadcrumb([
-    { label: "Classes & Subjects", url: "/classes-and-subjects" },
-    { label: "Subjects", url: "/classes-and-subjects?tab=Subjects" },
+    { label: "Classes & Subjects", url: "/staff/classes-and-subjects" },
+    { label: "Subjects", url: "/staff/classes-and-subjects?tab=Subjects" },
     { label: "View Scores", url: "" },
   ]);
 
@@ -127,7 +127,7 @@ export const ViewScore = () => {
 
               <div className="pr-4">
                 <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setTermFilterOpen(true)}>
-                  <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+                  <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
                 </Button>
                 {!terms || isLoadingTerm ? (
                   <Skeleton className="bg-bg-input-soft h-8 w-41" />

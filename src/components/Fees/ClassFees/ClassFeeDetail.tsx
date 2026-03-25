@@ -52,9 +52,9 @@ export const ClassFeeDetail = () => {
   const [openDeleteModal, setOpeDeleteModal] = useState(false);
 
   useBreadcrumb([
-    { label: "Fees", url: "/fees" },
-    { label: "Class Fees", url: "/fees" },
-    { label: "JSS 1", url: "/fees/class-fees/jss-1" },
+    { label: "Fees", url: "/staff/fees" },
+    { label: "Class Fees", url: "/staff/fees" },
+    { label: "JSS 1", url: "/staff/fees/class-fees/jss-1" },
   ]);
   const remove = (id: number) => {
     setItems(prev => prev.filter(item => item.id !== id));
@@ -72,7 +72,7 @@ export const ClassFeeDetail = () => {
               <DeleteBin fill="var(--color-bg-state-destructive)" className="size-4" />
             </Button>
             <Button
-              onClick={() => route.push("/fees/add-fee-to-class")}
+              onClick={() => route.push("/staff/fees/add-fee-to-class")}
               className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! h-8! border font-medium shadow-sm!"
             >
               <AddFill fill="var(--color-icon-default-muted)" />

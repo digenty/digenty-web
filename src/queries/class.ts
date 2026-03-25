@@ -9,5 +9,7 @@ export const classKeys = {
   classesByLevel: (levelId?: number) => ["classesByLevel", levelId] as const,
   deleteClass: ["deleteClass"] as const,
   classLevel: ["classLevel"] as const,
-  submitClassReport: ["submitClassReport"] as const,
+  submitClassReport: "submitClassReport",
+  setPromotionDecision: "setPromotionDecision",
+  requiredSubjectReport: (armId: number) => ["requiredSubjectReport", armId] as const,
 };

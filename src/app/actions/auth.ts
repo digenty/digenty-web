@@ -4,7 +4,7 @@ import { JWTPayload } from "@/types";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export const createSession = async (token: string) => {
+export const createSession = async (token: string, userType: "SCHOOL_STAFF" | "PARENT") => {
   const cookieStore = await cookies();
 
   cookieStore.set("token", JSON.stringify(token), {
@@ -13,14 +13,14 @@ export const createSession = async (token: string) => {
     path: "/",
   });
 
-  redirect("/");
+  redirect(`/${userType === "SCHOOL_STAFF" ? "staff" : "parent"}`);
 };
 
 export const deleteSession = async () => {
   const cookieStore = await cookies();
   cookieStore.delete("token");
 
-  redirect("/auth");
+  redirect("/auth/staff");
 };
 
 export const getSessionToken = async () => {

@@ -16,7 +16,7 @@ import { AttendanceCards } from "./AttendanceCards";
 import { AttendanceHeader } from "./AttendanceHeader";
 
 export const AttendanceManagement = () => {
-  useBreadcrumb([{ label: "Attendance Management", url: "/attendance" }]);
+  useBreadcrumb([{ label: "Attendance Management", url: "/staff/attendance" }]);
 
   const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
   const [termSelected, setTermSelected] = useState<Term | null>(null);

@@ -697,3 +697,27 @@ export interface StudentCumulative {
 export interface CumulativeReport {
   studentCumulative: StudentCumulative[];
 }
+
+export interface PromotionBySubjectStudent {
+  subjectId: number,
+  subjectName: string,
+  score: number
+}
+
+export interface PromotionBySubjectReport {
+      studentId: number,
+      studentName: string,
+      subjects: PromotionBySubjectStudent[],
+      total: number,
+      percentage: number
+}
+
+export interface PromotionBySubjectReportResponse {
+  levelId: number,
+  students: PromotionBySubjectReport[],
+  stats: {
+    promoted: number,
+    repeated: number,
+    pending: number
+  }
+}
