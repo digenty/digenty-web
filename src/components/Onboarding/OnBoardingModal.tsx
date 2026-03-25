@@ -139,7 +139,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
               deleteSession();
             },
             onSuccess: data => {
-              createSession(data.data.token);
+              createSession(data.data.token, "SCHOOL_STAFF");
               toast({ title: "Branch(es) created successfully", type: "success" });
               setShowModal(false);
             },

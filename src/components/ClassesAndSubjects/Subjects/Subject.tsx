@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { REPORT_STATUS_CONFIG } from "@/queries/subject";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import RequestEdit from "./RequestEdit";
+import RequestEdit from "../RequestEditAccess";
 import { SubjectProps } from "./types";
 
 export default function Subject({ subjectName, classes, subjectId }: SubjectProps) {

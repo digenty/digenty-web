@@ -10,7 +10,14 @@ export default async function middleware(req: NextRequest) {
   const token = parseCookieString(tokenString);
 
   //include all routes that you want to be accessed without auth
-  const authRoutes = ["/auth/staff", "/auth/staff?step=login", "/auth/staff?step=signup", "/auth/parent", "/auth/parent?step=login", "/auth/parent?step=signup"];
+  const authRoutes = [
+    "/auth/staff",
+    "/auth/staff?step=login",
+    "/auth/staff?step=signup",
+    "/auth/parents",
+    "/auth/parents?step=login",
+    "/auth/parents?step=signup",
+  ];
 
   const isAuthRoute = authRoutes.includes(path);
 
@@ -25,7 +32,6 @@ export default async function middleware(req: NextRequest) {
   // }
 
   if (!token && !isAuthRoute) {
-
     const path = req.nextUrl.pathname;
 
     if (path.startsWith("/staff")) {

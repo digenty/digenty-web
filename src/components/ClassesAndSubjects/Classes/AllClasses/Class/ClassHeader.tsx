@@ -79,7 +79,9 @@ export const ClassHeader = ({
               <Skeleton className="bg-bg-input-soft h-8 w-40" />
             ) : (
               <Button
-                onClick={() => router.push(`/staff/classes-and-subjects/all-classes/${classId}/arm/${armId}/class-report?classArmName=${classArmName}`)}
+                onClick={() =>
+                  router.push(`/staff/classes-and-subjects/all-classes/${classId}/arm/${armId}/class-report?classArmName=${classArmName}`)
+                }
                 className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-32.5"
               >
                 <FileList2 fill="var(--color-icon-default-muted)" /> Class Report

@@ -16,6 +16,7 @@ import { StudentRow } from "./students";
 import { SubmitClassReportModal } from "./SubmitClassReportModal";
 import { useSubmitClassReport } from "@/hooks/queryHooks/class";
 import { toast } from "@/components/Toast";
+import RequestEdit from "../../../RequestEditAccess";
 
 export const ClassReportHeader = ({
   students,
@@ -26,8 +27,11 @@ export const ClassReportHeader = ({
   activeSession,
   setActiveSession,
   classArmName,
+  classId,
+  armId,
   onExport,
   classArmReportId,
+  status,
 }: {
   students: StudentRow[];
   activeFilter: string;
@@ -37,8 +41,11 @@ export const ClassReportHeader = ({
   activeSession: string | null;
   setActiveSession: React.Dispatch<React.SetStateAction<string | null>>;
   classArmName: string;
+  classId: number;
+  armId: number;
   onExport?: () => void;
   classArmReportId?: number;
+  status?: string;
 }) => {
   const isMobile = useIsMobile();
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -73,7 +80,7 @@ export const ClassReportHeader = ({
       submitReport(
         {
           classArmReportId: classArmReportId,
-          status: "APPROVED",
+          status: "PENDING_APPROVAL",
         },
         {
           onSuccess: () => {
@@ -91,6 +98,7 @@ export const ClassReportHeader = ({
   return (
     <>
       {openModal && <SubmitClassReportModal open={openModal} onOpenChange={setOpenModal} onConfirm={handleSubmit} isLoading={isSubmitting} />}
+      {openRequest && <RequestEdit open={openRequest} onOpenChange={setOpenRequest} classId={classId} armId={armId} />}
 
       <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
@@ -137,7 +145,7 @@ export const ClassReportHeader = ({
                 <ShareBox fill="var(--color-icon-default-muted)" /> Export
               </Button>
 
-              {!isSubmitted && !isRequested && (
+              {status === "NOT_SUBMITTED" && (
                 <Button
                   onClick={handleOpenModal}
                   size="sm"
@@ -148,7 +156,7 @@ export const ClassReportHeader = ({
                 </Button>
               )}
 
-              {isSubmitted && !isRequested && (
+              {status === "PENDING_APPROVAL" && (
                 <Button
                   size="sm"
                   onClick={() => setOpenRequest(true)}
@@ -158,14 +166,33 @@ export const ClassReportHeader = ({
                 </Button>
               )}
 
-              {isRequested && (
+              {status === "EDIT_REQUEST" && (
+                <Button
+                  disabled
+                  size="sm"
+                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto flex-1 items-center justify-between gap-1 border text-sm md:flex-auto"
+                >
+                  <Question fill="var(--color-icon-default-muted)" /> Requested Edit Access
+                </Button>
+              )}
+
+              {status === "APPROVED" && (
+                <Button
+                  size="sm"
+                  className="border-border-default bg-bg-basic-green-subtle text-bg-basic-green-strong flex h-8 w-auto flex-1 items-center justify-between gap-1 border text-sm md:flex-auto"
+                >
+                  <Question fill="var(--color-bg-basic-green-strong)" /> Approved
+                </Button>
+              )}
+
+              {/* {isRequested && (
                 <Button
                   size="sm"
                   className="border-border-default bg-bg-state-disabled! text-text-hint flex h-8 w-auto flex-1 cursor-not-allowed items-center justify-between gap-1 border text-sm md:flex-auto"
                 >
                   <Question fill="var(--color-icon-default-muted)" /> Requested Edit Access
                 </Button>
-              )}
+              )} */}
             </div>
           </div>
 

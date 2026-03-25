@@ -38,7 +38,11 @@ export const PromotionMobileCard = ({
           </div>
         </div>
         <div>
-          {activeStudent === student.studentId ? <ArrowUp fill="var(--color-icon-default-muted)" /> : <ArrowDown fill="var(--color-icon-default-muted)" />}
+          {activeStudent === student.studentId ? (
+            <ArrowUp fill="var(--color-icon-default-muted)" />
+          ) : (
+            <ArrowDown fill="var(--color-icon-default-muted)" />
+          )}
         </div>
       </div>
 
@@ -59,26 +63,26 @@ export const PromotionMobileCard = ({
           }
         })} */}
 
-         <div className="border-border-default flex h-12 border-b text-center last:border-b-0">
-                <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
-                  1st Term %
-                </div>
-                <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.firstTermPercentage}</div>
-              </div>
+        <div className="border-border-default flex h-12 border-b text-center last:border-b-0">
+          <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
+            1st Term %
+          </div>
+          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.firstTermPercentage}</div>
+        </div>
 
-               <div className="border-border-default flex h-12 border-b text-center last:border-b-0">
-                <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
-                  2nd Term %
-                </div>
-                <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.secondTermPercentage}</div>
-              </div>
+        <div className="border-border-default flex h-12 border-b text-center last:border-b-0">
+          <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
+            2nd Term %
+          </div>
+          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.secondTermPercentage}</div>
+        </div>
 
-               <div className="border-border-default flex h-12 border-b text-center last:border-b-0">
-                <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
-                  3rd Term %
-                </div>
-                <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.thirdTermPercentage}</div>
-              </div>
+        <div className="border-border-default flex h-12 border-b text-center last:border-b-0">
+          <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
+            3rd Term %
+          </div>
+          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.thirdTermPercentage}</div>
+        </div>
 
         <div className="flex h-[46px] justify-center px-3 py-1 text-center">
           <Select value={actionSelected} onValueChange={setActionSelected}>

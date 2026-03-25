@@ -6,7 +6,7 @@ export const useSubmitClassReport = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: [classKeys.submitClassReport],
-    mutationFn: (payload: { classArmReportId: number; status: "APPROVED" }) => submitClassReport(payload),
+    mutationFn: (payload: { classArmReportId: number; status: "PENDING_APPROVAL" }) => submitClassReport(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [classKeys.classReport()] });
     },
@@ -33,10 +33,10 @@ export const useSetPromotionDecision = () => {
   });
 };
 
-export const useGetRequiredSubjectReport = (armId: number, enabled: boolean) => {
+export const useGetRequiredSubjectReport = (armId: number, isSubjectCombination: boolean) => {
   return useQuery({
     queryKey: classKeys.requiredSubjectReport(armId),
     queryFn: () => getRequiredSubjectReport(armId),
-    enabled: !!armId && enabled,
+    enabled: isSubjectCombination,
   });
 };

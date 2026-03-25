@@ -18,6 +18,7 @@ import { Label } from "../ui/label";
 import { Skeleton } from "../ui/skeleton";
 import { studentsStatus } from "./constants";
 import { StudentsStatus } from "./types";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const RecordHeader = ({
   tab,
@@ -49,6 +50,7 @@ export const RecordHeader = ({
 }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
+  console.log(useLoggedInUser());
 
   return (
     <div>
@@ -74,7 +76,7 @@ export const RecordHeader = ({
             >
               <PermissionCheck permissionUtility={canManageStudentParentRecords}>
                 <SelectTrigger className="border-border-darker h-8! w-auto border">
-                  <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
+                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
                   <span className="text-text-default text-sm font-medium">
                     {filter.branchSelected ? filter.branchSelected?.name : "All Branches"}
                   </span>
@@ -106,7 +108,7 @@ export const RecordHeader = ({
                 >
                   <PermissionCheck permissionUtility={canManageStudentParentRecords}>
                     <SelectTrigger className="border-border-darker h-8! w-auto border">
-                      <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
+                      <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
                       <span className="text-text-default text-sm font-medium">
                         {filter.classSelected ? filter.classSelected?.name : "All Classes"}
                       </span>
@@ -153,7 +155,7 @@ export const RecordHeader = ({
         </div>
 
         <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
-          <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+          <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
         </Button>
 
         <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">

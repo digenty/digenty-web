@@ -11,7 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetGradingsForClass } from "@/hooks/queryHooks/useGrading";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
 import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { exportToCSV } from "@/lib/export-utils";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -26,9 +25,9 @@ export default function Score() {
   ]);
 
   const pathname = usePathname();
-  const classId = pathname.split("/staff/")[5];
-  const subjectId = pathname.split("/staff/")[3];
-  const armId = pathname.split("/staff/")[7];
+  const classId = pathname.split("/")[6];
+  const subjectId = pathname.split("/")[4];
+  const armId = pathname.split("/")[8];
 
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
@@ -128,7 +127,7 @@ export default function Score() {
             ) : (
               <ErrorComponent
                 title="No Students"
-                description="This is our problem, we are looking into it so as to serve you better"
+                description={`${error.message || "This is our problem, we are looking into it so as to serve you better"}`}
                 buttonText="Go to Home page"
               />
             )}

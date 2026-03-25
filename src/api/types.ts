@@ -699,25 +699,36 @@ export interface CumulativeReport {
 }
 
 export interface PromotionBySubjectStudent {
-  subjectId: number,
-  subjectName: string,
-  score: number
+  subjectId: number;
+  subjectName: string;
+  score: number;
 }
 
 export interface PromotionBySubjectReport {
-      studentId: number,
-      studentName: string,
-      subjects: PromotionBySubjectStudent[],
-      total: number,
-      percentage: number
+  studentId: number;
+  studentName: string;
+  subjects: PromotionBySubjectStudent[];
+  total: number;
+  percentage: number;
 }
 
 export interface PromotionBySubjectReportResponse {
-  levelId: number,
-  students: PromotionBySubjectReport[],
+  levelId: number;
+  students: PromotionBySubjectReport[];
   stats: {
-    promoted: number,
-    repeated: number,
-    pending: number
-  }
+    promoted: number;
+    repeated: number;
+    pending: number;
+  };
+}
+
+export interface ResultSettings {
+  academicSessionId: number;
+  calculationMethod: string;
+  classId: number;
+  id: number;
+  minimumOverallPercentage: number;
+  minimumPassGrade: string;
+  promotionType: "BY_PERFORMANCE" | "PROMOTE_ALL" | "MANUAL";
+  requiredSubjectIds: number[];
 }

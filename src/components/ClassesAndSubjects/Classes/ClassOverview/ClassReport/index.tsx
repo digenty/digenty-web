@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
 import { useGetClassCumulativeReport, useGetClassReport } from "@/hooks/queryHooks/useClass";
+import { useGetLevelResultSettings } from "@/hooks/queryHooks/useLevel";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { exportToCSV } from "@/lib/export-utils";
@@ -72,7 +73,8 @@ type ClassArmStudentReport = {
 export const ClassReport = () => {
   const path = usePathname();
   const params = useSearchParams();
-  const armId = path.split("/staff/")[4];
+  const armId = path.split("/")[5];
+  const classId = path.split("/")[7];
   const { branchIds } = useLoggedInUser();
   const branchId = branchIds?.[0];
   const classArmName = params.get("classArmName")?.replaceAll("-", " ") || "";
@@ -93,12 +95,22 @@ export const ClassReport = () => {
     { label: "Class Report", url: "" },
   ]);
 
-  const { data: classReportData, isLoading: isLoadingReport, isError: isErrorReport } = useGetClassReport(Number(armId), termSelected?.termId);
+  const {
+    data: classReportData,
+    isLoading: isLoadingReport,
+    isError: isErrorReport,
+    error: reportError,
+  } = useGetClassReport(Number(armId), termSelected?.termId);
+
   const {
     data: classCumulativeReportData,
     isLoading: isLoadingCumulativeReport,
     isError: isErrorCumulativeReport,
   } = useGetClassCumulativeReport(Number(armId), activeFilter);
+
+  const levelId = classCumulativeReportData?.data?.levelId;
+
+  const { data: levelResultSettings } = useGetLevelResultSettings(Number(levelId), activeFilter);
 
   const {
     data: studentReportData,
@@ -198,15 +210,18 @@ export const ClassReport = () => {
           activeSession={activeSession}
           setActiveSession={setActiveSession}
           classArmName={classArmName}
+          classId={Number(classId)}
+          armId={Number(armId)}
           onExport={handleExport}
           classArmReportId={classReportData?.data?.classArmReportId}
+          status={activeFilter === "spreadsheet" ? classReportData?.data?.status : ""}
         />
 
         {isErrorReport && (
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent
               title="Could not get class report"
-              description="This is our problem, we are looking into it so as to serve you better"
+              description={`${reportError?.message || "This is our problem, we are looking into it so as to serve you better"}`}
               buttonText="Go to the Home page"
             />
           </div>
@@ -268,7 +283,7 @@ export const ClassReport = () => {
                   ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
                     <Skeleton className="bg-bg-input-soft h-100 w-full" />
                   ) : (
-                    <Promotion cumulativeReport={classCumulativeReportData?.data} armId={Number(armId)} promotionType={classCumulativeReportData?.data?.promotionType} />
+                    <Promotion cumulativeReport={classCumulativeReportData?.data} armId={Number(armId)} resultSettings={levelResultSettings?.data} />
                   )}
                 </div>
               )}
@@ -343,7 +358,12 @@ export const ClassReport = () => {
               {activeFilter === "promotion" && (
                 <>
                   {classCumulativeReportData?.data?.studentCumulative.map((student: StudentCumulative) => (
-                    <PromotionMobileCard key={student.studentId} student={student} activeStudent={activeStudentId} setActiveStudent={setActiveStudentId} />
+                    <PromotionMobileCard
+                      key={student.studentId}
+                      student={student}
+                      activeStudent={activeStudentId}
+                      setActiveStudent={setActiveStudentId}
+                    />
                   ))}
                 </>
               )}

@@ -19,7 +19,7 @@ import { exportToCSV } from "@/lib/export-utils";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import RequestEdit from "../../RequestEdit";
+import RequestEdit from "../../../RequestEditAccess";
 import { SubjectReportPermissionWrapper } from "../../SubjectReportPermissionWrapper";
 import { viewScoreColumns } from "./Columns";
 import { MobileCard } from "./MobileCard";

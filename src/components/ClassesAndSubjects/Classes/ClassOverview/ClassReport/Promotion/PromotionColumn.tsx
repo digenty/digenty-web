@@ -1,5 +1,6 @@
 "use client";
 
+import { PromotionBySubjectReport } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,16 +9,15 @@ import { cn } from "@/lib/utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import { PromotionStudent } from "../students";
-import { PromotionBySubjectReport } from "@/api/types";
 
-const RenderAction = (
-  row: Row<PromotionStudent>, 
-  onSetDecision: (student: PromotionStudent) => void,
+const RenderAction = <T extends { studentId: number }>(
+  row: Row<T>,
+  onSetDecision: (student: T) => void,
   decisions: { studentId: number; className?: string; armName?: string; status: string }[],
-  promotionType: string
+  promotionType: string,
 ) => {
   const decision = decisions.find(d => d.studentId === row.original.studentId);
-  
+
   const getButtonText = () => {
     if (!decision) return "Set Decision";
     if (promotionType === "PROMOTE_ALL") return "Next Class";
@@ -30,8 +30,8 @@ const RenderAction = (
   };
 
   return (
-    <Button 
-      className="border-border-darker bg-bg-state-secondary! h-7! px-4 text-text-muted font-normal w-fit border"
+    <Button
+      className="border-border-darker bg-bg-state-secondary! text-text-muted h-7! w-fit border px-4 font-normal"
       onClick={() => onSetDecision(row.original)}
     >
       {getButtonText()}
@@ -41,14 +41,15 @@ const RenderAction = (
 };
 
 export const createPromotionColumns = (
-  data: PromotionStudent[], 
+  data: PromotionStudent[],
   onSetDecision: (student: PromotionStudent) => void,
   decisions: { studentId: number; className?: string; armName?: string; status: string }[],
-  promotionType: string
+  promotionType: string,
+  minimumScore: number,
 ): ColumnDef<PromotionStudent>[] => {
   if (!data.length) return [];
 
-  return [
+  const columns: ColumnDef<PromotionStudent>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -113,39 +114,70 @@ export const createPromotionColumns = (
       minSize: 136,
     },
 
-    // {
-    //   accessorKey: "suggestion",
-    //   header: () => <span className="text-text-muted truncate text-sm font-medium">Suggestion</span>,
-    //   cell: ({ row }) => {
-    //     // const suggestion = promotionType === "PROMOTE_ALL" ? "Promote" : (promotionType === "MANUAL" && row.original?.cumulativePercentage >= 50) ? "Promote" : (promotionType === "MANUAL" && row.original?.cumulativePercentage < 50) ? "Repeat" : promotionType === "BY_PERFORMANCE" ? "Promote" : "Repeat";
-    //     const suggestion = "Repeat";
-    //     return (
-    //     <span className="text-text-default text-sm"><Badge className={cn("border border-border-default rounded-md", suggestion === "Promote" && "text-text-success", suggestion === "Repeat" && "text-text-warning")}>{suggestion}</Badge></span>
-    //   )},
-    //   size: 136,
-    //   minSize: 136,
-    // },
-
     {
-      id: "actions",
-      header: () => <div className="text-text-muted cursor-pointer text-sm font-medium">{promotionType === "PROMOTE_ALL" ? "Next Class" : "Promotion Decision"}</div>,
-      cell: ({ row }) => RenderAction(row, onSetDecision, decisions, promotionType),
-      size: 209,
-      minSize: 209,
+      accessorKey: "cumulativePercentage",
+      header: () => <span className="text-text-muted truncate text-sm font-medium">Cumulative %</span>,
+      cell: ({ row }) => {
+        const cumulative =
+          ((row.original.firstTermPercentage || 0) + (row.original.secondTermPercentage || 0) + (row.original.thirdTermPercentage || 0)) / 3;
+        return <span className="text-text-default text-sm">{cumulative.toFixed(2)}</span>;
+      },
+      size: 136,
+      minSize: 136,
     },
   ];
+
+  if (promotionType === "BY_PERFORMANCE") {
+    columns.push({
+      accessorKey: "suggestion",
+      header: () => <span className="text-text-muted truncate text-sm font-medium">Suggestion</span>,
+      cell: ({ row }) => {
+        const cumulative =
+          ((row.original.firstTermPercentage || 0) + (row.original.secondTermPercentage || 0) + (row.original.thirdTermPercentage || 0)) / 3;
+        const suggestion = cumulative >= minimumScore ? "Promote" : "Repeat";
+        return (
+          <span className="text-text-default text-sm">
+            <Badge
+              className={cn(
+                "border-border-default rounded-md border",
+                suggestion === "Promote" && "text-text-success",
+                suggestion === "Repeat" && "text-text-warning",
+              )}
+            >
+              {suggestion}
+            </Badge>
+          </span>
+        );
+      },
+      size: 136,
+      minSize: 136,
+    });
+  }
+
+  columns.push({
+    id: "actions",
+    header: () => (
+      <div className="text-text-muted cursor-pointer text-sm font-medium">
+        {promotionType === "PROMOTE_ALL" ? "Next Class" : "Promotion Decision"}
+      </div>
+    ),
+    cell: ({ row }) => RenderAction(row, onSetDecision, decisions, promotionType),
+    size: 209,
+    minSize: 209,
+  });
+
+  return columns;
 };
 
 export const createSubjectCombinationColumns = (
   subjectNames: string[],
   onSetDecision: (student: PromotionBySubjectReport) => void,
   decisions: { studentId: number; className?: string; armName?: string; status: string }[],
-  promotionType: string
+  promotionType: string,
+  minimumScore: number,
 ): ColumnDef<PromotionBySubjectReport>[] => {
-  const baseColumns = createPromotionColumns([], onSetDecision as any, decisions, promotionType);
-  
   // Find Student Name column to insert subjects after it
-  const selectCol = {
+  const selectCol: ColumnDef<PromotionBySubjectReport> = {
     id: "select",
     header: ({ table }) => (
       <div className="flex items-center justify-center">
@@ -164,11 +196,9 @@ export const createSubjectCombinationColumns = (
     size: 50,
   };
 
-  const nameCol = {
+  const nameCol: ColumnDef<PromotionBySubjectReport> = {
     accessorKey: "studentName",
-    header: () => (
-      <div className="text-text-muted flex h-14 items-center pl-2 text-left! text-sm font-medium">Student Name</div>
-    ),
+    header: () => <div className="text-text-muted flex h-14 items-center pl-2 text-left! text-sm font-medium">Student Name</div>,
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         <Avatar className="size-8" />
@@ -183,7 +213,7 @@ export const createSubjectCombinationColumns = (
     id: subject,
     header: () => <span className="text-text-muted truncate text-sm font-medium">{subject}</span>,
     cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => {
-      const subjectScore = row.original.subjects?.find((s) => s.subjectName === subject);
+      const subjectScore = row.original.subjects?.find(s => s.subjectName === subject);
       return <span className="text-text-default text-sm">{subjectScore?.score ?? 0}</span>;
     },
     size: 100,
@@ -207,22 +237,30 @@ export const createSubjectCombinationColumns = (
       accessorKey: "suggestion",
       header: () => <span className="text-text-muted truncate text-sm font-medium">Suggestion</span>,
       cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => {
-        const suggestion = row.original.percentage >= 50 ? "Promote" : "Repeat"; // Simple logic for mock
+        const suggestion = row.original.percentage >= minimumScore ? "Promote" : "Repeat";
         return (
-          <Badge className={cn("border border-border-default rounded-md px-2 py-0.5 font-normal", 
-            suggestion === "Promote" ? "text-text-success bg-bg-success-soft" : "text-text-warning bg-bg-warning-soft")}>
-            {suggestion}
-          </Badge>
+          <span className="text-text-default text-sm">
+            <Badge
+              className={cn(
+                "border-border-default rounded-md border",
+                suggestion === "Promote" && "text-text-success",
+                suggestion === "Repeat" && "text-text-warning",
+              )}
+            >
+              {suggestion}
+            </Badge>
+          </span>
         );
       },
-      size: 120,
+      size: 136,
+      minSize: 136,
     },
   ];
 
-  const actionCol = {
+  const actionCol: ColumnDef<PromotionBySubjectReport> = {
     id: "actions",
     header: () => <div className="text-text-muted text-sm font-medium">Promotion Decision</div>,
-    cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => RenderAction(row as any, onSetDecision as any, decisions, promotionType),
+    cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => RenderAction(row, onSetDecision, decisions, promotionType),
     size: 200,
   };
 

@@ -13,7 +13,7 @@ export const createSession = async (token: string, userType: "SCHOOL_STAFF" | "P
     path: "/",
   });
 
-  redirect(`/${userType === "SCHOOL_STAFF" ? "staff" : "parent"}`);
+  redirect(`/${userType === "SCHOOL_STAFF" ? "staff" : "parents"}`);
 };
 
 export const deleteSession = async () => {

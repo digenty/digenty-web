@@ -12,7 +12,7 @@ import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 
-export const LoginPasswordForm = ({ email, userType }: { email: string, userType: "SCHOOL_STAFF" | "PARENT" }) => {
+export const LoginPasswordForm = ({ email, userType }: { email: string; userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const { mutate, isPending } = useLogin();

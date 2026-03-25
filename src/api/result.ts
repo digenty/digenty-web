@@ -20,7 +20,7 @@ export const getSubmissionDeadline = async () => {
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
-      throw error.message;
+      throw error.response?.data;
     }
     throw error;
   }
@@ -31,7 +31,7 @@ export const updateSubmissionDeadline = async (payload: UpdateSubmissionDeadline
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
-      throw error.message;
+      throw error.response?.data;
     }
     throw error;
   }
@@ -55,7 +55,7 @@ export const getPrincipalComment = async () => {
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
-      throw error.message;
+      throw error.response?.data;
     }
     throw error;
   }
@@ -79,7 +79,7 @@ export const deletePrincipalComment = async (commentId: number) => {
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
-      throw error.message;
+      throw error.response?.data;
     }
     throw error;
   }

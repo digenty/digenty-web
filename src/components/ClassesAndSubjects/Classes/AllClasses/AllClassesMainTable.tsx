@@ -161,7 +161,12 @@ export const AllClassesMainTable = ({
 
       {!isFetchingBranch && !isError && data.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Classes" description="No classes to view " buttonText="Add a class" url="/staff/settings/academic/academic-setup" />
+          <ErrorComponent
+            title="No Classes"
+            description="No classes to view "
+            buttonText="Add a class"
+            url="/staff/settings/academic/academic-setup"
+          />
         </div>
       )}
 

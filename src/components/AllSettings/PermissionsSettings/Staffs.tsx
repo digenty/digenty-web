@@ -215,7 +215,12 @@ export const Staffs = () => {
 
       {!isPending && !isError && staff.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Staff" description="No staff has been added yet" buttonText="Add a staff" url="/staff/settings/permissions/add-staff" />
+          <ErrorComponent
+            title="No Staff"
+            description="No staff has been added yet"
+            buttonText="Add a staff"
+            url="/staff/settings/permissions/add-staff"
+          />
         </div>
       )}
 

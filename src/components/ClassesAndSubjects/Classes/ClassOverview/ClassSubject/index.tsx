@@ -22,9 +22,9 @@ export const SubjectByClass = () => {
   ]);
 
   const pathname = usePathname();
-  const classId = pathname.split("/staff/")[8];
-  const subjectId = pathname.split("/staff/")[6];
-  const armId = pathname.split("/staff/")[4];
+  const classId = pathname.split("/")[9];
+  const subjectId = pathname.split("/")[7];
+  const armId = pathname.split("/")[5];
 
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
