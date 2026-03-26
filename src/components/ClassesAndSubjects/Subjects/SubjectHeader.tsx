@@ -17,6 +17,12 @@ export default function SubjectHeader() {
             View Branch Panel
           </Button>
         )}
+
+        {user && user?.isMain && (
+          <Button onClick={() => router.push("/staff/classes-and-subjects/all-branches")} className="border-border-default border">
+            View All Branches
+          </Button>
+        )}
       </div>
     </div>
   );

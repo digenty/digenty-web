@@ -12,17 +12,23 @@ import { useEffect, useState } from "react";
 import { AllClassesMainTableProps } from "../types";
 import { AllClassesHeader } from "./AllClassesHeader";
 import { AllClassesMainTable } from "./AllClassesMainTable";
+import { usePathname } from "next/navigation";
 
 export const AllClassesMain = () => {
   const user = useLoggedInUser();
   const { data: branchesData, isPending: loadingBranches } = useGetBranches();
+  const pathname = usePathname();
+  const branchId = pathname.split("/")[4];
+  console.log(branchId);
   const [activeBranchId, setActiveBranchId] = useState<number | null>(null);
 
   const userBranchIds = user?.adminBranchIds || [];
   const userBranches = branchesData?.data?.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) || [];
 
   useEffect(() => {
-    if (userBranchIds.length === 1) {
+    if (branchId) {
+      setActiveBranchId(Number(branchId));
+    } else if (userBranchIds.length === 1) {
       setActiveBranchId(userBranchIds[0]);
     } else if (userBranchIds.length > 1 && !activeBranchId) {
       setActiveBranchId(userBranchIds[0]);

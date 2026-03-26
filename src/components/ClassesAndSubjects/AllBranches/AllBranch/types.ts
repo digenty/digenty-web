@@ -1,7 +1,7 @@
 export interface AllBranchesTableProps {
   branchId: number;
   branchName: string;
-  BranchHeadName: string;
+  branchHeadName: string;
   numberOfClassArm: number;
   numberOfClassTeacherSubmitted: number | null;
   numberOfPendingApprovals: number | null;

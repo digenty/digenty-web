@@ -13,6 +13,7 @@ import { ClassesAndSubjectsPermissionWrapper } from "./ClassesAndSubjectsPermiss
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { AllClassesMain } from "./Classes/AllClasses";
 import { Button } from "../ui/button";
+import { AllBranches } from "./AllBranches/AllBranch";
 
 const tabs = [
   { id: "classes", label: "My Classes" },
@@ -49,6 +50,10 @@ const ClassesAndSubjects = () => {
 
   if (user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1) {
     return <AllClassesMain />;
+  }
+
+  if (user && user?.isMain) {
+    return <AllBranches />;
   }
 
   return (
@@ -100,6 +105,12 @@ const ClassesAndSubjects = () => {
                   {user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1 && (
                     <Button onClick={() => router.push("/staff/classes-and-subjects/all-classes")} className="border-border-default border">
                       View Branch Panel
+                    </Button>
+                  )}
+
+                  {user && user?.isMain && (
+                    <Button onClick={() => router.push("/staff/classes-and-subjects/all-branches")} className="border-border-default border">
+                      View All Branches
                     </Button>
                   )}
                 </div>

@@ -120,7 +120,7 @@ export const AllBranchesTable = ({
                     <span className="text-text-muted font-medium">Branch Head </span>
                     <div className="flex items-center gap-2">
                       <Avatar className="size-4" />
-                      <span className="text-text-default text-sm font-medium">{item.BranchHeadName}</span>
+                      <span className="text-text-default text-sm font-medium">{item.branchHeadName}</span>
                     </div>
                   </div>
                   <div className="border-border-default border-t">
@@ -154,7 +154,7 @@ export const AllBranchesTable = ({
                     <div className="border-border-default flex justify-between px-3 py-2 text-sm">
                       <span className="text-text-muted font-medium">Status</span>
                       <div className="text-text-default font-medium">
-                        <StatusBadge status="published" />
+                        <StatusBadge status="unpublished" />
                       </div>
                     </div>
                   </div>

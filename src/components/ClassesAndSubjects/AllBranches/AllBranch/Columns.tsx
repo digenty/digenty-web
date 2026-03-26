@@ -57,7 +57,7 @@ export const AllBranchDetailsColumns: ColumnDef<AllBranchesTableProps>[] = [
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         <Avatar className="size-5" />
-        <span className="text-text-default text-sm font-medium">{row.original.BranchHeadName}</span>
+        <span className="text-text-default text-sm font-medium">{row.original.branchHeadName}</span>
       </div>
     ),
     size: 100,
@@ -100,7 +100,7 @@ export const AllBranchDetailsColumns: ColumnDef<AllBranchesTableProps>[] = [
     // cell: ({ row }) => <div className="text-text-default text-sm font-medium">{row.original.numberOfClassTeacherSubmitted || 0}</div>,
     cell: ({ row }) => (
       <div className="text-text-default text-sm font-medium">
-        <StatusBadge status="published" />
+        <StatusBadge status="unpublished" />
       </div>
     ),
     size: 140,
