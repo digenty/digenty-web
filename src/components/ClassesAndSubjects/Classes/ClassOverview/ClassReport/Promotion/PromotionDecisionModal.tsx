@@ -1,23 +1,21 @@
 "use client";
 
+import { Arm, ClassType } from "@/api/types";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useState } from "react";
 import { PromotionStudent } from "../students";
-import { Arm, ClassType } from "@/api/types";
 
 interface PromotionDecisionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedStudents: PromotionStudent[];
-  isLoading?: boolean;
   setDecisions: (
     data: {
       status: string;
@@ -31,14 +29,7 @@ interface PromotionDecisionModalProps {
   promotionType: string;
 }
 
-export const PromotionDecisionModal = ({
-  open,
-  onOpenChange,
-  selectedStudents,
-  isLoading,
-  setDecisions,
-  promotionType,
-}: PromotionDecisionModalProps) => {
+export const PromotionDecisionModal = ({ open, onOpenChange, selectedStudents, setDecisions, promotionType }: PromotionDecisionModalProps) => {
   const isMobile = useIsMobile();
   const [decision, setDecision] = useState<string>("PROMOTED");
   const [selectedClassId, setSelectedClassId] = useState<string>("");
@@ -165,10 +156,9 @@ export const PromotionDecisionModal = ({
       </Button>
       <Button
         onClick={handleSave}
-        disabled={isLoading || (decision === "PROMOTED" && (!selectedClassId || !selectedArmId))}
+        disabled={decision === "PROMOTED" && (!selectedClassId || !selectedArmId)}
         className="bg-bg-state-primary hover:bg-bg-state-primary-hover! h-7! px-4 text-sm font-medium text-white"
       >
-        {isLoading && <Spinner className="text-text-white-default" />}
         Save
       </Button>
     </div>

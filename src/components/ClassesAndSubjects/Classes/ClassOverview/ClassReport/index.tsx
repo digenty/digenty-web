@@ -387,6 +387,9 @@ export const ClassReport = () => {
                       student={student}
                       activeStudent={activeStudentId}
                       setActiveStudent={setActiveStudentId}
+                      decisions={decisions}
+                      setDecisions={setDecisions}
+                      promotionType={levelResultSettings?.data?.promotionType || ""}
                     />
                   ))}
                 </>
