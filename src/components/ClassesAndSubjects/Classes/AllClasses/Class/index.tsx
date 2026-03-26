@@ -8,12 +8,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Class() {
   const pathname = usePathname();
-  const armId = pathname.split("/staff/")[5];
-  const classId = pathname.split("/staff/")[3];
+  const armId = pathname.split("/")[6];
+  const classId = pathname.split("/")[4];
   const { data, isLoading, isError } = useGetBranchTeachersClassSubjects(Number(armId));
   const classData = data?.data?.data?.subjectReportResponseDtoList ?? [];
   const classTeacherName = data?.data?.data?.classTeacherName || "--";
-  console.log(data);
   return (
     <div className="flex flex-col gap-4">
       <ClassHeader classData={classData} isLoading={isLoading} armId={armId} classId={classId} classTeacherName={classTeacherName} />

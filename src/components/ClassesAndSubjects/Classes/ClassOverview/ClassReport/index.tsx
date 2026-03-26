@@ -29,7 +29,7 @@ import { PromotionMobileCard } from "./Promotion/PromotionMobileCard";
 import { createColumns } from "./SpreadsheetColumns";
 import { SpreadsheetMobileCard } from "./SpreadsheetMobileCard";
 import { StudentRow } from "./students";
-import { useSetPromotionDecision } from "@/hooks/queryHooks/class";
+import { useSetPromotionDecision } from "@/hooks/queryHooks/useClass";
 
 // export const exportToPDF = async (elementId: string, filename: string) => {
 //   const element = document.getElementById(elementId);

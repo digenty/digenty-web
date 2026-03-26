@@ -65,7 +65,7 @@ type ClassArmStudentReport = {
 
 const ClassReport = () => {
   const pathname = usePathname();
-  const armId = pathname.split("/staff/")[5];
+  const armId = pathname.split("/")[6];
   const params = useSearchParams();
   const classArmName = params.get("classArmName")?.replaceAll("-", " ") || "";
 
@@ -78,12 +78,19 @@ const ClassReport = () => {
   const [activeStudentId, setActiveStudentId] = useState<number>();
   const pageSize = 100;
 
-  const { data: classReportData, isLoading: isLoadingReport, isError: isErrorReport } = useGetClassReport(Number(armId), termSelected?.termId);
+  const {
+    data: classReportData,
+    isLoading: isLoadingReport,
+    isError: isErrorReport,
+    error: classReportError,
+  } = useGetClassReport(Number(armId), termSelected?.termId);
+  const classArmReportId = classReportData?.data?.classArmReportId;
 
   const {
     data: studentReportData,
     isPending: loadingStudentReport,
     isError: isErrorStudentReport,
+    error: studentReportError,
   } = useGetStudentReport({ studentId: Number(activeFilter), termId: termSelected?.termId, armId: Number(armId) });
 
   const transformedStudents: StudentRow[] = useMemo(() => {
@@ -177,6 +184,7 @@ const ClassReport = () => {
         activeFilter={activeFilter}
         setActiveFilter={setActiveFilter}
         students={transformedStudents}
+        classArmReportId={classArmReportId}
       />
 
       <div className="relative">
@@ -184,7 +192,7 @@ const ClassReport = () => {
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent
               title="Could not get class report"
-              description="This is our problem, we are looking into it so as to serve you better"
+              description={`${classReportError?.message || "This is our problem, we are looking into it so as to serve you better"}`}
               buttonText="Go to the Home page"
             />
           </div>
@@ -228,7 +236,7 @@ const ClassReport = () => {
                         tableHeadCell: "text-center pr-2 w-34",
                         tableBodyCell: "text-center pr-2 w-34",
                         tableRow: "h-14",
-                        table: "table-fixed",
+                        // table: "table-fixed",
                       }}
                     />
                   )}
@@ -241,7 +249,7 @@ const ClassReport = () => {
                     <div className="flex h-screen items-center justify-center">
                       <ErrorComponent
                         title="Could not get Student's report"
-                        description="This is our problem, we are looking into it so as to serve you better"
+                        description={`${studentReportError?.message || "This is our problem, we are looking into it so as to serve you better"}`}
                         buttonText="Go to the Home page"
                       />
                     </div>
@@ -300,11 +308,6 @@ const ClassReport = () => {
                     />
                   );
                 }
-                // if (activeFilter === "promotion") {
-                //   return (
-                //     <PromotionMobileCard key={student.id} student={student} activeStudent={activeStudentId} setActiveStudent={setActiveStudentId} />
-                //   );
-                // }
                 return null;
               })}
             </ul>

@@ -10,6 +10,9 @@ import { useGetTeacherClasses } from "@/hooks/queryHooks/useClass";
 import { Skeleton } from "../ui/skeleton";
 import { PageEmptyState } from "../Error/PageEmptyState";
 import { ClassesAndSubjectsPermissionWrapper } from "./ClassesAndSubjectsPermissionWrapper";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { AllClassesMain } from "./Classes/AllClasses";
+import { Button } from "../ui/button";
 
 const tabs = [
   { id: "classes", label: "My Classes" },
@@ -30,6 +33,9 @@ const ClassesAndSubjects = () => {
   const hasClasses = classes.length > 0;
   const hasSubjects = subjectList.length > 0;
   const showTabs = hasClasses && hasSubjects;
+  const user = useLoggedInUser();
+
+  console.log(user);
 
   useEffect(() => {
     setBreadcrumbs([
@@ -40,6 +46,10 @@ const ClassesAndSubjects = () => {
       },
     ]);
   }, [activeTab, showTabs, hasSubjects, setBreadcrumbs]);
+
+  if (user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1) {
+    return <AllClassesMain />;
+  }
 
   return (
     <ClassesAndSubjectsPermissionWrapper isLoading={isLoading}>
@@ -68,6 +78,8 @@ const ClassesAndSubjects = () => {
                       </div>
                     );
                   })}
+
+                  <Button>View Branch Panel</Button>
                 </div>
                 {activeTab === "classes" ? (
                   <MyClasses classes={classes} isLoading={isLoadingClasses} />
@@ -83,7 +95,14 @@ const ClassesAndSubjects = () => {
             {/* Case 3: Class teacher only */}
             {hasClasses && !hasSubjects && (
               <div className="flex flex-col gap-4 pb-10">
-                <h2 className="text-text-default hidden text-lg font-semibold md:inline md:text-xl">My Classes</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-text-default hidden text-lg font-semibold md:inline md:text-xl">My Classes</h2>
+                  {user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1 && (
+                    <Button onClick={() => router.push("/staff/classes-and-subjects/all-classes")} className="border-border-default border">
+                      View Branch Panel
+                    </Button>
+                  )}
+                </div>
                 <MyClasses classes={classes} isLoading={isLoadingClasses} />
               </div>
             )}

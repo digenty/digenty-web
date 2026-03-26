@@ -10,12 +10,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { StudentRow } from "../../ClassOverview/ClassReport/students";
 import { ApproveModal } from "../AllClassesModal";
 import { ReturnModal } from "./ClassReportModal";
@@ -31,6 +33,7 @@ export const ReportHeader = ({
   setActiveFilter,
   onExport,
   classArmName,
+  classArmReportId,
 }: {
   termSelected: Term | null;
   setTermSelected: React.Dispatch<React.SetStateAction<Term | null>>;
@@ -41,6 +44,7 @@ export const ReportHeader = ({
   setActiveFilter: (filter: string) => void;
   onExport?: () => void;
   classArmName: string;
+  classArmReportId?: number;
 }) => {
   const isMobile = useIsMobile();
 
@@ -48,8 +52,42 @@ export const ReportHeader = ({
   const [openReturn, setOpenReturn] = useState(false);
   const user = useLoggedInUser();
 
+  const { mutate: submitReport, isPending: isSubmitting } = useSubmitClassReport();
+
+  const handleApprove = () => {
+    if (!classArmReportId) return;
+    submitReport(
+      { classArmReportId, status: "APPROVED" },
+      {
+        onSuccess: () => {
+          toast.success("Result approved successfully");
+          setOpenApprove(false);
+        },
+        onError: error => {
+          toast.error(error?.message || "Failed to approve result");
+        },
+      },
+    );
+  };
+
+  const handleReturn = () => {
+    if (!classArmReportId) return;
+    submitReport(
+      { classArmReportId, status: "NOT_SUBMITTED" },
+      {
+        onSuccess: () => {
+          toast.success("Result returned for correction");
+          setOpenReturn(false);
+        },
+        onError: error => {
+          toast.error(error?.message || "Failed to return result");
+        },
+      },
+    );
+  };
+
   useBreadcrumb([
-    { label: "All Classes", url: "/staff/all-classes" },
+    { label: "All Classes", url: "/staff/classes-and-subjects/all-classes" },
     { label: classArmName, url: "" },
     { label: "Class Report", url: "" },
   ]);
@@ -65,8 +103,24 @@ export const ReportHeader = ({
   }, [setActiveSession, setTermSelected, terms]);
   return (
     <div>
-      {openApprove && <ApproveModal openApproveModal={openApprove} setOpenApproveModal={setOpenApprove} />}
-      {openReturn && <ReturnModal openReturnModal={openReturn} setOpenReturnModal={setOpenReturn} />}
+      {openApprove && (
+        <ApproveModal
+          openApproveModal={openApprove}
+          setOpenApproveModal={setOpenApprove}
+          classArmName={classArmName}
+          onConfirm={handleApprove}
+          isSubmitting={isSubmitting}
+        />
+      )}
+      {openReturn && (
+        <ReturnModal
+          openReturnModal={openReturn}
+          setOpenReturnModal={setOpenReturn}
+          classArmName={classArmName}
+          onConfirm={handleReturn}
+          isSubmitting={isSubmitting}
+        />
+      )}
       <div className="border-border-default border-b">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-4">
           <div className="flex items-center justify-between gap-3 px-4 py-2 md:p-0">

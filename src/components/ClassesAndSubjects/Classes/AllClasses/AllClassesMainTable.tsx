@@ -67,7 +67,6 @@ export const AllClassesMainTable = ({
   const router = useRouter();
 
   const { data: levels, isLoading: loadingLevels } = useGetLevels();
-  console.log(data);
 
   useBreadcrumb([{ label: "All Classes", url: "/staff/classes-and-subjects/all-classes" }]);
 

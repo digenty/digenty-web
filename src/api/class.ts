@@ -140,7 +140,7 @@ export const getClassLevels = async () => {
   }
 };
 
-export const submitClassReport = async (payload: { classArmReportId: number; status: "PENDING_APPROVAL" }) => {
+export const submitClassReport = async (payload: { classArmReportId: number; status: string }) => {
   try {
     const { data } = await api.put("/report/class/arm", payload);
     return data;

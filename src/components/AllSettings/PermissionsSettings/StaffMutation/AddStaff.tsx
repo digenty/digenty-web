@@ -1,11 +1,9 @@
 "use client";
 
-import { Branch, BranchWithClassLevels, Role } from "@/api/types";
+import { BranchWithClassLevels, Role } from "@/api/types";
 import Accordion from "@/components/Accordion";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import DeleteBin from "@/components/Icons/DeleteBin";
-import Mail from "@/components/Icons/Mail";
 import School from "@/components/Icons/School";
 import { SchoolFill } from "@/components/Icons/SchoolFill";
 import { StaffInputValues } from "@/components/StudentAndParent/types";

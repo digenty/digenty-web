@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { StudentRow } from "./students";
 import { SubmitClassReportModal } from "./SubmitClassReportModal";
 import { SubmitPromotionModal } from "./SubmitPromotionModal";
-import { useSetPromotionDecision, useSubmitClassReport } from "@/hooks/queryHooks/class";
+import { useSetPromotionDecision, useSubmitClassReport } from "@/hooks/queryHooks/useClass";
 import { toast } from "@/components/Toast";
 import RequestEdit from "../../../RequestEditAccess";
 import { Decision } from ".";

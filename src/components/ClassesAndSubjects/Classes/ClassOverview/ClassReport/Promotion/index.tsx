@@ -2,7 +2,7 @@ import { CumulativeReport, PromotionBySubjectReport, PromotionBySubjectStudent, 
 import { DataTable } from "@/components/DataTable";
 import { UserSetting } from "@/components/Icons/UserSetting";
 import { Button } from "@/components/ui/button";
-import { useGetRequiredSubjectReport } from "@/hooks/queryHooks/class";
+import { useGetRequiredSubjectReport } from "@/hooks/queryHooks/useClass";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { Dispatch, SetStateAction, useMemo, useState } from "react";
 import { Decision } from "..";
