@@ -15,7 +15,7 @@ type Payload = {
 // export const signup = async (payload: Payload): Promise<Payload[]> => {
 export const signup = async (payload: Payload) => {
   try {
-    const { data } = await apiPublic.post("/auth/staff/register", payload);
+    const { data } = await apiPublic.post("/auth/register", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
