@@ -7,7 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 
 export const ProfilePicture = ({ setAvatar, defaultImageUrl }: { setAvatar: (url?: string) => void; defaultImageUrl?: string | null }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imageUrl, setImageUrl] = useState<string | undefined>(defaultImageUrl || "/images/profile-picture.png");
+  const [imageUrl, setImageUrl] = useState<string | undefined>(defaultImageUrl || "/staff/images/profile-picture.png");
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = async (evt: React.ChangeEvent<HTMLInputElement>) => {

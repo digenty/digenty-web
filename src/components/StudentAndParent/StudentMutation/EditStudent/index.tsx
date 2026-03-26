@@ -23,7 +23,7 @@ import { Tags } from "./Tags";
 export const EditStudent = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const studentId = pathname.split("/")[3] ?? "";
+  const studentId = pathname.split("/")[4] ?? "";
 
   const { data, isPending: loadingStudent } = useGetStudent(Number(studentId));
   const [date, setDate] = useState<Date | undefined>();
@@ -34,8 +34,8 @@ export const EditStudent = () => {
   const [selectedParents, setSelectedParents] = useState<{ id: number; fullName: string; avatar: string | null }[]>([]);
 
   useBreadcrumb([
-    { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Students", url: "/student-and-parent-record?tab=Students" },
+    { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
+    { label: "Students", url: "/staff/student-and-parent-record?tab=Students" },
     { label: "Edit Student", url: "" },
   ]);
 

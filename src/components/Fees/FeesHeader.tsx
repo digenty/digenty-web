@@ -85,7 +85,7 @@ export const FeesHeader = ({
   const [exportBranchSelected, setExportBranchSelected] = useState(exprtBranches[0]);
   const [exportTermSelected, setExportTermSelected] = useState(exportTermsOptions[0]);
 
-  useBreadcrumb([{ label: "Fees", url: "/fees" }]);
+  useBreadcrumb([{ label: "Fees", url: "/staff/fees" }]);
 
   return (
     <div>
@@ -311,7 +311,7 @@ export const FeesHeader = ({
                 <Select value={branchSelected} onValueChange={setBranchSelected}>
                   <SelectTrigger className="border-border-darker h-8! w-auto border">
                     <SelectValue>
-                      <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                      <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
                       <span className="text-text-default text-sm font-medium">{branchSelected}</span>
                     </SelectValue>
                   </SelectTrigger>
@@ -346,7 +346,7 @@ export const FeesHeader = ({
           </div>
 
           <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
-            <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
           </Button>
 
           <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">

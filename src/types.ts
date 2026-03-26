@@ -65,6 +65,8 @@ interface User {
   name: string;
   subjectIds: number[];
   isMain: boolean;
+  isAdmin: boolean;
+  adminBranchIds: number[];
 }
 
 export type JWTPayload = JwtPayload & User;

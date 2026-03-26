@@ -8,14 +8,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { formatRelativeDate } from "@/lib/utils";
 import { useStaffStore } from "@/store/staff";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
+import { EyeIcon, MoreHorizontalIcon, ShieldUser } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const RenderOptions = (row: Row<Staff>) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const { setOpenDeactivation, setStaffIdToDeactivate } = useStaffStore();
+  const { setOpenDeactivation, setStaffIdToDeactivate, setOpenMakeBranchAdmin, setStaffToMakeAdmin } = useStaffStore();
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger onClick={evt => evt.stopPropagation()} className="focus-visible:ring-0 focus-visible:outline-none">
@@ -25,7 +25,7 @@ const RenderOptions = (row: Row<Staff>) => {
         <DropdownMenuItem
           onClick={evt => {
             evt.stopPropagation();
-            router.push(`/settings/permissions/staff/${row.original.staffId}`);
+            router.push(`/staff/settings/permissions/staff/${row.original.staffId}`);
           }}
           className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
         >
@@ -33,7 +33,7 @@ const RenderOptions = (row: Row<Staff>) => {
           <span>View staff</span>
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => router.push(`/settings/permissions/edit-staff/${row.original.staffId}`)}
+          onClick={() => router.push(`/staff/settings/permissions/edit-staff/${row.original.staffId}`)}
           className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
         >
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
@@ -41,6 +41,18 @@ const RenderOptions = (row: Row<Staff>) => {
         </DropdownMenuItem>
 
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
+
+        <DropdownMenuItem
+          onClick={evt => {
+            evt.stopPropagation();
+            setStaffToMakeAdmin(row.original);
+            setOpenMakeBranchAdmin(true);
+          }}
+          className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
+        >
+          <ShieldUser className="text-icon-default-subtle size-4" />
+          <span>Make Branch Admin</span>
+        </DropdownMenuItem>
 
         <DropdownMenuItem
           onClick={() => {

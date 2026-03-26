@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PasswordChecklist } from "../PasswordCheckList";
 
-export const SignupPasswordForm = ({ email }: { email: string }) => {
+export const SignupPasswordForm = ({ email, userType }: { email: string; userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [passwordIsFulfilled, setPasswordIsFulfilled] = useState(false);
@@ -42,7 +42,7 @@ export const SignupPasswordForm = ({ email }: { email: string }) => {
               description: data.message,
               type: "success",
             });
-            router.push(`/auth?step=login`);
+            router.push(`/auth${userType === "SCHOOL_STAFF" ? "/staff" : "/parent"}?step=login`);
           },
           onError: error => {
             toast({

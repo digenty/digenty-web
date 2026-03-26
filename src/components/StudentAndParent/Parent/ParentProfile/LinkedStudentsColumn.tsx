@@ -12,7 +12,7 @@ const RenderOptions = (row: Row<{ id: number; fullName: string; avatar: string |
     <Button
       onClick={evt => {
         evt.stopPropagation();
-        router.push(`/student-and-parent-record/students/${row.original.id}`);
+        router.push(`/staff/student-and-parent-record/students/${row.original.id}`);
       }}
       className="bg-bg-state-secondary border-border-darker text-text-default h-6 border text-xs font-medium"
     >

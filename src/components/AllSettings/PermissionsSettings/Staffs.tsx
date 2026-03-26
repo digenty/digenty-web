@@ -1,9 +1,10 @@
-import { Branch, Staff } from "@/api/types";
+import { Branch, BranchWithClassLevels, Staff } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import ShareBox from "@/components/Icons/ShareBox";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
+import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -12,16 +13,16 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useDeactivateStaff, useGetStaffs } from "@/hooks/queryHooks/useStaff";
 import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useStaffStore } from "@/store/staff";
 import { Ellipsis, PlusIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { SettingPermissionModalExport } from "./SettingPermissionModalExport";
+import { DeactivateStaffModal } from "./StaffDetails/DeactivateStaffModal";
+import { MakeBranchAdminModal } from "./StaffMutation/MakeBranchAdminModal";
 import { StaffMobileCard } from "./StaffMobileCard";
 import { StaffColumns } from "./StaffTableColumns";
-import { useStaffStore } from "@/store/staff";
-import { DeactivateStaffModal } from "./StaffDetails/DeactivateStaffModal";
-import { toast } from "@/components/Toast";
 
 export type StaffProps = {
   id: number;
@@ -39,6 +40,7 @@ export const Staffs = () => {
   const router = useRouter();
   const [openExport, setOpenExport] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
+  const [openAddAdmin, setOpenAddAdmin] = useState(false);
   const [openActions, setOpenAction] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [branchSelected, setBranchSelected] = useState<Branch | undefined>();
@@ -94,7 +96,7 @@ export const Staffs = () => {
         <SettingPermissionModalExport
           open={openExport}
           setOpen={setOpenExport}
-          branches={branches.data.content}
+          branches={branches.data}
           branchSelected={branchSelected}
           setBranchSelected={setBranchSelected}
           loadingBranches={loadingBranches}
@@ -105,6 +107,8 @@ export const Staffs = () => {
       {openDeactivation && (
         <DeactivateStaffModal open={openDeactivation} setOpen={setOpenDeactivation} deactivateStaff={deactivateStaff} deactivating={deactivating} />
       )}
+
+      <MakeBranchAdminModal />
 
       <div className="flex flex-col gap-3 py-6 md:flex-row md:items-center md:justify-between md:gap-0">
         <div className="flex items-center gap-1">
@@ -127,18 +131,16 @@ export const Staffs = () => {
                 </Badge>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent className="bg-bg-card border-border-default text-text-default hidden w-48 py-2.5 shadow-sm md:block">
-                <div className="flex flex-col gap-1 px-1 py-2">
-                  {branches.data.content?.map((branch: Branch) => (
-                    <DropdownMenuItem
-                      key={branch.id}
-                      className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm"
-                      onClick={() => setBranchSelected(branch)}
-                    >
-                      <span className="text-text-default font-normal">{branch.name}</span>
-                    </DropdownMenuItem>
-                  ))}
-                </div>
+              <DropdownMenuContent className="bg-bg-card border-border-default text-text-default hidden w-48 py-1 shadow-sm md:block">
+                {branches.data?.map((branch: BranchWithClassLevels) => (
+                  <DropdownMenuItem
+                    key={branch.branch.id}
+                    className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm"
+                    onClick={() => setBranchSelected(branch.branch)}
+                  >
+                    <span className="text-text-default font-normal">{branch.branch.name}</span>
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -158,7 +160,7 @@ export const Staffs = () => {
 
           <div className="flex items-center gap-1">
             <Button
-              onClick={() => router.push("/settings/permissions/add-staff")}
+              onClick={() => router.push("/staff/settings/permissions/add-staff")}
               className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
             >
               <PlusIcon className="text-icon-white-default size-4" />
@@ -190,10 +192,10 @@ export const Staffs = () => {
         {isMobile && branches && (
           <MobileDrawer open={openFilter} setIsOpen={setOpenFilter} title="Select Branch">
             <div className="flex w-full flex-col gap-2 px-6 py-4">
-              {branches.data.content?.map((br: Branch) => (
-                <div key={br.id} className="flex flex-col items-center gap-2">
-                  <div role="button" onClick={() => setBranchSelected(br)} className="flex w-full items-center gap-2 p-2 text-sm">
-                    <span className="text-text-default font-normal">{br.name}</span>
+              {branches.data?.map((branch: BranchWithClassLevels) => (
+                <div key={branch.branch.id} className="flex flex-col items-center gap-2">
+                  <div role="button" onClick={() => setBranchSelected(branch.branch)} className="flex w-full items-center gap-2 p-2 text-sm">
+                    <span className="text-text-default font-normal">{branch.branch.name}</span>
                   </div>
                 </div>
               ))}
@@ -215,7 +217,12 @@ export const Staffs = () => {
 
       {!isPending && !isError && staff.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Staff" description="No staff has been added yet" buttonText="Add a staff" url="/settings/permissions/add-staff" />
+          <ErrorComponent
+            title="No Staff"
+            description="No staff has been added yet"
+            buttonText="Add a staff"
+            url="/staff/settings/permissions/add-staff"
+          />
         </div>
       )}
 

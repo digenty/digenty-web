@@ -22,7 +22,7 @@ const RenderOptions = ({ row }: { row: Row<AllBranchesTableProps> }) => {
 
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
         <DropdownMenuItem
-          onClick={() => router.push(`/classes-and-subjects/all-branches/${row.original.branchId}/all-classes`)}
+          onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${row.original.branchId}/all-classes`)}
           className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
         >
           <EyeIcon className="text-icon-default-subtle size-4" />
@@ -34,7 +34,7 @@ const RenderOptions = ({ row }: { row: Row<AllBranchesTableProps> }) => {
         </DropdownMenuItem>
         <DropdownMenuItem
           className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
-          onClick={() => router.push(`/classes-and-subjects/all-branches/${row.original.branchId}/manage-edits`)}
+          onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${row.original.branchId}/manage-edits`)}
         >
           <Key fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Manage edit requests</span>
@@ -57,7 +57,7 @@ export const AllBranchDetailsColumns: ColumnDef<AllBranchesTableProps>[] = [
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         <Avatar className="size-5" />
-        <span className="text-text-default text-sm font-medium">{row.original.BranchHeadName}</span>
+        <span className="text-text-default text-sm font-medium">{row.original.branchHeadName}</span>
       </div>
     ),
     size: 100,
@@ -100,7 +100,7 @@ export const AllBranchDetailsColumns: ColumnDef<AllBranchesTableProps>[] = [
     // cell: ({ row }) => <div className="text-text-default text-sm font-medium">{row.original.numberOfClassTeacherSubmitted || 0}</div>,
     cell: ({ row }) => (
       <div className="text-text-default text-sm font-medium">
-        <StatusBadge status="published" />
+        <StatusBadge status="unpublished" />
       </div>
     ),
     size: 140,

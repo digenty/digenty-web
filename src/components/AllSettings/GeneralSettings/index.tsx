@@ -83,8 +83,8 @@ export const General = () => {
   }, [school, branchesResponse]);
 
   useBreadcrumb([
-    { label: "Settings", url: "/settings" },
-    { label: "General Settings", url: "/settings/general" },
+    { label: "Settings", url: "/staff/settings" },
+    { label: "General Settings", url: "/staff/settings/general" },
   ]);
 
   const buildSchoolPayload = (overrides: Partial<Parameters<typeof mutate>[0]> = {}) => ({
@@ -195,7 +195,7 @@ export const General = () => {
             onChange={handleFileChange}
             aria-label="Upload school logo"
           />
-          <Avatar className="border-border-default size-10 border" url={logoUrl || "/images/profile-picture.png"} />
+          <Avatar className="border-border-default size-10 border" url={logoUrl || "/staff/images/profile-picture.png"} />
           <Button
             onClick={handleUploadClick}
             disabled={isUploading}

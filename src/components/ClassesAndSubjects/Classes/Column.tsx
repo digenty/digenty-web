@@ -12,6 +12,8 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
 import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
 import { AllClassesMainTableProps, ClassProps } from "./types";
 
@@ -21,10 +23,37 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
   const [open, setOpen] = useState(false);
   const [openNotifyModal, setOpenNotifyModal] = useState(false);
   const [openApproveModal, setOpenApproveModal] = useState(false);
+
+  const { mutate: approveReport, isPending: isSubmitting } = useSubmitClassReport();
+
+  const handleApprove = () => {
+    if (!row.original.classArmReportId) return;
+    approveReport(
+      { classArmReportId: row.original.classArmReportId, status: "APPROVED" },
+      {
+        onSuccess: () => {
+          toast.success("Submission approved successfully");
+          setOpenApproveModal(false);
+        },
+        onError: error => {
+          toast.error(error?.message || "Failed to approve submission");
+        },
+      },
+    );
+  };
+
   return (
     <>
       {openNotifyModal && <NotifyTeacherModal openNotifyModal={openNotifyModal} setOpenNotifyModal={setOpenNotifyModal} />}
-      {openApproveModal && <ApproveModal openApproveModal={openApproveModal} setOpenApproveModal={setOpenApproveModal} />}
+      {openApproveModal && (
+        <ApproveModal
+          openApproveModal={openApproveModal}
+          setOpenApproveModal={setOpenApproveModal}
+          classArmName={row.original.classArmName}
+          onConfirm={handleApprove}
+          isSubmitting={isSubmitting}
+        />
+      )}
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger onClick={evt => evt.stopPropagation()} className="cursor-pointer focus-visible:ring-0 focus-visible:outline-none">
           <MoreHorizontalIcon className="text-icon-default-muted size-4" />
@@ -34,7 +63,7 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
             className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
             onClick={() =>
               router.push(
-                `/classes-and-subjects/all-classes/${row.original.classId}/arm/${row.original.armId}?classArmName=${row.original.classArmName.replaceAll(" ", "-")}`,
+                `/staff/classes-and-subjects/all-classes/${row.original.classId}/arm/${row.original.armId}?classArmName=${row.original.classArmName.replaceAll(" ", "-")}`,
               )
             }
           >
@@ -54,7 +83,7 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
             <span>Notify class teacher</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => router.push(`/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
+            onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
             className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
           >
             <Key fill="var(--color-icon-default-subtle)" className="size-4" />
@@ -98,7 +127,7 @@ const RenderActions = (row: Row<ClassProps>, armId: number, classId: number, cla
         <Button
           onClick={() =>
             router.push(
-              `/classes-and-subjects/subjects/${row.original.subjectId}/classes/${classId}/arms/${armId}/view-score?classArmName=${classArmName.replaceAll(" ", "-")}&subjectName=${row.original.subjectName.replaceAll(" ", "-")}`,
+              `/staff/classes-and-subjects/subjects/${row.original.subjectId}/classes/${classId}/arms/${armId}/view-score?classArmName=${classArmName.replaceAll(" ", "-")}&subjectName=${row.original.subjectName.replaceAll(" ", "-")}`,
             )
           }
           className="bg-bg-state-secondary border-border-default text-text-default flex h-6 items-center gap-1 rounded-md border px-1.5! text-xs font-medium"

@@ -72,7 +72,7 @@ export const SubjectTeachers = () => {
             <DropdownMenu open={openFilter} onOpenChange={setOpenFilter}>
               <DropdownMenuTrigger asChild>
                 <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex">
-                  <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+                  <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
                   Status
                 </Badge>
               </DropdownMenuTrigger>
@@ -91,7 +91,7 @@ export const SubjectTeachers = () => {
 
           <div className="flex items-center justify-between gap-1">
             <Button onClick={() => setOpenFilter(true)} className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden">
-              <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+              <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
             </Button>
 
             <Button
@@ -103,7 +103,7 @@ export const SubjectTeachers = () => {
 
             <div className="flex items-center gap-1">
               <Button
-                onClick={() => router.push("/settings/permissions/add-staff")}
+                onClick={() => router.push("/staff/settings/permissions/add-staff")}
                 className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
               >
                 <PlusIcon className="text-icon-white-default size-4" />
@@ -195,7 +195,7 @@ export const SubjectTeachers = () => {
                         </div>
                         <div
                           role="button"
-                          onClick={() => router.push("/invoices/edit-invoice")}
+                          onClick={() => router.push("/staff/invoices/edit-invoice")}
                           className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                         >
                           <Printer fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Staff

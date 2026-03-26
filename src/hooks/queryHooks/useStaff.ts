@@ -1,4 +1,4 @@
-import { addStaff, deactivateStaff, deleteStaff, getStaff, getStaffDetails } from "@/api/staff";
+import { addStaff, deactivateStaff, deleteStaff, getStaff, getStaffDetails, makeBranchAdminStaff } from "@/api/staff";
 import { staffKeys } from "@/queries/staff";
 import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
@@ -40,5 +40,11 @@ export const useDeactivateStaff = (staffId: number | null) => {
   return useMutation({
     mutationKey: staffKeys.deactivateStaff,
     mutationFn: () => deactivateStaff(staffId),
+  });
+};
+
+export const useMakeBranchAdminStaff = () => {
+  return useMutation({
+    mutationFn: makeBranchAdminStaff,
   });
 };

@@ -68,7 +68,7 @@ export const EditAddGroup = () => {
                 <Select value={branchSelected} onValueChange={setBranchSelected}>
                   <SelectTrigger className="bg-bg-input-soft! h-8! w-auto border border-none">
                     <SelectValue>
-                      <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                      <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
                       <span className="text-text-default text-sm font-medium">{branchSelected}</span>
                     </SelectValue>
                   </SelectTrigger>

@@ -24,13 +24,13 @@ const RenderOptions = (row: Row<Parent>) => {
         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
-        <DropdownMenuItem onClick={() => router.push(`/student-and-parent-record/parents/${row.original.id}`)} className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => router.push(`/staff/student-and-parent-record/parents/${row.original.id}`)} className="gap-2.5 px-3">
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View parent profile</span>
         </DropdownMenuItem>
 
         <PermissionCheck permissionUtility={canManageStudentParentRecords}>
-          <DropdownMenuItem onClick={() => router.push(`/student-and-parent-record/parents/${row.original.id}/edit`)} className="gap-2.5 px-3">
+          <DropdownMenuItem onClick={() => router.push(`/staff/student-and-parent-record/parents/${row.original.id}/edit`)} className="gap-2.5 px-3">
             <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Edit parent profile</span>
           </DropdownMenuItem>

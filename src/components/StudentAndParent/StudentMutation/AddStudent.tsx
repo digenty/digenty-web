@@ -29,8 +29,8 @@ export const AddStudent = () => {
   const [selectedParents, setSelectedParents] = useState<{ id: number; fullName: string; avatar: string | null }[]>([]);
 
   useBreadcrumb([
-    { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Students", url: "/student-and-parent-record?tab=Students" },
+    { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
+    { label: "Students", url: "/staff/student-and-parent-record?tab=Students" },
     { label: "Add Student", url: "" },
   ]);
 

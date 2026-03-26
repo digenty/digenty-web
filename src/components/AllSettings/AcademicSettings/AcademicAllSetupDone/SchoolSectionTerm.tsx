@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { useGetAcademic, useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
+import { useGetActiveSession, useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
 import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -53,7 +53,7 @@ export const SchoolSectionAndTerm = () => {
   const [thirdTermStart, setThirdTermStart] = useState<DateRange | undefined>();
   const [thirdTermEnd, setThirdTermEnd] = useState<DateRange | undefined>();
 
-  const { data: academicResponse, isLoading: isLoadingAcademic } = useGetAcademic();
+  const { data: academicResponse, isLoading: isLoadingAcademic } = useGetActiveSession();
   const { data: termList } = useGetTerms(schoolId);
   const { data: levelsData, isLoading: isLoadingLevels, isError: isLevelError } = useGetClassLevel();
   const { mutateAsync: updateAcademic } = useUpdateAcademic();
@@ -299,14 +299,14 @@ export const SchoolSectionAndTerm = () => {
               title="Could not get Branch"
               description="This is our problem, we are looking into it so as to serve you better"
               buttonText="Go to the Home page"
-              url="/"
+              url="/staff/"
             />
           </div>
         )}
 
         {!isLoadingLevels && !isLevelError && levels.length === 0 && (
           <div className="flex h-80 items-center justify-center">
-            <ErrorComponent title="No Branch" description="No Branch has been added yet" buttonText="Add a branch" url="/settings/general" />
+            <ErrorComponent title="No Branch" description="No Branch has been added yet" buttonText="Add a branch" url="/staff/settings/general" />
           </div>
         )}
 

@@ -17,7 +17,7 @@ export const ClassesAndSubjectsPermissionWrapper = ({ children, isLoading }: { c
 
       {userExists && !hasAccess && !isLoading && (
         <div className="flex h-80 items-center justify-center pt-15">
-          <PageEmptyState title="Unauthorized" description="You are not authorized to view this page" buttonText="Go to Home page" url="/" />
+          <PageEmptyState title="Unauthorized" description="You are not authorized to view this page" buttonText="Go to Home page" url="/staff/" />
         </div>
       )}
 

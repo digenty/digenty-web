@@ -18,6 +18,7 @@ import { Label } from "../ui/label";
 import { Skeleton } from "../ui/skeleton";
 import { studentsStatus } from "./constants";
 import { StudentsStatus } from "./types";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const RecordHeader = ({
   tab,
@@ -49,6 +50,7 @@ export const RecordHeader = ({
 }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
+  console.log(useLoggedInUser());
 
   return (
     <div>

@@ -20,9 +20,9 @@ import { MailIcon } from "lucide-react";
 export const AddRoleSettings = () => {
   const router = useRouter();
   useBreadcrumb([
-    { label: "Settings", url: "/settings" },
-    { label: "Permissions", url: "/settings/permissions" },
-    { label: "Roles & Permissions", url: "/settings/permissions?tab=roles-and-permissions" },
+    { label: "Settings", url: "/staff/settings" },
+    { label: "Permissions", url: "/staff/settings/permissions" },
+    { label: "Roles & Permissions", url: "/staff/settings/permissions?tab=roles-and-permissions" },
     { label: "Add Role", url: "" },
   ]);
 
@@ -45,7 +45,7 @@ export const AddRoleSettings = () => {
               description: data.message,
               type: "success",
             });
-            router.push("/settings/permissions?tab=roles-and-permissions");
+            router.push("/staff/settings/permissions?tab=roles-and-permissions");
           },
           onError: error => {
             toast({

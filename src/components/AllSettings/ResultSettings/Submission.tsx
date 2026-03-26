@@ -81,10 +81,10 @@ export const Submission = () => {
             description: message,
             type: "error",
           });
-          },
+        },
       },
     );
-  // };
+    // };
     updateSubmission(
       { termsDeadline },
       {

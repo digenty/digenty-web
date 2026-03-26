@@ -16,12 +16,12 @@ export const FeesIndex = () => {
   const activeTab = params.get("tab") ?? "Class Fees";
 
   useBreadcrumb([
-    { label: "Fees", url: "/fees" },
-    { label: activeTab, url: `/fees?tab=${activeTab}` },
+    { label: "Fees", url: "/staff/fees" },
+    { label: activeTab, url: `/staff/fees?tab=${activeTab}` },
   ]);
 
   useEffect(() => {
-    router.push(`/fees?tab=${activeTab}`);
+    router.push(`/staff/fees?tab=${activeTab}`);
   }, [activeTab, router]);
 
   return (
@@ -33,7 +33,7 @@ export const FeesIndex = () => {
             <div
               role="button"
               onClick={() => {
-                router.push(`/fees?tab=${tab}`);
+                router.push(`/staff/fees?tab=${tab}`);
               }}
               key={tab}
               className={cn(

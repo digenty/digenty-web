@@ -10,8 +10,8 @@ import { ClassAttendanceHeader } from "./ClassAttendanceHeader";
 
 export const ClassAttendance = () => {
   const path = usePathname();
-  const armId = path.split("/")[3] ?? "";
-  const classArmName = path.split("/")[2] ?? "";
+  const armId = path.split("/")[4] ?? "";
+  const classArmName = path.split("/")[3] ?? "";
   const [date, setDate] = useState<Date>(new Date());
 
   const { data, isPending, isError, error } = useGetArmAttendance({ armId: Number(armId), limit: 200, page: 0, date: format(date, "yyyy-MM-dd") });
@@ -48,7 +48,7 @@ export const ClassAttendance = () => {
               title="No Students in this arm yet"
               description="No students have been added to this arm"
               buttonText="Add a student"
-              url="/student-and-parent-record/add-student"
+              url="/staff/student-and-parent-record/add-student"
             />
           </div>
         )}

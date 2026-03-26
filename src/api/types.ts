@@ -283,6 +283,7 @@ export interface BranchArmReport {
   numberOfSubmittedSubjects: number;
   status: string;
   numberOfEditRequest: number;
+  classArmReportId: number | null;
 }
 
 export interface BranchArmReportResponse {
@@ -684,4 +685,51 @@ export interface Levelsubject {
   branchId: number;
   schoolId: number;
 }
-   
+
+export interface StudentCumulative {
+  studentId: number;
+  studentName: string;
+  firstTermPercentage: number;
+  secondTermPercentage: number;
+  thirdTermPercentage: number;
+  cumulativePercentage: number;
+}
+
+export interface CumulativeReport {
+  studentCumulative: StudentCumulative[];
+}
+
+export interface PromotionBySubjectStudent {
+  subjectId: number;
+  subjectName: string;
+  score: number;
+}
+
+export interface PromotionBySubjectReport {
+  studentId: number;
+  studentName: string;
+  subjects: PromotionBySubjectStudent[];
+  total: number;
+  percentage: number;
+}
+
+export interface PromotionBySubjectReportResponse {
+  levelId: number;
+  students: PromotionBySubjectReport[];
+  stats: {
+    promoted: number;
+    repeated: number;
+    pending: number;
+  };
+}
+
+export interface ResultSettings {
+  academicSessionId: number;
+  calculationMethod: string;
+  classId: number;
+  id: number;
+  minimumOverallPercentage: number;
+  minimumPassGrade: string;
+  promotionType: "BY_PERFORMANCE" | "PROMOTE_ALL" | "MANUAL";
+  requiredSubjectIds: number[];
+}

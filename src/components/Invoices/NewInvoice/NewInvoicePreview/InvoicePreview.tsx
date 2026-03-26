@@ -22,7 +22,7 @@ export const InvoicePreview = ({ onPreviewToggle }: ToggleProp) => {
       <div className="border-border-default bg-bg-default flex flex-col gap-6 rounded-sm border p-5">
         <div className="text-text-default flex items-center justify-between">
           <div className="flex items-center gap-1 text-lg font-bold">
-            <LogoMark /> Digenty
+            <LogoMark />
           </div>
           <div className="text-xl font-semibold">INVOICE</div>
         </div>

@@ -21,7 +21,7 @@ export default function DashboardHeader() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
-    setBreadcrumbs([{ label: "Dashboard", url: "/" }]);
+    setBreadcrumbs([{ label: "Dashboard", url: "/staff/" }]);
   }, [setBreadcrumbs]);
 
   return (

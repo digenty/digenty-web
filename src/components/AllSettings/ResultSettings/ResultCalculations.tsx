@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetAcademic } from "@/hooks/queryHooks/useAcademic";
+import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import { useGetSchoolGradings } from "@/hooks/queryHooks/useGrading";
 import { useAddResultCalculation } from "@/hooks/queryHooks/useResult";
@@ -305,7 +305,7 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
 
 export const ClassesSetup = () => {
   const { data: classLevel, isFetching: isLoadingLevels } = useGetClassLevel();
-  const { data: academicData } = useGetAcademic();
+  const { data: academicData } = useGetActiveSession();
   const { mutate, isPending } = useAddResultCalculation();
   const levels = extractUniqueLevelsByType(classLevel?.data || []);
 

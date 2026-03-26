@@ -12,9 +12,9 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 export const AddFee = () => {
   useBreadcrumb([
-    { label: "Fees", url: "/fees" },
-    { label: "Class Fees", url: "/fees" },
-    { label: "Add fees", url: "/fees/add" },
+    { label: "Fees", url: "/staff/fees" },
+    { label: "Class Fees", url: "/staff/fees" },
+    { label: "Add fees", url: "/staff/fees/add" },
   ]);
 
   const { step, goToStep } = useFeesStep();

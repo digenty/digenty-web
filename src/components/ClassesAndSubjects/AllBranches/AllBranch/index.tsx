@@ -32,7 +32,7 @@ export const AllBranches = () => {
 
   const { data: allBranchList, isPending, isError } = useGetAllBranchesDetails(termSelected?.termId, debouncedSearchQuery);
 
-  useBreadcrumb([{ label: "All Branches", url: "/classes-and-subjects/all-branches" }]);
+  useBreadcrumb([{ label: "All Branches", url: "/staff/classes-and-subjects/all-branches" }]);
 
   useEffect(() => {
     if (terms) {
@@ -81,7 +81,7 @@ export const AllBranches = () => {
               setIsFilterOpen(true);
             }}
           >
-            <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
           </Button>
 
           <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
@@ -138,7 +138,7 @@ export const AllBranches = () => {
           title="No branches found"
           description="No branches have been added to this school"
           buttonText="Add a branch"
-          url="/settings"
+          url="/staff/settings"
         />
       )}
       {allBranchList && !isPending && (

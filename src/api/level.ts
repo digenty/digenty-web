@@ -34,3 +34,14 @@ export const updateLevel = async (payload: UpdateLevelPayload) => {
     throw error;
   }
 };
+export const getLevelResultSettings = async (levelId: number, filter: string) => {
+  try {
+    const { data } = await api.get(`/result-settings/level?levelId=${levelId}&filter=${filter}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

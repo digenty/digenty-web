@@ -17,8 +17,8 @@ type ClassTeacherSubjectProps = {
 
 export const Subjects = ({ subjectList, isLoading }: ClassTeacherSubjectProps) => {
   useBreadcrumb([
-    { label: "Classes and Subjects", url: "/classes-and-subjects" },
-    { label: "My Subjects", url: "/classes-and-subjects?tab=subjects" },
+    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+    { label: "My Subjects", url: "/staff/classes-and-subjects?tab=subjects" },
   ]);
 
   return (

@@ -25,7 +25,7 @@ export const ErrorComponent = ({
       <p className="text-text-muted text-center text-xs font-normal">{description}</p>
       {buttonText && (
         <Button
-          onClick={() => router.push(url ?? "/")}
+          onClick={() => router.push(url ?? "/staff/")}
           className={cn("bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2", buttonStyle)}
         >
           {buttonText}

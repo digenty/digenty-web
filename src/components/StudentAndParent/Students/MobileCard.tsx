@@ -43,7 +43,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
               <Button
                 onClick={evt => {
                   evt.stopPropagation();
-                  router.push(`/student-and-parent-record/students/${student.id}`);
+                  router.push(`/staff/student-and-parent-record/students/${student.id}`);
                 }}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
               >
@@ -52,7 +52,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
               </Button>
               <PermissionCheck permissionUtility={canManageStudentParentRecords}>
                 <Button
-                  onClick={() => router.push(`/student-and-parent-record/students/${student.id}/edit`)}
+                  onClick={() => router.push(`/staff/student-and-parent-record/students/${student.id}/edit`)}
                   className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
                 >
                   <Edit fill="var(--color-icon-default-muted)" className="size-4" />

@@ -18,13 +18,13 @@ export const PermissonsSettings = () => {
 
   useEffect(() => {
     if (!activeTab) {
-      router.push(`/settings/permissions?tab=staff`);
+      router.push(`/staff/settings/permissions?tab=staff`);
     }
   }, [activeTab, router]);
 
   useBreadcrumb([
-    { label: "Settings", url: "/settings" },
-    { label: "Permissions", url: "/settings/permissions" },
+    { label: "Settings", url: "/staff/settings" },
+    { label: "Permissions", url: "/staff/settings/permissions" },
     { label: tabs.find(tab => tab.value === activeTab)?.label || "Staff", url: "" },
   ]);
 
@@ -39,7 +39,7 @@ export const PermissonsSettings = () => {
               <div
                 role="button"
                 onClick={() => {
-                  router.push(`/settings/permissions?tab=${tab.value}`);
+                  router.push(`/staff/settings/permissions?tab=${tab.value}`);
                 }}
                 key={tab.value}
                 className={cn(

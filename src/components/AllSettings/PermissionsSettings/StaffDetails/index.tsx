@@ -35,12 +35,12 @@ type StaffBranch = {
 export const StaffDetails = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const staffId = pathname.split("/")[4];
+  const staffId = pathname.split("/")[5];
 
   useBreadcrumb([
-    { label: "Settings", url: "/settings" },
-    { label: "Permissions", url: "/settings/permissions" },
-    { label: "Staff", url: "/settings/permissions?tab=staff" },
+    { label: "Settings", url: "/staff/settings" },
+    { label: "Permissions", url: "/staff/settings/permissions" },
+    { label: "Staff", url: "/staff/settings/permissions?tab=staff" },
     { label: "Staff Details", url: "" },
   ]);
 
@@ -81,7 +81,7 @@ export const StaffDetails = () => {
           title="Cannot get staff details"
           description="Try reloading the page"
           buttonText="Reload"
-          url={`/settings/permissions/staff/${staffId}`}
+          url={`/staff/settings/permissions/staff/${staffId}`}
         />
       )}
 
@@ -132,7 +132,7 @@ export const StaffDetails = () => {
                   <UserForbid fill="var(--color-icon-default-muted)" className="size-4" /> Deactivate
                 </Button>
                 <Button
-                  onClick={() => router.push(`/settings/permissions/edit-staff/${staffId}`)}
+                  onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staffId}`)}
                   className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
                 >
                   <Edit fill="var(--color-icon-default-muted)" className="size-4" /> Edit Staff

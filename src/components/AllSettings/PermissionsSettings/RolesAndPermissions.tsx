@@ -157,7 +157,7 @@ export const RolesAndPermissions = () => {
         />
 
         <Button
-          onClick={() => router.push("/settings/permissions/add-role")}
+          onClick={() => router.push("/staff/settings/permissions/add-role")}
           className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8! self-start"
         >
           <PlusIcon className="text-icon-white-default size-4" />
@@ -182,7 +182,7 @@ export const RolesAndPermissions = () => {
             title="No Roles created yet"
             description="No role has been created yet"
             buttonText="Add a role"
-            url="/settings/permissions/add-role"
+            url="/staff/settings/permissions/add-role"
           />
         </div>
       )}
@@ -208,7 +208,7 @@ export const RolesAndPermissions = () => {
                   <DeleteBin fill="var(--color-icon-default-muted)" />
                 </Button>
                 <Button
-                  onClick={() => router.push(`/settings/permissions/edit-role/${role.roleId}`)}
+                  onClick={() => router.push(`/staff/settings/permissions/edit-role/${role.roleId}`)}
                   className="hover:bg-bg-none! border-none bg-none!"
                 >
                   <Edit fill="var(--color-icon-default-muted)" />

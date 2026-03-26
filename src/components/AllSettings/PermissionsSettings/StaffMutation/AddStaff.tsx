@@ -1,11 +1,9 @@
 "use client";
 
-import { Branch, BranchWithClassLevels, Role } from "@/api/types";
+import { BranchWithClassLevels, Role } from "@/api/types";
 import Accordion from "@/components/Accordion";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import DeleteBin from "@/components/Icons/DeleteBin";
-import Mail from "@/components/Icons/Mail";
 import School from "@/components/Icons/School";
 import { SchoolFill } from "@/components/Icons/SchoolFill";
 import { StaffInputValues } from "@/components/StudentAndParent/types";
@@ -35,15 +33,15 @@ export const AddStaff = () => {
   useBreadcrumb([
     {
       label: "Settings",
-      url: "/settings",
+      url: "/staff/settings",
     },
     {
       label: "Permissions",
-      url: "/settings/permissions",
+      url: "/staff/settings/permissions",
     },
     {
       label: "Staff",
-      url: "/settings/permissions",
+      url: "/staff/settings/permissions",
     },
     {
       label: "Add Staff",
@@ -134,7 +132,7 @@ export const AddStaff = () => {
               description: data.message,
               type: "success",
             });
-            router.push("/settings/permissions?tab=staff");
+            router.push("/staff/settings/permissions?tab=staff");
           },
           onError: error => {
             toast({
@@ -361,7 +359,7 @@ export const AddStaff = () => {
                             title="No Roles"
                             description="Please add roles first"
                             buttonText="Add Role"
-                            url="/settings/permissions/add-role"
+                            url="/staff/settings/permissions/add-role"
                             buttonStyle="h-7! w-fit"
                           />
                         </div>
