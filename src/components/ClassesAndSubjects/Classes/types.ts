@@ -6,6 +6,7 @@ export type AllClassesMainTableProps = {
   numberOfSubjects: number;
   numberOfSubmittedSubjects: number;
   numberOfEditRequest: 0;
+  classArmReportId: number | null;
   status: "APPROVED" | "PENDING_APPROVAL" | "NOT_SUBMITTED" | "EDIT_REQUEST";
 };
 

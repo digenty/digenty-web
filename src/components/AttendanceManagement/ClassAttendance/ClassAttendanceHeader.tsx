@@ -33,8 +33,8 @@ export const ClassAttendanceHeader = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const attendanceId = pathname.split("/staff/")[5] ?? "";
-  const armId = pathname.split("/staff/")[3] ?? "";
+  const attendanceId = pathname.split("/")[6] ?? "";
+  const armId = pathname.split("/")[4] ?? "";
 
   const { mutate: saveAttendance, isPending: saving } = useMarkAttendance();
   const { mutate: markAllAttendance, isPending: markingAll } = useMarkAllAttendance();

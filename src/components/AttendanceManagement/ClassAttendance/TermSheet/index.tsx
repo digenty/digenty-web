@@ -20,8 +20,8 @@ export interface Student {
 
 export const TermSheet = () => {
   const path = usePathname();
-  const classGroup = path.split("/staff/")[2] ?? "";
-  const armId = path.split("/staff/")[3] ?? "";
+  const classGroup = path.split("/")[3] ?? "";
+  const armId = path.split("/")[4] ?? "";
 
   const [page, setPage] = useState(1);
   const [activeWeek, setActiveWeek] = useState<string | undefined>();

@@ -35,7 +35,7 @@ type StaffBranch = {
 export const StaffDetails = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const staffId = pathname.split("/staff/")[4];
+  const staffId = pathname.split("/")[5];
 
   useBreadcrumb([
     { label: "Settings", url: "/staff/settings" },

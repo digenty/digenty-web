@@ -16,7 +16,7 @@ export const SubjectReportPermissionWrapper = ({
   const user = useLoggedInUser();
   const userExists = user && Object.keys(user).length > 0;
   const adminEditAccess = userExists && user.isMain && type === "edit";
-  const adminViewAccess = userExists && user.isMain && type === "view";
+  const adminViewAccess = userExists && (user.isMain || user.isAdmin) && type === "view";
   const hasSubjectAccess = userExists && user.subjectIds?.includes(Number(subjectId));
 
   return (

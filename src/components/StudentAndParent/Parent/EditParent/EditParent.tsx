@@ -21,7 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const EditParent = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const parentId = pathname.split("/staff/")[3] ?? "";
+  const parentId = pathname.split("/")[4] ?? "";
 
   const { data, isPending: loadingParent } = useGetParent(Number(parentId));
 

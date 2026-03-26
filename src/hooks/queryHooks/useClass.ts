@@ -12,6 +12,7 @@ import {
   setPromotionDecision,
   submitClassReport,
 } from "@/api/class";
+import { branchKeys } from "@/queries/branch";
 
 import { classKeys } from "@/queries/class";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -96,6 +97,7 @@ export const useSubmitClassReport = () => {
     mutationFn: (payload: { classArmReportId: number; status: string }) => submitClassReport(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [classKeys.classReport()] });
+      queryClient.invalidateQueries({ queryKey: [branchKeys.branchDetail] });
     },
   });
 };

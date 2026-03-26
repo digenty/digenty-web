@@ -10,8 +10,8 @@ import { ClassAttendanceHeader } from "./ClassAttendanceHeader";
 
 export const ClassAttendance = () => {
   const path = usePathname();
-  const armId = path.split("/staff/")[3] ?? "";
-  const classArmName = path.split("/staff/")[2] ?? "";
+  const armId = path.split("/")[4] ?? "";
+  const classArmName = path.split("/")[3] ?? "";
   const [date, setDate] = useState<Date>(new Date());
 
   const { data, isPending, isError, error } = useGetArmAttendance({ armId: Number(armId), limit: 200, page: 0, date: format(date, "yyyy-MM-dd") });

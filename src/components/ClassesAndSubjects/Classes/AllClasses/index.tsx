@@ -51,6 +51,7 @@ export const AllClassesMain = () => {
       classTeacherName: arm.classTeacherName,
       numberOfSubjects: arm.numberOfSubjects,
       numberOfSubmittedSubjects: arm.numberOfSubmittedSubjects,
+      classArmReportId: arm?.classArmReportId,
       numberOfEditRequest: arm.numberOfEditRequest > 0 ? `${arm.numberOfEditRequest} Pending` : "-",
       status: arm.status,
     })) ?? [];

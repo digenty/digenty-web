@@ -283,6 +283,7 @@ export interface BranchArmReport {
   numberOfSubmittedSubjects: number;
   status: string;
   numberOfEditRequest: number;
+  classArmReportId: number | null;
 }
 
 export interface BranchArmReportResponse {

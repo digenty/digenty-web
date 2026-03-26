@@ -39,9 +39,9 @@ export const ViewScore = () => {
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const subjectId = pathname.split("/staff/")[3];
-  const classId = pathname.split("/staff/")[5];
-  const armId = pathname.split("/staff/")[7];
+  const subjectId = pathname.split("/")[4];
+  const classId = pathname.split("/")[6];
+  const armId = pathname.split("/")[8];
   const classArmName = searchParams.get("classArmName")?.replaceAll("-", " ");
   const subjectName = searchParams.get("subjectName")?.replaceAll("-", " ");
 
@@ -190,7 +190,7 @@ export const ViewScore = () => {
                   <ShareBox fill="var(--color-icon-default-muted)" /> Export
                 </Button>
 
-                {user && !user.isMain && (
+                {user && !user.isMain && !user.isAdmin && (
                   <Button
                     disabled={isError || isLoadingScores || studentsScores.length === 0}
                     onClick={() => setOpenRequest(true)}

@@ -12,6 +12,8 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
 import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
 import { AllClassesMainTableProps, ClassProps } from "./types";
 
@@ -21,10 +23,37 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
   const [open, setOpen] = useState(false);
   const [openNotifyModal, setOpenNotifyModal] = useState(false);
   const [openApproveModal, setOpenApproveModal] = useState(false);
+
+  const { mutate: approveReport, isPending: isSubmitting } = useSubmitClassReport();
+
+  const handleApprove = () => {
+    if (!row.original.classArmReportId) return;
+    approveReport(
+      { classArmReportId: row.original.classArmReportId, status: "APPROVED" },
+      {
+        onSuccess: () => {
+          toast.success("Submission approved successfully");
+          setOpenApproveModal(false);
+        },
+        onError: error => {
+          toast.error(error?.message || "Failed to approve submission");
+        },
+      },
+    );
+  };
+
   return (
     <>
       {openNotifyModal && <NotifyTeacherModal openNotifyModal={openNotifyModal} setOpenNotifyModal={setOpenNotifyModal} />}
-      {openApproveModal && <ApproveModal openApproveModal={openApproveModal} setOpenApproveModal={setOpenApproveModal} />}
+      {openApproveModal && (
+        <ApproveModal
+          openApproveModal={openApproveModal}
+          setOpenApproveModal={setOpenApproveModal}
+          classArmName={row.original.classArmName}
+          onConfirm={handleApprove}
+          isSubmitting={isSubmitting}
+        />
+      )}
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger onClick={evt => evt.stopPropagation()} className="cursor-pointer focus-visible:ring-0 focus-visible:outline-none">
           <MoreHorizontalIcon className="text-icon-default-muted size-4" />

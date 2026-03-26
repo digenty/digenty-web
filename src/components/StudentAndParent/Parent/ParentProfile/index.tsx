@@ -27,7 +27,7 @@ import StatusBadge from "@/components/StatusBadge";
 export const ParentProfile = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const parentId = pathname.split("/staff/")[3] ?? "";
+  const parentId = pathname.split("/")[4] ?? "";
 
   const { openDelete, setOpenDelete, parentIds, setParentIds } = useParentStore();
 

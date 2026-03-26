@@ -23,7 +23,7 @@ import { Tags } from "./Tags";
 export const EditStudent = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const studentId = pathname.split("/staff/")[3] ?? "";
+  const studentId = pathname.split("/")[4] ?? "";
 
   const { data, isPending: loadingStudent } = useGetStudent(Number(studentId));
   const [date, setDate] = useState<Date | undefined>();

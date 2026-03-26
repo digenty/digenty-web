@@ -22,18 +22,9 @@ import { AllClassesMainTableProps } from "../types";
 import { ApproveModal, NotifyTeacherModal } from "./AllClassesModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { filter } from "lodash";
-import StatusBadge from "@/components/StatusBadge";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { ClassLevel } from "@/api/types";
-
-type LevelFilter = "All" | "Primary School" | "Secondary School";
-
-const LEVEL_FILTERS: { label: LevelFilter; prefix: string | null }[] = [
-  { label: "All", prefix: null },
-  { label: "Primary School", prefix: "pr" },
-  { label: "Secondary School", prefix: "s" },
-];
+import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
 
 interface AllClassesMainTableProps_Component {
   data: AllClassesMainTableProps[];
@@ -63,12 +54,28 @@ export const AllClassesMainTable = ({
   const [openApproveModalMobile, setOpenApproveModalMobile] = useState(false);
   const [activeClassId, setActiveClassId] = useState<number | null>(null);
   const [activeArmId, setActiveArmId] = useState<number | null>(null);
+  const [activeClassArmReportId, setActiveClassArmReportId] = useState<number | null>(null);
   const [activeArmName, setActiveArmName] = useState<string>("");
   const router = useRouter();
 
   const { data: levels, isLoading: loadingLevels } = useGetLevels();
 
   useBreadcrumb([{ label: "All Classes", url: "/staff/classes-and-subjects/all-classes" }]);
+
+  const { mutate: approveReport, isPending: isSubmitting } = useSubmitClassReport();
+
+  const handleApprove = () => {
+    if (!activeClassArmReportId) return;
+    approveReport(
+      { classArmReportId: activeClassArmReportId, status: "APPROVED" },
+      {
+        onSuccess: () => {
+          setOpenApproveModalMobile(false);
+          setOpenMobilerDrawer(false);
+        },
+      },
+    );
+  };
 
   return (
     <div className="px-4 py-3 md:px-8">
@@ -171,7 +178,15 @@ export const AllClassesMainTable = ({
 
       <div className="flex flex-col gap-4 pb-8">
         {openNotifyModalMobile && <NotifyTeacherModal openNotifyModal={openNotifyModalMobile} setOpenNotifyModal={setOpenNotifyModalMobile} />}
-        {openApproveModalMobile && <ApproveModal openApproveModal={openApproveModalMobile} setOpenApproveModal={setOpenApproveModalMobile} />}
+        {openApproveModalMobile && (
+          <ApproveModal
+            openApproveModal={openApproveModalMobile}
+            setOpenApproveModal={setOpenApproveModalMobile}
+            onConfirm={handleApprove}
+            isSubmitting={isSubmitting}
+            classArmName={activeArmName}
+          />
+        )}
 
         {openMobileDrawer && (
           <MobileDrawer open={openMobileDrawer} setIsOpen={setOpenMobilerDrawer} title="Actions">
@@ -253,6 +268,7 @@ export const AllClassesMainTable = ({
                             setActiveClassId(arm.classId);
                             setActiveArmId(arm.armId);
                             setActiveArmName(arm.classArmName);
+                            setActiveClassArmReportId(arm.classArmReportId);
                           }}
                         >
                           <MoreHorizontalIcon className="text-icon-default-muted size-4" />
@@ -272,7 +288,7 @@ export const AllClassesMainTable = ({
                       <div className="flex items-center justify-between px-3 py-[7px]">
                         <span className="text-text-muted text-sm font-medium">Subject Sheet</span>
                         <span className="text-text-default text-sm font-medium">
-                          {arm.numberOfSubjects}/{arm.numberOfSubjects}
+                          {arm.numberOfSubmittedSubjects}/{arm.numberOfSubjects}
                         </span>
                       </div>
                     </div>

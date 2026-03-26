@@ -244,7 +244,7 @@ export const Sidebar = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setActiveNav(pathname.split("/staff/")[1]);
+    setActiveNav(pathname.split("/")[2]);
   }, [pathname, setActiveNav]);
 
   const logout = () => {

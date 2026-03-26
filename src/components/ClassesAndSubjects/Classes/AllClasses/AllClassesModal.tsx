@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useApproveEditRequest, useGetEditRequestBySubjectAndArm } from "@/hooks/queryHooks/useRequests";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { formatRelativeDate } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -102,10 +103,58 @@ export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal }: Noti
 };
 
 export const ApproveModal = ({ openApproveModal, setOpenApproveModal, classArmName, onConfirm, isSubmitting }: ApproveModalProps) => {
+  const isMobile = useIsMobile();
   return (
     <>
-      <div className="block md:hidden">
-        <MobileDrawer open={openApproveModal} setIsOpen={setOpenApproveModal} title="Approve Class Results">
+      {isMobile && (
+        <div className="block md:hidden">
+          <MobileDrawer open={openApproveModal} setIsOpen={setOpenApproveModal} title="Approve Class Results">
+            <div className="flex flex-col gap-5 px-6 py-4">
+              <DialogDescription className="text-text-subtle text-sm font-normal">
+                Are you sure you want to approve the results for {classArmName}?
+              </DialogDescription>
+
+              <div className="mt-3 flex flex-col gap-2">
+                <div className="text-text-subtle border-border-default bg-bg-basic-blue-subtle rounded-md border px-3 py-2.5 text-sm shadow-sm">
+                  Once approved, no further changes can be made unless you revoke approval. The results will remain hidden until you publish them
+                  generally.
+                </div>
+              </div>
+            </div>
+
+            <div className="border-border-default border-t">
+              <DialogFooter className="flex justify-between px-6 py-4">
+                <DrawerClose asChild>
+                  <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
+                </DrawerClose>
+                <Button
+                  onClick={onConfirm}
+                  disabled={isSubmitting}
+                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
+                >
+                  {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
+                </Button>
+              </DialogFooter>
+            </div>
+          </MobileDrawer>
+        </div>
+      )}
+      {!isMobile && (
+        <Modal
+          open={openApproveModal}
+          setOpen={setOpenApproveModal}
+          className="hidden md:block"
+          title="Approve Class Results"
+          ActionButton={
+            <Button
+              onClick={onConfirm}
+              disabled={isSubmitting}
+              className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
+            >
+              {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
+            </Button>
+          }
+        >
           <div className="flex flex-col gap-5 px-6 py-4">
             <DialogDescription className="text-text-subtle text-sm font-normal">
               Are you sure you want to approve the results for {classArmName}?
@@ -118,51 +167,8 @@ export const ApproveModal = ({ openApproveModal, setOpenApproveModal, classArmNa
               </div>
             </div>
           </div>
-
-          <div className="border-border-default border-t">
-            <DialogFooter className="flex justify-between px-6 py-4">
-              <DrawerClose asChild>
-                <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
-              </DrawerClose>
-              <Button
-                onClick={onConfirm}
-                disabled={isSubmitting}
-                className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
-              >
-                {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
-              </Button>
-            </DialogFooter>
-          </div>
-        </MobileDrawer>
-      </div>
-      <Modal
-        open={openApproveModal}
-        setOpen={setOpenApproveModal}
-        className="hidden md:block"
-        title="Approve Class Results"
-        ActionButton={
-          <Button
-            onClick={onConfirm}
-            disabled={isSubmitting}
-            className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
-          >
-            {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
-          </Button>
-        }
-      >
-        <div className="flex flex-col gap-5 px-6 py-4">
-          <DialogDescription className="text-text-subtle text-sm font-normal">
-            Are you sure you want to approve the results for {classArmName}?
-          </DialogDescription>
-
-          <div className="mt-3 flex flex-col gap-2">
-            <div className="text-text-subtle border-border-default bg-bg-basic-blue-subtle rounded-md border px-3 py-2.5 text-sm shadow-sm">
-              Once approved, no further changes can be made unless you revoke approval. The results will remain hidden until you publish them
-              generally.
-            </div>
-          </div>
-        </div>
-      </Modal>
+        </Modal>
+      )}
     </>
   );
 };

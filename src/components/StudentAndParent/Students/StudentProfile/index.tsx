@@ -27,7 +27,7 @@ import StatusBadge from "@/components/StatusBadge";
 export const StudentProfile = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const studentId = pathname.split("/staff/")[3] ?? "";
+  const studentId = pathname.split("/")[4] ?? "";
 
   const {
     openWithdraw,
