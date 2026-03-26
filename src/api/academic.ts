@@ -14,9 +14,9 @@ export const addSchoolStructure = async (payload: SchoolStructurePayload) => {
   }
 };
 
-export const getAcademic = async () => {
+export const getActiveSession = async () => {
   try {
-    const { data } = await api.get(`/academic/session`);
+    const { data } = await api.get(`/academic/session/active`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

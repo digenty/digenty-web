@@ -1,11 +1,11 @@
 import { CumulativeReport, PromotionBySubjectReport, PromotionBySubjectStudent, ResultSettings } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { UserSetting } from "@/components/Icons/UserSetting";
-import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
-import { useGetRequiredSubjectReport, useSetPromotionDecision } from "@/hooks/queryHooks/class";
-import { useGetAcademic } from "@/hooks/queryHooks/useAcademic";
-import { useMemo, useState } from "react";
+import { useGetRequiredSubjectReport } from "@/hooks/queryHooks/class";
+import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import { Decision } from "..";
 import { PromotionStudent } from "../students";
 import { createPromotionColumns, createSubjectCombinationColumns } from "./PromotionColumn";
 import { PromotionDecisionModal } from "./PromotionDecisionModal";
@@ -14,35 +14,24 @@ export const Promotion = ({
   cumulativeReport,
   armId,
   resultSettings,
+  decisions,
+  setDecisions,
 }: {
   cumulativeReport: CumulativeReport;
   armId: number;
   resultSettings: ResultSettings;
+  decisions: Decision[];
+  setDecisions: Dispatch<SetStateAction<Decision[]>>;
 }) => {
   const promotionType = resultSettings?.promotionType;
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<PromotionStudent[]>([]);
-  const [decisions, setDecisions] = useState<
-    {
-      status: string;
-      studentId: number;
-      toClassId?: number;
-      toArmId?: number;
-      className?: string;
-      armName?: string;
-    }[]
-  >([]);
   const [showDecisionModal, setShowDecisionModal] = useState(false);
   const [individualStudent, setIndividualStudent] = useState<PromotionStudent | null>(null);
-  const [classToPromoteTo, setClassToPromoteTo] = useState<string>("");
-  const [armToPromoteTo, setArmToPromoteTo] = useState<string>("");
   const pageSize = 100;
 
-  const { data: academic } = useGetAcademic();
-  const sessionId = academic?.data?.id || 0;
-
-  const { mutate: setDecision, isPending: isSaving } = useSetPromotionDecision();
+  const { data: academic } = useGetActiveSession();
 
   const isSubjectCombination = resultSettings?.promotionType === "BY_PERFORMANCE" && resultSettings?.requiredSubjectIds?.length > 0;
   const { data: subjectReportData, isLoading: isLoadingSubjectReport } = useGetRequiredSubjectReport(armId, isSubjectCombination);
@@ -77,26 +66,6 @@ export const Promotion = ({
     promotionType,
     resultSettings?.minimumOverallPercentage,
   );
-
-  const handleSaveDecision = (decisionData: { status: string; studentId: number; toClassId?: number; toArmId?: number }) => {
-    const payload = {
-      armId: armId,
-      sessionId: sessionId,
-      decisions,
-    };
-
-    setDecision(payload, {
-      onSuccess: () => {
-        toast({ title: "Success", description: "Promotions saved successfully", type: "success" });
-        setShowDecisionModal(false);
-        setRowSelection({});
-        setSelectedRows([]);
-      },
-      onError: () => {
-        toast({ title: "Error", description: "Failed to save promotions", type: "error" });
-      },
-    });
-  };
 
   return (
     <div>
@@ -170,9 +139,6 @@ export const Promotion = ({
               return updated;
             });
           }}
-          isLoading={isSaving}
-          setClassToPromoteTo={setClassToPromoteTo}
-          setArmToPromoteTo={setArmToPromoteTo}
           promotionType={resultSettings?.promotionType}
         />
       )}

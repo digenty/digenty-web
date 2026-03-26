@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { useGetAcademic, useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
+import { useGetActiveSession, useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
 import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -53,7 +53,7 @@ export const SchoolSectionAndTerm = () => {
   const [thirdTermStart, setThirdTermStart] = useState<DateRange | undefined>();
   const [thirdTermEnd, setThirdTermEnd] = useState<DateRange | undefined>();
 
-  const { data: academicResponse, isLoading: isLoadingAcademic } = useGetAcademic();
+  const { data: academicResponse, isLoading: isLoadingAcademic } = useGetActiveSession();
   const { data: termList } = useGetTerms(schoolId);
   const { data: levelsData, isLoading: isLoadingLevels, isError: isLevelError } = useGetClassLevel();
   const { mutateAsync: updateAcademic } = useUpdateAcademic();

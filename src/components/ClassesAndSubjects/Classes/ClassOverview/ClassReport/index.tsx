@@ -29,6 +29,7 @@ import { PromotionMobileCard } from "./Promotion/PromotionMobileCard";
 import { createColumns } from "./SpreadsheetColumns";
 import { SpreadsheetMobileCard } from "./SpreadsheetMobileCard";
 import { StudentRow } from "./students";
+import { useSetPromotionDecision } from "@/hooks/queryHooks/class";
 
 // export const exportToPDF = async (elementId: string, filename: string) => {
 //   const element = document.getElementById(elementId);
@@ -61,6 +62,15 @@ import { StudentRow } from "./students";
 //   }
 // };
 
+export type Decision = {
+  status: string;
+  studentId: number;
+  toClassId?: number;
+  toArmId?: number;
+  className?: string;
+  armName?: string;
+};
+
 type ClassArmStudentReport = {
   studentId: number;
   studentName: string;
@@ -74,7 +84,6 @@ export const ClassReport = () => {
   const path = usePathname();
   const params = useSearchParams();
   const armId = path.split("/")[5];
-  const classId = path.split("/")[7];
   const { branchIds } = useLoggedInUser();
   const branchId = branchIds?.[0];
   const classArmName = params.get("classArmName")?.replaceAll("-", " ") || "";
@@ -86,6 +95,16 @@ export const ClassReport = () => {
   const [activeStudentId, setActiveStudentId] = useState<number>();
   const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [activeSession, setActiveSession] = useState<string | null>(null);
+  const [decisions, setDecisions] = useState<
+    {
+      status: string;
+      studentId: number;
+      toClassId?: number;
+      toArmId?: number;
+      className?: string;
+      armName?: string;
+    }[]
+  >([]);
   const pageSize = 100;
 
   useBreadcrumb([
@@ -210,11 +229,10 @@ export const ClassReport = () => {
           activeSession={activeSession}
           setActiveSession={setActiveSession}
           classArmName={classArmName}
-          classId={Number(classId)}
-          armId={Number(armId)}
           onExport={handleExport}
           classArmReportId={classReportData?.data?.classArmReportId}
           status={activeFilter === "spreadsheet" ? classReportData?.data?.status : ""}
+          decisions={decisions}
         />
 
         {isErrorReport && (
@@ -283,7 +301,13 @@ export const ClassReport = () => {
                   ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
                     <Skeleton className="bg-bg-input-soft h-100 w-full" />
                   ) : (
-                    <Promotion cumulativeReport={classCumulativeReportData?.data} armId={Number(armId)} resultSettings={levelResultSettings?.data} />
+                    <Promotion
+                      cumulativeReport={classCumulativeReportData?.data}
+                      armId={Number(armId)}
+                      resultSettings={levelResultSettings?.data}
+                      decisions={decisions}
+                      setDecisions={setDecisions}
+                    />
                   )}
                 </div>
               )}

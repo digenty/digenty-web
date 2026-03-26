@@ -24,8 +24,8 @@ const RenderAction = <T extends { studentId: number }>(
     if (decision.status === "PROMOTED" && decision.className && decision.armName) {
       return `Promote to ${decision.className} ${decision.armName}`;
     }
-    if (decision.status === "REPEATED") return "Repeat";
-    if (decision.status === "GRADUATED") return "Graduate";
+    if (decision.status === "REPEAT") return "Repeat";
+    // if (decision.status === "GRADUATED") return "Graduate";
     return "Set Decision";
   };
 
@@ -120,7 +120,7 @@ export const createPromotionColumns = (
       cell: ({ row }) => {
         const cumulative =
           ((row.original.firstTermPercentage || 0) + (row.original.secondTermPercentage || 0) + (row.original.thirdTermPercentage || 0)) / 3;
-        return <span className="text-text-default text-sm">{cumulative.toFixed(2)}</span>;
+        return <span className="text-text-default text-sm">{cumulative.toFixed(0)}%</span>;
       },
       size: 136,
       minSize: 136,

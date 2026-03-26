@@ -28,8 +28,6 @@ interface PromotionDecisionModalProps {
       armName?: string;
     }[],
   ) => void;
-  setClassToPromoteTo: (data: string) => void;
-  setArmToPromoteTo: (data: string) => void;
   promotionType: string;
 }
 
@@ -39,8 +37,6 @@ export const PromotionDecisionModal = ({
   selectedStudents,
   isLoading,
   setDecisions,
-  setClassToPromoteTo,
-  setArmToPromoteTo,
   promotionType,
 }: PromotionDecisionModalProps) => {
   const isMobile = useIsMobile();
@@ -84,8 +80,9 @@ export const PromotionDecisionModal = ({
           <div className="flex flex-col gap-4">
             {[
               { id: "PROMOTED", label: "Promote" },
-              { id: "REPEATED", label: "Repeat" },
-              { id: "GRADUATED", label: "Graduate" },
+              { id: "REPEAT", label: "Repeat" },
+              // { id: "DOUBLE_PROMOTION", label: "Double Promotion" },
+              // { id: "GRADUATED", label: "Graduate" },
             ].map(opt => (
               <label key={opt.id} className="group flex cursor-pointer items-center gap-3">
                 <div className="relative flex items-center justify-center">
@@ -115,7 +112,6 @@ export const PromotionDecisionModal = ({
               onValueChange={value => {
                 const cls = classes?.data?.content?.find((cls: ClassType) => cls.id.toString() === value);
                 setSelectedClassId(value);
-                setClassToPromoteTo(cls?.name);
               }}
             >
               <SelectTrigger className="bg-bg-input-soft h-11 w-full border-none">
@@ -138,7 +134,6 @@ export const PromotionDecisionModal = ({
               onValueChange={value => {
                 const arm = arms?.data?.find((arm: Arm) => arm.id.toString() === value);
                 setSelectedArmId(value);
-                setArmToPromoteTo(arm?.name);
               }}
               disabled={!selectedClassId}
             >

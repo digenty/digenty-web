@@ -1,4 +1,4 @@
-import { addSchoolStructure, getAcademic, updateAcademic } from "@/api/academic";
+import { addSchoolStructure, getActiveSession, updateAcademic } from "@/api/academic";
 import { UpdateAcademicPayload } from "@/api/types";
 import { academicKey } from "@/queries/academic";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -10,10 +10,10 @@ export const useAddSchoolStructure = () => {
   });
 };
 
-export const useGetAcademic = () => {
+export const useGetActiveSession = () => {
   return useQuery({
     queryKey: academicKey.get,
-    queryFn: getAcademic,
+    queryFn: getActiveSession,
   });
 };
 
