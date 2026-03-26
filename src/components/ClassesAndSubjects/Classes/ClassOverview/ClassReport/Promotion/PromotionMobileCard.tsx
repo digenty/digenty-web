@@ -1,12 +1,13 @@
-import { StudentCumulative } from "@/api/types";
+import { ResultSettings, StudentCumulative } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import ArrowDown from "@/components/Icons/ArrowDown";
 import ArrowUp from "@/components/Icons/ArrowUp";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronDown } from "lucide-react";
 import React, { Dispatch, SetStateAction, useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { Decision } from "..";
 import { PromotionDecisionModal } from "./PromotionDecisionModal";
 
@@ -18,20 +19,22 @@ export const PromotionMobileCard = ({
   setActiveStudent,
   decisions,
   setDecisions,
-  promotionType,
+  resultSettings,
 }: {
   student: StudentCumulative;
   activeStudent?: number;
   setActiveStudent: React.Dispatch<React.SetStateAction<number | undefined>>;
   decisions: Decision[];
   setDecisions: Dispatch<SetStateAction<Decision[]>>;
-  promotionType: string;
+  resultSettings: ResultSettings;
 }) => {
-  // const [actionSelected, setActionSelected] = useState(actions[0]);
   const [showDecisionModal, setShowDecisionModal] = useState(false);
 
   const decision = decisions.find(d => d.studentId === student.studentId);
+  const promotionType = resultSettings?.promotionType;
+  const isSubjectCombination = promotionType === "BY_PERFORMANCE" && resultSettings.requiredSubjectIds.length > 0;
 
+  const cumulativePercentage = (student.firstTermPercentage + student.secondTermPercentage + student.thirdTermPercentage) / 3;
   const toggleCard = () => {
     setActiveStudent(prev => (prev === student.studentId ? undefined : student.studentId));
   };
@@ -96,10 +99,27 @@ export const PromotionMobileCard = ({
           <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
             Cumulative %
           </div>
-          <div className="text-text-default flex flex-1 items-center justify-center text-sm">
-            {(student.firstTermPercentage + student.secondTermPercentage + student.thirdTermPercentage) / 3}
-          </div>
+          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{cumulativePercentage}</div>
         </div>
+
+        {(isSubjectCombination || promotionType === "BY_PERFORMANCE") && (
+          <div className="border-border-default flex h-12 border-b text-center last:border-b-0">
+            <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
+              Suggestion
+            </div>
+            <div className="text-text-default flex flex-1 items-center justify-center text-sm">
+              <Badge
+                className={cn(
+                  "border-border-default rounded-md border",
+                  cumulativePercentage >= resultSettings.minimumOverallPercentage && "text-text-success",
+                  cumulativePercentage < resultSettings.minimumOverallPercentage && "text-text-warning",
+                )}
+              >
+                {cumulativePercentage >= resultSettings.minimumOverallPercentage ? "Promote" : "Repeat"}
+              </Badge>
+            </div>
+          </div>
+        )}
 
         <div className="flex h-[46px] items-center justify-center px-3 py-1 text-center">
           <Button

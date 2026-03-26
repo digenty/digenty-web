@@ -389,7 +389,7 @@ export const ClassReport = () => {
                       setActiveStudent={setActiveStudentId}
                       decisions={decisions}
                       setDecisions={setDecisions}
-                      promotionType={levelResultSettings?.data?.promotionType || ""}
+                      resultSettings={levelResultSettings?.data}
                     />
                   ))}
                 </>

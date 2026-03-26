@@ -78,7 +78,7 @@ export const SettingSubscription = () => {
       <div className="bg-bg-subtle border-border-default flex flex-col gap-2 rounded-md border p-6">
         <Information fill="var(--color-icon-default-subtle)" />
         <div className="text-text-default text-sm font-medium">You do not have a subscription plan</div>
-        <div className="text-text-subtle text-xs">To continue, select a subscription plan and get the full benefit of digenty </div>
+        <div className="text-text-subtle text-xs">To continue, select a subscription plan and get the full benefit of Axis </div>
       </div>
 
       <Tabs

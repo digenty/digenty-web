@@ -35,7 +35,7 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <div className="text-text-default text-lg font-semibold">Welcome to Digenty</div>
+        <div className="text-text-default text-lg font-semibold">Welcome to Axis</div>
         <div className="text-text-muted text-sm">Let&apos;s get your school set up in a few simple steps</div>
       </div>
 
@@ -83,7 +83,7 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
             onChange={handleChange}
             onBlur={handleBlur}
             className="bg-bg-input-soft! text-text-default w-full border-none text-sm"
-            placeholder="e.g Digenty Schools"
+            placeholder="e.g Axis' Schools"
           />
           {touched.schoolName && errors.schoolName && <p className="text-text-destructive text-xs font-light">{errors.schoolName}</p>}
         </div>

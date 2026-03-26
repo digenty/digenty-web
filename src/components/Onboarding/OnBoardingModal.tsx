@@ -188,7 +188,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
           className="sm:max-w-175"
           title={
             <span className="text-text-default text-md flex items-center gap-2">
-              <LogoMark /> Digenty
+              <LogoMark />
             </span>
           }
           cancelButton={
@@ -226,7 +226,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
           setIsOpen={setShowModal}
           title={
             <span className="text-text-default text-md flex items-center gap-2">
-              <LogoMark /> Digenty
+              <LogoMark />
             </span>
           }
           showCloseButton={false}

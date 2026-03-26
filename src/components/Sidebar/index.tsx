@@ -263,8 +263,7 @@ export const Sidebar = () => {
         <div className={cn("flex", isSidebarOpen ? "justify-between" : "justify-center")}>
           {isSidebarOpen && (
             <div className="flex items-center gap-2">
-              <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" className="text-icon-default-subtle" />
-              <p className="text-text-default text-sm font-medium">Digenty</p>
+              <Image src="/icons/Logomark.svg" width={65} height={27} alt="Axis logo" className="text-icon-default-subtle" />
             </div>
           )}
 
@@ -284,7 +283,7 @@ export const Sidebar = () => {
                   className="p-0"
                 >
                   {showLogo ? (
-                    <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
+                    <Image src="/icons/Logomark.svg" width={49} height={20} alt="Axis logo" />
                   ) : (
                     <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5 rotate-180" />
                   )}
@@ -356,8 +355,7 @@ export const Sidebar = () => {
 
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
-                <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
-                <p className="text-text-default text-sm font-medium">Digenty</p>
+                <Image src="/icons/Logomark.svg" width={65} height={27} alt="Axis logo" />
               </div>
 
               {/* <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
