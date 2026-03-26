@@ -21,7 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const EditParent = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const parentId = pathname.split("/")[3] ?? "";
+  const parentId = pathname.split("/")[4] ?? "";
 
   const { data, isPending: loadingParent } = useGetParent(Number(parentId));
 
@@ -33,8 +33,8 @@ export const EditParent = () => {
   const [step, setStep] = useState(1);
   console.log(data);
   useBreadcrumb([
-    { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Parents", url: "/student-and-parent-record?tab=Parents" },
+    { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
+    { label: "Parents", url: "/staff/student-and-parent-record?tab=Parents" },
     { label: "Edit Parent", url: "" },
   ]);
 

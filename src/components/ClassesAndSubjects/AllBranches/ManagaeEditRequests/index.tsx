@@ -23,11 +23,11 @@ export const ManageEditRequest = () => {
   useBreadcrumb([
     {
       label: "Classes and Subjects",
-      url: "/classes-and-subjects",
+      url: "/staff/classes-and-subjects",
     },
     {
       label: "All Classes",
-      url: `/classes-and-subjects/all-classes`,
+      url: `/staff/classes-and-subjects/all-classes`,
     },
     {
       label: "Manage Edit Requests",

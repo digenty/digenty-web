@@ -29,8 +29,7 @@ export const Header = () => {
         </Button>
 
         <div className="flex items-center gap-2">
-          <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
-          <p className="text-text-default text-sm font-medium">Digenty</p>
+          <Image src="/icons/Logomark.svg" width={55} height={23} alt="Axis logo" />
         </div>
       </div>
 
@@ -44,7 +43,7 @@ export const Header = () => {
           <Notification2 fill="var(--color-icon-default-subtle)" />
         </Button>
 
-        <div onClick={() => router.push("/settings/profile")} className="border-border-darker cursor-pointer rounded-full">
+        <div onClick={() => router.push("/staff/settings/profile")} className="border-border-darker cursor-pointer rounded-full">
           <Avatar className="size-8" />
         </div>
       </div>

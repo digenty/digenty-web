@@ -62,10 +62,10 @@ const AddFeeToClass = () => {
   const [quantity, setQuantity] = useState(1);
 
   useBreadcrumb([
-    { label: "Fees", url: "/fees" },
-    { label: "Class Fees", url: "/fees" },
-    { label: "JSS 1", url: "/fees/class-fees/jss-1" },
-    { label: "Add Fee", url: "/fees/add-fee-to-class" },
+    { label: "Fees", url: "/staff/fees" },
+    { label: "Class Fees", url: "/staff/fees" },
+    { label: "JSS 1", url: "/staff/fees/class-fees/jss-1" },
+    { label: "Add Fee", url: "/staff/fees/add-fee-to-class" },
   ]);
 
   const increase = () => {
@@ -110,7 +110,7 @@ const AddFeeToClass = () => {
                           {sheetFees.map(sf => (
                             <div key={sf.id} className="border-border-darker bg-bg-card w-85 rounded-md border p-4 md:w-full md:min-w-118">
                               <div className="flex w-full items-start gap-2.5">
-                                <Image src="/images/image.png" alt="no image" width={32} height={32} className="rounded-full" />
+                                <Image src="/staff/images/image.png" alt="no image" width={32} height={32} className="rounded-full" />
 
                                 <div className="w-full">
                                   <div className="border-border-default flex w-full flex-col gap-2 border-b pb-4">

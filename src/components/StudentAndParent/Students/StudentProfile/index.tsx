@@ -27,7 +27,7 @@ import StatusBadge from "@/components/StatusBadge";
 export const StudentProfile = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const studentId = pathname.split("/")[3] ?? "";
+  const studentId = pathname.split("/")[4] ?? "";
 
   const {
     openWithdraw,
@@ -47,8 +47,8 @@ export const StudentProfile = () => {
   const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents(studentIdsToDelete);
 
   useBreadcrumb([
-    { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Students", url: "/student-and-parent-record?tab=Students" },
+    { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
+    { label: "Students", url: "/staff/student-and-parent-record?tab=Students" },
     { label: "Student", url: "" },
   ]);
 
@@ -152,7 +152,7 @@ export const StudentProfile = () => {
               {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
             </Button>
             <Button
-              onClick={() => router.push(`/student-and-parent-record/students/${student.id}/edit`)}
+              onClick={() => router.push(`/staff/student-and-parent-record/students/${student.id}/edit`)}
               className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm"
             >
               <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Student Information

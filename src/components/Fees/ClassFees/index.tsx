@@ -21,8 +21,8 @@ const arms = ["All Arms", "A", "B", "C"];
 const classes = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
 export const ClassFees = () => {
   useBreadcrumb([
-    { label: "Fees", url: "/fees" },
-    { label: "Class Fees", url: "/fees?tab=Class Fees" },
+    { label: "Fees", url: "/staff/fees" },
+    { label: "Class Fees", url: "/staff/fees?tab=Class Fees" },
   ]);
   const router = useRouter();
   const [page, setPage] = useState(1);
@@ -42,7 +42,7 @@ export const ClassFees = () => {
   //   title="Let’s set up your fees"
   //   description="You can add fees for one or more classes, branches and arms. We’ll guide you step-by step"
   //   buttonText="Add First Fee"
-  //   url="/fees/add"
+  //   url="/staff/fees/add"
   // />
 
   return (
@@ -61,7 +61,7 @@ export const ClassFees = () => {
         termsOptions={termsOptions}
         termSelected={termSelected}
         setTermSelected={setTermSelected}
-        onAddClick={() => router.push("/fees/add")}
+        onAddClick={() => router.push("/staff/fees/add")}
         exportTitle="Export Class Fees"
         exportActionButton="Export Class Fees"
       />
@@ -99,7 +99,7 @@ export const ClassFees = () => {
                 setCurrentPage={setPage}
                 pageSize={pageSize}
                 clickHandler={row => {
-                  router.push(`/fees/${row.original.id}`);
+                  router.push(`/staff/fees/${row.original.id}`);
                 }}
                 rowSelection={rowSelection}
                 setRowSelection={setRowSelection}

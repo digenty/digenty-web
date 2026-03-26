@@ -39,7 +39,7 @@ export default function StudentFiltersDrawer({ isOpen, onClose }: { isOpen: bool
           {/* Branch */}
           <Select value={branchSelected} onValueChange={setBranchSelected}>
             <div className="flex items-center gap-2">
-              <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+              <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
               <p className="text-text-default text-sm font-medium">Branch</p>
             </div>
             <SelectTrigger className="bg-bg-input-soft w-full rounded-md border px-3 py-2 text-left text-sm font-semibold">

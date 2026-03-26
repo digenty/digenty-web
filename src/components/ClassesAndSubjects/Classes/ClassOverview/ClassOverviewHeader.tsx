@@ -4,7 +4,7 @@ import FileList2 from "@/components/Icons/FileList2";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 
-export const ClassOverviewHeader = ({ classArmName }: { classArmName: string }) => {
+export const ClassOverviewHeader = ({ classArmName, classId }: { classArmName: string; classId: number }) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -14,7 +14,7 @@ export const ClassOverviewHeader = ({ classArmName }: { classArmName: string }) 
 
       <Button
         className="border-border-darker bg-bg-state-secondary text-text-default h-8! rounded-md border px-2! text-sm font-medium"
-        onClick={() => router.push(`${pathname}/class-report?classArmName=${classArmName.replaceAll(" ", "-")}`)}
+        onClick={() => router.push(`${pathname}/class-report/${classId}?classArmName=${classArmName.replaceAll(" ", "-")}`)}
       >
         <FileList2 fill="var(--color-icon-default-muted)" className="size-4" />
         Class Report

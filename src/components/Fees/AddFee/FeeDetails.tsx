@@ -93,7 +93,7 @@ const FeeDetails = () => {
                     {sheetFees.map(sf => (
                       <div key={sf.id} className="border-border-darker bg-bg-card w-85 rounded-md border p-4 md:w-full md:min-w-118">
                         <div className="flex w-full items-start gap-2.5">
-                          <Image src="/images/image.png" alt="no image" width={32} height={32} className="rounded-full" />
+                          <Image src="/staff/images/image.png" alt="no image" width={32} height={32} className="rounded-full" />
 
                           <div className="w-full">
                             <div className="border-border-default flex w-full flex-col gap-2 border-b pb-4">

@@ -21,7 +21,7 @@ export const ModulePermissionsWrapper = ({
           title="You don't have permissions to view this page"
           description="You can ask the Administrator to grant you at least a view permission to view this module"
           buttonText="Go to Home page"
-          url="/"
+          url="/staff/"
         />
       )}
 

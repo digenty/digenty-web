@@ -13,7 +13,7 @@ export const EmptyFeeState = ({ title, description, buttonText, url }: { title: 
         <p className="text-text-default text-lg font-medium">{title}</p>
         <p className="text-text-muted text-center text-xs font-normal">{description}</p>
         <Button
-          onClick={() => router.push(url ?? "/fees/add")}
+          onClick={() => router.push(url ?? "/staff/fees/add")}
           className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2"
         >
           <AddFill fill="var(--color-icon-white-default)" />

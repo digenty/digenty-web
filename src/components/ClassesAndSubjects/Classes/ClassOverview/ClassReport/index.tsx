@@ -10,12 +10,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
 import { useGetClassCumulativeReport, useGetClassReport } from "@/hooks/queryHooks/useClass";
+import { useGetLevelResultSettings } from "@/hooks/queryHooks/useLevel";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { exportToCSV } from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
 
-import { Term } from "@/api/types";
+import { StudentCumulative, Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -23,11 +24,12 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { ClassPermissionWrapper } from "../../ClassPermissionWrapper";
 import { ClassReportFooter } from "./ClassReportFooter";
 import { ClassReportHeader } from "./ClassReportHeader";
-import { createPromotionColumns } from "./PromotionColumn";
-import { PromotionMobileCard } from "./PromotionMobileCard";
+import { Promotion } from "./Promotion";
+import { PromotionMobileCard } from "./Promotion/PromotionMobileCard";
 import { createColumns } from "./SpreadsheetColumns";
 import { SpreadsheetMobileCard } from "./SpreadsheetMobileCard";
 import { StudentRow } from "./students";
+import { useSetPromotionDecision } from "@/hooks/queryHooks/useClass";
 
 // export const exportToPDF = async (elementId: string, filename: string) => {
 //   const element = document.getElementById(elementId);
@@ -60,6 +62,15 @@ import { StudentRow } from "./students";
 //   }
 // };
 
+export type Decision = {
+  status: string;
+  studentId: number;
+  toClassId?: number;
+  toArmId?: number;
+  className?: string;
+  armName?: string;
+};
+
 type ClassArmStudentReport = {
   studentId: number;
   studentName: string;
@@ -72,7 +83,7 @@ type ClassArmStudentReport = {
 export const ClassReport = () => {
   const path = usePathname();
   const params = useSearchParams();
-  const armId = path.split("/")[4];
+  const armId = path.split("/")[5];
   const { branchIds } = useLoggedInUser();
   const branchId = branchIds?.[0];
   const classArmName = params.get("classArmName")?.replaceAll("-", " ") || "";
@@ -84,21 +95,42 @@ export const ClassReport = () => {
   const [activeStudentId, setActiveStudentId] = useState<number>();
   const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [activeSession, setActiveSession] = useState<string | null>(null);
+  const [decisions, setDecisions] = useState<
+    {
+      status: string;
+      studentId: number;
+      toClassId?: number;
+      toArmId?: number;
+      className?: string;
+      armName?: string;
+    }[]
+  >([]);
   const pageSize = 100;
 
   useBreadcrumb([
-    { label: "Classes and Subjects", url: "/classes-and-subjects" },
-    { label: "Classes", url: "/classes-and-subjects" },
-    { label: "My Class", url: `/classes-and-subjects/classes/overview/${armId}?classArmName=${classArmName}` },
+    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+    { label: "Classes", url: "/staff/classes-and-subjects" },
+    { label: "My Class", url: `/staff/classes-and-subjects/classes/overview/${armId}?classArmName=${classArmName}` },
     { label: "Class Report", url: "" },
   ]);
 
-  const { data: classReportData, isLoading: isLoadingReport, isError: isErrorReport } = useGetClassReport(Number(armId), termSelected?.termId);
+  const {
+    data: classReportData,
+    isLoading: isLoadingReport,
+    isError: isErrorReport,
+    error: reportError,
+  } = useGetClassReport(Number(armId), termSelected?.termId);
+
   const {
     data: classCumulativeReportData,
     isLoading: isLoadingCumulativeReport,
     isError: isErrorCumulativeReport,
   } = useGetClassCumulativeReport(Number(armId), activeFilter);
+
+  const levelId = classCumulativeReportData?.data?.levelId;
+
+  const { data: levelResultSettings } = useGetLevelResultSettings(Number(levelId), activeFilter);
+
   const {
     data: studentReportData,
     isPending: loadingStudentReport,
@@ -198,13 +230,16 @@ export const ClassReport = () => {
           setActiveSession={setActiveSession}
           classArmName={classArmName}
           onExport={handleExport}
+          classArmReportId={classReportData?.data?.classArmReportId}
+          status={activeFilter === "spreadsheet" ? classReportData?.data?.status : ""}
+          decisions={decisions}
         />
 
         {isErrorReport && (
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent
               title="Could not get class report"
-              description="This is our problem, we are looking into it so as to serve you better"
+              description={`${reportError?.message || "This is our problem, we are looking into it so as to serve you better"}`}
               buttonText="Go to the Home page"
             />
           </div>
@@ -248,7 +283,7 @@ export const ClassReport = () => {
                         tableHeadCell: "text-center pr-2 w-34",
                         tableBodyCell: "text-center pr-2 w-34",
                         tableRow: "h-14",
-                        table: "table-fixed",
+                        // table: "table-fixed",
                       }}
                     />
                   )}
@@ -266,21 +301,12 @@ export const ClassReport = () => {
                   ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
                     <Skeleton className="bg-bg-input-soft h-100 w-full" />
                   ) : (
-                    <DataTable
-                      columns={createPromotionColumns(transformedStudents)}
-                      data={transformedStudents}
-                      totalCount={transformedStudents.length}
-                      page={page}
-                      setCurrentPage={setPage}
-                      pageSize={pageSize}
-                      showPagination={false}
-                      fullBorder
-                      classNames={{
-                        tableHeadCell: "text-center pr-2 w-34",
-                        tableBodyCell: "text-center pr-2 w-34",
-                        tableRow: "h-14",
-                        table: "table-fixed",
-                      }}
+                    <Promotion
+                      cumulativeReport={classCumulativeReportData?.data}
+                      armId={Number(armId)}
+                      resultSettings={levelResultSettings?.data}
+                      decisions={decisions}
+                      setDecisions={setDecisions}
                     />
                   )}
                 </div>
@@ -351,13 +377,23 @@ export const ClassReport = () => {
                     />
                   );
                 }
-                if (activeFilter === "promotion") {
-                  return (
-                    <PromotionMobileCard key={student.id} student={student} activeStudent={activeStudentId} setActiveStudent={setActiveStudentId} />
-                  );
-                }
-                return null;
               })}
+
+              {activeFilter === "promotion" && (
+                <>
+                  {classCumulativeReportData?.data?.studentCumulative.map((student: StudentCumulative) => (
+                    <PromotionMobileCard
+                      key={student.studentId}
+                      student={student}
+                      activeStudent={activeStudentId}
+                      setActiveStudent={setActiveStudentId}
+                      decisions={decisions}
+                      setDecisions={setDecisions}
+                      resultSettings={levelResultSettings?.data}
+                    />
+                  ))}
+                </>
+              )}
             </ul>
           </>
         )}

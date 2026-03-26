@@ -148,7 +148,7 @@ export const InvoiceOverviewTable = () => {
                       </div>
                       <div
                         role="button"
-                        onClick={() => router.push("/invoices/edit-invoice")}
+                        onClick={() => router.push("/staff/invoices/edit-invoice")}
                         className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                       >
                         <Printer fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Invoice

@@ -48,7 +48,7 @@ export const approveEditRequest = async (editAccessId: number, isApproved: boole
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
-      throw error.message;
+      throw error.response?.data;
     }
     throw error;
   }
@@ -63,7 +63,7 @@ export const approveEditRequestBulk = async (editAccessIds: number[], isApproved
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
-      throw error.message;
+      throw error.response?.data;
     }
     throw error;
   }

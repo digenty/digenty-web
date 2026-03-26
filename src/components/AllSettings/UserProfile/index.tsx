@@ -23,8 +23,8 @@ type EditProps = "editName" | "editPhoneNum" | "editTimezone" | null;
 const timeZones = ["CEST"];
 export const UserProfile = () => {
   useBreadcrumb([
-    { label: "Settings", url: "/settings" },
-    { label: "Profile Settings", url: "/settings/profile" },
+    { label: "Settings", url: "/staff/settings" },
+    { label: "Profile Settings", url: "/staff/settings/profile" },
   ]);
   const [timeZone, setTimeZone] = useState(timeZones[0]);
   const [edit, setEdit] = useState<EditProps>(null);

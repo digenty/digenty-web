@@ -29,7 +29,7 @@ const RenderOptions = (row: Row<Student>) => {
         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
-        <DropdownMenuItem onClick={() => router.push(`/student-and-parent-record/students/${row.original.id}`)} className="gap-2.5 px-3">
+        <DropdownMenuItem onClick={() => router.push(`/staff/student-and-parent-record/students/${row.original.id}`)} className="gap-2.5 px-3">
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View student profile</span>
         </DropdownMenuItem>
@@ -37,7 +37,7 @@ const RenderOptions = (row: Row<Student>) => {
           <DropdownMenuItem
             onClick={evt => {
               evt.stopPropagation();
-              router.push(`/student-and-parent-record/students/${row.original.id}/edit`);
+              router.push(`/staff/student-and-parent-record/students/${row.original.id}/edit`);
             }}
             className="gap-2.5 px-3"
           >

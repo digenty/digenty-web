@@ -10,6 +10,10 @@ import { useGetTeacherClasses } from "@/hooks/queryHooks/useClass";
 import { Skeleton } from "../ui/skeleton";
 import { PageEmptyState } from "../Error/PageEmptyState";
 import { ClassesAndSubjectsPermissionWrapper } from "./ClassesAndSubjectsPermissionWrapper";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { AllClassesMain } from "./Classes/AllClasses";
+import { Button } from "../ui/button";
+import { AllBranches } from "./AllBranches/AllBranch";
 
 const tabs = [
   { id: "classes", label: "My Classes" },
@@ -30,16 +34,27 @@ const ClassesAndSubjects = () => {
   const hasClasses = classes.length > 0;
   const hasSubjects = subjectList.length > 0;
   const showTabs = hasClasses && hasSubjects;
+  const user = useLoggedInUser();
+
+  console.log(user);
 
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Classes and Subjects", url: "/classes-and-subjects" },
+      { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
       {
         label: showTabs ? (tabs.find(tab => tab.id === activeTab)?.label ?? "") : hasSubjects ? "My Subjects" : "My Classes",
-        url: `/classes-and-subjects${showTabs ? `?tab=${activeTab}` : ""}`,
+        url: `/staff/classes-and-subjects${showTabs ? `?tab=${activeTab}` : ""}`,
       },
     ]);
   }, [activeTab, showTabs, hasSubjects, setBreadcrumbs]);
+
+  if (user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1) {
+    return <AllClassesMain />;
+  }
+
+  if (user && user?.isMain) {
+    return <AllBranches />;
+  }
 
   return (
     <ClassesAndSubjectsPermissionWrapper isLoading={isLoading}>
@@ -57,7 +72,7 @@ const ClassesAndSubjects = () => {
                     return (
                       <div
                         role="button"
-                        onClick={() => router.push(`/classes-and-subjects?tab=${tab.id}`)}
+                        onClick={() => router.push(`/staff/classes-and-subjects?tab=${tab.id}`)}
                         key={tab.id}
                         className={cn(
                           "w-1/2 cursor-pointer py-2.5 text-center transition-all duration-150",
@@ -68,6 +83,8 @@ const ClassesAndSubjects = () => {
                       </div>
                     );
                   })}
+
+                  <Button>View Branch Panel</Button>
                 </div>
                 {activeTab === "classes" ? (
                   <MyClasses classes={classes} isLoading={isLoadingClasses} />
@@ -83,7 +100,20 @@ const ClassesAndSubjects = () => {
             {/* Case 3: Class teacher only */}
             {hasClasses && !hasSubjects && (
               <div className="flex flex-col gap-4 pb-10">
-                <h2 className="text-text-default hidden text-lg font-semibold md:inline md:text-xl">My Classes</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-text-default hidden text-lg font-semibold md:inline md:text-xl">My Classes</h2>
+                  {user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1 && (
+                    <Button onClick={() => router.push("/staff/classes-and-subjects/all-classes")} className="border-border-default border">
+                      View Branch Panel
+                    </Button>
+                  )}
+
+                  {user && user?.isMain && (
+                    <Button onClick={() => router.push("/staff/classes-and-subjects/all-branches")} className="border-border-default border">
+                      View All Branches
+                    </Button>
+                  )}
+                </div>
                 <MyClasses classes={classes} isLoading={isLoadingClasses} />
               </div>
             )}

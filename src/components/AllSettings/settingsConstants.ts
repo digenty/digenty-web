@@ -10,14 +10,14 @@ import { Shield } from "../Icons/Shield";
 import User from "../Icons/User";
 
 export const SETTINGS_NAV = [
-  { label: "General Settings", url: "/settings/general", icon: School },
-  { label: "Academic Setup", url: "/settings/academic", icon: GraduationCap },
-  { label: "Result", url: "/settings/result", icon: Award },
-  { label: "Subscription", url: "/settings/subscription", icon: BankCard },
-  { label: "Invoice", url: "/settings/invoice", icon: FileList3 },
-  { label: "Permissions", url: "/settings/permissions", icon: Group },
-  { label: "Stock", url: "/settings/stock", icon: Box3 },
-  { label: "KYC", url: "/settings/kyc", icon: IdCard },
-  { label: "Profile", url: "/settings/profile", icon: User },
-  { label: "Security", url: "/settings/security", icon: Shield },
+  { label: "General Settings", url: "/staff/settings/general", icon: School },
+  { label: "Academic Setup", url: "/staff/settings/academic", icon: GraduationCap },
+  { label: "Result", url: "/staff/settings/result", icon: Award },
+  { label: "Subscription", url: "/staff/settings/subscription", icon: BankCard },
+  { label: "Invoice", url: "/staff/settings/invoice", icon: FileList3 },
+  { label: "Permissions", url: "/staff/settings/permissions", icon: Group },
+  { label: "Stock", url: "/staff/settings/stock", icon: Box3 },
+  { label: "KYC", url: "/staff/settings/kyc", icon: IdCard },
+  { label: "Profile", url: "/staff/settings/profile", icon: User },
+  { label: "Security", url: "/staff/settings/security", icon: Shield },
 ];

@@ -5,8 +5,8 @@ import { TanstackProvider } from "./providers/Tanstack";
 import "./styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "Digenty",
-  description: "Your favourite management app",
+  title: "Axis",
+  description: "Your favourite school management app",
 };
 
 export default function RootLayout({

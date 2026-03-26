@@ -9,7 +9,7 @@ export const StockDetailHeader = () => {
   return (
     <div className="border-border-default flex w-full flex-col gap-3 rounded-md border p-3 md:flex-row md:items-center md:justify-between md:p-6">
       <div className="flex items-center gap-2">
-        <Image src="/images/image.png" alt="stock image" width={64} height={64} />
+        <Image src="/staff/images/image.png" alt="stock image" width={64} height={64} />
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">
             <div className="text-text-default text-lg font-semibold">Textbook</div>

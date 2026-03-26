@@ -20,7 +20,7 @@ export const SettingsHeader = () => {
     >
       <div className="hide-scrollbar flex w-full flex-nowrap items-center justify-start gap-2 overflow-x-auto px-8 py-3">
         {SETTINGS_NAV.map(item => {
-          const isActive = pathname === item.url || pathname.startsWith(item.url + "/");
+          const isActive = pathname === item.url || pathname.startsWith(item.url + "/staff/");
 
           return (
             <Link

@@ -60,7 +60,7 @@ export const LinkParents = ({
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
-                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                  <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
                   <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
@@ -100,7 +100,7 @@ export const LinkParents = ({
                       title="No Parents yet"
                       description="No Parents have been added yet"
                       buttonText="Add Parent"
-                      url="/student-and-parent-record/add-parent"
+                      url="/staff/student-and-parent-record/add-parent"
                     />
                   </div>
                 )}
@@ -196,7 +196,7 @@ export const LinkParents = ({
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
-                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                  <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
                   <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
@@ -236,7 +236,7 @@ export const LinkParents = ({
                       title="No Parents yet"
                       description="No Parents have been added yet"
                       buttonText="Add Parent"
-                      url="/student-and-parent-record/add-parent"
+                      url="/staff/student-and-parent-record/add-parent"
                     />
                   </div>
                 )}

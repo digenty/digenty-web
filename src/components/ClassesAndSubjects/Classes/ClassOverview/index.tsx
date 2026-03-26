@@ -22,14 +22,14 @@ export interface Subject {
 
 export const ClassOverview = () => {
   useBreadcrumb([
-    { label: "Classes and Subjects", url: "/classes-and-subjects" },
-    { label: "Classes", url: `/classes-and-subjects` },
+    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+    { label: "Classes", url: `/staff/classes-and-subjects` },
     { label: "My Class", url: "" },
   ]);
 
   const { openNotifyTeacher } = useClassesStore();
   const pathname = usePathname();
-  const armId = pathname.split("/")[4];
+  const armId = pathname.split("/")[5];
   const searchParams = useSearchParams();
   const classArmName = searchParams.get("classArmName")?.replaceAll("-", " ") || "";
 
@@ -44,7 +44,7 @@ export const ClassOverview = () => {
     <ClassPermissionWrapper armId={Number(armId)} isLoading={isFetching}>
       <div className="space-y-6 px-4 py-6 md:px-8 md:py-4">
         {openNotifyTeacher && <NotifyTeacher />}
-        <ClassOverviewHeader classArmName={classArmName} />
+        <ClassOverviewHeader classArmName={classArmName} classId={data?.data?.data?.classId} />
 
         <h3 className="text-text-default hidden text-lg font-semibold md:inline">{classArmName}</h3>
 

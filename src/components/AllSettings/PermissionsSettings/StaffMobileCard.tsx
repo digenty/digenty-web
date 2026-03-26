@@ -6,7 +6,7 @@ import { UserForbid } from "@/components/Icons/UserForbid";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { getStatusBadge, staffStatusBadge } from "@/components/Status";
 import { Button } from "@/components/ui/button";
-import { Ellipsis } from "lucide-react";
+import { Ellipsis, ShieldUser } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStaffStore } from "@/store/staff";
@@ -14,7 +14,7 @@ import { useStaffStore } from "@/store/staff";
 export const StaffMobileCard = ({ staff }: { staff: Staff }) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const { setOpenDeactivation, setStaffIdToDeactivate } = useStaffStore();
+  const { setOpenDeactivation, setStaffIdToDeactivate, setOpenMakeBranchAdmin, setStaffToMakeAdmin } = useStaffStore();
 
   const handleDeactivate = () => {
     setOpenDeactivation(true);
@@ -34,17 +34,28 @@ export const StaffMobileCard = ({ staff }: { staff: Staff }) => {
           <div className="flex w-full flex-col gap-4 px-3 py-4">
             <div className="flex flex-col items-center gap-2">
               <div
-                onClick={() => router.push(`/settings/permissions/staff/${staff.staffId}`)}
+                onClick={() => router.push(`/staff/settings/permissions/staff/${staff.staffId}`)}
                 className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
               >
                 <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Staff
               </div>
               <div
                 role="button"
-                onClick={() => router.push(`/settings/permissions/edit-staff/${staff.staffId}`)}
+                onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staff.staffId}`)}
                 className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
               >
                 <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Staff
+              </div>
+
+              <div
+                onClick={() => {
+                  setStaffToMakeAdmin(staff);
+                  setOpenMakeBranchAdmin(true);
+                  setIsOpen(false);
+                }}
+                className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+              >
+                <ShieldUser className="text-icon-default-subtle size-4" /> Make Branch Admin
               </div>
 
               <div

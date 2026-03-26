@@ -35,7 +35,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
           <MobileDrawer open={isOptionsOpen} setIsOpen={setIsOptionsOpen} title="Actions">
             <div className="flex flex-col gap-2 p-4">
               <Button
-                onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}`)}
+                onClick={() => router.push(`/staff/student-and-parent-record/parents/${parent.id}`)}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
               >
                 <EyeIcon className="text-icon-default-muted size-4" />
@@ -44,7 +44,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
 
               <PermissionCheck permissionUtility={canManageStudentParentRecords}>
                 <Button
-                  onClick={() => router.push(`/student-and-parent-record/parents/${parent.id}/edit`)}
+                  onClick={() => router.push(`/staff/student-and-parent-record/parents/${parent.id}/edit`)}
                   className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
                 >
                   <Edit fill="var(--color-icon-default-muted)" className="size-4" />

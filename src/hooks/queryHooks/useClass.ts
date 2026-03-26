@@ -1,13 +1,19 @@
 import {
-  getClasses,
-  getClassTeachersInClass,
-  getTeacherClass,
-  getClassReport,
-  getClassCumulativeReport,
-  requestEditAccess,
-  getClassesByLevel,
   deleteClass,
+  getClassCumulativeReport,
+  getClasses,
+  getClassesByLevel,
+  getClassLevels,
+  getClassReport,
+  getClassTeachersInClass,
+  getRequiredSubjectReport,
+  getTeacherClass,
+  requestEditAccess,
+  setPromotionDecision,
+  submitClassReport,
 } from "@/api/class";
+import { branchKeys } from "@/queries/branch";
+
 import { classKeys } from "@/queries/class";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -74,5 +80,52 @@ export const useDeleteClass = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
+  });
+};
+
+export const useGetClassLevel = () => {
+  return useQuery({
+    queryKey: classKeys.classLevel,
+    queryFn: getClassLevels,
+  });
+};
+
+export const useSubmitClassReport = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: [classKeys.submitClassReport],
+    mutationFn: (payload: { classArmReportId: number; status: string }) => submitClassReport(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [classKeys.classReport()] });
+      queryClient.invalidateQueries({ queryKey: [branchKeys.branchDetail] });
+    },
+  });
+};
+
+export const useSetPromotionDecision = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: [classKeys.setPromotionDecision],
+    mutationFn: (payload: {
+      armId: number;
+      sessionId: number;
+      decisions: {
+        studentId: number;
+        status: string;
+        toClassId?: number;
+        toArmId?: number;
+      }[];
+    }) => setPromotionDecision(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [classKeys.classCumulativeReport()] });
+    },
+  });
+};
+
+export const useGetRequiredSubjectReport = (armId: number, isSubjectCombination: boolean) => {
+  return useQuery({
+    queryKey: classKeys.requiredSubjectReport(armId),
+    queryFn: () => getRequiredSubjectReport(armId),
+    enabled: isSubjectCombination,
   });
 };

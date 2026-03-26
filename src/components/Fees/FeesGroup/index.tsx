@@ -20,8 +20,8 @@ const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term
 export const FeesGroup = () => {
   const router = useRouter();
   useBreadcrumb([
-    { label: "Fees", url: "/fees" },
-    { label: "Fee Groups", url: "/fees?tab=Fee Groups" },
+    { label: "Fees", url: "/staff/fees" },
+    { label: "Fee Groups", url: "/staff/fees?tab=Fee Groups" },
   ]);
 
   const [branchSelected, setBranchSelected] = useState(branches[0]);
@@ -44,7 +44,7 @@ export const FeesGroup = () => {
   //       title="No Fee Groups Yet"
   //       description="Create groups to organise related fees into bundles you can reuse when setting up invoices."
   //       buttonText="Add Fee Group"
-  //       url="/fees/add-fee-to-group"
+  //       url="/staff/fees/add-fee-to-group"
   //     />
 
   return (
@@ -74,7 +74,7 @@ export const FeesGroup = () => {
           setCurrentPage={setPage}
           pageSize={pageSize}
           clickHandler={row => {
-            router.push(`/fees/fee-group/${row.original.id}`);
+            router.push(`/staff/fees/fee-group/${row.original.id}`);
           }}
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}

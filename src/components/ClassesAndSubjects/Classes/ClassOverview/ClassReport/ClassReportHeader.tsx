@@ -10,10 +10,16 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StudentRow } from "./students";
 import { SubmitClassReportModal } from "./SubmitClassReportModal";
+import { SubmitPromotionModal } from "./SubmitPromotionModal";
+import { useSetPromotionDecision, useSubmitClassReport } from "@/hooks/queryHooks/useClass";
+import { toast } from "@/components/Toast";
+import RequestEdit from "../../../RequestEditAccess";
+import { Decision } from ".";
+import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 
 export const ClassReportHeader = ({
   students,
@@ -25,6 +31,9 @@ export const ClassReportHeader = ({
   setActiveSession,
   classArmName,
   onExport,
+  classArmReportId,
+  status,
+  decisions,
 }: {
   students: StudentRow[];
   activeFilter: string;
@@ -35,19 +44,24 @@ export const ClassReportHeader = ({
   setActiveSession: React.Dispatch<React.SetStateAction<string | null>>;
   classArmName: string;
   onExport?: () => void;
+  classArmReportId?: number;
+  status?: string;
+  decisions: Decision[];
 }) => {
+  const path = usePathname();
+  const armId = path.split("/")[5];
+  const classId = path.split("/")[7];
+
   const isMobile = useIsMobile();
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openPromotionModal, setOpenPromotionModal] = useState<boolean>(false);
   const [openRequest, setOpenRequest] = useState<boolean>(false);
-
-  const searchParams = useSearchParams();
-  const isSubmitted = !!searchParams.get("submitted");
-  const isRequested = !!searchParams.get("requested");
 
   const user = useLoggedInUser();
   const schoolId = user?.schoolId;
 
   const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
+  const { data: session } = useGetActiveSession();
 
   useEffect(() => {
     if (terms) {
@@ -57,9 +71,71 @@ export const ClassReportHeader = ({
     }
   }, [setActiveSession, setTermSelected, terms]);
 
+  const handleOpenModal = () => {
+    if (activeFilter !== "spreadsheet") return;
+    setOpenModal(true);
+  };
+
+  const { mutate: submitReport, isPending: isSubmitting } = useSubmitClassReport();
+  const { mutate: setDecision, isPending: isSaving } = useSetPromotionDecision();
+
+  const handleReportSubmission = () => {
+    if (classArmReportId) {
+      submitReport(
+        {
+          classArmReportId: classArmReportId,
+          status: "PENDING_APPROVAL",
+        },
+        {
+          onSuccess: () => {
+            toast({ title: "Submitted", description: "Class report submitted successfully", type: "success" });
+            setOpenModal(false);
+          },
+          onError: () => {
+            toast({ title: "Failed to submit", description: "Failed to submit class report", type: "error" });
+          },
+        },
+      );
+    }
+  };
+
+  const handlePromotionSubmission = () => {
+    const payload = {
+      armId: Number(armId),
+      sessionId: session?.data?.id as number,
+      decisions: decisions.map((decision: Decision) => ({
+        studentId: decision.studentId,
+        status: decision.status,
+        toClassId: decision.toClassId,
+        toArmId: decision.toArmId,
+      })),
+    };
+
+    setDecision(payload, {
+      onSuccess: () => {
+        toast({ title: "Success", description: "Promotions saved successfully", type: "success" });
+        setOpenPromotionModal(false);
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Failed to save promotions", type: "error" });
+      },
+    });
+  };
+
   return (
     <>
-      {openModal && <SubmitClassReportModal open={openModal} onOpenChange={setOpenModal} />}
+      {openModal && (
+        <SubmitClassReportModal open={openModal} onOpenChange={setOpenModal} onConfirm={handleReportSubmission} isLoading={isSubmitting} />
+      )}
+      {openPromotionModal && (
+        <SubmitPromotionModal
+          open={openPromotionModal}
+          onOpenChange={setOpenPromotionModal}
+          onConfirm={handlePromotionSubmission}
+          isLoading={isSaving}
+        />
+      )}
+      {openRequest && <RequestEdit open={openRequest} onOpenChange={setOpenRequest} classId={Number(classId)} armId={Number(armId)} />}
 
       <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
@@ -106,9 +182,9 @@ export const ClassReportHeader = ({
                 <ShareBox fill="var(--color-icon-default-muted)" /> Export
               </Button>
 
-              {!isSubmitted && !isRequested && (
+              {status === "NOT_SUBMITTED" && activeFilter === "spreadsheet" && (
                 <Button
-                  onClick={() => setOpenModal(true)}
+                  onClick={handleOpenModal}
                   size="sm"
                   className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 items-center gap-1 text-sm font-normal md:w-fit"
                 >
@@ -117,7 +193,18 @@ export const ClassReportHeader = ({
                 </Button>
               )}
 
-              {isSubmitted && !isRequested && (
+              {activeFilter === "promotion" && (
+                <Button
+                  onClick={() => setOpenPromotionModal(true)}
+                  size="sm"
+                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 items-center gap-1 text-sm font-normal md:w-fit"
+                >
+                  <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
+                  Submit
+                </Button>
+              )}
+
+              {status === "PENDING_APPROVAL" && (
                 <Button
                   size="sm"
                   onClick={() => setOpenRequest(true)}
@@ -127,12 +214,22 @@ export const ClassReportHeader = ({
                 </Button>
               )}
 
-              {isRequested && (
+              {status === "EDIT_REQUEST" && (
                 <Button
+                  disabled
                   size="sm"
-                  className="border-border-default bg-bg-state-disabled! text-text-hint flex h-8 w-auto flex-1 cursor-not-allowed items-center justify-between gap-1 border text-sm md:flex-auto"
+                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto flex-1 items-center justify-between gap-1 border text-sm md:flex-auto"
                 >
                   <Question fill="var(--color-icon-default-muted)" /> Requested Edit Access
+                </Button>
+              )}
+
+              {status === "APPROVED" && (
+                <Button
+                  size="sm"
+                  className="border-border-default bg-bg-basic-green-subtle text-bg-basic-green-strong flex h-8 w-auto flex-1 items-center justify-between gap-1 border text-sm md:flex-auto"
+                >
+                  <Question fill="var(--color-bg-basic-green-strong)" /> Approved
                 </Button>
               )}
             </div>

@@ -15,7 +15,7 @@ export const ClassPermissionWrapper = ({ children, armId, isLoading }: { childre
 
       {Object.keys(user).length > 0 && !user.armIds?.includes(Number(armId)) && !isLoading && (
         <div className="flex h-80 items-center justify-center pt-15">
-          <PageEmptyState title="Unauthorized" description="You are not authorized to view this page" buttonText="Go to Home page" url="/" />
+          <PageEmptyState title="Unauthorized" description="You are not authorized to view this page" buttonText="Go to Home page" url="/staff/" />
         </div>
       )}
 

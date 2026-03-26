@@ -64,7 +64,7 @@ export const InvoiceSearchAndExport = () => {
           <DropdownMenu open={openFilter} onOpenChange={setOpenFilter}>
             <DropdownMenuTrigger asChild>
               <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex">
-                <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+                <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
                 Status
               </Badge>
             </DropdownMenuTrigger>
@@ -84,7 +84,7 @@ export const InvoiceSearchAndExport = () => {
 
         <div className="flex items-center justify-between gap-1">
           <Button onClick={() => setOpenFilter(true)} className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden">
-            <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
           </Button>
 
           <Button
@@ -96,7 +96,7 @@ export const InvoiceSearchAndExport = () => {
 
           <div className="flex items-center gap-1">
             <Button
-              onClick={() => router.push("/invoices/new-invoice")}
+              onClick={() => router.push("/staff/invoices/new-invoice")}
               className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
             >
               <Plus className="text-texticon-white-default size-4" />

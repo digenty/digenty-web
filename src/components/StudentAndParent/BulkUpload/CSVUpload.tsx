@@ -44,8 +44,8 @@ export const CSVUpload = ({
   setBranchSelected: (branch: Branch | null) => void;
 }) => {
   useBreadcrumb([
-    { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: entity, url: `/student-and-parent-record?tab=${entity}` },
+    { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
+    { label: entity, url: `/staff/student-and-parent-record?tab=${entity}` },
     { label: "CSV Upload", url: "" },
   ]);
 
@@ -53,9 +53,9 @@ export const CSVUpload = ({
 
   const handleCSVDownload = () => {
     if (entity === "Students") {
-      window.location.href = `/templates/student-upload-template.csv`;
+      window.location.href = `/staff/templates/student-upload-template.csv`;
     } else {
-      window.location.href = `/templates/parent-upload-template.csv`;
+      window.location.href = `/staff/templates/parent-upload-template.csv`;
     }
   };
   const [fileError, setFileError] = useState<string | null>(null);

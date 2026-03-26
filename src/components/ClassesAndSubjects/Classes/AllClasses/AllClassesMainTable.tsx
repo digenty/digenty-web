@@ -22,18 +22,9 @@ import { AllClassesMainTableProps } from "../types";
 import { ApproveModal, NotifyTeacherModal } from "./AllClassesModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { filter } from "lodash";
-import StatusBadge from "@/components/StatusBadge";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { ClassLevel } from "@/api/types";
-
-type LevelFilter = "All" | "Primary School" | "Secondary School";
-
-const LEVEL_FILTERS: { label: LevelFilter; prefix: string | null }[] = [
-  { label: "All", prefix: null },
-  { label: "Primary School", prefix: "pr" },
-  { label: "Secondary School", prefix: "s" },
-];
+import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
 
 interface AllClassesMainTableProps_Component {
   data: AllClassesMainTableProps[];
@@ -63,13 +54,28 @@ export const AllClassesMainTable = ({
   const [openApproveModalMobile, setOpenApproveModalMobile] = useState(false);
   const [activeClassId, setActiveClassId] = useState<number | null>(null);
   const [activeArmId, setActiveArmId] = useState<number | null>(null);
+  const [activeClassArmReportId, setActiveClassArmReportId] = useState<number | null>(null);
   const [activeArmName, setActiveArmName] = useState<string>("");
   const router = useRouter();
 
   const { data: levels, isLoading: loadingLevels } = useGetLevels();
-  console.log(data);
 
-  useBreadcrumb([{ label: "All Classes", url: "/classes-and-subjects/all-classes" }]);
+  useBreadcrumb([{ label: "All Classes", url: "/staff/classes-and-subjects/all-classes" }]);
+
+  const { mutate: approveReport, isPending: isSubmitting } = useSubmitClassReport();
+
+  const handleApprove = () => {
+    if (!activeClassArmReportId) return;
+    approveReport(
+      { classArmReportId: activeClassArmReportId, status: "APPROVED" },
+      {
+        onSuccess: () => {
+          setOpenApproveModalMobile(false);
+          setOpenMobilerDrawer(false);
+        },
+      },
+    );
+  };
 
   return (
     <div className="px-4 py-3 md:px-8">
@@ -161,13 +167,26 @@ export const AllClassesMainTable = ({
 
       {!isFetchingBranch && !isError && data.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Classes" description="No classes to view " buttonText="Add a class" url="/settings/academic/academic-setup" />
+          <ErrorComponent
+            title="No Classes"
+            description="No classes to view "
+            buttonText="Add a class"
+            url="/staff/settings/academic/academic-setup"
+          />
         </div>
       )}
 
       <div className="flex flex-col gap-4 pb-8">
         {openNotifyModalMobile && <NotifyTeacherModal openNotifyModal={openNotifyModalMobile} setOpenNotifyModal={setOpenNotifyModalMobile} />}
-        {openApproveModalMobile && <ApproveModal openApproveModal={openApproveModalMobile} setOpenApproveModal={setOpenApproveModalMobile} />}
+        {openApproveModalMobile && (
+          <ApproveModal
+            openApproveModal={openApproveModalMobile}
+            setOpenApproveModal={setOpenApproveModalMobile}
+            onConfirm={handleApprove}
+            isSubmitting={isSubmitting}
+            classArmName={activeArmName}
+          />
+        )}
 
         {openMobileDrawer && (
           <MobileDrawer open={openMobileDrawer} setIsOpen={setOpenMobilerDrawer} title="Actions">
@@ -175,7 +194,7 @@ export const AllClassesMainTable = ({
               <Button
                 onClick={() =>
                   router.push(
-                    `/classes-and-subjects/all-classes/${activeClassId}/arm/${activeArmId}?classArmName=${activeArmName.replaceAll(" ", "-")}`,
+                    `/staff/classes-and-subjects/all-classes/${activeClassId}/arm/${activeArmId}?classArmName=${activeArmName.replaceAll(" ", "-")}`,
                   )
                 }
                 className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
@@ -204,7 +223,7 @@ export const AllClassesMainTable = ({
                 </div>
               </Button>
               <Button
-                onClick={() => router.push(`/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
+                onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
                 className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
               >
                 <div className="flex items-center gap-1">
@@ -249,6 +268,7 @@ export const AllClassesMainTable = ({
                             setActiveClassId(arm.classId);
                             setActiveArmId(arm.armId);
                             setActiveArmName(arm.classArmName);
+                            setActiveClassArmReportId(arm.classArmReportId);
                           }}
                         >
                           <MoreHorizontalIcon className="text-icon-default-muted size-4" />
@@ -268,7 +288,7 @@ export const AllClassesMainTable = ({
                       <div className="flex items-center justify-between px-3 py-[7px]">
                         <span className="text-text-muted text-sm font-medium">Subject Sheet</span>
                         <span className="text-text-default text-sm font-medium">
-                          {arm.numberOfSubjects}/{arm.numberOfSubjects}
+                          {arm.numberOfSubmittedSubjects}/{arm.numberOfSubjects}
                         </span>
                       </div>
                     </div>

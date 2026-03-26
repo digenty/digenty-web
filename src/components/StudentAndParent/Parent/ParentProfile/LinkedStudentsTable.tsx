@@ -101,7 +101,7 @@ export const LinkedStudentsTable = ({ students }: { students: { id: number; full
               setCurrentPage={setPage}
               pageSize={pageSize}
               clickHandler={row => {
-                router.push(`/student-and-parent-record/students/${row.original.id}`);
+                router.push(`/staff/student-and-parent-record/students/${row.original.id}`);
               }}
               showPagination={false}
               rowSelection={rowSelection}

@@ -61,7 +61,7 @@ export const SpreadsheetMobileCard = ({
           <div className="bg-bg-subtle text-text-muted border-border-default flex w-1/2 items-center justify-center border-r px-4 py-2">
             Percentage
           </div>
-          <div className="text-text-default flex w-1/2 items-center justify-center text-sm">{studentScore?.totalPercentage || 0}%</div>
+          <div className="text-text-default flex w-1/2 items-center justify-center text-sm">{studentScore?.totalPercentage?.toFixed(0) || 0}%</div>
         </div>
 
         <div className="flex h-12 text-center">

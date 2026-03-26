@@ -33,15 +33,15 @@ export const EditStaff = () => {
   useBreadcrumb([
     {
       label: "Settings",
-      url: "/settings",
+      url: "/staff/settings",
     },
     {
       label: "Permissions",
-      url: "/settings/permissions",
+      url: "/staff/settings/permissions",
     },
     {
       label: "Staff",
-      url: "/settings/permissions",
+      url: "/staff/settings/permissions",
     },
     {
       label: "Add Staff",

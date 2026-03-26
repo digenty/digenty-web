@@ -30,11 +30,11 @@ export const AllClassesHeader = ({ termSelected, setTermSelected, activeSession,
   useBreadcrumb([
     {
       label: "Classes and Subjects",
-      url: "/classes-and-subjects/all-classes",
+      url: "/staff/classes-and-subjects/all-classes",
     },
     {
       label: "All Classes",
-      url: "/classes-and-subjects/all-classes",
+      url: "/staff/classes-and-subjects/all-classes",
     },
   ]);
 
@@ -84,7 +84,7 @@ export const AllClassesHeader = ({ termSelected, setTermSelected, activeSession,
           </div>
 
           <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
-            <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
           </Button>
         </div>
 

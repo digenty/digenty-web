@@ -6,7 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import SubmitScoreModal from "./SubmitScoreModal";
 import Question from "@/components/Icons/Question";
-import RequestEdit from "../RequestEdit";
+import RequestEdit from "../../RequestEditAccess";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function ScoresHeader({
@@ -30,9 +30,9 @@ export default function ScoresHeader({
   const classArm = searchParams.get("classArmName")?.replaceAll("-", " ") || "";
   const subjectName = searchParams.get("subjectName") || "";
 
-  const classId = pathname.split("/")[5];
-  const subjectId = pathname.split("/")[3];
-  const armId = pathname.split("/")[7];
+  const classId = pathname.split("/")[6];
+  const subjectId = pathname.split("/")[4];
+  const armId = pathname.split("/")[8];
 
   return (
     <>

@@ -33,9 +33,9 @@ export const AddFeeToGroup = () => {
   const [items, setItems] = useState<ItemRow[]>([{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }]);
 
   useBreadcrumb([
-    { label: "Fees", url: "/fees" },
-    { label: "Fee Groups", url: "/fees?tab=Fee Groups" },
-    { label: "Add Fee Group", url: "/fees/add-fee-to-group" },
+    { label: "Fees", url: "/staff/fees" },
+    { label: "Fee Groups", url: "/staff/fees?tab=Fee Groups" },
+    { label: "Add Fee Group", url: "/staff/fees/add-fee-to-group" },
   ]);
 
   const subtotal = items.reduce((acc, item) => acc + item.qty * item.price, 0);
@@ -74,7 +74,7 @@ export const AddFeeToGroup = () => {
                 <Select value={branchSelected} onValueChange={setBranchSelected}>
                   <SelectTrigger className="bg-bg-input-soft! h-8! w-auto border border-none">
                     <SelectValue>
-                      <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                      <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
                       <span className="text-text-default text-sm font-medium">{branchSelected}</span>
                     </SelectValue>
                   </SelectTrigger>

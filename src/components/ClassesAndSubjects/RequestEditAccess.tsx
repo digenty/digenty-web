@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRequestEditAccess } from "@/hooks/queryHooks/useClass";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useState } from "react";
-import { RoundedCheckbox } from "../../RoundedCheckbox";
+import { RoundedCheckbox } from "../RoundedCheckbox";
 
 type RequestEditProps = {
   open: boolean;
@@ -47,7 +47,7 @@ export default function RequestEdit({ open, onOpenChange, classId, armId, subjec
         additionalDetails,
         armId,
         classId,
-        subjectId,
+        ...(subjectId && { subjectId }),
       },
       {
         onSuccess: data => {

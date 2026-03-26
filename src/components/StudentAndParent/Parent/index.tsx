@@ -38,8 +38,8 @@ export const ParentsTable = () => {
   const isMobile = useIsMobile();
   const { openDelete, setOpenDelete, parentIds, setParentIds } = useParentStore();
   useBreadcrumb([
-    { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Parents", url: `/student-and-parent-record?tab=Parents` },
+    { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
+    { label: "Parents", url: `/staff/student-and-parent-record?tab=Parents` },
   ]);
 
   const [page, setPage] = useState(1);
@@ -357,7 +357,7 @@ export const ParentsTable = () => {
             title="No Parents"
             description="No parent has been added yet"
             buttonText="Add a parent"
-            url="/student-and-parent-record/add-parent"
+            url="/staff/student-and-parent-record/add-parent"
           />
         </div>
       )}
@@ -373,7 +373,7 @@ export const ParentsTable = () => {
               setCurrentPage={setPage}
               pageSize={pageSize}
               clickHandler={row => {
-                router.push(`/student-and-parent-record/parents/${row.original.id}`);
+                router.push(`/staff/student-and-parent-record/parents/${row.original.id}`);
               }}
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}

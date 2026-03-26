@@ -13,7 +13,7 @@ type PreviewProps = {
 
 export const EditInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps) => {
   useBreadcrumb([
-    { label: "Invoices", url: "/invoices" },
+    { label: "Invoices", url: "/staff/invoices" },
     { label: "Edit Invoice", url: "" },
   ]);
   return (

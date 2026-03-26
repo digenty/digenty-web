@@ -51,7 +51,7 @@ export const FeeGroup = () => {
               <DeleteBin fill="var(--color-bg-state-destructive)" className="size-4" />
             </Button>
             <Button
-              // onClick={() => route.push("/fees/add-fee-to-class")}
+              // onClick={() => route.push("/staff/fees/add-fee-to-class")}
               className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! h-8! border font-medium shadow-sm!"
             >
               <Edit fill="var(--color-icon-default-muted)" />

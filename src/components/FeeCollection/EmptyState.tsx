@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 export const EmptyFeesCollectionState = () => {
   const router = useRouter();
-  useBreadcrumb([{ label: "Fee Collection", url: "/fee-collection" }]);
+  useBreadcrumb([{ label: "Fee Collection", url: "/staff/fee-collection" }]);
   return (
     <div className="flex h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-2">
@@ -18,7 +18,7 @@ export const EmptyFeesCollectionState = () => {
           Get started by connecting your primary collection account. You can configure advanced options later.
         </div>
         <Button
-          onClick={() => router.push("/fee-collection/fees-setup")}
+          onClick={() => router.push("/staff/fee-collection/fees-setup")}
           className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md text-sm"
         >
           Set up Fee collection

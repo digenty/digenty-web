@@ -71,3 +71,15 @@ export const deactivateStaff = async (staffId: number | null) => {
     throw error;
   }
 };
+
+export const makeBranchAdminStaff = async (payload: { staffId: number; branchIds: number[] }) => {
+  try {
+    const { data } = await api.put("/staffs/branch-admin", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

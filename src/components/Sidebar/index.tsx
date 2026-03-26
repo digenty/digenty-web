@@ -244,7 +244,7 @@ export const Sidebar = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setActiveNav(pathname.split("/")[1]);
+    setActiveNav(pathname.split("/")[2]);
   }, [pathname, setActiveNav]);
 
   const logout = () => {
@@ -263,8 +263,7 @@ export const Sidebar = () => {
         <div className={cn("flex", isSidebarOpen ? "justify-between" : "justify-center")}>
           {isSidebarOpen && (
             <div className="flex items-center gap-2">
-              <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" className="text-icon-default-subtle" />
-              <p className="text-text-default text-sm font-medium">Digenty</p>
+              <Image src="/icons/Logomark.svg" width={65} height={27} alt="Axis logo" className="text-icon-default-subtle" />
             </div>
           )}
 
@@ -284,7 +283,7 @@ export const Sidebar = () => {
                   className="p-0"
                 >
                   {showLogo ? (
-                    <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
+                    <Image src="/icons/Logomark.svg" width={49} height={20} alt="Axis logo" />
                   ) : (
                     <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5 rotate-180" />
                   )}
@@ -317,7 +316,7 @@ export const Sidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          onClick={() => router.push(`/${menu.url}`)}
+                          onClick={() => router.push(`/staff/${menu.url}`)}
                         >
                           <menu.icon fill="var(--color-icon-default-subtle)" />
                           {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
@@ -356,8 +355,7 @@ export const Sidebar = () => {
 
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
-                <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
-                <p className="text-text-default text-sm font-medium">Digenty</p>
+                <Image src="/icons/Logomark.svg" width={65} height={27} alt="Axis logo" />
               </div>
 
               {/* <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
@@ -381,7 +379,7 @@ export const Sidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          onClick={() => router.push(`/${menu.url}`)}
+                          onClick={() => router.push(`/staff/${menu.url}`)}
                         >
                           <menu.icon fill="var(--color-icon-default-subtle)" />
                           <p className="text-sm leading-5 font-medium">{menu.title}</p>

@@ -39,7 +39,7 @@ export const LinkedStudentMobileCard = ({ student }: { student: { id: number; fu
       <div className="flex h-9.5 items-center justify-center p-3">
         <Button
           onClick={() => {
-            router.push(`/student-and-parent-record/students/${student.id}`);
+            router.push(`/staff/student-and-parent-record/students/${student.id}`);
           }}
           className="bg-bg-state-secondary border-border-darker text-text-default h-8 w-full border text-sm font-medium"
         >

@@ -53,8 +53,8 @@ export const StudentsTable = () => {
   } = useStudentStore();
 
   useBreadcrumb([
-    { label: "Student & Parent Record", url: "/student-and-parent-record" },
-    { label: "Students", url: `/student-and-parent-record?tab=Students` },
+    { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
+    { label: "Students", url: `/staff/student-and-parent-record?tab=Students` },
   ]);
 
   const [page, setPage] = useState(1);
@@ -517,7 +517,7 @@ export const StudentsTable = () => {
             title="No Students"
             description="No student has been added yet"
             buttonText="Add a student"
-            url="/student-and-parent-record/add-student"
+            url="/staff/student-and-parent-record/add-student"
           />
         </div>
       )}
@@ -533,7 +533,7 @@ export const StudentsTable = () => {
               setCurrentPage={setPage}
               pageSize={pageSize}
               clickHandler={row => {
-                router.push(`/student-and-parent-record/students/${row.original.id}`);
+                router.push(`/staff/student-and-parent-record/students/${row.original.id}`);
               }}
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}

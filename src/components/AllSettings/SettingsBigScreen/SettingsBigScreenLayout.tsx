@@ -11,7 +11,7 @@ export default function SettingsBigScreenLayout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
-  const isRoot = pathname === "/settings" || pathname === "/settings/";
+  const isRoot = pathname === "/staff/settings" || pathname === "/staff/settings/";
 
   return (
     <>
@@ -29,7 +29,7 @@ export default function SettingsBigScreenLayout({
         ) : (
           <div className="">
             <div className="mb-4 hidden">
-              <Link href="/settings" className="text-text-default inline-flex items-center gap-2 text-sm">
+              <Link href="/staff/settings" className="text-text-default inline-flex items-center gap-2 text-sm">
                 <span aria-hidden className="text-lg">
                   ←
                 </span>
