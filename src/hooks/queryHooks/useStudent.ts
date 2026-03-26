@@ -1,6 +1,5 @@
 import {
   addStudent,
-  addTeacherInput,
   deleteStudents,
   editStudent,
   exportStudents,
@@ -31,6 +30,7 @@ export const useGetStudents = ({
   limit,
   branchId,
   classId,
+  // departmentId,
   armId,
   status,
   search,
@@ -138,17 +138,6 @@ export const useEditStudent = () => {
       queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
       queryClient.invalidateQueries({ queryKey: [studentKeys.getStudent, variables.studentId] });
       queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
-    },
-  });
-};
-
-export const useAddTeacherInput = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationKey: studentKeys.teacherInput,
-    mutationFn: addTeacherInput,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [studentKeys.studentReport] });
     },
   });
 };

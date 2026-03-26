@@ -34,6 +34,7 @@ export const AllBranchesTable = ({
 }) => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
+  const [selectedRows, setSelectedRows] = useState<AllBranchesTableProps[]>([]);
   const [visibleCount, setVisibleCount] = useState(3);
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -42,7 +43,7 @@ export const AllBranchesTable = ({
   return (
     <div className="flex flex-col gap-4">
       <SearchInput
-        className="bg-bg-input-soft! rounded-lg border-none md:w-70.5"
+        className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
         value={searchQuery}
         onChange={evt => {
           setSearchQuery(evt.target.value);
@@ -77,6 +78,7 @@ export const AllBranchesTable = ({
               pageSize={pageSize}
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}
+              onSelectRows={setSelectedRows}
               clickHandler={() => {}}
               showPagination={false}
             />

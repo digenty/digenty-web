@@ -8,22 +8,26 @@ export const Modal = ({
   open,
   setOpen,
   title,
+  subtitle,
   ActionButton,
   children,
   className,
   cancelButton,
+  footer,
+  onClose,
   showCloseButton = true,
-  showFooter = true,
 }: {
   open: boolean;
-  setOpen: (bool: boolean) => void;
+  setOpen?: (bool: boolean) => void;
   title?: ReactNode | string;
+  subtitle?: ReactNode | string;
   ActionButton?: ReactNode;
   children: ReactNode;
   className?: string;
   cancelButton?: ReactNode;
+  footer?: ReactNode;
   showCloseButton?: boolean;
-  showFooter?: boolean;
+  onClose?: () => void;
 }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -32,30 +36,29 @@ export const Modal = ({
         {...(!showCloseButton && { onEscapeKeyDown: e => e.preventDefault() })}
         className={cn("bg-bg-card hidden border-none p-0 shadow-sm sm:max-w-138.5 md:block", className)}
       >
-        {!title && (
-          <VisuallyHidden>
-            <DialogTitle>Modal</DialogTitle>
-          </VisuallyHidden>
-        )}
-
-        {title && (
+        {(title || subtitle) && (
           <DialogHeader className="bg-bg-card-subtle border-border-default rounded-t-xl border-b px-4 py-3 text-left">
-            <DialogTitle className="text-text-default text-base font-semibold">{title}</DialogTitle>
-            <VisuallyHidden>
-              <DialogDescription>{title}</DialogDescription>
-            </VisuallyHidden>
+            {title && <DialogTitle className="text-text-default text-base font-semibold">{title}</DialogTitle>}
+            {subtitle && (
+              <VisuallyHidden>
+                <DialogDescription>{subtitle}</DialogDescription>
+              </VisuallyHidden>
+            )}
           </DialogHeader>
         )}
 
         <div className="">{children}</div>
 
-        {showFooter && (
+        {footer ? (
+          footer
+        ) : cancelButton ? (
           <DialogFooter className="border-border-default justify-between border-t p-4">
             {cancelButton ? (
               cancelButton
             ) : (
               <DialogClose asChild>
                 <Button
+                  onClick={onClose}
                   variant="outline"
                   className="bg-bg-state-soft! hover:bg-bg-state-soft! text-text-subtle hover:text-text-subtle h-7 border-none px-2 py-1 text-sm font-medium"
                 >
@@ -66,7 +69,7 @@ export const Modal = ({
 
             {ActionButton}
           </DialogFooter>
-        )}
+        ) : null}
       </DialogContent>
     </Dialog>
   );

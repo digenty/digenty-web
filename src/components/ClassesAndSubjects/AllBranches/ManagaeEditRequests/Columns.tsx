@@ -1,28 +1,36 @@
 import { ColumnDef, Row } from "@tanstack/react-table";
 
-import { EditRequestResponseTypes } from "@/api/types";
-import { Avatar } from "@/components/Avatar";
-import GraduationCap from "@/components/Icons/GraduationCap";
-import { Message3 } from "@/components/Icons/Message3";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Avatar } from "@/components/Avatar";
+import { Button } from "@/components/ui/button";
+import GraduationCap from "@/components/Icons/GraduationCap";
+import { BranchEditRequestTypes } from "./types";
 import { formatRelativeDate } from "@/lib/utils";
 
 const RenderOptions = ({
   row,
-  openModal,
+  decision,
+  onDecision,
 }: {
-  row: Row<EditRequestResponseTypes>;
-  openModal: (request: EditRequestResponseTypes, action: "accepted" | "rejected") => void;
+  row: Row<BranchEditRequestTypes>;
+  decision: "accepted" | "rejected" | null;
+  onDecision: (id: number, value: "accepted" | "rejected") => void;
 }) => {
   return (
     <div className="flex gap-2">
       <Button
         onClick={e => {
           e.stopPropagation();
-          openModal(row.original, "rejected");
+          onDecision(row.original.editRequestId, "rejected");
         }}
-        className="bg-bg-state-secondary border-border-default flex h-7 w-20 items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors"
+        disabled={decision === "accepted"}
+        className={`bg-bg-state-secondary flex h-7 w-20 items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors ${
+          decision === "accepted"
+            ? "border-border-disabled bg-bg-disabled text-text-disabled cursor-not-allowed! opacity-50"
+            : decision === "rejected"
+              ? "border-border-default bg-bg-state-secondary text-text-default hover:bg-bg-state-secondary-hover!"
+              : "border-border-default bg-bg-state-secondary text-text-default hover:bg-bg-state-secondary!"
+        }`}
       >
         <span className="text-text-destructive text-xs font-semibold">✕</span>
         <span>Reject</span>
@@ -31,9 +39,16 @@ const RenderOptions = ({
       <Button
         onClick={e => {
           e.stopPropagation();
-          openModal(row.original, "accepted");
+          onDecision(row.original.editRequestId, "accepted");
         }}
-        className="bg-bg-state-secondary border-border-default flex h-7 w-fit items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors"
+        disabled={decision === "rejected"}
+        className={`bg-bg-state-secondary flex h-7 w-fit items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors ${
+          decision === "rejected"
+            ? "border-border-disabled bg-bg-disabled text-text-disabled cursor-not-allowed opacity-50"
+            : decision === "accepted"
+              ? "border-border-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-default"
+              : "border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover!"
+        }`}
       >
         <span className="text-text-success text-xs font-semibold">✓</span>
         <span>Approve</span>
@@ -43,9 +58,9 @@ const RenderOptions = ({
 };
 
 export const createManageEditTableColumns = (
-  requestStatus: Record<number, "accepted" | "rejected" | null>,
-  openModal: (request: EditRequestResponseTypes, action: "accepted" | "rejected") => void,
-): ColumnDef<EditRequestResponseTypes>[] => [
+  decisions: Record<number, "accepted" | "rejected" | null>,
+  onDecision: (id: number, value: "accepted" | "rejected") => void,
+): ColumnDef<BranchEditRequestTypes>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -84,8 +99,8 @@ export const createManageEditTableColumns = (
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         <GraduationCap fill="var(--color-icon-default-muted)" className="size-4" />
-        <span className="text-text-default flex cursor-pointer items-center gap-1 text-sm font-normal capitalize">
-          {row.original.classArmName} {row.original.subjectName ? row.original.subjectName.toLowerCase() : ""}
+        <span className="text-text-default flex cursor-pointer items-center gap-1 text-sm font-normal">
+          {row.original.classArmName} {row.original.subjectName}
         </span>
       </div>
     ),
@@ -94,31 +109,21 @@ export const createManageEditTableColumns = (
   {
     accessorKey: "reason",
     header: () => <div className="text-text-muted text-sm font-medium">Reason</div>,
-    cell: ({ row }) => (
-      <div className="flex flex-col">
-        <span className="text-text-default w-40 cursor-pointer truncate text-sm font-medium">{row.original.reason}</span>
-        <div className="flex items-center gap-2">
-          <Message3 fill="var(--color-icon-default-muted)" className="size-4" />
-          <span className="text-text-muted w-40 cursor-pointer truncate text-xs font-normal">{row.original.additionalDetails || "None"}</span>
-        </div>
-      </div>
-    ),
+    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.reason}</span>,
     size: 32,
   },
   {
     accessorKey: "date",
     header: () => <div className="text-text-muted text-sm font-medium">Date/Time</div>,
     cell: ({ row }) => (
-      <span className="text-text-default cursor-pointer text-sm font-normal">
-        {row.original.dateCreated ? formatRelativeDate(new Date(row.original.dateCreated)) : "--"}
-      </span>
+      <span className="text-text-default cursor-pointer text-sm font-normal">{formatRelativeDate(new Date(row.original.dateCreated))}</span>
     ),
     size: 32,
   },
   {
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
-    cell: ({ row }) => <RenderOptions row={row} openModal={openModal} />,
+    cell: ({ row }) => <RenderOptions row={row} decision={decisions[row.original.editRequestId] || null} onDecision={onDecision} />,
     size: 200,
   },
 ];

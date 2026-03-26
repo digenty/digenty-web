@@ -9,11 +9,7 @@ import { Button } from "@/components/ui/button";
 import { DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Label } from "@/components/ui/label";
-import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { useApproveEditRequest, useGetEditRequestBySubjectAndArm } from "@/hooks/queryHooks/useRequests";
-import { formatRelativeDate } from "@/lib/utils";
-import { toast } from "sonner";
 
 type NotifyModalProps = {
   openNotifyModal: boolean;
@@ -27,8 +23,6 @@ type ApproveModalProps = {
 type EditRequestProps = {
   openEditRequestModal: boolean;
   setEditRequestModal: (openEditRequestModal: boolean) => void;
-  subjectId: number;
-  armId: number;
 };
 
 export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal }: NotifyModalProps) => {
@@ -162,28 +156,7 @@ export const ApproveModal = ({ openApproveModal, setOpenApproveModal }: ApproveM
   );
 };
 
-export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId, armId }: EditRequestProps) => {
-  const { data: editRequestData } = useGetEditRequestBySubjectAndArm(subjectId, armId);
-  const { mutate: approveRequest, isPending: isSubmitting } = useApproveEditRequest();
-  const request = editRequestData?.data;
-
-  const handleConfirm = (isApproved: boolean) => {
-    if (!request?.editRequestId) return;
-
-    approveRequest(
-      { editAccessId: request.editRequestId, isApproved },
-      {
-        onSuccess: () => {
-          toast.success(`Request ${isApproved ? "approved" : "rejected"} successfully`);
-          setEditRequestModal(false);
-        },
-        onError: () => {
-          toast.error(`Failed to ${isApproved ? "approve" : "reject"} request`);
-        },
-      },
-    );
-  };
-
+export const EditModal = ({ openEditRequestModal, setEditRequestModal }: EditRequestProps) => {
   return (
     <>
       <div className="block md:hidden">
@@ -197,9 +170,9 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
               <div className="border-border-default border-b p-3">
                 <div className="flex items-center gap-2">
                   <Avatar className="size-5" />
-                  <div className="text-text-default text-sm font-medium">{request?.teacherName || "--"}</div>
+                  <div className="text-text-default text-sm font-medium">Damilare John</div>
                 </div>
-                <span className="text-text-muted text-xs">{request?.teacherEmail || "--"}</span>
+                <span className="text-text-muted text-xs">damilarejohn@gmail.com</span>
               </div>
 
               <div className="border-border-default flex flex-col gap-3 border-b p-3">
@@ -208,25 +181,21 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
                     <GraduationCap fill="var(--color-icon-default-muted)" className="text-left" />
                     <span className="text-text-muted text-sm font-medium">Class/Subject:</span>
                   </div>
-                  <span className="text-text-default text-sm font-medium">
-                    {request?.classArmName} {request?.subjectName}
-                  </span>
+                  <span className="text-text-default text-sm font-medium">SS1 Mathematics</span>
                 </div>
                 <div className="flex items-center gap-2 text-left">
                   <div className="flex items-center gap-2 text-left">
                     <Calendar fill="var(--color-icon-default-muted)" />
                     <span className="text-text-muted text-sm font-medium">Term:</span>
                   </div>
-                  <span className="text-text-default text-sm font-medium">
-                    {request?.termName} {request?.sessionName}
-                  </span>
+                  <span className="text-text-default text-sm font-medium">First Term 24/25</span>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3 p-3">
                 <div className="flex items-center gap-2">
                   <div className="text-text-muted text-sm font-medium">Reason:</div>
-                  <div className="text-text-default text-sm font-medium">{request?.reason}</div>
+                  <div className="text-text-default text-sm font-medium">Wrong scores entered</div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -235,35 +204,27 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
                 </div>
 
                 <div className="bg-bg-muted rounded-xs p-3">
-                  <div className="text-text-default text-sm font-medium">{request?.additionalDetails || "No additional details provided."}</div>
+                  <div className="text-text-default text-sm font-medium">
+                    I accidentally entered the wrong scores for the mid-term assessment. Need to correct several student grades before the deadline.
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Timee fill="var(--color-icon-default-muted)" />{" "}
-                  {request?.dateCreated ? (
-                    <div className="text-text-muted text-sm font-medium">Requested {formatRelativeDate(new Date(request?.dateCreated))}</div>
-                  ) : (
-                    "--"
-                  )}
+                  <Timee fill="var(--color-icon-default-muted)" /> <div className="text-text-muted text-sm font-medium">Requested 2 hours ago</div>
                 </div>
               </div>
             </div>
           </div>
           <div className="border-border-default border-t">
             <DialogFooter className="flex justify-between px-6 py-4">
+              <DrawerClose asChild>
+                <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
+              </DrawerClose>
               <Button
-                disabled={isSubmitting}
-                onClick={() => handleConfirm(false)}
-                className="bg-bg-state-destructive text-text-white-default h-7! rounded-md! px-4 py-2 text-sm font-medium"
+                onClick={() => setEditRequestModal(false)}
+                className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
               >
-                Reject Access
-              </Button>
-              <Button
-                disabled={isSubmitting}
-                onClick={() => handleConfirm(true)}
-                className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! min-w-28 rounded-md px-2 py-1 text-sm"
-              >
-                {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
+                Approve Results
               </Button>
             </DialogFooter>
           </div>
@@ -274,22 +235,12 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
         setOpen={setEditRequestModal}
         className="hidden md:block"
         title="Manage edit access request"
-        cancelButton={
-          <Button
-            disabled={isSubmitting}
-            onClick={() => handleConfirm(false)}
-            className="bg-bg-state-destructive text-text-white-default h-7! rounded-md! px-4 py-2 text-sm font-medium"
-          >
-            Reject Access
-          </Button>
-        }
         ActionButton={
           <Button
-            disabled={isSubmitting}
-            onClick={() => handleConfirm(true)}
-            className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! min-w-28 rounded-md px-2 py-1 text-sm"
+            onClick={() => setEditRequestModal(false)}
+            className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
           >
-            {isSubmitting ? <Spinner className="size-4" /> : "Approve Access"}
+            Approve Accesss
           </Button>
         }
       >
@@ -301,9 +252,9 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
             <div className="border-border-default border-b p-3">
               <div className="flex items-center gap-2">
                 <Avatar className="size-5" />
-                <div className="text-text-default text-sm font-medium">{request?.teacherName || "--"}</div>
+                <div className="text-text-default text-sm font-medium">Damilare John</div>
               </div>
-              <span className="text-text-muted text-xs">{request?.teacherEmail || "--"}</span>
+              <span className="text-text-muted text-xs">damilarejohn@gmail.com</span>
             </div>
 
             <div className="border-border-default flex flex-col gap-3 border-b p-3">
@@ -312,25 +263,21 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
                   <GraduationCap fill="var(--color-icon-default-muted)" className="text-left" />
                   <span className="text-text-muted text-sm font-medium">Class/Subject:</span>
                 </div>
-                <span className="text-text-default text-sm font-medium">
-                  {request?.classArmName} {request?.subjectName}
-                </span>
+                <span className="text-text-default text-sm font-medium">SS1 Mathematics</span>
               </div>
               <div className="flex items-center gap-2 text-left">
                 <div className="flex items-center gap-2 text-left">
                   <Calendar fill="var(--color-icon-default-muted)" />
                   <span className="text-text-muted text-sm font-medium">Term:</span>
                 </div>
-                <span className="text-text-default text-sm font-medium">
-                  {request?.termName} {request?.sessionName}
-                </span>
+                <span className="text-text-default text-sm font-medium">First Term 24/25</span>
               </div>
             </div>
 
             <div className="flex flex-col gap-3 p-3">
               <div className="flex items-center gap-2">
                 <div className="text-text-muted text-sm font-medium">Reason:</div>
-                <div className="text-text-default text-sm font-medium">{request?.reason}</div>
+                <div className="text-text-default text-sm font-medium">Wrong scores entered</div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -339,16 +286,13 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
               </div>
 
               <div className="bg-bg-muted rounded-xs p-3">
-                <div className="text-text-default text-sm font-medium">{request?.additionalDetails || "No additional details provided."}</div>
+                <div className="text-text-default text-sm font-medium">
+                  I accidentally entered the wrong scores for the mid-term assessment. Need to correct several student grades before the deadline.
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <Timee fill="var(--color-icon-default-muted)" />{" "}
-                {request?.dateCreated ? (
-                  <div className="text-text-muted text-sm font-medium">Requested {formatRelativeDate(new Date(request?.dateCreated))}</div>
-                ) : (
-                  "--"
-                )}
+                <Timee fill="var(--color-icon-default-muted)" /> <div className="text-text-muted text-sm font-medium">Requested 2 hours ago</div>
               </div>
             </div>
           </div>

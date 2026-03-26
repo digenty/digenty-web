@@ -1,19 +1,17 @@
 export type AllClassesMainTableProps = {
-  armId: number;
-  classId: number;
+  id: number;
   classArmName: string;
   classTeacherName: string;
   numberOfSubjects: number;
-  numberOfSubmittedSubjects: number;
   numberOfEditRequest: 0;
   status: "APPROVED" | "PENDING_APPROVAL" | "NOT_SUBMITTED" | "EDIT_REQUEST";
 };
 
 export type ClassProps = {
   subjectId: number;
-  subjectName: string;
+  subject: string;
   subjectTeacherName: string;
-  status: "SUBMITTED" | "NOT_SUBMITTED" | "IN_PROGRESS" | "REQUESTED_EDIT_ACCESS";
+  status: string;
 };
 
 export type ClassReportProps = {

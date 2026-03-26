@@ -1,6 +1,6 @@
 "use client";
 
-import { Arm, Branch, BranchWithClassLevels, ClassType } from "@/api/types";
+import { Arm, Branch, ClassType } from "@/api/types";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 
@@ -40,7 +40,7 @@ export const RecordHeader = ({
     statusSelected?: { value: StudentsStatus; label: string };
   };
   onFilterChange: (filter: string, value: Branch | ClassType | Arm | { value: StudentsStatus; label: string } | undefined) => void;
-  branches?: { data: BranchWithClassLevels[] };
+  branches?: { data: { content: Branch[] } };
   loadingBranches?: boolean;
   classes?: { data: { content: ClassType[] } };
   loadingClasses?: boolean;
@@ -68,8 +68,8 @@ export const RecordHeader = ({
           ) : (
             <Select
               onValueChange={value => {
-                const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
-                onFilterChange("branchSelected", branch?.branch);
+                const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                onFilterChange("branchSelected", branch);
               }}
             >
               <PermissionCheck permissionUtility={canManageStudentParentRecords}>
@@ -84,9 +84,9 @@ export const RecordHeader = ({
                 <SelectItem value="none" className="text-text-default text-sm font-medium">
                   All Branches
                 </SelectItem>
-                {branches.data.map((branch: BranchWithClassLevels) => (
-                  <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-medium">
-                    {branch.branch.name}
+                {branches.data.content.map((branch: Branch) => (
+                  <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
+                    {branch.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -169,8 +169,8 @@ export const RecordHeader = ({
                 ) : (
                   <Select
                     onValueChange={value => {
-                      const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
-                      onFilterChange("branchSelected", branch?.branch);
+                      const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                      onFilterChange("branchSelected", branch);
                       setFilterCount(prev => (!filter.branchSelected ? prev + 1 : prev));
                     }}
                   >
@@ -184,9 +184,9 @@ export const RecordHeader = ({
                       <SelectItem value="none" className="text-text-default text-sm font-medium">
                         All Branches
                       </SelectItem>
-                      {branches.data.map((branch: BranchWithClassLevels) => (
-                        <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-medium">
-                          {branch.branch.name}
+                      {branches.data.content.map((branch: Branch) => (
+                        <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
+                          {branch.name}
                         </SelectItem>
                       ))}
                     </SelectContent>

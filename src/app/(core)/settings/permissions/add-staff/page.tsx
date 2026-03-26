@@ -1,4 +1,4 @@
-import { AddStaff } from "@/components/AllSettings/PermissionsSettings/StaffMutation/AddStaff";
+import { AddStaff } from "@/components/AllSettings/PermissionsSettings/AddStaffs";
 import React from "react";
 
 const AddStaffPage = () => {

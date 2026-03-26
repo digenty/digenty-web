@@ -1,13 +1,14 @@
 "use client";
 import { AuthLayout } from "@/components/Auth/AuthLayout";
 import { cn } from "@/lib/utils";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { GoogleAuth } from "./GoogleAuth";
 import { ValidateEmail } from "./ValidateEmail";
 
 export const Auth = () => {
   const params = useSearchParams();
   const step = params.get("step");
+  // redirect("/cbt/subjects");
 
   return (
     <AuthLayout showNextStep={!!step}>

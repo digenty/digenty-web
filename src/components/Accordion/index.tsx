@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect, ReactNode } from "react";
 import { ArrowRightS } from "../Icons/ArrowRightS";
 import { ArrowDownS } from "../Icons/ArrowDownS";
-import { cn } from "@/lib/utils";
 
 interface AccordionProps {
   title: string | ReactNode;
@@ -30,10 +29,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, children, defaultOpen = fa
   return (
     <div className={` ${className ?? ""}`}>
       <button
-        className={cn(
-          "bg-bg-subtle border-border-default flex w-full cursor-pointer items-center justify-between p-2 py-4 md:px-4",
-          isOpen ? "border-b" : "",
-        )}
+        className="bg-bg-subtle border-border-default flex w-full cursor-pointer items-center justify-between rounded-md border-b p-2 py-4 md:px-4"
         onClick={toggleAccordion}
       >
         <div className="text-text-default text-md flex items-center gap-2 font-semibold"> {title}</div>

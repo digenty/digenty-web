@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
-import { DateRange, Matcher } from "react-day-picker";
+import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { DatePickerIcon } from "../Icons/DatePickerIcon";
 
@@ -14,10 +14,9 @@ type DateRangePickerProps = {
   onChange: (value: DateRange | undefined) => void;
   label?: string;
   className?: string;
-  disabled?: Matcher | Matcher[];
 };
 
-export function DateRangePicker({ value, onChange, label, className, disabled }: DateRangePickerProps) {
+export function DateRangePicker({ value, onChange, label, className }: DateRangePickerProps) {
   return (
     <div className="flex w-full flex-col gap-1">
       {label && <label className="text-text-default text-sm font-normal">{label}</label>}
@@ -45,7 +44,6 @@ export function DateRangePicker({ value, onChange, label, className, disabled }:
             selected={value}
             onSelect={onChange}
             numberOfMonths={1}
-            disabled={disabled}
             initialFocus
             className="text-text-default"
             modifiers={{

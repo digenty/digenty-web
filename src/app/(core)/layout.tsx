@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { getSessionData } from "../actions/auth";
-import { OnboardingFlow } from "@/components/Onboarding/OnboardingFlow";
+import OnboardingModal from "@/components/Onboarding/OnBoardingModal";
 
 export default async function CoreLayout({
   children,
@@ -18,7 +18,7 @@ export default async function CoreLayout({
         <Header />
         <div className="flex-1 overflow-y-auto">
           {children}
-          <OnboardingFlow user={user} />
+          {showOnboarding && <OnboardingModal initialShow={showOnboarding} />}
         </div>
       </div>
     </div>

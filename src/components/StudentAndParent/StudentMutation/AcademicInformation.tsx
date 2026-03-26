@@ -1,18 +1,19 @@
 "use client";
-import { Arm, BranchWithClassLevels, ClassType } from "@/api/types";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
-import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { cn, getAcademicYears } from "@/lib/utils";
-import { terms } from "@/types";
-import { FormikProps } from "formik";
-import { useState } from "react";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
-import { AdmissionStatusValues, BoardingStatusValues } from "../constants";
 import { StudentInputValues } from "../types";
+import { FormikProps } from "formik";
+import { BoardingStatusValues, AdmissionStatusValues } from "../constants";
+import { terms } from "@/types";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Arm, Branch, ClassType, Department } from "@/api/types";
+import { useGetClasses } from "@/hooks/queryHooks/useClass";
+import { useGetDepartments } from "@/hooks/queryHooks/useDepartment";
+import { useState } from "react";
+import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 
 export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInputValues> }) => {
   const [classId, setClassId] = useState<number | undefined>();
@@ -20,6 +21,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses(branchId);
+  const { data: departments, isPending: loadingDepartments } = useGetDepartments();
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
 
   const { handleBlur, handleChange, errors, touched, values } = formik;
@@ -92,18 +94,18 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           ) : (
             <Select
               onValueChange={value => {
-                const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
-                formik.setFieldValue("branchId", branch.branch.id);
-                setBranchId(branch.branch.id);
+                const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                formik.setFieldValue("branchId", branch.id);
+                setBranchId(branch.id);
               }}
             >
               <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
                 <SelectValue placeholder="Branch" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {branches.data.map((branch: BranchWithClassLevels) => (
-                  <SelectItem key={branch.branch.id} className="text-text-default" value={branch.branch.uuid}>
-                    {branch.branch.name}
+                {branches.data.content.map((branch: Branch) => (
+                  <SelectItem key={branch.id} className="text-text-default" value={branch.uuid}>
+                    {branch.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -140,6 +142,33 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
           )}
         </div>
 
+        {/* <div className="space-y-2">
+          <Label htmlFor="department" className="text-text-default text-sm font-medium">
+            Department
+          </Label>
+          {!departments || loadingDepartments ? (
+            <Skeleton className="bg-bg-input-soft h-9 w-full" />
+          ) : (
+            <Select
+              onValueChange={value => {
+                const department = departments.data?.find((dept: Department) => dept.uuid === value);
+                formik.setFieldValue("departmentId", department.id);
+              }}
+            >
+              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+                <SelectValue placeholder="Department" />
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-none">
+                {departments.data.map((dept: Department) => (
+                  <SelectItem key={dept.id} className="text-text-default" value={dept.uuid}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div> */}
+
         <div className="space-y-2">
           <Label htmlFor="arm" className="text-text-default text-sm font-medium">
             Arm <small className="text-text-destructive text-xs">*</small>{" "}
@@ -159,12 +188,12 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
                 <SelectValue placeholder="Arm" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {arms.data.length === 0 && (
-                  <SelectItem disabled className="text-text-default" value="none">
+                {arms.data.content.length === 0 && (
+                  <SelectItem className="text-text-default" value="none">
                     No Arms Found
                   </SelectItem>
                 )}
-                {arms.data.map((arm: Arm) => (
+                {arms.data.content.map((arm: Arm) => (
                   <SelectItem key={arm.id} className="text-text-default" value={arm.uuid}>
                     {arm.name}
                   </SelectItem>
@@ -209,6 +238,25 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
             </SelectContent>
           </Select>
         </div>
+
+        {/* <div className="space-y-2">
+          <Label htmlFor="role" className="text-text-default text-sm font-medium">
+            Input Role
+          </Label>
+          <Input
+            id="role"
+            onChange={handleChange}
+            placeholder="Input Position"
+            onBlur={handleBlur}
+            value={values.role}
+            type="text"
+            className={cn(
+              "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
+              errors.role && touched.role && "border-border-destructive border",
+            )}
+          />
+          {touched.role && errors.role && <p className="text-text-destructive text-xs font-light">{errors.role}</p>}
+        </div> */}
       </div>
     </div>
   );

@@ -34,6 +34,11 @@ export const SignupPasswordForm = ({ email }: { email: string }) => {
         {
           email: values.email,
           password: values.password,
+
+          // Remove these when the BE removes it
+          firstName: "Leah",
+          lastName: "Leah",
+          phoneNumber: "07032412334",
         },
         {
           onSuccess: data => {

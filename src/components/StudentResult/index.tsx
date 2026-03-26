@@ -1,119 +1,100 @@
-import { StudentReport, SubjectReport, Term } from "@/api/types";
-import { ColumnDef, Row } from "@tanstack/react-table";
+import { StudentReport, Term } from "@/api/types";
+import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useState } from "react";
 import { DataTable } from "../DataTable";
 import { ErrorComponent } from "../Error/ErrorComponent";
-import Edit from "../Icons/Edit";
-import { Button } from "../ui/button";
-import { EditTeacherInputModal } from "./EditTeacherInputModal";
 
 export type Result = {
   subject: string;
+  ca: number;
+  exam: number;
   total: number;
-  grade: string;
+  grade: number;
   remark: string;
-  [key: string]: string | number;
 };
 
-export const columns = (headers: string[]): ColumnDef<Result>[] => [
+const result = [
   {
-    accessorKey: "subject",
-    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Subject</div>,
-    cell: ({ row }: { row: Row<Result> }) => (
-      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-xs md:text-sm">{row.original.subject}</span>
-    ),
-    size: 340,
-  },
-
-  ...headers.map(column => ({
-    id: String(column),
-    accessorFn: (row: Result) => row[column],
-    header: () => <div className="text-text-muted flex justify-center text-center text-xs font-medium md:text-sm">{column}</div>,
-    cell: ({ row }: { row: Row<Result> }) => (
-      <span className="text-text-default flex justify-center text-xs font-normal md:text-sm">{row.original[column]}</span>
-    ),
-    size: 200,
-  })),
-  {
-    accessorKey: "total",
-    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Total</div>,
-    cell: ({ row }: { row: Row<Result> }) => (
-      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-xs md:text-sm">{row.original.total}</span>
-    ),
-    size: 340,
+    subject: "English Language",
+    ca: 50,
+    exam: 50,
+    total: 100,
+    grade: 0,
+    remark: "Poor",
   },
   {
-    accessorKey: "grade",
-    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Grade</div>,
-    cell: ({ row }: { row: Row<Result> }) => (
-      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-xs md:text-sm">{row.original.grade}</span>
-    ),
-    size: 340,
+    subject: "Mathematics",
+    ca: 50,
+    exam: 50,
+    total: 100,
+    grade: 0,
+    remark: "Poor",
   },
   {
-    accessorKey: "remark",
-    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Remark</div>,
-    cell: ({ row }: { row: Row<Result> }) => (
-      <span className="text-text-default flex cursor-pointer justify-center pl-0 text-xs md:text-sm">{row.original.remark}</span>
-    ),
-    size: 340,
+    subject: "Biology",
+    ca: 50,
+    exam: 50,
+    total: 100,
+    grade: 0,
+    remark: "Poor",
+  },
+  {
+    subject: "Human Anatomy and Physiology",
+    ca: 50,
+    exam: 50,
+    total: 100,
+    grade: 0,
+    remark: "Poor",
   },
 ];
 
-export const StudentResult = ({
-  studentReport,
-  termSelected,
-  isEditable = false,
-  armId,
-  branchId,
-}: {
-  studentReport: StudentReport;
-  termSelected: Term | null;
-  isEditable?: boolean;
-  armId?: number;
-  branchId?: number;
-}) => {
+export const columns: ColumnDef<Result>[] = [
+  {
+    accessorKey: "subject",
+    header: () => <div className="text-text-muted text-sm font-medium">Subject</div>,
+    cell: ({ row }) => <span className="text-text-default text-sm font-normal">{row.original.subject}</span>,
+    size: 150,
+  },
+  {
+    accessorKey: "CA",
+    header: () => <div className="text-text-muted text-sm font-medium">CA</div>,
+    cell: ({ row }) => <span className="text-text-default text-center text-sm font-normal">{row.original.ca}</span>,
+    size: 50,
+  },
+  {
+    accessorKey: "exam",
+    header: () => <div className="text-text-muted text-sm font-medium">Exam</div>,
+    cell: ({ row }) => <span className="text-text-default text-sm font-normal">{row.original.exam}</span>,
+    size: 50,
+  },
+  {
+    accessorKey: "total",
+    header: () => <div className="text-text-muted text-sm font-medium">Total</div>,
+    cell: ({ row }) => <span className="text-text-default text-sm font-normal">{row.original.total}</span>,
+    size: 50,
+  },
+  {
+    accessorKey: "grade",
+    header: () => <div className="text-text-muted text-sm font-medium">Grade</div>,
+    cell: ({ row }) => <span className="text-text-default text-sm font-normal">{row.original.grade}</span>,
+    size: 50,
+  },
+  {
+    accessorKey: "remark",
+    header: () => <div className="text-text-muted text-sm font-medium">Remark</div>,
+    cell: ({ row }) => <span className="text-text-default text-sm font-normal">{row.original.remark}</span>,
+    size: 200,
+  },
+];
+
+export const StudentResult = ({ studentReport, termSelected }: { studentReport: StudentReport; termSelected: Term | null }) => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Result[]>([]);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  function toTitleCase(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-  }
-
-  const transformAssessmentData = (data: SubjectReport[]) => {
-    return data.map(subject => {
-      const assessmentScores = subject.assessments.reduce(
-        (acc, a) => {
-          const key = a.assessmentName;
-          acc[key] = a.score;
-          return acc;
-        },
-        {} as Record<string, number>,
-      );
-
-      return {
-        subject: toTitleCase(subject.subjectName),
-        ...assessmentScores,
-        total: subject.total,
-        grade: subject.grade ?? "-",
-        remark: subject.remark ?? "Poor",
-      } as Result;
-    });
-  };
-
-  const headers =
-    studentReport.subjectReports.length > 0
-      ? studentReport.subjectReports[0].assessments.map(assessment => assessment.assessmentName)
-      : ["Total", "Grade", "Remark"];
 
   return (
-    <div
-      id="student-report"
-      className="border-t-bg-basic-cyan-contrast border-x-border-default border-b-border-default mb-10 border-x border-t-2 border-b"
-    >
+    <div className="border-t-bg-basic-cyan-contrast border-x-border-default border-b-border-default border-x border-t-2 border-b">
       <div className="flex flex-col items-center justify-center py-3">
         <h1 className="text-bg-basic-cyan-contrast text-xl font-semibold">{studentReport.schoolName}</h1>
         <p className="text-text-muted text-sm font-normal capitalize">
@@ -128,13 +109,6 @@ export const StudentResult = ({
         <span>
           Class: <span className="font-medium">{studentReport.className}</span>
         </span>
-        {isEditable && (
-          <Button className="bg-bg-state-secondary! border-border-default h-6! border px-1! text-xs" onClick={() => setIsEditModalOpen(true)}>
-            {" "}
-            <Edit fill="var(--color-icon-default-muted)" />
-            Edit Input
-          </Button>
-        )}
       </div>
 
       <div className="flex gap-6 px-4 py-5">
@@ -166,24 +140,22 @@ export const StudentResult = ({
         </div>
 
         <div className="w-1/2 space-y-2">
-          <h3 className="text-bg-basic-red-accent text-sm font-semibold md:text-sm">CONDUCT</h3>
+          <h3 className="text-bg-basic-red-accent text-xs font-semibold md:text-sm">CONDUCT</h3>
           <div className="text-text-subtle border-border-default border text-xs font-medium md:text-sm">
             <div className="border-border-default flex justify-between border-b px-2">
               <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Neatness</div>
-              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
-                {studentReport.neatness?.toLowerCase() ?? "--"}
-              </div>
+              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center">{studentReport.neatness ?? "--"}</div>
             </div>
             <div className="border-border-default flex justify-between border-b px-2">
               <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Punctuality</div>
-              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
-                {studentReport.punctuality?.toLowerCase() ?? "--"}
+              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center">
+                {studentReport.punctuality ?? "--"}
               </div>
             </div>
             <div className="flex justify-between px-2">
               <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Diligence</div>
-              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
-                {studentReport.diligence?.toLowerCase() ?? "--"}
+              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center">
+                {studentReport.diligence ?? "--"}
               </div>
             </div>
           </div>
@@ -197,12 +169,16 @@ export const StudentResult = ({
           <div className="mt-3 w-full">
             {/*TODO: Centralize text on the table */}
             <DataTable
-              columns={columns(headers)}
-              data={transformAssessmentData(studentReport.subjectReports)}
-              totalCount={transformAssessmentData(studentReport.subjectReports).length}
+              columns={columns}
+              data={result}
+              totalCount={result.length}
               page={page}
               setCurrentPage={setPage}
               pageSize={10}
+              clickHandler={row => {
+                console.log(row);
+                // router.push(`/student-and-parent-record/${row.original.id}`);
+              }}
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}
               onSelectRows={setSelectedRows}
@@ -210,8 +186,6 @@ export const StudentResult = ({
               showPagination={false}
               classNames={{
                 tableWrapper: "rounded-none",
-                tableHeadCell: "px-2",
-                tableBodyCell: "px-0",
               }}
             />
           </div>
@@ -223,7 +197,7 @@ export const StudentResult = ({
 
         <div className="text-text-default mt-4 flex flex-col gap-4 text-sm font-normal">
           <div className="">
-            <span>OVERALL PERCENTAGE:</span> <span className="font-medium">{studentReport.overallPercentage.toFixed(0)}%</span>
+            <span>OVERALL PERCENTAGE:</span> <span className="font-medium">{studentReport.overallPercentage}%</span>
           </div>
           <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
             <span className="text-text-subtle">Class Teacher&apos;s Comment: </span>{" "}
@@ -241,19 +215,6 @@ export const StudentResult = ({
           </div>
         </div>
       </div>
-      <EditTeacherInputModal
-        open={isEditModalOpen}
-        setIsOpen={setIsEditModalOpen}
-        studentId={studentReport?.studentId}
-        armId={armId}
-        branchId={branchId}
-        initialData={{
-          neatness: studentReport?.neatness,
-          punctuality: studentReport?.punctuality,
-          diligence: studentReport?.diligence,
-          classTeacherComment: studentReport?.classTeacherComment,
-        }}
-      />
     </div>
   );
 };

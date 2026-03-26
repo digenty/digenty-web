@@ -17,7 +17,6 @@ import { Term, Terms } from "@/api/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import useDebounce from "@/hooks/useDebounce";
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 export const AllBranches = () => {
   const user = useLoggedInUser();
@@ -31,8 +30,6 @@ export const AllBranches = () => {
   const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
 
   const { data: allBranchList, isPending, isError } = useGetAllBranchesDetails(termSelected?.termId, debouncedSearchQuery);
-
-  useBreadcrumb([{ label: "All Branches", url: "/classes-and-subjects/all-branches" }]);
 
   useEffect(() => {
     if (terms) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Branch, BranchWithClassLevels, Term } from "@/api/types";
+import { Branch, Term } from "@/api/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -54,8 +54,8 @@ export const AttendanceHeader = ({
         ) : (
           <Select
             onValueChange={value => {
-              const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.id === Number(value));
-              setBranchSelected(branch?.branch);
+              const branch = branches.data.content?.find((branch: Branch) => branch.id === Number(value));
+              setBranchSelected(branch);
             }}
           >
             <SelectTrigger className="border-border-darker h-8! w-fit border focus-visible:ring-0">
@@ -66,9 +66,9 @@ export const AttendanceHeader = ({
               <SelectItem value="none" className="text-text-default text-sm font-medium">
                 All Branches
               </SelectItem>
-              {branches.data.map((branch: BranchWithClassLevels) => (
-                <SelectItem key={branch.branch.id} value={String(branch.branch.id)} className="text-text-default text-sm font-medium">
-                  {branch.branch.name}
+              {branches.data.content.map((branch: Branch) => (
+                <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm font-medium">
+                  {branch.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -117,17 +117,17 @@ export const AttendanceHeader = ({
             ) : (
               <Select
                 onValueChange={value => {
-                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.id === Number(value));
-                  setBranchSelected(branch?.branch);
+                  const branch = branches.data.content?.find((branch: Branch) => branch.id === Number(value));
+                  setBranchSelected(branch);
                 }}
               >
                 <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
                   <span className="text-text-default text-sm">{branchSelected?.name}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
-                  {branches.data.map((branch: BranchWithClassLevels) => (
-                    <SelectItem key={branch.branch.id} value={String(branch.branch.id)} className="text-text-default text-sm">
-                      {branch.branch.name}
+                  {branches.data.content.map((branch: Branch) => (
+                    <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm">
+                      {branch.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -129,8 +129,8 @@ export const MobileCard = ({
       >
         {Object.entries(student.assessmentScores).map(([assessmentName, assessmentScore]) => (
           <div key={assessmentName} className="border-border-default flex border-b text-center">
-            <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center gap-1 border-r px-4 py-2">
-              {assessmentName} <span className="text-text-muted text-center text-xs font-light">({assessmentScore.weight})</span>
+            <span className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
+              {assessmentName}
             </span>
             <div className="flex h-12 flex-1 items-center justify-center px-2">
               <RenderCell initialValue={assessmentScore.score} isEditable={isEditable} onUpdate={val => onUpdateScore(assessmentName, val)} />

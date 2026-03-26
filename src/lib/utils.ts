@@ -1,9 +1,8 @@
-import { BranchLevels } from "@/api/types";
-import { JWTPayload } from "@/types";
+import { JWTPayload, QuestionType } from "@/types";
 import { clsx, type ClassValue } from "clsx";
-import { differenceInDays, differenceInMonths, differenceInWeeks, isToday, isYesterday } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 import { twMerge } from "tailwind-merge";
+import { differenceInDays, differenceInWeeks, differenceInMonths, isToday, isYesterday } from "date-fns";
 
 export const MOBILE_VIEWPORT = 768;
 
@@ -139,19 +138,40 @@ export const formatRelativeDate = (date: Date) => {
   return `${months} months ago`;
 };
 
-export const extractUniqueLevelsByType = (branches: BranchLevels[]) => {
-  const uniqueLevels = new Set();
+export function generateId(): string {
+  return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+}
 
-  return branches
-    .flatMap(branch =>
-      branch.classLevels.map(level => ({
-        ...level,
-        branchId: branch?.branchId,
-      })),
-    )
-    .filter(level => {
-      if (uniqueLevels.has(level.levelType)) return false;
-      uniqueLevels.add(level.levelType);
-      return true;
-    });
-};
+export function getQuestionTypeLabel(type: QuestionType): string {
+  const labels: Record<QuestionType, string> = {
+    "multiple-choice": "Multiple Choice",
+    "true-false": "True/False",
+    essay: "Essay",
+    "fill-in-blank": "Fill-in-blank",
+    matching: "Match",
+    "short-answer": "Short Answer",
+    numerical: "Numerical Answer",
+    "question-group": "Question Group",
+    "multiple-answers": "Multiple Answers",
+    "comprehension-passage": "Comprehension Passage",
+    "multiple-blanks": "Multiple Blanks",
+  };
+  return labels[type] || type;
+}
+
+export function getQuestionTypeBadgeColor(type: QuestionType): string {
+  const colors: Record<QuestionType, string> = {
+    "multiple-choice": "bg-blue-50 text-blue-700 border-blue-200",
+    "true-false": "bg-green-50 text-green-700 border-green-200",
+    essay: "bg-amber-50 text-amber-700 border-amber-200",
+    "fill-in-blank": "bg-purple-50 text-purple-700 border-purple-200",
+    matching: "bg-cyan-50 text-cyan-700 border-cyan-200",
+    "short-answer": "bg-indigo-50 text-indigo-700 border-indigo-200",
+    numerical: "bg-rose-50 text-rose-700 border-rose-200",
+    "question-group": "bg-orange-50 text-orange-700 border-orange-200",
+    "multiple-answers": "bg-teal-50 text-teal-700 border-teal-200",
+    "comprehension-passage": "bg-violet-50 text-violet-700 border-violet-200",
+    "multiple-blanks": "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
+  };
+  return colors[type] || "bg-gray-50 text-gray-700 border-gray-200";
+}

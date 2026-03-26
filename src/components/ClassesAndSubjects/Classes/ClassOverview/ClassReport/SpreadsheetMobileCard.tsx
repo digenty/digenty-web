@@ -32,7 +32,7 @@ export const SpreadsheetMobileCard = ({
           <div className="space-y-1.5 text-left">
             <div className="text-text-default text-sm font-medium">{student.name}</div>
             <div className="flex items-center gap-2">
-              <div className="text-text-default text-xs font-normal">{studentScore?.totalPercentage?.toFixed(0)}%</div>
+              <div className="text-text-default text-xs font-normal">{studentScore?.totalPercentage}%</div>
             </div>
           </div>
         </div>
@@ -45,10 +45,10 @@ export const SpreadsheetMobileCard = ({
       >
         {studentScore?.subjects.map(subject => (
           <div key={subject.subjectId} className="border-border-default flex h-12 border-b text-center last:border-b-0">
-            <div className="bg-bg-subtle text-text-muted border-border-default flex w-1/2 items-center justify-center border-r px-4 py-2 capitalize">
-              {subject.subjectName && subject.subjectName.toLowerCase()}
+            <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
+              {subject.subjectName}
             </div>
-            <div className="text-text-default flex w-1/2 items-center justify-center text-sm">{subject.score}</div>
+            <div className="text-text-default flex flex-1 items-center justify-center text-sm">{subject.score}</div>
           </div>
         ))}
 

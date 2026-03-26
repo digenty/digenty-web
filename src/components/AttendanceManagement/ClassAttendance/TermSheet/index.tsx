@@ -66,7 +66,7 @@ export const TermSheet = () => {
       {!isPending && !isError && data.data.length > 0 && (
         <div className="space-y-6">
           <TermSheetHeader
-            classname={classGroup.replaceAll("-", " ")}
+            classname={classGroup.replace("-", " ")}
             termWeeks={data.data[0].weeks}
             activeWeek={activeWeek}
             setActiveWeek={setActiveWeek}

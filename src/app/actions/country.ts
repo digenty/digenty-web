@@ -3,7 +3,6 @@ export const getCountries = async () => {
   try {
     const data = await response.json();
     if (data) {
-      console.log("counties", data);
       return data.countries;
     } else {
       return [];

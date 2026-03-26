@@ -254,7 +254,7 @@ export const ParentsTable = () => {
         {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
           <SearchInput
-            className="bg-bg-input-soft! rounded-lg border-none md:w-70.5"
+            className="bg-bg-input-soft! h-8 rounded-lg border-none md:w-70.5"
             value={searchQuery}
             onChange={evt => {
               setSearchQuery(evt.target.value);
@@ -353,12 +353,7 @@ export const ParentsTable = () => {
 
       {parents.length === 0 && !loadingParents && !isError && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent
-            title="No Parents"
-            description="No parent has been added yet"
-            buttonText="Add a parent"
-            url="/student-and-parent-record/add-parent"
-          />
+          <ErrorComponent title="No Parents" description="No parent has been added yet" buttonText="Add a parent" />
         </div>
       )}
 

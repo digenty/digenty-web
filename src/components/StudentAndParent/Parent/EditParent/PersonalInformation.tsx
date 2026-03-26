@@ -1,5 +1,5 @@
 "use client";
-import { Branch, BranchWithClassLevels, Parent } from "@/api/types";
+import { Branch, Parent } from "@/api/types";
 import { getCountries, getStatesForCountry } from "@/app/actions/country";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,9 +54,9 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
 
   useEffect(() => {
     if (data && branches) {
-      const brnch = branches.data?.find((brnch: BranchWithClassLevels) => brnch?.branch?.name === data.data.branch);
-      formik.setFieldValue("branchId", brnch?.branch?.id);
-      setBranch(brnch?.branch?.name);
+      const brnch = branches.data.content?.find((brnch: Branch) => brnch.name === data.data.branch);
+      formik.setFieldValue("branchId", brnch?.id);
+      setBranch(brnch?.name);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, branches]);
@@ -184,9 +184,9 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
             <Select
               value={branch}
               onValueChange={value => {
-                const branch = branches.data?.find((branch: BranchWithClassLevels) => branch?.branch?.name === value);
+                const branch = branches.data.content?.find((branch: Branch) => branch.name === value);
                 if (branch) {
-                  formik.setFieldValue("branchId", branch?.branch?.id);
+                  formik.setFieldValue("branchId", branch.id);
                 }
               }}
             >
@@ -194,9 +194,9 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
                 <SelectValue placeholder="Branch" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {branches.data?.map((branch: BranchWithClassLevels) => (
-                  <SelectItem key={branch?.branch?.id} className="text-text-default" value={branch?.branch?.name ?? ""}>
-                    {branch?.branch?.name}
+                {branches.data.content.map((branch: Branch) => (
+                  <SelectItem key={branch.id} className="text-text-default" value={branch.name ?? ""}>
+                    {branch.name}
                   </SelectItem>
                 ))}
               </SelectContent>

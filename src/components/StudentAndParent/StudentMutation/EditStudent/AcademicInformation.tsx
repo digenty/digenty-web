@@ -1,5 +1,5 @@
 "use client";
-import { Arm, Branch, BranchWithClassLevels, ClassType, Student } from "@/api/types";
+import { Arm, Branch, ClassType, Student } from "@/api/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,34 +23,35 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
 
   const [branch, setBranch] = useState<string>();
   const [className, setClassName] = useState<string>();
+  // const [department, setDepartment] = useState<string>();
   const [arm, setArm] = useState<string>();
 
   const { handleBlur, handleChange, errors, touched, values } = formik;
 
   useEffect(() => {
     if (data && branches && classes) {
-      const branch = branches.data?.find((brnch: BranchWithClassLevels) => brnch.branch.name === data.data.branch);
-      console.log(branch, "lllllbranch");
-      setBranch(branch?.branch?.name);
+      const branch = branches.data.content?.find((brnch: Branch) => brnch.name === data.data.branch);
+      setBranch(branch?.name);
       if (branch) {
-        formik.setFieldValue("branchId", branch.branch.id);
+        formik.setFieldValue("branchId", branch.id);
       }
 
-      const cls = classes.data.content?.find((cls: ClassType) => cls.name === data.data.class && cls.branchId === branch?.branch?.id);
-      console.log(cls, "lllllcls", classes.data.content, data.data.class, branch?.branch?.id);
+      const cls = classes.data.content?.find((cls: ClassType) => cls.name === data.data.class && cls.branchId === branch?.id);
       setClassName(cls?.name);
       setClassId(cls?.id);
       if (cls) {
         formik.setFieldValue("classId", cls.id);
       }
+
+      // const department = departments.data.find((dep: Department) => dep.id === data.data.departmentId);
+      // setDepartment(department?.name);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, branches, classes]);
 
   useEffect(() => {
     if (arms && data) {
-      const arm = arms.data.find((arm: Arm) => arm.id === data.data.armId);
-      console.log(arm, "lllllarm");
+      const arm = arms.data.content.find((arm: Arm) => arm.id === data.data.armId);
       setArm(arm?.id.toString());
       if (arm) {
         formik.setFieldValue("armId", arm.id);
@@ -144,10 +145,10 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
               value={branch}
               onValueChange={value => {
                 if (value) {
-                  const branchObj = branches.data?.find((branch: BranchWithClassLevels) => branch?.branch?.name === value);
+                  const branchObj = branches.data.content?.find((branch: Branch) => branch.name === value);
                   if (branchObj) {
-                    formik.setFieldValue("branchId", branchObj?.branch?.id);
-                    setBranch(branchObj?.branch?.name);
+                    formik.setFieldValue("branchId", branchObj.id);
+                    setBranch(branchObj.name);
                   }
                 }
               }}
@@ -156,9 +157,9 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
                 <SelectValue placeholder="Branch" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {branches.data.map((branch: BranchWithClassLevels) => (
-                  <SelectItem key={branch?.branch.id} className="text-text-default" value={branch.branch.name ?? ""}>
-                    {branch?.branch?.name}
+                {branches.data.content.map((branch: Branch) => (
+                  <SelectItem key={branch.id} className="text-text-default" value={branch.name ?? ""}>
+                    {branch.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -200,6 +201,37 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
           )}
         </div>
 
+        {/* <div className="space-y-2">
+          <Label htmlFor="department" className="text-text-default text-sm font-medium">
+            Department
+          </Label>
+          {!departments || loadingDepartments ? (
+            <Skeleton className="bg-bg-input-soft h-9 w-full" />
+          ) : (
+            <Select
+              value={department}
+              onValueChange={value => {
+                const department = departments.data?.find((dept: Department) => dept.name === value);
+                if (department) {
+                  formik.setFieldValue("departmentId", department.id);
+                  setDepartment(department.name);
+                }
+              }}
+            >
+              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+                <SelectValue placeholder="Department" />
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-none">
+                {departments.data.map((dept: Department) => (
+                  <SelectItem key={dept.id} className="text-text-default" value={dept.name}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div> */}
+
         <div className="space-y-2">
           <Label htmlFor="arm" className="text-text-default text-sm font-medium">
             Arm <small className="text-text-destructive text-xs">*</small>
@@ -212,7 +244,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
               value={arm}
               onValueChange={value => {
                 if (value) {
-                  const armObj = arms?.data?.find((arm: Arm) => arm.id.toString() === value);
+                  const armObj = arms.data?.content?.find((arm: Arm) => arm.id.toString() === value);
                   if (armObj) {
                     formik.setFieldValue("armId", armObj.id);
                     setArm(armObj.id.toString());
@@ -224,12 +256,12 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
                 <SelectValue placeholder="Arm" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {arms.data.length === 0 && (
+                {arms.data.content.length === 0 && (
                   <SelectItem className="text-text-default" value="none">
                     No Arms Found
                   </SelectItem>
                 )}
-                {arms.data.map((arm: Arm) => (
+                {arms.data.content.map((arm: Arm) => (
                   <SelectItem key={arm.id} className="text-text-default" value={arm.id.toString()}>
                     {arm.name}
                   </SelectItem>

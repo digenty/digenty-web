@@ -9,7 +9,8 @@ import { FormikProps } from "formik";
 import { Skeleton } from "../ui/skeleton";
 import { CreateSchoolTypes, OnBoardingCountry } from "./types";
 import { currencies } from "@/store/currenciesCode";
-import { schoolSizes } from "./constants";
+
+const schoolSizes = [1, 2, 3, 4];
 
 export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolTypes> }) => {
   const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
@@ -90,21 +91,21 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="schoolSize" className="text-text-default text-sm font-semibold">
-            Student Population<small className="text-text-destructive text-xs">*</small>
+            School Size<small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
-            value={values.schoolSize}
+            value={values.schoolSize?.toString()}
             onValueChange={value => {
-              formik.setFieldValue("schoolSize", value);
+              formik.setFieldValue("schoolSize", Number(value));
             }}
           >
             <SelectTrigger className="bg-bg-input-soft! text-text-default w-full border-none">
-              <SelectValue placeholder="Student Population" />
+              <SelectValue placeholder="School size" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-border-default border">
-              {schoolSizes.map(size => (
-                <SelectItem key={size.value} value={size.value} className="text-text-default">
-                  {size.label}
+              {schoolSizes.map(ss => (
+                <SelectItem key={ss} value={ss.toString()} className="text-text-default">
+                  {ss}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -135,10 +136,10 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
             School Country<small className="text-text-destructive text-xs">*</small>
           </Label>
 
-          {countries.length > 0 ? (
+          {countries?.length > 0 ? (
             <Select
               onValueChange={value => {
-                const selectedCountry = countries.find(country => country.id === value);
+                const selectedCountry = countries?.find(country => country.id === value);
 
                 setFieldValue("country", value);
                 setActiveCountry(selectedCountry);

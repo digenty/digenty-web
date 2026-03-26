@@ -11,7 +11,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Country, ParentInputValues, State } from "../../types";
 import { genders, relationships } from "@/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { Branch, BranchWithClassLevels } from "@/api/types";
+import { Branch } from "@/api/types";
 
 export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInputValues> }) => {
   const { handleBlur, handleChange, errors, touched, values } = formik;
@@ -42,7 +42,7 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
   }, [activeCountryCode, getStates]);
 
   useEffect(() => {
-    if (countries && countries.length > 0 && values.nationality && !activeCountryCode) {
+    if (countries.length > 0 && values.nationality && !activeCountryCode) {
       const countryMatch = countries.find(ctry => ctry.name === values.nationality);
       if (countryMatch) {
         setActiveCountryCode(countryMatch.iso2);
@@ -165,19 +165,19 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (
             <Select
-              value={branches.data?.find((b: BranchWithClassLevels) => b.branch.id === values.branchId)?.branch.uuid || ""}
+              value={branches.data.content?.find((b: Branch) => b.id === values.branchId)?.uuid || ""}
               onValueChange={value => {
-                const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
-                formik.setFieldValue("branchId", branch.branch.id);
+                const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                formik.setFieldValue("branchId", branch.id);
               }}
             >
               <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
                 <SelectValue placeholder="Branch" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {branches.data.map((branch: BranchWithClassLevels) => (
-                  <SelectItem key={branch.branch.id} className="text-text-default" value={branch.branch.uuid}>
-                    {branch.branch.name}
+                {branches.data.content.map((branch: Branch) => (
+                  <SelectItem key={branch.id} className="text-text-default" value={branch.uuid}>
+                    {branch.name}
                   </SelectItem>
                 ))}
               </SelectContent>

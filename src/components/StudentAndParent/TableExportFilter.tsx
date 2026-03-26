@@ -1,6 +1,6 @@
 "use client";
 
-import { Arm, Branch, BranchWithClassLevels, ClassType, Department } from "@/api/types";
+import { Arm, Branch, ClassType, Department } from "@/api/types";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Label } from "../ui/label";
 import { Skeleton } from "../ui/skeleton";
@@ -28,7 +28,7 @@ export const TableExportFilter = ({
     statusSelected?: { value: StudentsStatus; label: string };
   };
   onFilterChange: (filter: string, value: Branch | ClassType | Department | Arm | { value: StudentsStatus; label: string } | undefined) => void;
-  branches?: { data: BranchWithClassLevels[] };
+  branches?: { data: { content: Branch[] } };
   loadingBranches?: boolean;
   classes?: { data: { content: ClassType[] } };
   loadingClasses?: boolean;
@@ -49,8 +49,8 @@ export const TableExportFilter = ({
         ) : (
           <Select
             onValueChange={value => {
-              const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
-              onFilterChange("branchSelected", branch?.branch);
+              const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+              onFilterChange("branchSelected", branch);
             }}
           >
             <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
@@ -60,9 +60,9 @@ export const TableExportFilter = ({
               <SelectItem value="none" className="text-text-default text-sm font-medium">
                 All Branches
               </SelectItem>
-              {branches.data.map((branch: BranchWithClassLevels) => (
-                <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-medium">
-                  {branch.branch.name}
+              {branches.data.content.map((branch: Branch) => (
+                <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-medium">
+                  {branch.name}
                 </SelectItem>
               ))}
             </SelectContent>

@@ -1,7 +1,6 @@
 "use client";
-import { Branch, BranchWithClassLevels, Student } from "@/api/types";
+import { Branch, Student } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { SearchInput } from "@/components/SearchInput";
@@ -55,8 +54,8 @@ export const LinkStudents = ({
             ) : (
               <Select
                 onValueChange={value => {
-                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
-                  setBranchSelected(branch.branch);
+                  const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                  setBranchSelected(branch);
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
@@ -67,9 +66,9 @@ export const LinkStudents = ({
                   <SelectItem value="none" className="text-text-default text-sm font-semibold">
                     All Branches
                   </SelectItem>
-                  {branches.data.map((branch: BranchWithClassLevels) => (
-                    <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-semibold">
-                      {branch.branch.name}
+                  {branches.data.content.map((branch: Branch) => (
+                    <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-semibold">
+                      {branch.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -79,7 +78,7 @@ export const LinkStudents = ({
 
           <div className="space-y-3 px-3 py-4 md:px-6">
             <SearchInput
-              className="bg-bg-input-soft rounded-lg border-none"
+              className="bg-bg-input-soft h-8 rounded-lg border-none"
               value={searchQuery}
               onChange={evt => {
                 setSearchQuery(evt.target.value);
@@ -94,16 +93,6 @@ export const LinkStudents = ({
               <Skeleton className="h-75" />
             ) : (
               <div className="border-border-default h-75 space-y-3 overflow-y-auto rounded-sm border p-3">
-                {students.length === 0 && !isPending && (
-                  <div className="flex h-full items-center justify-center">
-                    <ErrorComponent
-                      title="No Students yet"
-                      description="No Students have been added yet"
-                      buttonText="Add Student"
-                      url="/student-and-parent-record/add-student"
-                    />
-                  </div>
-                )}
                 {students.map((student: Student) => {
                   const isChecked = selectedStudents.find(std => std.id === student.id);
                   return (
@@ -190,8 +179,8 @@ export const LinkStudents = ({
             ) : (
               <Select
                 onValueChange={value => {
-                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
-                  setBranchSelected(branch.branch);
+                  const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                  setBranchSelected(branch);
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
@@ -202,9 +191,9 @@ export const LinkStudents = ({
                   <SelectItem value="none" className="text-text-default text-sm font-semibold">
                     All Branches
                   </SelectItem>
-                  {branches.data.map((branch: BranchWithClassLevels) => (
-                    <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-semibold">
-                      {branch.branch.name}
+                  {branches.data.content.map((branch: Branch) => (
+                    <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-semibold">
+                      {branch.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -214,7 +203,7 @@ export const LinkStudents = ({
 
           <div className="space-y-3 px-3 py-4 md:px-6">
             <SearchInput
-              className="bg-bg-input-soft rounded-lg border-none"
+              className="bg-bg-input-soft h-8 rounded-lg border-none"
               value={searchQuery}
               onChange={evt => {
                 setSearchQuery(evt.target.value);

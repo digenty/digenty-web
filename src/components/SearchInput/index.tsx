@@ -7,17 +7,16 @@ import { Button } from "../ui/button";
 export const SearchInput = ({
   className,
   placeholder = "Search",
-  inputClassName,
   ...props
-}: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> & { inputClassName?: string }): JSX.Element => {
+}: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>): JSX.Element => {
   return (
     <div
       className={cn(
-        "has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-border-highlight flex items-center pr-1 has-[[data-slot=input-group-control]:focus-visible]:border-none has-[[data-slot=input-group-control]:focus-visible]:ring-2 has-[[data-slot=input-group-control]:focus-visible]:ring-offset-2",
+        "has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-border-highlight flex pr-1 has-[[data-slot=input-group-control]:focus-visible]:border-none has-[[data-slot=input-group-control]:focus-visible]:ring-2 has-[[data-slot=input-group-control]:focus-visible]:ring-offset-2",
         className,
       )}
     >
-      <InputGroupInput className={cn("text-text-muted h-8 pt-0! text-sm", inputClassName)} placeholder={placeholder} {...props} />
+      <InputGroupInput className="text-text-muted text-sm" placeholder={placeholder} {...props} />
       <InputGroupAddon>
         <Search className="text-icon-default-muted" />
       </InputGroupAddon>

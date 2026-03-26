@@ -2,7 +2,7 @@ export interface CreateSchoolTypes {
   firstName?: string;
   lastName?: string;
   schoolName?: string;
-  schoolSize?: string;
+  schoolSize?: number;
   role?: string;
   country?: string;
   currency?: string;

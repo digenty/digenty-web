@@ -689,7 +689,7 @@
   --text-2xs: 10px;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
     /* Dark theme */
     --color-text-default: var(--zinc-00);
@@ -917,6 +917,10 @@
     --color-bg-checkbox-active: var(--blue-500);
     --color-bg-checkbox-active-hover: var(--blue-400);
     --color-bg-checkbox-disabled: var(--transparent-light-6);
+
+    --bg: #f8f9fa;
+    --surface: #ffffff;
+    --border: #e9ecef;
   }
 }
 
@@ -1045,3 +1049,85 @@
 input:-moz-autofill {
   box-shadow: 0 0 0 1000px var(--color-bg-input-soft) inset;
 } */
+
+@layer utilities {
+  .animate-in {
+    animation: animateIn 0.15s ease-out;
+  }
+
+  .fade-in {
+    --tw-enter-opacity: 0;
+  }
+
+  .zoom-in-95 {
+    --tw-enter-scale: 0.95;
+  }
+}
+
+@keyframes animateIn {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform: scale(var(--tw-enter-scale, 1));
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.15s ease-out;
+}
+.animate-modalIn {
+  animation: modalIn 0.18s ease-out;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Rich editor content styles */
+[contenteditable] ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+
+[contenteditable] ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}

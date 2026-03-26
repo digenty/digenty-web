@@ -23,15 +23,6 @@ interface SchoolOverviewProps {
   formik: FormikProps<BranchFormValues>;
 }
 
-const levels = [
-  { label: "Creche", value: "CRECHE" },
-  { label: "Kindergarten", value: "KINDERGARTEN" },
-  { label: "Nursery", value: "NURSERY" },
-  { label: "Primary", value: "PRIMARY" },
-  { label: "Junior Secondary", value: "JUNIOR_SECONDARY" },
-  { label: "Senior Secondary", value: "SENIOR_SECONDARY" },
-];
-
 export const SchoolOverview = ({ formik }: SchoolOverviewProps) => {
   const { activeOption, numOfBranches, branches } = formik.values;
 
@@ -92,16 +83,16 @@ export const SchoolOverview = ({ formik }: SchoolOverviewProps) => {
             <div className="border-border-default flex flex-col gap-3 rounded-md border p-3">
               <div className="text-text-default text-sm font-medium">Select Levels</div>
               <div className="flex flex-wrap gap-3">
-                {levels.map(level => {
-                  const checked = formik.values.singleBranch.levels.includes(level.value);
+                {["Creche", "Kindergarten", "Nursery", "Primary", "Secondary"].map(level => {
+                  const checked = formik.values.singleBranch.levels.includes(level);
                   return (
                     <div
-                      key={level.value}
+                      key={level}
                       role="button"
                       onClick={() => {
                         const updated = checked
-                          ? formik.values.singleBranch.levels.filter(lvl => lvl !== level.value)
-                          : [...formik.values.singleBranch.levels, level.value];
+                          ? formik.values.singleBranch.levels.filter(l => l !== level)
+                          : [...formik.values.singleBranch.levels, level];
                         formik.setFieldValue("singleBranch.levels", updated);
                       }}
                       className={`border-border-darker text-text-default flex cursor-pointer items-center gap-3 rounded-lg border px-2.5 py-1.5 text-xs font-medium ${
@@ -109,7 +100,7 @@ export const SchoolOverview = ({ formik }: SchoolOverviewProps) => {
                       }`}
                     >
                       <Checkbox checked={checked} />
-                      {level.label}
+                      {level}
                     </div>
                   );
                 })}
@@ -195,14 +186,14 @@ export const SchoolOverview = ({ formik }: SchoolOverviewProps) => {
                   <div className="border-border-default flex flex-col gap-3 rounded-md border p-3">
                     <div className="text-text-default text-sm font-medium">Select Levels</div>
                     <div className="flex flex-wrap gap-3">
-                      {levels.map(level => {
-                        const checked = b.levels.includes(level.value);
+                      {["Creche", "Kindergarten", "Nursery", "Primary", "Secondary"].map(level => {
+                        const checked = b.levels.includes(level);
                         return (
                           <div
-                            key={level.value}
+                            key={level}
                             role="button"
                             onClick={() => {
-                              const updated = checked ? b.levels.filter(lvl => lvl !== level.value) : [...b.levels, level.value];
+                              const updated = checked ? b.levels.filter(l => l !== level) : [...b.levels, level];
                               formik.setFieldValue(`branches.${index}.levels`, updated);
                             }}
                             className={`border-border-darker text-text-default flex cursor-pointer items-center gap-3 rounded-lg border px-2.5 py-1.5 text-xs font-medium ${
@@ -210,7 +201,7 @@ export const SchoolOverview = ({ formik }: SchoolOverviewProps) => {
                             }`}
                           >
                             <Checkbox checked={checked} />
-                            {level.label}
+                            {level}
                           </div>
                         );
                       })}

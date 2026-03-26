@@ -1,5 +1,5 @@
 "use client";
-import { Branch, BranchWithClassLevels, Student } from "@/api/types";
+import { Branch, Student } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
@@ -50,8 +50,8 @@ export const LinkStudents = ({
             ) : (
               <Select
                 onValueChange={value => {
-                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch?.branch?.uuid === value);
-                  setBranchSelected(branch?.branch);
+                  const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                  setBranchSelected(branch);
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
@@ -62,9 +62,9 @@ export const LinkStudents = ({
                   <SelectItem value="none" className="text-text-default text-sm font-semibold">
                     All Branches
                   </SelectItem>
-                  {branches.data?.map((branch: BranchWithClassLevels) => (
-                    <SelectItem key={branch?.branch?.id} value={branch?.branch?.uuid} className="text-text-default text-sm font-semibold">
-                      {branch?.branch?.name}
+                  {branches.data.content.map((branch: Branch) => (
+                    <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-semibold">
+                      {branch.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -73,7 +73,7 @@ export const LinkStudents = ({
           </div>
 
           <div className="space-y-3 px-3 py-4 md:px-6">
-            <SearchInput className="bg-bg-input-soft rounded-lg border-none" />
+            <SearchInput className="bg-bg-input-soft h-8 rounded-lg border-none" />
             <Button className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! border-border-default h-6 border px-1.5!">
               <XIcon className="text-icon-default-muted size-4" />
               <span className="text-text-default text-xs">Clear All</span>
@@ -169,8 +169,8 @@ export const LinkStudents = ({
             ) : (
               <Select
                 onValueChange={value => {
-                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch?.branch?.uuid === value);
-                  setBranchSelected(branch?.branch);
+                  const branch = branches.data.content?.find((branch: Branch) => branch.uuid === value);
+                  setBranchSelected(branch);
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
@@ -181,9 +181,9 @@ export const LinkStudents = ({
                   <SelectItem value="none" className="text-text-default text-sm font-semibold">
                     All Branches
                   </SelectItem>
-                  {branches.data?.map((branch: BranchWithClassLevels) => (
-                    <SelectItem key={branch?.branch?.id} value={branch?.branch?.uuid} className="text-text-default text-sm font-semibold">
-                      {branch?.branch?.name}
+                  {branches.data.content.map((branch: Branch) => (
+                    <SelectItem key={branch.id} value={branch.uuid} className="text-text-default text-sm font-semibold">
+                      {branch.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -192,7 +192,7 @@ export const LinkStudents = ({
           </div>
 
           <div className="space-y-3 px-3 py-4 md:px-6">
-            <SearchInput className="bg-bg-input-soft rounded-lg border-none" />
+            <SearchInput className="bg-bg-input-soft h-8 rounded-lg border-none" />
             <Button className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! border-border-default h-6 border px-1.5!">
               <XIcon className="text-icon-default-muted size-4" />
               <span className="text-text-default text-xs">Clear All</span>
