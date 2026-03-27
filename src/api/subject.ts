@@ -100,7 +100,7 @@ export const addSubjectToClass = async (payload: AddSubjectToClassPayload) => {
   }
 };
 
-export const getSubjectsByClass = async (className: string, levelType: string, branchId?: number) => {
+export const getSubjectsByClass = async (className?: string, levelType?: string, branchId?: number) => {
   try {
     const { data } = await api.get(`/subjects/class?className=${className}&levelType=${levelType}${branchId ? `&branchId=${branchId}` : ""}`);
     return data;

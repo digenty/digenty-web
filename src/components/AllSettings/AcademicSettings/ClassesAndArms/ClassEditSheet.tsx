@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { useAddArmToClass, useDeleteArm, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
+import { useGetClassDetails } from "@/hooks/queryHooks/useClass";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubjectToClass, useDeleteSubject, useGetSubjectsByClass } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -25,12 +26,14 @@ export const ClassEditSheet = ({
   branchId,
   sheetOpen,
   setSheetOpen,
+  classId,
 }: {
   level: ClassLevel;
   branchSpecific: boolean;
   branchId?: number;
   sheetOpen: boolean;
   setSheetOpen: (open: boolean) => void;
+  classId: number;
 }) => {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
@@ -46,15 +49,9 @@ export const ClassEditSheet = ({
   const { mutate: deleteSubject } = useDeleteSubject();
   const { mutate: deleteArm } = useDeleteArm();
   const { mutate: mutateArm, isPending: isAddingArm } = useAddArmToClass();
-
-  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByClass(
-    level?.levelName.replaceAll("_", " "),
-    level?.levelType,
-    branchId,
-  );
-  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByClass(level?.id);
-
-  console.log(level);
+  const { data: classData, isLoading: isLoadingClass } = useGetClassDetails(classId);
+  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByClass(classData?.data?.name, level?.levelType, branchId);
+  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByClass(classId);
 
   useEffect(() => {
     if (subjectsData) {
@@ -77,20 +74,14 @@ export const ClassEditSheet = ({
 
   const formik = useFormik({
     initialValues: {
-      levelName: level?.levelName || "",
-      classNamePrefix: level?.classNamePrefix || "",
-      startClass: level?.classStart,
-      endClass: level?.classEnd,
+      className: classData?.data?.name || "",
       subject: "",
       arm: "",
       department: "",
     },
     enableReinitialize: true,
     validationSchema: yup.object({
-      levelName: yup.string().required("Level name is required"),
-      classNamePrefix: yup.string().required("Class name prefix is required"),
-      startClass: yup.string().required("Start class is required"),
-      endClass: yup.string().required("End class is required"),
+      className: yup.string().required("Class name is required"),
     }),
     onSubmit: values => {},
   });
@@ -105,7 +96,7 @@ export const ClassEditSheet = ({
       .filter(str => str !== "" && !subjects.includes(str));
 
     mutateSubject(
-      { names: newSubjects, className: level?.levelName.replaceAll("_", " "), levelType: level?.levelType },
+      { names: newSubjects, className: classData?.data?.name, levelType: level?.levelType },
       {
         onSuccess: () => {
           setSubjects(prev => [...prev, ...newSubjects]);
@@ -172,7 +163,7 @@ export const ClassEditSheet = ({
     if (!newArms.length) return;
 
     mutateArm(
-      { names: newArms, className: level?.levelName.replaceAll("_", " "), levelType: level?.levelType },
+      { names: newArms, className: classData?.data?.name, levelType: level?.levelType },
       {
         onSuccess: () => {
           setArms(prev => [...prev, ...newArms]);
@@ -258,16 +249,18 @@ export const ClassEditSheet = ({
           <Input
             id="className"
             onChange={handleChange}
-            placeholder={`${level?.levelName.replaceAll("_", " ").toLowerCase()}`}
+            placeholder={classData?.data?.name}
             onBlur={handleBlur}
-            value={values.levelName.replaceAll("_", " ").toLowerCase()}
+            value={values.className}
             type="text"
             className={cn(
               "text-text-muted bg-bg-input-soft! border-none text-sm font-normal capitalize",
-              errors.levelName && touched.levelName && "border-border-destructive border",
+              errors.className && touched.className && "border-border-destructive border",
             )}
           />
-          {touched.levelName && errors.levelName && <p className="text-text-destructive text-xs font-light">{errors.levelName}</p>}
+          {touched.className && errors.className && typeof errors.className === "string" && (
+            <p className="text-text-destructive text-xs font-light">{errors.className}</p>
+          )}
         </div>
       </div>
 

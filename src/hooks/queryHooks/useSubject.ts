@@ -48,7 +48,7 @@ export const useGetSubjectsByLevel = (levelType?: LevelType, branchId?: number) 
 export const useGetSubjectsByClass = (className?: string, levelType?: string, branchId?: number) => {
   return useQuery({
     queryKey: subjectKeys.subjectsByClass(className, levelType, branchId),
-    queryFn: () => getSubjectsByClass(className!, levelType!, branchId),
+    queryFn: () => getSubjectsByClass(className, levelType, branchId),
     enabled: !!className && !!levelType,
     retry: false,
   });

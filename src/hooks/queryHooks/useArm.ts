@@ -49,6 +49,7 @@ export const useAddArm = () => {
 export const useAddArmToClass = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    mutationKey: armKeys.addArm,
     mutationFn: addArmToClass,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["arms"] });

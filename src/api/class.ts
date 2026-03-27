@@ -140,6 +140,18 @@ export const getClassLevels = async () => {
   }
 };
 
+export const getClassDetails = async (classId: number) => {
+  try {
+    const { data } = await api.get(`/classes/${classId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const submitClassReport = async (payload: { classArmReportId: number; status: string }) => {
   try {
     const { data } = await api.put("/report/class/arm", payload);

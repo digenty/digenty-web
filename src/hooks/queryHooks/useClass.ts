@@ -3,6 +3,7 @@ import {
   getClassCumulativeReport,
   getClasses,
   getClassesByLevel,
+  getClassDetails,
   getClassLevels,
   getClassReport,
   getClassTeachersInClass,
@@ -87,6 +88,14 @@ export const useGetClassLevel = () => {
   return useQuery({
     queryKey: classKeys.classLevel,
     queryFn: getClassLevels,
+  });
+};
+
+export const useGetClassDetails = (classId: number) => {
+  return useQuery({
+    queryKey: classKeys.class(classId),
+    queryFn: () => getClassDetails(classId),
+    enabled: !!classId,
   });
 };
 

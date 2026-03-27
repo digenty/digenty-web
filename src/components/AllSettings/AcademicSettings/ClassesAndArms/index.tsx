@@ -124,7 +124,14 @@ function ClassesResponsiveTabs({
       <>
         {openDelete && <DeleteClass setOpenDeleteModal={setOpenDelete} open={openDelete} classId={classId} />}
         {sheetOpen && (
-          <ClassEditSheet sheetOpen={sheetOpen} setSheetOpen={setSheetOpen} level={activeLevel} branchSpecific={branchSpecific} branchId={branchId} />
+          <ClassEditSheet
+            sheetOpen={sheetOpen}
+            setSheetOpen={setSheetOpen}
+            level={activeLevel}
+            branchSpecific={branchSpecific}
+            branchId={branchId}
+            classId={classId}
+          />
         )}
 
         {isPending && !classesByLevelData && <Skeleton className="bg-bg-state-soft h-80 w-full" />}
@@ -150,7 +157,10 @@ function ClassesResponsiveTabs({
                       <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
                     </Button>
                     <Button
-                      onClick={() => setSheetOpen(true)}
+                      onClick={() => {
+                        setSheetOpen(true);
+                        setClassId(clss.id);
+                      }}
                       className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2"
                     >
                       <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit

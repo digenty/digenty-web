@@ -56,8 +56,6 @@ export const ClassQuickSetupSheet = ({
   const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.levelType, branchId);
   const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.levelType, branchId);
 
-  console.log(armsData?.data[0]?.arms);
-
   useEffect(() => {
     if (subjectsData) {
       const names: string[] = Array.isArray(subjectsData?.data[0]?.subjects)
@@ -66,33 +64,6 @@ export const ClassQuickSetupSheet = ({
       setSubjects(names);
     }
   }, [subjectsData]);
-
-  //   useEffect(() => {
-  //   if (!subjectsData) return;
-
-  //   const raw = subjectsData?.data ?? subjectsData?.content ?? subjectsData;
-
-  //   let names: string[] = [];
-
-  //   if (Array.isArray(raw)) {
-  //     // Case 1: flat subjects array OR nested branches
-  //     names = raw.flatMap((item: any) => {
-  //       // If it's a branch with subjects
-  //       if (Array.isArray(item.subjects)) {
-  //         return item.subjects.map((s: { name: string }) => s.name);
-  //       }
-
-  //       // If it's already a subject
-  //       if (item.name) {
-  //         return [item.name];
-  //       }
-
-  //       return [];
-  //     });
-  //   }
-
-  //   setSubjects(names);
-  // }, [subjectsData]);
 
   useEffect(() => {
     if (armsData) {
@@ -103,34 +74,6 @@ export const ClassQuickSetupSheet = ({
       setArmsEnabled(true);
     }
   }, [armsData]);
-  console.log(subjects, arms);
-
-  //   useEffect(() => {
-  //   if (!armsData) return;
-
-  //   const raw = armsData?.data ?? armsData?.content ?? armsData;
-
-  //   let names: string[] = [];
-
-  //   if (Array.isArray(raw)) {
-  //     // Case 1: flat subjects array OR nested branches
-  //     names = raw.flatMap((item: any) => {
-  //       // If it's a branch with subjects
-  //       if (Array.isArray(item.arms)) {
-  //         return item.arms.map((s: { name: string }) => s.name);
-  //       }
-
-  //       // If it's already a subject
-  //       if (item.name) {
-  //         return [item.name];
-  //       }
-
-  //       return [];
-  //     });
-  //   }
-
-  //   setSubjects(names);
-  // }, [subjectsData]);
 
   const formik = useFormik({
     initialValues: {
@@ -224,7 +167,7 @@ export const ClassQuickSetupSheet = ({
   };
 
   const removeSubject = (subjectToRemove: string) => {
-    const subjectsList = Array.isArray(subjectsData) ? subjectsData : (subjectsData?.content ?? subjectsData?.data ?? []);
+    const subjectsList = subjectsData?.data[0]?.subjects || [];
 
     const subjectObj = subjectsList.find((s: { id: number; name: string }) => s.name === subjectToRemove);
 
@@ -293,7 +236,7 @@ export const ClassQuickSetupSheet = ({
   };
 
   const removeArm = (armToRemove: string) => {
-    const armsList = Array.isArray(armsData) ? armsData : (armsData?.content ?? armsData?.data ?? []);
+    const armsList = armsData?.data[0]?.arms || [];
 
     const armObj = armsList.find((a: { id: number; name: string }) => a.name === armToRemove);
 
@@ -366,7 +309,9 @@ export const ClassQuickSetupSheet = ({
             errors.levelName && touched.levelName && "border-border-destructive border",
           )}
         />
-        {touched.levelName && errors.levelName && <p className="text-text-destructive text-xs font-light">{errors.levelName}</p>}
+        {touched.levelName && errors.levelName && typeof errors.levelName === "string" && (
+          <p className="text-text-destructive text-xs font-light">{errors.levelName}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -385,7 +330,9 @@ export const ClassQuickSetupSheet = ({
             errors.classNamePrefix && touched.classNamePrefix && "border-border-destructive border",
           )}
         />
-        {touched.classNamePrefix && errors.classNamePrefix && <p className="text-text-destructive text-xs font-light">{errors.classNamePrefix}</p>}
+        {touched.classNamePrefix && errors.classNamePrefix && typeof errors.classNamePrefix === "string" && (
+          <p className="text-text-destructive text-xs font-light">{errors.classNamePrefix}</p>
+        )}
         <small className="text-text-muted text-xs">Select the label that appears before the class number or type a custom one</small>
       </div>
 
