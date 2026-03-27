@@ -173,55 +173,6 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
     setNewBranches(prev => prev.filter(b => b.id !== id));
   };
 
-  // useImperativeHandle(ref, () => ({
-  //   submit: async (): Promise<boolean> => {
-  //     const errors = await formik.validateForm();
-
-  //     if (Object.keys(errors).length > 0) {
-  //       formik.setTouched({ name: true, currentTerm: true });
-  //       toast({ title: "Please fill in required fields", description: "Academic session and current term are required.", type: "warning" });
-  //       return false;
-  //     }
-
-  //     const values = formik.values;
-
-  //     try {
-  //       const branchesAndLevelsDtos = existingBranches
-  //         .filter(branch => (values.branchLevels[branch.branch.id] ?? []).length > 0)
-  //         .map(branch => ({ branchId: branch.branch.id, levels: values.branchLevels[branch.branch.id] }));
-
-  //       if (branchesAndLevelsDtos.length === 0) {
-  //         toast({
-  //           title: "Select levels for at least one branch",
-  //           description: "Please select at least one level for a branch before proceeding.",
-  //           type: "warning",
-  //         });
-  //         return false;
-  //       }
-
-  //       const payload: SchoolStructurePayload = {
-  //         name: values.name,
-  //         currentTerm: values.currentTerm,
-  //         firstTermStartDate: toDateStr(values.firstTermStart),
-  //         firstTermEndDate: toDateStr(values.firstTermEnd),
-  //         secondTermStartDate: toDateStr(values.secondTermStart),
-  //         secondTermEndDate: toDateStr(values.secondTermEnd),
-  //         thirdTermStartDate: toDateStr(values.thirdTermStart),
-  //         thirdTermEndDate: toDateStr(values.thirdTermEnd),
-  //         branchesAndLevelsDtos,
-  //       };
-
-  //       await submitSchoolStructure(payload);
-  //       toast({ title: "School structure saved", description: "Academic session and term have been set up successfully.", type: "success" });
-  //       return true;
-  //     } catch (error: unknown) {
-  //       const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
-  //       toast({ title: "Failed to save school structure", description: message, type: "error" });
-  //       return false;
-  //     }
-  //   },
-  // }));
-
   return (
     <section>
       <div className="mx-auto flex w-full flex-col gap-4 md:w-150 md:px-4">
@@ -436,7 +387,7 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
         </Button>
       </div>
 
-      <div className="border-border-default bg-bg-default sticky bottom-0 flex w-full justify-between border-t px-4 pt-3 lg:px-36">
+      <div className="border-border-default bg-bg-default absolute bottom-0 flex w-full justify-between border-t px-4 py-3 lg:px-36">
         <Button className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!" disabled>
           Previous
         </Button>

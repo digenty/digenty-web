@@ -66,7 +66,7 @@ export const useRequestEditAccess = () => {
 
 export const useGetClassesByLevel = (levelId?: number) => {
   return useQuery({
-    queryKey: classKeys.classesByLevel(levelId),
+    queryKey: [classKeys.classesByLevel, levelId],
     queryFn: () => getClassesByLevel(levelId),
     enabled: !!levelId,
   });

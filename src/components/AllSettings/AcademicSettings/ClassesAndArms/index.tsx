@@ -25,6 +25,8 @@ import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
 import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
 import { usePathname, useRouter } from "next/navigation";
+import Settings4 from "@/components/Icons/Settings4";
+import { ClassEditSheet } from "./ClassEditSheet";
 
 function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (t: Branch | null) => void }) {
   const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
@@ -100,23 +102,30 @@ function ClassesResponsiveTabs({
   levels,
   activeLevel,
   setActiveLevel,
+  branchId,
+  branchSpecific,
 }: {
   levels: ClassLevel[];
-  activeLevel: ClassLevel | null;
+  activeLevel: ClassLevel;
   setActiveLevel: (level: ClassLevel) => void;
+  branchId?: number;
+  branchSpecific: boolean;
 }) {
   const isMobile = useIsMobile();
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [openDelete, setOpenDelete] = React.useState(false);
   const [classId, setClassId] = React.useState<number | null>(null);
+  const [sheetOpen, setSheetOpen] = React.useState(false);
 
   const { data: classesByLevelData, isPending } = useGetClassesByLevel(activeLevel?.id);
-  console.log(classesByLevelData);
 
   const Classes = () => {
     return (
       <>
         {openDelete && <DeleteClass setOpenDeleteModal={setOpenDelete} open={openDelete} classId={classId} />}
+        {sheetOpen && (
+          <ClassEditSheet sheetOpen={sheetOpen} setSheetOpen={setSheetOpen} level={activeLevel} branchSpecific={branchSpecific} branchId={branchId} />
+        )}
 
         {isPending && !classesByLevelData && <Skeleton className="bg-bg-state-soft h-80 w-full" />}
         {!isPending && classesByLevelData && classesByLevelData?.data?.length === 0 && (
@@ -140,7 +149,10 @@ function ClassesResponsiveTabs({
                     >
                       <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
                     </Button>
-                    <Button className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2">
+                    <Button
+                      onClick={() => setSheetOpen(true)}
+                      className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2"
+                    >
                       <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
                     </Button>
                   </div>
@@ -351,6 +363,8 @@ export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompl
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
   const [branchSpecific, setBranchSpecific] = useState(false);
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
   const { data: branchLevels } = useGetLevels(activeBranch?.id);
   const levels = extractUniqueLevelsByType(branchLevels?.data || []);
 
@@ -385,11 +399,37 @@ export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompl
 
         <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
           <div className="w-full min-w-0 flex-1">
-            <ClassesSetup levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
+            <ClassesSetup
+              levels={levels}
+              activeLevel={activeLevel}
+              setActiveLevel={setActiveLevel}
+              branchId={activeBranch?.id}
+              branchSpecific={branchSpecific}
+            />
           </div>
           <div className="shrink-0">
             {activeLevel && (
-              <ClassQuickSetupSheet level={activeLevel} branchSpecific={branchSpecific} setActiveLevel={setActiveLevel} branchId={activeBranch?.id} />
+              <>
+                {sheetOpen && (
+                  <ClassQuickSetupSheet
+                    level={activeLevel}
+                    branchSpecific={branchSpecific}
+                    setActiveLevel={setActiveLevel}
+                    branchId={activeBranch?.id}
+                    sheetOpen={sheetOpen}
+                    setSheetOpen={setSheetOpen}
+                  />
+                )}
+                <Button
+                  onClick={() => {
+                    // setDepartmentsEnabled(false);
+                    setSheetOpen(true);
+                  }}
+                  className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
+                >
+                  <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -424,10 +464,14 @@ export const ClassesSetup = ({
   levels,
   activeLevel,
   setActiveLevel,
+  branchId,
+  branchSpecific,
 }: {
   levels: ClassLevel[];
   activeLevel: ClassLevel | null;
   setActiveLevel: (level: ClassLevel) => void;
+  branchId?: number;
+  branchSpecific: boolean;
 }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
@@ -439,7 +483,15 @@ export const ClassesSetup = ({
     <div>
       {/* {openDeleteModal && <DeleteClass setOpenDeleteModal={setOpenDeleteModal} open={openDeleteModal} />} */}
       <div className="w-full">
-        {levels.length > 0 && <ClassesResponsiveTabs levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />}
+        {levels.length > 0 && (
+          <ClassesResponsiveTabs
+            levels={levels}
+            activeLevel={activeLevel}
+            setActiveLevel={setActiveLevel}
+            branchSpecific={branchSpecific}
+            branchId={branchId}
+          />
+        )}
       </div>
     </div>
   );
@@ -500,105 +552,105 @@ export const NurserySetup = ({ onOpenDelete }: { onOpenDelete?: (target?: { id: 
   );
 };
 
-export const SecondarySetup = ({ onOpenDelete }: { onOpenDelete?: (target?: { id: string; name?: string }) => void }) => {
-  const secondaryClasses = [
-    { id: "ss1", name: "SS 1", hasDelete: true },
-    { id: "ss2", name: "SS 1", hasDelete: true },
-  ];
-  return (
-    <div className="mt-8 flex flex-col gap-6">
-      {secondaryClasses.map(sc => (
-        <div key={sc.id} className="bg-bg-state-soft rounded-md p-1">
-          <div className="flex items-center justify-between px-5 py-2">
-            <div className="text-text-default text-sm font-medium">{sc.name} </div>
-            <div className="flex items-center gap-2">
-              {sc.hasDelete ? (
-                <Button
-                  onClick={() => onOpenDelete?.({ id: sc.id, name: sc.name })}
-                  className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
-                >
-                  <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
-                </Button>
-              ) : (
-                <Button className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2">
-                  <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
-                </Button>
-              )}
-              <Button className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2">
-                <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
-              </Button>
-            </div>
-          </div>
-          <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-2">
-            <div className="p-3">
-              <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
-                <GraduationCapFill fill="var(--color-bg-basic-blue-accent) " className="size-4" /> Departments
-              </div>
-              <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-                  <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
-              </div>
+// export const SecondarySetup = ({ onOpenDelete }: { onOpenDelete?: (target?: { id: string; name?: string }) => void }) => {
+//   const secondaryClasses = [
+//     { id: "ss1", name: "SS 1", hasDelete: true },
+//     { id: "ss2", name: "SS 1", hasDelete: true },
+//   ];
+//   return (
+//     <div className="mt-8 flex flex-col gap-6">
+//       {secondaryClasses.map(sc => (
+//         <div key={sc.id} className="bg-bg-state-soft rounded-md p-1">
+//           <div className="flex items-center justify-between px-5 py-2">
+//             <div className="text-text-default text-sm font-medium">{sc.name} </div>
+//             <div className="flex items-center gap-2">
+//               {sc.hasDelete ? (
+//                 <Button
+//                   onClick={() => onOpenDelete?.({ id: sc.id, name: sc.name })}
+//                   className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
+//                 >
+//                   <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
+//                 </Button>
+//               ) : (
+//                 <Button className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2">
+//                   <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
+//                 </Button>
+//               )}
+//               <Button className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2">
+//                 <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
+//               </Button>
+//             </div>
+//           </div>
+//           <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-2">
+//             <div className="p-3">
+//               <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
+//                 {" "}
+//                 <GraduationCapFill fill="var(--color-bg-basic-blue-accent) " className="size-4" /> Departments
+//               </div>
+//               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+//                 {["English Language", "English Language", "English Language", "English Language"].map(sub => (
+//                   <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+//                     {sub}
+//                   </Badge>
+//                 ))}
+//               </div>
 
-              <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
-                <BookFill fill="var(--color-bg-basic-blue-accent)" />
-                Art Subjects
-              </div>
-              <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-                  <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
-              </div>
+//               <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
+//                 {" "}
+//                 <BookFill fill="var(--color-bg-basic-blue-accent)" />
+//                 Art Subjects
+//               </div>
+//               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+//                 {["English Language", "English Language", "English Language", "English Language"].map(sub => (
+//                   <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+//                     {sub}
+//                   </Badge>
+//                 ))}
+//               </div>
 
-              <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
-                <BookFill fill="var(--color-bg-basic-blue-accent)" />
-                Commercial Subjects
-              </div>
-              <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-                  <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
-              </div>
+//               <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
+//                 {" "}
+//                 <BookFill fill="var(--color-bg-basic-blue-accent)" />
+//                 Commercial Subjects
+//               </div>
+//               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+//                 {["English Language", "English Language", "English Language", "English Language"].map(sub => (
+//                   <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+//                     {sub}
+//                   </Badge>
+//                 ))}
+//               </div>
 
-              <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
-                <BookFill fill="var(--color-bg-basic-blue-accent)" />
-                Science Subjects
-              </div>
-              <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-                  <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
-              </div>
+//               <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
+//                 {" "}
+//                 <BookFill fill="var(--color-bg-basic-blue-accent)" />
+//                 Science Subjects
+//               </div>
+//               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+//                 {["English Language", "English Language", "English Language", "English Language"].map(sub => (
+//                   <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
+//                     {sub}
+//                   </Badge>
+//                 ))}
+//               </div>
 
-              <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
-                <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
-              </div>
+//               <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
+//                 <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
+//               </div>
 
-              <div className="flex flex-wrap gap-1">
-                {["A", "B", "C"].map(arm => (
-                  <div key={arm} className="">
-                    <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
-                      {arm}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
+//               <div className="flex flex-wrap gap-1">
+//                 {["A", "B", "C"].map(arm => (
+//                   <div key={arm} className="">
+//                     <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
+//                       {arm}
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
