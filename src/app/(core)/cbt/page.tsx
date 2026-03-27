@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import CBTHome from "@/components/CBTHomePage";
 
-export default function CBTHome() {
-  redirect("/cbt/subjects");
+export default function CBTHomePage() {
+  return <CBTHome />;
 }
