@@ -3,7 +3,7 @@ import { LevelType } from "@/api/types";
 import { armKeys } from "@/queries/arm";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetArmsByClass = (classId?: number) => {
+export const useGetArmsByClass = (classId: number | null) => {
   return useQuery({
     queryKey: armKeys.armsByClass(classId),
     queryFn: () => getArmsByClass(classId),

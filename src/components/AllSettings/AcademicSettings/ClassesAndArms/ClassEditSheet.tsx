@@ -22,18 +22,16 @@ import * as yup from "yup";
 
 export const ClassEditSheet = ({
   level,
-  branchSpecific,
   branchId,
   sheetOpen,
   setSheetOpen,
   classId,
 }: {
-  level: ClassLevel;
-  branchSpecific: boolean;
+  level: ClassLevel | null;
   branchId?: number;
   sheetOpen: boolean;
   setSheetOpen: (open: boolean) => void;
-  classId: number;
+  classId: number | null;
 }) => {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
@@ -96,7 +94,7 @@ export const ClassEditSheet = ({
       .filter(str => str !== "" && !subjects.includes(str));
 
     mutateSubject(
-      { names: newSubjects, className: classData?.data?.name, levelType: level?.levelType },
+      { names: newSubjects, className: classData?.data?.name, levelType: level?.levelType || "" },
       {
         onSuccess: () => {
           setSubjects(prev => [...prev, ...newSubjects]);
@@ -163,7 +161,7 @@ export const ClassEditSheet = ({
     if (!newArms.length) return;
 
     mutateArm(
-      { names: newArms, className: classData?.data?.name, levelType: level?.levelType },
+      { names: newArms, className: classData?.data?.name, levelType: level?.levelType || "" },
       {
         onSuccess: () => {
           setArms(prev => [...prev, ...newArms]);

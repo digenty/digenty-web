@@ -10,6 +10,7 @@ import { GitMergeFill } from "@/components/Icons/GitMergeFill";
 import GraduationCapFill from "@/components/Icons/GraduationCapFill";
 import Loader2Fill from "@/components/Icons/Loader2Fill";
 import School from "@/components/Icons/School";
+import Settings4 from "@/components/Icons/Settings4";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,16 +18,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { ClassEditSheet } from "./ClassEditSheet";
 import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
-import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
-import { usePathname, useRouter } from "next/navigation";
-import Settings4 from "@/components/Icons/Settings4";
-import { ClassEditSheet } from "./ClassEditSheet";
 
 function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (t: Branch | null) => void }) {
   const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
@@ -106,7 +106,7 @@ function ClassesResponsiveTabs({
   branchSpecific,
 }: {
   levels: ClassLevel[];
-  activeLevel: ClassLevel;
+  activeLevel: ClassLevel | null;
   setActiveLevel: (level: ClassLevel) => void;
   branchId?: number;
   branchSpecific: boolean;
@@ -123,16 +123,7 @@ function ClassesResponsiveTabs({
     return (
       <>
         {openDelete && <DeleteClass setOpenDeleteModal={setOpenDelete} open={openDelete} classId={classId} />}
-        {sheetOpen && (
-          <ClassEditSheet
-            sheetOpen={sheetOpen}
-            setSheetOpen={setSheetOpen}
-            level={activeLevel}
-            branchSpecific={branchSpecific}
-            branchId={branchId}
-            classId={classId}
-          />
-        )}
+        {sheetOpen && <ClassEditSheet sheetOpen={sheetOpen} setSheetOpen={setSheetOpen} level={activeLevel} branchId={branchId} classId={classId} />}
 
         {isPending && !classesByLevelData && <Skeleton className="bg-bg-state-soft h-80 w-full" />}
         {!isPending && classesByLevelData && classesByLevelData?.data?.length === 0 && (
@@ -385,7 +376,7 @@ export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompl
   }, [levels]);
 
   return (
-    <section className="flex flex-1 flex-col">
+    <section className="">
       <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 lg:px-36">
         <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
           <div className="">
@@ -402,7 +393,7 @@ export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompl
           />
         </div>
         {branchSpecific && (
-          <div className="border-border-default mb-5 flex w-full items-center gap-3">
+          <div className="border-border-default mb-5 flex w-full items-center gap-3 px-4">
             <BranchTabs activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
           </div>
         )}
@@ -445,7 +436,7 @@ export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompl
         </div>
       </div>
 
-      <div className="border-border-default bg-bg-default absolute bottom-0 mt-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+      <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
         <Button
           className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
           onClick={() => {

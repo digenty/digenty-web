@@ -15,7 +15,7 @@ type AddArmToClassPayload = {
   levelType: string;
 };
 
-export const getArmsByClass = async (classId?: number) => {
+export const getArmsByClass = async (classId: number | null) => {
   try {
     const { data } = await api.get(`/arms/class/${classId}?page=0&size=50`);
     return data;

@@ -91,7 +91,7 @@ export const useGetClassLevel = () => {
   });
 };
 
-export const useGetClassDetails = (classId: number) => {
+export const useGetClassDetails = (classId: number | null) => {
   return useQuery({
     queryKey: classKeys.class(classId),
     queryFn: () => getClassDetails(classId),

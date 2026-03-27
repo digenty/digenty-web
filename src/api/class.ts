@@ -140,7 +140,7 @@ export const getClassLevels = async () => {
   }
 };
 
-export const getClassDetails = async (classId: number) => {
+export const getClassDetails = async (classId: number | null) => {
   try {
     const { data } = await api.get(`/classes/${classId}`);
     return data;
