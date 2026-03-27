@@ -10,16 +10,9 @@ export default async function middleware(req: NextRequest) {
   const token = parseCookieString(tokenString);
 
   //include all routes that you want to be accessed without auth
-  const authRoutes = [
-    "/auth/staff",
-    "/auth/staff?step=login",
-    "/auth/staff?step=signup",
-    "/auth/parents",
-    "/auth/parents?step=login",
-    "/auth/parents?step=signup",
-  ];
+  const authRoutes = ["/auth/staff", "/auth/parents"];
 
-  const isAuthRoute = authRoutes.includes(path);
+  const isAuthRoute = authRoutes.some(route => path.startsWith(route));
 
   if (path === "/") {
     return NextResponse.redirect(new URL("/auth/staff", req.nextUrl));
@@ -27,7 +20,12 @@ export default async function middleware(req: NextRequest) {
 
   //   If user is logged in and tries to visit auth routes
   if (token && isAuthRoute) {
-    return NextResponse.redirect(new URL("/staff/", req.nextUrl));
+    if (path.startsWith("/auth/staff")) {
+      return NextResponse.redirect(new URL("/staff/", req.nextUrl));
+    }
+    if (path.startsWith("/auth/parents")) {
+      return NextResponse.redirect(new URL("/parent/", req.nextUrl));
+    }
   }
 
   // Redirect to /login if user is not authenticated and tries to visit non-auth routes
@@ -52,5 +50,5 @@ export default async function middleware(req: NextRequest) {
 
 // Routes Middleware should not run on
 export const config = {
-  matcher: ["/staff/((?!api|_next/static|_next/image|favicon.ico|icons|fonts|.*\\.png$).*)"],
+  matcher: ["/", "/staff/:path*", "/auth/:path*", "/parent/:path*"],
 };
