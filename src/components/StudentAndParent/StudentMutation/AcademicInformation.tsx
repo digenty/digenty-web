@@ -15,7 +15,7 @@ import { AdmissionStatusValues, BoardingStatusValues } from "../constants";
 import { StudentInputValues } from "../types";
 
 export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInputValues> }) => {
-  const [classId, setClassId] = useState<number | undefined>();
+  const [classId, setClassId] = useState<number | null>(null);
   const [branchId, setBranchId] = useState<number | undefined>();
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();

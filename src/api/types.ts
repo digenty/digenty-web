@@ -465,6 +465,14 @@ export interface BranchLevels {
   classLevels: ClassLevel[];
 }
 
+export interface ClassInLevelDetails {
+  levelId: number;
+  classId: number;
+  className: string;
+  subjects: { name: string; id: number }[];
+  arms: { name: string; id: number }[];
+}
+
 export interface ClassInLevel {
   id: number;
   uuid: string;

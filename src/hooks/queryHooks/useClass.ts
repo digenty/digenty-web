@@ -3,6 +3,7 @@ import {
   getClassCumulativeReport,
   getClasses,
   getClassesByLevel,
+  getClassDetails,
   getClassLevels,
   getClassReport,
   getClassTeachersInClass,
@@ -11,6 +12,7 @@ import {
   requestEditAccess,
   setPromotionDecision,
   submitClassReport,
+  updateClass,
 } from "@/api/class";
 import { branchKeys } from "@/queries/branch";
 
@@ -35,7 +37,7 @@ export const useGetTeacherClasses = () => {
 // To put in another branch
 export const useGetClassTeachersInClass = (armId: number) => {
   return useQuery({
-    queryKey: classKeys.class(armId),
+    queryKey: [classKeys.class, armId],
     queryFn: () => getClassTeachersInClass(armId),
     retry: false,
   });
@@ -66,7 +68,7 @@ export const useRequestEditAccess = () => {
 
 export const useGetClassesByLevel = (levelId?: number) => {
   return useQuery({
-    queryKey: classKeys.classesByLevel(levelId),
+    queryKey: [classKeys.classesByLevel, levelId],
     queryFn: () => getClassesByLevel(levelId),
     enabled: !!levelId,
   });
@@ -87,6 +89,14 @@ export const useGetClassLevel = () => {
   return useQuery({
     queryKey: classKeys.classLevel,
     queryFn: getClassLevels,
+  });
+};
+
+export const useGetClassDetails = (classId: number | null) => {
+  return useQuery({
+    queryKey: [classKeys.class, classId],
+    queryFn: () => getClassDetails(classId),
+    enabled: !!classId,
   });
 };
 
@@ -127,5 +137,17 @@ export const useGetRequiredSubjectReport = (armId: number, isSubjectCombination:
     queryKey: classKeys.requiredSubjectReport(armId),
     queryFn: () => getRequiredSubjectReport(armId),
     enabled: isSubjectCombination,
+  });
+};
+export const useUpdateClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: [classKeys.updateClass],
+    mutationFn: (payload: { classId: number | null; name: string }) => updateClass(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classes] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.class] });
+    },
   });
 };

@@ -56,7 +56,7 @@ export const AdmissionNumberSetup = ({
           onSuccess: () => {
             toast({ title: "Admission number setup saved", description: "Your admission number format has been saved.", type: "success" });
             setCompletedSteps([...completedSteps, "admission-number"]);
-            router.push("/staff/settings/academic/academic-setup-done");
+            router.push("/staff/settings/academic");
           },
           onError: (error: unknown) => {
             const message = error instanceof Error ? error.message : "Could not save admission number settings";

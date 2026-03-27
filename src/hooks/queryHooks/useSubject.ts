@@ -1,12 +1,16 @@
 import {
   addSubject,
+  addSubjectToClass,
   deleteSubjectByLevel,
+  deleteSubjectFromClass,
   getBranchTeachersClassSubjects,
+  getSubjectsByClass,
   getSubjectsByLevel,
   getSubjectStudents,
   getTeacherSubjects,
 } from "@/api/subject";
 import { LevelType } from "@/api/types";
+import { classKeys } from "@/queries/class";
 import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -43,16 +47,36 @@ export const useGetSubjectsByLevel = (levelType?: LevelType, branchId?: number) 
   });
 };
 
+export const useGetSubjectsByClass = (className?: string, levelType?: string, branchId?: number) => {
+  return useQuery({
+    queryKey: subjectKeys.subjectsByClass(className, levelType, branchId),
+    queryFn: () => getSubjectsByClass(className, levelType, branchId),
+    enabled: !!className && !!levelType,
+    retry: false,
+  });
+};
+
 export const useAddSubject = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: subjectKeys.addSubject,
     mutationFn: addSubject,
-    // onSuccess: (_data, variables) => {
-    //   queryClient.invalidateQueries({
-    //     queryKey: subjectKeys.subjectsByLevel(variables.levelId, variables.branchId),
-    //   });
-    // },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [classKeys.classesByLevel],
+      });
+    },
+  });
+};
+
+export const useAddSubjectToClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: addSubjectToClass,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
+    },
   });
 };
 
@@ -61,10 +85,20 @@ export const useDeleteSubject = () => {
   return useMutation({
     mutationKey: subjectKeys.deleteSubject,
     mutationFn: ({ subjectId, levelId }: { subjectId: number; levelId: number }) => deleteSubjectByLevel(subjectId, levelId),
-    // onSuccess: (_data, variables) => {
-    //   queryClient.invalidateQueries({
-    //     queryKey: subjectKeys.subjectsByLevel(variables.levelId),
-    //   });
-    // },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [classKeys.classesByLevel],
+      });
+    },
+  });
+};
+export const useDeleteSubjectFromClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subjectKeys.deleteSubject,
+    mutationFn: ({ subjectId, classId }: { subjectId: number; classId: number }) => deleteSubjectFromClass(subjectId, classId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
+    },
   });
 };

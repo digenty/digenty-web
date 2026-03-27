@@ -108,7 +108,7 @@ export const requestEditAccess = async (payload: EditAccessPayload) => {
 
 export const getClassesByLevel = async (levelId?: number) => {
   try {
-    const { data } = await api.get(`/classes/level/${levelId}`);
+    const { data } = await api.get(`/classes/details/level/${levelId}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
@@ -131,6 +131,18 @@ export const deleteClass = async (classroomId: number) => {
 export const getClassLevels = async () => {
   try {
     const { data } = await api.get(`/class-levels/names`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const getClassDetails = async (classId: number | null) => {
+  try {
+    const { data } = await api.get(`/classes/${classId}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
@@ -175,6 +187,18 @@ export const setPromotionDecision = async (payload: {
 export const getRequiredSubjectReport = async (armId: number) => {
   try {
     const { data } = await api.get(`/report/class/arm/${armId}/required-subject-report`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const updateClass = async (payload: { classId: number | null; name: string }) => {
+  try {
+    const { data } = await api.put("/classes", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

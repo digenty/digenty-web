@@ -1,23 +1,24 @@
 "use client";
 
-import { AcademicSession, ClassLevel, ClassLevelWithBranch, Level, Term } from "@/api/types";
+import { AcademicSession, Level, Term } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { toast } from "@/components/Toast";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
 import { useGetActiveSession, useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
 import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { toast } from "@/components/Toast";
-import { extractUniqueLevelsByType, getAcademicYears } from "@/lib/utils";
+import { getAcademicYears } from "@/lib/utils";
 import { format, parseISO } from "date-fns";
-import React, { useEffect, useState } from "react";
-import { DateRange } from "react-day-picker";
 import { Edit2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { DateRange } from "react-day-picker";
 
 const toDateRange = (dateStr: string | undefined): DateRange | undefined => {
   if (!dateStr) return undefined;
@@ -38,7 +39,7 @@ const ViewField = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-export const SchoolSectionAndTerm = () => {
+export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: AcademicSession | undefined; isLoadingSession: boolean }) => {
   const user = useLoggedInUser();
   const schoolId = user?.schoolId;
 
@@ -53,23 +54,22 @@ export const SchoolSectionAndTerm = () => {
   const [thirdTermStart, setThirdTermStart] = useState<DateRange | undefined>();
   const [thirdTermEnd, setThirdTermEnd] = useState<DateRange | undefined>();
 
-  const { data: academicResponse, isLoading: isLoadingAcademic } = useGetActiveSession();
   const { data: termList } = useGetTerms(schoolId);
   const { data: levelsData, isLoading: isLoadingLevels, isError: isLevelError } = useGetClassLevel();
   const { mutateAsync: updateAcademic } = useUpdateAcademic();
 
-  const session: AcademicSession | undefined = academicResponse?.data?.[0];
   const terms: Term[] = termList?.data?.terms ?? [];
-  // const levels = extractUniqueLevelsByType(levelsData?.data) ?? [];
   const levels = levelsData?.data ?? [];
 
   const findTerm = (name: string) => terms.find(t => t.term === name);
 
   useEffect(() => {
-    if (!session) return;
-    setSessionName(session.name ?? "");
-    setCurrentTerm(session.currentTerm ?? "");
-  }, [session]);
+    if (termList) {
+      const activeTerm = termList.data.terms.find((term: Term) => term.isActiveTerm);
+      setCurrentTerm(activeTerm?.term);
+      setSessionName(termList.data.academicSessionName);
+    }
+  }, [termList]);
 
   useEffect(() => {
     if (!terms.length) return;
@@ -167,7 +167,7 @@ export const SchoolSectionAndTerm = () => {
 
   return (
     <div className="">
-      <div className="mx-auto flex w-full flex-col gap-4 md:w-150 md:px-4">
+      <div className="mx-auto mb-10 flex w-full flex-col gap-4 md:w-150 md:px-4">
         <div className="flex items-center justify-between">
           <div className="text-text-default text-lg font-semibold">Academic Session & Term</div>
           {!isEditing && (
@@ -181,7 +181,7 @@ export const SchoolSectionAndTerm = () => {
           )}
         </div>
 
-        {isLoadingAcademic ? (
+        {isLoadingSession ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {Array.from({ length: 8 }).map((_, i) => (
               <Skeleton key={i} className="bg-bg-input-soft h-9 w-full" />
@@ -215,26 +215,26 @@ export const SchoolSectionAndTerm = () => {
 
             <div className="flex flex-col gap-2">
               <Label className="text-text-default text-sm font-medium">
-                Current Term <span className="text-text-destructive">*</span>
+                Current Term {isEditing && <span className="text-text-destructive">*</span>}
               </Label>
               {isEditing ? (
                 <Select value={currentTerm} onValueChange={handleTermChange}>
                   <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
                     <SelectValue>
-                      <span className="text-text-default text-sm font-medium">{currentTerm || "Select term"}</span>
+                      <span className="text-text-default text-sm font-medium capitalize">{currentTerm.toLowerCase() || "Select term"}</span>
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
                     {terms.map((t: Term) => (
-                      <SelectItem key={t.termId} value={t.term} className="text-text-default text-sm font-semibold">
-                        {t.term}
+                      <SelectItem key={t.termId} value={t.term} className="text-text-default text-sm font-semibold capitalize">
+                        {t.term.toLowerCase()}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm font-medium">
-                  {currentTerm || "—"}
+                <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm font-medium capitalize">
+                  {currentTerm.toLowerCase() || "—"}
                 </div>
               )}
             </div>
@@ -280,12 +280,12 @@ export const SchoolSectionAndTerm = () => {
               </>
             ) : (
               <>
-                <ViewField label="First Term Start Date" value={toDateString(firstTermStart)} />
-                <ViewField label="First Term End Date" value={toDateString(firstTermEnd)} />
-                <ViewField label="Second Term Start Date" value={toDateString(secondTermStart)} />
-                <ViewField label="Second Term End Date" value={toDateString(secondTermEnd)} />
-                <ViewField label="Third Term Start Date" value={toDateString(thirdTermStart)} />
-                <ViewField label="Third Term End Date" value={toDateString(thirdTermEnd)} />
+                <ViewField label="First Term Start Date" value={toDateString(firstTermStart).replaceAll("-", "/")} />
+                <ViewField label="First Term End Date" value={toDateString(firstTermEnd).replaceAll("-", "/")} />
+                <ViewField label="Second Term Start Date" value={toDateString(secondTermStart).replaceAll("-", "/")} />
+                <ViewField label="Second Term End Date" value={toDateString(secondTermEnd).replaceAll("-", "/")} />
+                <ViewField label="Third Term Start Date" value={toDateString(thirdTermStart).replaceAll("-", "/")} />
+                <ViewField label="Third Term End Date" value={toDateString(thirdTermEnd).replaceAll("-", "/")} />
               </>
             )}
           </div>
@@ -322,7 +322,7 @@ export const SchoolSectionAndTerm = () => {
                 <div className="bg-bg-card flex flex-col gap-4 rounded-md px-5 py-6">
                   <div className="flex flex-col gap-2">
                     <Label className="text-text-default text-sm font-medium">Branch Name</Label>
-                    <div className="bg-bg-input-soft! text-text-muted rounded-md border-none p-2">{level.branchName}</div>
+                    <div className="bg-bg-input-soft! text-text-muted rounded-md border-none p-2 text-sm">{level.branchName}</div>
                   </div>
                   <div className="border-border-darker rounded-md border p-3">
                     <div className="text-text-default mb-3 text-sm font-medium">Levels</div>
@@ -330,9 +330,9 @@ export const SchoolSectionAndTerm = () => {
                       {level.classLevels.map(lvl => (
                         <div
                           key={lvl.id}
-                          className="bg-bg-card text-text-default border-border-darker flex h-8 items-center gap-3 rounded-md border p-2.5 text-sm shadow-xs md:h-9"
+                          className="bg-bg-card text-text-default border-border-darker flex h-8 items-center gap-3 rounded-md border p-2.5 text-sm capitalize shadow-xs md:h-9"
                         >
-                          {lvl.levelName}
+                          {lvl.levelName.replaceAll("_", " ").toLowerCase()}
                         </div>
                       ))}
                     </div>
@@ -346,15 +346,12 @@ export const SchoolSectionAndTerm = () => {
 
       {isEditing && (
         <div className="border-border-default bg-bg-default sticky bottom-0 mx-auto flex w-full justify-between border-t py-3 md:px-36">
-          <Button onClick={handleCancel} disabled={isSaving} className="bg-bg-state-soft! text-text-subtle rounded-md">
+          <Button onClick={handleCancel} disabled={isSaving} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default rounded-md"
-          >
-            {isEditing ? "Save changes" : "Saving"}
+          <Button onClick={handleSave} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md">
+            {isSaving && <Spinner className="text-text-white-default size-4" />}
+            Save changes
           </Button>
         </div>
       )}
