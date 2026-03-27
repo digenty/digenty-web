@@ -37,7 +37,7 @@ export const useGetTeacherClasses = () => {
 // To put in another branch
 export const useGetClassTeachersInClass = (armId: number) => {
   return useQuery({
-    queryKey: classKeys.class(armId),
+    queryKey: [classKeys.class, armId],
     queryFn: () => getClassTeachersInClass(armId),
     retry: false,
   });
