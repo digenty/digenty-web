@@ -1,7 +1,9 @@
 import {
   addSubject,
+  addSubjectToClass,
   deleteSubjectByLevel,
   getBranchTeachersClassSubjects,
+  getSubjectsByClass,
   getSubjectsByLevel,
   getSubjectStudents,
   getTeacherSubjects,
@@ -43,6 +45,15 @@ export const useGetSubjectsByLevel = (levelType?: LevelType, branchId?: number) 
   });
 };
 
+export const useGetSubjectsByClass = (className?: string, levelType?: string, branchId?: number) => {
+  return useQuery({
+    queryKey: subjectKeys.subjectsByClass(className, levelType, branchId),
+    queryFn: () => getSubjectsByClass(className!, levelType!, branchId),
+    enabled: !!className && !!levelType,
+    retry: false,
+  });
+};
+
 export const useAddSubject = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -53,6 +64,17 @@ export const useAddSubject = () => {
     //     queryKey: subjectKeys.subjectsByLevel(variables.levelId, variables.branchId),
     //   });
     // },
+  });
+};
+
+export const useAddSubjectToClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: addSubjectToClass,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
+    },
   });
 };
 

@@ -9,6 +9,12 @@ type AddArmPayload = {
   branchSpecific: boolean;
 };
 
+type AddArmToClassPayload = {
+  names: string[];
+  className: string;
+  levelType: string;
+};
+
 export const getArmsByClass = async (classId?: number) => {
   try {
     const { data } = await api.get(`/arms/class/${classId}?page=0&size=50`);
@@ -48,6 +54,18 @@ export const deleteArmByLevel = async (armId: number, levelId: number) => {
 export const addArm = async (payload: AddArmPayload) => {
   try {
     const { data } = await api.post("/arms/level", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const addArmToClass = async (payload: AddArmToClassPayload) => {
+  try {
+    const { data } = await api.post("/arms/class", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

@@ -9,6 +9,12 @@ type AddSubjectPayload = {
   branchSpecific: boolean;
 };
 
+type AddSubjectToClassPayload = {
+  names: string[];
+  className: string;
+  levelType: string;
+};
+
 export const getTeacherSubjects = async () => {
   try {
     const data = await api.get("/teacher/subject/my");
@@ -73,6 +79,30 @@ export const addSubject = async (payload: AddSubjectPayload) => {
 export const deleteSubjectByLevel = async (subjectId: number, levelId: number) => {
   try {
     const { data } = await api.delete(`/subjects/level?subjectId=${subjectId}&levelId=${levelId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const addSubjectToClass = async (payload: AddSubjectToClassPayload) => {
+  try {
+    const { data } = await api.post("/subjects/class", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const getSubjectsByClass = async (className: string, levelType: string, branchId?: number) => {
+  try {
+    const { data } = await api.get(`/subjects/class?className=${className}&levelType=${levelType}${branchId ? `&branchId=${branchId}` : ""}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

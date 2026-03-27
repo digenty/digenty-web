@@ -1,4 +1,4 @@
-import { addArm, deleteArmByLevel, getArmsByClass, getArmsByLevel } from "@/api/arm";
+import { addArm, addArmToClass, deleteArmByLevel, getArmsByClass, getArmsByLevel } from "@/api/arm";
 import { LevelType } from "@/api/types";
 import { armKeys } from "@/queries/arm";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,5 +43,16 @@ export const useAddArm = () => {
     //     queryKey: armKeys.armsByLevel(variables.levelId, variables.branchId),
     //   });
     // },
+  });
+};
+
+export const useAddArmToClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: addArmToClass,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["arms"] });
+      queryClient.invalidateQueries({ queryKey: ["armsByLevel"] });
+    },
   });
 };

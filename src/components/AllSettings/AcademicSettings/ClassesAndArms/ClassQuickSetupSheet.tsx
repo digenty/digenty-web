@@ -272,6 +272,11 @@ export const ClassQuickSetupSheet = ({
         {
           onSuccess: () => {
             setArms(prev => [...prev, name]);
+            toast({
+              title: "Arm(s) added",
+              description: `"${name}" has been added successfully`,
+              type: "success",
+            });
           },
           onError: error => {
             toast({

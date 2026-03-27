@@ -9,9 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import { useAddArm, useDeleteArm, useGetArmsByLevel } from "@/hooks/queryHooks/useArm";
+import { useAddArmToClass, useDeleteArm, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
-import { useAddSubject, useDeleteSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
+import { useAddSubjectToClass, useDeleteSubject, useGetSubjectsByClass } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -42,15 +42,19 @@ export const ClassEditSheet = ({
   const isMobile = useIsMobile();
 
   const { mutate, isPending } = useUpdateLevel();
-  const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubject();
+  const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubjectToClass();
   const { mutate: deleteSubject } = useDeleteSubject();
   const { mutate: deleteArm } = useDeleteArm();
-  const { mutate: mutateArm, isPending: isAddingArm } = useAddArm();
+  const { mutate: mutateArm, isPending: isAddingArm } = useAddArmToClass();
 
-  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.levelType, branchId);
-  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.levelType, branchId);
+  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByClass(
+    level?.levelName.replaceAll("_", " "),
+    level?.levelType,
+    branchId,
+  );
+  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByClass(level?.id);
 
-  console.log(armsData?.data[0]?.arms);
+  console.log(level);
 
   useEffect(() => {
     if (subjectsData) {
@@ -100,28 +104,26 @@ export const ClassEditSheet = ({
       .map(str => str.trim().replace(/^,+|,+$/g, ""))
       .filter(str => str !== "" && !subjects.includes(str));
 
-    newSubjects.forEach(name => {
-      mutateSubject(
-        { names: newSubjects, levelType: level?.levelType, branchId, branchSpecific },
-        {
-          onSuccess: () => {
-            setSubjects(prev => [...prev, name]);
-            toast({
-              title: "Subject added",
-              description: `"${name}" has been added successfully`,
-              type: "success",
-            });
-          },
-          onError: error => {
-            toast({
-              title: "Failed to add subject",
-              description: (error as { message?: string })?.message || `Could not add "${name}"`,
-              type: "error",
-            });
-          },
+    mutateSubject(
+      { names: newSubjects, className: level?.levelName.replaceAll("_", " "), levelType: level?.levelType },
+      {
+        onSuccess: () => {
+          setSubjects(prev => [...prev, ...newSubjects]);
+          toast({
+            title: "Subjects added",
+            description: `Subject(s) have been added successfully`,
+            type: "success",
+          });
         },
-      );
-    });
+        onError: error => {
+          toast({
+            title: "Failed to add subjects",
+            description: (error as { message?: string })?.message || `Could not add subjects`,
+            type: "error",
+          });
+        },
+      },
+    );
 
     formik.setFieldValue("subject", "");
   };
@@ -169,23 +171,26 @@ export const ClassEditSheet = ({
 
     if (!newArms.length) return;
 
-    newArms.forEach(name => {
-      mutateArm(
-        { names: newArms, levelType: level.levelType, branchId, branchSpecific },
-        {
-          onSuccess: () => {
-            setArms(prev => [...prev, name]);
-          },
-          onError: error => {
-            toast({
-              title: "Failed to add arm",
-              description: (error as { message?: string })?.message || `Could not add "${name}"`,
-              type: "error",
-            });
-          },
+    mutateArm(
+      { names: newArms, className: level?.levelName.replaceAll("_", " "), levelType: level?.levelType },
+      {
+        onSuccess: () => {
+          setArms(prev => [...prev, ...newArms]);
+          toast({
+            title: "Arms added",
+            description: `Arm(s) have been added successfully`,
+            type: "success",
+          });
         },
-      );
-    });
+        onError: error => {
+          toast({
+            title: "Failed to add arms",
+            description: (error as { message?: string })?.message || `Could not add arms`,
+            type: "error",
+          });
+        },
+      },
+    );
 
     formik.setFieldValue("arm", "");
   };
