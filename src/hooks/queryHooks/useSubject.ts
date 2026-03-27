@@ -2,6 +2,7 @@ import {
   addSubject,
   addSubjectToClass,
   deleteSubjectByLevel,
+  deleteSubjectFromClass,
   getBranchTeachersClassSubjects,
   getSubjectsByClass,
   getSubjectsByLevel,
@@ -88,5 +89,15 @@ export const useDeleteSubject = () => {
     //     queryKey: subjectKeys.subjectsByLevel(variables.levelId),
     //   });
     // },
+  });
+};
+export const useDeleteSubjectFromClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subjectKeys.deleteSubject,
+    mutationFn: ({ subjectId, classId }: { subjectId: number; classId: number }) => deleteSubjectFromClass(subjectId, classId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
+    },
   });
 };

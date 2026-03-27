@@ -140,28 +140,26 @@ export const ClassQuickSetupSheet = ({
       .map(str => str.trim().replace(/^,+|,+$/g, ""))
       .filter(str => str !== "" && !subjects.includes(str));
 
-    newSubjects.forEach(name => {
-      mutateSubject(
-        { names: newSubjects, levelType: level?.levelType, branchId, branchSpecific },
-        {
-          onSuccess: () => {
-            setSubjects(prev => [...prev, name]);
-            toast({
-              title: "Subject added",
-              description: `"${name}" has been added successfully`,
-              type: "success",
-            });
-          },
-          onError: error => {
-            toast({
-              title: "Failed to add subject",
-              description: (error as { message?: string })?.message || `Could not add "${name}"`,
-              type: "error",
-            });
-          },
+    mutateSubject(
+      { names: newSubjects, levelType: level?.levelType, branchId, branchSpecific },
+      {
+        onSuccess: () => {
+          setSubjects(prev => [...prev, ...newSubjects]);
+          toast({
+            title: "Subject(s) added",
+            description: `Subjects have been updated successfully`,
+            type: "success",
+          });
         },
-      );
-    });
+        onError: error => {
+          toast({
+            title: "Failed to add subject",
+            description: (error as { message?: string })?.message || `Could not add "${name}"`,
+            type: "error",
+          });
+        },
+      },
+    );
 
     formik.setFieldValue("subject", "");
   };
@@ -209,28 +207,26 @@ export const ClassQuickSetupSheet = ({
 
     if (!newArms.length) return;
 
-    newArms.forEach(name => {
-      mutateArm(
-        { names: newArms, levelType: level.levelType, branchId, branchSpecific },
-        {
-          onSuccess: () => {
-            setArms(prev => [...prev, name]);
-            toast({
-              title: "Arm(s) added",
-              description: `"${name}" has been added successfully`,
-              type: "success",
-            });
-          },
-          onError: error => {
-            toast({
-              title: "Failed to add arm",
-              description: (error as { message?: string })?.message || `Could not add "${name}"`,
-              type: "error",
-            });
-          },
+    mutateArm(
+      { names: newArms, levelType: level.levelType, branchId, branchSpecific },
+      {
+        onSuccess: () => {
+          setArms(prev => [...prev, ...newArms]);
+          toast({
+            title: "Arm(s) added",
+            description: `Arms have been updated successfully`,
+            type: "success",
+          });
         },
-      );
-    });
+        onError: error => {
+          toast({
+            title: "Failed to add arm",
+            description: (error as { message?: string })?.message || `Could not add "${name}"`,
+            type: "error",
+          });
+        },
+      },
+    );
 
     formik.setFieldValue("arm", "");
   };

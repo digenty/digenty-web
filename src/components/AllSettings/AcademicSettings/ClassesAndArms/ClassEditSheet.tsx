@@ -9,10 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import { useAddArmToClass, useDeleteArm, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
+import { useAddArmToClass, useDeleteArmFromClass, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useGetClassDetails } from "@/hooks/queryHooks/useClass";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
-import { useAddSubjectToClass, useDeleteSubject, useGetSubjectsByClass } from "@/hooks/queryHooks/useSubject";
+import { useAddSubjectToClass, useDeleteSubjectFromClass, useGetSubjectsByClass } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -46,8 +46,8 @@ export const ClassEditSheet = ({
 
   const { mutate, isPending } = useUpdateLevel();
   const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubjectToClass();
-  const { mutate: deleteSubject } = useDeleteSubject();
-  const { mutate: deleteArm } = useDeleteArm();
+  const { mutate: deleteSubject } = useDeleteSubjectFromClass();
+  const { mutate: deleteArm } = useDeleteArmFromClass();
   const { mutate: mutateArm, isPending: isAddingArm } = useAddArmToClass();
   const { data: classData, isLoading: isLoadingClass } = useGetClassDetails(classId);
   const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByClass(classData?.data?.name, level?.levelType, branchId);
@@ -120,14 +120,14 @@ export const ClassEditSheet = ({
   };
 
   const removeSubject = (subjectToRemove: string) => {
-    const subjectsList = Array.isArray(subjectsData) ? subjectsData : (subjectsData?.content ?? subjectsData?.data ?? []);
+    const subjectsList = subjectsData?.data[0]?.subjects || [];
 
     const subjectObj = subjectsList.find((s: { id: number; name: string }) => s.name === subjectToRemove);
 
-    if (subjectObj && level?.id) {
+    if (subjectObj && classId) {
       setDeletingSubjectName(subjectToRemove);
       deleteSubject(
-        { subjectId: subjectObj.id, levelId: level.id },
+        { subjectId: subjectObj.id, classId: classId },
         {
           onSuccess: () => {
             setSubjects(subjects.filter(subject => subject !== subjectToRemove));
@@ -187,14 +187,13 @@ export const ClassEditSheet = ({
   };
 
   const removeArm = (armToRemove: string) => {
-    const armsList = Array.isArray(armsData) ? armsData : (armsData?.content ?? armsData?.data ?? []);
+    const armsList = armsData?.data || [];
 
     const armObj = armsList.find((a: { id: number; name: string }) => a.name === armToRemove);
-
-    if (armObj && level?.id) {
+    if (armObj && classId) {
       setDeletingArmName(armToRemove);
       deleteArm(
-        { armId: armObj.id, levelId: level.id },
+        { armId: armObj.id, classId: classId },
         {
           onSuccess: () => {
             setArms(arms.filter(arm => arm !== armToRemove));

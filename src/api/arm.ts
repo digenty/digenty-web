@@ -75,3 +75,15 @@ export const addArmToClass = async (payload: AddArmToClassPayload) => {
     throw error;
   }
 };
+
+export const deleteArmFromClass = async (armId: number, classId: number) => {
+  try {
+    const { data } = await api.delete(`/arms/class?armId=${armId}&classId=${classId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

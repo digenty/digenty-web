@@ -111,3 +111,15 @@ export const getSubjectsByClass = async (className?: string, levelType?: string,
     throw error;
   }
 };
+
+export const deleteSubjectFromClass = async (subjectId: number, classId: number) => {
+  try {
+    const { data } = await api.delete(`/subjects/class?subjectId=${subjectId}&classId=${classId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
