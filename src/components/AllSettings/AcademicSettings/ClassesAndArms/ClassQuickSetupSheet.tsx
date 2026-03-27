@@ -112,7 +112,7 @@ export const ClassQuickSetupSheet = ({
               classStart: values.startClass,
               classEnd: values.endClass,
             });
-            setSheetOpen(false);
+            // setSheetOpen(false);
             toast({
               title: "Level updated successfully",
               description: "The level has been updated",

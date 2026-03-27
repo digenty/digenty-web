@@ -10,6 +10,7 @@ import {
   getTeacherSubjects,
 } from "@/api/subject";
 import { LevelType } from "@/api/types";
+import { classKeys } from "@/queries/class";
 import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -60,11 +61,11 @@ export const useAddSubject = () => {
   return useMutation({
     mutationKey: subjectKeys.addSubject,
     mutationFn: addSubject,
-    // onSuccess: (_data, variables) => {
-    //   queryClient.invalidateQueries({
-    //     queryKey: subjectKeys.subjectsByLevel(variables.levelId, variables.branchId),
-    //   });
-    // },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [classKeys.classesByLevel],
+      });
+    },
   });
 };
 
@@ -84,11 +85,11 @@ export const useDeleteSubject = () => {
   return useMutation({
     mutationKey: subjectKeys.deleteSubject,
     mutationFn: ({ subjectId, levelId }: { subjectId: number; levelId: number }) => deleteSubjectByLevel(subjectId, levelId),
-    // onSuccess: (_data, variables) => {
-    //   queryClient.invalidateQueries({
-    //     queryKey: subjectKeys.subjectsByLevel(variables.levelId),
-    //   });
-    // },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [classKeys.classesByLevel],
+      });
+    },
   });
 };
 export const useDeleteSubjectFromClass = () => {

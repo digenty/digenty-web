@@ -1,6 +1,6 @@
 "use client";
 
-import { Branch, BranchWithClassLevels, ClassInLevel, ClassLevel } from "@/api/types";
+import { Branch, BranchWithClassLevels, ClassInLevel, ClassInLevelDetails, ClassLevel } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { BookFill } from "@/components/Icons/BookFill";
 import BookOpen from "@/components/Icons/BookOpen";
@@ -133,15 +133,15 @@ function ClassesResponsiveTabs({
         )}
         {!isPending && classesByLevelData && activeLevel?.levelType !== "SENIOR_SECONDARY" && (
           <div className="mt-8 flex w-full flex-col gap-6">
-            {classesByLevelData?.data?.map((clss: ClassInLevel) => (
-              <div key={clss.id} className="bg-bg-state-soft rounded-md p-1">
+            {classesByLevelData?.data?.content?.map((clss: ClassInLevelDetails) => (
+              <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
                 <div className="flex items-center justify-between px-5 py-2">
-                  <div className="text-text-default text-sm font-medium capitalize">{clss.name} </div>
+                  <div className="text-text-default text-sm font-medium capitalize">{clss.className} </div>
                   <div className="flex items-center gap-2">
                     <Button
                       onClick={() => {
                         setOpenDelete(true);
-                        setClassId(clss.id);
+                        setClassId(clss.classId);
                       }}
                       className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
                     >
@@ -150,7 +150,7 @@ function ClassesResponsiveTabs({
                     <Button
                       onClick={() => {
                         setSheetOpen(true);
-                        setClassId(clss.id);
+                        setClassId(clss.classId);
                       }}
                       className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2"
                     >
@@ -165,9 +165,13 @@ function ClassesResponsiveTabs({
                       <BookFill fill="var(--color-bg-basic-blue-accent)" /> Subjects
                     </div>
                     <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                      {["English Language", "English Language2", "English Language3", "English Language4"].map((sub, i) => (
-                        <Badge key={i} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                          {sub}
+                      {clss.subjects.length === 0 && <p className="text-text-subtle text-sm">No subjects added yet</p>}
+                      {clss.subjects.map(subject => (
+                        <Badge
+                          key={subject.id}
+                          className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                        >
+                          {subject.name.toLowerCase()}
                         </Badge>
                       ))}
                     </div>
@@ -177,10 +181,11 @@ function ClassesResponsiveTabs({
                     </div>
 
                     <div className="flex flex-wrap gap-1">
-                      {["A", "B", "C"].map(arm => (
-                        <div key={arm} className="">
+                      {clss.arms.length === 0 && <p className="text-text-subtle text-sm">No arms added yet</p>}
+                      {clss.arms.map(arm => (
+                        <div key={arm.id} className="">
                           <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
-                            {arm}
+                            {arm.name}
                           </div>
                         </div>
                       ))}

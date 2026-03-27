@@ -12,6 +12,7 @@ import {
   requestEditAccess,
   setPromotionDecision,
   submitClassReport,
+  updateClass,
 } from "@/api/class";
 import { branchKeys } from "@/queries/branch";
 
@@ -93,7 +94,7 @@ export const useGetClassLevel = () => {
 
 export const useGetClassDetails = (classId: number | null) => {
   return useQuery({
-    queryKey: classKeys.class(classId),
+    queryKey: [classKeys.class, classId],
     queryFn: () => getClassDetails(classId),
     enabled: !!classId,
   });
@@ -136,5 +137,17 @@ export const useGetRequiredSubjectReport = (armId: number, isSubjectCombination:
     queryKey: classKeys.requiredSubjectReport(armId),
     queryFn: () => getRequiredSubjectReport(armId),
     enabled: isSubjectCombination,
+  });
+};
+export const useUpdateClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: [classKeys.updateClass],
+    mutationFn: (payload: { classId: number | null; name: string }) => updateClass(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classes] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.class] });
+    },
   });
 };

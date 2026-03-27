@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { useAddArmToClass, useDeleteArmFromClass, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
-import { useGetClassDetails } from "@/hooks/queryHooks/useClass";
+import { useGetClassDetails, useUpdateClass } from "@/hooks/queryHooks/useClass";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubjectToClass, useDeleteSubjectFromClass, useGetSubjectsByClass } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -43,6 +43,7 @@ export const ClassEditSheet = ({
   const isMobile = useIsMobile();
 
   const { mutate, isPending } = useUpdateLevel();
+  const { mutate: updateClass, isPending: isUpdatingClass } = useUpdateClass();
   const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubjectToClass();
   const { mutate: deleteSubject } = useDeleteSubjectFromClass();
   const { mutate: deleteArm } = useDeleteArmFromClass();
@@ -81,7 +82,32 @@ export const ClassEditSheet = ({
     validationSchema: yup.object({
       className: yup.string().required("Class name is required"),
     }),
-    onSubmit: values => {},
+    onSubmit: values => {
+      if (values.className !== classData?.data?.name) {
+        updateClass(
+          { classId, name: values.className },
+          {
+            onSuccess: () => {
+              toast({
+                title: "Class updated",
+                description: "The class name has been updated successfully",
+                type: "success",
+              });
+              setSheetOpen(false);
+            },
+            onError: error => {
+              toast({
+                title: "Failed to update class",
+                description: (error as { message?: string })?.message || "Could not update class",
+                type: "error",
+              });
+            },
+          },
+        );
+      } else {
+        setSheetOpen(false);
+      }
+    },
   });
 
   const { values, errors, touched, handleChange, handleBlur } = formik;
@@ -546,7 +572,7 @@ export const ClassEditSheet = ({
                     onClick={() => formik.handleSubmit()}
                     className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
                   >
-                    {isPending && <Spinner className="text-text-white-default" />}
+                    {(isPending || isUpdatingClass) && <Spinner className="text-text-white-default" />}
                     Save
                   </Button>
                 </div>
@@ -575,7 +601,7 @@ export const ClassEditSheet = ({
                 onClick={() => formik.handleSubmit()}
                 className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
               >
-                {isPending && <Spinner className="text-text-white-default" />}
+                {(isPending || isUpdatingClass) && <Spinner className="text-text-white-default" />}
                 Save
               </Button>
             </div>
