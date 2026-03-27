@@ -50,7 +50,7 @@ export const MySubjectsView = () => {
         <Skeleton className="h-6 w-32" />
         {[1, 2].map(i => (
           <div key={i} className="overflow-hidden rounded-xl border border-gray-200">
-            <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
+            <div className="border-b border-gray-900 bg-gray-900 px-4 py-3">
               <Skeleton className="h-4 w-24" />
             </div>
             {[1, 2, 3].map(j => (
