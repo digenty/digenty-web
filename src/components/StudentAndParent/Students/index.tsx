@@ -100,7 +100,7 @@ export const StudentsTable = () => {
   const { data: distribution } = useGetStudentsDistribution(filter?.branchSelected?.id);
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses();
-  const { data: arms, isPending: loadingArms } = useGetArmsByClass(filter?.classSelected?.id);
+  const { data: arms, isPending: loadingArms } = useGetArmsByClass(filter?.classSelected?.id || null);
 
   const { mutate, isPending: exporting } = useExportStudents({
     armId: filter.armSelected?.id,

@@ -8,6 +8,7 @@ export const subjectKeys = {
   addSubject: ["addSubject"] as const,
   deleteSubject: ["deleteSubject"] as const,
   subjectsByLevel: (levelType?: LevelType, branchId?: number) => ["subjectsByLevel", levelType, branchId] as const,
+  subjectsByClass: (className?: string, levelType?: string, branchId?: number) => ["subjectsByClass", className, levelType, branchId] as const,
 };
 
 export const REPORT_STATUS_CONFIG = {

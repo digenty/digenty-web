@@ -45,7 +45,7 @@ export const DeleteClass = ({ setOpenDeleteModal, open, classId }: DeleteClassPr
     <Button
       disabled={!confirmed}
       onClick={handleDelete}
-      className="bg-bg-state-destructive! hover:bg-bg-state-destructive-hover! text-text-white-default! h-7!"
+      className="bg-bg-state-destructive! hover:bg-bg-state-destructive-hover! text-text-white-default! disabled:bg-bg-state-destructive-hover! h-7! cursor-pointer disabled:cursor-not-allowed"
     >
       {isPending && <Spinner className="text-text-white-default size-4" />}
       Delete Class

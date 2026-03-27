@@ -195,7 +195,7 @@ export const General = () => {
             onChange={handleFileChange}
             aria-label="Upload school logo"
           />
-          <Avatar className="border-border-default size-10 border" url={logoUrl || "/staff/images/profile-picture.png"} />
+          <Avatar className="border-border-default size-10 border" url={logoUrl || "/images/profile-picture.png"} />
           <Button
             onClick={handleUploadClick}
             disabled={isUploading}

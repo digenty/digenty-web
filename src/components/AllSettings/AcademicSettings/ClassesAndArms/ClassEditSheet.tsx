@@ -1,6 +1,5 @@
 import { ClassLevel } from "@/api/types";
 import { CloseFill } from "@/components/Icons/CloseFill";
-import Settings4 from "@/components/Icons/Settings4";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
@@ -8,12 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetArmsByLevel, useDeleteArm, useAddArm } from "@/hooks/queryHooks/useArm";
+import { useAddArmToClass, useDeleteArmFromClass, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
+import { useGetClassDetails, useUpdateClass } from "@/hooks/queryHooks/useClass";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
-import { useAddSubject, useDeleteSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
+import { useAddSubjectToClass, useDeleteSubjectFromClass, useGetSubjectsByClass } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -21,22 +20,18 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as yup from "yup";
 
-const startclasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
-const endClasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
-export const ClassQuickSetupSheet = ({
+export const ClassEditSheet = ({
   level,
-  branchSpecific,
-  setActiveLevel,
   branchId,
   sheetOpen,
   setSheetOpen,
+  classId,
 }: {
-  level: ClassLevel;
-  branchSpecific: boolean;
-  setActiveLevel: (level: ClassLevel) => void;
+  level: ClassLevel | null;
   branchId?: number;
   sheetOpen: boolean;
   setSheetOpen: (open: boolean) => void;
+  classId: number | null;
 }) => {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
@@ -48,13 +43,14 @@ export const ClassQuickSetupSheet = ({
   const isMobile = useIsMobile();
 
   const { mutate, isPending } = useUpdateLevel();
-  const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubject();
-  const { mutate: deleteSubject } = useDeleteSubject();
-  const { mutate: deleteArm } = useDeleteArm();
-  const { mutate: mutateArm, isPending: isAddingArm } = useAddArm();
-
-  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.levelType, branchId);
-  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.levelType, branchId);
+  const { mutate: updateClass, isPending: isUpdatingClass } = useUpdateClass();
+  const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubjectToClass();
+  const { mutate: deleteSubject } = useDeleteSubjectFromClass();
+  const { mutate: deleteArm } = useDeleteArmFromClass();
+  const { mutate: mutateArm, isPending: isAddingArm } = useAddArmToClass();
+  const { data: classData, isLoading: isLoadingClass } = useGetClassDetails(classId);
+  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByClass(classData?.data?.name, level?.levelType, branchId);
+  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByClass(classId);
 
   useEffect(() => {
     if (subjectsData) {
@@ -77,57 +73,40 @@ export const ClassQuickSetupSheet = ({
 
   const formik = useFormik({
     initialValues: {
-      levelName: level?.levelName || "",
-      classNamePrefix: level?.classNamePrefix || "",
-      startClass: level?.classStart,
-      endClass: level?.classEnd,
+      className: classData?.data?.name || "",
       subject: "",
       arm: "",
       department: "",
     },
     enableReinitialize: true,
     validationSchema: yup.object({
-      levelName: yup.string().required("Level name is required"),
-      classNamePrefix: yup.string().required("Class name prefix is required"),
-      startClass: yup.string().required("Start class is required"),
-      endClass: yup.string().required("End class is required"),
+      className: yup.string().required("Class name is required"),
     }),
     onSubmit: values => {
-      mutate(
-        {
-          levelId: level?.id,
-          levelName: values.levelName,
-          levelType: level?.levelType,
-          classNamePrefix: values.classNamePrefix,
-          classStart: values.startClass,
-          classEnd: values.endClass,
-          branchSpecific,
-        },
-        {
-          onSuccess: () => {
-            setActiveLevel({
-              ...level,
-              levelName: values.levelName,
-              classNamePrefix: values.classNamePrefix,
-              classStart: values.startClass,
-              classEnd: values.endClass,
-            });
-            // setSheetOpen(false);
-            toast({
-              title: "Level updated successfully",
-              description: "The level has been updated",
-              type: "success",
-            });
+      if (values.className !== classData?.data?.name) {
+        updateClass(
+          { classId, name: values.className },
+          {
+            onSuccess: () => {
+              toast({
+                title: "Class updated",
+                description: "The class name has been updated successfully",
+                type: "success",
+              });
+              setSheetOpen(false);
+            },
+            onError: error => {
+              toast({
+                title: "Failed to update class",
+                description: (error as { message?: string })?.message || "Could not update class",
+                type: "error",
+              });
+            },
           },
-          onError: error => {
-            toast({
-              title: "Failed to update level",
-              description: error?.message || "Could not update level",
-              type: "error",
-            });
-          },
-        },
-      );
+        );
+      } else {
+        setSheetOpen(false);
+      }
     },
   });
 
@@ -141,20 +120,20 @@ export const ClassQuickSetupSheet = ({
       .filter(str => str !== "" && !subjects.includes(str));
 
     mutateSubject(
-      { names: newSubjects, levelType: level?.levelType, branchId, branchSpecific },
+      { names: newSubjects, className: classData?.data?.name, levelType: level?.levelType || "" },
       {
         onSuccess: () => {
           setSubjects(prev => [...prev, ...newSubjects]);
           toast({
-            title: "Subject(s) added",
-            description: `Subjects have been updated successfully`,
+            title: "Subjects added",
+            description: `Subject(s) have been added successfully`,
             type: "success",
           });
         },
         onError: error => {
           toast({
-            title: "Failed to add subject",
-            description: (error as { message?: string })?.message || `Could not add "${name}"`,
+            title: "Failed to add subjects",
+            description: (error as { message?: string })?.message || `Could not add subjects`,
             type: "error",
           });
         },
@@ -169,10 +148,10 @@ export const ClassQuickSetupSheet = ({
 
     const subjectObj = subjectsList.find((s: { id: number; name: string }) => s.name === subjectToRemove);
 
-    if (subjectObj && level?.id) {
+    if (subjectObj && classId) {
       setDeletingSubjectName(subjectToRemove);
       deleteSubject(
-        { subjectId: subjectObj.id, levelId: level.id },
+        { subjectId: subjectObj.id, classId: classId },
         {
           onSuccess: () => {
             setSubjects(subjects.filter(subject => subject !== subjectToRemove));
@@ -208,20 +187,20 @@ export const ClassQuickSetupSheet = ({
     if (!newArms.length) return;
 
     mutateArm(
-      { names: newArms, levelType: level.levelType, branchId, branchSpecific },
+      { names: newArms, className: classData?.data?.name, levelType: level?.levelType || "" },
       {
         onSuccess: () => {
           setArms(prev => [...prev, ...newArms]);
           toast({
-            title: "Arm(s) added",
-            description: `Arms have been updated successfully`,
+            title: "Arms added",
+            description: `Arm(s) have been added successfully`,
             type: "success",
           });
         },
         onError: error => {
           toast({
-            title: "Failed to add arm",
-            description: (error as { message?: string })?.message || `Could not add "${name}"`,
+            title: "Failed to add arms",
+            description: (error as { message?: string })?.message || `Could not add arms`,
             type: "error",
           });
         },
@@ -232,14 +211,13 @@ export const ClassQuickSetupSheet = ({
   };
 
   const removeArm = (armToRemove: string) => {
-    const armsList = armsData?.data[0]?.arms || [];
+    const armsList = armsData?.data || [];
 
     const armObj = armsList.find((a: { id: number; name: string }) => a.name === armToRemove);
-
-    if (armObj && level?.id) {
+    if (armObj && classId) {
       setDeletingArmName(armToRemove);
       deleteArm(
-        { armId: armObj.id, levelId: level.id },
+        { armId: armObj.id, classId: classId },
         {
           onSuccess: () => {
             setArms(arms.filter(arm => arm !== armToRemove));
@@ -283,107 +261,30 @@ export const ClassQuickSetupSheet = ({
   const contentNode = (
     <div className={cn("flex w-full flex-col gap-6 py-6", isMobile ? "px-4" : "px-6")}>
       <div className="text-text-default flex flex-col gap-2 text-xl font-semibold">
-        <span>Customize Level</span>
-        <p className="text-text-muted text-sm font-normal">
-          This level setup establishes default class labels, ranges, subjects, and arms for all classes in the level. Once created, each individual
-          class can still be customized as needed
-        </p>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="levelName" className="text-text-default text-sm font-medium">
-          Level name<small className="text-text-destructive text-xs">*</small>
-        </Label>
-        <Input
-          id="levelName"
-          onChange={handleChange}
-          placeholder={`${level?.levelName.replaceAll("_", " ").toLowerCase()}`}
-          onBlur={handleBlur}
-          value={values.levelName.replaceAll("_", " ").toLowerCase()}
-          type="text"
-          className={cn(
-            "text-text-muted bg-bg-input-soft! border-none text-sm font-normal capitalize",
-            errors.levelName && touched.levelName && "border-border-destructive border",
-          )}
-        />
-        {touched.levelName && errors.levelName && typeof errors.levelName === "string" && (
-          <p className="text-text-destructive text-xs font-light">{errors.levelName}</p>
-        )}
+        <span>Customize Class</span>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="classNamePrefix" className="text-text-default text-sm font-medium">
-          Class Label<small className="text-text-destructive text-xs">*</small>
-        </Label>
-        <Input
-          id="classNamePrefix"
-          onChange={handleChange}
-          placeholder="Enter class label"
-          onBlur={handleBlur}
-          value={values.classNamePrefix}
-          type="text"
-          className={cn(
-            "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
-            errors.classNamePrefix && touched.classNamePrefix && "border-border-destructive border",
+      <div className="border-border-default border-b pb-6">
+        <div className="space-y-2">
+          <Label htmlFor="className" className="text-text-default text-sm font-medium">
+            Class Name
+          </Label>
+          <Input
+            id="className"
+            onChange={handleChange}
+            placeholder={classData?.data?.name}
+            onBlur={handleBlur}
+            value={values.className}
+            type="text"
+            className={cn(
+              "text-text-muted bg-bg-input-soft! border-none text-sm font-normal capitalize",
+              errors.className && touched.className && "border-border-destructive border",
+            )}
+          />
+          {touched.className && errors.className && typeof errors.className === "string" && (
+            <p className="text-text-destructive text-xs font-light">{errors.className}</p>
           )}
-        />
-        {touched.classNamePrefix && errors.classNamePrefix && typeof errors.classNamePrefix === "string" && (
-          <p className="text-text-destructive text-xs font-light">{errors.classNamePrefix}</p>
-        )}
-        <small className="text-text-muted text-xs">Select the label that appears before the class number or type a custom one</small>
-      </div>
-
-      <div className="border-border-default flex flex-col gap-6 border-b pb-6">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex w-full flex-col gap-2">
-            <Select value={`${values.startClass}`} onValueChange={startClass => formik.setFieldValue("startClass", startClass)}>
-              <div className="flex flex-col gap-2">
-                <Label className="text-text-default text-sm font-medium">Start level</Label>
-                <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
-                  <SelectValue>
-                    <span className="text-text-muted text-sm font-normal">{values.startClass ? values.startClass : "Select start level"}</span>
-                  </SelectValue>
-                </SelectTrigger>
-              </div>
-              <SelectContent className="bg-bg-card border-border-default">
-                {startclasses.map(str => (
-                  <SelectItem key={str} value={str} className="text-text-default text-sm font-medium">
-                    {str}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <span className="text-text-muted text-xs">The first class number in this level</span>
-          </div>
-          <div className="flex w-full flex-col gap-2">
-            <Select value={`${values.endClass}`} onValueChange={endClass => formik.setFieldValue("endClass", endClass)}>
-              <div className="flex flex-col gap-2">
-                <Label className="text-text-default text-sm font-medium">End level</Label>
-                <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
-                  <SelectValue>
-                    <span className="text-text-muted text-sm font-normal">{values.endClass ? values.endClass : "Select end level"}</span>
-                  </SelectValue>
-                </SelectTrigger>
-              </div>
-              <SelectContent className="bg-bg-card border-border-default">
-                {endClasses.map(str => (
-                  <SelectItem key={str} value={str} className="text-text-default text-sm font-medium">
-                    {str}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <span className="text-text-muted text-xs">The last class number in this level</span>
-          </div>
         </div>
-
-        <Button
-          type="button"
-          onClick={() => formik.handleSubmit()}
-          className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 self-end rounded-sm px-2 py-1"
-        >
-          {isPending && <Spinner className="text-text-white-default" />}
-          Save
-        </Button>
       </div>
 
       <div className="flex flex-col gap-6">
@@ -656,7 +557,7 @@ export const ClassQuickSetupSheet = ({
 
               {contentNode}
 
-              {/* <SheetFooter className="border-border-default border-t pb-8">
+              <SheetFooter className="border-border-default border-t pb-8">
                 <div className="flex items-center justify-between">
                   <SheetClose asChild>
                     <Button
@@ -671,11 +572,11 @@ export const ClassQuickSetupSheet = ({
                     onClick={() => formik.handleSubmit()}
                     className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
                   >
-                    {isPending && <Spinner className="text-text-white-default" />}
+                    {(isPending || isUpdatingClass) && <Spinner className="text-text-white-default" />}
                     Save
                   </Button>
                 </div>
-              </SheetFooter> */}
+              </SheetFooter>
             </SheetContent>
           </div>
         </Sheet>
@@ -685,7 +586,7 @@ export const ClassQuickSetupSheet = ({
       {isMobile && (
         <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Quick Setup">
           {contentNode}
-          {/* <SheetFooter className="border-border-default border-t">
+          <SheetFooter className="border-border-default border-t">
             <div className="flex items-center justify-between">
               <SheetClose asChild>
                 <Button
@@ -700,11 +601,11 @@ export const ClassQuickSetupSheet = ({
                 onClick={() => formik.handleSubmit()}
                 className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
               >
-                {isPending && <Spinner className="text-text-white-default" />}
+                {(isPending || isUpdatingClass) && <Spinner className="text-text-white-default" />}
                 Save
               </Button>
             </div>
-          </SheetFooter> */}
+          </SheetFooter>
         </MobileDrawer>
       )}
     </div>
