@@ -53,9 +53,9 @@ export const CSVUpload = ({
 
   const handleCSVDownload = () => {
     if (entity === "Students") {
-      window.location.href = `/staff/templates/student-upload-template.csv`;
+      window.location.href = `/templates/student-upload-template.csv`;
     } else {
-      window.location.href = `/staff/templates/parent-upload-template.csv`;
+      window.location.href = `/templates/parent-upload-template.csv`;
     }
   };
   const [fileError, setFileError] = useState<string | null>(null);
