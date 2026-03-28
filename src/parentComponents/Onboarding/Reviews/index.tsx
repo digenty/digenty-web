@@ -3,6 +3,7 @@ import { StudentReview } from "./StudentReview";
 import { ParentReview } from "./ParentReview";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useGetParent } from "@/hooks/queryHooks/useParent";
 
 const tabs = ["Your Details", "Student Details"];
 
@@ -10,6 +11,7 @@ export const Review = () => {
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const router = useRouter();
   const pathname = usePathname();
+  const { data, isLoading } = useGetParent();
 
   return (
     <div className="border-border-default flex flex-col gap-4 rounded-md border px-4">
@@ -33,7 +35,7 @@ export const Review = () => {
       </div>
 
       <div className="pt-4">
-        {activeTab === "Your Details" && <ParentReview />}
+        {activeTab === "Your Details" && <ParentReview data={data} isLoading={isLoading} />}
         {activeTab === "Student Details" && <StudentReview />}
       </div>
 
@@ -41,12 +43,14 @@ export const Review = () => {
         <Button onClick={() => router.back()} className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-8">
           Back
         </Button>
-        <Button
-          onClick={() => router.push(`${pathname}?success`)}
-          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8"
-        >
-          Submit
-        </Button>
+        {data && (
+          <Button
+            onClick={() => router.push(`${pathname}?success`)}
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8"
+          >
+            Submit
+          </Button>
+        )}
       </div>
     </div>
   );

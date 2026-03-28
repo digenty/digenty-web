@@ -1,5 +1,6 @@
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
+import { useGetStudent } from "@/hooks/queryHooks/useStudent";
 import { Pencil } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
@@ -7,6 +8,7 @@ import React from "react";
 export const StudentReview = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { data, isLoading } = useGetStudent();
   return (
     <div className="border-border-default flex flex-col gap-6 rounded-md border">
       <div className="border-border-default border-b">
