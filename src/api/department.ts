@@ -12,3 +12,15 @@ export const getDepartmentsForASchool = async () => {
     throw error;
   }
 };
+
+export const addDepartmentsToLevel = async (payload: { names: string[]; levelType: string; branchId: number; branchSpecific: boolean }) => {
+  try {
+    const { data } = await api.post("/departments/level", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

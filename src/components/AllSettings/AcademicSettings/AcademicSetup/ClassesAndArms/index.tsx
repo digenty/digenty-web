@@ -119,7 +119,6 @@ function ClassesResponsiveTabs({
   const [sheetOpen, setSheetOpen] = React.useState(false);
 
   const { data: classesByLevelData, isPending } = useGetClassesByLevel(activeLevel?.id);
-
   const Classes = () => {
     return (
       <>
@@ -200,15 +199,15 @@ function ClassesResponsiveTabs({
 
         {!isPending && classesByLevelData && activeLevel?.levelType === "SENIOR_SECONDARY" && (
           <div className="mt-8 flex flex-col gap-6">
-            {classesByLevelData?.data?.map((clss: ClassInLevel) => (
-              <div key={clss.id} className="bg-bg-state-soft rounded-md p-1">
+            {classesByLevelData?.data?.content?.map((clss: ClassInLevelDetails) => (
+              <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
                 <div className="flex items-center justify-between px-5 py-2">
-                  <div className="text-text-default text-sm font-medium">{clss.name} </div>
+                  <div className="text-text-default text-sm font-medium">{clss.className} </div>
                   <div className="flex items-center gap-2">
                     <Button
                       onClick={() => {
-                        setClassId(clss.id);
                         setOpenDelete(true);
+                        setClassId(clss.classId);
                       }}
                       className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
                     >

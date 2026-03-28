@@ -455,7 +455,7 @@ export const ClassQuickSetupSheet = ({
                           <Input
                             type="text"
                             className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
-                            placeholder="Add Department"
+                            placeholder={`Add Subjects to ${dept}`}
                           />
                           <Button className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs">
                             Add

@@ -74,8 +74,9 @@ export const useAddSubjectToClass = () => {
   return useMutation({
     mutationFn: addSubjectToClass,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
+      // queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
       queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
   });
 };
