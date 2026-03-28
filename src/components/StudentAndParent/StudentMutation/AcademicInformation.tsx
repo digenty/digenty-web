@@ -151,7 +151,7 @@ export const AcademicInformation = ({ formik }: { formik: FormikProps<StudentInp
             <Select
               disabled={!classId}
               onValueChange={value => {
-                const arm = arms.data?.content?.find((arm: Arm) => arm.uuid === value);
+                const arm = arms.data?.find((arm: Arm) => arm.uuid === value);
                 formik.setFieldValue("armId", arm.id);
               }}
             >
