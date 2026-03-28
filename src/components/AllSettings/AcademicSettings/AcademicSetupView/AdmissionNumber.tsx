@@ -1,15 +1,15 @@
 "use client";
 
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import Edit from "@/components/Icons/Edit";
+import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "@/components/Toast";
 import { useGetAdmissionNumberDetails, useUpdateAdmissionNumber } from "@/hooks/queryHooks/useAdmisssion";
-import React, { useEffect, useState } from "react";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { useEffect, useState } from "react";
 
 const DIGITS = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 

@@ -1,27 +1,24 @@
 "use client";
 
-import { AddFill } from "@/components/Icons/AddFill";
-import Calendar from "@/components/Icons/Calendar";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { AcademicAssAndGradeSetupDone } from "./AcademicAssAndGradeSetupDone";
-import { AcademicDoneClassAndArms } from "./AcademicDoneClassAndArms";
-import { AdmissionNumberSetupDone } from "./AcademicNumberDoneSetup";
-import { SchoolSectionAndTerm } from "./SchoolSectionTerm";
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { AcademicSession } from "@/api/types";
-import { AcademicSetup } from "..";
-import { ViewTimelineT } from "@/components/Icons/ViewTimelineT";
+import { AddFill } from "@/components/Icons/AddFill";
 import { ArrowRightCircleFill } from "@/components/Icons/ArrowRightCircleFill";
+import { ViewTimelineT } from "@/components/Icons/ViewTimelineT";
+import { Button } from "@/components/ui/button";
+import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { AdmissionNumberSetupDone } from "./AdmissionNumber";
+import { AcademicDoneClassAndArms } from "./ClassesAndArms";
+import { AcademicAssAndGradeSetupDone } from "./GradingAndAssessment";
+import { SchoolSectionAndTerm } from "./SchoolSectionTerm";
 const termsOptions = ["24/25 Session", "24/25 Session", "24/25 Session"];
 const tabs = ["School, Session & Term", "Classes & Arms", "Assessment & Grading", "Admission Number"] as const;
 type Tab = (typeof tabs)[number];
 
-export const AcademicAllSetupDone = () => {
+export const AcademicSetupView = () => {
   const route = useRouter();
   useBreadcrumb([
     { label: "Settings", url: "/staff/settings" },

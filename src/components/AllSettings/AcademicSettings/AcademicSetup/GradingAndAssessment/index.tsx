@@ -25,6 +25,7 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { levelFormSchema } from "@/schema/academic";
 import { usePathname, useRouter } from "next/navigation";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 export type GradingAndAssessmentHandle = {
   submit: () => Promise<boolean>;
@@ -215,7 +216,7 @@ const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: 
                             onBlur={handleBlur}
                             type="number"
                             placeholder="70"
-                            className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent text-sm"
+                            className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent px-0! pl-1 text-sm"
                           />
                         </div>
                         <div className="text-text-subtle w-1">-</div>
@@ -471,6 +472,11 @@ export const GradingAndAssessment = ({
   const [branchSpecific, setBranchSpecific] = useState(false);
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
+
+  useBreadcrumb([
+    { label: "Academic Settings", url: "/staff/settings/academic" },
+    { label: "Grading and Assessment", url: "/staff/settings/academic?step=grading-and-assessment" },
+  ]);
 
   const { data: classLevelData, isLoading } = useGetLevels(activeBranch?.id);
   const branchLevels: Level[] = React.useMemo(() => classLevelData?.data ?? [], [classLevelData]);
