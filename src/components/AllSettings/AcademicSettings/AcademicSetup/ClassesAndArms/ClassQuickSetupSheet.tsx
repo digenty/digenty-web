@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetArmsByLevel, useDeleteArm, useAddArm } from "@/hooks/queryHooks/useArm";
+import { useAddDepartmentsToLevel, useDeleteDepartmentFromLevel, useGetDepartmentsByLevel } from "@/hooks/queryHooks/useDepartment";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubject, useDeleteSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -45,17 +46,24 @@ export const ClassQuickSetupSheet = ({
   const [armsEnabled, setArmsEnabled] = useState(false);
   const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
   const [deletingArmName, setDeletingArmName] = useState<string | null>(null);
+  const [deletingDepartmentName, setDeletingDepartmentName] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   const { mutate, isPending } = useUpdateLevel();
   const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubject();
   const { mutate: deleteSubject } = useDeleteSubject();
+
   const { mutate: deleteArm } = useDeleteArm();
   const { mutate: mutateArm, isPending: isAddingArm } = useAddArm();
 
+  const { mutate: deleteDepartment } = useDeleteDepartmentFromLevel();
+  const { mutate: mutateDepartment, isPending: isAddingDepartment } = useAddDepartmentsToLevel();
+
   const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.levelType, branchId);
   const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.levelType, branchId);
+  const { data: departmentsData, isFetching: isLoadingDepartments } = useGetDepartmentsByLevel(level?.levelType, branchId);
 
+  console.log(departmentsData?.data[0]?.departments);
   useEffect(() => {
     if (subjectsData) {
       const names: string[] = Array.isArray(subjectsData?.data[0]?.subjects)
@@ -74,6 +82,18 @@ export const ClassQuickSetupSheet = ({
       setArmsEnabled(true);
     }
   }, [armsData]);
+
+  useEffect(() => {
+    if (departmentsData) {
+      const names: string[] = Array.isArray(departmentsData?.data[0]?.departments)
+        ? departmentsData?.data[0]?.departments.map((s: { name: string }) => s.name)
+        : (departmentsData?.content ?? departmentsData?.data ?? []).map((s: { name: string }) => s.name);
+      setDepartments(names);
+      if (names.length > 0) {
+        setDepartmentsEnabled(true);
+      }
+    }
+  }, [departmentsData]);
 
   const formik = useFormik({
     initialValues: {
@@ -271,13 +291,63 @@ export const ClassQuickSetupSheet = ({
       .split(",")
       .map(str => str.trim().replace(/^,+|,+$/g, ""))
       .filter(str => str !== "" && !departments.includes(str));
+    console.log(newDepartments);
 
-    setDepartments([...departments, ...newDepartments]);
+    mutateDepartment(
+      { names: newDepartments, levelType: level?.levelType, branchId, branchSpecific },
+      {
+        onSuccess: () => {
+          setDepartments([...departments, ...newDepartments]);
+          toast({
+            title: "Department(s) added",
+            description: `Departments have been updated successfully`,
+            type: "success",
+          });
+        },
+        onError: error => {
+          toast({
+            title: "Failed to add department",
+            description: (error as { message?: string })?.message || `Could not add "${name}"`,
+            type: "error",
+          });
+        },
+      },
+    );
     formik.setFieldValue("department", "");
   };
 
   const removeDepartment = (departmentToRemove: string) => {
-    setDepartments(departments.filter(department => department !== departmentToRemove));
+    const departmentsList = departmentsData?.data[0]?.departments || [];
+
+    const departmentObj = departmentsList.find((d: { id: number; name: string }) => d.name === departmentToRemove);
+
+    if (departmentObj && level?.id) {
+      setDeletingDepartmentName(departmentToRemove);
+      deleteDepartment(
+        { departmentId: departmentObj.id, levelId: level.id },
+        {
+          onSuccess: () => {
+            setDepartments(departments.filter(department => department !== departmentToRemove));
+            setDeletingDepartmentName(null);
+            toast({
+              title: "Department deleted",
+              description: `"${departmentToRemove}" has been deleted successfully`,
+              type: "success",
+            });
+          },
+          onError: error => {
+            setDeletingDepartmentName(null);
+            toast({
+              title: "Failed to delete department",
+              description: (error as { message?: string })?.message || `Could not delete "${departmentToRemove}"`,
+              type: "error",
+            });
+          },
+        },
+      );
+    } else {
+      setDepartments(departments.filter(department => department !== departmentToRemove));
+    }
   };
 
   const contentNode = (
@@ -420,7 +490,12 @@ export const ClassQuickSetupSheet = ({
                       }}
                       className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
                     />
-                    <Button className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs">
+                    <Button
+                      type="button"
+                      onClick={() => addDepartment(formik.values.department)}
+                      className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+                    >
+                      {isAddingDepartment && <Spinner className="text-text-white-default size-3" />}
                       Add
                     </Button>
                   </div>
@@ -432,11 +507,21 @@ export const ClassQuickSetupSheet = ({
                         className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                       >
                         <span className="text-text-subtle text-xs">{department}</span>{" "}
-                        <CloseFill
-                          onClick={() => removeDepartment(department)}
-                          fill="var(--color-icon-default-muted)"
-                          className="size-2! cursor-pointer"
-                        />
+                        <button
+                          type="button"
+                          className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
+                          disabled={deletingDepartmentName === department}
+                          onClick={e => {
+                            e.preventDefault();
+                            removeDepartment(department);
+                          }}
+                        >
+                          {deletingDepartmentName === department ? (
+                            <Spinner className="text-text-subtle size-2" />
+                          ) : (
+                            <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
+                          )}
+                        </button>
                       </Badge>
                     ))}
                   </div>

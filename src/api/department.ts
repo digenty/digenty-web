@@ -24,3 +24,27 @@ export const addDepartmentsToLevel = async (payload: { names: string[]; levelTyp
     throw error;
   }
 };
+
+export const getDepartmentsByLevel = async (levelType?: string, branchId?: number) => {
+  try {
+    const { data } = await api.get(`/departments/level?levelType=${levelType}${branchId ? `&branchId=${branchId}` : ""}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const deleteDepartmentFromLevel = async (departmentId: number, levelId: number) => {
+  try {
+    const { data } = await api.delete(`/departments/level?departmentId=${departmentId}&levelId=${levelId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

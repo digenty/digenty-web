@@ -14,6 +14,7 @@ import { AdmissionNumberSetupDone } from "./AdmissionNumber";
 import { AcademicDoneClassAndArms } from "./ClassesAndArms";
 import { AcademicAssAndGradeSetupDone } from "./GradingAndAssessment";
 import { SchoolSectionAndTerm } from "./SchoolSectionTerm";
+import { Skeleton } from "@/components/ui/skeleton";
 const termsOptions = ["24/25 Session", "24/25 Session", "24/25 Session"];
 const tabs = ["School, Session & Term", "Classes & Arms", "Assessment & Grading", "Admission Number"] as const;
 type Tab = (typeof tabs)[number];
@@ -30,9 +31,16 @@ export const AcademicSetupView = () => {
   const { data: academicResponse, isLoading: isLoadingSession } = useGetActiveSession();
   const session: AcademicSession | undefined = academicResponse?.data;
 
+  console.log(session, academicResponse);
+
   return (
     <div>
-      {!session && (
+      {isLoadingSession && !session && (
+        <div className="p-4 md:p-8">
+          <Skeleton className="bg-bg-state-soft! h-200 w-full" />
+        </div>
+      )}
+      {!session && !isLoadingSession && (
         <div className="flex h-screen items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <ViewTimelineT />

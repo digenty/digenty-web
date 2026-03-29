@@ -134,6 +134,7 @@ function ClassesResponsiveTabs({ items }: { items: { label: string; content: Rea
 
 export const AcademicDoneClassAndArms = () => {
   const [activeTab, setActiveTab] = useState<Tab>("Lawanson");
+
   return (
     <div className="mx-auto flex w-full items-center justify-center">
       <div className="w-full">
