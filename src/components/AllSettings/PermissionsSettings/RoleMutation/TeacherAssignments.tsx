@@ -9,7 +9,7 @@ export const TeacherAssignments = () => {
       <div className="border-border-default my-6 flex w-full flex-col gap-4 rounded-md border p-4 md:p-6">
         <div className="flex flex-col gap-1">
           <div className="text-text-default text-lg font-semibold">Teacher Assignments</div>
-          <div className="text-text-subtle text-sm">
+          <div className="text-text-subtle text-sm font-normal">
             Set up class and subject teacher assignments. Academic permissions are automatically granted based on these assignments.
           </div>
         </div>
@@ -26,7 +26,7 @@ export const TeacherAssignments = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Toggle />
+            <Toggle withBorder={false} />
           </div>
         </div>
         <div className="border-border-default w-full border-b"></div>
@@ -53,15 +53,20 @@ export const TeacherAssignments = () => {
         <div className="text-text-subtle text-xs">Once assignments are made, the following permissions are automatically granted:</div>
         <ul className="flex list-disc flex-col gap-2 pl-4">
           <li className="text-text-subtle">
-            <div className="font-medium"> Class Teachers:</div> View results, input scores, and comment on results for assigned classes
+            <span className="text-text-subtle text-xs font-semibold"> Class Teachers:</span>{" "}
+            <span className="text-text-subtle text-xs font-normal">View results, input scores, and comment on results for assigned classes</span>
           </li>
 
           <li className="text-text-subtle">
-            <div className="font-medium"> Subject Teachers:</div> View results, input scores, and comment on results for assigned subjects and classes
+            <span className="text-text-subtle text-xs font-semibold"> Subject Teachers:</span>{" "}
+            <span className="text-text-subtle text-xs font-normal">
+              View results, input scores, and comment on results for assigned subjects and classes
+            </span>
           </li>
 
           <li className="text-text-subtle">
-            <div className="font-medium">  Principals/Admins:</div> All academic permissions including approval rights
+            <span className="text-text-subtle text-xs font-semibold">  Principals/Admins:</span>{" "}
+            <span className="text-text-subtle text-xs font-normal">All academic permissions including approval rights</span>
           </li>
         </ul>
       </div>

@@ -761,3 +761,17 @@ export interface PrincipalsComment {
   maxPercentage: number;
   minPercentage: number;
 }
+
+export interface StaffBranch {
+  branchId: number;
+  branchName: string;
+  roleNames: string[];
+  subjectTeachings: string[];
+  classTeacherArms: string[];
+  permissions: [
+    {
+      moduleName: string;
+      permissions: string[];
+    },
+  ];
+}

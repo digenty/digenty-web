@@ -18,20 +18,8 @@ import { useStaffStore } from "@/store/staff";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { DeactivateStaffModal } from "./DeactivateStaffModal";
+import { StaffBranch } from "@/api/types";
 
-type StaffBranch = {
-  branchId: number;
-  branchName: string;
-  roleNames: string[];
-  subjectTeachings: string[];
-  classTeacherArms: string[];
-  permissions: [
-    {
-      moduleName: string;
-      permissions: string[];
-    },
-  ];
-};
 export const StaffDetails = () => {
   const router = useRouter();
   const pathname = usePathname();
@@ -68,7 +56,6 @@ export const StaffDetails = () => {
       },
     });
   };
-  console.log(data);
 
   return (
     <>
@@ -131,12 +118,12 @@ export const StaffDetails = () => {
                 >
                   <UserForbid fill="var(--color-icon-default-muted)" className="size-4" /> Deactivate
                 </Button>
-                <Button
+                {/* <Button
                   onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staffId}`)}
                   className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
                 >
                   <Edit fill="var(--color-icon-default-muted)" className="size-4" /> Edit Staff
-                </Button>
+                </Button> */}
               </div>
             </div>
 
