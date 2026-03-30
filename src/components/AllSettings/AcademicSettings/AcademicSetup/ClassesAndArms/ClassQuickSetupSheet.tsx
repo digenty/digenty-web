@@ -291,7 +291,7 @@ export const ClassQuickSetupSheet = ({
       .split(",")
       .map(str => str.trim().replace(/^,+|,+$/g, ""))
       .filter(str => str !== "" && !departments.includes(str));
-    console.log(newDepartments);
+    console.log(newDepartments, level?.levelType, branchId, branchSpecific, "------");
 
     mutateDepartment(
       { names: newDepartments, levelType: level?.levelType, branchId, branchSpecific },

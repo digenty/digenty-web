@@ -14,8 +14,10 @@ export const getDepartmentsForASchool = async () => {
 };
 
 export const addDepartmentsToLevel = async (payload: { names: string[]; levelType: string; branchId: number; branchSpecific: boolean }) => {
+  console.log("i was called222222");
   try {
     const { data } = await api.post("/departments/level", payload);
+    console.log(data, "######");
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

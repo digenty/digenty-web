@@ -6,37 +6,53 @@ import { GitMergeFill } from "@/components/Icons/GitMergeFill";
 import GraduationCapFill from "@/components/Icons/GraduationCapFill";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Label } from "@/components/ui/label";
 import BookOpen from "@/components/Icons/BookOpen";
 import School from "@/components/Icons/School";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetLevels } from "@/hooks/queryHooks/useLevel";
+import { cn, extractUniqueLevelsByType } from "@/lib/utils";
+import { Branch, BranchWithClassLevels, ClassLevel } from "@/api/types";
+import { Skeleton } from "@/components/ui/skeleton";
+import Loader2Fill from "@/components/Icons/Loader2Fill";
 
-const tabs = ["Lawanson", "Ilasamaja"] as const;
-type Tab = (typeof tabs)[number];
-
-function MobileTabSwitch({ activeTab, setActiveTab }: { activeTab: Tab; setActiveTab: (t: Tab) => void }) {
+function LevelTabSwitch({
+  levels,
+  activeLevel,
+  setActiveLevel,
+}: {
+  levels: ClassLevel[];
+  activeLevel: ClassLevel | null;
+  setActiveLevel: (l: ClassLevel) => void;
+}) {
   const isMobile = useIsMobile();
 
   if (isMobile) {
     return (
       <div className="w-full">
-        <Select value={activeTab} onValueChange={value => setActiveTab(value as Tab)}>
+        <Select
+          value={activeLevel?.levelName || ""}
+          onValueChange={value => {
+            const level = levels.find(l => l.levelName === value);
+            if (level) setActiveLevel(level);
+          }}
+        >
           <Label className="text-text-default mb-2 text-sm font-medium">
             {" "}
-            <School fill="var(--color-icon-default-muted)" /> Select Branch
+            <BookOpen fill="var(--color-icon-default-muted)" /> Select Level
           </Label>
           <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
             <SelectValue>
-              <span className="text-text-default text-sm">{activeTab}</span>
+              <span className="text-text-default text-sm capitalize">{activeLevel?.levelName?.replaceAll("_", " ").toLowerCase()}</span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-bg-default border-border-default">
-            {tabs.map(tab => (
-              <SelectItem key={tab} value={tab} className="text-text-default text-sm">
-                {tab}
+            {levels.map(level => (
+              <SelectItem key={level.levelName} value={level.levelName} className="text-text-default text-sm capitalize">
+                {level.levelName.replaceAll("_", " ").toLowerCase()}
               </SelectItem>
             ))}
           </SelectContent>
@@ -46,94 +62,87 @@ function MobileTabSwitch({ activeTab, setActiveTab }: { activeTab: Tab; setActiv
   }
 
   return (
-    <div className="flex w-auto max-w-64 items-center gap-3">
-      {tabs.map(tab => {
-        const isActive = activeTab === tab;
+    <div className="h-9 w-auto overflow-hidden">
+      <div
+        className="bg-bg-state-soft hide-scrollbar flex max-w-full items-center gap-2.5 overflow-x-auto rounded-full p-0.5"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {levels.map(level => {
+          const isActive = activeLevel?.levelName === level.levelName;
 
-        return (
-          <Button
-            key={tab}
-            type="button"
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              "hover:bg-bg-none! w-1/2 cursor-pointer rounded-none py-2.5 text-center transition-all duration-150",
-              isActive && "border-border-informative border-b-[1.5px]",
-            )}
-          >
-            <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{tab}</span>
-          </Button>
-        );
-      })}
+          return (
+            <button
+              key={level.levelName}
+              type="button"
+              onClick={() => setActiveLevel(level)}
+              className={cn(
+                "transit flex shrink-0 justify-center px-4 py-2 text-sm font-medium whitespace-nowrap capitalize",
+                isActive
+                  ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
+                  : "text-text-muted flex h-8 items-center gap-1",
+              )}
+            >
+              <span>{level.levelName.replaceAll("_", " ").toLowerCase()}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-function ClassesResponsiveTabs({ items }: { items: { label: string; content: React.ReactNode }[] }) {
+function ClassesResponsiveTabs({ levels, activeLevel, branchId }: { levels: ClassLevel[]; activeLevel: ClassLevel | null; branchId?: number }) {
   const isMobile = useIsMobile();
-  const [activeIndex, setActiveIndex] = React.useState(0);
 
+  const Content = () => {
+    if (!activeLevel) return null;
+
+    if (activeLevel.levelType === "SENIOR_SECONDARY") {
+      return <SecondarySetup />;
+    }
+    return <NurserySetup />;
+  };
   if (isMobile) {
     return (
       <div className="w-full">
-        <Label className="text-text-default mb-2 text-sm font-medium">
-          {" "}
-          <BookOpen fill="var(--color-icon-default-muted)" /> Select Class
-        </Label>
-        <Select value={String(activeIndex)} onValueChange={value => setActiveIndex(Number(value))}>
-          <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-            <SelectValue>
-              <span className="text-text-default text-sm">{items[activeIndex].label}</span>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent className="bg-bg-default border-border-default">
-            {items.map((it, idx) => (
-              <SelectItem key={it.label} value={String(idx)} className="text-text-default text-sm">
-                {it.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <div className="mt-4">{items[activeIndex].content}</div>
+        <div className="mt-4">{<Content />}</div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="h-9 w-full md:w-fit">
-        <div className="bg-bg-state-soft flex w-full items-center justify-between gap-2.5 rounded-full p-0.5">
-          {items.map((item, index) => {
-            const isActive = index === activeIndex;
-
-            return (
-              <button
-                key={index}
-                onClick={() => setActiveIndex(index)}
-                className={cn(
-                  "transit flex justify-center px-4 py-2 text-sm font-medium",
-                  isActive
-                    ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
-                    : "text-text-muted flex h-8 items-center gap-1",
-                )}
-              >
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
+    <div className="w-full">
       <div className="mt-4 w-full">
-        <div className="flex w-full">
-          <div className="flex-1">{items[activeIndex].content}</div>
-        </div>
+        <Content />
       </div>
     </div>
   );
 }
 
 export const AcademicDoneClassAndArms = () => {
-  const [activeTab, setActiveTab] = useState<Tab>("Lawanson");
+  const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
+  const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
+
+  const { data: branchesData, isFetching: isLoadingBranches } = useGetBranches();
+  const { data: branchLevelsData } = useGetLevels(activeBranch?.id);
+
+  const levels = extractUniqueLevelsByType(branchLevelsData?.data || []);
+
+  useEffect(() => {
+    if (branchesData?.data?.length > 0 && !activeBranch) {
+      setActiveBranch(branchesData.data[0].branch);
+    }
+  }, [branchesData]);
+
+  useEffect(() => {
+    if (levels.length > 0 && !activeLevel) {
+      setActiveLevel(levels[0]);
+    }
+  }, [levels]);
+
+  console.log(activeBranch, activeLevel, "------");
+
+  const isMobile = useIsMobile();
 
   return (
     <div className="mx-auto flex w-full items-center justify-center">
@@ -145,41 +154,45 @@ export const AcademicDoneClassAndArms = () => {
             <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
           </Button>
         </div>
-        <div className="border-border-default mb-5 flex w-full items-center gap-3">
-          <MobileTabSwitch activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        <div className="mb-5 flex w-auto max-w-64 items-center gap-3">
+          {isLoadingBranches && <Skeleton className="h-9 w-full" />}
+          {branchesData?.data?.map((branchItem: BranchWithClassLevels) => {
+            const branch = branchItem.branch;
+            const isActive = activeBranch?.id === branch.id;
+
+            return (
+              <Button
+                key={branch.id}
+                type="button"
+                onClick={() => setActiveBranch(branch)}
+                className={cn(
+                  "hover:bg-bg-none! w-1/2 cursor-pointer rounded-none py-2.5 text-center transition-all duration-150",
+                  isActive && "border-border-informative border-b-[1.5px]",
+                )}
+              >
+                <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.name}</span>
+                {isActive ? <Loader2Fill fill="var(--color-icon-informative)" /> : <Loader2Fill fill="var(--color-icon-default-muted)" />}
+              </Button>
+            );
+          })}
         </div>
 
-        {activeTab === "Lawanson" && <ClassesSetup />}
-        {activeTab === "Ilasamaja" && <ClassesSetup />}
+        <div className="border-border-default mb-5 flex w-full items-center gap-3">
+          <LevelTabSwitch levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
+        </div>
+
+        <ClassesSetup levels={levels} activeLevel={activeLevel} branchId={activeBranch?.id} />
       </div>
     </div>
   );
 };
 
-export const ClassesSetup = () => {
+export const ClassesSetup = ({ levels, activeLevel, branchId }: { levels: ClassLevel[]; activeLevel: ClassLevel | null; branchId?: number }) => {
   return (
     <div>
       <div className="w-full">
-        <ClassesResponsiveTabs
-          items={[
-            {
-              label: "Nusery",
-              content: <NurserySetup />,
-            },
-            {
-              label: "Primary",
-              content: <NurserySetup />,
-            },
-            {
-              label: "Junior Secondary",
-              content: <NurserySetup />,
-            },
-            {
-              label: "Senior Secondary",
-              content: <SecondarySetup />,
-            },
-          ]}
-        />
+        <ClassesResponsiveTabs levels={levels} activeLevel={activeLevel} branchId={branchId} />
       </div>
     </div>
   );
