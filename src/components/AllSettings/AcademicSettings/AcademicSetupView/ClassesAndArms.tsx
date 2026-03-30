@@ -14,10 +14,14 @@ import BookOpen from "@/components/Icons/BookOpen";
 import School from "@/components/Icons/School";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
+import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
-import { Branch, BranchWithClassLevels, ClassLevel } from "@/api/types";
+import { Branch, BranchWithClassLevels, ClassInLevelDetails, ClassLevel } from "@/api/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import Loader2Fill from "@/components/Icons/Loader2Fill";
+import DeleteBin from "@/components/Icons/DeleteBin";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { ClassesAndArms } from "../AcademicSetup/ClassesAndArms";
 
 function LevelTabSwitch({
   levels,
@@ -94,18 +98,23 @@ function LevelTabSwitch({
 function ClassesResponsiveTabs({ levels, activeLevel, branchId }: { levels: ClassLevel[]; activeLevel: ClassLevel | null; branchId?: number }) {
   const isMobile = useIsMobile();
 
+  const { data: classesByLevelData, isPending: isLoadingClasses } = useGetClassesByLevel(activeLevel?.id);
+
   const Content = () => {
     if (!activeLevel) return null;
 
     if (activeLevel.levelType === "SENIOR_SECONDARY") {
-      return <SecondarySetup />;
+      return <SecondarySetup data={classesByLevelData?.data?.content} isLoading={isLoadingClasses} />;
     }
-    return <NurserySetup />;
+    return <NurserySetup data={classesByLevelData?.data?.content} isLoading={isLoadingClasses} />;
   };
+
   if (isMobile) {
     return (
       <div className="w-full">
-        <div className="mt-4">{<Content />}</div>
+        <div className="mt-4">
+          <Content />
+        </div>
       </div>
     );
   }
@@ -122,6 +131,7 @@ function ClassesResponsiveTabs({ levels, activeLevel, branchId }: { levels: Clas
 export const AcademicDoneClassAndArms = () => {
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const { data: branchesData, isFetching: isLoadingBranches } = useGetBranches();
   const { data: branchLevelsData } = useGetLevels(activeBranch?.id);
@@ -140,50 +150,58 @@ export const AcademicDoneClassAndArms = () => {
     }
   }, [levels]);
 
-  console.log(activeBranch, activeLevel, "------");
-
   const isMobile = useIsMobile();
 
   return (
-    <div className="mx-auto flex w-full items-center justify-center">
-      <div className="w-full">
-        <div className="mb-5 flex w-full items-start justify-between">
-          <div className="text-text-default text-xl font-semibold">Classes & Arms</div>
-
-          <Button className="bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md border p-2">
-            <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
-          </Button>
+    <div>
+      {isEditing ? (
+        <div className="pb-12">
+          <ClassesAndArms isEditing={isEditing} setIsEditing={setIsEditing} />
         </div>
+      ) : (
+        <div className="mx-auto flex w-full items-center justify-center pb-12 md:max-w-200">
+          <div className="w-full">
+            <div className="mb-5 flex w-full items-start justify-between">
+              <div className="text-text-default text-xl font-semibold">Classes & Arms</div>
 
-        <div className="mb-5 flex w-auto max-w-64 items-center gap-3">
-          {isLoadingBranches && <Skeleton className="h-9 w-full" />}
-          {branchesData?.data?.map((branchItem: BranchWithClassLevels) => {
-            const branch = branchItem.branch;
-            const isActive = activeBranch?.id === branch.id;
-
-            return (
               <Button
-                key={branch.id}
-                type="button"
-                onClick={() => setActiveBranch(branch)}
-                className={cn(
-                  "hover:bg-bg-none! w-1/2 cursor-pointer rounded-none py-2.5 text-center transition-all duration-150",
-                  isActive && "border-border-informative border-b-[1.5px]",
-                )}
+                onClick={() => setIsEditing(true)}
+                className="bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md border p-2"
               >
-                <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.name}</span>
-                {isActive ? <Loader2Fill fill="var(--color-icon-informative)" /> : <Loader2Fill fill="var(--color-icon-default-muted)" />}
+                <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
               </Button>
-            );
-          })}
-        </div>
+            </div>
 
-        <div className="border-border-default mb-5 flex w-full items-center gap-3">
-          <LevelTabSwitch levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
-        </div>
+            <div className="mb-5 flex w-auto max-w-64 items-center gap-3">
+              {isLoadingBranches && <Skeleton className="h-9 w-full" />}
+              {branchesData?.data?.map((branchItem: BranchWithClassLevels) => {
+                const branch = branchItem.branch;
+                const isActive = activeBranch?.id === branch.id;
 
-        <ClassesSetup levels={levels} activeLevel={activeLevel} branchId={activeBranch?.id} />
-      </div>
+                return (
+                  <Button
+                    key={branch.id}
+                    type="button"
+                    onClick={() => setActiveBranch(branch)}
+                    className={cn(
+                      "hover:bg-bg-none! w-1/2 cursor-pointer rounded-none py-2.5 text-center transition-all duration-150",
+                      isActive && "border-border-informative border-b-[1.5px]",
+                    )}
+                  >
+                    <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.name}</span>
+                  </Button>
+                );
+              })}
+            </div>
+
+            <div className="border-border-default mb-5 flex w-full items-center gap-3">
+              <LevelTabSwitch levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
+            </div>
+
+            <ClassesSetup levels={levels} activeLevel={activeLevel} branchId={activeBranch?.id} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -198,41 +216,57 @@ export const ClassesSetup = ({ levels, activeLevel, branchId }: { levels: ClassL
   );
 };
 
-export const NurserySetup = () => {
-  const nurseryClasses = [{ id: "n1" }, { id: "n2" }];
+export const NurserySetup = ({ data, isLoading }: { data?: ClassInLevelDetails[]; isLoading: boolean }) => {
+  if (isLoading) return <Skeleton className="bg-bg-state-soft h-80 w-full" />;
+  if (!data || data.length === 0)
+    return (
+      <div className="flex items-center justify-center pt-15">
+        <ErrorComponent title="No classes found for this level" description="Use the Quick Setup to add classes" />
+      </div>
+    );
+
   return (
     <div className="mt-8 flex w-full flex-col gap-6">
-      {nurseryClasses.map(nc => (
-        <div key={nc.id} className="bg-bg-state-soft rounded-md p-1">
+      {data.map(clss => (
+        <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
           <div className="flex items-center justify-between px-5 py-2">
-            <div className="text-text-default text-sm font-medium">Nusery </div>
+            <div className="text-text-default text-sm font-medium capitalize">{clss.className} </div>
           </div>
           <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-6">
             <div className="p-3">
               <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
                 <BookFill fill="var(--color-bg-basic-blue-accent)" /> Subjects
               </div>
               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-                  <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
+                {clss.subjects.length > 0 ? (
+                  clss.subjects.map(sub => (
+                    <Badge
+                      key={sub.id}
+                      className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                    >
+                      {sub.name.toLowerCase()}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-text-muted text-xs">No subjects added</span>
+                )}
               </div>
               <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
-                {" "}
                 <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
               </div>
 
               <div className="flex flex-wrap gap-1">
-                {["A", "B", "C"].map(arm => (
-                  <div key={arm} className="">
-                    <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
-                      {arm}
+                {clss.arms.length > 0 ? (
+                  clss.arms.map(arm => (
+                    <div key={arm.id} className="">
+                      <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
+                        {arm.name}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <span className="text-text-muted text-xs">No arms added</span>
+                )}
               </div>
             </div>
           </div>
@@ -242,70 +276,50 @@ export const NurserySetup = () => {
   );
 };
 
-export const SecondarySetup = () => {
-  const secondaryClasses = [
-    { id: "ss1", name: "SS 1", hasDelete: true },
-    { id: "ss2", name: "SS 1", hasDelete: true },
-  ];
+export const SecondarySetup = ({ data, isLoading }: { data?: ClassInLevelDetails[]; isLoading: boolean }) => {
+  if (isLoading) return <Skeleton className="bg-bg-state-soft h-80 w-full" />;
+  if (!data || data.length === 0)
+    return (
+      <div className="flex items-center justify-center pt-15">
+        <ErrorComponent title="No classes found for this level" description="Use the Quick Setup to add classes" />
+      </div>
+    );
+
   return (
     <div className="mt-8 flex w-full flex-col gap-6">
-      {secondaryClasses.map(sc => (
-        <div key={sc.id} className="bg-bg-state-soft rounded-md p-1">
+      {data.map(clss => (
+        <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
           <div className="flex items-center justify-between px-5 py-2">
-            <div className="text-text-default text-sm font-medium">{sc.name} </div>
+            <div className="text-text-default text-sm font-medium">{clss.className} </div>
             <div className="flex items-center gap-2"></div>
           </div>
           <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-2">
             <div className="p-3">
               <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
                 <GraduationCapFill fill="var(--color-bg-basic-blue-accent) " className="size-4" /> Departments
               </div>
               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-                  <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
+                {/* Departments are currently not explicitly in ClassInLevelDetails, but we can list arms/subjects if relevant */}
+                <span className="text-text-muted text-xs">No department paths configured</span>
               </div>
 
               <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
                 <BookFill fill="var(--color-bg-basic-blue-accent)" />
-                Art Subjects
+                Subjects
               </div>
               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-                  <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
-              </div>
-
-              <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
-                <BookFill fill="var(--color-bg-basic-blue-accent)" />
-                Commercial Subjects
-              </div>
-              <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-                  <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
-              </div>
-
-              <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
-                <BookFill fill="var(--color-bg-basic-blue-accent)" />
-                Science Subjects
-              </div>
-              <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-                  <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
+                {clss.subjects.length > 0 ? (
+                  clss.subjects.map(sub => (
+                    <Badge
+                      key={sub.id}
+                      className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                    >
+                      {sub.name.toLowerCase()}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-text-muted text-xs">No subjects added</span>
+                )}
               </div>
 
               <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
@@ -313,13 +327,17 @@ export const SecondarySetup = () => {
               </div>
 
               <div className="flex flex-wrap gap-1">
-                {["A", "B", "C"].map(arm => (
-                  <div key={arm} className="">
-                    <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
-                      {arm}
+                {clss.arms.length > 0 ? (
+                  clss.arms.map(arm => (
+                    <div key={arm.id} className="">
+                      <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
+                        {arm.name}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <span className="text-text-muted text-xs">No arms added</span>
+                )}
               </div>
             </div>
           </div>

@@ -15,6 +15,7 @@ import { AcademicDoneClassAndArms } from "./ClassesAndArms";
 import { AcademicAssAndGradeSetupDone } from "./GradingAndAssessment";
 import { SchoolSectionAndTerm } from "./SchoolSectionTerm";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ClassesAndArms } from "../AcademicSetup/ClassesAndArms";
 const termsOptions = ["24/25 Session", "24/25 Session", "24/25 Session"];
 const tabs = ["School, Session & Term", "Classes & Arms", "Assessment & Grading", "Admission Number"] as const;
 type Tab = (typeof tabs)[number];
@@ -27,6 +28,7 @@ export const AcademicSetupView = () => {
   ]);
   const [activeTab, setActiveTab] = useState<Tab>("School, Session & Term");
   const [termSelected, setTermSelected] = useState(termsOptions[0]);
+  const [isEditingClasses, setIsEditingClasses] = useState(false);
 
   const { data: academicResponse, isLoading: isLoadingSession } = useGetActiveSession();
   const session: AcademicSession | undefined = academicResponse?.data;
@@ -59,10 +61,11 @@ export const AcademicSetupView = () => {
       )}
 
       {session && (
-        <div className="w-full">
-          <div className="bg-bg-subtle border-border-darker w-full border-b">
-            <div className="flex items-center justify-between gap-2 p-4">
-              {/* <Select value={termSelected} onValueChange={setTermSelected}>
+        <>
+          <div className="w-full">
+            <div className="bg-bg-subtle border-border-darker w-full border-b">
+              <div className="flex items-center justify-between gap-2 p-4">
+                {/* <Select value={termSelected} onValueChange={setTermSelected}>
             <SelectTrigger className="border-border-darker h-8! w-auto border">
               <SelectValue>
                 <div className="flex items-center gap-2">
@@ -80,62 +83,65 @@ export const AcademicSetupView = () => {
             </SelectContent>
           </Select> */}
 
-              <Button className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default ml-auto h-8! rounded-md text-sm">
-                <AddFill fill="var(--color-icon-white-default)" className="size-3" /> New Session
-              </Button>
+                <Button className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default ml-auto h-8! rounded-md text-sm">
+                  <AddFill fill="var(--color-icon-white-default)" className="size-3" /> New Session
+                </Button>
+              </div>
             </div>
-          </div>
-          <div className="md:px-8 md:pt-8">
-            <div className="border-border-default hide-scrollbar mb-10 flex w-screen items-center gap-4 overflow-x-auto border-b py-2 md:p-0 lg:w-full">
-              {tabs.map(tab => {
-                const isActive = activeTab === tab;
+            <div className="md:px-8 md:pt-8">
+              <div className="border-border-default hide-scrollbar mb-10 flex w-screen items-center gap-4 overflow-x-auto border-b py-2 md:p-0 lg:w-full">
+                {tabs.map(tab => {
+                  const isActive = activeTab === tab;
 
-                return (
-                  <Button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={cn(
-                      "hover:bg-bg-none! rounded-none text-center transition-all",
-                      isActive && "md:border-border-informative md:border-b-[1.5px]",
-                    )}
-                  >
-                    <span
+                  return (
+                    <Button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
                       className={cn(
-                        "h-8 rounded-md px-3 py-2 text-sm font-medium transition-all",
-                        isActive && ["bg-bg-state-soft text-text-default", "md:text-text-informative md:rounded-none md:bg-transparent"],
-                        !isActive && "text-text-muted",
+                        "hover:bg-bg-none! rounded-none text-center transition-all",
+                        isActive && "md:border-border-informative md:border-b-[1.5px]",
                       )}
                     >
-                      {tab}
-                    </span>
-                  </Button>
-                );
-              })}
+                      <span
+                        className={cn(
+                          "h-8 rounded-md px-3 py-2 text-sm font-medium transition-all",
+                          isActive && ["bg-bg-state-soft text-text-default", "md:text-text-informative md:rounded-none md:bg-transparent"],
+                          !isActive && "text-text-muted",
+                        )}
+                      >
+                        {tab}
+                      </span>
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-5 px-4">
+              {activeTab === "School, Session & Term" && (
+                <div className="">
+                  <SchoolSectionAndTerm session={session} isLoadingSession={isLoadingSession} />
+                </div>
+              )}
+              {activeTab === "Classes & Arms" && (
+                // <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
+                <div className="">
+                  <AcademicDoneClassAndArms />
+                </div>
+              )}
+              {activeTab === "Assessment & Grading" && (
+                <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
+                  <AcademicAssAndGradeSetupDone />
+                </div>
+              )}
+              {activeTab === "Admission Number" && (
+                <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
+                  <AdmissionNumberSetupDone />
+                </div>
+              )}
             </div>
           </div>
-          <div className="mt-5 px-4">
-            {activeTab === "School, Session & Term" && (
-              <div className="">
-                <SchoolSectionAndTerm session={session} isLoadingSession={isLoadingSession} />
-              </div>
-            )}
-            {activeTab === "Classes & Arms" && (
-              <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
-                <AcademicDoneClassAndArms />
-              </div>
-            )}
-            {activeTab === "Assessment & Grading" && (
-              <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
-                <AcademicAssAndGradeSetupDone />
-              </div>
-            )}
-            {activeTab === "Admission Number" && (
-              <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
-                <AdmissionNumberSetupDone />
-              </div>
-            )}
-          </div>
-        </div>
+        </>
       )}
     </div>
   );

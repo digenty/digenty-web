@@ -363,7 +363,17 @@ function ClassesResponsiveTabs({
   );
 }
 
-export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompletedSteps: (step: string[]) => void; completedSteps: string[] }) => {
+export const ClassesAndArms = ({
+  setCompletedSteps,
+  completedSteps,
+  isEditing,
+  setIsEditing,
+}: {
+  setCompletedSteps?: (step: string[]) => void;
+  completedSteps?: string[];
+  isEditing?: boolean;
+  setIsEditing?: (isEditing: boolean) => void;
+}) => {
   const router = useRouter();
   const pathname = usePathname();
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
@@ -450,23 +460,44 @@ export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompl
         <Button
           className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
           onClick={() => {
-            router.push(`${pathname}?step=school-structure`);
+            setIsEditing?.(false);
           }}
         >
-          Previous
+          Cancel
         </Button>
 
         <Button
           type="button"
-          onClick={() => {
-            setCompletedSteps([...completedSteps, "class-and-arms"]);
-            router.push(`${pathname}?step=grading-and-assessment`);
-          }}
+          // onClick={}
           className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
         >
-          Next
+          Save Changes
         </Button>
       </div>
+
+      {completedSteps && setCompletedSteps && (
+        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+          <Button
+            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+            onClick={() => {
+              router.push(`${pathname}?step=school-structure`);
+            }}
+          >
+            Previous
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => {
+              setCompletedSteps([...completedSteps, "class-and-arms"]);
+              router.push(`${pathname}?step=grading-and-assessment`);
+            }}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </section>
   );
 };
