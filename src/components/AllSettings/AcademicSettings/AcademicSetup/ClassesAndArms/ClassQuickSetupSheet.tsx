@@ -1,6 +1,5 @@
 import { ClassLevel } from "@/api/types";
 import { CloseFill } from "@/components/Icons/CloseFill";
-import Settings4 from "@/components/Icons/Settings4";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
@@ -9,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetArmsByLevel, useDeleteArm, useAddArm } from "@/hooks/queryHooks/useArm";
+import { useAddArm, useDeleteArm, useGetArmsByLevel } from "@/hooks/queryHooks/useArm";
 import { useAddDepartmentsToLevel, useDeleteDepartmentFromLevel, useGetDepartmentsByLevel } from "@/hooks/queryHooks/useDepartment";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubject, useDeleteSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
@@ -161,7 +160,7 @@ export const ClassQuickSetupSheet = ({
       .filter(str => str !== "" && !subjects.includes(str));
 
     mutateSubject(
-      { names: newSubjects, levelType: level?.levelType, branchId, branchSpecific },
+      { names: newSubjects, levelType: level.levelType, branchId, branchSpecific },
       {
         onSuccess: () => {
           setSubjects(prev => [...prev, ...newSubjects]);
@@ -294,7 +293,7 @@ export const ClassQuickSetupSheet = ({
     console.log(newDepartments, level?.levelType, branchId, branchSpecific, "------");
 
     mutateDepartment(
-      { names: newDepartments, levelType: level?.levelType, branchId, branchSpecific },
+      { names: newDepartments, levelType: level.levelType, branchId, branchSpecific },
       {
         onSuccess: () => {
           setDepartments([...departments, ...newDepartments]);

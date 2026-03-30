@@ -1,10 +1,10 @@
 "use client";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { PrincipaleComment } from "./PrincipaleComment";
+import { PrincipalComment } from "./PrincipalsComment";
 import { ClassesSetup } from "./ResultCalculations";
 import { Submission } from "./Submission";
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 const tabs = ["Result Calculation", "Submission Deadline", "Principal’s Comment"];
 
@@ -38,7 +38,7 @@ export const SettingsResult = () => {
       </div>
       {activeTab === "Result Calculation" && <ClassesSetup />}
       {activeTab === "Submission Deadline" && <Submission />}
-      {activeTab === "Principal’s Comment" && <PrincipaleComment />}
+      {activeTab === "Principal’s Comment" && <PrincipalComment />}
     </div>
   );
 };

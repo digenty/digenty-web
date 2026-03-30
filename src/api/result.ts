@@ -61,6 +61,18 @@ export const getPrincipalComment = async () => {
   }
 };
 
+export const getPrincipalCommentByLevel = async (levelId?: number) => {
+  try {
+    const { data } = await api.get(`/result-settings/principal-comment/level/${levelId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const addPrincipaleComment = async (payload: PrincaleCommentPayload) => {
   try {
     const { data } = await api.post(`/result-settings/principal-comment`, payload);

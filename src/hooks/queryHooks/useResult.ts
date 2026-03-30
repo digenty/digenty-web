@@ -4,6 +4,7 @@ import {
   addSubmission,
   deletePrincipalComment,
   getPrincipalComment,
+  getPrincipalCommentByLevel,
   getSubmissionDeadline,
   updateSubmissionDeadline,
 } from "@/api/result";
@@ -52,13 +53,21 @@ export const useGetPrincipalComment = () => {
   });
 };
 
+export const useGetPrincipalCommentByLevel = (levelId?: number) => {
+  return useQuery({
+    queryKey: [resultKeys.getPrincipalCommentByLevel, levelId],
+    queryFn: () => getPrincipalCommentByLevel(levelId),
+    enabled: !!levelId,
+  });
+};
+
 export const useDeletePrincipalComment = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: resultKeys.deletetPrincipalComment,
     mutationFn: (commentId: number) => deletePrincipalComment(commentId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [resultKeys.deletetPrincipalComment] });
+      queryClient.invalidateQueries({ queryKey: [resultKeys.getPrincipalCommentByLevel] });
     },
   });
 };

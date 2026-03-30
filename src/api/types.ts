@@ -749,24 +749,15 @@ export interface AssessmentType {
   weight: number;
 }
 
-export interface Assessment {
+export interface AssessmentResponse {
   assessments: AssessmentType[];
   totalWeight: number;
 }
 
-// export interface Grading {
-//     id: number;
-//     uuid: string;
-//     active: boolean;
-//     version: number;
-//     createdAt: string;
-//     updatedAt: string;
-//     grade: string;
-//     upperLimit: number;
-//     lowerLimit: number;
-//     remark: string;
-//     levelId: number;
-//     branchId: number;
-//     schoolId: number;
-//     isDefault: boolean;
-//   }
+export interface PrincipalsComment {
+  comment: string;
+  id: number;
+  levelId: number;
+  maxPercentage: number;
+  minPercentage: number;
+}

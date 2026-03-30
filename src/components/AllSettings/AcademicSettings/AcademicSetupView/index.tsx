@@ -33,8 +33,6 @@ export const AcademicSetupView = () => {
   const { data: academicResponse, isLoading: isLoadingSession } = useGetActiveSession();
   const session: AcademicSession | undefined = academicResponse?.data;
 
-  console.log(session, academicResponse);
-
   return (
     <div>
       {isLoadingSession && !session && (

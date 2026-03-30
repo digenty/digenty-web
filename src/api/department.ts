@@ -1,5 +1,6 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
+import { LevelType } from "./types";
 
 export const getDepartmentsForASchool = async () => {
   try {
@@ -13,11 +14,9 @@ export const getDepartmentsForASchool = async () => {
   }
 };
 
-export const addDepartmentsToLevel = async (payload: { names: string[]; levelType: string; branchId: number; branchSpecific: boolean }) => {
-  console.log("i was called222222");
+export const addDepartmentsToLevel = async (payload: { names: string[]; levelType: LevelType; branchId?: number; branchSpecific: boolean }) => {
   try {
     const { data } = await api.post("/departments/level", payload);
-    console.log(data, "######");
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

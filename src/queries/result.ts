@@ -5,5 +5,6 @@ export const resultKeys = {
   getSubmissionDeadline: ["getSubmissionDeadline"] as const,
   updateSubmissionDeadline: ["updateSubmissionDeadline"] as const,
   getPrincipalComment: ["getPrincipalComment"] as const,
+  getPrincipalCommentByLevel: ["getPrincipalCommentByLevel"] as const,
   deletetPrincipalComment: ["deletetPrincipalComment"] as const,
 };
