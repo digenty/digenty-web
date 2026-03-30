@@ -159,7 +159,7 @@ export const AcademicDoneClassAndArms = () => {
           <ClassesAndArms isEditing={isEditing} setIsEditing={setIsEditing} />
         </div>
       ) : (
-        <div className="mx-auto flex w-full items-center justify-center pb-12 md:max-w-200">
+        <div className="mx-auto flex w-full items-center justify-center px-4 pb-12 md:max-w-200">
           <div className="w-full">
             <div className="mb-5 flex w-full items-start justify-between">
               <div className="text-text-default text-xl font-semibold">Classes & Arms</div>

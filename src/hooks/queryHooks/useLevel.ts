@@ -1,4 +1,4 @@
-import { getLevelResultSettings, getLevels, updateLevel } from "@/api/level";
+import { getLevelResultSettings, getLevels, updateLevel, getAssessmentsByLevel, getGradingsByLevel } from "@/api/level";
 import { classKeys } from "@/queries/class";
 import { levelKeys } from "@/queries/level";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -26,5 +26,19 @@ export const useGetLevelResultSettings = (levelId: number, filter: string) => {
     queryKey: levelKeys.resultSettings(levelId, filter),
     queryFn: () => getLevelResultSettings(levelId, filter),
     enabled: !!levelId && filter === "promotion",
+  });
+};
+export const useGetAssessmentsByLevel = (levelId?: number) => {
+  return useQuery({
+    queryKey: levelId ? levelKeys.levelAssessments(levelId) : ["levelAssessments"],
+    queryFn: () => getAssessmentsByLevel(levelId!),
+    enabled: !!levelId,
+  });
+};
+export const useGetGradingsByLevel = (levelId?: number) => {
+  return useQuery({
+    queryKey: levelId ? levelKeys.levelGradings(levelId) : ["levelGradings"],
+    queryFn: () => getGradingsByLevel(levelId!),
+    enabled: !!levelId,
   });
 };

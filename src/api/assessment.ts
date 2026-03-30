@@ -41,7 +41,7 @@ export const getAssessmentForBranch = async (branchId: number) => {
 
 export const addAssessment = async (payload: AssessmentPayload) => {
   try {
-    const { data } = await api.post("/assessments/branch-level", payload);
+    const { data } = await api.post("/assessments/level", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

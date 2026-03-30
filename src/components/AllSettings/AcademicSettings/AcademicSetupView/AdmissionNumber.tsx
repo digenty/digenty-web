@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { useGetAdmissionNumberDetails, useUpdateAdmissionNumber } from "@/hooks/queryHooks/useAdmisssion";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 const DIGITS = [2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -27,10 +29,12 @@ export const AdmissionNumberSetupDone = () => {
   const [startingNumber, setStartingNumber] = useState("");
   const [padding, setPadding] = useState("");
 
-  const { data: admissionResponse, isLoading, isError } = useGetAdmissionNumberDetails();
+  const { data: admissionResponse, isLoading, isError, error } = useGetAdmissionNumberDetails();
+  console.log(admissionResponse?.data, "888");
   const { mutateAsync: updateAdmission } = useUpdateAdmissionNumber();
 
-  const admission = admissionResponse?.data?.[0] ?? admissionResponse?.[0];
+  const admission = admissionResponse?.data ?? admissionResponse?.[0];
+  console.log(prefix, "prefix");
 
   useEffect(() => {
     if (!admission) return;
@@ -91,7 +95,12 @@ export const AdmissionNumberSetupDone = () => {
 
   return (
     <div className="w-full">
-      <div className="mx-auto flex w-full items-center justify-center md:w-151">
+      <div
+        className={cn(
+          "mx-auto flex w-full items-center justify-center px-4 md:w-151",
+          !isEditing && "mx-auto flex w-full items-center justify-center md:max-w-200",
+        )}
+      >
         <div className="flex w-full flex-col gap-6">
           <div className="mb-5 flex w-full items-start justify-between">
             <div className="text-text-default text-xl font-semibold">Admission Number</div>
@@ -107,7 +116,7 @@ export const AdmissionNumberSetupDone = () => {
               <div className="flex h-80 items-center justify-center">
                 <ErrorComponent
                   title="Could not get Admission Numbers"
-                  description="This is our problem, we are looking into it so as to serve you better"
+                  description={`${error.message || "This is our problem, we are looking into it so as to serve you better"}`}
                   buttonText="Go to the Home page"
                 />
               </div>
@@ -140,7 +149,9 @@ export const AdmissionNumberSetupDone = () => {
                     placeholder="e.g. ADM-"
                   />
                 ) : (
-                  <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">{prefix || "—"}</div>
+                  <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">
+                    {admissionResponse?.data?.prefix || "-—"}
+                  </div>
                 )}
                 <div className="text-text-muted text-xs">Common formats: ADM-, STD-, PUP-</div>
               </div>
@@ -155,7 +166,9 @@ export const AdmissionNumberSetupDone = () => {
                     placeholder="e.g. PREFIX-YEAR-SEQ"
                   />
                 ) : (
-                  <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">{numberFormat || "—"}</div>
+                  <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">
+                    {admissionResponse?.data?.numberFormat || "-—"}
+                  </div>
                 )}
                 <div className="text-text-muted text-xs">Use tokens: PREFIX, YEAR, MONTH, SESSION, SEQ</div>
               </div>
@@ -171,7 +184,9 @@ export const AdmissionNumberSetupDone = () => {
                     placeholder="1"
                   />
                 ) : (
-                  <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">{startingNumber || "—"}</div>
+                  <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">
+                    {admissionResponse?.data?.startingNumber || "-—"}
+                  </div>
                 )}
                 <div className="text-text-muted text-xs">The first admission number to use</div>
               </div>
@@ -195,7 +210,7 @@ export const AdmissionNumberSetupDone = () => {
                   </Select>
                 ) : (
                   <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">
-                    {padding ? `${padding} Digits` : "—"}
+                    {admissionResponse?.data?.padding ? `${admissionResponse?.data?.padding} Digits` : "-—"}
                   </div>
                 )}
               </div>
@@ -212,17 +227,18 @@ export const AdmissionNumberSetupDone = () => {
       </div>
 
       {isEditing && (
-        <div className="border-border-default bg-bg-default sticky bottom-0 mx-auto flex w-full justify-between border-t py-3">
-          <Button type="button" onClick={handleCancel} disabled={isSaving} className="bg-bg-state-soft! text-text-subtle rounded-md">
+        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
+          <Button type="button" onClick={handleCancel} disabled={isSaving} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
           </Button>
           <Button
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default rounded-md"
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7! rounded-md"
           >
-            {isSaving ? "Saving..." : "Save changes"}
+            {isSaving && <Spinner className="text-text-white-default" />}
+            Save changes
           </Button>
         </div>
       )}

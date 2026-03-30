@@ -309,7 +309,7 @@ function ClassesResponsiveTabs({
         >
           <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
             <SelectValue>
-              {/* <span className="text-text-default text-sm capitalize">{levels[activeIndex].levelName.replaceAll("_", " ").toLowerCase()}</span> */}
+              <span className="text-text-default text-sm capitalize">{levels[activeIndex].levelName.replaceAll("_", " ").toLowerCase()}</span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-bg-default border-border-default">
@@ -397,7 +397,7 @@ export const ClassesAndArms = ({
 
   return (
     <section className="">
-      <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 lg:px-36">
+      <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 pb-12 lg:px-36">
         <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
           <div className="">
             <div className="text-text-default text-md font-semibold">Do academic structures differ by school branch?</div>

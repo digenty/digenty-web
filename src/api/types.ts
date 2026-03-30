@@ -741,3 +741,32 @@ export interface ResultSettings {
   promotionType: "BY_PERFORMANCE" | "PROMOTE_ALL" | "MANUAL";
   requiredSubjectIds: number[];
 }
+
+export interface AssessmentType {
+  id: number;
+  name: string;
+  assessmentType: string;
+  weight: number;
+}
+
+export interface Assessment {
+  assessments: AssessmentType[];
+  totalWeight: number;
+}
+
+// export interface Grading {
+//     id: number;
+//     uuid: string;
+//     active: boolean;
+//     version: number;
+//     createdAt: string;
+//     updatedAt: string;
+//     grade: string;
+//     upperLimit: number;
+//     lowerLimit: number;
+//     remark: string;
+//     levelId: number;
+//     branchId: number;
+//     schoolId: number;
+//     isDefault: boolean;
+//   }

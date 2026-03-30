@@ -117,25 +117,20 @@ export const AcademicSetupView = () => {
               </div>
             </div>
 
-            <div className="mt-5 px-4">
+            <div className="mt-5">
               {activeTab === "School, Session & Term" && (
                 <div className="">
                   <SchoolSectionAndTerm session={session} isLoadingSession={isLoadingSession} />
                 </div>
               )}
-              {activeTab === "Classes & Arms" && (
-                // <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
-                <div className="">
-                  <AcademicDoneClassAndArms />
-                </div>
-              )}
+              {activeTab === "Classes & Arms" && <AcademicDoneClassAndArms />}
               {activeTab === "Assessment & Grading" && (
-                <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
+                <div className="">
                   <AcademicAssAndGradeSetupDone />
                 </div>
               )}
               {activeTab === "Admission Number" && (
-                <div className="mx-auto flex w-full items-center justify-center md:max-w-200">
+                <div className="">
                   <AdmissionNumberSetupDone />
                 </div>
               )}

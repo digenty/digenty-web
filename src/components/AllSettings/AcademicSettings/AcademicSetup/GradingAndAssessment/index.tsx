@@ -166,7 +166,7 @@ const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: 
     addGrading(payload, {
       onSuccess: () => {
         toast({
-          title: "Grading save successfully",
+          title: "Grading saved successfully",
           type: "success",
         });
       },
@@ -228,7 +228,7 @@ const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: 
                             onBlur={handleBlur}
                             type="number"
                             placeholder="100"
-                            className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent text-sm"
+                            className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent px-0! text-sm"
                           />
                         </div>
                       </div>
@@ -462,9 +462,13 @@ const LevelTabsContainer = ({ levels, activeLevel, setActiveLevel, branchId }: L
 export const GradingAndAssessment = ({
   setCompletedSteps,
   completedSteps,
+  isEditing,
+  setIsEditing,
 }: {
-  setCompletedSteps: (steps: string[]) => void;
-  completedSteps: string[];
+  setCompletedSteps?: (steps: string[]) => void;
+  completedSteps?: string[];
+  isEditing?: boolean;
+  setIsEditing?: (editing: boolean) => void;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -523,27 +527,50 @@ export const GradingAndAssessment = ({
         {!isLoading && <LevelTabsContainer levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} branchId={activeBranch?.id} />}
       </div>
 
-      <div className="border-border-default bg-bg-default absolute bottom-0 mt-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+      <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
         <Button
           className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
           onClick={() => {
-            router.push(`${pathname}?step=class-and-arms`);
+            setIsEditing?.(false);
           }}
         >
-          Previous
+          Cancel
         </Button>
 
         <Button
           type="button"
           onClick={() => {
-            setCompletedSteps([...completedSteps, "grading-and-assessment"]);
-            router.push(`${pathname}?step=admission-number`);
+            setIsEditing?.(false);
           }}
           className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
         >
-          Next
+          Save Changes
         </Button>
       </div>
+
+      {completedSteps && setCompletedSteps && (
+        <div className="border-border-default bg-bg-default absolute bottom-0 mt-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+          <Button
+            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+            onClick={() => {
+              router.push(`${pathname}?step=class-and-arms`);
+            }}
+          >
+            Previous
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => {
+              setCompletedSteps([...completedSteps, "grading-and-assessment"]);
+              router.push(`${pathname}?step=admission-number`);
+            }}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </section>
   );
 };
