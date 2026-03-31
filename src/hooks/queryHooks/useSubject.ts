@@ -3,6 +3,7 @@ import {
   addSubjectToClass,
   deleteSubjectByLevel,
   deleteSubjectFromClass,
+  getAllSubjects,
   getBranchTeachersClassSubjects,
   getSubjectsByClass,
   getSubjectsByLevel,
@@ -18,6 +19,14 @@ export const useGetTeacherSubjects = () => {
   return useQuery({
     queryKey: subjectKeys.mysubjects,
     queryFn: () => getTeacherSubjects(),
+    retry: false,
+  });
+};
+
+export const useGetAllSubjects = () => {
+  return useQuery({
+    queryKey: subjectKeys.allSubjects,
+    queryFn: () => getAllSubjects(),
     retry: false,
   });
 };

@@ -775,3 +775,15 @@ export interface StaffBranch {
     },
   ];
 }
+
+export interface AllSubjects {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  branchId: number;
+  schoolId: number;
+}
