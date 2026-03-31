@@ -1,20 +1,39 @@
 "use client";
 
-import { useState } from "react";
-import { DataTable } from "@/components/DataTable";
-import { Result } from "./types";
-import { columns, mockReport, mockResults } from "./Colunm";
+import { useEffect, useState } from "react";
 import { StudentFilter } from "../FilterStudents";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Calendar from "@/components/Icons/Calendar";
+import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
+import { StudentResult } from "@/components/StudentResult";
+import { Term } from "@/api/types";
+import { usePathname } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { PageEmptyState } from "@/components/Error/PageEmptyState";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
-const filterValues = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
 export const AcademicRecord = () => {
-  const [page, setPage] = useState(1);
-  const [rowSelection, setRowSelection] = useState({});
-  const [selectedRows, setSelectedRows] = useState<Result[]>([]);
-  const [selected, setSelected] = useState(filterValues[0]);
+  const user = useLoggedInUser();
+  const path = usePathname();
+  const armId = path.split("/")[4];
+  const parentId = Number(path.split("/")[3]);
+  const [selectedStudentId, setSelectedStudentId] = useState<number>();
 
+  const [termSelected, setTermSelected] = useState<Term | null>(null);
+
+  const { data: terms, isLoading: loadingTerms } = useGetTerms(user?.schoolId);
+  const {
+    data: studentReportData,
+    isPending: loadingStudentReport,
+    isError: isErrorStudentReport,
+  } = useGetStudentReport({ studentId: Number(selectedStudentId), termId: termSelected?.termId, armId: Number(armId) });
+  useEffect(() => {
+    if (terms?.length && !termSelected) {
+      setTermSelected(terms[0]);
+    }
+  }, [terms]);
   return (
     <div className="flex w-full flex-col gap-10 p-4 md:p-8">
       <div className="flex w-full items-center md:justify-between">
@@ -22,32 +41,57 @@ export const AcademicRecord = () => {
           <div className="text-text-default text-2xl font-semibold">Academic Record</div>
           <div className="text-text-muted text-xs">Review student&apos;s result</div>
         </div>
-        <StudentFilter />
+        <StudentFilter parentId={parentId} onSelect={setSelectedStudentId} />
       </div>
 
       <div className="flex items-center justify-between">
-        <Select value={selected} onValueChange={setSelected}>
-          <SelectTrigger className="border-border-darker h-8! w-auto border">
-            <SelectValue className="text-text-default flex font-medium">
-              <Calendar className="text-icon-black-muted size-4" />
-              <p className="text-text-default text-sm">{selected}</p>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent className="bg-bg-card border-border-default border">
-            <SelectItem className="text-text-default" value="24/25 Third Term">
-              24/25 Third Term
-            </SelectItem>
-            <SelectItem className="text-text-default" value="24/25 Second Term">
-              24/25 Second Term
-            </SelectItem>
-            <SelectItem className="text-text-default" value="24/25 First Term">
-              24/25 First Term
-            </SelectItem>
-          </SelectContent>
-        </Select>
+        {loadingTerms || (!terms && <Skeleton className="bg-bg-input-soft h-9 w-50 rounded-md" />)}
+        {!loadingTerms && terms && (
+          <Select
+            value={termSelected ? String(termSelected.termId) : ""}
+            onValueChange={value => {
+              const term = terms.find((t: Term) => String(t.termId) === value);
+              setTermSelected(term ?? null);
+            }}
+          >
+            <SelectTrigger className="border-border-darker h-8! w-auto border">
+              <SelectValue className="text-text-default flex font-medium">
+                <Calendar className="text-icon-black-muted size-4" />
+                <p className="text-text-default text-sm">{termSelected?.term ?? "Select Term"}</p>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-bg-card border-border-default border">
+              {terms?.map((t: Term) => (
+                <SelectItem key={t.termId} className="text-text-default" value={String(t.termId)}>
+                  {t.term}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
-      <div className="md:p-10">
+      {loadingStudentReport && <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />}
+
+      {isErrorStudentReport && (
+        <div className="flex h-screen items-center justify-center">
+          <ErrorComponent
+            title="Could not get Student's report"
+            description="This is our problem, we are looking into it so as to serve you better"
+            buttonText="Go to the Home page"
+          />
+        </div>
+      )}
+
+      {!studentReportData && (
+        <PageEmptyState title="Could not get Student's report" description="No report available for student" buttonText="Contact School Admin" />
+      )}
+
+      {!loadingStudentReport && !isErrorStudentReport && studentReportData && (
+        <StudentResult studentReport={studentReportData?.data} termSelected={termSelected} />
+      )}
+
+      {/* <div className="md:p-10">
         <div
           id="student-report"
           className="border-t-bg-basic-cyan-contrast border-x-border-default border-b-border-default mb-10 border-x border-t-2 border-b"
@@ -158,7 +202,7 @@ export const AcademicRecord = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
