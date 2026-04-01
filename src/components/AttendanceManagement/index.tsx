@@ -14,6 +14,7 @@ import { SearchInput } from "../SearchInput";
 import { Skeleton } from "../ui/skeleton";
 import { AttendanceCards } from "./AttendanceCards";
 import { AttendanceHeader } from "./AttendanceHeader";
+import { Legend } from "recharts";
 
 export const AttendanceManagement = () => {
   useBreadcrumb([{ label: "Attendance Management", url: "/staff/attendance" }]);
@@ -32,7 +33,7 @@ export const AttendanceManagement = () => {
   };
 
   return (
-    <div className="flex flex-col">
+    <Legend className="flex flex-col">
       <AttendanceHeader
         setBranchSelected={setBranchSelected}
         branchSelected={branchSelected}
@@ -113,6 +114,6 @@ export const AttendanceManagement = () => {
 
         <AttendanceCards attendance={data?.data.classArmAttendanceCardList || []} />
       </div>
-    </div>
+    </Legend>
   );
 };
