@@ -1,5 +1,7 @@
 "use client";
+import { Branch, Term } from "@/api/types";
 import { useGetDashboard } from "@/hooks/queryHooks/useDashboard";
+import { useState } from "react";
 import { Alerts } from "../Alert";
 import AlertFill from "../Icons/AlertFill";
 import CashFill from "../Icons/CashFill";
@@ -9,14 +11,13 @@ import { OverviewCard } from "../OverviewCard";
 import { Chart } from "./Chart";
 import DashboardHeader from "./DashboardHeader";
 import { QuickActions } from "./QuickActions";
-import { Branch, Term } from "@/api/types";
-import { useState } from "react";
 
 export default function Dashboard() {
-  const { data, isLoading } = useGetDashboard();
-  const dashboardInfo = data?.data;
   const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
   const [termSelected, setTermSelected] = useState<Term | null>(null);
+
+  const { data, isLoading } = useGetDashboard(termSelected?.termId ?? null, branchSelected?.id ?? null);
+  const dashboardInfo = data?.data;
 
   return (
     <>
@@ -36,7 +37,7 @@ export default function Dashboard() {
                 <CashFill fill="var(--color-icon-default)" className="size-[10px]" />
               </div>
             )}
-            value={isLoading ? "..." : `₦${dashboardInfo?.totalFeesCollected?.toLocaleString() || 0}`}
+            value={isLoading ? "0" : `₦${dashboardInfo?.totalFeesCollected?.toLocaleString() || 0}`}
           />
           <OverviewCard
             title="outstanding fees"
@@ -45,7 +46,7 @@ export default function Dashboard() {
                 <AlertFill fill="var(--color-icon-default)" className="size-[10px]" />
               </div>
             )}
-            value={isLoading ? "..." : `₦${dashboardInfo?.outstandingFees?.toLocaleString() || 0}`}
+            value={isLoading ? "0" : `₦${dashboardInfo?.outstandingFees?.toLocaleString() || 0}`}
           />
           <OverviewCard
             title="students"
@@ -54,7 +55,7 @@ export default function Dashboard() {
                 <UserFill fill="var(--color-icon-default)" className="size-[10px]" />
               </div>
             )}
-            value={isLoading ? "..." : dashboardInfo?.totalStudents?.toLocaleString() || 0}
+            value={isLoading ? "0" : dashboardInfo?.totalStudents?.toLocaleString() || 0}
           />
 
           <OverviewCard
@@ -64,7 +65,7 @@ export default function Dashboard() {
                 <IndeterminateCircleFill fill="var(--color-icon-default)" className="size-[10px]" />
               </div>
             )}
-            value={isLoading ? "..." : `₦${dashboardInfo?.totalExpenses?.toLocaleString() || 0}`}
+            value={isLoading ? "0" : `₦${dashboardInfo?.totalExpenses?.toLocaleString() || 0}`}
           />
         </div>
 
