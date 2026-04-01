@@ -11,7 +11,7 @@ export const StackedBarChart = ({ data }: { data: ChartData[] }) => {
           {/* Dotted lines for vertical grid only */}
           <CartesianGrid vertical={false} stroke="var(--color-border-default)" />
 
-          <XAxis dataKey="name" padding={{ left: 10, right: 10 }} tickLine={false} className="text-text-muted text-xs" />
+          <XAxis dataKey="name" padding={{ left: 10, right: 10 }} tickLine={false} className="text-text-muted text-xs!" />
 
           <YAxis
             type="number"

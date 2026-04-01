@@ -7,5 +7,5 @@ export interface ChartData {
   unpaid: number; // The absolute NGN value for 'Unpaid'
   unpaid_abs: number; // The % value for 'Unpaid'
   total: number; // The sum of Paid and Unpaid (used for proportional scaling)
-  group: SchoolOption;
+  level: string;
 }

@@ -1,15 +1,15 @@
 import React from "react";
-import { SchoolOption } from "../../types";
 import { Button } from "../ui/button";
+import { ClassLevelWithBranch } from "@/api/types";
 
 interface ToggleGroupProps {
-  options: SchoolOption[];
+  options: ClassLevelWithBranch[];
   selected?: string;
-  onChange?: (value: SchoolOption) => void;
+  onChange?: (value: string) => void;
 }
 
 export const ChartToggle: React.FC<ToggleGroupProps> = ({ options, selected, onChange }) => {
-  const handleSelect = (option: SchoolOption) => {
+  const handleSelect = (option: string) => {
     onChange?.(option);
   };
 
@@ -18,13 +18,13 @@ export const ChartToggle: React.FC<ToggleGroupProps> = ({ options, selected, onC
       {options.map(option => (
         <Button
           variant="ghost"
-          key={option}
-          onClick={() => handleSelect(option)}
+          key={option.id}
+          onClick={() => handleSelect(option.levelName)}
           className={`w-1/2 rounded-full px-6 py-0.5 text-sm font-medium transition-all duration-300 ${
-            selected === option ? "text-text-default shadow-xlight border-border-darker bg-bg-state-secondary" : "text-text-muted"
+            selected === option.levelName ? "text-text-default shadow-xlight border-border-darker bg-bg-state-secondary" : "text-text-muted"
           }`}
         >
-          {option}
+          {option.levelName}
         </Button>
       ))}
     </div>

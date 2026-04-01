@@ -1,5 +1,6 @@
 "use client";
 
+import { ErrorComponent } from "../Error/ErrorComponent";
 import { Alert } from "./Alert";
 import { AlertType } from "./type";
 
@@ -44,12 +45,16 @@ const alertData = [
 export const Alerts = () => {
   return (
     <div className="base:pb-12 relative h-full space-y-6 overflow-hidden px-5 py-5 md:space-y-5">
-      <h3 className="text-text-default text-xs font-semibold">Alerts</h3>
+      {/* <h3 className="text-text-default text-xs font-semibold">Alerts</h3> */}
 
-      <div className="flex h-full flex-col gap-3 overflow-y-auto">
-        {alertData.map(alert => (
+      {/* <div className="flex h-full flex-col gap-3 overflow-y-auto"> */}
+      <div className="flex h-full flex-col items-center justify-center gap-3 overflow-y-auto">
+        {" "}
+        {/* TODO: remove items-center justify-center when alerts feature is available*/}
+        <ErrorComponent title="No Alerts" description="You have no alerts" />
+        {/* {alertData.map(alert => (
           <Alert key={alert.id} alert={alert} />
-        ))}
+        ))} */}
       </div>
     </div>
   );
