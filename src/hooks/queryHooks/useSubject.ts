@@ -1,6 +1,7 @@
 import {
   addSubject,
   addSubjectToClass,
+  assignSubjectTeacher,
   deleteSubjectByLevel,
   deleteSubjectFromClass,
   getAllSubjects,
@@ -28,6 +29,17 @@ export const useGetAllSubjects = () => {
     queryKey: subjectKeys.allSubjects,
     queryFn: () => getAllSubjects(),
     retry: false,
+  });
+};
+
+export const useAssignSubjectTeacher = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: [subjectKeys.assignSubjectTeacher],
+    mutationFn: assignSubjectTeacher,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["branchDetail"] });
+    },
   });
 };
 
@@ -81,6 +93,7 @@ export const useAddSubject = () => {
 export const useAddSubjectToClass = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    mutationKey: subjectKeys.addSubjectToClass,
     mutationFn: addSubjectToClass,
     onSuccess: () => {
       // queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });

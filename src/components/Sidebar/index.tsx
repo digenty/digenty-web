@@ -94,131 +94,131 @@ export const Sidebar = () => {
       ],
     },
 
-    ...(canViewFinanceReport(user?.permissions) ||
-    canViewFeeCollection(user?.permissions) ||
-    canViewExpenses(user?.permissions) ||
-    canViewFees(user?.permissions) ||
-    canViewInvoices(user?.permissions) ||
-    canViewStock(user?.permissions)
-      ? [
-          {
-            title: "Finance",
-            menu: [
-              ...(canViewInvoices(user?.permissions)
-                ? [
-                    {
-                      title: "Invoices",
-                      url: "invoices",
-                      icon: FileList3,
-                    },
-                  ]
-                : []),
+    // ...(canViewFinanceReport(user?.permissions) ||
+    // canViewFeeCollection(user?.permissions) ||
+    // canViewExpenses(user?.permissions) ||
+    // canViewFees(user?.permissions) ||
+    // canViewInvoices(user?.permissions) ||
+    // canViewStock(user?.permissions)
+    //   ? [
+    //       {
+    //         title: "Finance",
+    //         menu: [
+    //           ...(canViewInvoices(user?.permissions)
+    //             ? [
+    //                 {
+    //                   title: "Invoices",
+    //                   url: "invoices",
+    //                   icon: FileList3,
+    //                 },
+    //               ]
+    //             : []),
 
-              ...(canViewFees(user?.permissions)
-                ? [
-                    {
-                      title: "Fees",
-                      url: "fees",
-                      icon: Bill,
-                    },
-                  ]
-                : []),
+    //           ...(canViewFees(user?.permissions)
+    //             ? [
+    //                 {
+    //                   title: "Fees",
+    //                   url: "fees",
+    //                   icon: Bill,
+    //                 },
+    //               ]
+    //             : []),
 
-              ...(canViewExpenses(user?.permissions)
-                ? [
-                    {
-                      title: "Expenses",
-                      url: "expense",
-                      icon: BankCard,
-                    },
-                  ]
-                : []),
+    //           ...(canViewExpenses(user?.permissions)
+    //             ? [
+    //                 {
+    //                   title: "Expenses",
+    //                   url: "expense",
+    //                   icon: BankCard,
+    //                 },
+    //               ]
+    //             : []),
 
-              ...(canViewStock(user?.permissions)
-                ? [
-                    {
-                      title: "Stock",
-                      url: "stock",
-                      icon: Store3,
-                    },
-                  ]
-                : []),
+    //           ...(canViewStock(user?.permissions)
+    //             ? [
+    //                 {
+    //                   title: "Stock",
+    //                   url: "stock",
+    //                   icon: Store3,
+    //                 },
+    //               ]
+    //             : []),
 
-              ...(canViewFeeCollection(user?.permissions)
-                ? [
-                    {
-                      title: "Fee Collection",
-                      url: "fee-collection",
-                      icon: Wallet,
-                    },
-                  ]
-                : []),
+    //           ...(canViewFeeCollection(user?.permissions)
+    //             ? [
+    //                 {
+    //                   title: "Fee Collection",
+    //                   url: "fee-collection",
+    //                   icon: Wallet,
+    //                 },
+    //               ]
+    //             : []),
 
-              ...(canViewFinanceReport(user?.permissions)
-                ? [
-                    {
-                      title: "Finance Report",
-                      url: "finance-report",
-                      icon: LineChart,
-                    },
-                  ]
-                : []),
-            ],
-          },
-        ]
-      : []),
+    //           ...(canViewFinanceReport(user?.permissions)
+    //             ? [
+    //                 {
+    //                   title: "Finance Report",
+    //                   url: "finance-report",
+    //                   icon: LineChart,
+    //                 },
+    //               ]
+    //             : []),
+    //         ],
+    //       },
+    //     ]
+    //   : []),
 
-    ...(canViewCommunication(user?.permissions) ||
-    canViewPortalCustomization(user?.permissions) ||
-    canViewPortalOverview(user?.permissions) ||
-    canViewDomain(user?.permissions)
-      ? [
-          {
-            title: "Communication & Portal",
-            menu: [
-              ...(canViewCommunication(user?.permissions)
-                ? [
-                    {
-                      title: "Communications",
-                      url: "communications",
-                      icon: Megaphone,
-                    },
-                  ]
-                : []),
+    // ...(canViewCommunication(user?.permissions) ||
+    // canViewPortalCustomization(user?.permissions) ||
+    // canViewPortalOverview(user?.permissions) ||
+    // canViewDomain(user?.permissions)
+    //   ? [
+    //       {
+    //         title: "Communication & Portal",
+    //         menu: [
+    //           ...(canViewCommunication(user?.permissions)
+    //             ? [
+    //                 {
+    //                   title: "Communications",
+    //                   url: "communications",
+    //                   icon: Megaphone,
+    //                 },
+    //               ]
+    //             : []),
 
-              ...(canViewPortalOverview(user?.permissions)
-                ? [
-                    {
-                      title: "Portal Overview",
-                      url: "portal-overview",
-                      icon: Macbook,
-                    },
-                  ]
-                : []),
+    //           ...(canViewPortalOverview(user?.permissions)
+    //             ? [
+    //                 {
+    //                   title: "Portal Overview",
+    //                   url: "portal-overview",
+    //                   icon: Macbook,
+    //                 },
+    //               ]
+    //             : []),
 
-              ...(canViewPortalCustomization(user?.permissions)
-                ? [
-                    {
-                      title: "Portal Customization",
-                      url: "portal-customization",
-                      icon: ColorFilter,
-                    },
-                  ]
-                : []),
+    //           ...(canViewPortalCustomization(user?.permissions)
+    //             ? [
+    //                 {
+    //                   title: "Portal Customization",
+    //                   url: "portal-customization",
+    //                   icon: ColorFilter,
+    //                 },
+    //               ]
+    //             : []),
 
-              ...(canViewDomain(user?.permissions)
-                ? [
-                    {
-                      title: "Domain",
-                      url: "domain",
-                      icon: Global,
-                    },
-                  ]
-                : []),
-            ],
-          },
-        ]
-      : []),
+    //           ...(canViewDomain(user?.permissions)
+    //             ? [
+    //                 {
+    //                   title: "Domain",
+    //                   url: "domain",
+    //                   icon: Global,
+    //                 },
+    //               ]
+    //             : []),
+    //         ],
+    //       },
+    //     ]
+    //   : []),
 
     ...(canViewSettings(user?.permissions)
       ? [

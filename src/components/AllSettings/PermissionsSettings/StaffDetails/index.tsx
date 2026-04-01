@@ -19,6 +19,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { DeactivateStaffModal } from "./DeactivateStaffModal";
 import { StaffBranch } from "@/api/types";
+import { TeacherAssignments } from "./TeacherAssignments";
 
 export const StaffDetails = () => {
   const router = useRouter();
@@ -152,6 +153,8 @@ export const StaffDetails = () => {
                 <div className="text-text-informative max-w-1/3 truncate text-right font-medium">{data.data.phoneNumber}</div>
               </div>
             </div>
+
+            <TeacherAssignments teacherName={data.data.fullname} staffId={Number(staffId)} />
 
             {/* <div className="border-border-default gap-4 rounded-md border p-4">
             <div className="border-border-default flex items-center gap-3 border-b pb-4">

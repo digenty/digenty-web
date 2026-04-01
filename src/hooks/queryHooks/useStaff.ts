@@ -61,6 +61,7 @@ export const useDeactivateStaff = (staffId: number | null) => {
 
 export const useMakeBranchAdminStaff = () => {
   return useMutation({
+    mutationKey: staffKeys.makeBranchAdminStaff,
     mutationFn: makeBranchAdminStaff,
   });
 };

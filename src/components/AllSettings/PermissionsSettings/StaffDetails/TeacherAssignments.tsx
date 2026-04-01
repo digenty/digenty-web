@@ -8,11 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
-import { useGetClasses } from "@/hooks/queryHooks/useClass";
-import { useGetAllSubjects } from "@/hooks/queryHooks/useSubject";
+import { useAssignClassTeacher, useGetClasses } from "@/hooks/queryHooks/useClass";
+import { useAssignSubjectTeacher, useGetAllSubjects } from "@/hooks/queryHooks/useSubject";
 import { cn } from "@/lib/utils";
-import { ChevronDown, Search, X } from "lucide-react";
-import React, { useState } from "react";
+import { ChevronDown, Loader2, Search, X } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { transformSubjectArmMap } from "../utils";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/Toast";
 
 interface SelectedArm {
   id: number;
@@ -20,7 +23,7 @@ interface SelectedArm {
   className: string;
 }
 
-export const TeacherAssignments = () => {
+export const TeacherAssignments = ({ teacherName, staffId }: { teacherName: string; staffId: number }) => {
   const [isClassTeacher, setIsClassTeacher] = useState(false);
   const [selectedArms, setSelectedArms] = useState<SelectedArm[]>([]);
   const [isSubjectTeacher, setIsSubjectTeacher] = useState(false);
@@ -34,6 +37,11 @@ export const TeacherAssignments = () => {
 
   const { data: classesData, isPending: loadingClasses } = useGetClasses();
   const { data: subjectsData, isPending: loadingSubjects } = useGetAllSubjects();
+
+  const { mutate: assignClassTeacher, isPending: isAssigningClass } = useAssignClassTeacher();
+  const { mutate: assignSubjectTeacher, isPending: isAssigningSubject } = useAssignSubjectTeacher();
+
+  const transformedSubjectArmmap = useMemo(() => transformSubjectArmMap(subjectArmsMap), [subjectArmsMap]);
 
   const handleToggleClassTeacher = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsClassTeacher(e.target.checked);
@@ -99,14 +107,58 @@ export const TeacherAssignments = () => {
   const filteredSubjects =
     subjectsData?.data?.data?.filter((s: AllSubjects) => s.name.toLowerCase().includes(subjectSearchQuery.toLowerCase())) || [];
 
+  const handleAssignClassTeacher = () => {
+    const payload = {
+      armDtos: selectedArms.map(arm => ({ armId: arm.id })),
+      teacherId: staffId,
+    };
+    assignClassTeacher(payload, {
+      onSuccess: () => {
+        toast({
+          title: "Operation successful",
+          description: `Classes assigned to ${teacherName} successfully`,
+          type: "success",
+        });
+      },
+      onError: error => {
+        toast({
+          title: "Failed to assign class(es)",
+          description: error.message,
+          type: "error",
+        });
+      },
+    });
+  };
+
+  const handleAssignSubjectTeacher = () => {
+    const payload = {
+      subjectArmAndClassDtos: transformedSubjectArmmap,
+      teacherId: staffId,
+    };
+    assignSubjectTeacher(payload, {
+      onSuccess: () => {
+        toast({
+          title: "Operation successful",
+          description: `Subjects assigned to ${teacherName} successfully`,
+          type: "success",
+        });
+      },
+      onError: error => {
+        toast({
+          title: "Failed to assign subject(s)",
+          description: error.message,
+          type: "error",
+        });
+      },
+    });
+  };
+
   return (
     <div className="flex flex-col gap-6 pb-6">
-      <div className="border-border-default my-6 flex w-full flex-col gap-4 rounded-md border p-4 md:p-6">
+      <div className="border-border-default flex w-full flex-col gap-4 rounded-md border p-4 md:p-6">
         <div className="flex flex-col gap-1">
           <div className="text-text-default text-lg font-semibold">Teacher Assignments</div>
-          <div className="text-text-subtle text-sm font-normal">
-            Set up class and subject teacher assignments. Academic permissions are automatically granted based on these assignments.
-          </div>
+          <div className="text-text-subtle text-sm font-normal">Set up {teacherName || "this teacher"} as a class or subject teacher.</div>
         </div>
 
         <div className="flex flex-col gap-4">
@@ -117,7 +169,7 @@ export const TeacherAssignments = () => {
               </div>
               <div className="flex flex-col">
                 <div className="text-text-default text-sm font-medium">Class Teacher</div>
-                <div className="text-text-muted text-xs">Assign specific classes this teacher will manage</div>
+                <div className="text-text-muted text-xs">Assign specific classes {teacherName || "this teacher"} will manage</div>
               </div>
             </div>
 
@@ -183,6 +235,17 @@ export const TeacherAssignments = () => {
                     <X className="text-icon-default-muted size-3 cursor-pointer" onClick={() => removeArm(a.id)} />
                   </Badge>
                 ))}
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7! w-fit rounded-md px-4"
+                  onClick={handleAssignClassTeacher}
+                  disabled={isAssigningClass || selectedArms.length === 0}
+                >
+                  {isAssigningClass && <Loader2 className="mr-2 size-3 animate-spin" />}
+                  Assign
+                </Button>
               </div>
               <div className="border-border-default my-2 w-full border-b"></div>
             </div>
@@ -285,11 +348,22 @@ export const TeacherAssignments = () => {
                 />
               ))}
             </div>
+
+            <div className="flex justify-end">
+              <Button
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7! w-fit rounded-md px-4"
+                onClick={handleAssignSubjectTeacher}
+                disabled={isAssigningSubject || transformedSubjectArmmap.length === 0}
+              >
+                {isAssigningSubject && <Loader2 className="mr-2 size-3 animate-spin" />}
+                Assign
+              </Button>
+            </div>
           </div>
         )}
       </div>
 
-      <div className="border-border-default bg-bg-basic-blue-subtle flex flex-col gap-2 rounded-md border px-5 py-3">
+      {/* <div className="border-border-default bg-bg-basic-blue-subtle flex flex-col gap-2 rounded-md border px-5 py-3">
         <div className="text-text-subtle text-sm font-semibold">Automatic Academic Permissions</div>
         <div className="text-text-subtle text-xs">Once assignments are made, the following permissions are automatically granted:</div>
         <ul className="flex list-disc flex-col gap-2 pl-4">
@@ -310,7 +384,7 @@ export const TeacherAssignments = () => {
             <span className="text-text-subtle text-xs font-normal">All academic permissions including approval rights</span>
           </li>
         </ul>
-      </div>
+      </div> */}
     </div>
   );
 };

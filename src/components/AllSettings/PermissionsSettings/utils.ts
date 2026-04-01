@@ -21,6 +21,13 @@ import Store3 from "@/components/Icons/Store3";
 import Wallet from "@/components/Icons/Wallet";
 import React from "react";
 
+type Input = Record<string, { id: number }[]>;
+
+type Output = {
+  subjectId: number;
+  armId: number;
+};
+
 type RawPermission = {
   id: number;
   uuid: string;
@@ -91,4 +98,21 @@ export const transformPermissions = (permissions: RawPermission[]): PermissionGr
     });
   }
   return Array.from(groups.values());
+};
+
+export const transformSubjectArmMap = (data: Input): Output[] => {
+  const result: Output[] = [];
+
+  for (const subjectId in data) {
+    const arms = data[subjectId];
+
+    for (let i = 0; i < arms.length; i++) {
+      result.push({
+        subjectId: Number(subjectId),
+        armId: arms[i].id,
+      });
+    }
+  }
+
+  return result;
 };

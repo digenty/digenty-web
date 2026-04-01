@@ -21,16 +21,24 @@ export const useAddRole = () => {
 };
 
 export const useDeleteRole = (roleId?: number) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: roleKeys.deleteRole,
     mutationFn: () => deleteRole(roleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [roleKeys.roles] });
+    },
   });
 };
 
 export const useUpdateRole = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: roleKeys.updateRole,
     mutationFn: updateRole,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [roleKeys.roles] });
+    },
   });
 };
 

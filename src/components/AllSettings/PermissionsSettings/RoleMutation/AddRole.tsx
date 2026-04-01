@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React, { useState } from "react";
 import { ModulePermission } from "./ModulePermission";
-import { TeacherAssignments } from "./TeacherAssignments";
+import { TeacherAssignments } from "../StaffDetails/TeacherAssignments";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useFormik } from "formik";
 import { roleSchema } from "@/schema/role";
@@ -112,9 +112,11 @@ export const AddRoleSettings = () => {
                 </div>
               </div>
 
-              <div className="border-border-default border-b" />
+              {/* <div className="border-border-default border-b" /> */}
 
-              <div className="px-4">
+              <ModulePermission permissionIds={permissionIds} setPermissionIds={setPermissionIds} />
+
+              {/* <div className="px-4">
                 <Tabs
                   className="w-full"
                   items={[
@@ -128,7 +130,7 @@ export const AddRoleSettings = () => {
                     },
                   ]}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
