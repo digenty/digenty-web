@@ -1,6 +1,19 @@
-import { AddStaffPayload } from "@/components/AllSettings/types";
+import { AddStaffPayload, UpdateStaffPayload } from "@/components/AllSettings/types";
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
+
+export const updateStaff = async (payload: UpdateStaffPayload) => {
+  try {
+    const { data } = await api.put("/staffs", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+
+    throw error;
+  }
+};
 
 export const addStaff = async (payload: AddStaffPayload) => {
   try {

@@ -167,7 +167,7 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
 
   return (
     <div className="">
-      <div className="mx-auto mb-10 flex w-full flex-col gap-4 md:w-150 md:px-4">
+      <div className="mx-auto mb-10 flex w-full flex-col gap-4 px-4 pb-12 md:w-150">
         <div className="flex items-center justify-between">
           <div className="text-text-default text-lg font-semibold">Academic Session & Term</div>
           {!isEditing && (
@@ -345,7 +345,7 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
       </div>
 
       {isEditing && (
-        <div className="border-border-default bg-bg-default sticky bottom-0 mx-auto flex w-full justify-between border-t py-3 md:px-36">
+        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
           <Button onClick={handleCancel} disabled={isSaving} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
           </Button>

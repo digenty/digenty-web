@@ -37,7 +37,6 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
       }
 
       const cls = classes.data.content?.find((cls: ClassType) => cls.name === data.data.class && cls.branchId === branch?.branch?.id);
-      console.log(cls, "lllllcls", classes.data.content, data.data.class, branch?.branch?.id);
       setClassName(cls?.name);
       setClassId(cls?.id);
       if (cls) {

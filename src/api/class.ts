@@ -21,6 +21,18 @@ export const getClasses = async (branchId?: number) => {
   }
 };
 
+export const assignClassTeacher = async (payload: { armDtos: { armId: number }[]; teacherId: number }) => {
+  try {
+    const { data } = await api.post("/teacher/class", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getTeacherClass = async () => {
   try {
     const data = await api.get("/teacher/class/my");

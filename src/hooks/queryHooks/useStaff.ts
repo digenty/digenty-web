@@ -1,6 +1,6 @@
-import { addStaff, deactivateStaff, deleteStaff, getStaff, getStaffDetails, makeBranchAdminStaff } from "@/api/staff";
+import { addStaff, deactivateStaff, deleteStaff, getStaff, getStaffDetails, makeBranchAdminStaff, updateStaff } from "@/api/staff";
 import { staffKeys } from "@/queries/staff";
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetStaffs = ({ branchId, search, limit }: { branchId?: number; search?: string; limit: number }) => {
   return useInfiniteQuery({
@@ -14,10 +14,26 @@ export const useGetStaffs = ({ branchId, search, limit }: { branchId?: number; s
   });
 };
 
+export const useUpdateStaff = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: staffKeys.updateStaff,
+    mutationFn: updateStaff,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [staffKeys.staffs] });
+      queryClient.invalidateQueries({ queryKey: staffKeys.staffDetails(variables.staffId) });
+    },
+  });
+};
+
 export const useAddStaff = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: staffKeys.addStaff,
     mutationFn: addStaff,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [staffKeys.staffs] });
+    },
   });
 };
 
@@ -45,6 +61,7 @@ export const useDeactivateStaff = (staffId: number | null) => {
 
 export const useMakeBranchAdminStaff = () => {
   return useMutation({
+    mutationKey: staffKeys.makeBranchAdminStaff,
     mutationFn: makeBranchAdminStaff,
   });
 };

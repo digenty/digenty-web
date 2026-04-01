@@ -71,10 +71,9 @@ export const Staffs = () => {
         });
       },
       onError: error => {
-        console.log(error, "####");
         toast({
           title: "Failed to deactivate staff",
-          description: error.message,
+          description: error?.message || "Something went wrong in deactivating staff",
           type: "error",
         });
       },

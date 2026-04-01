@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAddmissionNumber } from "@/hooks/queryHooks/useAdmission";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { admissionFormSchema } from "@/schema/academic";
 import { DIGITS } from "@/store/admission";
 import { useFormik } from "formik";
@@ -33,6 +34,11 @@ export const AdmissionNumberSetup = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
+
+  useBreadcrumb([
+    { label: "Academic Settings", url: "/staff/settings/academic" },
+    { label: "Admission Number Setup", url: "/staff/settings/academic?step=admission-number" },
+  ]);
 
   const { mutate: addAdmissionNumber } = useAddmissionNumber();
 
