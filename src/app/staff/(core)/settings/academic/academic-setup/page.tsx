@@ -1,4 +1,4 @@
-import { AcademicSetup } from "@/components/AllSettings/AcademicSettings";
+import { AcademicSetup } from "@/components/AllSettings/AcademicSettings/AcademicSetup";
 
 const AcademicSetupPage = () => {
   return (

@@ -28,6 +28,31 @@ export const getTeacherSubjects = async () => {
   }
 };
 
+export const getAllSubjects = async () => {
+  try {
+    const data = await api.get("/subjects");
+
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const assignSubjectTeacher = async (payload: { teacherId: number; subjectArmAndClassDtos: { subjectId: number; armId: number }[] }) => {
+  try {
+    const { data } = await api.post("/teacher/subject", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getSubjectStudents = async (subjectId: number, armId: number) => {
   try {
     const data = await api.get(`/report/subject/${subjectId}/arm/${armId}?page=0&size=100`);

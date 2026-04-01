@@ -136,7 +136,7 @@ export const Submission = () => {
 
               return (
                 <div key={term.termId} className="bg-bg-card border-border-darker w-full rounded-md border p-4 md:p-6">
-                  <div className="text-text-default text-md mb-4 font-semibold">{term.term} Term</div>
+                  <div className="text-text-default text-md mb-4 font-semibold capitalize">{term.term.toLowerCase()} Term</div>
 
                   {!isEditing && (
                     <>

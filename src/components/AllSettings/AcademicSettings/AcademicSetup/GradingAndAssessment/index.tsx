@@ -25,6 +25,7 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { levelFormSchema } from "@/schema/academic";
 import { usePathname, useRouter } from "next/navigation";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 export type GradingAndAssessmentHandle = {
   submit: () => Promise<boolean>;
@@ -165,7 +166,7 @@ const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: 
     addGrading(payload, {
       onSuccess: () => {
         toast({
-          title: "Grading save successfully",
+          title: "Grading saved successfully",
           type: "success",
         });
       },
@@ -215,7 +216,7 @@ const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: 
                             onBlur={handleBlur}
                             type="number"
                             placeholder="70"
-                            className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent text-sm"
+                            className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent px-0! pl-1 text-sm"
                           />
                         </div>
                         <div className="text-text-subtle w-1">-</div>
@@ -227,7 +228,7 @@ const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: 
                             onBlur={handleBlur}
                             type="number"
                             placeholder="100"
-                            className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent text-sm"
+                            className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent px-0! text-sm"
                           />
                         </div>
                       </div>
@@ -461,9 +462,13 @@ const LevelTabsContainer = ({ levels, activeLevel, setActiveLevel, branchId }: L
 export const GradingAndAssessment = ({
   setCompletedSteps,
   completedSteps,
+  isEditing,
+  setIsEditing,
 }: {
-  setCompletedSteps: (steps: string[]) => void;
-  completedSteps: string[];
+  setCompletedSteps?: (steps: string[]) => void;
+  completedSteps?: string[];
+  isEditing?: boolean;
+  setIsEditing?: (editing: boolean) => void;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -471,6 +476,11 @@ export const GradingAndAssessment = ({
   const [branchSpecific, setBranchSpecific] = useState(false);
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
+
+  useBreadcrumb([
+    { label: "Academic Settings", url: "/staff/settings/academic" },
+    { label: "Grading and Assessment", url: "/staff/settings/academic?step=grading-and-assessment" },
+  ]);
 
   const { data: classLevelData, isLoading } = useGetLevels(activeBranch?.id);
   const branchLevels: Level[] = React.useMemo(() => classLevelData?.data ?? [], [classLevelData]);
@@ -517,27 +527,50 @@ export const GradingAndAssessment = ({
         {!isLoading && <LevelTabsContainer levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} branchId={activeBranch?.id} />}
       </div>
 
-      <div className="border-border-default bg-bg-default absolute bottom-0 mt-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+      <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
         <Button
           className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
           onClick={() => {
-            router.push(`${pathname}?step=class-and-arms`);
+            setIsEditing?.(false);
           }}
         >
-          Previous
+          Cancel
         </Button>
 
         <Button
           type="button"
           onClick={() => {
-            setCompletedSteps([...completedSteps, "grading-and-assessment"]);
-            router.push(`${pathname}?step=admission-number`);
+            setIsEditing?.(false);
           }}
           className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
         >
-          Next
+          Save Changes
         </Button>
       </div>
+
+      {completedSteps && setCompletedSteps && (
+        <div className="border-border-default bg-bg-default absolute bottom-0 mt-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+          <Button
+            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+            onClick={() => {
+              router.push(`${pathname}?step=class-and-arms`);
+            }}
+          >
+            Previous
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => {
+              setCompletedSteps([...completedSteps, "grading-and-assessment"]);
+              router.push(`${pathname}?step=admission-number`);
+            }}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </section>
   );
 };

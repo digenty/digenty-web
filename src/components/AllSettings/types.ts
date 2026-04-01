@@ -11,6 +11,13 @@ export interface AddStaffPayload {
   lastName: string;
   email: string;
   phoneNumber: string;
-  password: string;
-  branchAssignmentDtos: BranchDto[];
+  password?: string;
+  branchAssignmentDtos: {
+    branchId: number;
+    roleIds: number[];
+  }[];
+}
+
+export interface UpdateStaffPayload extends AddStaffPayload {
+  staffId: number;
 }

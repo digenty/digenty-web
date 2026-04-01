@@ -16,8 +16,12 @@ import { useAddResultCalculation } from "@/hooks/queryHooks/useResult";
 import { useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { defaultFormState, LevelFormProps, LevelFormState } from "./types";
+import { extractUniqueSubjectsByName, Subject } from "./utils";
+import { useGetGradingsByLevel } from "@/hooks/queryHooks/useLevel";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; levels: { label: string; content: React.ReactNode }[] }) {
   const isMobile = useIsMobile();
@@ -63,7 +67,7 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
                   key={index}
                   onClick={() => setActiveIndex(index)}
                   className={cn(
-                    "transit flex justify-center px-4 py-2 text-sm font-medium capitalize",
+                    "transit flex justify-center px-4 py-2 text-sm font-medium whitespace-nowrap capitalize",
                     isActive
                       ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
                       : "text-text-muted flex h-8 items-center gap-1",
@@ -88,11 +92,13 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
   );
 }
 
-const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending }: LevelFormProps) => {
+const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, isPending }: LevelFormProps) => {
+  const router = useRouter();
   const { data: subjectsData, isLoading: isLoadingSubjects } = useGetSubjectsByLevel(levelType);
-  const { data: gradingsData, isLoading: isLoadingGradings } = useGetSchoolGradings();
+  const { data: gradingsData, isLoading: isLoadingGradings } = useGetGradingsByLevel(levelId);
 
-  const subjects = subjectsData?.data?.content ?? [];
+  const subjects = useMemo(() => extractUniqueSubjectsByName(subjectsData?.data ?? []), [subjectsData]);
+
   const gradings = gradingsData?.data ?? [];
 
   const toggleSubject = (subjectId: number) => {
@@ -190,7 +196,10 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
           <div className="flex items-start gap-4">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <RoundedCheckbox checked={false} onChange={() => {}} />
+                <RoundedCheckbox
+                  checked={formState.promotionType === "SUBJECT_COMBINATION"}
+                  onChange={() => onChange({ promotionType: "SUBJECT_COMBINATION" })}
+                />
                 <div className="text-text-default text-sm font-medium">Subject Combination</div>
               </div>
               <div className="text-text-subtle pl-6 text-sm">Set specific subject requirements and performance criteria</div>
@@ -203,22 +212,20 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
                   <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
                 ) : (
                   <>
-                    <Select value="">
+                    <Select value="" onValueChange={val => onChange({ requiredSubjectIds: [...formState.requiredSubjectIds, Number(val)] })}>
                       <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
                         <SelectValue placeholder="Select subjects" />
                       </SelectTrigger>
                       <SelectContent className="bg-bg-default border-border-default">
-                        {subjects.map((sub: Levelsubject) => (
+                        {subjects.map((sub: Subject) => (
                           <SelectItem
                             key={sub.id}
                             value={String(sub.id)}
-                            className="text-text-default text-sm"
+                            className="text-text-default text-sm capitalize"
                             onSelect={() => toggleSubject(sub.id)}
                           >
-                            <div className="flex items-center gap-2">
-                              <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} onChange={() => toggleSubject(sub.id)} />
-                              {sub.name}
-                            </div>
+                            <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} onChange={() => toggleSubject(sub.id)} />
+                            {sub.name.toLowerCase()}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -226,10 +233,10 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
                     {formState.requiredSubjectIds.length > 0 && (
                       <div className="mt-1 flex flex-wrap items-center gap-1">
                         {subjects
-                          .filter((s: Levelsubject) => formState.requiredSubjectIds.includes(s.id))
-                          .map((s: Levelsubject) => (
+                          .filter((s: Subject) => formState.requiredSubjectIds.includes(s.id))
+                          .map((s: Subject) => (
                             <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
-                              <span>{s.name}</span>
+                              <span className="capitalize">{s.name.toLowerCase()}</span>
                               <button onClick={() => toggleSubject(s.id)} className="text-text-muted hover:text-text-default">
                                 ×
                               </button>
@@ -255,6 +262,17 @@ const LevelForm = ({ levelType, formState, onChange, onSave, onCancel, isPending
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent className="bg-bg-default border-border-default">
+                        {gradings.length === 0 && (
+                          <div className="text-text-default flex flex-col items-center justify-center gap-2 px-4 py-2 text-sm">
+                            No grades set for this level
+                            <Button
+                              onClick={() => router.push("/staff/settings/academic")}
+                              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
+                            >
+                              Set Grades
+                            </Button>
+                          </div>
+                        )}
                         {gradings.map((g: SchoolGrading) => (
                           <SelectItem key={g.id} value={g.grade} className="text-text-default text-sm">
                             {g.grade}
@@ -309,7 +327,7 @@ export const ClassesSetup = () => {
   const { mutate, isPending } = useAddResultCalculation();
   const levels = extractUniqueLevelsByType(classLevel?.data || []);
 
-  const academicSessionId = academicData?.data?.find((s: AcademicSession) => s.isActive)?.id ?? academicData?.data?.[0]?.id;
+  const academicSessionId = academicData?.data?.id;
 
   const [formStates, setFormStates] = useState<Record<string, LevelFormState>>({});
 
@@ -334,7 +352,7 @@ export const ClassesSetup = () => {
       levelId,
       academicSessionId,
       calculationMethod: state.calculationMethod!,
-      promotionType: state.promotionType!,
+      promotionType: state.promotionType === "SUBJECT_COMBINATION" ? "BY_PERFORMANCE" : state.promotionType!,
       minimumOverallPercentage: Number(state.minimumOverallPercentage) || 0,
       minimumPassGrade: state.minimumPassGrade,
       requiredSubjectIds: state.requiredSubjectIds,
@@ -373,6 +391,7 @@ export const ClassesSetup = () => {
           content: (
             <LevelForm
               levelType={levelType}
+              levelId={id}
               academicSessionId={academicSessionId}
               formState={getFormState(levelName)}
               onChange={updates => updateFormState(levelName, updates)}

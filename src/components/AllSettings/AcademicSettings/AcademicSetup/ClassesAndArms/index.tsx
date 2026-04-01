@@ -27,6 +27,7 @@ import React, { useEffect, useState } from "react";
 import { ClassEditSheet } from "./ClassEditSheet";
 import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (t: Branch | null) => void }) {
   const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
@@ -118,7 +119,6 @@ function ClassesResponsiveTabs({
   const [sheetOpen, setSheetOpen] = React.useState(false);
 
   const { data: classesByLevelData, isPending } = useGetClassesByLevel(activeLevel?.id);
-
   const Classes = () => {
     return (
       <>
@@ -126,8 +126,8 @@ function ClassesResponsiveTabs({
         {sheetOpen && <ClassEditSheet sheetOpen={sheetOpen} setSheetOpen={setSheetOpen} level={activeLevel} branchId={branchId} classId={classId} />}
 
         {isPending && !classesByLevelData && <Skeleton className="bg-bg-state-soft h-80 w-full" />}
-        {!isPending && classesByLevelData && classesByLevelData?.data?.length === 0 && (
-          <div className="flex w-full items-center justify-center">
+        {!isPending && classesByLevelData && classesByLevelData?.data?.content?.length === 0 && (
+          <div className="flex w-full items-center justify-center pt-15">
             <ErrorComponent title="No Classes added yet" description="Use the Quick Setup to add classes" />
           </div>
         )}
@@ -199,15 +199,15 @@ function ClassesResponsiveTabs({
 
         {!isPending && classesByLevelData && activeLevel?.levelType === "SENIOR_SECONDARY" && (
           <div className="mt-8 flex flex-col gap-6">
-            {classesByLevelData?.data?.map((clss: ClassInLevel) => (
-              <div key={clss.id} className="bg-bg-state-soft rounded-md p-1">
+            {classesByLevelData?.data?.content?.map((clss: ClassInLevelDetails) => (
+              <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
                 <div className="flex items-center justify-between px-5 py-2">
-                  <div className="text-text-default text-sm font-medium">{clss.name} </div>
+                  <div className="text-text-default text-sm font-medium">{clss.className} </div>
                   <div className="flex items-center gap-2">
                     <Button
                       onClick={() => {
-                        setClassId(clss.id);
                         setOpenDelete(true);
+                        setClassId(clss.classId);
                       }}
                       className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
                     >
@@ -309,7 +309,7 @@ function ClassesResponsiveTabs({
         >
           <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
             <SelectValue>
-              {/* <span className="text-text-default text-sm capitalize">{levels[activeIndex].levelName.replaceAll("_", " ").toLowerCase()}</span> */}
+              <span className="text-text-default text-sm capitalize">{levels[activeIndex].levelName.replaceAll("_", " ").toLowerCase()}</span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-bg-default border-border-default">
@@ -363,13 +363,28 @@ function ClassesResponsiveTabs({
   );
 }
 
-export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompletedSteps: (step: string[]) => void; completedSteps: string[] }) => {
+export const ClassesAndArms = ({
+  setCompletedSteps,
+  completedSteps,
+  isEditing,
+  setIsEditing,
+}: {
+  setCompletedSteps?: (step: string[]) => void;
+  completedSteps?: string[];
+  isEditing?: boolean;
+  setIsEditing?: (isEditing: boolean) => void;
+}) => {
   const router = useRouter();
   const pathname = usePathname();
   const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
   const [branchSpecific, setBranchSpecific] = useState(false);
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  useBreadcrumb([
+    { label: "Academic Settings", url: "/staff/settings/academic" },
+    { label: "Classes and Arms", url: "/staff/settings/academic?step=class-and-arms" },
+  ]);
 
   const { data: branchLevels } = useGetLevels(activeBranch?.id);
   const levels = extractUniqueLevelsByType(branchLevels?.data || []);
@@ -382,7 +397,7 @@ export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompl
 
   return (
     <section className="">
-      <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 lg:px-36">
+      <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 pb-12 lg:px-36">
         <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
           <div className="">
             <div className="text-text-default text-md font-semibold">Do academic structures differ by school branch?</div>
@@ -445,23 +460,44 @@ export const ClassesAndArms = ({ setCompletedSteps, completedSteps }: { setCompl
         <Button
           className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
           onClick={() => {
-            router.push(`${pathname}?step=school-structure`);
+            setIsEditing?.(false);
           }}
         >
-          Previous
+          Cancel
         </Button>
 
         <Button
           type="button"
-          onClick={() => {
-            setCompletedSteps([...completedSteps, "class-and-arms"]);
-            router.push(`${pathname}?step=grading-and-assessment`);
-          }}
+          // onClick={}
           className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
         >
-          Next
+          Save Changes
         </Button>
       </div>
+
+      {completedSteps && setCompletedSteps && (
+        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+          <Button
+            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+            onClick={() => {
+              router.push(`${pathname}?step=school-structure`);
+            }}
+          >
+            Previous
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => {
+              setCompletedSteps([...completedSteps, "class-and-arms"]);
+              router.push(`${pathname}?step=grading-and-assessment`);
+            }}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </section>
   );
 };
@@ -502,161 +538,3 @@ export const ClassesSetup = ({
     </div>
   );
 };
-
-export const NurserySetup = ({ onOpenDelete }: { onOpenDelete?: (target?: { id: string; name?: string }) => void }) => {
-  const nurseryClasses = [{ id: "n1" }, { id: "n2" }];
-  return (
-    <div className="mt-8 flex w-full flex-col gap-6">
-      {nurseryClasses.map(nc => (
-        <div key={nc.id} className="bg-bg-state-soft rounded-md p-1">
-          <div className="flex items-center justify-between px-5 py-2">
-            <div className="text-text-default text-sm font-medium">Nusery </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => onOpenDelete?.({ id: nc.id, name: "Nusery" })}
-                className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
-              >
-                <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
-              </Button>
-              <Button className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2">
-                <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
-              </Button>
-            </div>
-          </div>
-          <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-6">
-            <div className="">
-              <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
-                {" "}
-                <BookFill fill="var(--color-bg-basic-blue-accent)" /> Subjects
-              </div>
-              <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                {["English Language", "English Language2", "English Language3", "English Language4"].map((sub, i) => (
-                  <Badge key={i} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                    {sub}
-                  </Badge>
-                ))}
-              </div>
-              <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
-                {" "}
-                <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
-              </div>
-
-              <div className="flex flex-wrap gap-1">
-                {["A", "B", "C"].map(arm => (
-                  <div key={arm} className="">
-                    <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
-                      {arm}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-// export const SecondarySetup = ({ onOpenDelete }: { onOpenDelete?: (target?: { id: string; name?: string }) => void }) => {
-//   const secondaryClasses = [
-//     { id: "ss1", name: "SS 1", hasDelete: true },
-//     { id: "ss2", name: "SS 1", hasDelete: true },
-//   ];
-//   return (
-//     <div className="mt-8 flex flex-col gap-6">
-//       {secondaryClasses.map(sc => (
-//         <div key={sc.id} className="bg-bg-state-soft rounded-md p-1">
-//           <div className="flex items-center justify-between px-5 py-2">
-//             <div className="text-text-default text-sm font-medium">{sc.name} </div>
-//             <div className="flex items-center gap-2">
-//               {sc.hasDelete ? (
-//                 <Button
-//                   onClick={() => onOpenDelete?.({ id: sc.id, name: sc.name })}
-//                   className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
-//                 >
-//                   <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
-//                 </Button>
-//               ) : (
-//                 <Button className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2">
-//                   <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
-//                 </Button>
-//               )}
-//               <Button className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2">
-//                 <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
-//               </Button>
-//             </div>
-//           </div>
-//           <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-2">
-//             <div className="p-3">
-//               <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
-//                 {" "}
-//                 <GraduationCapFill fill="var(--color-bg-basic-blue-accent) " className="size-4" /> Departments
-//               </div>
-//               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-//                 {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-//                   <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-//                     {sub}
-//                   </Badge>
-//                 ))}
-//               </div>
-
-//               <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-//                 {" "}
-//                 <BookFill fill="var(--color-bg-basic-blue-accent)" />
-//                 Art Subjects
-//               </div>
-//               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-//                 {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-//                   <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-//                     {sub}
-//                   </Badge>
-//                 ))}
-//               </div>
-
-//               <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-//                 {" "}
-//                 <BookFill fill="var(--color-bg-basic-blue-accent)" />
-//                 Commercial Subjects
-//               </div>
-//               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-//                 {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-//                   <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-//                     {sub}
-//                   </Badge>
-//                 ))}
-//               </div>
-
-//               <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-//                 {" "}
-//                 <BookFill fill="var(--color-bg-basic-blue-accent)" />
-//                 Science Subjects
-//               </div>
-//               <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-//                 {["English Language", "English Language", "English Language", "English Language"].map(sub => (
-//                   <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-//                     {sub}
-//                   </Badge>
-//                 ))}
-//               </div>
-
-//               <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
-//                 <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
-//               </div>
-
-//               <div className="flex flex-wrap gap-1">
-//                 {["A", "B", "C"].map(arm => (
-//                   <div key={arm} className="">
-//                     <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
-//                       {arm}
-//                     </div>
-//                   </div>
-//                 ))}
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };

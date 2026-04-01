@@ -1,9 +1,9 @@
 "use client";
 
-import { AcademicAllSetupDone } from "@/components/AllSettings/AcademicSettings/AcademicAllSetupDone";
+import { AcademicSetupView } from "@/components/AllSettings/AcademicSettings/AcademicSetupView";
 
 const AcedmicSettingPage = () => {
-  return <AcademicAllSetupDone />;
+  return <AcademicSetupView />;
 };
 
 export default AcedmicSettingPage;

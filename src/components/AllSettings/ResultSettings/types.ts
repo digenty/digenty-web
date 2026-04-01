@@ -17,7 +17,7 @@ export interface LevelRowsState {
 }
 
 export type CalculationMethod = "THIRD_TERM_ONLY" | "CUMULATIVE";
-export type PromotionType = "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE";
+export type PromotionType = "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE" | "SUBJECT_COMBINATION";
 
 export interface LevelFormState {
   calculationMethod: CalculationMethod | null;
@@ -38,6 +38,7 @@ export const defaultFormState = (): LevelFormState => ({
 });
 export interface LevelFormProps {
   levelType: LevelType;
+  levelId: number;
   academicSessionId: number;
   formState: LevelFormState;
   onChange: (updates: Partial<LevelFormState>) => void;

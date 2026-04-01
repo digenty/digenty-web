@@ -14,4 +14,5 @@ export const classKeys = {
   setPromotionDecision: "setPromotionDecision",
   requiredSubjectReport: (armId: number) => ["requiredSubjectReport", armId] as const,
   updateClass: "updateClass",
+  assignClassTeacher: "assignClassTeacher",
 };

@@ -741,3 +741,49 @@ export interface ResultSettings {
   promotionType: "BY_PERFORMANCE" | "PROMOTE_ALL" | "MANUAL";
   requiredSubjectIds: number[];
 }
+
+export interface AssessmentType {
+  id: number;
+  name: string;
+  assessmentType: string;
+  weight: number;
+}
+
+export interface AssessmentResponse {
+  assessments: AssessmentType[];
+  totalWeight: number;
+}
+
+export interface PrincipalsComment {
+  comment: string;
+  id: number;
+  levelId: number;
+  maxPercentage: number;
+  minPercentage: number;
+}
+
+export interface StaffBranch {
+  branchId: number;
+  branchName: string;
+  roleNames: string[];
+  subjectTeachings: string[];
+  classTeacherArms: string[];
+  permissions: [
+    {
+      moduleName: string;
+      permissions: string[];
+    },
+  ];
+}
+
+export interface AllSubjects {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  branchId: number;
+  schoolId: number;
+}

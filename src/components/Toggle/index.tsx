@@ -27,7 +27,7 @@ export const Toggle = ({ label, className, checked, withBorder = true, ...props 
           withBorder ? "h-3 w-7" : "h-5 w-8",
         )}
       >
-        <input type="checkbox" className="peer sr-only" {...props} />
+        <input type="checkbox" className="peer sr-only" checked={checked} {...props} />
 
         <span
           className={cn("bg-bg-switch-handle block rounded-full transition-all peer-checked:translate-x-3", withBorder ? "h-3 w-3" : "h-3.5 w-3.5")}

@@ -7,9 +7,9 @@ import { transformPermissions } from "../utils";
 export const ModulePermission = ({ permissionIds, setPermissionIds }: { permissionIds: number[]; setPermissionIds: (ids: number[]) => void }) => {
   const { data, isPending, isError } = useGetPermissions();
   return (
-    <div className="border-border-default my-6 flex w-full flex-col gap-4 rounded-md border p-4 md:p-6">
+    <div className="border-border-default flex w-full flex-col gap-4 rounded-md px-4 py-2 md:px-6 md:py-4">
       <div className="flex flex-col gap-1">
-        <div className="text-text-default text-lg font-semibold">Module Permissions</div>
+        <div className="text-text-default text-lg font-semibold">Permissions</div>
         <div className="text-text-subtle text-sm">Configure access to standard system modules</div>
       </div>
 

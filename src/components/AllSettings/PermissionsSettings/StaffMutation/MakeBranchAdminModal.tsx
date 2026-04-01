@@ -106,7 +106,7 @@ export const MakeBranchAdminModal = () => {
                 <Button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
+                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
                 >
                   {submitting && <Spinner className="text-text-white-default" />}
                   Save Changes

@@ -45,3 +45,26 @@ export const getLevelResultSettings = async (levelId: number, filter: string) =>
     throw error;
   }
 };
+export const getAssessmentsByLevel = async (levelId: number) => {
+  try {
+    const { data } = await api.get(`/assessments/level?levelId=${levelId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const getGradingsByLevel = async (levelId: number) => {
+  try {
+    const { data } = await api.get(`/gradings/level?levelId=${levelId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

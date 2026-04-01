@@ -18,20 +18,9 @@ import { useStaffStore } from "@/store/staff";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { DeactivateStaffModal } from "./DeactivateStaffModal";
+import { StaffBranch } from "@/api/types";
+import { TeacherAssignments } from "./TeacherAssignments";
 
-type StaffBranch = {
-  branchId: number;
-  branchName: string;
-  roleNames: string[];
-  subjectTeachings: string[];
-  classTeacherArms: string[];
-  permissions: [
-    {
-      moduleName: string;
-      permissions: string[];
-    },
-  ];
-};
 export const StaffDetails = () => {
   const router = useRouter();
   const pathname = usePathname();
@@ -68,7 +57,6 @@ export const StaffDetails = () => {
       },
     });
   };
-  console.log(data);
 
   return (
     <>
@@ -131,12 +119,12 @@ export const StaffDetails = () => {
                 >
                   <UserForbid fill="var(--color-icon-default-muted)" className="size-4" /> Deactivate
                 </Button>
-                <Button
+                {/* <Button
                   onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staffId}`)}
                   className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
                 >
                   <Edit fill="var(--color-icon-default-muted)" className="size-4" /> Edit Staff
-                </Button>
+                </Button> */}
               </div>
             </div>
 
@@ -165,6 +153,8 @@ export const StaffDetails = () => {
                 <div className="text-text-informative max-w-1/3 truncate text-right font-medium">{data.data.phoneNumber}</div>
               </div>
             </div>
+
+            <TeacherAssignments teacherName={data.data.fullname} staffId={Number(staffId)} />
 
             {/* <div className="border-border-default gap-4 rounded-md border p-4">
             <div className="border-border-default flex items-center gap-3 border-b pb-4">

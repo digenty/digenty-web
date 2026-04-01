@@ -1,4 +1,5 @@
 import {
+  assignClassTeacher,
   deleteClass,
   getClassCumulativeReport,
   getClasses,
@@ -23,6 +24,17 @@ export const useGetClasses = (branchId?: number) => {
   return useQuery({
     queryKey: [classKeys.classes, branchId],
     queryFn: () => getClasses(branchId),
+  });
+};
+
+export const useAssignClassTeacher = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: [classKeys.assignClassTeacher],
+    mutationFn: assignClassTeacher,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [branchKeys.branchDetail] });
+    },
   });
 };
 
