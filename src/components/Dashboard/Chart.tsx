@@ -32,7 +32,7 @@ export const Chart = ({ branchSelected }: { branchSelected: Branch | null }) => 
   }, [data, selected]);
 
   return (
-    <div className="space-y-4 rounded-md py-6 md:pt-5 md:pb-0">
+    <div className="w-full min-w-0 space-y-4 rounded-md py-6 md:pt-5 md:pb-0">
       <div className="flex flex-col justify-between gap-3.5 px-3 md:flex-row md:items-center md:px-5">
         <PaymentFilter termSelected={termSelected} setTermSelected={setTermSelected} />
         <Legend />

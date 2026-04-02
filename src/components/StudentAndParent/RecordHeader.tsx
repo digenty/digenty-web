@@ -18,7 +18,6 @@ import { Label } from "../ui/label";
 import { Skeleton } from "../ui/skeleton";
 import { studentsStatus } from "./constants";
 import { StudentsStatus } from "./types";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const RecordHeader = ({
   tab,
@@ -45,12 +44,12 @@ export const RecordHeader = ({
   loadingBranches?: boolean;
   classes?: { data: { content: ClassType[] } };
   loadingClasses?: boolean;
-  arms?: { data: { content: Arm[] } };
+  arms?: { data: Arm[] };
   loadingArms?: boolean;
 }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
-  console.log(useLoggedInUser());
+  console.log();
 
   return (
     <div>
@@ -280,7 +279,7 @@ export const RecordHeader = ({
                     ) : (
                       <Select
                         onValueChange={value => {
-                          const arm = arms.data.content.find((arm: Arm) => arm.uuid === value);
+                          const arm = arms.data?.find((arm: Arm) => arm.uuid === value);
                           onFilterChange("armSelected", arm);
                           setFilterCount(prev => (!filter.armSelected ? prev + 1 : prev));
                         }}
@@ -289,8 +288,8 @@ export const RecordHeader = ({
                           <span className="text-text-default text-sm">{filter.armSelected ? filter.armSelected?.name : "Select Arm"}</span>
                         </SelectTrigger>
                         <SelectContent className="bg-bg-default border-border-default">
-                          {arms.data.content.length === 0 && <SelectItem value="none">No Arms for the selected class</SelectItem>}
-                          {arms.data.content.map((arm: Arm) => (
+                          {arms.data?.length === 0 && <SelectItem value="none">No Arms for the selected class</SelectItem>}
+                          {arms.data?.map((arm: Arm) => (
                             <SelectItem key={arm.id} value={arm.uuid} className="text-text-default text-sm">
                               {arm.name}
                             </SelectItem>

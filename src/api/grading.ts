@@ -29,7 +29,7 @@ export const addGradingDefault = async (payload: GradingDefaultPayload) => {
 
 export const addGrading = async (payload: GradingPayload) => {
   try {
-    const { data } = await api.post("/gradings/branch-level", payload);
+    const { data } = await api.post("/gradings/level", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

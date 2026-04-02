@@ -6,7 +6,7 @@ import { QuickReferenceAll } from "../Icons/QuickReferenceAll";
 
 export const StackedBarChart = ({ data }: { data: ChartData[] }) => {
   return (
-    <div className="h-[330px] w-full">
+    <div className="h-[330px] w-full min-w-0">
       {data.length === 0 && (
         <div className="flex h-full flex-col items-center justify-center gap-2">
           <QuickReferenceAll />

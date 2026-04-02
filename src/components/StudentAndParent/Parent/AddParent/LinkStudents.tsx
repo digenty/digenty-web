@@ -60,7 +60,7 @@ export const LinkStudents = ({
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
-                  <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
+                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
                   <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
@@ -195,7 +195,7 @@ export const LinkStudents = ({
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
-                  <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
+                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
                   <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">

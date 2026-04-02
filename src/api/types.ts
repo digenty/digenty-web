@@ -374,7 +374,8 @@ export interface AssessmentDefaultPayload {
 
 export interface AssessmentPayload {
   branchId?: number;
-  levelId?: number;
+  branchSpecific?: boolean;
+  levelType?: LevelType;
   assessments: {
     name: string;
     weight: number;
@@ -394,7 +395,8 @@ export interface GradingDefaultPayload {
 
 export interface GradingPayload {
   branchId?: number;
-  levelId?: number;
+  branchSpecific?: boolean;
+  levelType?: LevelType;
   gradingDtoList: {
     grade: string;
     upperLimit: number;
@@ -438,6 +440,7 @@ export interface LevelTabsContainerProps {
   activeLevel: ClassLevel | null;
   setActiveLevel: (level: ClassLevel) => void;
   branchId?: number;
+  branchSpecific?: boolean;
 }
 
 export interface ClassLevel {

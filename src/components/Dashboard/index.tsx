@@ -71,12 +71,16 @@ export default function Dashboard() {
 
         <QuickActions />
 
-        <div className="base:flex-row flex flex-col gap-3">
-          <div className="border-border-default bg-bg-default base:w-[65%] w-full rounded-md border">
-            <Chart branchSelected={branchSelected} />
+        <div className="base:flex-row flex flex-col items-stretch gap-3">
+          <div className="border-border-default bg-bg-default base:w-[65%] w-full min-w-0 flex-col rounded-md border text-sm">
+            <div className="h-full min-w-0 flex-1">
+              <Chart branchSelected={branchSelected} />
+            </div>
           </div>
-          <div className="border-border-default bg-bg-default base:h-111 base:w-[35%] w-full overflow-hidden rounded-md border">
-            <Alerts />
+          <div className="border-border-default bg-bg-default base:w-[35%] w-full min-w-0 flex-col overflow-hidden rounded-md border text-sm">
+            <div className="h-full min-w-0 flex-1">
+              <Alerts />
+            </div>
           </div>
         </div>
       </div>

@@ -11,8 +11,8 @@ export const LinkedParents = ({
   setSelectedParents,
 }: {
   setOpen: (open: boolean) => void;
-  selectedParents: { id: number; fullName: string; avatar: string | null }[];
-  setSelectedParents: Dispatch<SetStateAction<{ id: number; fullName: string; avatar: string | null }[]>>;
+  selectedParents: { id: number; fullName: string; image: string | null }[];
+  setSelectedParents: Dispatch<SetStateAction<{ id: number; fullName: string; image: string | null }[]>>;
 }) => {
   const removeParent = (id: number) => {
     const parents = selectedParents.filter(parent => parent.id !== id);
@@ -31,7 +31,7 @@ export const LinkedParents = ({
             className="bg-bg-card shadow-light border-border-default flex items-center justify-between rounded-xl border py-2 pr-4 pl-2"
           >
             <div className="flex items-center gap-2">
-              <Avatar className="size-10" url={parent.avatar ?? ""} />
+              <Avatar className="size-10" url={parent.image ?? ""} />
               <p className="text-text-default text-sm font-medium">{parent.fullName}</p>
             </div>
 

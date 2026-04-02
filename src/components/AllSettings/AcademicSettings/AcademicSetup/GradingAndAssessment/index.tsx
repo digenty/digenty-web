@@ -26,6 +26,7 @@ import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { levelFormSchema } from "@/schema/academic";
 import { usePathname, useRouter } from "next/navigation";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { Spinner } from "@/components/ui/spinner";
 
 export type GradingAndAssessmentHandle = {
   submit: () => Promise<boolean>;
@@ -43,11 +44,12 @@ type AssessmentFieldsProps = {
   values: LevelFormValues;
   handleChange: React.ChangeEventHandler;
   handleBlur: React.FocusEventHandler;
-  levelId?: number;
+  level?: ClassLevel | null;
   branchId?: number;
+  branchSpecific?: boolean;
 };
 
-const AssessmentFields = ({ values, handleChange, handleBlur, levelId, branchId }: AssessmentFieldsProps) => {
+const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, branchSpecific }: AssessmentFieldsProps) => {
   const totalWeight = getTotalWeight(values.assessments);
   const isOverWeight = totalWeight > 100;
 
@@ -56,7 +58,8 @@ const AssessmentFields = ({ values, handleChange, handleBlur, levelId, branchId 
   const submitAssessment = () => {
     const payload = {
       branchId,
-      levelId,
+      levelType: level?.levelType,
+      branchSpecific,
       assessments: values.assessments.map(assessment => ({
         name: assessment.name,
         weight: Number(assessment.weight),
@@ -145,17 +148,19 @@ type GradingFieldsProps = {
   values: LevelFormValues;
   handleChange: React.ChangeEventHandler;
   handleBlur: React.FocusEventHandler;
-  levelId?: number;
+  level?: ClassLevel | null;
   branchId?: number;
+  branchSpecific?: boolean;
 };
 
-const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: GradingFieldsProps) => {
-  const { mutateAsync: addGrading } = useAddGrading();
+const GradingFields = ({ values, handleChange, handleBlur, level, branchId, branchSpecific }: GradingFieldsProps) => {
+  const { mutateAsync: addGrading, isPending: isAddingGrading } = useAddGrading();
 
   const submitGrading = () => {
     const payload = {
       branchId,
-      levelId,
+      levelType: level?.levelType,
+      branchSpecific,
       gradingDtoList: values.grades.map(grade => ({
         grade: grade.grade,
         upperLimit: Number(grade.upperLimit),
@@ -267,6 +272,7 @@ const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: 
       </div>
       <div className="flex justify-end py-3">
         <Button type="button" onClick={submitGrading} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!">
+          {isAddingGrading && <Spinner className="text-text-white-default size-3" />}
           Save
         </Button>
       </div>
@@ -344,7 +350,7 @@ function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | 
   );
 }
 
-const LevelFormPanel = ({ level, branchId }: { level: ClassLevel | null; branchId?: number }) => {
+const LevelFormPanel = ({ level, branchId, branchSpecific }: { level: ClassLevel | null; branchId?: number; branchSpecific?: boolean }) => {
   const formik = useFormik<LevelFormValues>({
     initialValues: emptyFormValues(),
     validationSchema: levelFormSchema,
@@ -356,15 +362,17 @@ const LevelFormPanel = ({ level, branchId }: { level: ClassLevel | null; branchI
       <FormikProvider value={formik}>
         <div className="flex flex-col gap-6">
           <AssessmentFields
-            levelId={level?.id}
+            level={level}
             branchId={branchId}
+            branchSpecific={branchSpecific}
             values={formik.values}
             handleChange={formik.handleChange}
             handleBlur={formik.handleBlur}
           />
           <GradingFields
-            levelId={level?.id}
+            level={level}
             branchId={branchId}
+            branchSpecific={branchSpecific}
             values={formik.values}
             handleChange={formik.handleChange}
             handleBlur={formik.handleBlur}
@@ -375,7 +383,7 @@ const LevelFormPanel = ({ level, branchId }: { level: ClassLevel | null; branchI
   );
 };
 
-const LevelTabsContainer = ({ levels, activeLevel, setActiveLevel, branchId }: LevelTabsContainerProps) => {
+const LevelTabsContainer = ({ levels, activeLevel, setActiveLevel, branchId, branchSpecific }: LevelTabsContainerProps) => {
   const isMobile = useIsMobile();
   const [activeIndex, setActiveIndex] = React.useState(0);
 
@@ -453,7 +461,7 @@ const LevelTabsContainer = ({ levels, activeLevel, setActiveLevel, branchId }: L
       </div>
 
       <div className="flex w-full items-center justify-center pt-10">
-        <LevelFormPanel level={activeLevel} branchId={branchId} />
+        <LevelFormPanel level={activeLevel} branchId={branchId} branchSpecific={branchSpecific} />
       </div>
     </div>
   );
@@ -524,7 +532,15 @@ export const GradingAndAssessment = ({
 
         {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
-        {!isLoading && <LevelTabsContainer levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} branchId={activeBranch?.id} />}
+        {!isLoading && (
+          <LevelTabsContainer
+            levels={levels}
+            activeLevel={activeLevel}
+            setActiveLevel={setActiveLevel}
+            branchId={activeBranch?.id}
+            branchSpecific={branchSpecific}
+          />
+        )}
       </div>
 
       <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">

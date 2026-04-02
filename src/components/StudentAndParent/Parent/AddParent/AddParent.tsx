@@ -116,7 +116,17 @@ export const AddParent = () => {
       );
     }
     if (currentStep === 2) {
-      return !!values.email && !!values.phoneNumber && !!values.address && !errors.email && !errors.phoneNumber && !errors.address;
+      return (
+        !!values.email &&
+        !!values.phoneNumber &&
+        !!values.secondaryPhoneNumber &&
+        !!values.address &&
+        !errors.email &&
+        !errors.phoneNumber &&
+        !errors.secondaryPhoneNumber &&
+        !errors.secondaryPhoneNumber &&
+        !errors.address
+      );
     }
     if (currentStep === 3) {
       return true;
