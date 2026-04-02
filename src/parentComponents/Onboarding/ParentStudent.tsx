@@ -1,6 +1,6 @@
 "use client";
 
-import { Arm, BranchWithClassLevels, ClassType } from "@/api/types";
+import { Arm, BranchWithClassLevels, ClassType, Parent } from "@/api/types";
 import { getCountries, getStatesForCountry } from "@/app/actions/country";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Country, State, StudentInputValues } from "@/components/StudentAndParent/types";
@@ -26,10 +26,11 @@ import { format, formatDate } from "date-fns";
 import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useGetParent } from "@/hooks/queryHooks/useParent";
 
-type AccordionItem = { id: number; title: string };
+type AccordionItem = { id: number; title: string; studentId?: number };
 
-const StudentForm = ({ index, onSaveSuccess }: { index: number; onSaveSuccess: (id: number) => void }) => {
+const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSaveSuccess: (id: number) => void; studentId?: number }) => {
   const [avatar, setAvatar] = useState<string | undefined>();
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
@@ -41,10 +42,10 @@ const StudentForm = ({ index, onSaveSuccess }: { index: number; onSaveSuccess: (
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses(branchId);
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
-  const { data: studentData } = useGetStudent();
-  const { mutate: addStudent, isPending } = useAddStudent();
+  const { data: studentData } = useGetStudent(studentId);
+  const { mutate: addStudent, isPending: isAddingStudent } = useAddStudent();
   const { mutate: updateStudentData, isPending: isUpdatingStudentData } = useEditStudent();
-
+  const student = studentData?.data;
   useEffect(() => {
     getCountries().then(setCountries);
   }, []);
@@ -62,42 +63,54 @@ const StudentForm = ({ index, onSaveSuccess }: { index: number; onSaveSuccess: (
   }, [activeCountryCode, fetchStates]);
 
   const formik = useFormik<StudentInputValues>({
+    enableReinitialize: true,
     initialValues: {
-      firstName: "",
-      lastName: "",
-      middleName: "",
-      email: "",
-      gender: Gender.Female,
-      boardingStatus: BoardingStatus.Day,
-      dateOfBirth: `${new Date()}`,
-      address: "",
-      emergencyContactName: "",
-      emergencyContact: "",
-      phoneNumber: "",
-      secondaryPhoneNumber: "",
-      admissionNumber: "",
-      admissionStatus: AdmissionStatus.Active,
-      medicalInformation: "",
-      nationality: "",
-      stateOfOrigin: "",
-      joinedSchoolTerm: "",
-      joinedSchoolSession: "",
-      branchId: null,
+      firstName: student?.firstName ?? "",
+      lastName: student?.lastName ?? "",
+      middleName: student?.middleName ?? "",
+      email: student?.email ?? "",
+      gender: (student?.gender as Gender) ?? Gender.Female,
+      boardingStatus: (student?.boardingStatus as BoardingStatus) ?? BoardingStatus.Day,
+      dateOfBirth: student?.dateOfBirth ?? `${new Date()}`,
+      address: student?.address ?? "",
+      emergencyContactName: student?.emergencyContactName ?? "",
+      emergencyContact: student?.emergencyContact ?? "",
+      phoneNumber: student?.phoneNumber ?? "",
+      secondaryPhoneNumber: student?.secondaryPhoneNumber ?? "",
+      admissionNumber: student?.admissionNumber ?? "",
+      admissionStatus: (student?.studentStatus as AdmissionStatus) ?? AdmissionStatus.Active,
+      medicalInformation: student?.medicalInformation ?? "",
+      nationality: student?.nationality ?? "",
+      stateOfOrigin: student?.stateOfOrigin ?? "",
+      joinedSchoolTerm: student?.joinedSchoolTerm ?? "",
+      joinedSchoolSession: student?.joinedSchoolSession ?? "",
+      branchId: student?.branchId ?? null,
       classId: null,
-      armId: null,
+      armId: student?.armId ?? null,
     },
     validationSchema: studentSchema,
     onSubmit: values => {
-      const studentId = studentData?.data?.id;
-
-      const payload = {
-        ...values,
-        image: avatar,
-        linkedStudents: [],
-        tags: [],
-      };
-
-      if (!studentId) {
+      if (studentId) {
+        updateStudentData(
+          {
+            ...values,
+            studentId,
+            dateOfBirth: formatDate(new Date(values.dateOfBirth), "yyyy-MM-dd"),
+            image: avatar,
+            linkedParents: [],
+            tags: [],
+          },
+          {
+            onSuccess: () => {
+              toast({ title: "Updated successfully", type: "success" });
+              onSaveSuccess(index);
+            },
+            onError: error => {
+              toast({ title: error.message ?? "Something went wrong", type: "error" });
+            },
+          },
+        );
+      } else {
         addStudent(
           {
             ...values,
@@ -110,37 +123,12 @@ const StudentForm = ({ index, onSaveSuccess }: { index: number; onSaveSuccess: (
             onSuccess: data => {
               toast({
                 title: `Successfully added ${data.data.firstName} ${data.data.lastName}`,
-                description: data.message,
                 type: "success",
               });
               onSaveSuccess(index);
             },
             onError: error => {
-              toast({
-                title: error.message ?? "Something went wrong",
-                description: "Could not add student",
-                type: "error",
-              });
-            },
-          },
-        );
-      } else {
-        updateStudentData(
-          { id: studentId, ...payload },
-          {
-            onSuccess: () => {
-              toast({
-                title: "Updated successfully",
-                description: "Students details updated",
-                type: "success",
-              });
-            },
-            onError: error => {
-              toast({
-                title: error.message ?? "Something went wrong",
-                description: "Could not update student data",
-                type: "error",
-              });
+              toast({ title: error.message ?? "Something went wrong", type: "error" });
             },
           },
         );
@@ -149,33 +137,40 @@ const StudentForm = ({ index, onSaveSuccess }: { index: number; onSaveSuccess: (
   });
 
   useEffect(() => {
-    if (studentData) {
+    if (student) {
+      setBranchId(student.branchId);
+      setClassId(student.classId);
+    }
+  }, [student]);
+
+  useEffect(() => {
+    if (student) {
       formik.setValues({
-        firstName: studentData.firstName || "",
-        lastName: studentData.lastname || "",
-        middleName: studentData.middleName || "",
-        email: studentData.email || "",
-        gender: studentData.email || Gender.Female,
-        boardingStatus: studentData.boardingStatus || BoardingStatus.Day,
-        dateOfBirth: studentData.dateOfBirth || `${new Date()}`,
-        address: studentData.address || "",
-        emergencyContactName: studentData.emergencyContactName || "",
-        emergencyContact: studentData.emergencyContact || "",
-        phoneNumber: studentData.phoneNumber || "",
-        secondaryPhoneNumber: studentData.secondaryPhoneNumber || "",
-        admissionNumber: studentData.admissionNumber || "",
-        admissionStatus: studentData.admissionStatus || AdmissionStatus.Active,
-        medicalInformation: studentData.medicalInformation || "",
-        nationality: studentData.nationality || "",
-        stateOfOrigin: studentData.stateOfOrigin || "",
-        joinedSchoolTerm: studentData.joinedSchoolTerm || "",
-        joinedSchoolSession: studentData.joinedSchoolSession || "",
-        branchId: studentData.branchId || null,
-        classId: studentData.classId || null,
-        armId: studentData.armId || null,
+        firstName: student.firstName ?? "",
+        lastName: student.lastName ?? "",
+        middleName: student.middleName ?? "",
+        email: student.email ?? "",
+        gender: (student.gender as Gender) ?? Gender.Female,
+        boardingStatus: (student.boardingStatus as BoardingStatus) ?? BoardingStatus.Day,
+        dateOfBirth: student.dateOfBirth ?? `${new Date()}`,
+        address: student.address ?? "",
+        emergencyContactName: student.emergencyContactName ?? "",
+        emergencyContact: student.emergencyContact ?? "",
+        phoneNumber: student.phoneNumber ?? "",
+        secondaryPhoneNumber: student.secondaryPhoneNumber ?? "",
+        admissionNumber: student.admissionNumber ?? "",
+        admissionStatus: (student.studentStatus as AdmissionStatus) ?? AdmissionStatus.Active,
+        medicalInformation: student.medicalInformation ?? "",
+        nationality: student.nationality ?? "",
+        stateOfOrigin: student.stateOfOrigin ?? "",
+        joinedSchoolTerm: student.joinedSchoolTerm ?? "",
+        joinedSchoolSession: student.joinedSchoolSession ?? "",
+        branchId: student.branchId ?? null,
+        classId: student.classId ?? null,
+        armId: student.armId ?? null,
       });
     }
-  }, [studentData]);
+  }, [student]);
 
   const { values, errors, touched, handleChange, handleBlur, setFieldValue, setFieldTouched, handleSubmit } = formik;
 
@@ -185,6 +180,8 @@ const StudentForm = ({ index, onSaveSuccess }: { index: number; onSaveSuccess: (
     setFieldValue("nationality", countryName);
     setFieldValue("stateOfOrigin", "");
   };
+
+  const isPending = isAddingStudent || isUpdatingStudentData;
 
   return (
     <form onSubmit={handleSubmit} className="p-3 md:px-6 md:py-4">
@@ -746,9 +743,12 @@ const StudentForm = ({ index, onSaveSuccess }: { index: number; onSaveSuccess: (
 export const ParentStudent = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const parentId = Number(pathname.split("/")[3]);
+
   const [items, setItems] = useState<AccordionItem[]>([{ id: 1, title: "Student" }]);
   const [openId, setOpenId] = useState<number | null>(1);
   const [savedIds, setSavedIds] = useState<Set<number>>(new Set());
+  const { data: parentData } = useGetParent(parentId);
 
   const handleSaveSuccess = (id: number) => {
     setSavedIds(prev => new Set(prev).add(id));
@@ -765,6 +765,18 @@ export const ParentStudent = () => {
   function toggle(id: number) {
     setOpenId(prev => (prev === id ? null : id));
   }
+
+  useEffect(() => {
+    if (parentData?.linkedStudents?.length) {
+      setItems(
+        parentData.linkedStudents.map((s: Parent) => ({
+          id: s.id,
+          title: "Student",
+          studentId: s.id,
+        })),
+      );
+    }
+  }, [parentData]);
 
   return (
     <div className="border-border-default flex flex-col gap-6 rounded-md border p-4">
@@ -794,7 +806,7 @@ export const ParentStudent = () => {
               <ArrowUpS fill="var(--color-icon-default-muted)" className={`transition-transform ${openId === item.id ? "rotate-180" : ""}`} />
             </div>
 
-            {openId === item.id && <StudentForm index={index} onSaveSuccess={() => handleSaveSuccess(item.id)} />}
+            {openId === item.id && <StudentForm index={index} onSaveSuccess={() => handleSaveSuccess(item.id)} studentId={item.studentId} />}
           </div>
         ))}
 

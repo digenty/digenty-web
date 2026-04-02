@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { Pencil } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import React from "react";
 
 export const ParentReview = ({ data, isLoading }: { data: Parent; isLoading: boolean }) => {
   const router = useRouter();
