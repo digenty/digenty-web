@@ -1,17 +1,40 @@
+"use client";
+
 import React, { useState } from "react";
 import { StudentReview } from "./StudentReview";
 import { ParentReview } from "./ParentReview";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useGetParent } from "@/hooks/queryHooks/useParent";
+import { Spinner } from "@/components/ui/spinner";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { Modal } from "@/components/Modal";
+import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
 
 const tabs = ["Your Details", "Student Details"];
 
 export const Review = () => {
-  const [activeTab, setActiveTab] = useState(tabs[0]);
   const router = useRouter();
-  const pathname = usePathname();
+  const [activeTab, setActiveTab] = useState(tabs[0]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
+
   const { data, isLoading } = useGetParent();
+  const isMobile = useIsMobile();
+
+  const handleSubmit = () => {
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setShowSuccess(true);
+      setOpen(true);
+      setTimeout(() => {
+        router.push(`/parent-dashboard`);
+      }, 1000);
+    }, 2000);
+  };
 
   return (
     <div className="border-border-default flex flex-col gap-4 rounded-md border px-4">
@@ -39,16 +62,55 @@ export const Review = () => {
         {activeTab === "Student Details" && <StudentReview />}
       </div>
 
+      {showSuccess && (
+        <>
+          {isMobile ? (
+            <>
+              <MobileDrawer title={undefined} showCloseButton={false} open={open} setIsOpen={setOpen}>
+                <div className="flex items-center justify-center space-y-5 px-4 py-5">
+                  <div className="flex flex-col items-center gap-2">
+                    <CheckboxCircleFill fill="var(--color-icon-success)" />
+
+                    <div className="text-text-default text-lg font-semibold">Registration submitted!</div>
+
+                    <div className="text-text-muted text-sm">
+                      The school will review and approve your details shortly. Once approved, you&apos;ll receive access to the parent portal.
+                    </div>
+                  </div>
+                </div>
+              </MobileDrawer>
+            </>
+          ) : (
+            <>
+              <Modal title open={open} setOpen={setOpen} showCloseButton={false} showFooter={false} ActionButton={undefined}>
+                <div className="flex items-center justify-center space-y-5 px-4 py-5">
+                  <div className="flex flex-col items-center gap-2">
+                    <CheckboxCircleFill fill="var(--color-icon-success)" />
+
+                    <div className="text-text-default text-lg font-semibold">Registration submitted!</div>
+
+                    <div className="text-text-muted text-sm">
+                      The school will review and approve your details shortly. Once approved, you&apos;ll receive access to the parent portal.
+                    </div>
+                  </div>
+                </div>
+              </Modal>
+            </>
+          )}
+        </>
+      )}
+
       <div className="border-border-default flex w-full justify-between border-t pt-4">
         <Button onClick={() => router.back()} className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-8">
           Back
         </Button>
         {data && (
           <Button
-            onClick={() => router.push(`${pathname}?success`)}
+            onClick={handleSubmit}
+            disabled={isSubmitting}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8"
           >
-            Submit
+            {isSubmitting && <Spinner className="text-text-white-default" />} Submit
           </Button>
         )}
       </div>
