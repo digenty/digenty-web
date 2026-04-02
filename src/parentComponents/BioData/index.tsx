@@ -27,13 +27,15 @@ export const BioDatas = () => {
           <div className="text-text-default text-2xl font-semibold">Biodata</div>
           <div className="text-text-muted text-xs">Manage and view your child&apos;s school fees, payment history, and invoices.</div>
         </div>
-        <StudentFilter
-          parentId={parentId}
-          onSelect={(studentId, studentName) => {
-            setSelectedStudentId(studentId);
-            setSelectedStudentName(studentName);
-          }}
-        />
+        <div className="hidden md:block">
+          <StudentFilter
+            parentId={parentId}
+            onSelect={(studentId, studentName) => {
+              setSelectedStudentId(studentId);
+              setSelectedStudentName(studentName);
+            }}
+          />
+        </div>
       </div>
 
       <div className="bg-bg-state-soft flex h-9 w-full rounded-md p-1">

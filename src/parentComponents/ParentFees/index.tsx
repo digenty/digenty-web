@@ -23,7 +23,9 @@ export const ParentFees = () => {
           <div className="text-text-default text-2xl font-semibold">Fees</div>
           <div className="text-text-muted text-xs">Manage and view your child&apos;s school fees, payment history, and invoices.</div>
         </div>
-        <StudentFilter />
+        <div className="hidden md:block">
+          <StudentFilter />
+        </div>
       </div>
 
       <div className="flex items-center justify-between">

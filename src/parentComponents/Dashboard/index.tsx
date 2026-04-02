@@ -17,7 +17,9 @@ export const Overview = () => {
           <div className="text-text-default text-2xl font-semibold">Welcome, John</div>
           <div className="text-text-muted text-xs">Student Overview</div>
         </div>
-        <StudentFilter />
+        <div className="hidden md:block">
+          <StudentFilter />
+        </div>
       </div>
 
       <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">

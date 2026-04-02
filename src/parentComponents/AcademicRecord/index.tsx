@@ -41,7 +41,9 @@ export const AcademicRecord = () => {
           <div className="text-text-default text-2xl font-semibold">Academic Record</div>
           <div className="text-text-muted text-xs">Review student&apos;s result</div>
         </div>
-        <StudentFilter parentId={parentId} onSelect={setSelectedStudentId} />
+        <div className="hidden md:block">
+          <StudentFilter parentId={parentId} onSelect={setSelectedStudentId} />
+        </div>
       </div>
 
       <div className="flex items-center justify-between">
