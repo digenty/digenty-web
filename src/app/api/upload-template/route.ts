@@ -23,6 +23,8 @@ export async function GET(req: NextRequest) {
       { header: "admissionNumber", key: "admissionNumber" },
       { header: "email", key: "email" },
       { header: "parentEmail", key: "parentEmail" },
+      { header: "phone", key: "phone" },
+      { header: "secondaryPhone", key: "secondaryPhone" },
     ];
 
     worksheet.addRow({
@@ -39,6 +41,8 @@ export async function GET(req: NextRequest) {
       admissionNumber: "ADM001",
       email: "chinedu.okwu@example.com",
       parentEmail: "emeka.okwu@example.com",
+      phone: "08034567891",
+      secondaryPhone: "08034567891",
     });
   } else {
     worksheet.columns = [

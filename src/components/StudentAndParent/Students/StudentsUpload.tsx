@@ -70,7 +70,7 @@ export const StudentsUpload = () => {
               type: "success",
             });
             setFile(null);
-            setCurrentStep(1);
+            router.push("/staff/student-and-parent-record?tab=Students");
           },
           onError: error => {
             toast({

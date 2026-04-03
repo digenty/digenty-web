@@ -55,12 +55,12 @@ export const ContactInformation = ({ formik }: { formik: FormikProps<ParentInput
 
         <div className="space-y-2">
           <Label htmlFor="secondaryPhoneNumber" className="text-text-default text-sm font-medium">
-            Secondary Phone Number
+            Whatsapp Phone Number <small className="text-text-destructive text-xs">*</small>
           </Label>
           <Input
             id="secondaryPhoneNumber"
             onChange={handleChange}
-            placeholder="Input Secondary Phone Number"
+            placeholder="Input Whatsapp Number"
             onBlur={handleBlur}
             value={values.secondaryPhoneNumber}
             type="text"
