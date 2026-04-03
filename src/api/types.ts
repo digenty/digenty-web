@@ -364,7 +364,8 @@ export type SchoolStructurePayload = {
 };
 
 export interface AssessmentDefaultPayload {
-  branchId: number;
+  branchId?: number;
+  branchSpecific?: boolean;
   assessments: {
     name: string;
     weight: number;
@@ -384,7 +385,8 @@ export interface AssessmentPayload {
 }
 
 export interface GradingDefaultPayload {
-  branchId: number;
+  branchId?: number;
+  branchSpecific?: boolean;
   gradingDtoList: {
     grade: string;
     upperLimit: number;

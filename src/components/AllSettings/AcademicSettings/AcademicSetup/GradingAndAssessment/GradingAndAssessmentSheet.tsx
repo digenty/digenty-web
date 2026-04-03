@@ -30,26 +30,27 @@ const emptyAssessmentRow = (): AssessmentRow => ({ name: "", weight: "" });
 const emptyGradeRow = (): GradeRow => ({ grade: "", upperLimit: "", lowerLimit: "", remark: "" });
 const getTotalWeight = (assessments: AssessmentRow[]) => assessments.reduce((sum, a) => sum + (parseFloat(a.weight) || 0), 0);
 
-export const GradingAndAssessmentSheet = ({ branchId }: { branchId?: number }) => {
+export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branchId?: number; branchSpecific?: boolean }) => {
   const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const { mutateAsync: addAssessmentDefault } = useAddAssessmentDefault();
   const { mutateAsync: addGradingDefault } = useAddGradingDefault();
-  console.log(branchId);
   const formik = useFormik<LevelFormValues>({
+    enableReinitialize: true,
     initialValues: {
       assessments: [emptyAssessmentRow()],
       grades: [emptyGradeRow()],
     },
     validationSchema: levelFormSchema,
     onSubmit: async values => {
-      if (!branchId) {
-        toast({ title: "Error", description: "Branch ID is missing. Cannot save settings.", type: "error" });
-        return;
-      }
+      // if (!branchId) {
+      //   toast({ title: "Error", description: "Branch ID is missing. Cannot save settings.", type: "error" });
+      //   return;
+      // }
       const assessmentPayload = {
         branchId,
+        branchSpecific,
         assessments: values.assessments.map(assessment => ({
           name: assessment.name,
           weight: Number(assessment.weight),
@@ -59,6 +60,7 @@ export const GradingAndAssessmentSheet = ({ branchId }: { branchId?: number }) =
 
       const gradingPayload = {
         branchId,
+        branchSpecific,
         gradingDtoList: values.grades.map(grade => ({
           grade: grade.grade,
           upperLimit: Number(grade.upperLimit),
