@@ -102,7 +102,7 @@ export const AttendanceHeader = ({
       </div>
 
       <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
-        <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+        <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
       </Button>
 
       <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">

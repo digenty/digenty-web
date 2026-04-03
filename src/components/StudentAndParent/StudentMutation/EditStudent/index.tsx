@@ -31,7 +31,7 @@ export const EditStudent = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [avatar, setAvatar] = useState<string>();
   const [step, setStep] = useState(1);
-  const [selectedParents, setSelectedParents] = useState<{ id: number; fullName: string; avatar: string | null }[]>([]);
+  const [selectedParents, setSelectedParents] = useState<{ id: number; fullName: string; image: string | null }[]>([]);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
@@ -101,6 +101,7 @@ export const EditStudent = () => {
       );
     },
   });
+  console.log(data?.data);
 
   useEffect(() => {
     if (data) {
@@ -110,7 +111,7 @@ export const EditStudent = () => {
       formik.setFieldValue("email", data.data.email);
       formik.setFieldValue("nationality", data.data.nationality);
       formik.setFieldValue("stateOfOrigin", data.data.stateOfOrigin);
-      formik.setFieldValue("phoneNumber", data.data.phoneNumber);
+      formik.setFieldValue("phoneNumber", data.data.phoneNumber || "");
       formik.setFieldValue("secondaryPhoneNumber", data.data.secondaryPhoneNumber ?? "");
       formik.setFieldValue("admissionNumber", data.data.admissionNumber ?? "");
       formik.setFieldValue("medicalInformation", data.data.medicalInformation ?? "");
@@ -122,7 +123,7 @@ export const EditStudent = () => {
       formik.setFieldValue("address", data.data.address);
       formik.setFieldValue("joinedSchoolSession", data.data.joinedSchoolSession);
       formik.setFieldValue("joinedSchoolTerm", data.data.joinedSchoolTerm);
-      formik.setFieldValue("boardingStatus", data.data.boardingStatus);
+      formik.setFieldValue("boardingStatus", data.data.boardingStatus || "DAY");
       formik.setFieldValue("admissionStatus", data.data.studentStatus);
       formik.setFieldValue("armId", data.data.armId);
       setTags(data.data.tags);

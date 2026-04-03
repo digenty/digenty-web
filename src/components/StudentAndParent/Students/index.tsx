@@ -95,7 +95,7 @@ export const StudentsTable = () => {
     status: filter?.statusSelected?.value,
     search: debouncedSearchQuery,
   });
-  const students = data?.pages.flatMap(page => page.content) ?? [];
+  const students = (data?.pages.flatMap(page => page.content) ?? []).filter(Boolean);
 
   const { data: distribution } = useGetStudentsDistribution(filter?.branchSelected?.id);
   const { data: branches, isPending: loadingBranches } = useGetBranches();
@@ -203,7 +203,7 @@ export const StudentsTable = () => {
     }
   }, [page, data?.pages.length, fetchNextPage]);
 
-  const dataForDesktop = data?.pages[page - 1]?.content ?? [];
+  const dataForDesktop = (data?.pages[page - 1]?.content ?? []).filter(Boolean);
 
   return (
     <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
@@ -511,7 +511,7 @@ export const StudentsTable = () => {
       )}
       {loadingStudents && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
-      {!loadingStudents && !isError && (students.length === 0 || students.every(student => !student)) && (
+      {!loadingStudents && !isError && students.length === 0 && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent
             title="No Students"
@@ -522,7 +522,7 @@ export const StudentsTable = () => {
         </div>
       )}
 
-      {!loadingStudents && !isError && students.length > 0 && students.every(student => student) && (
+      {!loadingStudents && !isError && students.length > 0 && (
         <div>
           <div className="hidden md:block">
             <DataTable

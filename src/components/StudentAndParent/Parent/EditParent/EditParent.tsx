@@ -31,7 +31,7 @@ export const EditParent = () => {
 
   const [avatar, setAvatar] = useState<string>();
   const [step, setStep] = useState(1);
-  console.log(data);
+
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
     { label: "Parents", url: "/staff/student-and-parent-record?tab=Parents" },

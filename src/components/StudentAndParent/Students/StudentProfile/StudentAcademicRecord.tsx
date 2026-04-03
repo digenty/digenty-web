@@ -21,7 +21,7 @@ export default function StudentAcademicRecord({ studentId, armId }: { studentId:
 
   const user = useLoggedInUser();
   const { data: terms, isPending: loadingTerms } = useGetTerms(user.schoolId);
-  const { data: reportData, isPending: loadingReport, isError } = useGetStudentReport({ studentId, termId: termSelected?.termId, armId });
+  const { data: reportData, isPending: loadingReport, isError, error } = useGetStudentReport({ studentId, termId: termSelected?.termId, armId });
 
   useEffect(() => {
     if (terms) {
@@ -82,7 +82,7 @@ export default function StudentAcademicRecord({ studentId, armId }: { studentId:
 
         <div className="md:hidden">
           <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
-            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+            <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
           </Button>
 
           <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
@@ -114,7 +114,7 @@ export default function StudentAcademicRecord({ studentId, armId }: { studentId:
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent
             title="Could not get Student's report"
-            description="This is our problem, we are looking into it so as to serve you better"
+            description={`${error?.message || "This is our problem, we are looking into it so as to serve you better"}`}
             buttonText="Go to the Home page"
           />
         </div>

@@ -65,7 +65,7 @@ export const ParentsUpload = () => {
               type: "success",
             });
             setFile(null);
-            setCurrentStep(1);
+            router.push("/staff/student-and-parent-record?tab=Parents");
           },
           onError: error => {
             toast({

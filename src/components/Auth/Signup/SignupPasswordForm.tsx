@@ -32,7 +32,7 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
     onSubmit: async values => {
       await mutate(
         {
-          email: values.email,
+          email: values.email.toLowerCase(),
           password: values.password,
         },
         {

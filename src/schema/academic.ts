@@ -26,9 +26,14 @@ export const gradeRowSchema = yup.object().shape({
   remark: yup.string().required("Remark is required"),
 });
 
-export const levelFormSchema = yup.object().shape({
+export const schoolDefaultSchema = yup.object().shape({
   assessments: yup.array().of(assessmentRowSchema).min(1, "Add at least one assessment"),
   grades: yup.array().of(gradeRowSchema).min(1, "Add at least one grade row"),
+});
+
+export const schoolDefaultUpdateSchema = yup.object().shape({
+  assessments: yup.array().of(assessmentRowSchema).optional(),
+  grades: yup.array().of(gradeRowSchema).optional(),
 });
 
 export const admissionFormSchema = yup.object().shape({

@@ -30,7 +30,6 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
   useEffect(() => {
     if (data && branches && classes) {
       const branch = branches.data?.find((brnch: BranchWithClassLevels) => brnch.branch.name === data.data.branch);
-      console.log(branch, "lllllbranch");
       setBranch(branch?.branch?.name);
       if (branch) {
         formik.setFieldValue("branchId", branch.branch.id);
@@ -49,7 +48,6 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
   useEffect(() => {
     if (arms && data) {
       const arm = arms.data.find((arm: Arm) => arm.id === data.data.armId);
-      console.log(arm, "lllllarm");
       setArm(arm?.id.toString());
       if (arm) {
         formik.setFieldValue("armId", arm.id);

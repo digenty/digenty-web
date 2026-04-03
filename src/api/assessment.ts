@@ -4,7 +4,7 @@ import { AssessmentDefaultPayload, AssessmentPayload } from "./types";
 
 export const addAssessmentDefault = async (payload: AssessmentDefaultPayload) => {
   try {
-    const { data } = await api.post("/assessments/branch-default", payload);
+    const { data } = await api.post("/assessments/school-default", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
@@ -14,18 +14,17 @@ export const addAssessmentDefault = async (payload: AssessmentDefaultPayload) =>
   }
 };
 
-// This is not yet , just put it incase
-// export const getAssessmentForSchool = async () => {
-//   try {
-//     const { data } = await api.get(`assessment/school`);
-//     return data;
-//   } catch (error: unknown) {
-//     if (isAxiosError(error)) {
-//       throw error.response?.data;
-//     }
-//     throw error;
-//   }
-// };
+export const getAssessmentDefault = async () => {
+  try {
+    const { data } = await api.get("/assessments/school-default");
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
 
 export const getAssessmentForBranch = async (branchId: number) => {
   try {
@@ -42,6 +41,18 @@ export const getAssessmentForBranch = async (branchId: number) => {
 export const addAssessment = async (payload: AssessmentPayload) => {
   try {
     const { data } = await api.post("/assessments/level", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const updateAssessmentForLevel = async (payload: AssessmentPayload) => {
+  try {
+    const { data } = await api.put("/assessments/level", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

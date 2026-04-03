@@ -190,8 +190,7 @@ export const AcademicAssAndGradeSetupDone = () => {
     <div>
       {isEditing ? (
         <div className="pb-20">
-          {" "}
-          <GradingAndAssessment isEditing={isEditing} setIsEditing={setIsEditing} />{" "}
+          <GradingAndAssessment isEditing={isEditing} setIsEditing={setIsEditing} />
         </div>
       ) : (
         <div className="mx-auto flex w-full items-center justify-center px-4 pb-12 md:max-w-200">
@@ -237,7 +236,7 @@ export const ClassAssessmentSetup = ({ levelId }: { levelId?: number }) => {
   const { data: assessmentsData, isPending: isLoadingAssessments } = useGetAssessmentsByLevel(levelId);
   const { data: gradingsData, isPending: isLoadingGradings } = useGetGradingsByLevel(levelId);
 
-  const assessments = assessmentsData?.data || [];
+  const assessments = assessmentsData?.data?.assessments || [];
   const gradings = gradingsData?.data || [];
   const totalWeight = assessments.reduce((acc: number, curr: AssessmentType) => acc + (curr.weight || 0), 0);
 
