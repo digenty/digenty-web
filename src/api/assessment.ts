@@ -14,6 +14,18 @@ export const addAssessmentDefault = async (payload: AssessmentDefaultPayload) =>
   }
 };
 
+export const getAssessmentDefault = async () => {
+  try {
+    const { data } = await api.get("/assessments/school-default");
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getAssessmentForBranch = async (branchId: number) => {
   try {
     const { data } = await api.get(`/assessment/branch/${branchId}`);

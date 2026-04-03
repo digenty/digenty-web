@@ -26,7 +26,7 @@ export const AddStudent = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [avatar, setAvatar] = useState<string>();
   const [step, setStep] = useState(1);
-  const [selectedParents, setSelectedParents] = useState<{ id: number; fullName: string; avatar: string | null }[]>([]);
+  const [selectedParents, setSelectedParents] = useState<{ id: number; fullName: string; image: string | null }[]>([]);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },

@@ -1,22 +1,23 @@
 "use client";
 
-import { toast } from "@/components/Toast";
+import { AssessmentType } from "@/api/types";
 import { AddFill } from "@/components/Icons/AddFill";
 import { DeleteBin2 } from "@/components/Icons/DeleteBin2";
 import Settings4 from "@/components/Icons/Settings4";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { cn } from "@/lib/utils";
-import { useFormik, FieldArray, FormikProvider } from "formik";
-import { useState } from "react";
-import { levelFormSchema } from "@/schema/academic";
 import { Label } from "@/components/ui/label";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { MobileDrawer } from "@/components/MobileDrawer";
-import { useAddAssessmentDefault } from "@/hooks/queryHooks/useAssessment";
+import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { useAddAssessmentDefault, useGetAssessmentDefault } from "@/hooks/queryHooks/useAssessment";
 import { useAddGradingDefault } from "@/hooks/queryHooks/useGrading";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { cn } from "@/lib/utils";
+import { schoolDefaultSchema, schoolDefaultUpdateSchema } from "@/schema/academic";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { FieldArray, FormikProvider, useFormik } from "formik";
+import { useEffect, useState } from "react";
 
 type AssessmentRow = { name: string; weight: string };
 type GradeRow = { grade: string; upperLimit: string; lowerLimit: string; remark: string };
@@ -33,21 +34,21 @@ const getTotalWeight = (assessments: AssessmentRow[]) => assessments.reduce((sum
 export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branchId?: number; branchSpecific?: boolean }) => {
   const isMobile = useIsMobile();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [hasExistingAssessment, setHasExistingAssessment] = useState(false);
+  const [hasExistingGrading, setHasExistingGrading] = useState(false);
 
   const { mutateAsync: addAssessmentDefault } = useAddAssessmentDefault();
   const { mutateAsync: addGradingDefault } = useAddGradingDefault();
+  const { data: assessmentDefaultData } = useGetAssessmentDefault();
+
   const formik = useFormik<LevelFormValues>({
     enableReinitialize: true,
     initialValues: {
       assessments: [emptyAssessmentRow()],
       grades: [emptyGradeRow()],
     },
-    validationSchema: levelFormSchema,
+    validationSchema: !hasExistingAssessment && !hasExistingGrading && schoolDefaultSchema,
     onSubmit: async values => {
-      // if (!branchId) {
-      //   toast({ title: "Error", description: "Branch ID is missing. Cannot save settings.", type: "error" });
-      //   return;
-      // }
       const assessmentPayload = {
         branchId,
         branchSpecific,
@@ -100,6 +101,21 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
       }
     },
   });
+
+  useEffect(() => {
+    const assessments = assessmentDefaultData?.data?.assessments;
+    if (assessments && assessments.length > 0) {
+      setHasExistingAssessment(true);
+      formik.setFieldValue(
+        "assessments",
+        assessments.map((a: AssessmentType) => ({
+          name: a.name,
+          weight: a.weight?.toString() || "",
+        })),
+      );
+    }
+  }, [assessmentDefaultData]);
+  console.log(formik.errors, "###");
 
   const totalWeight = getTotalWeight(formik.values.assessments);
   const isOverWeight = totalWeight > 100;

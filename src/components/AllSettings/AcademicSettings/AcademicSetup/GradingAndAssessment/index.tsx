@@ -33,7 +33,7 @@ import {
 } from "@/api/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetLevels, useGetAssessmentsByLevel } from "@/hooks/queryHooks/useLevel";
-import { levelFormSchema } from "@/schema/academic";
+import { schoolDefaultSchema } from "@/schema/academic";
 import { usePathname, useRouter } from "next/navigation";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { Spinner } from "@/components/ui/spinner";
@@ -406,13 +406,12 @@ const LevelFormPanel = ({ level, branchId, branchSpecific }: { level: ClassLevel
 
   const formik = useFormik<LevelFormValues>({
     initialValues: emptyFormValues(),
-    validationSchema: levelFormSchema,
+    validationSchema: schoolDefaultSchema,
     onSubmit: () => {},
   });
 
   const { data: assessmentsData } = useGetAssessmentsByLevel(level?.id);
   const { data: gradingsData } = useGetGradingsByLevel(level?.id);
-  console.log(gradingsData?.data);
 
   useEffect(() => {
     if (assessmentsData?.data && assessmentsData.data?.assessments?.length > 0) {
