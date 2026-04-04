@@ -1,21 +1,47 @@
+import { ClassInLevelDetails, ClassLevel } from "@/api/types";
+import { useMemo } from "react";
 import { ChartData } from "./types";
+import { useQueries } from "@tanstack/react-query";
+import { getClassesByLevel } from "@/api/class";
+import { classKeys } from "@/queries/class";
 
-export const data: ChartData[] = [
-  { name: "Pr 1", paid_abs: 5000, paid: 20, unpaid: 80, unpaid_abs: 25000, total: 30000, group: "Primary School" },
-  { name: "Pr 2", paid_abs: 100000, paid: 50, unpaid: 50, unpaid_abs: 80000, total: 180000, group: "Primary School" },
-  { name: "Pr 3", paid_abs: 100000, paid: 25, unpaid: 75, unpaid_abs: 80000, total: 180000, group: "Primary School" },
-  { name: "Pr 4", paid_abs: 100000, paid: 70, unpaid: 30, unpaid_abs: 80000, total: 200000, group: "Primary School" },
-  { name: "Pr 5", paid_abs: 100000, paid: 90, unpaid: 10, unpaid_abs: 80000, total: 110000, group: "Primary School" },
-  { name: "Pr 6", paid_abs: 100000, paid: 37, unpaid: 63, unpaid_abs: 80000, total: 300000, group: "Primary School" },
-  { name: "JSS 1", paid_abs: 50000, paid: 28, unpaid: 72, unpaid_abs: 50000, total: 120000, group: "Secondary School" },
-  { name: "JSS 2", paid_abs: 50000, paid: 60, unpaid: 40, unpaid_abs: 50000, total: 90000, group: "Secondary School" },
-  { name: "JSS 3", paid_abs: 50000, paid: 10, unpaid: 90, unpaid_abs: 50000, total: 70000, group: "Secondary School" },
-  { name: "SS 1", paid_abs: 8000, paid: 60, unpaid: 40, unpaid_abs: 50000, total: 45000, group: "Secondary School" },
-  { name: "SS 2", paid_abs: 2000, paid: 30, unpaid: 70, unpaid_abs: 50000, total: 10000, group: "Secondary School" },
-  { name: "SS 3", paid_abs: 10000, paid: 70, unpaid: 30, unpaid_abs: 50000, total: 43000, group: "Secondary School" },
-  // { name: "Yr 1", paid_abs: 50000, paid: 20, unpaid: 80, unpaid_abs: 50000, total: 120000, group: "Tertiary" },
-  // { name: "Yr 2", paid_abs: 50000, paid: 10, unpaid: 90, unpaid_abs: 50000, total: 90000, group: "Tertiary" },
-  // { name: "Yr 3", paid_abs: 50000, paid: 50, unpaid: 50, unpaid_abs: 50000, total: 70000, group: "Tertiary" },
-  // { name: "Yr 4", paid_abs: 8000, paid: 68, unpaid: 32, unpaid_abs: 50000, total: 45000, group: "Tertiary" },
-  // { name: "Yr 5", paid_abs: 2000, paid: 70, unpaid: 30, unpaid_abs: 50000, total: 10000, group: "Tertiary" },
-];
+export const useChartData = (levels: ClassLevel[]) => {
+  const queries = useQueries({
+    queries: levels.map(level => ({
+      queryKey: [classKeys.classesByLevel, level.id],
+      queryFn: () => getClassesByLevel(level.id),
+      enabled: !!level.id,
+    })),
+  });
+
+  const isPending = queries.some(q => q.isPending);
+
+  const data: ChartData[] = useMemo(() => {
+    if (isPending || levels.length === 0) return [];
+
+    return levels.flatMap((level, index) => {
+      const classesResponse = queries[index].data;
+      const classes = classesResponse?.data?.content || [];
+
+      return classes.map((cls: ClassInLevelDetails) => {
+        // Generating mock numbers that sum up logically
+        // const paidPercent = Math.floor(Math.random() * 60) + 20; // 20 to 80
+        const paidPercent = 0;
+        const unpaidPercent = 100 - paidPercent;
+        const totalAmount = Math.floor(Math.random() * 100000) + 50000;
+
+        return {
+          name: cls.className,
+          paid_abs: Math.floor((paidPercent / 100) * totalAmount),
+          paid: paidPercent,
+          unpaid: unpaidPercent,
+          unpaid_abs: Math.floor((unpaidPercent / 100) * totalAmount),
+          total: totalAmount,
+          level: level.levelName,
+        };
+      });
+    });
+  }, [levels, queries, isPending]);
+
+  return { data, isPending };
+};

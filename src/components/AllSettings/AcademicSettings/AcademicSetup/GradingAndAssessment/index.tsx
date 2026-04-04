@@ -12,20 +12,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAddAssessment } from "@/hooks/queryHooks/useAssessment";
-import { useAddGrading } from "@/hooks/queryHooks/useGrading";
+import { useAddAssessment, useUpdateAssessmentForLevel } from "@/hooks/queryHooks/useAssessment";
+import { useAddGrading, useGetGradingsByLevel, useUpdateGradingsForLevel } from "@/hooks/queryHooks/useGrading";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 import React, { useEffect, useState } from "react";
 import { GradingAndAssessmentSheet, LevelFormValues } from "./GradingAndAssessmentSheet";
 
-import { AssessmentRow, Branch, BranchWithClassLevels, ClassLevel, GradeRow, Level, LevelTabsContainerProps } from "@/api/types";
+import {
+  AssessmentRow,
+  AssessmentType,
+  Branch,
+  BranchWithClassLevels,
+  ClassLevel,
+  GradeRow,
+  Level,
+  LevelTabsContainerProps,
+  SchoolGrading,
+} from "@/api/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { useGetLevels } from "@/hooks/queryHooks/useLevel";
-import { levelFormSchema } from "@/schema/academic";
+import { useGetLevels, useGetAssessmentsByLevel } from "@/hooks/queryHooks/useLevel";
+import { schoolDefaultSchema } from "@/schema/academic";
 import { usePathname, useRouter } from "next/navigation";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { Spinner } from "@/components/ui/spinner";
 
 export type GradingAndAssessmentHandle = {
   submit: () => Promise<boolean>;
@@ -43,40 +54,62 @@ type AssessmentFieldsProps = {
   values: LevelFormValues;
   handleChange: React.ChangeEventHandler;
   handleBlur: React.FocusEventHandler;
-  levelId?: number;
+  level?: ClassLevel | null;
   branchId?: number;
+  branchSpecific?: boolean;
+  hasExistingAssessment?: boolean;
 };
 
-const AssessmentFields = ({ values, handleChange, handleBlur, levelId, branchId }: AssessmentFieldsProps) => {
+const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, branchSpecific, hasExistingAssessment }: AssessmentFieldsProps) => {
   const totalWeight = getTotalWeight(values.assessments);
   const isOverWeight = totalWeight > 100;
 
   const { mutateAsync: addAssessment } = useAddAssessment();
+  const { mutate: updateAssessment } = useUpdateAssessmentForLevel();
 
   const submitAssessment = () => {
     const payload = {
       branchId,
-      levelId,
+      levelType: level?.levelType,
+      branchSpecific,
       assessments: values.assessments.map(assessment => ({
         name: assessment.name,
         weight: Number(assessment.weight),
         assessmentType: "CONTINUOUS_ASSESSMENT",
       })),
     };
-    addAssessment(payload, {
-      onSuccess: () => {
-        toast({
-          title: "Assessment saved successfully",
-          type: "success",
-        });
-      },
-      onError: () => {
-        toast({
-          title: "Failed to save assessment",
-          type: "error",
-        });
-      },
-    });
+
+    if (hasExistingAssessment) {
+      updateAssessment(payload, {
+        onSuccess: () => {
+          toast({
+            title: "Assessment updated successfully",
+            type: "success",
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Failed to update assessment",
+            type: "error",
+          });
+        },
+      });
+    } else {
+      addAssessment(payload, {
+        onSuccess: () => {
+          toast({
+            title: "Assessment saved successfully",
+            type: "success",
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Failed to save assessment",
+            type: "error",
+          });
+        },
+      });
+    }
   };
 
   return (
@@ -145,17 +178,21 @@ type GradingFieldsProps = {
   values: LevelFormValues;
   handleChange: React.ChangeEventHandler;
   handleBlur: React.FocusEventHandler;
-  levelId?: number;
+  level?: ClassLevel | null;
   branchId?: number;
+  branchSpecific?: boolean;
+  hasExistingGradings?: boolean;
 };
 
-const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: GradingFieldsProps) => {
-  const { mutateAsync: addGrading } = useAddGrading();
+const GradingFields = ({ values, handleChange, handleBlur, level, branchId, branchSpecific, hasExistingGradings }: GradingFieldsProps) => {
+  const { mutateAsync: addGrading, isPending: isAddingGrading } = useAddGrading();
+  const { mutate: updateGrading, isPending: isUpdating } = useUpdateGradingsForLevel();
 
   const submitGrading = () => {
     const payload = {
       branchId,
-      levelId,
+      levelType: level?.levelType,
+      branchSpecific,
       gradingDtoList: values.grades.map(grade => ({
         grade: grade.grade,
         upperLimit: Number(grade.upperLimit),
@@ -163,20 +200,38 @@ const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: 
         remark: grade.remark,
       })),
     };
-    addGrading(payload, {
-      onSuccess: () => {
-        toast({
-          title: "Grading saved successfully",
-          type: "success",
-        });
-      },
-      onError: () => {
-        toast({
-          title: "Failed to save grading",
-          type: "error",
-        });
-      },
-    });
+
+    if (hasExistingGradings) {
+      updateGrading(payload, {
+        onSuccess: () => {
+          toast({
+            title: "Assessment updated successfully",
+            type: "success",
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Failed to update assessment",
+            type: "error",
+          });
+        },
+      });
+    } else {
+      addGrading(payload, {
+        onSuccess: () => {
+          toast({
+            title: "Grading saved successfully",
+            type: "success",
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Failed to save grading",
+            type: "error",
+          });
+        },
+      });
+    }
   };
 
   return (
@@ -267,6 +322,7 @@ const GradingFields = ({ values, handleChange, handleBlur, levelId, branchId }: 
       </div>
       <div className="flex justify-end py-3">
         <Button type="button" onClick={submitGrading} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!">
+          {isAddingGrading && <Spinner className="text-text-white-default size-3" />}
           Save
         </Button>
       </div>
@@ -344,30 +400,72 @@ function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | 
   );
 }
 
-const LevelFormPanel = ({ level, branchId }: { level: ClassLevel | null; branchId?: number }) => {
+const LevelFormPanel = ({ level, branchId, branchSpecific }: { level: ClassLevel | null; branchId?: number; branchSpecific?: boolean }) => {
+  const [hasExistingAssessment, setHasExistingAssessment] = useState(false);
+  const [hasExistingGradings, setHasExistingGradings] = useState(false);
+
   const formik = useFormik<LevelFormValues>({
     initialValues: emptyFormValues(),
-    validationSchema: levelFormSchema,
+    validationSchema: schoolDefaultSchema,
     onSubmit: () => {},
   });
+
+  const { data: assessmentsData } = useGetAssessmentsByLevel(level?.id);
+  const { data: gradingsData } = useGetGradingsByLevel(level?.id);
+
+  useEffect(() => {
+    if (assessmentsData?.data && assessmentsData.data?.assessments?.length > 0) {
+      formik.setFieldValue(
+        "assessments",
+        assessmentsData.data.assessments.map((a: AssessmentType) => ({
+          name: a.name,
+          weight: a.weight?.toString() || "",
+        })),
+      );
+      setHasExistingAssessment(true);
+    } else {
+      formik.setFieldValue("assessments", [emptyAssessmentRow()]);
+    }
+  }, [assessmentsData, level?.id]);
+
+  useEffect(() => {
+    if (gradingsData?.data && gradingsData.data?.length > 0) {
+      formik.setFieldValue(
+        "grades",
+        gradingsData.data.map((g: SchoolGrading) => ({
+          grade: g.grade,
+          upperLimit: g.upperLimit?.toString() || "",
+          lowerLimit: g.lowerLimit?.toString() || "",
+          remark: g.remark || "",
+        })),
+      );
+      setHasExistingGradings(true);
+    } else {
+      formik.setFieldValue("grades", [emptyGradeRow()]);
+    }
+  }, [gradingsData, level?.id]);
 
   return (
     <div className="w-full">
       <FormikProvider value={formik}>
         <div className="flex flex-col gap-6">
           <AssessmentFields
-            levelId={level?.id}
+            level={level}
             branchId={branchId}
+            branchSpecific={branchSpecific}
             values={formik.values}
             handleChange={formik.handleChange}
             handleBlur={formik.handleBlur}
+            hasExistingAssessment={hasExistingAssessment}
           />
           <GradingFields
-            levelId={level?.id}
+            level={level}
             branchId={branchId}
+            branchSpecific={branchSpecific}
             values={formik.values}
             handleChange={formik.handleChange}
             handleBlur={formik.handleBlur}
+            hasExistingGradings={hasExistingGradings}
           />
         </div>
       </FormikProvider>
@@ -375,7 +473,7 @@ const LevelFormPanel = ({ level, branchId }: { level: ClassLevel | null; branchI
   );
 };
 
-const LevelTabsContainer = ({ levels, activeLevel, setActiveLevel, branchId }: LevelTabsContainerProps) => {
+const LevelTabsContainer = ({ levels, activeLevel, setActiveLevel, branchId, branchSpecific }: LevelTabsContainerProps) => {
   const isMobile = useIsMobile();
   const [activeIndex, setActiveIndex] = React.useState(0);
 
@@ -449,11 +547,11 @@ const LevelTabsContainer = ({ levels, activeLevel, setActiveLevel, branchId }: L
           </div>
         </div>
 
-        <GradingAndAssessmentSheet branchId={branchId} />
+        <GradingAndAssessmentSheet branchId={branchId} branchSpecific={branchSpecific} />
       </div>
 
       <div className="flex w-full items-center justify-center pt-10">
-        <LevelFormPanel level={activeLevel} branchId={branchId} />
+        <LevelFormPanel level={activeLevel} branchId={branchId} branchSpecific={branchSpecific} />
       </div>
     </div>
   );
@@ -524,7 +622,15 @@ export const GradingAndAssessment = ({
 
         {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
-        {!isLoading && <LevelTabsContainer levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} branchId={activeBranch?.id} />}
+        {!isLoading && (
+          <LevelTabsContainer
+            levels={levels}
+            activeLevel={activeLevel}
+            setActiveLevel={setActiveLevel}
+            branchId={activeBranch?.id}
+            branchSpecific={branchSpecific}
+          />
+        )}
       </div>
 
       <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">

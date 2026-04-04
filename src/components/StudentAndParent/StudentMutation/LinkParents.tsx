@@ -25,8 +25,8 @@ export const LinkParents = ({
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  selectedParents: { id: number; fullName: string; avatar: string | null }[];
-  setSelectedParents: Dispatch<SetStateAction<{ id: number; fullName: string; avatar: string | null }[]>>;
+  selectedParents: { id: number; fullName: string; image: string | null }[];
+  setSelectedParents: Dispatch<SetStateAction<{ id: number; fullName: string; image: string | null }[]>>;
 }) => {
   const [branchSelected, setBranchSelected] = useState<Branch>();
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -60,7 +60,7 @@ export const LinkParents = ({
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
-                  <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
+                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
                   <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
@@ -114,7 +114,7 @@ export const LinkParents = ({
                         onCheckedChange={checked => {
                           setSelectedParents(prev => {
                             if (checked) {
-                              return [...prev, { id: parent.id, fullName: `${parent.firstName} ${parent.lastName}`, avatar: parent.image }];
+                              return [...prev, { id: parent.id, fullName: `${parent.firstName} ${parent.lastName}`, image: parent.image }];
                             }
                             return prev.filter(std => std.id !== parent.id);
                           });
@@ -196,7 +196,7 @@ export const LinkParents = ({
                 }}
               >
                 <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
-                  <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
+                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
                   <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
@@ -250,7 +250,7 @@ export const LinkParents = ({
                         onCheckedChange={checked => {
                           setSelectedParents(prev => {
                             if (checked) {
-                              return [...prev, { id: parent.id, fullName: `${parent.firstName} ${parent.lastName}`, avatar: parent.image }];
+                              return [...prev, { id: parent.id, fullName: `${parent.firstName} ${parent.lastName}`, image: parent.image }];
                             }
                             return prev.filter(std => std.id !== parent.id);
                           });

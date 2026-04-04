@@ -1,34 +1,56 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+"use client";
+
+import { Term } from "@/api/types";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Calendar } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const filterValues = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
+export const PaymentFilter = ({ termSelected, setTermSelected }: { termSelected: Term | null; setTermSelected: (value: Term | null) => void }) => {
+  const user = useLoggedInUser();
+  const { data: terms, isPending: loadingTerms } = useGetTerms(user.schoolId);
+  const [activeSession, setActiveSession] = useState<string | null>(null);
 
-export const PaymentFilter = () => {
-  const [selected, setSelected] = useState(filterValues[0]);
+  useEffect(() => {
+    if (terms) {
+      const activeTerm = terms.data.terms.find((term: Term) => term.isActiveTerm);
+      if (activeTerm && setTermSelected && !termSelected) {
+        setTermSelected(activeTerm);
+      }
+      setActiveSession(terms.data.academicSessionName);
+    }
+  }, [terms, setTermSelected, termSelected]);
+
   return (
     <div className="space-y-3">
       <p className="text-text-default text-xs font-medium">Class Payment Completion</p>
 
-      <Select value={selected} onValueChange={setSelected}>
-        <SelectTrigger className="border-border-darker h-8! w-auto border">
-          <SelectValue className="text-text-default flex font-medium">
+      {loadingTerms || !terms ? (
+        <Skeleton className="bg-bg-input-soft h-8 w-[160px]" />
+      ) : (
+        <Select
+          onValueChange={value => {
+            const term = terms.data.terms?.find((term: Term) => term.termId === Number(value));
+            setTermSelected(term);
+          }}
+        >
+          <SelectTrigger className="border-border-darker h-8! w-auto gap-2 border focus-visible:ring-0">
             <Calendar className="text-icon-black-muted size-4" />
-            <p className="text-text-default text-sm">{selected}</p>
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent className="bg-bg-card border-border-default border">
-          <SelectItem className="text-text-default" value="24/25 Third Term">
-            24/25 Third Term
-          </SelectItem>
-          <SelectItem className="text-text-default" value="24/25 Second Term">
-            24/25 Second Term
-          </SelectItem>
-          <SelectItem className="text-text-default" value="24/25 First Term">
-            24/25 First Term
-          </SelectItem>
-        </SelectContent>
-      </Select>
+            <span className="text-text-default text-sm font-medium capitalize">
+              {activeSession} {termSelected?.term.toLowerCase()}
+            </span>
+          </SelectTrigger>
+          <SelectContent className="bg-bg-card border-border-default border">
+            {terms.data.terms.map((term: Term) => (
+              <SelectItem key={term.termId} className="text-text-default text-sm font-medium capitalize" value={String(term.termId)}>
+                {activeSession} {term.term.toLowerCase()}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 };

@@ -1045,3 +1045,8 @@
 input:-moz-autofill {
   box-shadow: 0 0 0 1000px var(--color-bg-input-soft) inset;
 } */
+
+text tspan {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}

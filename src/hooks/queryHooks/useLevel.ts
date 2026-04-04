@@ -30,14 +30,14 @@ export const useGetLevelResultSettings = (levelId: number, filter: string) => {
 };
 export const useGetAssessmentsByLevel = (levelId?: number) => {
   return useQuery({
-    queryKey: levelId ? levelKeys.levelAssessments(levelId) : ["levelAssessments"],
+    queryKey: [levelKeys.levelAssessments, levelId],
     queryFn: () => getAssessmentsByLevel(levelId!),
     enabled: !!levelId,
   });
 };
 export const useGetGradingsByLevel = (levelId?: number) => {
   return useQuery({
-    queryKey: levelId ? levelKeys.levelGradings(levelId) : ["levelGradings"],
+    queryKey: [levelKeys.levelGradings, levelId],
     queryFn: () => getGradingsByLevel(levelId!),
     enabled: !!levelId,
   });

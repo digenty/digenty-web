@@ -12,7 +12,7 @@ export const parentSchema = yup.object().shape({
   nationality: yup.string().required("Nationality is required!"),
   stateOfOrigin: yup.string().required("State of Origin is required!"),
   phoneNumber: yup.string().required("Phone Number is required!"),
-  secondaryPhoneNumber: yup.string(),
+  secondaryPhoneNumber: yup.string().required("Whatsapp Number is required!"),
   branchId: yup.number().required("Branch is required!"),
 });
 

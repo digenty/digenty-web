@@ -6,7 +6,7 @@ export const Legend = () => {
           <span className="rounded-2xs bg-bg-basic-blue-accent mr-2 inline-block size-2 md:size-3"></span>
           Paid
         </span>
-        <span className="text-text-muted text-left font-normal md:text-right">50% · N50,000</span>
+        <span className="text-text-muted text-left font-normal md:text-right">0% · N0</span>
       </div>
 
       <div className="flex items-center space-x-4 md:justify-between">
@@ -14,7 +14,7 @@ export const Legend = () => {
           <span className="rounded-2xs mr-2 inline-block size-2 bg-gray-300 md:size-3"></span>
           Unpaid
         </span>
-        <span className="text-text-muted text-left font-normal md:text-right">50% · N50,000</span>
+        <span className="text-text-muted text-left font-normal md:text-right">0% · N0</span>
       </div>
     </div>
   );
