@@ -23,6 +23,7 @@ import { toast } from "../../../Toast";
 import { Spinner } from "../../../ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import StatusBadge from "@/components/StatusBadge";
+import { Tooltip } from "@/components/Tooltip";
 
 export const StudentProfile = () => {
   const pathname = usePathname();
@@ -133,24 +134,38 @@ export const StudentProfile = () => {
           </div>
 
           <div className="border-border-default md:p-none flex items-center gap-1 border-t pt-3 md:border-none">
-            <Button
-              onClick={() => {
-                setStudentIdsToWithdraw([student.id]);
-                setOpenWithdraw(true);
-              }}
-              className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border text-sm"
-            >
-              {withdrawing ? <Spinner /> : <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />}
-            </Button>
-            <Button
-              onClick={() => {
-                setStudentIdsToDelete([student.id]);
-                setOpenDelete(true);
-              }}
-              className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border text-sm"
-            >
-              {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
-            </Button>
+            <Tooltip
+              description="Withdraw Student"
+              side="top"
+              Trigger={
+                <Button
+                  onClick={() => {
+                    setStudentIdsToWithdraw([student.id]);
+                    setOpenWithdraw(true);
+                  }}
+                  className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border text-sm"
+                >
+                  {withdrawing ? <Spinner /> : <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />}
+                </Button>
+              }
+            />
+
+            <Tooltip
+              description="Delete Student"
+              side="top"
+              Trigger={
+                <Button
+                  onClick={() => {
+                    setStudentIdsToDelete([student.id]);
+                    setOpenDelete(true);
+                  }}
+                  className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border text-sm"
+                >
+                  {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
+                </Button>
+              }
+            />
+
             <Button
               onClick={() => router.push(`/staff/student-and-parent-record/students/${student.id}/edit`)}
               className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm"

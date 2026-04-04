@@ -22,9 +22,11 @@ type markAllAttendancePayload = {
   isPresent: boolean;
 };
 
-export const getAllAttendance = async (branchId?: number, termId?: number) => {
+export const getAllAttendance = async (branchId?: number, termId?: number, searchQuery?: string) => {
   try {
-    const { data } = await api.get(`/attendance?${branchId ? `branchId=${branchId}` : ""}${termId ? `${branchId ? "&" : ""}termId=${termId}` : ""}`);
+    const { data } = await api.get(
+      `/attendance?${branchId ? `branchId=${branchId}` : ""}${termId ? `${branchId ? "&" : ""}termId=${termId}` : ""}${searchQuery ? `${branchId || termId ? "&" : ""}searchQuery=${searchQuery}` : ""}`,
+    );
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
