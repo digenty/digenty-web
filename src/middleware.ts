@@ -1,13 +1,11 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { parseCookieString } from "./lib/utils";
 
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   const cookieStore = await cookies();
-  const tokenString = cookieStore.get("token")?.value;
-  const token = parseCookieString(tokenString);
+  const token = cookieStore.get("token")?.value;
 
   //include all routes that you want to be accessed without auth
   const authRoutes = [

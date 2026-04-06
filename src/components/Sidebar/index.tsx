@@ -267,8 +267,10 @@ export const Sidebar = () => {
   const handleCBTClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     const { token } = await getSessionToken();
-    const cbtUrl = `${process.env.NEXT_PUBLIC_CBT_URL}/auth-entry?token=${encodeURIComponent(token)}`; // &returnTo="/subjects"
+    const baseUrl = process.env.NEXT_PUBLIC_CBT_URL?.replace(/\/$/, "");
+    const cbtUrl = `${baseUrl}/auth-entry?token=${encodeURIComponent(token)}`; // &returnTo="/subjects"
     window.open(cbtUrl, "_blank"); // or window.location.href = cbtUrl
+    // window.location.href = cbtUrl;
   };
 
   return (
