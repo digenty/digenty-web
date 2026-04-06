@@ -10,6 +10,7 @@ import { TermSheetCard } from "./TermSheetCard";
 import { generateColumns } from "./TermSheetColumns";
 import { TermSheetHeader } from "./TermSheetHeader";
 import { StudentAttendance } from "./students";
+import { ClassAttendanceWrapper } from "../ClassAttendanceWrapper";
 
 export interface Student {
   id: number;
@@ -35,12 +36,12 @@ export const TermSheet = () => {
 
   useEffect(() => {
     if (data) {
-      setActiveWeek(data.data[0].weeks[0].week);
+      setActiveWeek(data.data[0]?.weeks[0]?.week);
     }
   }, [data]);
 
   return (
-    <div>
+    <ClassAttendanceWrapper armId={Number(armId)} isLoading={isPending}>
       {isError && (
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent
@@ -108,6 +109,6 @@ export const TermSheet = () => {
           </div>
         </div>
       )}
-    </div>
+    </ClassAttendanceWrapper>
   );
 };

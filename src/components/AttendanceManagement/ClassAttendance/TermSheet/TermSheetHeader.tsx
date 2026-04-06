@@ -89,9 +89,9 @@ export const TermSheetHeader = ({
             </div>
           )}
 
-          <Button className="bg-bg-state-primary text-text-white-default! hover:bg-bg-state-primary-hover! flex h-8! shrink-0 items-center gap-2">
+          {/* <Button className="bg-bg-state-primary text-text-white-default! hover:bg-bg-state-primary-hover! flex h-8! shrink-0 items-center gap-2">
             <span className="text-sm font-medium">Save</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
 

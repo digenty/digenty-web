@@ -20,7 +20,7 @@ const RenderCell = (row: Row<StudentAttendance>, week: string, day: AttendanceDa
   return (
     <div
       role="button"
-      onClick={() => toggleAttendance()}
+      // onClick={() => toggleAttendance()}
       className="full-cell absolute top-0 bottom-0 flex h-full w-full cursor-pointer items-center justify-center"
     >
       {isPresent ? <CheckIcon className="text-bg-basic-emerald-strong size-4.5" /> : <XIcon className="text-icon-destructive size-4.5" />}

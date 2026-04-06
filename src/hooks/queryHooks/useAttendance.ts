@@ -2,10 +2,10 @@ import { createAttendanceSheet, getAllAttendance, getArmAttendance, getTermSheet
 import { attendanceKeys } from "@/queries/attendance";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-export const useGetAllAttendance = (branchId?: number, termId?: number) => {
+export const useGetAllAttendance = (branchId?: number, termId?: number, searchQuery?: string) => {
   return useQuery({
-    queryKey: [attendanceKeys.attendance, branchId, termId],
-    queryFn: () => getAllAttendance(branchId, termId),
+    queryKey: [attendanceKeys.attendance, branchId, termId, searchQuery],
+    queryFn: () => getAllAttendance(branchId, termId, searchQuery),
     enabled: !!termId,
   });
 };

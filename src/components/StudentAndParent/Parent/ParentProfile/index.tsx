@@ -23,6 +23,7 @@ import { Spinner } from "../../../ui/spinner";
 import { Biodata } from "./Biodata";
 import { LinkedStudentsTable } from "./LinkedStudentsTable";
 import StatusBadge from "@/components/StatusBadge";
+import { Tooltip } from "@/components/Tooltip";
 
 export const ParentProfile = () => {
   const pathname = usePathname();
@@ -101,15 +102,22 @@ export const ParentProfile = () => {
           </div>
 
           <div className="border-border-default md:p-none flex items-center gap-1 border-t pt-3 md:border-none">
-            <Button
-              onClick={() => {
-                setParentIds([parent.id]);
-                setOpenDelete(true);
-              }}
-              className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border text-sm"
-            >
-              {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
-            </Button>
+            <Tooltip
+              description="Delete Parent"
+              side="top"
+              Trigger={
+                <Button
+                  onClick={() => {
+                    setParentIds([parent.id]);
+                    setOpenDelete(true);
+                  }}
+                  className="bg-bg-state-secondary border-border-darker text-text-default size-9! rounded-md border text-sm"
+                >
+                  {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
+                </Button>
+              }
+            />
+
             <Button
               onClick={() => router.push(`/staff/student-and-parent-record/parents/${parent.id}/edit`)}
               className="bg-bg-state-secondary border-border-darker text-text-default rounded-md border text-sm"
