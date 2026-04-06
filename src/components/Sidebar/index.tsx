@@ -49,6 +49,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SetupGuideProgress } from "./SetupGuideProgress";
 import { canViewCBT } from "@/lib/permissions/cbt";
 import { getSessionToken } from "@/app/actions/auth";
+import { ListCheck3 } from "../Icons/ListCheck3";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -88,7 +89,7 @@ export const Sidebar = () => {
               {
                 title: "CBT",
                 url: "cbt",
-                icon: GraduationCap,
+                icon: ListCheck3,
               },
             ]
           : []),
@@ -266,8 +267,10 @@ export const Sidebar = () => {
   const handleCBTClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     const { token } = await getSessionToken();
-    const cbtUrl = `${process.env.NEXT_PUBLIC_CBT_URL}/auth-entry?token=${encodeURIComponent(token)}`; // &returnTo="/subjects"
+    const baseUrl = process.env.NEXT_PUBLIC_CBT_URL?.replace(/\/$/, "");
+    const cbtUrl = `${baseUrl}/auth-entry?token=${encodeURIComponent(token)}`; // &returnTo="/subjects"
     window.open(cbtUrl, "_blank"); // or window.location.href = cbtUrl
+    // window.location.href = cbtUrl;
   };
 
   return (
