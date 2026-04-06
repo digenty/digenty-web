@@ -11,11 +11,18 @@ import { authSchema } from "@/schema/auth";
 import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
+import { LegalModal } from "../LegalModal";
+import { PRIVACY_POLICY, TERMS_AND_CONDITIONS } from "@/constants/legal";
 
 export const LoginPasswordForm = ({ email, userType }: { email: string; userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const { mutate, isPending } = useLogin();
+  const [legalModal, setLegalModal] = useState<{ open: boolean; title: string; content: string }>({
+    open: false,
+    title: "",
+    content: "",
+  });
 
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
@@ -131,8 +138,31 @@ export const LoginPasswordForm = ({ email, userType }: { email: string; userType
           {isPending && <Spinner className="text-text-white-default" />}
           Log In
         </Button>
-        <p className="text-text-muted text-center text-xs">Terms of Use | Privacy Policy</p>
+        <p className="text-text-muted text-center text-xs">
+          <button
+            type="button"
+            onClick={() => setLegalModal({ open: true, title: "Terms and Conditions", content: TERMS_AND_CONDITIONS })}
+            className="cursor-pointer underline"
+          >
+            Terms of Use
+          </button>{" "}
+          |{" "}
+          <button
+            type="button"
+            onClick={() => setLegalModal({ open: true, title: "Privacy Policy", content: PRIVACY_POLICY })}
+            className="cursor-pointer underline"
+          >
+            Privacy Policy
+          </button>
+        </p>
       </div>
+
+      <LegalModal
+        open={legalModal.open}
+        setOpen={open => setLegalModal(prev => ({ ...prev, open }))}
+        title={legalModal.title}
+        content={legalModal.content}
+      />
     </form>
   );
 };
