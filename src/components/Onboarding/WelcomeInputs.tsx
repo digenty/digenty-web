@@ -135,7 +135,7 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
             School Country<small className="text-text-destructive text-xs">*</small>
           </Label>
 
-          {countries.length > 0 ? (
+          {countries?.length > 0 ? (
             <Select
               onValueChange={value => {
                 const selectedCountry = countries.find(country => country.id === value);
