@@ -23,3 +23,7 @@ export interface CreateBranchPayload {
   }[];
 }
 export type BranchType = "one" | "multiple";
+
+export const DRAFT_KEY_SCHOOL = "onboarding:school";
+export const DRAFT_KEY_BRANCH = "onboarding:branch";
+export const DRAFT_KEY_STEP = "onboarding:step";
