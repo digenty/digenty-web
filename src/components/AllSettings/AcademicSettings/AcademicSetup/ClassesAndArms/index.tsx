@@ -395,6 +395,8 @@ export const ClassesAndArms = ({
     }
   }, [levels]);
 
+  console.log("Branch Levels: ", branchLevels);
+
   return (
     <section className="">
       <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 pb-12 lg:px-36">
