@@ -10,6 +10,7 @@ import { Skeleton } from "../ui/skeleton";
 import { CreateSchoolTypes, OnBoardingCountry } from "./types";
 import { currencies } from "@/store/currenciesCode";
 import { schoolSizes } from "./constants";
+import { SearchableSelect } from "../StudentAndParent/SearchableSelect";
 
 export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolTypes> }) => {
   const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
@@ -136,26 +137,21 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
           </Label>
 
           {countries.length > 0 ? (
-            <Select
+            <SearchableSelect
+              options={countries.map(country => ({
+                label: country.name,
+                value: country.countryCode,
+                flag: country.flag,
+              }))}
+              value={values.country || ""}
               onValueChange={value => {
-                const selectedCountry = countries.find(country => country.id === value);
-
+                const selectedCountry = countries.find(country => country.countryCode === value);
                 setFieldValue("country", value);
                 setActiveCountry(selectedCountry);
               }}
-            >
-              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-                <span className="text-text-muted text-sm font-medium">{activeCountry ? activeCountry?.name : "Select Country"}</span>
-              </SelectTrigger>
-
-              <SelectContent className="bg-bg-card border-none">
-                {countries.map(country => (
-                  <SelectItem key={country.id} value={country.id} className="text-text-default">
-                    {country.code} {country.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Select Country"
+              searchPlaceholder="Search country..."
+            />
           ) : (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           )}

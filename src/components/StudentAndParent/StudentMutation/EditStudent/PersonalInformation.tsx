@@ -1,5 +1,5 @@
 "use client";
-import { getCountries, getStatesForCountry } from "@/app/actions/country";
+import { getCountries } from "@/app/actions/country";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -7,15 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { FormikProps } from "formik";
 import { CalendarIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { GenderValues } from "../../constants";
-import { Country, State, StudentInputValues } from "../../types";
+import { Country, StudentInputValues } from "../../types";
 import { Student } from "@/api/types";
+import { SearchableSelect } from "../../SearchableSelect";
 
 export const PersonalInformation = ({
   date,
@@ -28,39 +28,30 @@ export const PersonalInformation = ({
   formik: FormikProps<StudentInputValues>;
   data: { data: Student } | undefined;
 }) => {
-  const { handleBlur, handleChange, errors, touched, values } = formik;
+  const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
   const [countries, setCountries] = useState<Country[]>([]);
-  const [states, setStates] = useState<State[]>([]);
-  const [activeCountryCode, setActiveCountryCode] = useState<string>("");
-
-  const getCountryCode = async () => {
-    const countryList = await getCountries();
-    setCountries(countryList);
-  };
-
-  const getStates = useCallback(async () => {
-    const stateList = await getStatesForCountry(activeCountryCode);
-    setStates(stateList);
-  }, [activeCountryCode]);
+  const [availableStates, setAvailableStates] = useState<string[]>([]);
 
   useEffect(() => {
-    getCountryCode();
+    const fetchData = async () => {
+      const countryList = await getCountries();
+      setCountries(countryList);
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
-    if (values.nationality && countries.length > 0) {
-      const country = countries.find(ctry => ctry.name === values.nationality);
-      if (country) {
-        setActiveCountryCode(country.iso2);
+    if (countries.length > 0 && values.nationality) {
+      const selectedCountry = countries.find(c => c.name === values.nationality);
+      if (selectedCountry) {
+        setAvailableStates(selectedCountry.states || []);
+      } else {
+        setAvailableStates([]);
       }
+    } else {
+      setAvailableStates([]);
     }
-  }, [values.nationality, countries]);
-
-  useEffect(() => {
-    if (activeCountryCode) {
-      getStates();
-    }
-  }, [activeCountryCode, getStates]);
+  }, [countries, values.nationality]);
 
   return (
     <div className="border-border-default space-y-6 border-b py-6">
@@ -212,25 +203,20 @@ export const PersonalInformation = ({
             Nationality <small className="text-text-destructive text-xs">*</small>
           </Label>
           {countries && countries.length > 0 ? (
-            <Select
+            <SearchableSelect
+              options={countries.map(country => ({
+                label: country.name,
+                value: country.name,
+                flag: country.flag,
+              }))}
               value={formik.values.nationality}
               onValueChange={country => {
-                const ctry = countries?.find(ctry => ctry.name === country);
-                setActiveCountryCode(ctry?.iso2 || "");
-                formik.setFieldValue("nationality", country);
+                setFieldValue("nationality", country);
+                setFieldValue("stateOfOrigin", ""); // Reset state if country changes
               }}
-            >
-              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-                <SelectValue placeholder="Select Nationality" />
-              </SelectTrigger>
-              <SelectContent className="bg-bg-card border-none">
-                {countries.map(country => (
-                  <SelectItem key={country.id} className="text-text-default" value={country.name}>
-                    {country.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Select Nationality"
+              searchPlaceholder="Search country..."
+            />
           ) : (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           )}
@@ -241,27 +227,24 @@ export const PersonalInformation = ({
             State of Origin <small className="text-text-destructive text-xs">*</small>
           </Label>
           <Select
-            disabled={!activeCountryCode}
+            disabled={!values.nationality}
             value={formik.values.stateOfOrigin}
             onValueChange={value => {
-              if (value) {
-                const state = states?.find(stat => stat.name === value);
-                formik.setFieldValue("stateOfOrigin", state?.name || value);
-              }
+              setFieldValue("stateOfOrigin", value);
             }}
           >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
               <SelectValue placeholder="Select State of Origin" />
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-none">
-              {states && states.length === 0 ? (
-                <div className="flex items-center justify-center">
-                  <Spinner />
+              {availableStates.length === 0 && values.nationality ? (
+                <div className="flex items-center justify-center p-2">
+                  <span className="text-text-muted text-xs">No states available</span>
                 </div>
               ) : (
-                states.map(state => (
-                  <SelectItem key={state.id} className="text-text-default" value={state.name}>
-                    {state.name}
+                availableStates.map(stateName => (
+                  <SelectItem key={stateName} className="text-text-default" value={stateName}>
+                    {stateName}
                   </SelectItem>
                 ))
               )}
