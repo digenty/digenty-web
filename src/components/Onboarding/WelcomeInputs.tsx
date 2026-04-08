@@ -1,36 +1,40 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { getCountries } from "@/app/actions/country";
 import { FormikProps } from "formik";
+import { useEffect, useState } from "react";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
-import { Skeleton } from "../ui/skeleton";
-import { CreateSchoolTypes, OnBoardingCountry } from "./types";
 import { currencies } from "@/store/currenciesCode";
+import { SearchableSelect } from "../StudentAndParent/SearchableSelect";
+import { Country } from "../StudentAndParent/types";
+import { Skeleton } from "../ui/skeleton";
 import { schoolSizes } from "./constants";
+import { CreateSchoolTypes } from "./types";
 
 export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolTypes> }) => {
   const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
-  const [countries, setCountries] = useState<OnBoardingCountry[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [currency, setCurrency] = useState<string>();
-  const [activeCountry, setActiveCountry] = useState<OnBoardingCountry>();
-
-  const getCountryList = async () => {
-    const countryList = await getCountries();
-    setCountries(countryList);
-  };
-  useEffect(() => {
-    if (activeCountry) {
-      setCurrency(activeCountry.currency);
-      setFieldValue("currency", activeCountry.currency);
-    }
-  }, [activeCountry, setFieldValue]);
 
   useEffect(() => {
-    getCountryList();
+    const fetchData = async () => {
+      const countryList = await getCountries();
+      setCountries(countryList);
+    };
+    fetchData();
   }, []);
+
+  useEffect(() => {
+    if (countries.length > 0 && values.country) {
+      const selectedCountry = countries.find(country => country.name === values.country);
+      if (selectedCountry) {
+        setCurrency(selectedCountry.currencyCode);
+        setFieldValue("currency", selectedCountry.currencyCode);
+      }
+    }
+  }, [countries, values.country]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -136,26 +140,26 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
           </Label>
 
           {countries.length > 0 ? (
-            <Select
-              onValueChange={value => {
-                const selectedCountry = countries.find(country => country.id === value);
-
-                setFieldValue("country", value);
-                setActiveCountry(selectedCountry);
+            <SearchableSelect
+              options={countries.map(country => ({
+                label: country.name,
+                value: country.name,
+                flag: country.flag,
+              }))}
+              value={values.country}
+              // onValueChange={value => {
+              //   const selectedCountry = countries.find(country => country.countryCode === value);
+              //   setFieldValue("country", value);
+              //   setActiveCountry(selectedCountry);
+              // }}
+              onValueChange={country => {
+                setFieldValue("country", country);
+                // setFieldValue("stateOfOrigin", ""); // Reset state if country changes
               }}
-            >
-              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
-                <span className="text-text-muted text-sm font-medium">{activeCountry ? activeCountry?.name : "Select Country"}</span>
-              </SelectTrigger>
-
-              <SelectContent className="bg-bg-card border-none">
-                {countries.map(country => (
-                  <SelectItem key={country.id} value={country.id} className="text-text-default">
-                    {country.code} {country.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Select Country"
+              searchPlaceholder="Search country..."
+              modal={true}
+            />
           ) : (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           )}

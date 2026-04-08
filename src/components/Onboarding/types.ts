@@ -4,16 +4,15 @@ export interface CreateSchoolTypes {
   schoolName?: string;
   schoolSize?: string;
   role?: string;
-  country?: string;
+  country: string;
   currency?: string;
 }
 
 export interface OnBoardingCountry {
-  id: string;
   name: string;
-  code?: number;
-  currency?: string;
-  iso2?: string;
+  currency: string;
+  countryCode: string;
+  flag: string;
 }
 
 export interface CreateBranchPayload {
