@@ -1,4 +1,4 @@
-import { ClassLevel } from "@/api/types";
+import { ClassLevel, DepartmentWithSubjects } from "@/api/types";
 import { CloseFill } from "@/components/Icons/CloseFill";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
@@ -11,6 +11,7 @@ import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle }
 import { Spinner } from "@/components/ui/spinner";
 import { useAddArmToClass, useDeleteArmFromClass, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useGetClassDetails, useUpdateClass } from "@/hooks/queryHooks/useClass";
+import { useCreateDepartmentSubjects, useGetDepartmentsByClass, useGetDepartmentSubjectsByClass } from "@/hooks/queryHooks/useDepartment";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubjectToClass, useDeleteSubjectFromClass, useGetSubjectsByClass } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -20,18 +21,163 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as yup from "yup";
 
+const DepartmentSubjectsSection = ({
+  dept,
+  levelId,
+  branchId,
+  branchSpecific,
+}: {
+  dept: { departmentId: number; name: string };
+  levelId: number;
+  branchId?: number;
+  branchSpecific: boolean;
+}) => {
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjectInput, setSubjectInput] = useState("");
+  const { data: deptSubjectsData, isLoading } = useGetDepartmentSubjectsByClass(dept.departmentId, levelId);
+  const { mutate: mutateCreateDeptSubjects, isPending: isSaving } = useCreateDepartmentSubjects();
+
+  console.log(deptSubjectsData, "###");
+  useEffect(() => {
+    if (deptSubjectsData?.data) {
+      setSubjects(deptSubjectsData?.data.map((s: { subjectName: string }) => s.subjectName));
+    }
+  }, [deptSubjectsData]);
+
+  const addSubject = (subjectString: string) => {
+    if (!subjectString.trim()) return;
+    // const currentSubjectNames = subjects.map((s: { name: string }) => s.name);
+    const newSubjectNames = subjectString
+      .split(",")
+      .map(str => str.trim())
+      .filter(str => str !== "" && !subjects.includes(str));
+
+    if (newSubjectNames.length === 0) return;
+
+    mutateCreateDeptSubjects(
+      {
+        departmentName: dept.name,
+        subjectNames: newSubjectNames,
+        branchId: branchId,
+        branchSpecific,
+      },
+      {
+        onSuccess: () => {
+          setSubjects(prev => [...prev, ...newSubjectNames]);
+          setSubjectInput("");
+          toast({
+            title: "Subjects added",
+            description: `Subjects for ${dept.name} have been updated successfully`,
+            type: "success",
+          });
+        },
+        onError: error => {
+          toast({
+            title: "Failed to add subjects",
+            description: (error as { message?: string })?.message || `Could not add subjects to ${dept.name}`,
+            type: "error",
+          });
+        },
+      },
+    );
+  };
+
+  const removeSubject = (subjectToRemove: string) => {
+    const subjectList = deptSubjectsData?.data || [];
+
+    // mutateCreateDeptSubjects(
+    //   {
+    //     departmentName: dept.name,
+    //     subjectNames: updatedSubjectNames,
+    //     branchId: branchId || 0,
+    //     branchSpecific,
+    //   },
+    //   {
+    //     onSuccess: () => {
+    //       toast({
+    //         title: "Subject removed",
+    //         description: `"${subjectToRemove}" has been removed from ${dept.name}`,
+    //         type: "success",
+    //       });
+    //     },
+    //     onError: error => {
+    //       toast({
+    //         title: "Failed to remove subject",
+    //         description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`,
+    //         type: "error",
+    //       });
+    //     },
+    //   },
+    // );
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <Label className="text-text-default text-sm font-medium capitalize">{dept.name.toLowerCase()} Subjects</Label>
+      <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
+        <Input
+          type="text"
+          value={subjectInput}
+          onChange={evt => setSubjectInput(evt.target.value)}
+          onKeyDown={e => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addSubject(subjectInput);
+            }
+          }}
+          className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
+          placeholder={`Add Subjects to ${dept.name.toLowerCase()}`}
+        />
+        <Button
+          className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+          onClick={() => addSubject(subjectInput)}
+          disabled={isSaving || isLoading}
+        >
+          {(isSaving || isLoading) && <Spinner className="text-text-white-default size-3" />}
+          Add
+        </Button>
+      </div>
+      <div className="flex flex-wrap items-center gap-1">
+        {subjects.map(subject => (
+          <Badge
+            key={subject}
+            className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
+          >
+            <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
+            <button
+              type="button"
+              className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"
+              onClick={e => {
+                e.preventDefault();
+                removeSubject(subject);
+              }}
+            >
+              <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
+            </button>
+          </Badge>
+        ))}
+      </div>
+      <div className="text-text-muted text-xs">
+        You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.{" "}
+      </div>
+    </div>
+  );
+};
+
 export const ClassEditSheet = ({
   level,
   branchId,
   sheetOpen,
   setSheetOpen,
   classId,
+  branchSpecific,
 }: {
   level: ClassLevel | null;
   branchId?: number;
   sheetOpen: boolean;
   setSheetOpen: (open: boolean) => void;
   classId: number | null;
+  branchSpecific: boolean;
 }) => {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
@@ -51,6 +197,7 @@ export const ClassEditSheet = ({
   const { data: classData, isLoading: isLoadingClass } = useGetClassDetails(classId);
   const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByClass(classData?.data?.name, level?.levelType, branchId);
   const { data: armsData, isFetching: isLoadingArms } = useGetArmsByClass(classId);
+  const { data: departmentsData } = useGetDepartmentsByClass(classData?.data?.name, level?.levelType, branchId);
 
   useEffect(() => {
     if (subjectsData) {
@@ -70,6 +217,16 @@ export const ClassEditSheet = ({
       setArmsEnabled(true);
     }
   }, [armsData]);
+
+  useEffect(() => {
+    if (departmentsData?.data && Array.isArray(departmentsData.data)) {
+      const names = departmentsData?.data[0]?.departments?.map((dept: { name: string }) => dept.name);
+      if (names.length > 0) {
+        setDepartments(names);
+        setDepartmentsEnabled(true);
+      }
+    }
+  }, [departmentsData]);
 
   const formik = useFormik({
     initialValues: {
@@ -332,7 +489,7 @@ export const ClassEditSheet = ({
                         key={department}
                         className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                       >
-                        <span className="text-text-subtle text-xs">{department}</span>{" "}
+                        <span className="text-text-subtle text-xs capitalize">{department?.toLowerCase()}</span>{" "}
                         <CloseFill
                           onClick={() => removeDepartment(department)}
                           fill="var(--color-icon-default-muted)"
@@ -349,35 +506,14 @@ export const ClassEditSheet = ({
                 {departments.length > 0 && (
                   <>
                     <div className="text-text-default text-xl font-semibold">Department Subjects</div>
-                    {departments.map(dept => (
-                      <div key={dept} className="flex flex-col gap-3">
-                        <Label className="text-text-default text-sm font-medium">{dept} Subjects</Label>
-                        <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-                          <Input
-                            type="text"
-                            className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
-                            placeholder="Add Department"
-                          />
-                          <Button className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs">
-                            Add
-                          </Button>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {" "}
-                          {["Mathematics", "English Language", "Basic Science"].map(subject => (
-                            <Badge
-                              key={subject}
-                              className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                            >
-                              <span className="text-text-subtle text-xs">{subject}</span>{" "}
-                              <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
-                            </Badge>
-                          ))}
-                        </div>
-                        <div className="text-text-muted text-xs">
-                          You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.{" "}
-                        </div>
-                      </div>
+                    {departmentsData?.data?.[0]?.departments.map((dept: DepartmentWithSubjects, index: number) => (
+                      <DepartmentSubjectsSection
+                        key={`${dept.departmentId}-${index}`}
+                        dept={dept}
+                        levelId={level.id}
+                        branchId={branchId}
+                        branchSpecific={branchSpecific}
+                      />
                     ))}
                   </>
                 )}

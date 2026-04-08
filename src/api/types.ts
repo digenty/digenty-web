@@ -476,6 +476,7 @@ export interface ClassInLevelDetails {
   className: string;
   subjects: { name: string; id: number }[];
   arms: { name: string; id: number }[];
+  departments: { departmentId: number; departmentName: string; subjects: { name: string; id: number }[] }[];
 }
 
 export interface ClassInLevel {
@@ -791,4 +792,33 @@ export interface AllSubjects {
   name: string;
   branchId: number;
   schoolId: number;
+}
+
+export interface Department {
+  departmentId: number;
+  name: string;
+  levelId: number;
+  classId: number;
+  subjects: string[];
+}
+
+export interface DepartmentResponse {
+  branchId: number;
+  branchName: string;
+  departments: Department[];
+}
+
+export interface CreateDepartmentSubjectPayload {
+  departmentName: string;
+  subjectNames: string[];
+  branchId?: number;
+  branchSpecific?: boolean;
+}
+
+export interface DepartmentWithSubjects {
+  departmentId: number;
+  name: string;
+  levelId: number;
+  classId: number;
+  subjects: { subjectId: number; subjectName: string; fromDepartment: boolean }[];
 }
