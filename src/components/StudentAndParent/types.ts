@@ -62,21 +62,24 @@ export interface ParentInputValues {
 }
 
 export interface Country {
-  id: string;
   name: string;
-  iso2: string;
-  iso3: string;
-  phonecode: string;
-  capital: string;
   currency: string;
-  native: string;
-  emoji: string;
+  currencyCode: string;
+  currencySymbol: string;
+  countryCode: string;
+  flag: string;
+  timezones: {
+    zoneName: string;
+    gmtOffset: number;
+    gmtOffsetName: string;
+    abbreviation: string;
+    tzName: string;
+  }[];
+  states: string[];
 }
 
 export interface State {
-  id: string;
   name: string;
-  iso2: string;
 }
 
 export interface StudentInputType {
