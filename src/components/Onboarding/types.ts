@@ -4,7 +4,7 @@ export interface CreateSchoolTypes {
   schoolName?: string;
   schoolSize?: string;
   role?: string;
-  country?: string;
+  country: string;
   currency?: string;
 }
 

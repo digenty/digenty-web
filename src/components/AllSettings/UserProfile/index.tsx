@@ -18,15 +18,17 @@ import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import React, { useEffect, useRef, useState } from "react";
 
-type EditProps = "editName" | "editPhoneNum" | "editTimezone" | null;
+import { useGetCountries } from "@/hooks/queryHooks/useCountry";
+import { Country } from "@/components/StudentAndParent/types";
+import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 
-const timeZones = ["CEST"];
+type EditProps = "editName" | "editPhoneNum" | "editTimezone" | null;
 export const UserProfile = () => {
   useBreadcrumb([
     { label: "Settings", url: "/staff/settings" },
     { label: "Profile Settings", url: "/staff/settings/profile" },
   ]);
-  const [timeZone, setTimeZone] = useState(timeZones[0]);
+  const [timeZone, setTimeZone] = useState("");
   const [edit, setEdit] = useState<EditProps>(null);
   const [image, setImage] = useState<string | undefined>(undefined);
   const [firstName, setFirstName] = useState("");
@@ -41,6 +43,16 @@ export const UserProfile = () => {
 
   const { data } = useGetUserProfile();
   const profileData = data?.data;
+
+  const { data: countries = [] } = useGetCountries();
+
+  const uniqueTimezones = Array.from(new Set<string>(countries.flatMap((c: Country) => c.timezones || [])))
+    .filter(Boolean)
+    .sort()
+    .map(tz => ({
+      label: tz,
+      value: tz,
+    }));
 
   console.log(profileData);
   useEffect(() => {
@@ -268,26 +280,17 @@ export const UserProfile = () => {
               <div className="text-text-default text-sm font-medium">Time Zone</div>
             </div>
           </div>
-          <Select
+          <SearchableSelect
+            options={uniqueTimezones}
             value={timeZone}
             onValueChange={val => {
               setTimeZone(val);
               handleSaveProfile({ timezone: val });
             }}
-          >
-            <SelectTrigger className="border-border-darker h-8! w-auto border">
-              <SelectValue>
-                <span className="text-text-default text-sm font-medium">{timeZone}</span>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="bg-bg-card border-border-default">
-              {timeZones.map(time => (
-                <SelectItem key={time} value={time} className="text-text-default text-sm font-medium">
-                  {time}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            placeholder="Select Time Zone"
+            searchPlaceholder="Search time zone..."
+            className="border-border-darker h-8! w-auto rounded-md border"
+          />
         </div>
       </div>
     </div>

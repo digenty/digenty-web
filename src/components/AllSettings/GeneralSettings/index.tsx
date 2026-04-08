@@ -33,8 +33,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Country } from "@/components/StudentAndParent/types";
 import { Branch, BranchWithClassLevels } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
+import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 
 type EditProps = "editName" | "editSchoolName" | "motto" | "editPhoneNum" | "editBranch" | "newBranch" | null;
+
+type Timezone = {
+  abbreviation: string;
+  gmtOffset: number;
+  gmtOffsetName: string;
+  tzName: string;
+  zoneName: string;
+};
 
 export const General = () => {
   const user = useLoggedInUser();
@@ -50,7 +59,7 @@ export const General = () => {
   const [schoolName, setSchoolName] = useState("");
   const [motto, setMotto] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryId, setCountryId] = useState("");
+  const [countryName, setCountryName] = useState("");
   const [timezone, setTimezone] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [branchName, setBranchName] = useState("");
@@ -75,7 +84,7 @@ export const General = () => {
     setLastName(school.lastName ?? "");
     setMotto(school.motto ?? "");
     setPhoneNumber(school.phoneNumber ?? "");
-    setCountryId(school.country ?? "");
+    setCountryName(school.country ?? "");
     setCurrency(school.currency ?? "");
     setTimezone(school.timezone ?? "Select");
     setLogoUrl(school.logo ?? "");
@@ -96,7 +105,7 @@ export const General = () => {
     lastName,
     motto,
     phoneNumber: Number(phoneNumber),
-    country: countryId,
+    country: countryName,
     currency,
     timezone,
     ...overrides,
@@ -154,8 +163,36 @@ export const General = () => {
     }
   };
 
-  const selectedCountry = countries.find((country: Country) => country.id === countryId);
+  const selectedCountry = countries.find((country: Country) => country.name === countryName);
   const isSavingBranch = addBranch.isPending || updateBranch.isPending;
+
+  const uniqueCurrencies = (
+    Object.values(
+      countries.reduce((acc: Record<string, Country>, c: Country) => {
+        if (c.currencyCode && !acc[c.currencyCode]) {
+          acc[c.currencyCode] = c;
+        }
+        return acc;
+      }, {}),
+    ) as Country[]
+  ).map((c: Country) => ({
+    label: `${c.currencyCode} (${c.currency})`,
+    value: c.currencyCode,
+  }));
+
+  const uniqueTimezones = Array.from(
+    new globalThis.Map<string, Timezone>(
+      countries
+        .flatMap((country: Country) => country.timezones || [])
+        .filter(Boolean)
+        .map((timezone: Timezone) => [timezone.zoneName, timezone] as [string, Timezone]),
+    ).values(),
+  )
+    .sort((a: Timezone, b: Timezone) => a.zoneName.localeCompare(b.zoneName))
+    .map((timezone: Timezone) => ({
+      label: timezone.zoneName,
+      value: timezone.gmtOffsetName,
+    }));
 
   const handleUploadClick = () => inputRef.current?.click();
 
@@ -420,26 +457,21 @@ export const General = () => {
               </div>
               <div className="text-text-muted text-sm">{selectedCountry?.name || "-—"}</div>
             </div>
-            <Select
-              value={countryId}
+            <SearchableSelect
+              options={countries.map((country: Country) => ({
+                label: country.name,
+                value: country.name,
+                flag: country.flag,
+              }))}
+              value={countryName}
               onValueChange={val => {
-                setCountryId(val);
+                setCountryName(val);
                 handleSaveSchool({ country: val });
               }}
-            >
-              <SelectTrigger className="border-border-darker h-8! w-auto border">
-                <SelectValue>
-                  <span className="text-text-default text-sm font-medium">{selectedCountry?.name ?? "Select country"}</span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="bg-bg-card border-border-default">
-                {countries.map((country: Country) => (
-                  <SelectItem key={country.id} value={country.id} className="text-text-default text-sm font-medium">
-                    {country.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Select country"
+              searchPlaceholder="Search country..."
+              className="w-auto"
+            />
           </div>
 
           <div className="border-border-default flex h-20 items-center justify-between border-b py-4">
@@ -449,26 +481,17 @@ export const General = () => {
                 <div className="text-text-default text-sm font-medium">Currency</div>
               </div>
             </div>
-            <Select
+            <SearchableSelect
+              options={uniqueCurrencies}
               value={currency}
               onValueChange={val => {
                 setCurrency(val);
                 handleSaveSchool({ currency: val });
               }}
-            >
-              <SelectTrigger className="border-border-darker h-8! w-auto border">
-                <SelectValue>
-                  <span className="text-text-default text-sm font-medium">{currency || "Select"}</span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="bg-bg-card border-border-default">
-                {currencies.map(cur => (
-                  <SelectItem key={cur} value={cur} className="text-text-default text-sm font-medium">
-                    {cur}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Select currency"
+              searchPlaceholder="Search currency..."
+              className="w-auto"
+            />
           </div>
 
           <div className="border-border-default flex h-20 items-center justify-between border-b py-4">
@@ -478,29 +501,17 @@ export const General = () => {
                 <div className="text-text-default text-sm font-medium">Time Zone</div>
               </div>
             </div>
-            <Select
+            <SearchableSelect
+              options={uniqueTimezones}
               value={timezone}
               onValueChange={val => {
                 setTimezone(val);
                 handleSaveSchool({ timezone: val });
               }}
-            >
-              <SelectTrigger className="border-border-darker h-8! w-auto border">
-                <SelectValue>
-                  <span className="text-text-default text-sm font-medium">{timezone || "Select"}</span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="bg-bg-card border-border-default">
-                <SelectItem key={"Select"} value={"Select"} className="text-text-default text-sm font-medium">
-                  Select
-                </SelectItem>
-                {Timezones.map(tz => (
-                  <SelectItem key={tz} value={tz} className="text-text-default text-sm font-medium">
-                    {tz}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="Select Time Zone"
+              searchPlaceholder="Search time zone..."
+              className="w-auto"
+            />
           </div>
 
           <div className="text-text-default border-border-default flex h-16 items-center border-b py-4 text-lg font-semibold">Branch Information</div>
