@@ -119,11 +119,21 @@ function ClassesResponsiveTabs({
   const [sheetOpen, setSheetOpen] = React.useState(false);
 
   const { data: classesByLevelData, isPending } = useGetClassesByLevel(activeLevel?.id);
+
   const Classes = () => {
     return (
       <>
         {openDelete && <DeleteClass setOpenDeleteModal={setOpenDelete} open={openDelete} classId={classId} />}
-        {sheetOpen && <ClassEditSheet sheetOpen={sheetOpen} setSheetOpen={setSheetOpen} level={activeLevel} branchId={branchId} classId={classId} />}
+        {sheetOpen && (
+          <ClassEditSheet
+            sheetOpen={sheetOpen}
+            setSheetOpen={setSheetOpen}
+            level={activeLevel}
+            branchId={branchId}
+            classId={classId}
+            branchSpecific={branchSpecific}
+          />
+        )}
 
         {isPending && !classesByLevelData && <Skeleton className="bg-bg-state-soft h-80 w-full" />}
         {!isPending && classesByLevelData && classesByLevelData?.data?.content?.length === 0 && (
@@ -160,36 +170,51 @@ function ClassesResponsiveTabs({
                 </div>
                 <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-6">
                   <div className="">
-                    <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
-                      {" "}
-                      <BookFill fill="var(--color-bg-basic-blue-accent)" /> Subjects
-                    </div>
-                    <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                      {clss.subjects.length === 0 && <p className="text-text-subtle text-sm">No subjects added yet</p>}
-                      {clss.subjects.map(subject => (
-                        <Badge
-                          key={subject.id}
-                          className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
-                        >
-                          {subject.name.toLowerCase()}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
-                      {" "}
-                      <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
-                    </div>
-
-                    <div className="flex flex-wrap gap-1">
-                      {clss.arms.length === 0 && <p className="text-text-subtle text-sm">No arms added yet</p>}
-                      {clss.arms.map(arm => (
-                        <div key={arm.id} className="">
-                          <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
-                            {arm.name}
-                          </div>
+                    {clss.subjects.length > 0 && (
+                      <>
+                        <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
+                          {" "}
+                          <BookFill fill="var(--color-bg-basic-blue-accent)" /> Subjects
                         </div>
-                      ))}
-                    </div>
+                        <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+                          {clss.subjects.length === 0 && <p className="text-text-subtle text-sm">No subjects added yet</p>}
+                          {clss.subjects.map(subject => (
+                            <Badge
+                              key={subject.id}
+                              className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                            >
+                              {subject.name.toLowerCase()}
+                            </Badge>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {clss.arms.length > 0 && (
+                      <>
+                        <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
+                          {" "}
+                          <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
+                        </div>
+
+                        <div className="flex flex-wrap gap-1">
+                          {clss.arms.length === 0 && <p className="text-text-subtle text-sm">No arms added yet</p>}
+                          {clss.arms.map(arm => (
+                            <div key={arm.id} className="">
+                              <Badge className="text-text-subtle bg-bg-badge-gray flex h-6! items-center justify-center rounded-md px-1 text-xs font-medium capitalize">
+                                {arm.name.toLowerCase()}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {clss.arms.length === 0 && clss.subjects.length === 0 && (
+                      <div className="flex items-center justify-center">
+                        <p className="text-text-muted text-sm">No Class details available yet</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -213,77 +238,98 @@ function ClassesResponsiveTabs({
                     >
                       <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
                     </Button>
-                    <Button className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2">
+                    <Button
+                      onClick={() => {
+                        setSheetOpen(true);
+                        setClassId(clss.classId);
+                      }}
+                      className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2"
+                    >
                       <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
                     </Button>
                   </div>
                 </div>
                 <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-2">
                   <div className="p-3">
-                    <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
-                      {" "}
-                      <GraduationCapFill fill="var(--color-bg-basic-blue-accent) " className="size-4" /> Departments
-                    </div>
-                    <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                      {["English Language"].map(sub => (
-                        <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                          {sub}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-                      {" "}
-                      <BookFill fill="var(--color-bg-basic-blue-accent)" />
-                      Art Subjects
-                    </div>
-                    <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                      {["English Language"].map(sub => (
-                        <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                          {sub}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-                      {" "}
-                      <BookFill fill="var(--color-bg-basic-blue-accent)" />
-                      Commercial Subjects
-                    </div>
-                    <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                      {["English Language"].map(sub => (
-                        <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                          {sub}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
-                      {" "}
-                      <BookFill fill="var(--color-bg-basic-blue-accent)" />
-                      Science Subjects
-                    </div>
-                    <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
-                      {["English Language"].map(sub => (
-                        <Badge key={sub} className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs">
-                          {sub}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
-                      <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
-                    </div>
-
-                    <div className="flex flex-wrap gap-1">
-                      {["A", "B", "C"].map(arm => (
-                        <div key={arm} className="">
-                          <div className="text-text-subtle bg-bg-badge-gray flex h-6! w-6! items-center justify-center rounded-md text-sm font-medium">
-                            {arm}
-                          </div>
+                    {clss.departments.length > 0 && (
+                      <>
+                        <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
+                          {" "}
+                          <GraduationCapFill fill="var(--color-bg-basic-blue-accent) " className="size-4" /> Departments
                         </div>
-                      ))}
-                    </div>
+                        <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+                          {clss.departments.map(dept => (
+                            <Badge
+                              key={dept.departmentId}
+                              className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                            >
+                              {dept.departmentName.toLowerCase()}
+                            </Badge>
+                          ))}
+                        </div>
+                        {clss.departments.map(dept => (
+                          <div key={dept.departmentId}>
+                            <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium capitalize">
+                              <BookFill fill="var(--color-bg-basic-blue-accent)" />
+                              {dept.departmentName.toLowerCase()} Subjects
+                            </div>
+                            <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+                              {dept.subjects.map(sub => (
+                                <Badge
+                                  key={sub.id}
+                                  className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                                >
+                                  {sub.name.toLowerCase()}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
+
+                    {clss.subjects.length > 0 && (
+                      <>
+                        <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
+                          <BookFill fill="var(--color-bg-basic-blue-accent)" /> Subjects
+                        </div>
+                        <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
+                          {clss.subjects.length === 0 && <p className="text-text-subtle text-sm">No subjects added yet</p>}
+                          {clss.subjects.map(subject => (
+                            <Badge
+                              key={subject.id}
+                              className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                            >
+                              {subject.name.toLowerCase()}
+                            </Badge>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {clss.arms.length > 0 && (
+                      <>
+                        <div className="text-text-default my-2 flex items-center gap-2 text-sm font-medium">
+                          <GitMergeFill fill="var(--color-bg-basic-blue-accent)" /> Arm
+                        </div>
+
+                        <div className="flex flex-wrap gap-1">
+                          {clss.arms.map(arm => (
+                            <div key={arm.id} className="">
+                              <Badge className="text-text-subtle bg-bg-badge-gray flex h-6! items-center justify-center rounded-md px-1 text-xs font-medium capitalize">
+                                {arm.name.toLowerCase()}
+                              </Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {clss.arms.length === 0 && clss.subjects.length === 0 && clss.departments.length === 0 && (
+                      <div className="flex items-center justify-center">
+                        <p className="text-text-muted text-sm">No Class details available yet</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -468,7 +514,9 @@ export const ClassesAndArms = ({
 
         <Button
           type="button"
-          // onClick={}
+          onClick={() => {
+            setIsEditing?.(false);
+          }}
           className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
         >
           Save Changes
