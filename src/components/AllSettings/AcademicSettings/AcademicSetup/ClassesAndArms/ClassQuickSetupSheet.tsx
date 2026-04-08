@@ -1,4 +1,4 @@
-import { ClassLevel } from "@/api/types";
+import { ClassLevel, Department, DepartmentResponse } from "@/api/types";
 import { CloseFill } from "@/components/Icons/CloseFill";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
@@ -11,7 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { useAddArm, useDeleteArm, useGetArmsByLevel } from "@/hooks/queryHooks/useArm";
-import { useAddDepartmentsToLevel, useDeleteDepartmentFromLevel, useGetDepartmentsByLevel } from "@/hooks/queryHooks/useDepartment";
+import {
+  useAddDepartmentsToLevel,
+  useCreateDepartmentSubjects,
+  useDeleteDepartmentFromLevel,
+  useGetDepartmentSubjectsByLevel,
+  useGetDepartmentsByLevel,
+} from "@/hooks/queryHooks/useDepartment";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubject, useDeleteSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -23,6 +29,149 @@ import * as yup from "yup";
 
 const startclasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 const endClasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+
+const DepartmentSubjectsSection = ({
+  dept,
+  levelId,
+  branchId,
+  branchSpecific,
+}: {
+  dept: { departmentId: number; name: string };
+  levelId: number;
+  branchId?: number;
+  branchSpecific: boolean;
+}) => {
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjectInput, setSubjectInput] = useState("");
+  const { data: deptSubjectsData, isLoading } = useGetDepartmentSubjectsByLevel(dept.departmentId, levelId);
+  const { mutate: mutateCreateDeptSubjects, isPending: isSaving } = useCreateDepartmentSubjects();
+
+  useEffect(() => {
+    if (deptSubjectsData?.data) {
+      setSubjects(deptSubjectsData?.data.map((s: { subjectName: string }) => s.subjectName));
+    }
+  }, [deptSubjectsData]);
+
+  const addSubject = (subjectString: string) => {
+    if (!subjectString.trim()) return;
+    // const currentSubjectNames = subjects.map((s: { name: string }) => s.name);
+    const newSubjectNames = subjectString
+      .split(",")
+      .map(str => str.trim())
+      .filter(str => str !== "" && !subjects.includes(str));
+
+    if (newSubjectNames.length === 0) return;
+
+    mutateCreateDeptSubjects(
+      {
+        departmentName: dept.name,
+        subjectNames: newSubjectNames,
+        branchId: branchId,
+        branchSpecific,
+      },
+      {
+        onSuccess: () => {
+          setSubjects(prev => [...prev, ...newSubjectNames]);
+          setSubjectInput("");
+          toast({
+            title: "Subjects added",
+            description: `Subjects for ${dept.name} have been updated successfully`,
+            type: "success",
+          });
+        },
+        onError: error => {
+          toast({
+            title: "Failed to add subjects",
+            description: (error as { message?: string })?.message || `Could not add subjects to ${dept.name}`,
+            type: "error",
+          });
+        },
+      },
+    );
+  };
+
+  const removeSubject = (subjectToRemove: string) => {
+    const subjectList = deptSubjectsData?.data || [];
+
+    // mutateCreateDeptSubjects(
+    //   {
+    //     departmentName: dept.name,
+    //     subjectNames: updatedSubjectNames,
+    //     branchId: branchId || 0,
+    //     branchSpecific,
+    //   },
+    //   {
+    //     onSuccess: () => {
+    //       toast({
+    //         title: "Subject removed",
+    //         description: `"${subjectToRemove}" has been removed from ${dept.name}`,
+    //         type: "success",
+    //       });
+    //     },
+    //     onError: error => {
+    //       toast({
+    //         title: "Failed to remove subject",
+    //         description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`,
+    //         type: "error",
+    //       });
+    //     },
+    //   },
+    // );
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <Label className="text-text-default text-sm font-medium capitalize">{dept.name.toLowerCase()} Subjects</Label>
+      <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
+        <Input
+          type="text"
+          value={subjectInput}
+          onChange={evt => setSubjectInput(evt.target.value)}
+          onKeyDown={e => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addSubject(subjectInput);
+            }
+          }}
+          className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
+          placeholder={`Add Subjects to ${dept.name.toLowerCase()}`}
+        />
+        <Button
+          className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+          onClick={() => addSubject(subjectInput)}
+          disabled={isSaving || isLoading}
+        >
+          {(isSaving || isLoading) && <Spinner className="text-text-white-default size-3" />}
+          Add
+        </Button>
+      </div>
+      <div className="flex flex-wrap items-center gap-1">
+        {subjects.map(subject => (
+          <Badge
+            key={subject}
+            className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
+          >
+            <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
+            <button
+              type="button"
+              className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"
+              onClick={e => {
+                e.preventDefault();
+                removeSubject(subject);
+              }}
+            >
+              <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
+            </button>
+          </Badge>
+        ))}
+      </div>
+      <div className="text-text-muted text-xs">
+        You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.{" "}
+      </div>
+    </div>
+  );
+};
+
 export const ClassQuickSetupSheet = ({
   level,
   branchSpecific,
@@ -41,6 +190,7 @@ export const ClassQuickSetupSheet = ({
   const [subjects, setSubjects] = useState<string[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
   const [arms, setArms] = useState<string[]>([]);
+
   const [departmentsEnabled, setDepartmentsEnabled] = useState(false);
   const [armsEnabled, setArmsEnabled] = useState(false);
   const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
@@ -62,7 +212,6 @@ export const ClassQuickSetupSheet = ({
   const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.levelType, branchId);
   const { data: departmentsData, isFetching: isLoadingDepartments } = useGetDepartmentsByLevel(level?.levelType, branchId);
 
-  console.log(departmentsData?.data[0]?.departments);
   useEffect(() => {
     if (subjectsData) {
       const names: string[] = Array.isArray(subjectsData?.data[0]?.subjects)
@@ -84,10 +233,16 @@ export const ClassQuickSetupSheet = ({
 
   useEffect(() => {
     if (departmentsData) {
-      const names: string[] = Array.isArray(departmentsData?.data[0]?.departments)
-        ? departmentsData?.data[0]?.departments.map((s: { name: string }) => s.name)
-        : (departmentsData?.content ?? departmentsData?.data ?? []).map((s: { name: string }) => s.name);
+      let depts: Department[] = [];
+      if (branchId) {
+        depts = departmentsData?.data.find((dept: DepartmentResponse) => dept.branchId === branchId)?.departments || [];
+      } else {
+        depts = departmentsData?.data[0]?.departments || [];
+      }
+
+      const names: string[] = depts.map((s: { name: string }) => s.name);
       setDepartments(names);
+
       if (names.length > 0) {
         setDepartmentsEnabled(true);
       }
@@ -131,7 +286,6 @@ export const ClassQuickSetupSheet = ({
               classStart: values.startClass,
               classEnd: values.endClass,
             });
-            // setSheetOpen(false);
             toast({
               title: "Level updated successfully",
               description: "The level has been updated",
@@ -290,7 +444,6 @@ export const ClassQuickSetupSheet = ({
       .split(",")
       .map(str => str.trim().replace(/^,+|,+$/g, ""))
       .filter(str => str !== "" && !departments.includes(str));
-    console.log(newDepartments, level?.levelType, branchId, branchSpecific, "------");
 
     mutateDepartment(
       { names: newDepartments, levelType: level.levelType, branchId, branchSpecific },
@@ -316,14 +469,18 @@ export const ClassQuickSetupSheet = ({
   };
 
   const removeDepartment = (departmentToRemove: string) => {
-    const departmentsList = departmentsData?.data[0]?.departments || [];
+    let departmentsList = [];
+    if (branchId) {
+      departmentsList = departmentsData?.data.find((dept: DepartmentResponse) => dept.branchId === branchId)?.departments || [];
+    } else {
+      departmentsList = departmentsData?.data[0]?.departments || [];
+    }
 
     const departmentObj = departmentsList.find((d: { id: number; name: string }) => d.name === departmentToRemove);
-
     if (departmentObj && level?.id) {
       setDeletingDepartmentName(departmentToRemove);
       deleteDepartment(
-        { departmentId: departmentObj.id, levelId: level.id },
+        { departmentId: departmentObj.departmentId, levelId: level.id },
         {
           onSuccess: () => {
             setDepartments(departments.filter(department => department !== departmentToRemove));
@@ -446,6 +603,7 @@ export const ClassQuickSetupSheet = ({
         </div>
 
         <Button
+          disabled={!!(level?.classNamePrefix && level?.classNamePrefix === values.classNamePrefix)}
           type="button"
           onClick={() => formik.handleSubmit()}
           className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 self-end rounded-sm px-2 py-1"
@@ -498,14 +656,14 @@ export const ClassQuickSetupSheet = ({
                       Add
                     </Button>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-1">
                     {" "}
-                    {departments.map(department => (
+                    {departments.map((department, index) => (
                       <Badge
-                        key={department}
+                        key={`${department}-${index}`}
                         className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                       >
-                        <span className="text-text-subtle text-xs">{department}</span>{" "}
+                        <span className="text-text-subtle text-xs capitalize">{department.toLowerCase()}</span>{" "}
                         <button
                           type="button"
                           className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
@@ -532,35 +690,14 @@ export const ClassQuickSetupSheet = ({
                 {departments.length > 0 && (
                   <>
                     <div className="text-text-default text-xl font-semibold">Department Subjects</div>
-                    {departments.map(dept => (
-                      <div key={dept} className="flex flex-col gap-3">
-                        <Label className="text-text-default text-sm font-medium">{dept} Subjects</Label>
-                        <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-                          <Input
-                            type="text"
-                            className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
-                            placeholder={`Add Subjects to ${dept}`}
-                          />
-                          <Button className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs">
-                            Add
-                          </Button>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {" "}
-                          {["Mathematics", "English Language", "Basic Science"].map(subject => (
-                            <Badge
-                              key={subject}
-                              className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                            >
-                              <span className="text-text-subtle text-xs">{subject}</span>{" "}
-                              <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
-                            </Badge>
-                          ))}
-                        </div>
-                        <div className="text-text-muted text-xs">
-                          You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.{" "}
-                        </div>
-                      </div>
+                    {departmentsData?.data?.[0]?.departments.map((dept: Department, index: number) => (
+                      <DepartmentSubjectsSection
+                        key={`${dept.departmentId}-${index}`}
+                        dept={dept}
+                        levelId={level.id}
+                        branchId={branchId}
+                        branchSpecific={branchSpecific}
+                      />
                     ))}
                   </>
                 )}
@@ -602,7 +739,6 @@ export const ClassQuickSetupSheet = ({
               </div>
 
               <div className="flex flex-wrap gap-1">
-                {" "}
                 {subjects.map(subject => (
                   <Badge
                     key={subject}
@@ -681,9 +817,9 @@ export const ClassQuickSetupSheet = ({
 
                 <div className="flex flex-wrap gap-1">
                   {" "}
-                  {arms.map(arm => (
+                  {arms.map((arm, index) => (
                     <Badge
-                      key={arm}
+                      key={`${arm}-${index}`}
                       className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                     >
                       <span className="text-text-subtle text-xs capitalize">{arm.toLowerCase()}</span>{" "}
@@ -713,18 +849,9 @@ export const ClassQuickSetupSheet = ({
       </div>
     </div>
   );
+
   return (
     <div className="">
-      {/* <Button
-        onClick={() => {
-          setDepartmentsEnabled(false);
-          setArmsEnabled(false);
-          setSheetOpen(true);
-        }}
-        className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
-      >
-        <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
-      </Button> */}
       {!isMobile && (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <div>
@@ -739,27 +866,6 @@ export const ClassQuickSetupSheet = ({
               </SheetHeader>
 
               {contentNode}
-
-              {/* <SheetFooter className="border-border-default border-t pb-8">
-                <div className="flex items-center justify-between">
-                  <SheetClose asChild>
-                    <Button
-                      variant="outline"
-                      className="bg-bg-state-soft! text-text-subtle hover:text-text-subtle! rounde-sm h-7 w-17 border-none px-2 py-1"
-                    >
-                      Close
-                    </Button>
-                  </SheetClose>
-                  <Button
-                    type="button"
-                    onClick={() => formik.handleSubmit()}
-                    className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
-                  >
-                    {isPending && <Spinner className="text-text-white-default" />}
-                    Save
-                  </Button>
-                </div>
-              </SheetFooter> */}
             </SheetContent>
           </div>
         </Sheet>
@@ -769,26 +875,6 @@ export const ClassQuickSetupSheet = ({
       {isMobile && (
         <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Quick Setup">
           {contentNode}
-          {/* <SheetFooter className="border-border-default border-t">
-            <div className="flex items-center justify-between">
-              <SheetClose asChild>
-                <Button
-                  variant="outline"
-                  className="bg-bg-state-soft! text-text-subtle hover:text-text-subtle! rounde-sm h-7 w-17 border-none px-2 py-1"
-                >
-                  Close
-                </Button>
-              </SheetClose>
-              <Button
-                type="button"
-                onClick={() => formik.handleSubmit()}
-                className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
-              >
-                {isPending && <Spinner className="text-text-white-default" />}
-                Save
-              </Button>
-            </div>
-          </SheetFooter> */}
         </MobileDrawer>
       )}
     </div>

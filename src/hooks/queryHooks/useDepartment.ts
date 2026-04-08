@@ -1,4 +1,14 @@
-import { addDepartmentsToLevel, deleteDepartmentFromLevel, getDepartmentsByLevel, getDepartmentsForASchool } from "@/api/department";
+import {
+  addDepartmentsToLevel,
+  createDepartmentSubjects,
+  deleteDepartmentFromLevel,
+  getDepartmentSubjectsByClass,
+  getDepartmentSubjectsByLevel,
+  getDepartmentsByClass,
+  getDepartmentsByLevel,
+  getDepartmentsForASchool,
+} from "@/api/department";
+import { classKeys } from "@/queries/class";
 import { departmentKeys } from "@/queries/department";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -24,6 +34,7 @@ export const useAddDepartmentsToLevel = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: departmentKeys.departments });
       queryClient.invalidateQueries({ queryKey: ["departmentsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
   });
 };
@@ -36,6 +47,44 @@ export const useDeleteDepartmentFromLevel = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: departmentKeys.departments });
       queryClient.invalidateQueries({ queryKey: ["departmentsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
+  });
+};
+
+export const useCreateDepartmentSubjects = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: departmentKeys.createDepartmentSubjects,
+    mutationFn: createDepartmentSubjects,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: departmentKeys.departments });
+      queryClient.invalidateQueries({ queryKey: ["departmentsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+    },
+  });
+};
+
+export const useGetDepartmentSubjectsByLevel = (departmentId?: number, levelId?: number) => {
+  return useQuery({
+    queryKey: departmentKeys.departmentSubjectsByLevel(departmentId, levelId),
+    queryFn: () => getDepartmentSubjectsByLevel(departmentId!, levelId!),
+    enabled: !!departmentId && !!levelId,
+  });
+};
+
+export const useGetDepartmentSubjectsByClass = (departmentId?: number, classId?: number) => {
+  return useQuery({
+    queryKey: [departmentKeys.departmentSubjectsByClass, departmentId, classId],
+    queryFn: () => getDepartmentSubjectsByClass(departmentId!, classId!),
+    enabled: !!departmentId && !!classId,
+  });
+};
+
+export const useGetDepartmentsByClass = (className?: string, levelType?: string, branchId?: number) => {
+  return useQuery({
+    queryKey: departmentKeys.departmentsByClass(className, levelType, branchId),
+    queryFn: () => getDepartmentsByClass(className, levelType, branchId),
+    enabled: !!className && !!levelType,
   });
 };
