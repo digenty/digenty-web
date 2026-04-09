@@ -1,23 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
-import { Modal } from "../Modal";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { DrawerClose, DrawerFooter } from "../ui/drawer";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { MobileDrawer } from "../MobileDrawer";
-import ShareBox from "../Icons/ShareBox";
+import { useState } from "react";
 import { DateRangePicker } from "../DatePicker";
-import { DateRange } from "react-day-picker";
-import FileList3 from "../Icons/FileList3";
-import CloseLarge from "../Icons/CloseLarge";
 import AlertFill from "../Icons/AlertFill";
 import { Check } from "../Icons/Check";
 import { CheckDouble } from "../Icons/CheckDouble";
+import CloseLarge from "../Icons/CloseLarge";
 import { Draft } from "../Icons/Draft";
+import FileList3 from "../Icons/FileList3";
+import ShareBox from "../Icons/ShareBox";
+import { MobileDrawer } from "../MobileDrawer";
+import { Modal } from "../Modal";
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { DrawerClose, DrawerFooter } from "../ui/drawer";
+import { Label } from "../ui/label";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 type InvoiceModalProps = {
   open: boolean;
@@ -36,8 +35,8 @@ export const InvoiceExportModal = ({ open, setOpen }: InvoiceModalProps) => {
   const [termSelected, setTermSelected] = useState(termsOptions[0]);
 
   const [armSelected, setArmSelected] = useState(arms[0]);
-  const [fromValue, setFromValue] = useState<DateRange | undefined>();
-  const [toValue, setToValue] = useState<DateRange | undefined>();
+  const [fromValue, setFromValue] = useState<Date | undefined>();
+  const [toValue, setToValue] = useState<Date | undefined>();
 
   return (
     <div>
@@ -159,9 +158,9 @@ export const InvoiceExportModal = ({ open, setOpen }: InvoiceModalProps) => {
             </div>
 
             <div className="flex gap-4">
-              <DateRangePicker label="From" value={fromValue} onChange={setFromValue} className="bg-bg-input-soft! text-text-default" />
+              <DateRangePicker label="From" date={fromValue} setDate={setFromValue} className="bg-bg-input-soft! text-text-default" />
 
-              <DateRangePicker label="To" value={toValue} onChange={setToValue} className="bg-bg-input-soft!" />
+              <DateRangePicker label="To" date={toValue} setDate={setToValue} className="bg-bg-input-soft!" />
             </div>
 
             <Badge className="border-border-default bg-bg-badge-green text-bg-basic-green-strong flex items-center rounded-xs p-0.5">
@@ -315,9 +314,9 @@ export const InvoiceExportModal = ({ open, setOpen }: InvoiceModalProps) => {
             </div>
 
             <div className="flex gap-4">
-              <DateRangePicker label="From" value={fromValue} onChange={setFromValue} className="bg-bg-input-soft! text-text-default" />
+              <DateRangePicker label="From" date={fromValue} setDate={setFromValue} className="bg-bg-input-soft! text-text-default" />
 
-              <DateRangePicker label="To" value={toValue} onChange={setToValue} className="bg-bg-input-soft!" />
+              <DateRangePicker label="To" date={toValue} setDate={setToValue} className="bg-bg-input-soft!" />
             </div>
 
             <Badge className="border-border-default bg-bg-badge-green text-bg-basic-green-strong flex items-center rounded-sm p-0.5">

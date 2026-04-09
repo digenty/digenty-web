@@ -20,16 +20,6 @@ import { Edit2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 
-const toDateRange = (dateStr: string | undefined): DateRange | undefined => {
-  if (!dateStr) return undefined;
-  try {
-    const date = parseISO(dateStr);
-    return { from: date, to: date };
-  } catch {
-    return undefined;
-  }
-};
-
 const toDateString = (range: DateRange | undefined): string => (range?.from ? format(range.from, "yyyy-MM-dd") : "");
 
 const ViewField = ({ label, value }: { label: string; value: string }) => (
@@ -47,12 +37,12 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
   const [isSaving, setIsSaving] = useState(false);
   const [sessionName, setSessionName] = useState("");
   const [currentTerm, setCurrentTerm] = useState("");
-  const [firstTermStart, setFirstTermStart] = useState<DateRange | undefined>();
-  const [firstTermEnd, setFirstTermEnd] = useState<DateRange | undefined>();
-  const [secondTermStart, setSecondTermStart] = useState<DateRange | undefined>();
-  const [secondTermEnd, setSecondTermEnd] = useState<DateRange | undefined>();
-  const [thirdTermStart, setThirdTermStart] = useState<DateRange | undefined>();
-  const [thirdTermEnd, setThirdTermEnd] = useState<DateRange | undefined>();
+  const [firstTermStart, setFirstTermStart] = useState<Date | undefined>();
+  const [firstTermEnd, setFirstTermEnd] = useState<Date | undefined>();
+  const [secondTermStart, setSecondTermStart] = useState<Date | undefined>();
+  const [secondTermEnd, setSecondTermEnd] = useState<Date | undefined>();
+  const [thirdTermStart, setThirdTermStart] = useState<Date | undefined>();
+  const [thirdTermEnd, setThirdTermEnd] = useState<Date | undefined>();
 
   const { data: termList } = useGetTerms(schoolId);
   const { data: levelsData, isLoading: isLoadingLevels, isError: isLevelError } = useGetClassLevel();
@@ -77,16 +67,16 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
     const second = findTerm("SECOND");
     const third = findTerm("THIRD");
     if (first) {
-      setFirstTermStart(toDateRange(first.startDate));
-      setFirstTermEnd(toDateRange(first.endDate));
+      setFirstTermStart(first.startDate ? parseISO(first.startDate) : undefined);
+      setFirstTermEnd(first.endDate ? parseISO(first.endDate) : undefined);
     }
     if (second) {
-      setSecondTermStart(toDateRange(second.startDate));
-      setSecondTermEnd(toDateRange(second.endDate));
+      setSecondTermStart(second.startDate ? parseISO(second.startDate) : undefined);
+      setSecondTermEnd(second.endDate ? parseISO(second.endDate) : undefined);
     }
     if (third) {
-      setThirdTermStart(toDateRange(third.startDate));
-      setThirdTermEnd(toDateRange(third.endDate));
+      setThirdTermStart(third.startDate ? parseISO(third.startDate) : undefined);
+      setThirdTermEnd(third.endDate ? parseISO(third.endDate) : undefined);
     }
   }, [terms]);
 
@@ -95,14 +85,14 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
     const matched = findTerm(selected);
     if (!matched) return;
     if (selected === "FIRST") {
-      setFirstTermStart(toDateRange(matched.startDate));
-      setFirstTermEnd(toDateRange(matched.endDate));
+      setFirstTermStart(matched.startDate ? parseISO(matched.startDate) : undefined);
+      setFirstTermEnd(matched.endDate ? parseISO(matched.endDate) : undefined);
     } else if (selected === "SECOND") {
-      setSecondTermStart(toDateRange(matched.startDate));
-      setSecondTermEnd(toDateRange(matched.endDate));
+      setSecondTermStart(matched.startDate ? parseISO(matched.startDate) : undefined);
+      setSecondTermEnd(matched.endDate ? parseISO(matched.endDate) : undefined);
     } else if (selected === "THIRD") {
-      setThirdTermStart(toDateRange(matched.startDate));
-      setThirdTermEnd(toDateRange(matched.endDate));
+      setThirdTermStart(matched.startDate ? parseISO(matched.startDate) : undefined);
+      setThirdTermEnd(matched.endDate ? parseISO(matched.endDate) : undefined);
     }
   };
 
@@ -117,16 +107,16 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
     const second = findTerm("SECOND");
     const third = findTerm("THIRD");
     if (first) {
-      setFirstTermStart(toDateRange(first.startDate));
-      setFirstTermEnd(toDateRange(first.endDate));
+      setFirstTermStart(first.startDate ? parseISO(first.startDate) : undefined);
+      setFirstTermEnd(first.endDate ? parseISO(first.endDate) : undefined);
     }
     if (second) {
-      setSecondTermStart(toDateRange(second.startDate));
-      setSecondTermEnd(toDateRange(second.endDate));
+      setSecondTermStart(second.startDate ? parseISO(second.startDate) : undefined);
+      setSecondTermEnd(second.endDate ? parseISO(second.endDate) : undefined);
     }
     if (third) {
-      setThirdTermStart(toDateRange(third.startDate));
-      setThirdTermEnd(toDateRange(third.endDate));
+      setThirdTermStart(third.startDate ? parseISO(third.startDate) : undefined);
+      setThirdTermEnd(third.endDate ? parseISO(third.endDate) : undefined);
     }
     setIsEditing(false);
   };
@@ -140,12 +130,12 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
         payload: {
           name: sessionName,
           currentTerm: currentTerm,
-          firstTermStartDate: toDateString(firstTermStart),
-          firstTermEndDate: toDateString(firstTermEnd),
-          secondTermStartDate: toDateString(secondTermStart),
-          secondTermEndDate: toDateString(secondTermEnd),
-          thirdTermStartDate: toDateString(thirdTermStart),
-          thirdTermEndDate: toDateString(thirdTermEnd),
+          firstTermStartDate: firstTermStart ? format(firstTermStart, "yyyy-MM-dd") : "",
+          firstTermEndDate: firstTermEnd ? format(firstTermEnd, "yyyy-MM-dd") : "",
+          secondTermStartDate: secondTermStart ? format(secondTermStart, "yyyy-MM-dd") : "",
+          secondTermEndDate: secondTermEnd ? format(secondTermEnd, "yyyy-MM-dd") : "",
+          thirdTermStartDate: thirdTermStart ? format(thirdTermStart, "yyyy-MM-dd") : "",
+          thirdTermEndDate: thirdTermEnd ? format(thirdTermEnd, "yyyy-MM-dd") : "",
         },
         sessionId: session.id,
       });
@@ -199,7 +189,7 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
-                    {getAcademicYears().map(year => (
+                    {getAcademicYears(new Date().getFullYear() - 2).map(year => (
                       <SelectItem key={year} value={year} className="text-text-default text-sm font-medium">
                         {year}
                       </SelectItem>
@@ -243,49 +233,49 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
               <>
                 <DateRangePicker
                   label="First Term Start Date"
-                  value={firstTermStart}
-                  onChange={setFirstTermStart}
+                  date={firstTermStart}
+                  setDate={setFirstTermStart}
                   className="bg-bg-input-soft! text-text-default h-9!"
                 />
                 <DateRangePicker
                   label="First Term End Date"
-                  value={firstTermEnd}
-                  onChange={setFirstTermEnd}
+                  date={firstTermEnd}
+                  setDate={setFirstTermEnd}
                   className="bg-bg-input-soft! text-text-default h-9!"
                 />
                 <DateRangePicker
                   label="Second Term Start Date"
-                  value={secondTermStart}
-                  onChange={setSecondTermStart}
+                  date={secondTermStart}
+                  setDate={setSecondTermStart}
                   className="bg-bg-input-soft! text-text-default h-9!"
                 />
                 <DateRangePicker
                   label="Second Term End Date"
-                  value={secondTermEnd}
-                  onChange={setSecondTermEnd}
+                  date={secondTermEnd}
+                  setDate={setSecondTermEnd}
                   className="bg-bg-input-soft! text-text-default h-9!"
                 />
                 <DateRangePicker
                   label="Third Term Start Date"
-                  value={thirdTermStart}
-                  onChange={setThirdTermStart}
+                  date={thirdTermStart}
+                  setDate={setThirdTermStart}
                   className="bg-bg-input-soft! text-text-default h-9!"
                 />
                 <DateRangePicker
                   label="Third Term End Date"
-                  value={thirdTermEnd}
-                  onChange={setThirdTermEnd}
+                  date={thirdTermEnd}
+                  setDate={setThirdTermEnd}
                   className="bg-bg-input-soft! text-text-default h-9!"
                 />
               </>
             ) : (
               <>
-                <ViewField label="First Term Start Date" value={toDateString(firstTermStart).replaceAll("-", "/")} />
-                <ViewField label="First Term End Date" value={toDateString(firstTermEnd).replaceAll("-", "/")} />
-                <ViewField label="Second Term Start Date" value={toDateString(secondTermStart).replaceAll("-", "/")} />
-                <ViewField label="Second Term End Date" value={toDateString(secondTermEnd).replaceAll("-", "/")} />
-                <ViewField label="Third Term Start Date" value={toDateString(thirdTermStart).replaceAll("-", "/")} />
-                <ViewField label="Third Term End Date" value={toDateString(thirdTermEnd).replaceAll("-", "/")} />
+                <ViewField label="First Term Start Date" value={firstTermStart ? format(firstTermStart, "yyyy/MM/dd") : ""} />
+                <ViewField label="First Term End Date" value={firstTermEnd ? format(firstTermEnd, "yyyy/MM/dd") : ""} />
+                <ViewField label="Second Term Start Date" value={secondTermStart ? format(secondTermStart, "yyyy/MM/dd") : ""} />
+                <ViewField label="Second Term End Date" value={secondTermEnd ? format(secondTermEnd, "yyyy/MM/dd") : ""} />
+                <ViewField label="Third Term Start Date" value={thirdTermStart ? format(thirdTermStart, "yyyy/MM/dd") : ""} />
+                <ViewField label="Third Term End Date" value={thirdTermEnd ? format(thirdTermEnd, "yyyy/MM/dd") : ""} />
               </>
             )}
           </div>
