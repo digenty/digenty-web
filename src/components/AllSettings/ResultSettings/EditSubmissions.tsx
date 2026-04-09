@@ -2,16 +2,15 @@ import { DateRangePicker } from "@/components/DatePicker";
 import Edit from "@/components/Icons/Edit";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import React, { useState } from "react";
-import { DateRange } from "react-day-picker";
+import { useState } from "react";
 
 export const EditSubmissions = () => {
-  const [firstTermStartValue, setFirstTermStartValue] = useState<DateRange | undefined>();
-  const [firstTermEndValue, setFirstTermEndValue] = useState<DateRange | undefined>();
-  const [secondTermStartValue, setSecondTermStartValue] = useState<DateRange | undefined>();
-  const [secondTermEndtValue, setSecondTermEndtValue] = useState<DateRange | undefined>();
-  const [thirdTermStartValue, setThirdTermStartValue] = useState<DateRange | undefined>();
-  const [thirdTermEndtValue, setThirdTermEndValue] = useState<DateRange | undefined>();
+  const [firstTermStartValue, setFirstTermStartValue] = useState<Date | undefined>();
+  const [firstTermEndValue, setFirstTermEndValue] = useState<Date | undefined>();
+  const [secondTermStartValue, setSecondTermStartValue] = useState<Date | undefined>();
+  const [secondTermEndtValue, setSecondTermEndtValue] = useState<Date | undefined>();
+  const [thirdTermStartValue, setThirdTermStartValue] = useState<Date | undefined>();
+  const [thirdTermEndtValue, setThirdTermEndValue] = useState<Date | undefined>();
 
   return (
     <div className="mx-auto flex w-full max-w-181 items-center justify-center">
@@ -27,14 +26,14 @@ export const EditSubmissions = () => {
           <div className="mb-2 flex items-center justify-between gap-2">
             <DateRangePicker
               label="Open Date"
-              value={firstTermStartValue}
-              onChange={setFirstTermStartValue}
+              date={firstTermStartValue}
+              setDate={setFirstTermStartValue}
               className="bg-bg-input-soft! text-text-default h-9! w-full"
             />
             <DateRangePicker
               label="close Date"
-              value={firstTermEndValue}
-              onChange={setFirstTermEndValue}
+              date={firstTermEndValue}
+              setDate={setFirstTermEndValue}
               className="bg-bg-input-soft! text-text-default h-9! w-full"
             />
           </div>
@@ -49,14 +48,14 @@ export const EditSubmissions = () => {
           <div className="mb-2 flex items-center justify-between gap-2">
             <DateRangePicker
               label="Open Date"
-              value={secondTermStartValue}
-              onChange={setSecondTermStartValue}
+              date={secondTermStartValue}
+              setDate={setSecondTermStartValue}
               className="bg-bg-input-soft! text-text-default h-9! w-full"
             />
             <DateRangePicker
               label="Close Date"
-              value={secondTermEndtValue}
-              onChange={setSecondTermEndtValue}
+              date={secondTermEndtValue}
+              setDate={setSecondTermEndtValue}
               className="bg-bg-input-soft! text-text-default h-9! w-full"
             />
           </div>
@@ -71,14 +70,14 @@ export const EditSubmissions = () => {
           <div className="mb-2 flex items-center justify-between gap-2">
             <DateRangePicker
               label="Open Date"
-              value={thirdTermStartValue}
-              onChange={setThirdTermStartValue}
+              date={thirdTermStartValue}
+              setDate={setThirdTermStartValue}
               className="bg-bg-input-soft! text-text-default h-9! w-full"
             />
             <DateRangePicker
               label="Close Date"
-              value={thirdTermEndtValue}
-              onChange={setThirdTermEndValue}
+              date={thirdTermEndtValue}
+              setDate={setThirdTermEndValue}
               className="bg-bg-input-soft! text-text-default h-9! w-full"
             />
           </div>

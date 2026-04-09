@@ -4,9 +4,11 @@ import { createSession, deleteSession } from "@/app/actions/auth";
 import { useReAutheticateUser } from "@/hooks/queryHooks/useAuth";
 import { useAddBranch } from "@/hooks/queryHooks/useBranch";
 import { useAddSchool } from "@/hooks/queryHooks/useSchool";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { schoolSchema } from "@/schema/school";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { LogoMark } from "../Icons/LogoMark";
 import { MobileDrawer } from "../MobileDrawer";
 import { Modal } from "../Modal";
@@ -17,7 +19,6 @@ import { Spinner } from "../ui/spinner";
 import { SchoolOverview } from "./SchoolOverview";
 import { CreateSchoolTypes } from "./types";
 import { WelcomeInputs } from "./WelcomeInputs";
-import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface OnboardingModalProps {
   initialShow: boolean;
@@ -34,8 +35,40 @@ interface CreateBranchPayload {
   branchDtos: { branchName: string; address: string; levels: string[] }[];
 }
 
+const defaultSchoolValues: CreateSchoolTypes = {
+  firstName: "",
+  lastName: "",
+  schoolName: "",
+  schoolSize: "",
+  role: "",
+  country: "",
+  currency: "",
+};
+
+const defaultBranchValues: BranchFormValues = {
+  activeOption: null,
+  numOfBranches: 2,
+  branches: [
+    { branchName: "", address: "", levels: [] },
+    { branchName: "", address: "", levels: [] },
+  ],
+  singleBranch: { branchName: "", address: "", levels: [] },
+};
+
 const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
-  const [step, setStep] = useState(1);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const stepParam = searchParams.get("step");
+  const step = stepParam ? parseInt(stepParam, 10) : 1;
+
+  const setStep = (newStep: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("step", newStep.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   const [showModal, setShowModal] = useState(initialShow);
   const isMobile = useIsMobile();
   const totalSteps = 2;
@@ -63,7 +96,8 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
             description: data.message,
             type: "success",
           });
-          setStep(2);
+          const nextStep = 2;
+          setStep(nextStep);
         },
         onError: error => {
           toast({
@@ -130,18 +164,26 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
 
       mutateBranch(payload, {
         onError: error => {
-          toast({ title: "Could not create branch(es)", description: error?.message || "Could not create branch(es)", type: "error" });
+          toast({
+            title: "Could not create branch(es)",
+            description: error?.message || "Could not create branch(es)",
+            type: "error",
+          });
         },
         onSuccess: () => {
-          // reauthenticate user to pass user's schoolid into token
           reAuthUser(undefined, {
             onError: () => {
               deleteSession();
             },
             onSuccess: data => {
+              // clearDrafts();
               createSession(data.data.token, "SCHOOL_STAFF");
               toast({ title: "Branch(es) created successfully", type: "success" });
               setShowModal(false);
+              const newParams = new URLSearchParams(searchParams.toString());
+              newParams.delete("step");
+              const queryString = newParams.toString();
+              router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`);
             },
           });
         },
@@ -149,7 +191,29 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
     },
   });
 
-  // Keep the branch array in sync with numOfBranches
+  const schoolDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const branchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // useEffect(() => {
+  //   if (schoolDebounceRef.current) clearTimeout(schoolDebounceRef.current);
+  //   schoolDebounceRef.current = setTimeout(() => {
+  //     saveDraft(DRAFT_KEY_SCHOOL, schoolFormik.values);
+  //   }, 500);
+  //   return () => {
+  //     if (schoolDebounceRef.current) clearTimeout(schoolDebounceRef.current);
+  //   };
+  // }, [schoolFormik.values]);
+
+  // useEffect(() => {
+  //   if (branchDebounceRef.current) clearTimeout(branchDebounceRef.current);
+  //   branchDebounceRef.current = setTimeout(() => {
+  //     saveDraft(DRAFT_KEY_BRANCH, branchFormik.values);
+  //   }, 500);
+  //   return () => {
+  //     if (branchDebounceRef.current) clearTimeout(branchDebounceRef.current);
+  //   };
+  // }, [branchFormik.values]);
+
   useEffect(() => {
     const targetLength = branchFormik.values.numOfBranches;
     const updated = [...branchFormik.values.branches];
@@ -175,9 +239,46 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
     return false;
   };
 
+  const isSchoolValid = Object.keys(schoolFormik.errors).length === 0 && Object.keys(schoolFormik.touched).length !== 0;
+
+  const handleContinue = () => {
+    if (step === 1) {
+      schoolFormik.handleSubmit();
+    } else {
+      branchFormik.handleSubmit();
+    }
+  };
+
+  const isContinueDisabled = (step === 1 && !isSchoolValid) || (step === 2 && !isStep2Valid());
+
+  const isLoading = isSchoolPending || isAuthenticating || isBranchPending;
+
   if (!showModal) return null;
 
-  const isSchoolValid = Object.keys(schoolFormik.errors).length === 0 && Object.keys(schoolFormik.touched).length !== 0;
+  const stepContent = (
+    <div className="px-6 py-4">
+      {step === 1 && <WelcomeInputs formik={schoolFormik} />}
+      {step === 2 && <SchoolOverview formik={branchFormik} />}
+    </div>
+  );
+
+  const continueButton = (
+    <Button
+      disabled={isContinueDisabled}
+      onClick={handleContinue}
+      className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! flex items-center gap-2 border-none"
+    >
+      {isLoading && <Spinner className="text-text-white-default" />}
+      Continue
+    </Button>
+  );
+
+  const stepIndicator = (
+    <div className="text-text-muted text-sm">
+      {step} of {totalSteps}
+    </div>
+  );
+
   return (
     <>
       {!isMobile && (
@@ -191,32 +292,10 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
               <LogoMark />
             </span>
           }
-          cancelButton={
-            <div className="text-text-muted text-sm">
-              {step} of {totalSteps}
-            </div>
-          }
-          ActionButton={
-            <Button
-              disabled={(step === 1 && !isSchoolValid) || (step === 2 && !isStep2Valid())}
-              onClick={() => {
-                if (step === 1) {
-                  schoolFormik.handleSubmit();
-                } else {
-                  branchFormik.handleSubmit();
-                }
-              }}
-              className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! flex items-center gap-2 border-none"
-            >
-              {(isSchoolPending || isAuthenticating || isBranchPending) && <Spinner className="text-text-white-default" />}
-              Continue
-            </Button>
-          }
+          cancelButton={stepIndicator}
+          ActionButton={continueButton}
         >
-          <div className="px-6 py-4">
-            {step === 1 && <WelcomeInputs formik={schoolFormik} />}
-            {step === 2 && <SchoolOverview formik={branchFormik} />}
-          </div>
+          {stepContent}
         </Modal>
       )}
 
@@ -232,31 +311,12 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
           showCloseButton={false}
           className=""
         >
-          <div className="px-6 py-4">
-            {step === 1 && <WelcomeInputs formik={schoolFormik} />}
-            {step === 2 && <SchoolOverview formik={branchFormik} />}
-          </div>
+          {stepContent}
 
           <div className="border-border-default fixed w-full border-t">
             <DialogFooter className="flex items-center justify-between px-6 py-2">
-              <div className="text-text-muted text-sm">
-                {step} of {totalSteps}
-              </div>
-
-              <Button
-                disabled={(step === 1 && !isSchoolValid) || (step === 2 && !isStep2Valid())}
-                onClick={() => {
-                  if (step === 1) {
-                    schoolFormik.handleSubmit();
-                  } else {
-                    branchFormik.handleSubmit();
-                  }
-                }}
-                className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! flex items-center gap-2 border-none"
-              >
-                {(isSchoolPending || isAuthenticating || isBranchPending) && <Spinner className="text-text-white-default" />}
-                Continue
-              </Button>
+              {stepIndicator}
+              {continueButton}
             </DialogFooter>
           </div>
         </MobileDrawer>

@@ -3,7 +3,6 @@ export const getCountries = async () => {
     const response = await fetch(`/api/countries`);
     const data = await response.json();
     if (data && data.countries) {
-      console.log("countries", data.countries);
       return data.countries;
     } else {
       return [];

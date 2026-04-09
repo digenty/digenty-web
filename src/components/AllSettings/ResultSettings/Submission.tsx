@@ -9,11 +9,10 @@ import { useAddSubmission, useGetSubmissionDeadline, useUpdateSubmissionDeadline
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useEffect, useState } from "react";
-import { DateRange } from "react-day-picker";
 
 interface TermDeadlineState {
-  openDate: DateRange | undefined;
-  closeDate: DateRange | undefined;
+  openDate: Date | undefined;
+  closeDate: Date | undefined;
   autoLockAfterDeadline: boolean;
 }
 
@@ -35,8 +34,8 @@ export const Submission = () => {
       const initial: Record<number, TermDeadlineState> = {};
       for (const deadline of deadlines) {
         initial[deadline.termId] = {
-          openDate: deadline.openDate ? { from: new Date(deadline.openDate), to: undefined } : undefined,
-          closeDate: deadline.closeDate ? { from: new Date(deadline.closeDate), to: undefined } : undefined,
+          openDate: deadline.openDate ? new Date(deadline.openDate) : undefined,
+          closeDate: deadline.closeDate ? new Date(deadline.closeDate) : undefined,
           autoLockAfterDeadline: deadline.autoLockAfterDeadline,
         };
       }
@@ -61,8 +60,8 @@ export const Submission = () => {
       const state = getTermState(term.termId);
       return {
         termId: term.termId,
-        openDate: state.openDate?.from?.toISOString().split("T")[0] ?? "",
-        closeDate: state.closeDate?.from?.toISOString().split("T")[0] ?? "",
+        openDate: state.openDate?.toISOString().split("T")[0] ?? "",
+        closeDate: state.closeDate?.toISOString().split("T")[0] ?? "",
         autoLockAfterDeadline: state.autoLockAfterDeadline,
       };
     });
@@ -166,19 +165,15 @@ export const Submission = () => {
                       <div className="mb-2 flex items-center justify-between gap-2">
                         <DateRangePicker
                           label="Open Date"
-                          value={state.openDate}
-                          onChange={val => updateTermState(term.termId, { openDate: val, closeDate: undefined })}
+                          date={state.openDate}
+                          setDate={val => updateTermState(term.termId, { openDate: val, closeDate: undefined })}
                           className="bg-bg-input-soft! text-text-default h-9! w-full"
                         />
                         <DateRangePicker
                           label="Close Date"
-                          value={state.closeDate}
-                          disabled={
-                            state.openDate?.from
-                              ? { before: new Date(new Date(state.openDate.from).setDate(state.openDate.from.getDate() + 1)) }
-                              : undefined
-                          }
-                          onChange={val => updateTermState(term.termId, { closeDate: val })}
+                          date={state.closeDate}
+                          setDate={val => updateTermState(term.termId, { closeDate: val })}
+                          disabled={state.openDate ? { before: new Date(new Date(state.openDate).setDate(state.openDate.getDate() + 1)) } : undefined}
                           className="bg-bg-input-soft! text-text-default h-9! w-full"
                         />
                       </div>

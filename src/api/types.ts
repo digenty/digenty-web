@@ -506,7 +506,7 @@ export interface EditRequestResponseTypes {
   teacherEmail: string;
 }
 
-export interface UpdateAcademicPayload {
+export type UpdateAcademicPayload = {
   name: string;
   currentTerm: string;
   firstTermStartDate: string;
@@ -515,7 +515,7 @@ export interface UpdateAcademicPayload {
   secondTermEndDate: string;
   thirdTermStartDate: string;
   thirdTermEndDate: string;
-}
+};
 
 export interface AcademicSession {
   id: number;
