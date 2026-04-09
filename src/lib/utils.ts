@@ -98,9 +98,10 @@ export const parseCookieString = (string = "") => {
 
 export const getAcademicYears = (startYear = 2000) => {
   const currentYear = new Date().getFullYear();
+  const endYear = currentYear + 3;
   const years = [];
 
-  for (let year = startYear; year < currentYear; year++) {
+  for (let year = startYear; year < endYear; year++) {
     years.push(`${year}/${year + 1}`);
   }
   return years;
@@ -139,26 +140,9 @@ export const formatRelativeDate = (date: Date) => {
   return `${months} months ago`;
 };
 
-// export const extractUniqueLevelsByType = (branches: BranchLevels[]) => {
-//   const uniqueLevels = new Set();
-
-//   return branches
-//     .flatMap(branch =>
-//       branch.classLevels.map(level => ({
-//         ...level,
-//         branchId: branch?.branchId,
-//       })),
-//     )
-//     .filter(level => {
-//       if (uniqueLevels.has(level.levelType)) return false;
-//       uniqueLevels.add(level.levelType);
-//       return true;
-//     });
-// };
-
 const LEVEL_ORDER: Record<string, number> = {
-  KINDERGARTEN: 0,
-  CRECHE: 1,
+  CRECHE: 0,
+  KINDERGARTEN: 1,
   NURSERY: 2,
   PRIMARY: 3,
   JUNIOR_SECONDARY: 4,
