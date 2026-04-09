@@ -1,26 +1,23 @@
 "use client";
 
+import { Branch, BranchWithClassLevels, ClassInLevelDetails, ClassLevel } from "@/api/types";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { BookFill } from "@/components/Icons/BookFill";
+import BookOpen from "@/components/Icons/BookOpen";
 import Edit from "@/components/Icons/Edit";
 import { GitMergeFill } from "@/components/Icons/GitMergeFill";
 import GraduationCapFill from "@/components/Icons/GraduationCapFill";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import React, { useEffect, useState } from "react";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import { Label } from "@/components/ui/label";
-import BookOpen from "@/components/Icons/BookOpen";
-import School from "@/components/Icons/School";
-import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { useGetLevels } from "@/hooks/queryHooks/useLevel";
-import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
-import { cn, extractUniqueLevelsByType } from "@/lib/utils";
-import { Branch, BranchWithClassLevels, ClassInLevelDetails, ClassLevel } from "@/api/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import Loader2Fill from "@/components/Icons/Loader2Fill";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
+import { useGetLevels } from "@/hooks/queryHooks/useLevel";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { cn, extractUniqueLevelsByType } from "@/lib/utils";
+import { useEffect, useState } from "react";
 import { ClassesAndArms } from "../AcademicSetup/ClassesAndArms";
 
 function LevelTabSwitch({
@@ -100,11 +97,10 @@ function ClassesResponsiveTabs({ levels, activeLevel, branchId }: { levels: Clas
 
   const { data: classesByLevelData, isPending: isLoadingClasses } = useGetClassesByLevel(activeLevel?.id);
 
-  console.log(classesByLevelData?.data?.content, "classesByLevelData");
   const Content = () => {
     if (!activeLevel) return null;
 
-    if (activeLevel.levelType === "SENIOR_SECONDARY") {
+    if (activeLevel.levelType === "SENIOR_SECONDARY" || activeLevel.levelType === "JUNIOR_SECONDARY") {
       return <SeniorSecondarySetup data={classesByLevelData?.data?.content} isLoading={isLoadingClasses} />;
     }
     return <OtherClassesSetup data={classesByLevelData?.data?.content} isLoading={isLoadingClasses} />;
@@ -307,7 +303,7 @@ export const SeniorSecondarySetup = ({ data, isLoading }: { data?: ClassInLevelD
           </div>
           <div className="bg-bg-card border-border-darker flex flex-col rounded-md border p-3 md:px-5 md:py-2">
             {clss.departments.length > 0 && (
-              <>
+              <div className="pt-3">
                 <div className="text-text-default mb-3 flex items-center gap-2 text-sm font-medium">
                   {" "}
                   <GraduationCapFill fill="var(--color-bg-basic-blue-accent) " className="size-4" /> Departments
@@ -340,7 +336,7 @@ export const SeniorSecondarySetup = ({ data, isLoading }: { data?: ClassInLevelD
                     </div>
                   </div>
                 ))}
-              </>
+              </div>
             )}
 
             {clss.subjects.length > 0 && (

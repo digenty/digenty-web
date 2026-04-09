@@ -17,6 +17,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAddSchoolStructure, useGetActiveSession, useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
 import { useAddBranch, useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { getAcademicYears } from "@/lib/utils";
 import { schoolStructureSchema } from "@/schema/academic";
@@ -26,7 +27,6 @@ import { format, parseISO } from "date-fns";
 import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { DateRange } from "react-day-picker";
 
 export type SchoolStructureHandle = {
   submit: () => Promise<boolean>;
@@ -47,8 +47,6 @@ type FormValues = {
   termDates: TermDates;
   branchLevels: Record<number, string[]>;
 };
-
-const toDateStr = (range?: DateRange): string | undefined => (range?.from ? format(range.from, "yyyy-MM-dd") : undefined);
 
 const emptyNewBranch = (): NewBranchForm => ({
   id: crypto.randomUUID(),
@@ -85,6 +83,17 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
   const router = useRouter();
   const pathname = usePathname();
   const schoolID = useLoggedInUser()?.schoolId;
+
+  useBreadcrumb([
+    {
+      label: "Academic Settings",
+      url: "/settings/academic",
+    },
+    {
+      label: "School Structure",
+      url: pathname,
+    },
+  ]);
 
   const { data: academicData } = useGetTerms(schoolID);
   const { mutateAsync: updateAcademic, isPending: isUpdating } = useUpdateAcademic();
@@ -138,9 +147,9 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
         branchesAndLevelsDtos,
       };
 
-      try {
-        if (isEditMode && schoolID && activeSession) {
-          await updateAcademic({
+      if (isEditMode && schoolID && activeSession) {
+        await updateAcademic(
+          {
             payload: {
               name: values.name,
               currentTerm: values.currentTerm,
@@ -152,21 +161,35 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
               thirdTermEndDate: termDates.thirdTermEnd ? format(termDates.thirdTermEnd, "yyyy-MM-dd") : "",
             },
             sessionId: activeSession.id,
-          });
-          toast({ title: "Academic session updated", type: "success" });
-        } else {
-          await submitSchoolStructure(payload);
-          toast({ title: "School structure saved", type: "success" });
-        }
+          },
+          {
+            onSuccess: () => {
+              toast({ title: "Academic session updated", type: "success" });
+            },
+            onError: error => {
+              toast({
+                title: "Failed to update academic session",
+                description: error?.message || "Something went wrong. Please try again.",
+                type: "error",
+              });
+            },
+          },
+        );
+      } else {
+        await submitSchoolStructure(payload, {
+          onSuccess: () => {
+            toast({ title: "School structure saved", type: "success" });
 
-        setCompletedSteps([...completedSteps, "school-structure"]);
-        router.push(`${pathname}?step=class-and-arms`);
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
-        toast({
-          title: "Failed to save school structure",
-          description: message,
-          type: "error",
+            setCompletedSteps([...completedSteps, "school-structure"]);
+            router.push(`${pathname}?step=class-and-arms`);
+          },
+          onError: error => {
+            toast({
+              title: "Failed to save school structure",
+              description: error?.message || "Something went wrong. Please try again.",
+              type: "error",
+            });
+          },
         });
       }
     },
@@ -261,6 +284,7 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
       toast({ title: "Branch created", description: `${branch.branchName} has been added successfully.`, type: "success" });
     } catch (error: unknown) {
       updateNewBranch(id, "isSubmitting", false);
+
       const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
       toast({ title: "Failed to create branch", description: message, type: "error" });
     }

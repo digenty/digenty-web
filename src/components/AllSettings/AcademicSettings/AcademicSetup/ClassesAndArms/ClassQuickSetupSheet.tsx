@@ -3,6 +3,7 @@ import { CloseFill } from "@/components/Icons/CloseFill";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
+import { Tooltip } from "@/components/Tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -647,14 +648,33 @@ export const ClassQuickSetupSheet = ({
                       }}
                       className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
                     />
-                    <Button
-                      type="button"
-                      onClick={() => addDepartment(formik.values.department)}
-                      className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                    >
-                      {isAddingDepartment && <Spinner className="text-text-white-default size-3" />}
-                      Add
-                    </Button>
+
+                    {!level?.classNamePrefix ? (
+                      <Tooltip
+                        description="Setup the classes in the level first"
+                        side="top"
+                        Trigger={
+                          <div tabIndex={0} className="flex h-fit w-fit cursor-not-allowed">
+                            <Button
+                              type="button"
+                              disabled
+                              className="text-text-white-default! disabled:bg-bg-state-primary-hover! bg-bg-state-primary! pointer-events-none h-6! rounded-md px-2 text-xs"
+                            >
+                              Add
+                            </Button>
+                          </div>
+                        }
+                      />
+                    ) : (
+                      <Button
+                        type="button"
+                        onClick={() => addDepartment(formik.values.department)}
+                        className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+                      >
+                        {isAddingDepartment && <Spinner className="text-text-white-default size-3" />}
+                        Add
+                      </Button>
+                    )}
                   </div>
                   <div className="flex flex-wrap items-center gap-1">
                     {" "}
@@ -728,14 +748,32 @@ export const ClassQuickSetupSheet = ({
                   className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
                 />
 
-                <Button
-                  type="button"
-                  onClick={() => addSubject(formik.values.subject)}
-                  className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                >
-                  {isAddingSubject && <Spinner className="text-text-white-default size-3" />}
-                  Add
-                </Button>
+                {!level?.classNamePrefix ? (
+                  <Tooltip
+                    description="Setup the classes in the level first"
+                    side="top"
+                    Trigger={
+                      <div tabIndex={0} className="flex h-fit w-fit cursor-not-allowed">
+                        <Button
+                          type="button"
+                          disabled
+                          className="text-text-white-default! disabled:bg-bg-state-primary-hover! bg-bg-state-primary! pointer-events-none h-6! rounded-md px-2 text-xs"
+                        >
+                          Add
+                        </Button>
+                      </div>
+                    }
+                  />
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={() => addSubject(formik.values.subject)}
+                    className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+                  >
+                    {isAddingSubject && <Spinner className="text-text-white-default size-3" />}
+                    Add
+                  </Button>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-1">
@@ -805,14 +843,32 @@ export const ClassQuickSetupSheet = ({
                     className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
                   />
 
-                  <Button
-                    type="button"
-                    onClick={() => addArm(formik.values.arm)}
-                    className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                  >
-                    {isAddingArm && <Spinner className="text-text-white-default size-3" />}
-                    Add
-                  </Button>
+                  {!level?.classNamePrefix ? (
+                    <Tooltip
+                      description="Setup the classes in the level first"
+                      side="top"
+                      Trigger={
+                        <div tabIndex={0} className="flex h-fit w-fit cursor-not-allowed">
+                          <Button
+                            type="button"
+                            disabled
+                            className="text-text-white-default! disabled:bg-bg-state-primary-hover! bg-bg-state-primary! pointer-events-none h-6! rounded-md px-2 text-xs"
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      }
+                    />
+                  ) : (
+                    <Button
+                      type="button"
+                      onClick={() => addArm(formik.values.arm)}
+                      className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+                    >
+                      {isAddingArm && <Spinner className="text-text-white-default size-3" />}
+                      Add
+                    </Button>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap gap-1">

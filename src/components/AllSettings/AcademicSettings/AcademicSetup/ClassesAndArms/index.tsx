@@ -141,7 +141,7 @@ function ClassesResponsiveTabs({
             <ErrorComponent title="No Classes added yet" description="Use the Quick Setup to add classes" />
           </div>
         )}
-        {!isPending && classesByLevelData && activeLevel?.levelType !== "SENIOR_SECONDARY" && (
+        {!isPending && classesByLevelData && activeLevel?.levelType !== "SENIOR_SECONDARY" && activeLevel?.levelType !== "JUNIOR_SECONDARY" && (
           <div className="mt-8 flex w-full flex-col gap-6">
             {classesByLevelData?.data?.content?.map((clss: ClassInLevelDetails) => (
               <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
@@ -222,7 +222,7 @@ function ClassesResponsiveTabs({
           </div>
         )}
 
-        {!isPending && classesByLevelData && activeLevel?.levelType === "SENIOR_SECONDARY" && (
+        {!isPending && classesByLevelData && (activeLevel?.levelType === "SENIOR_SECONDARY" || activeLevel?.levelType === "JUNIOR_SECONDARY") && (
           <div className="mt-8 flex flex-col gap-6">
             {classesByLevelData?.data?.content?.map((clss: ClassInLevelDetails) => (
               <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
