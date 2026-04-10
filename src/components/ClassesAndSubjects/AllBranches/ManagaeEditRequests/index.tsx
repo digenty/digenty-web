@@ -11,10 +11,10 @@ import { useApproveEditRequest, useApproveEditRequestBulk, useGetEditRequests } 
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
 import { createManageEditTableColumns } from "./Columns";
 import { ManageEditMobileCard } from "./ManageEditMobileCard";
 import { ManageEditModal } from "./ManageEditModal";
+import { toast } from "@/components/Toast";
 
 export const ManageEditRequest = () => {
   const params = useParams();
@@ -66,12 +66,19 @@ export const ManageEditRequest = () => {
       { editAccessId: selectedRequest.editRequestId, isApproved },
       {
         onSuccess: () => {
-          toast.success(`Request ${isApproved ? "approved" : "rejected"} successfully`);
+          toast({
+            title: "Success",
+            description: `Request ${isApproved ? "approved" : "rejected"} successfully`,
+            type: "success",
+          });
           closeModal();
         },
         onError: error => {
-          toast.error(`Failed to ${isApproved ? "approve" : "reject"} request`);
-          console.error(error);
+          toast({
+            title: "Error",
+            description: error?.message || `Failed to ${isApproved ? "approve" : "reject"} request`,
+            type: "error",
+          });
         },
       },
     );
