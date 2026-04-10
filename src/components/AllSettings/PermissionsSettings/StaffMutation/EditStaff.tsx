@@ -1,10 +1,9 @@
 "use client";
 
-import { Branch, BranchWithClassLevels, Role, StaffBranch } from "@/api/types";
-import { UpdateStaffPayload } from "@/components/AllSettings/types";
+import { BranchWithClassLevels, Role, StaffBranch } from "@/api/types";
 import Accordion from "@/components/Accordion";
+import { UpdateStaffPayload } from "@/components/AllSettings/types";
 import DeleteBin from "@/components/Icons/DeleteBin";
-import Mail from "@/components/Icons/Mail";
 import School from "@/components/Icons/School";
 import { SchoolFill } from "@/components/Icons/SchoolFill";
 import { StaffInputValues } from "@/components/StudentAndParent/types";
@@ -22,7 +21,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { cn } from "@/lib/utils";
 import { staffSchema } from "@/schema/staff";
 import { useFormik } from "formik";
-import { EyeIcon, EyeOffIcon, MailIcon, PlusIcon, Trash2 } from "lucide-react";
+import { MailIcon, PlusIcon, Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -31,7 +30,6 @@ export const EditStaff = () => {
   const params = useParams();
   const staffId = params.id as string;
   const [assignments, setAssignments] = useState<{ branchId: number | null; roleIds: Role[] }[]>([{ branchId: null, roleIds: [] }]);
-  const [showPassword, setShowPassword] = useState(false);
 
   useBreadcrumb([
     {
@@ -65,7 +63,6 @@ export const EditStaff = () => {
         lastName: details.fullname.split(" ").slice(1).join(" ") || "",
         email: details.email || "",
         phoneNumber: details.phoneNumber || "",
-        password: "",
       });
 
       if (details.branches && details.branches.length > 0) {
@@ -77,10 +74,6 @@ export const EditStaff = () => {
       }
     }
   }, [staffDetails, roles]);
-
-  const toggleShowPassword = () => {
-    setShowPassword(prev => !prev);
-  };
 
   const addAssignment = () => {
     setAssignments(prev => [...prev, { branchId: null, roleIds: roles ? [roles.data[0]] : [] }]);
@@ -129,7 +122,6 @@ export const EditStaff = () => {
       lastName: "",
       email: "",
       phoneNumber: "",
-      password: "",
     },
     validationSchema: staffSchema,
     onSubmit: async values => {
@@ -141,7 +133,6 @@ export const EditStaff = () => {
         }));
 
       const payload: UpdateStaffPayload = { ...values, branchAssignmentDtos, staffId: Number(staffId) };
-      if (!payload.password) delete payload.password;
 
       await mutate(payload, {
         onSuccess: data => {

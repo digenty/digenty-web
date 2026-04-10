@@ -93,7 +93,11 @@ export const ManageEditRequest = () => {
   const handleApproveAll = () => {
     const editAccessIds = selectedRows.map(row => row.editRequestId);
     if (editAccessIds.length === 0) {
-      toast.error("No teacher selected");
+      toast({
+        title: "Warning",
+        description: "No request selected",
+        type: "warning",
+      });
       return;
     }
     setBulkAction("approve");
@@ -104,12 +108,19 @@ export const ManageEditRequest = () => {
           setBulkAction(null);
           setRowSelection({});
           setSelectedRows([]);
-          toast.success(`${editAccessIds.length} request(s) approved successfully`);
+          toast({
+            title: "Success",
+            description: `${editAccessIds.length} request(s) approved successfully`,
+            type: "success",
+          });
         },
         onError: error => {
           setBulkAction(null);
-          toast.error("Failed to approve requests");
-          console.error(error);
+          toast({
+            title: "Error",
+            description: error?.message || "Failed to approve requests",
+            type: "error",
+          });
         },
       },
     );
@@ -119,7 +130,11 @@ export const ManageEditRequest = () => {
     const editAccessIds = selectedRows.map(row => row.editRequestId);
 
     if (editAccessIds.length === 0) {
-      toast.error("No items selected");
+      toast({
+        title: "Warning",
+        description: "No request selected",
+        type: "warning",
+      });
       return;
     }
     setBulkAction("approve");
@@ -130,12 +145,19 @@ export const ManageEditRequest = () => {
           setBulkAction(null);
           setRowSelection({});
           setSelectedRows([]);
-          toast.success(`${editAccessIds.length} request(s) rejected successfully`);
+          toast({
+            title: "Success",
+            description: `${editAccessIds.length} request(s) rejected successfully`,
+            type: "success",
+          });
         },
         onError: error => {
           setBulkAction(null);
-          toast("Failed to reject requests");
-          console.error(error);
+          toast({
+            title: "Error",
+            description: error?.message || "Failed to reject requests",
+            type: "error",
+          });
         },
       },
     );

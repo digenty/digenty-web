@@ -2,7 +2,6 @@ import {
   addDepartmentsToLevel,
   assignArmToDepartment,
   createDepartmentSubjects,
-  deleteArmDepartmentSubjects,
   deleteDepartmentFromLevel,
   deleteDepartmentSubjects,
   getDepartmentSubjectsByClass,
