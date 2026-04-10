@@ -16,7 +16,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useFormik } from "formik";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MobileDrawer } from "@/components/MobileDrawer";
-import { PasswordStrengthIndicator } from "@/components/PasswordStrength/PasswordStrengthIndicator";
 
 export const NewPassword = () => {
   const router = useRouter();
@@ -95,7 +94,7 @@ export const NewPassword = () => {
       </div>
 
       <div className="text-text-muted text-sm">Password requirements:</div>
-      <PasswordStrengthIndicator password={formik.values.newPassword} />
+
       <PasswordChecklist password={formik.values.newPassword} setIsfulfilled={setPasswordIsFulfilled} />
 
       <div className="space-y-2">
