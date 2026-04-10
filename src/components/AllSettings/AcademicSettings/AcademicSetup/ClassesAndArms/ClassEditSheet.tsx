@@ -1,4 +1,4 @@
-import { ClassLevel, DepartmentWithSubjects } from "@/api/types";
+import { ArmDetails, ClassLevel, DepartmentWithSubjects } from "@/api/types";
 import { CloseFill } from "@/components/Icons/CloseFill";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
@@ -11,7 +11,12 @@ import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle }
 import { Spinner } from "@/components/ui/spinner";
 import { useAddArmToClass, useDeleteArmFromClass, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useGetClassDetails, useUpdateClass } from "@/hooks/queryHooks/useClass";
-import { useCreateDepartmentSubjects, useGetDepartmentsByClass, useGetDepartmentSubjectsByClass } from "@/hooks/queryHooks/useDepartment";
+import {
+  useCreateDepartmentSubjects,
+  useDeleteDepartmentSubjects,
+  useGetDepartmentsByClass,
+  useGetDepartmentSubjectsByClass,
+} from "@/hooks/queryHooks/useDepartment";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubjectToClass, useDeleteSubjectFromClass, useGetSubjectsByClass } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -20,6 +25,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as yup from "yup";
+import { AssignArmsToDepartments } from "./AssignArmsToDepartments";
 
 const DepartmentSubjectsSection = ({
   dept,
@@ -36,8 +42,8 @@ const DepartmentSubjectsSection = ({
   const [subjectInput, setSubjectInput] = useState("");
   const { data: deptSubjectsData, isLoading } = useGetDepartmentSubjectsByClass(dept.departmentId, levelId);
   const { mutate: mutateCreateDeptSubjects, isPending: isSaving } = useCreateDepartmentSubjects();
+  const { mutate: mutateDeleteDeptSubjects, isPending: isDeleting } = useDeleteDepartmentSubjects();
 
-  console.log(deptSubjectsData, "###");
   useEffect(() => {
     if (deptSubjectsData?.data) {
       setSubjects(deptSubjectsData?.data.map((s: { subjectName: string }) => s.subjectName));
@@ -84,31 +90,30 @@ const DepartmentSubjectsSection = ({
 
   const removeSubject = (subjectToRemove: string) => {
     const subjectList = deptSubjectsData?.data || [];
+    const subjectId = subjectList.find((subject: { subjectName: string }) => subject.subjectName === subjectToRemove)?.subjectId;
 
-    // mutateCreateDeptSubjects(
-    //   {
-    //     departmentName: dept.name,
-    //     subjectNames: updatedSubjectNames,
-    //     branchId: branchId || 0,
-    //     branchSpecific,
-    //   },
-    //   {
-    //     onSuccess: () => {
-    //       toast({
-    //         title: "Subject removed",
-    //         description: `"${subjectToRemove}" has been removed from ${dept.name}`,
-    //         type: "success",
-    //       });
-    //     },
-    //     onError: error => {
-    //       toast({
-    //         title: "Failed to remove subject",
-    //         description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`,
-    //         type: "error",
-    //       });
-    //     },
-    //   },
-    // );
+    mutateDeleteDeptSubjects(
+      {
+        departmentId: dept.departmentId,
+        subjectId,
+      },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Subject removed",
+            description: `"${subjectToRemove}" has been removed from ${dept.name}`,
+            type: "success",
+          });
+        },
+        onError: error => {
+          toast({
+            title: "Failed to remove subject",
+            description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`,
+            type: "error",
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -182,6 +187,8 @@ export const ClassEditSheet = ({
   const [subjects, setSubjects] = useState<string[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
   const [arms, setArms] = useState<string[]>([]);
+  const [armsDetails, setArmsDetails] = useState<ArmDetails[]>([]);
+  const [departmentsDetails, setDepartmentsDetails] = useState<DepartmentWithSubjects[]>([]);
   const [departmentsEnabled, setDepartmentsEnabled] = useState(false);
   const [armsEnabled, setArmsEnabled] = useState(false);
   const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
@@ -210,19 +217,26 @@ export const ClassEditSheet = ({
 
   useEffect(() => {
     if (armsData) {
-      const names: string[] = Array.isArray(armsData?.data[0]?.arms)
-        ? armsData?.data[0]?.arms.map((s: { name: string }) => s.name)
-        : (armsData?.content ?? armsData?.data ?? []).map((s: { name: string }) => s.name);
+      const armsWithDetails = Array.isArray(armsData?.data[0]?.arms) ? armsData?.data[0]?.arms : (armsData?.content ?? armsData?.data ?? []);
+
+      const names: string[] = armsWithDetails.map((s: { name: string }) => s.name);
       setArms(names);
+      setArmsDetails(armsWithDetails);
       setArmsEnabled(true);
     }
   }, [armsData]);
 
   useEffect(() => {
-    if (departmentsData?.data && Array.isArray(departmentsData.data)) {
-      const names = departmentsData?.data[0]?.departments?.map((dept: { name: string }) => dept.name);
+    if (departmentsData) {
+      const departmentsDetails = Array.isArray(departmentsData?.data[0]?.departments)
+        ? departmentsData?.data[0]?.departments
+        : (departmentsData?.data ?? []);
+
+      const names = departmentsDetails.map((dept: { name: string }) => dept.name);
+
       if (names.length > 0) {
         setDepartments(names);
+        setDepartmentsDetails(departmentsDetails);
         setDepartmentsEnabled(true);
       }
     }
@@ -663,21 +677,13 @@ export const ClassEditSheet = ({
             )}
           </div>
         </div>
+
+        <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} />
       </div>
     </div>
   );
   return (
     <div className="">
-      {/* <Button
-        onClick={() => {
-          setDepartmentsEnabled(false);
-          setArmsEnabled(false);
-          setSheetOpen(true);
-        }}
-        className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
-      >
-        <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
-      </Button> */}
       {!isMobile && (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <div>

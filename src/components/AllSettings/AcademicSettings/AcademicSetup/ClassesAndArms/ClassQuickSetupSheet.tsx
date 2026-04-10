@@ -1,4 +1,4 @@
-import { ClassLevel, Department, DepartmentResponse } from "@/api/types";
+import { ArmDetails, ClassLevel, Department, DepartmentResponse, DepartmentWithSubjects } from "@/api/types";
 import { CloseFill } from "@/components/Icons/CloseFill";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
@@ -27,6 +27,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as yup from "yup";
+import { AssignArmsToDepartments } from "./AssignArmsToDepartments";
 
 const startclasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 const endClasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
@@ -191,6 +192,8 @@ export const ClassQuickSetupSheet = ({
   const [subjects, setSubjects] = useState<string[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
   const [arms, setArms] = useState<string[]>([]);
+  const [armsDetails, setArmsDetails] = useState<ArmDetails[]>([]);
+  const [departmentsDetails, setDepartmentsDetails] = useState<DepartmentWithSubjects[]>([]);
 
   const [departmentsEnabled, setDepartmentsEnabled] = useState(false);
   const [armsEnabled, setArmsEnabled] = useState(false);
@@ -224,25 +227,23 @@ export const ClassQuickSetupSheet = ({
 
   useEffect(() => {
     if (armsData) {
-      const names: string[] = Array.isArray(armsData?.data[0]?.arms)
-        ? armsData?.data[0]?.arms.map((s: { name: string }) => s.name)
-        : (armsData?.content ?? armsData?.data ?? []).map((s: { name: string }) => s.name);
-      setArms(names);
+      const armsWithDetails = Array.isArray(armsData?.data[0]?.arms) ? armsData?.data[0]?.arms : (armsData?.data ?? []);
+
+      setArms(armsWithDetails.map((arm: ArmDetails) => arm.name));
+      setArmsDetails(armsWithDetails);
       setArmsEnabled(true);
     }
   }, [armsData]);
 
   useEffect(() => {
     if (departmentsData) {
-      let depts: Department[] = [];
-      if (branchId) {
-        depts = departmentsData?.data.find((dept: DepartmentResponse) => dept.branchId === branchId)?.departments || [];
-      } else {
-        depts = departmentsData?.data[0]?.departments || [];
-      }
+      const departmentsDetails = Array.isArray(departmentsData?.data[0]?.departments)
+        ? departmentsData?.data[0]?.departments
+        : (departmentsData?.data ?? []);
 
-      const names: string[] = depts.map((s: { name: string }) => s.name);
+      const names: string[] = departmentsDetails.map((dept: DepartmentWithSubjects) => dept.name);
       setDepartments(names);
+      setDepartmentsDetails(departmentsDetails);
 
       if (names.length > 0) {
         setDepartmentsEnabled(true);
@@ -902,6 +903,9 @@ export const ClassQuickSetupSheet = ({
             )}
           </div>
         </div>
+
+        {/* {departmentsEnabled && <AssignArmsToDepartments arms={arms} departments={departments} />} */}
+        <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} />
       </div>
     </div>
   );

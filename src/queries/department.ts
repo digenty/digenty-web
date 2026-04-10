@@ -5,6 +5,8 @@ export const departmentKeys = {
   deleteDepartment: ["deleteDepartment"] as const,
   createDepartmentSubjects: ["createDepartmentSubjects"] as const,
   departmentsByClass: (className?: string, levelType?: string, branchId?: number) => ["departmentsByClass", className, levelType, branchId] as const,
-  departmentSubjectsByLevel: (departmentId?: number, levelId?: number) => ["departmentSubjectsByLevel", departmentId, levelId] as const,
+  departmentSubjectsByLevel: ["departmentSubjectsByLevel"] as const,
   departmentSubjectsByClass: ["departmentSubjectsByClass"] as const,
+  assignArmToDepartment: ["assignArmToDepartment"] as const,
+  deleteDepartmentSubjects: ["deleteDepartmentSubjects"] as const,
 };
