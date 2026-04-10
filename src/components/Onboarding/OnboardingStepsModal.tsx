@@ -1,17 +1,14 @@
 "use client";
 
+import { useGetOnboardingProgress, useGetSchoolDetails } from "@/hooks/queryHooks/useSchool";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
+import { useOnboardingStore } from "@/store";
 import { CheckCircle2, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { MobileDrawer } from "../MobileDrawer";
 import { Modal } from "../Modal";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
-import { useGetSchoolDetails } from "@/hooks/queryHooks/useSchool";
 import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
-import { useOnboardingStore } from "@/store";
 
 interface OnboardingStepsModalProps {
   open: boolean;
@@ -23,12 +20,21 @@ export const OnboardingStepsModal = ({ open, setOpen }: OnboardingStepsModalProp
   const { data } = useGetSchoolDetails();
   const router = useRouter();
   const { steps } = useOnboardingStore();
+  const { data: progressResp } = useGetOnboardingProgress();
 
-  // TODO: Get onboarding steps completed from API.
+  const apiSteps = progressResp?.data?.steps || [];
 
-  const completedStepsCount = steps.filter(s => s.isCompleted).length;
-  const progressPercentage = (completedStepsCount / steps.length) * 100;
-  const isStep1Completed = steps.find(s => s.id === 1)?.isCompleted ?? false;
+  const mergedSteps = steps.map(storeStep => {
+    const apiStep = apiSteps.find((step: { stepNumber: number; completed: boolean }) => step.stepNumber === storeStep.id);
+    return {
+      ...storeStep,
+      isCompleted: apiStep ? apiStep.completed : storeStep.isCompleted,
+    };
+  });
+
+  const completedStepsCount = mergedSteps.filter(step => step.isCompleted).length;
+  const progressPercentage = (completedStepsCount / mergedSteps.length) * 100;
+  const isStep1Completed = mergedSteps.find(step => step.id === 1)?.isCompleted ?? false;
 
   const title = (
     <div className="flex flex-col gap-1 py-1">
@@ -49,9 +55,14 @@ export const OnboardingStepsModal = ({ open, setOpen }: OnboardingStepsModalProp
 
       {/* Steps List */}
       <div className="flex flex-col gap-3">
-        {steps.map(step => (
+        {mergedSteps.map(step => (
           <div
             key={step.id}
+            onClick={() => {
+              router.push(step.link!);
+              setOpen(false);
+            }}
+            aria-roledescription="button"
             className={cn(
               "border-border-default flex items-center justify-between rounded-xl border px-3 py-4 transition-colors focus:outline-none",
               step.isCompleted ? "bg-bg-card" : "bg-bg-card hover:bg-bg-subtle",
@@ -106,7 +117,7 @@ export const OnboardingStepsModal = ({ open, setOpen }: OnboardingStepsModalProp
     <Modal
       open={open}
       setOpen={setOpen}
-      showCloseButton={isStep1Completed}
+      // showCloseButton={isStep1Completed}
       className="max-h-170 overflow-y-auto sm:max-w-160 md:max-w-180"
       showFooter={false}
     >

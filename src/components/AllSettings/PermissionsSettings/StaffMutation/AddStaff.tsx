@@ -21,14 +21,13 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { cn } from "@/lib/utils";
 import { staffSchema } from "@/schema/staff";
 import { useFormik } from "formik";
-import { EyeIcon, EyeOffIcon, MailIcon, PlusIcon, Trash2 } from "lucide-react";
+import { MailIcon, PlusIcon, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export const AddStaff = () => {
   const router = useRouter();
   const [assignments, setAssignments] = useState<{ branchId: number | null; roleIds: Role[] }[]>([{ branchId: null, roleIds: [] }]);
-  const [showPassword, setShowPassword] = useState(false);
 
   useBreadcrumb([
     {
@@ -52,17 +51,12 @@ export const AddStaff = () => {
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: roles, isPending: loadingRoles } = useGetRoles();
   const { mutate, isPending } = useAddStaff();
-  console.log(branches);
 
   useEffect(() => {
     if (roles && roles.data.length > 0 && assignments[0].roleIds.length === 0) {
       setAssignments([{ branchId: null, roleIds: [roles.data[0]] }]);
     }
   }, [roles]);
-
-  const toggleShowPassword = () => {
-    setShowPassword(prev => !prev);
-  };
 
   const addAssignment = () => {
     setAssignments(prev => [...prev, { branchId: null, roleIds: roles ? [roles.data[0]] : [] }]);
@@ -112,7 +106,6 @@ export const AddStaff = () => {
       lastName: "",
       email: "",
       phoneNumber: "",
-      password: "",
     },
     validationSchema: staffSchema,
     onSubmit: async values => {
@@ -124,7 +117,7 @@ export const AddStaff = () => {
         }));
 
       await mutate(
-        { ...values, branchAssignmentDtos },
+        { ...values, branchAssignmentDtos, email: values.email.toLowerCase() },
         {
           onSuccess: data => {
             toast({
@@ -236,38 +229,6 @@ export const AddStaff = () => {
               />
               {formik.touched.phoneNumber && formik.errors.phoneNumber && (
                 <p className="text-text-destructive text-xs font-light">{formik.errors.phoneNumber}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-text-default text-sm font-medium">
-                Password<small className="text-text-destructive text-xs">*</small>
-              </Label>
-
-              <div
-                className={cn(
-                  "focus-within:border-ring focus-within:ring-border-highlight text-text-muted bg-bg-input-soft flex w-full items-center rounded-lg border border-none pr-2 text-sm font-normal focus-within:ring-2 focus-within:ring-offset-2",
-                  formik.errors.password && formik.touched.password && "border-border-destructive border",
-                )}
-              >
-                <Input
-                  id="password"
-                  autoFocus
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  placeholder="Input Password for Teacher"
-                  value={formik.values.password}
-                  type={showPassword ? "text" : "password"}
-                  className="text-text-muted flex-1 rounded-l-lg rounded-r-none border-none text-sm font-light shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-                {showPassword ? (
-                  <EyeOffIcon className="text-icon-default-muted size-4 cursor-pointer" onClick={toggleShowPassword} />
-                ) : (
-                  <EyeIcon className="text-icon-default-muted size-4 cursor-pointer" onClick={toggleShowPassword} />
-                )}
-              </div>
-              {formik.touched.password && formik.errors.password && (
-                <p className="text-text-destructive text-xs font-light">{formik.errors.password}</p>
               )}
             </div>
           </div>

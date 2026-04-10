@@ -11,10 +11,10 @@ import { useApproveEditRequest, useApproveEditRequestBulk, useGetEditRequests } 
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
 import { createManageEditTableColumns } from "./Columns";
 import { ManageEditMobileCard } from "./ManageEditMobileCard";
 import { ManageEditModal } from "./ManageEditModal";
+import { toast } from "@/components/Toast";
 
 export const ManageEditRequest = () => {
   const params = useParams();
@@ -66,12 +66,19 @@ export const ManageEditRequest = () => {
       { editAccessId: selectedRequest.editRequestId, isApproved },
       {
         onSuccess: () => {
-          toast.success(`Request ${isApproved ? "approved" : "rejected"} successfully`);
+          toast({
+            title: "Success",
+            description: `Request ${isApproved ? "approved" : "rejected"} successfully`,
+            type: "success",
+          });
           closeModal();
         },
         onError: error => {
-          toast.error(`Failed to ${isApproved ? "approve" : "reject"} request`);
-          console.error(error);
+          toast({
+            title: "Error",
+            description: error?.message || `Failed to ${isApproved ? "approve" : "reject"} request`,
+            type: "error",
+          });
         },
       },
     );
@@ -86,7 +93,11 @@ export const ManageEditRequest = () => {
   const handleApproveAll = () => {
     const editAccessIds = selectedRows.map(row => row.editRequestId);
     if (editAccessIds.length === 0) {
-      toast.error("No teacher selected");
+      toast({
+        title: "Warning",
+        description: "No request selected",
+        type: "warning",
+      });
       return;
     }
     setBulkAction("approve");
@@ -97,12 +108,19 @@ export const ManageEditRequest = () => {
           setBulkAction(null);
           setRowSelection({});
           setSelectedRows([]);
-          toast.success(`${editAccessIds.length} request(s) approved successfully`);
+          toast({
+            title: "Success",
+            description: `${editAccessIds.length} request(s) approved successfully`,
+            type: "success",
+          });
         },
         onError: error => {
           setBulkAction(null);
-          toast.error("Failed to approve requests");
-          console.error(error);
+          toast({
+            title: "Error",
+            description: error?.message || "Failed to approve requests",
+            type: "error",
+          });
         },
       },
     );
@@ -112,7 +130,11 @@ export const ManageEditRequest = () => {
     const editAccessIds = selectedRows.map(row => row.editRequestId);
 
     if (editAccessIds.length === 0) {
-      toast.error("No items selected");
+      toast({
+        title: "Warning",
+        description: "No request selected",
+        type: "warning",
+      });
       return;
     }
     setBulkAction("approve");
@@ -123,12 +145,19 @@ export const ManageEditRequest = () => {
           setBulkAction(null);
           setRowSelection({});
           setSelectedRows([]);
-          toast.success(`${editAccessIds.length} request(s) rejected successfully`);
+          toast({
+            title: "Success",
+            description: `${editAccessIds.length} request(s) rejected successfully`,
+            type: "success",
+          });
         },
         onError: error => {
           setBulkAction(null);
-          toast("Failed to reject requests");
-          console.error(error);
+          toast({
+            title: "Error",
+            description: error?.message || "Failed to reject requests",
+            type: "error",
+          });
         },
       },
     );

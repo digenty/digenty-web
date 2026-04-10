@@ -10,7 +10,7 @@ export default function SubjectHeader() {
 
   return (
     <div className="flex w-full justify-between align-middle">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex w-full items-center justify-between gap-2 md:max-w-219">
         <h2 className="text-text-default text-lg font-semibold md:text-xl">My Subjects</h2>
         {user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1 && (
           <Button onClick={() => router.push("/staff/classes-and-subjects/all-classes")} className="border-border-default border">

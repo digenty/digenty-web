@@ -11,6 +11,7 @@ import { generateColumns } from "./TermSheetColumns";
 import { TermSheetHeader } from "./TermSheetHeader";
 import { StudentAttendance } from "./students";
 import { ClassAttendanceWrapper } from "../ClassAttendanceWrapper";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 export interface Student {
   id: number;
@@ -24,6 +25,12 @@ export const TermSheet = () => {
   const classGroup = path.split("/")[3] ?? "";
   const armId = path.split("/")[4] ?? "";
 
+  useBreadcrumb([
+    { label: "Attendance Management", url: "/staff/attendance-management" },
+    { label: "Class Attendance", url: "/staff/attendance-management/class-attendance" },
+    { label: "Term Sheet", url: "" },
+  ]);
+
   const [page, setPage] = useState(1);
   const [activeWeek, setActiveWeek] = useState<string | undefined>();
   const [activeStudent, setActiveStudent] = useState<number>();
@@ -32,7 +39,7 @@ export const TermSheet = () => {
 
   const pageSize = 10;
 
-  const { data, isPending, isError } = useGetTermSheet(Number(armId));
+  const { data, isPending, isError, error } = useGetTermSheet(Number(armId));
 
   useEffect(() => {
     if (data) {
@@ -43,15 +50,15 @@ export const TermSheet = () => {
   return (
     <ClassAttendanceWrapper armId={Number(armId)} isLoading={isPending}>
       {isError && (
-        <div className="flex h-80 items-center justify-center">
+        <div className="flex h-80 items-center justify-center pt-15">
           <ErrorComponent
             title="Could not get the Class' Term Sheet"
-            description="This is our problem, we are looking into it so as to serve you better"
+            description={error?.message || "This is our problem, we are looking into it so as to serve you better"}
             buttonText="Go to the Home page"
           />
         </div>
       )}
-      {isPending && <Skeleton className="bg-bg-input-soft mx-4 mt-8 hidden h-100 w-full md:mx-8 md:block" />}
+      {isPending && !isError && <Skeleton className="bg-bg-input-soft mx-4 mt-8 hidden h-100 w-full md:mx-8 md:block" />}
 
       {!isPending && !isError && data.data.length === 0 && (
         <div className="flex h-80 items-center justify-center">

@@ -5,6 +5,7 @@ import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import { ScoreType } from "./types";
+import { toast } from "../Toast";
 
 type UpdateDataFn<T> = (rowIndex: number, columnId: string, value: unknown) => void;
 
@@ -15,9 +16,10 @@ interface TableMeta<T> {
 interface EditableCellProps<T> {
   isEditable: boolean;
   cell: CellContext<T, unknown>;
+  maxWeight: number;
 }
 
-const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
+const EditableCell = <T,>({ isEditable, cell, maxWeight }: EditableCellProps<T>) => {
   const { row, column, table, getValue } = cell;
   const initialValue = getValue() as string | number | undefined;
 
@@ -37,6 +39,16 @@ const EditableCell = <T,>({ isEditable, cell }: EditableCellProps<T>) => {
 
   const save = () => {
     setIsEditing(false);
+    if (value && Number(value) > maxWeight) {
+      setValue(0);
+      toast({
+        title: "Invalid Score",
+        description: `Score cannot be greater than ${maxWeight}`,
+        type: "error",
+      });
+      return;
+    }
+
     if (meta?.updateData) {
       meta.updateData(row.index, column.id, value);
     }
@@ -108,7 +120,7 @@ export const scoreColumns = (isEditable: boolean, columns: Assessment[], grading
         {column.assessmentName} <span className="text-text-muted text-center text-xs font-light">({column.weight})</span>
       </div>
     ),
-    cell: (cell: CellContext<ScoreType, unknown>) => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} />,
+    cell: (cell: CellContext<ScoreType, unknown>) => <EditableCell<ScoreType> isEditable={isEditable} cell={cell} maxWeight={column.weight} />,
     size: 108,
     maxSize: 108,
   })),

@@ -52,9 +52,9 @@ const ClassesAndSubjects = () => {
     return <AllClassesMain />;
   }
 
-  if (user && user?.isMain) {
-    return <AllBranches />;
-  }
+  // if (user && user?.isMain) {
+  //   return <AllBranches />;
+  // }
 
   return (
     <ClassesAndSubjectsPermissionWrapper isLoading={isLoading}>

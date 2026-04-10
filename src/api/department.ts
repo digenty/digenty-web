@@ -62,6 +62,18 @@ export const createDepartmentSubjects = async (payload: CreateDepartmentSubjectP
   }
 };
 
+export const deleteDepartmentSubjects = async (departmentId: number, subjectId: number) => {
+  try {
+    const { data } = await api.delete(`/departments/${departmentId}/subject/${subjectId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getDepartmentSubjectsByLevel = async (departmentId: number, levelId: number) => {
   try {
     const { data } = await api.get(`/departments/subjects/level?departmentId=${departmentId}&levelId=${levelId}`);
@@ -91,6 +103,18 @@ export const getDepartmentsByClass = async (className?: string, levelType?: stri
     const { data } = await api.get(
       `/departments/class?className=${className}${levelType ? `&levelType=${levelType}` : ""}${branchId ? `&branchId=${branchId}` : ""}`,
     );
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const assignArmToDepartment = async (payload: { departmentId: number; armId: number }) => {
+  try {
+    const { data } = await api.post("/departments/arms/class", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
