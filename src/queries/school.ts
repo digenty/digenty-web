@@ -3,4 +3,5 @@ export const schoolsKey = {
   putSchool: ["putSchool"] as const,
   getSchool: ["getSchools"] as const,
   getSchoolDetails: ["getSchoolDetails"] as const,
+  getOnboardingProgress: ["getOnboardingProgress"] as const,
 };

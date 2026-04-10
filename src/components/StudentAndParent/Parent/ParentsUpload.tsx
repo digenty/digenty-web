@@ -15,18 +15,7 @@ import * as XLSX from "xlsx";
 import { Branch } from "@/api/types";
 import { Spinner } from "@/components/ui/spinner";
 
-const REQUIRED_HEADERS = [
-  "firstName",
-  "lastName",
-  "middleName",
-  "gender",
-  "email",
-  "relationship",
-  "address",
-  "nationality",
-  "stateOfOrigin",
-  "phoneNumber",
-];
+const REQUIRED_HEADERS = ["firstName", "lastName", "middleName", "gender", "email", "address", "nationality", "stateOfOrigin", "phoneNumber"];
 
 const steps: Step[] = [
   { id: 1, label: "Upload Parents", completed: false },
@@ -60,8 +49,8 @@ export const ParentsUpload = () => {
         {
           onSuccess: data => {
             toast({
-              title: `Successfully uploaded ${data.data.duplicateEmails ? "some" : "all"} parents`,
-              description: `${data.data.duplicateEmails ? `${data.data.duplicateEmails.split(",").length} parent(s) were not uploaded due to duplicate emails.` : data.message}`,
+              title: `Successfully uploaded ${data?.data?.duplicateEmails ? "some" : "all"} parents`,
+              description: `${data?.data?.duplicateEmails ? `${data?.data?.duplicateEmails.length} parent(s) were not uploaded due to duplicate emails.` : data?.message}`,
               type: "success",
             });
             setFile(null);

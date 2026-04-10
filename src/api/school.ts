@@ -50,3 +50,15 @@ export const getSchoolDetails = async () => {
     throw error;
   }
 };
+
+export const getOnboardingProgress = async () => {
+  try {
+    const { data } = await api.get("/schools/onboarding/progress");
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

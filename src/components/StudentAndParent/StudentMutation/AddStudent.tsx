@@ -164,7 +164,7 @@ export const AddStudent = () => {
         </div>
       </div>
 
-      <form noValidate onSubmit={formik.handleSubmit} className="text-text-default flex-1 overflow-y-auto px-4 pt-4 md:px-30 md:pt-8 xl:px-70">
+      <form noValidate onSubmit={formik.handleSubmit} className="text-text-default flex-1 px-4 pt-4 md:px-30 md:pt-8 xl:px-70">
         <div className="block md:hidden">
           {step === 1 && (
             <div>

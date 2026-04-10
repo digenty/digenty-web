@@ -822,3 +822,11 @@ export interface DepartmentWithSubjects {
   classId: number;
   subjects: { subjectId: number; subjectName: string; fromDepartment: boolean }[];
 }
+
+export interface ArmDetails {
+  branchId: number;
+  id: number;
+  levelId: number;
+  name: string;
+  schoolId: number;
+}

@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
       { header: "lastName", key: "lastName" },
       { header: "middleName", key: "middleName" },
       { header: "gender", key: "gender" },
-      { header: "dateOfBirth", key: "dateOfBirth" },
+      { header: "dob", key: "dob" },
       { header: "nationality", key: "nationality" },
       { header: "stateOfOrigin", key: "stateOfOrigin" },
       { header: "address", key: "address" },
@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
       { header: "admissionNumber", key: "admissionNumber" },
       { header: "email", key: "email" },
       { header: "parentEmail", key: "parentEmail" },
-      { header: "phone", key: "phone" },
-      { header: "secondaryPhone", key: "secondaryPhone" },
+      { header: "phoneNumber", key: "phoneNumber" },
+      { header: "secondaryPhoneNumber", key: "secondaryPhoneNumber" },
     ];
 
     worksheet.addRow({
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       lastName: "Okafor",
       middleName: "Emeka",
       gender: "MALE",
-      dateOfBirth: "2008-03-12",
+      dob: "2008-03-12",
       nationality: "Nigeria",
       stateOfOrigin: "Anambra",
       address: "12 Palm Street, Ikeja",
@@ -41,8 +41,8 @@ export async function GET(req: NextRequest) {
       admissionNumber: "ADM001",
       email: "chinedu.okwu@example.com",
       parentEmail: "emeka.okwu@example.com",
-      phone: "08034567891",
-      secondaryPhone: "08034567891",
+      phoneNumber: "08034567891",
+      secondaryPhoneNumber: "08034567891",
     });
   } else {
     worksheet.columns = [
@@ -50,12 +50,11 @@ export async function GET(req: NextRequest) {
       { header: "lastName", key: "lastName" },
       { header: "middleName", key: "middleName" },
       { header: "gender", key: "gender" },
-      { header: "relationship", key: "relationship" },
       { header: "nationality", key: "nationality" },
       { header: "stateOfOrigin", key: "stateOfOrigin" },
       { header: "address", key: "address" },
       { header: "phoneNumber", key: "phoneNumber" },
-      { header: "secondaryPhoneNumber", key: "secondaryPhoneNumber" },
+      { header: "whatsappNumber", key: "secondaryPhoneNumber" },
       { header: "email", key: "email" },
     ];
 
@@ -67,7 +66,6 @@ export async function GET(req: NextRequest) {
       nationality: "Nigeria",
       stateOfOrigin: "Anambra",
       address: "12 Palm Street, Ikeja",
-      relationship: "FATHER",
       phoneNumber: "08034567891",
       secondaryPhoneNumber: "08034567891",
       email: "chinedu.okwu@example.com",

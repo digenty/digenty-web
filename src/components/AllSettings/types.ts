@@ -11,7 +11,6 @@ export interface AddStaffPayload {
   lastName: string;
   email: string;
   phoneNumber: string;
-  password?: string;
   branchAssignmentDtos: {
     branchId: number;
     roleIds: number[];
