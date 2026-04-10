@@ -29,7 +29,7 @@ export const SearchableSelect = ({
 }: SearchableSelectProps) => {
   const [searchValue, setSearchValue] = useState("");
 
-  const filteredOptions = options.filter(option => option.label.includes(searchValue.toLowerCase()));
+  const filteredOptions = options.filter(option => option.label.toLowerCase().includes(searchValue.toLowerCase()));
   return (
     <Combobox
       value={value}
