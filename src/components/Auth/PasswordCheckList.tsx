@@ -20,27 +20,27 @@ export const PasswordChecklist = ({ password, setIsfulfilled }: { password: stri
   return (
     <div className="grid grid-cols-2 gap-y-1">
       <div className="flex items-center gap-2">
-        {hasASmallLetter(password) ? <CheckIcon className="text-text-success size-4" /> : <XIcon className="text-text-destructive size-4" />}
+        {hasASmallLetter(password) ? <CheckIcon className="text-text-success size-3" /> : <XIcon className="text-text-destructive size-3" />}
         <p className="text-2xs text-text-muted sm:text-xs">At least 1 small letter</p>
       </div>
 
       <div className="flex items-center gap-2">
-        {hasACapitalLetter(password) ? <CheckIcon className="text-text-success size-4" /> : <XIcon className="text-text-destructive size-4" />}
+        {hasACapitalLetter(password) ? <CheckIcon className="text-text-success size-3" /> : <XIcon className="text-text-destructive size-3" />}
         <p className="text-2xs text-text-muted sm:text-xs">At least 1 capital letter</p>
       </div>
 
       <div className="flex items-center gap-2">
-        {hasANumber(password) ? <CheckIcon className="text-text-success size-4" /> : <XIcon className="text-text-destructive size-4" />}
+        {hasANumber(password) ? <CheckIcon className="text-text-success size-3" /> : <XIcon className="text-text-destructive size-3" />}
         <p className="text-2xs text-text-muted sm:text-xs">At least 1 number</p>
       </div>
 
       <div className="flex items-center gap-2">
-        {hasASpecialCharacter(password) ? <CheckIcon className="text-text-success size-4" /> : <XIcon className="text-text-destructive size-4" />}
+        {hasASpecialCharacter(password) ? <CheckIcon className="text-text-success size-3" /> : <XIcon className="text-text-destructive size-3" />}
         <p className="text-2xs text-text-muted sm:text-xs">At least 1 special character</p>
       </div>
 
       <div className="flex items-center gap-2">
-        {is8CharactersLong(password) ? <CheckIcon className="text-text-success size-4" /> : <XIcon className="text-text-destructive size-4" />}
+        {is8CharactersLong(password) ? <CheckIcon className="text-text-success size-3" /> : <XIcon className="text-text-destructive size-3" />}
         <p className="text-2xs text-text-muted sm:text-xs">At least 8 characters</p>
       </div>
     </div>

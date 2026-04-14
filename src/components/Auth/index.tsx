@@ -11,7 +11,7 @@ export const Auth = ({ userType }: { userType: "SCHOOL_STAFF" | "PARENT" }) => {
   return (
     <AuthLayout showNextStep={!!step}>
       <div className="flex h-full flex-col items-center justify-center">
-        <div>
+        <div className={cn("mt-[25%]", step && "mt-0")}>
           <h4 className="text-text-default text-center text-lg font-semibold">
             {step === "signup" ? "Create your account" : step === "login" ? "Welcome Back 👋🏻" : "Log in or Sign up"}
           </h4>
