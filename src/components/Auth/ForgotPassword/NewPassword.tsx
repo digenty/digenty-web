@@ -1,23 +1,24 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { PasswordChecklist } from "../PasswordCheckList";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Modal } from "@/components/Modal";
 import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
-import { useResetPassword } from "@/hooks/queryHooks/useAuth";
-import { resetPasswordSchema } from "@/schema/auth";
-import { toast } from "@/components/Toast";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useFormik } from "formik";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { Modal } from "@/components/Modal";
+import { toast } from "@/components/Toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
+import { useResetPassword } from "@/hooks/queryHooks/useAuth";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { cn } from "@/lib/utils";
+import { resetPasswordSchema } from "@/schema/auth";
+import { useFormik } from "formik";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { PasswordChecklist } from "../PasswordCheckList";
 
-export const NewPassword = () => {
+export const NewPassword = ({ userType }: { userType: "staff" | "parent" }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -31,9 +32,9 @@ export const NewPassword = () => {
 
   const { mutate: resetPassword, isPending } = useResetPassword();
   const isMobile = useIsMobile();
-  useEffect(() => {
-    if (!email) router.push("/auth/staff");
 
+  useEffect(() => {
+    if (!email) router.push(`/auth/${userType}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email]);
 
@@ -45,11 +46,10 @@ export const NewPassword = () => {
       confirmPassword: "",
     },
     validationSchema: resetPasswordSchema,
-    onSubmit: values => {
-      resetPassword(values, {
-        onSuccess: data => {
+    onSubmit: async values => {
+      await resetPassword(values, {
+        onSuccess: () => {
           setOpen(true);
-          toast({ title: "Password Reset", description: data.message, type: "success" });
         },
         onError: error => {
           toast({
@@ -82,6 +82,7 @@ export const NewPassword = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             type={showPassword ? "text" : "password"}
+            placeholder="Enter new password"
             className="text-text-muted flex-1 rounded-l-lg rounded-r-none border-none text-sm font-light shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
           />
           {showPassword ? (
@@ -93,7 +94,7 @@ export const NewPassword = () => {
         {formik.touched.newPassword && formik.errors.newPassword && <p className="text-text-destructive text-xs">{formik.errors.newPassword}</p>}
       </div>
 
-      <div className="text-text-muted text-sm">Password requirements:</div>
+      <div className="text-text-muted text-xs">Password requirements:</div>
 
       <PasswordChecklist password={formik.values.newPassword} setIsfulfilled={setPasswordIsFulfilled} />
 
@@ -112,6 +113,7 @@ export const NewPassword = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             type={showConfirm ? "text" : "password"}
+            placeholder="Confirm password"
             className="text-text-muted flex-1 rounded-l-lg rounded-r-none border-none text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
           />
           {showConfirm ? (
@@ -123,54 +125,56 @@ export const NewPassword = () => {
         {formik.touched.confirmPassword && formik.errors.confirmPassword && (
           <p className="text-text-destructive text-xs">{formik.errors.confirmPassword}</p>
         )}
+
+        {formik.values.confirmPassword !== formik.values.newPassword && (
+          <p className="text-text-destructive text-xs">Confirm password must match new password</p>
+        )}
       </div>
 
       <Button
-        type="submit"
+        type="button"
         disabled={!canSubmit || isPending}
-        // onClick={() => formik.handleSubmit}
-        className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default w-full cursor-pointer rounded-xl transition-opacity disabled:cursor-not-allowed! disabled:opacity-50"
+        onClick={() => formik.handleSubmit()}
+        className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-10! w-full cursor-pointer rounded-md transition-opacity disabled:cursor-not-allowed! disabled:opacity-50"
       >
-        {isPending ? "Resetting..." : "Reset Password"}
+        {isPending && <Spinner className="text-text-white-default" />}
+        Change Password
       </Button>
 
       {open && (
         <>
           {!isMobile ? (
-            <Modal
-              title={null}
-              setOpen={setOpen}
-              open={open}
-              showCloseButton={false}
-              cancelButton={true}
-              ActionButton={
-                <Button
-                  onClick={() => router.push("/auth/staff")}
-                  className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-9 w-full"
-                >
-                  Back to Login
-                </Button>
-              }
-            >
-              <div className="flex flex-col items-center gap-4 p-4">
-                <CheckboxCircleFill fill="var(--color-icon-success)" />
-                <div className="text-text-default text-lg font-semibold">Success!</div>
-                <span className="text-text-muted text-center text-sm">
-                  Your new password has been successfully updated. You can login with your new password.
-                </span>
-              </div>
-            </Modal>
-          ) : (
-            <MobileDrawer title={null} setIsOpen={setOpen} open={open} showCloseButton={false}>
-              <div className="flex flex-col items-center gap-4 p-4">
-                <CheckboxCircleFill fill="var(--color-icon-success)" />
+            <Modal title={null} setOpen={setOpen} open={open} showCloseButton={false} cancelButton={true} className="max-w-110!" showFooter={false}>
+              <div className="flex flex-col items-center gap-4 p-6">
+                <div className="bg-bg-badge-green flex size-10 items-center justify-center rounded-full">
+                  <CheckboxCircleFill fill="var(--color-icon-success)" />
+                </div>
                 <div className="text-text-default text-lg font-semibold">Success!</div>
                 <span className="text-text-muted text-center text-sm">
                   Your new password has been successfully updated. You can login with your new password.
                 </span>
 
                 <Button
-                  onClick={() => router.push("/auth/staff")}
+                  onClick={() => router.push(`/auth/${userType}?step=login`)}
+                  className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-9 w-full"
+                >
+                  Back to Login
+                </Button>
+              </div>
+            </Modal>
+          ) : (
+            <MobileDrawer title={null} setIsOpen={setOpen} open={open} showCloseButton={false}>
+              <div className="flex flex-col items-center gap-4 p-4">
+                <div className="bg-bg-badge-green flex size-10 items-center justify-center rounded-full">
+                  <CheckboxCircleFill fill="var(--color-icon-success)" />
+                </div>
+                <div className="text-text-default text-lg font-semibold">Success!</div>
+                <span className="text-text-muted text-center text-sm">
+                  Your new password has been successfully updated. You can login with your new password.
+                </span>
+
+                <Button
+                  onClick={() => router.push(`/auth/${userType}?step=login`)}
                   className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 w-full"
                 >
                   Back to Login

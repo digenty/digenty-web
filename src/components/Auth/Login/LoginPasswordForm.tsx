@@ -127,12 +127,12 @@ export const LoginPasswordForm = ({ email, userType }: { email: string; userType
             Remember me
           </label>
         </div>
-        <Link href="/forgot-password" className="text-text-informative text-sm font-medium">
-          Forgot Password
+        <Link href="/auth/staff/forgot-password" className="text-text-informative text-sm font-medium">
+          Forgot Password?
         </Link>
       </div>
 
-      <div className="mt-8 space-y-8">
+      <div className="mt-8 space-y-4">
         <Button
           disabled={!formik.values.email || !formik.values.password}
           className="bg-bg-state-primary disabled:bg-bg-state-primary-hover disabled:text-text-white-default hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full"
@@ -140,6 +140,14 @@ export const LoginPasswordForm = ({ email, userType }: { email: string; userType
           {isPending && <Spinner className="text-text-white-default" />}
           Log In
         </Button>
+
+        <div className="flex items-center justify-center gap-2 text-sm">
+          <p className="text-text-muted">Don&apos;t have an account?</p>
+          <Link href={`/auth/${userType === "SCHOOL_STAFF" ? "staff" : "parent"}?step=signup`} className="text-text-informative text-sm font-medium">
+            Sign Up
+          </Link>
+        </div>
+
         <p className="text-text-muted text-center text-xs">
           <button
             type="button"

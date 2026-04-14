@@ -50,7 +50,7 @@ export const EnterEmail = () => {
   return (
     <div className="flex w-full flex-col items-center gap-7">
       <div className="flex flex-col items-center gap-2">
-        <h2 className="text-text-default text-lg font-semibold">Forgot your password?</h2>
+        <h2 className="text-text-default text-lg font-semibold">Forgot password?</h2>
         <p className="text-text-muted text-sm font-normal">Enter your email to reset your password.</p>
       </div>
       <form onSubmit={formik.handleSubmit} className="w-full space-y-6">

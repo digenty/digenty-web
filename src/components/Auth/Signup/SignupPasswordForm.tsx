@@ -15,6 +15,7 @@ import { PasswordChecklist } from "../PasswordCheckList";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LegalModal } from "../LegalModal";
 import { PRIVACY_POLICY, TERMS_AND_CONDITIONS } from "@/constants/legal";
+import Link from "next/link";
 
 export const SignupPasswordForm = ({ email, userType }: { email: string; userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const router = useRouter();
@@ -147,8 +148,14 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
           className="bg-bg-state-primary disabled:bg-bg-state-primary-hover disabled:text-text-white-default hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full"
         >
           {isPending && <Spinner className="text-text-white-default" />}
-          signup
+          Signup
         </Button>
+      </div>
+      <div className="flex items-center justify-center gap-2 text-sm">
+        <p className="text-text-muted">Already have an account?</p>
+        <Link href={`/auth/${userType === "SCHOOL_STAFF" ? "staff" : "parent"}?step=login`} className="text-text-informative text-sm font-medium">
+          Log In
+        </Link>
       </div>
 
       <LegalModal

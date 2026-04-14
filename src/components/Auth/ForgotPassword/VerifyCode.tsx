@@ -107,7 +107,7 @@ export const VerifyCode = () => {
       <p className="text-text-muted text-center text-sm leading-relaxed">
         Enter the 6-digits code sent to your email
         <br />
-        <strong className="font-medium">{email}</strong>
+        <strong className="text-text-default font-medium">{email}</strong>
       </p>
 
       <div className="my-2 flex gap-2.5" onPaste={handlePaste}>
@@ -122,7 +122,7 @@ export const VerifyCode = () => {
             value={digit}
             onChange={e => updateOtp(i, e.target.value)}
             onKeyDown={e => handleKeyDown(i, e)}
-            className={`bg-bg-input-soft text-text-default h-12 w-12 rounded-xl border text-center text-lg font-semibold transition-colors ${digit ? "border-border-informative border-2" : "border-border-default"}`}
+            className={`bg-bg-input-soft text-text-default size-10 rounded-xl text-center text-lg font-normal transition-colors md:size-12 ${digit && "border-ring ring-border-highlight border-none ring-2 ring-offset-1"}`}
           />
         ))}
 
@@ -133,7 +133,7 @@ export const VerifyCode = () => {
       <Button
         disabled={!allFilled || isPending}
         onClick={() => formik.handleSubmit()}
-        className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! w-full rounded-xl py-4 text-base font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+        className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-10! w-full rounded-md py-4 text-base font-semibold disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending && <Spinner className="text-text-white-default" />} Verify
       </Button>

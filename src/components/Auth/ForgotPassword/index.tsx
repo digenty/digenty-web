@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import React from "react";
 import { EnterEmail } from "./EnterEmail";
 import { NewPassword } from "./NewPassword";
@@ -10,7 +10,9 @@ const STEPS = ["enter-email", "verify-code", "new-password", "done"];
 
 export const ForgotPassword = () => {
   const params = useSearchParams();
+  const pathname = usePathname();
   const stepId = params.get("step") || STEPS[0];
+  const userType = pathname.split("/")[2] as "staff" | "parent";
 
   return (
     <div className="">
@@ -19,7 +21,7 @@ export const ForgotPassword = () => {
 
         {stepId === "verify-code" && <VerifyCode />}
 
-        {stepId === "new-password" && <NewPassword />}
+        {stepId === "new-password" && <NewPassword userType={userType} />}
       </div>
     </div>
   );
