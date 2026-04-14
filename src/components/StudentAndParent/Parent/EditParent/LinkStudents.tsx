@@ -23,8 +23,8 @@ export const LinkStudents = ({
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  selectedStudents: { id: number; name: string; avatar: string | null }[];
-  setSelectedStudents: Dispatch<SetStateAction<{ id: number; name: string; avatar: string | null }[]>>;
+  selectedStudents: { id: number; fullName: string; image: string | null }[];
+  setSelectedStudents: Dispatch<SetStateAction<{ id: number; fullName: string; image: string | null }[]>>;
 }) => {
   const [branchSelected, setBranchSelected] = useState<Branch>();
   const { data: branches, isPending: loadingBranches } = useGetBranches();
@@ -92,7 +92,7 @@ export const LinkStudents = ({
                         onCheckedChange={checked => {
                           setSelectedStudents(prev => {
                             if (checked) {
-                              return [...prev, { id: student.id, name: `${student.firstName} ${student.lastName}`, avatar: student.image }];
+                              return [...prev, { id: student.id, fullName: `${student.firstName} ${student.lastName}`, image: student.image }];
                             }
                             return prev.filter(std => std.id !== student.id);
                           });
@@ -124,7 +124,7 @@ export const LinkStudents = ({
                   className="bg-bg-badge-default border-border-default text-text-subtle flex items-center gap-1 rounded-full border p-1 text-xs"
                 >
                   <Avatar className="size-3.5" />
-                  <span>{std.name}</span>
+                  <span>{std.fullName}</span>
                   <XIcon onClick={() => removeStudent(std.id)} className="text-icon-default-muted size-3.5 cursor-pointer" />
                 </div>
               ))}
@@ -211,7 +211,7 @@ export const LinkStudents = ({
                         onCheckedChange={checked => {
                           setSelectedStudents(prev => {
                             if (checked) {
-                              return [...prev, { id: student.id, name: `${student.firstName} ${student.lastName}`, avatar: student.image }];
+                              return [...prev, { id: student.id, fullName: `${student.firstName} ${student.lastName}`, image: student.image }];
                             }
                             return prev.filter(std => std.id !== student.id);
                           });
@@ -243,7 +243,7 @@ export const LinkStudents = ({
                   className="bg-bg-badge-default border-border-default text-text-subtle flex items-center gap-1 rounded-full border p-1 text-xs"
                 >
                   <Avatar className="size-3.5" />
-                  <span>{std.name}</span>
+                  <span>{std.fullName}</span>
                   <XIcon onClick={() => removeStudent(std.id)} className="text-icon-default-muted size-3.5 cursor-pointer" />
                 </div>
               ))}

@@ -27,7 +27,7 @@ export const EditParent = () => {
 
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
-  const [selectedStudents, setSelectedStudents] = useState<{ id: number; name: string; avatar: string | null }[]>([]);
+  const [selectedStudents, setSelectedStudents] = useState<{ id: number; fullName: string; image: string | null }[]>([]);
 
   const [avatar, setAvatar] = useState<string>();
   const [step, setStep] = useState(1);
@@ -86,7 +86,6 @@ export const EditParent = () => {
       );
     },
   });
-  console.log(data);
 
   useEffect(() => {
     if (data) {
