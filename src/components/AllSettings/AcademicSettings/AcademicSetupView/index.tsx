@@ -21,7 +21,7 @@ const tabs = ["School, Session & Term", "Classes & Arms", "Assessment & Grading"
 type Tab = (typeof tabs)[number];
 
 export const AcademicSetupView = () => {
-  const route = useRouter();
+  const router = useRouter();
   useBreadcrumb([
     { label: "Settings", url: "/staff/settings" },
     { label: "Academic", url: "/staff/settings/academic" },
@@ -49,7 +49,7 @@ export const AcademicSetupView = () => {
               <div className="text-text-muted text-xs">You’ve not set up your academic structure. Click below to set it up.</div>
             </div>
             <Button
-              onClick={() => route.push("/staff/settings/academic/academic-setup?step=school-structure")}
+              onClick={() => router.push("/staff/settings/academic/academic-setup?step=school-structure")}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md"
             >
               Set Up <ArrowRightCircleFill fill="var(--color-icon-white-default)" />
@@ -81,7 +81,10 @@ export const AcademicSetupView = () => {
             </SelectContent>
           </Select> */}
 
-                <Button className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default ml-auto h-8! rounded-md text-sm">
+                <Button
+                  onClick={() => router.push("/staff/settings/academic/academic-setup?step=school-structure")}
+                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default ml-auto h-8! rounded-md text-sm"
+                >
                   <AddFill fill="var(--color-icon-white-default)" className="size-3" /> New Session
                 </Button>
               </div>

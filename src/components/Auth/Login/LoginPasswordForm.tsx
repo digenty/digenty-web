@@ -2,6 +2,7 @@
 import { createSession } from "@/app/actions/auth";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
@@ -10,13 +11,14 @@ import { cn } from "@/lib/utils";
 import { authSchema } from "@/schema/auth";
 import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { LegalModal } from "../LegalModal";
 import { PRIVACY_POLICY, TERMS_AND_CONDITIONS } from "@/constants/legal";
 
 export const LoginPasswordForm = ({ email, userType }: { email: string; userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const [showPassword, setShowPassword] = useState(false);
-
+  const [rememberMe, setRememberMe] = useState(false);
   const { mutate, isPending } = useLogin();
   const [legalModal, setLegalModal] = useState<{ open: boolean; title: string; content: string }>({
     open: false,
@@ -113,7 +115,7 @@ export const LoginPasswordForm = ({ email, userType }: { email: string; userType
       </div>
 
       {/* TODO: Uncomment and implement these after first launch */}
-      {/* <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Checkbox
             checked={rememberMe}
@@ -125,12 +127,12 @@ export const LoginPasswordForm = ({ email, userType }: { email: string; userType
             Remember me
           </label>
         </div>
-        <Link href="#" className="text-text-informative text-sm font-medium">
-          Forgot Password
+        <Link href="/auth/staff/forgot-password" className="text-text-informative text-sm font-medium">
+          Forgot Password?
         </Link>
-      </div> */}
+      </div>
 
-      <div className="mt-8 space-y-8">
+      <div className="mt-8 space-y-4">
         <Button
           disabled={!formik.values.email || !formik.values.password}
           className="bg-bg-state-primary disabled:bg-bg-state-primary-hover disabled:text-text-white-default hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full"
@@ -138,6 +140,14 @@ export const LoginPasswordForm = ({ email, userType }: { email: string; userType
           {isPending && <Spinner className="text-text-white-default" />}
           Log In
         </Button>
+
+        <div className="flex items-center justify-center gap-2 text-sm">
+          <p className="text-text-muted">Don&apos;t have an account?</p>
+          <Link href={`/auth/${userType === "SCHOOL_STAFF" ? "staff" : "parent"}?step=signup`} className="text-text-informative text-sm font-medium">
+            Sign Up
+          </Link>
+        </div>
+
         <p className="text-text-muted text-center text-xs">
           <button
             type="button"

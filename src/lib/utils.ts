@@ -98,7 +98,7 @@ export const parseCookieString = (string = "") => {
 
 export const getAcademicYears = (startYear = 2000) => {
   const currentYear = new Date().getFullYear();
-  const endYear = currentYear + 3;
+  const endYear = currentYear + 1;
   const years = [];
 
   for (let year = startYear; year < endYear; year++) {
