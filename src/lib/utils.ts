@@ -170,3 +170,29 @@ export const extractUniqueLevelsByType = (branches: BranchLevels[]) => {
       return orderA - orderB;
     });
 };
+
+export const formatToDynamicRegex = (format: string, padding: number) => {
+  if (format.length <= padding) return null;
+
+  // prefix = leading letters
+  const prefixMatch = format.match(/^[A-Za-z]+/);
+  const prefix = prefixMatch?.[0] || "";
+
+  // serial = last N digits (based on padding)
+  const serial = format.slice(-padding);
+
+  // ensure serial is actually digits
+  if (!/^\d+$/.test(serial)) return null;
+
+  // middle = everything between prefix and serial
+  const middleStart = prefix.length;
+  const middleEnd = format.length - padding;
+  const middle = format.slice(middleStart, middleEnd);
+
+  // build regex
+  const prefixRegex = prefix ? prefix : "[A-Za-z]+";
+  const middleRegex = middle ? `\\d{${middle.length}}` : "";
+  const serialRegex = `\\d{${padding}}`;
+
+  return new RegExp(`^${prefixRegex}${middleRegex}${serialRegex}$`, "i");
+};
