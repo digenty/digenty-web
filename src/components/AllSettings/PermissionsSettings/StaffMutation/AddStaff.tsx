@@ -363,7 +363,9 @@ export const AddStaff = () => {
           <div className="border-border-default border-t p-3">
             <div className="mx-auto flex h-15! w-full items-center justify-center md:max-w-225">
               <div className="flex w-full items-center justify-between">
-                <Button className="bg-bg-state-soft text-text-subtle h-7">Cancel</Button>
+                <Button onClick={() => router.back()} className="bg-bg-state-soft text-text-subtle h-7">
+                  Cancel
+                </Button>
                 <Button
                   onClick={() => formik.handleSubmit()}
                   className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7"

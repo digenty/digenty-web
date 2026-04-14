@@ -245,7 +245,7 @@ const GradingFields = ({ values, handleChange, handleBlur, level, branchId, bran
               {values.grades.map((_, index) => (
                 <div key={index} className="flex flex-col items-center gap-2 md:flex-row">
                   <div className="flex w-full flex-col items-center gap-2 md:w-1/3 md:flex-row">
-                    <div className="flex w-full flex-col gap-2 md:w-17">
+                    <div className="flex w-full flex-col gap-2 md:w-24">
                       <Label className="text-text-muted text-sm">Grade</Label>
                       <div className="bg-bg-input-soft flex h-9 items-center rounded-md px-2">
                         <Input
@@ -263,7 +263,7 @@ const GradingFields = ({ values, handleChange, handleBlur, level, branchId, bran
                     <div className="flex w-full flex-col gap-2">
                       <Label className="text-text-muted text-sm">Score</Label>
                       <div className="flex w-full items-center gap-2">
-                        <div className="bg-bg-input-soft flex h-9 w-full items-center rounded-md px-2 md:w-17">
+                        <div className="bg-bg-input-soft flex h-9 w-full items-center rounded-md px-2 md:w-24">
                           <Input
                             name={`grades.${index}.lowerLimit`}
                             value={values.grades[index].lowerLimit}
@@ -275,7 +275,7 @@ const GradingFields = ({ values, handleChange, handleBlur, level, branchId, bran
                           />
                         </div>
                         <div className="text-text-subtle w-1">-</div>
-                        <div className="bg-bg-input-soft flex h-9 w-full items-center rounded-md px-2 md:w-17">
+                        <div className="bg-bg-input-soft flex h-9 w-full items-center rounded-md px-2 md:w-24">
                           <Input
                             name={`grades.${index}.upperLimit`}
                             value={values.grades[index].upperLimit}
@@ -290,7 +290,7 @@ const GradingFields = ({ values, handleChange, handleBlur, level, branchId, bran
                     </div>
                   </div>
 
-                  <div className="flex w-full flex-col gap-2 md:w-2/3">
+                  <div className="flex w-full flex-col gap-2">
                     <Label className="text-text-muted text-sm">Remark</Label>
 
                     <div className="flex items-center gap-2">

@@ -107,6 +107,17 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
       requiredSubjectIds: exists ? formState.requiredSubjectIds.filter(id => id !== subjectId) : [...formState.requiredSubjectIds, subjectId],
     });
   };
+  const allSelected = subjects.length > 0 && subjects.every(s => formState.requiredSubjectIds.includes(s.id));
+
+  const toggleAllSubjects = () => {
+    if (allSelected) {
+      onChange({ requiredSubjectIds: [] });
+    } else {
+      onChange({
+        requiredSubjectIds: subjects.map(s => s.id),
+      });
+    }
+  };
 
   return (
     <div className="mx-auto flex w-full max-w-171 items-center justify-center">
@@ -212,21 +223,27 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
                   <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
                 ) : (
                   <>
-                    <Select value="" onValueChange={val => onChange({ requiredSubjectIds: [...formState.requiredSubjectIds, Number(val)] })}>
+                    <Select value="">
                       <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
                         <SelectValue placeholder="Select subjects" />
                       </SelectTrigger>
                       <SelectContent className="bg-bg-default border-border-default">
+                        <div
+                          className="hover:bg-bg-input-soft flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2"
+                          onClick={toggleAllSubjects}
+                        >
+                          <Checkbox checked={allSelected} />
+                          <span className="text-text-default text-sm font-medium">Select All</span>
+                        </div>
                         {subjects.map((sub: Subject) => (
-                          <SelectItem
+                          <div
                             key={sub.id}
-                            value={String(sub.id)}
-                            className="text-text-default text-sm capitalize"
-                            onSelect={() => toggleSubject(sub.id)}
+                            className="hover:bg-bg-input-soft text-text-default flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm capitalize"
+                            onClick={() => toggleSubject(sub.id)}
                           >
-                            <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} onChange={() => toggleSubject(sub.id)} />
+                            <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} />
                             {sub.name.toLowerCase()}
-                          </SelectItem>
+                          </div>
                         ))}
                       </SelectContent>
                     </Select>
