@@ -558,6 +558,8 @@ export const ClassQuickSetupSheet = ({
           <p className="text-text-destructive text-xs font-light">{errors.classNamePrefix}</p>
         )}
         <small className="text-text-muted text-xs">Select the label that appears before the class number or type a custom one</small>
+        <br />
+        <small className="text-text-muted text-xs">(eg: Grade 1, Grade 2, Form 1, Form 2, JSS 1, SSS 1 etc.)</small>
       </div>
 
       <div className="border-border-default flex flex-col gap-6 border-b pb-6">
@@ -926,6 +928,24 @@ export const ClassQuickSetupSheet = ({
               </SheetHeader>
 
               {contentNode}
+
+              <div className="border-border-default bg-bg-card flex items-center justify-between border-t px-6 py-4">
+                <Button
+                  onClick={() => setSheetOpen(false)}
+                  variant="outline"
+                  className="bg-bg-state-soft! hover:bg-bg-state-soft! text-text-subtle hover:text-text-subtle h-7 border-none px-2 py-1 text-sm font-medium"
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  onClick={() => setSheetOpen(false)}
+                  variant="outline"
+                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7 border-none px-2 py-1 text-sm font-medium"
+                >
+                  Save
+                </Button>
+              </div>
             </SheetContent>
           </div>
         </Sheet>
@@ -933,8 +953,26 @@ export const ClassQuickSetupSheet = ({
 
       {/* Mobile */}
       {isMobile && (
-        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Quick Setup">
+        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Quick Setup" showCloseButton={true}>
           {contentNode}
+
+          <div className="border-border-default bg-bg-card flex items-center justify-between border-t px-6 py-4">
+            <Button
+              onClick={() => setSheetOpen(false)}
+              variant="outline"
+              className="bg-bg-state-soft! hover:bg-bg-state-soft! text-text-subtle hover:text-text-subtle h-7 border-none px-2 py-1 text-sm font-medium"
+            >
+              Cancel
+            </Button>
+
+            <Button
+              onClick={() => setSheetOpen(false)}
+              variant="outline"
+              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7 border-none px-2 py-1 text-sm font-medium"
+            >
+              Save
+            </Button>
+          </div>
         </MobileDrawer>
       )}
     </div>
