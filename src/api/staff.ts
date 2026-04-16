@@ -74,7 +74,7 @@ export const deleteStaff = async (staffId: number | null) => {
 
 export const deactivateStaff = async (staffId: number | null) => {
   try {
-    const { data } = await api.patch(`/staffs/${staffId}/deactivate`);
+    const { data } = await api.put(`/staffs/${staffId}/deactivate`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
