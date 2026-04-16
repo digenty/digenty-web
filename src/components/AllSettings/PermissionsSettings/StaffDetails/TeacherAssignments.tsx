@@ -205,227 +205,239 @@ export const TeacherAssignments = ({
   const isSubjectBusy = isAssigningSubject || isUpdatingSubject;
 
   return (
-    <div className="flex flex-col gap-6 pb-6">
-      <div className="border-border-default flex w-full flex-col gap-4 rounded-md border p-4 md:p-6">
-        <div className="flex flex-col gap-1">
-          <div className="text-text-default text-lg font-semibold">Teacher Assignments</div>
-          <div className="text-text-subtle text-sm font-normal">Set up {teacherName || "this teacher"} as a class or subject teacher.</div>
-        </div>
+    <div>
+      <div className="flex flex-col gap-6 pb-6 px-4  md:mx-auto md:max-w-250 md:px-8 mb-16">
+        <div className="border-border-default flex w-full flex-col gap-4 rounded-md border p-4 md:p-6">
+          <div className="flex flex-col gap-1">
+            <div className="text-text-default text-lg font-semibold">Teacher Assignments</div>
+            <div className="text-text-subtle text-sm font-normal">Set up {teacherName || "this teacher"} as a class or subject teacher.</div>
+          </div>
 
-        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
+            <div className="border-border-default flex items-center justify-between gap-4 rounded-md border p-2 md:p-4">
+              <div className="flex items-center gap-4">
+                <div className="bg-bg-state-soft-hover rounded-sm p-1">
+                  <Group fill="var(--color-icon-default-subtle)" className="size-6" />
+                </div>
+                <div className="flex flex-col">
+                  <div className="text-text-default text-sm font-medium">Class Teacher</div>
+                  <div className="text-text-muted text-xs">Assign specific classes {teacherName || "this teacher"} will manage</div>
+                </div>
+              </div>
+              <Toggle withBorder={false} checked={isClassTeacher} onChange={handleToggleClassTeacher} />
+            </div>
+
+            {isClassTeacher && (
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-text-default text-sm font-semibold">Class</Label>
+                  <span className="text-text-muted text-xs">You can select more than one</span>
+                </div>
+
+                <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <div className="border-border-default bg-bg-input-soft flex min-h-10 w-full cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm">
+                      <span className="text-text-muted">{selectedArms.length > 0 ? `${selectedArms.length} arms selected` : "Select class"}</span>
+                      <ChevronDown className="text-icon-default-muted size-4" />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="border-border-default bg-bg-default w-full! min-w-(--radix-popover-trigger-width) p-0" align="start">
+                    <div className="flex flex-col">
+                      <div className="border-border-default relative flex items-center border-b px-3 py-2">
+                        <Search className="text-icon-default-muted absolute left-3 size-4" />
+                        <Input
+                          placeholder="Search"
+                          className="placeholder:text-text-muted h-8 border-none bg-transparent pl-7 text-sm focus-visible:ring-0"
+                          value={searchQuery}
+                          onChange={e => setSearchQuery(e.target.value)}
+                        />
+                      </div>
+                      <div className="max-h-60 overflow-y-auto p-1">
+                        {loadingClasses ? (
+                          <div className="text-text-muted p-2 text-center text-xs">Loading classes...</div>
+                        ) : filteredClasses.length === 0 ? (
+                          <div className="text-text-muted p-2 text-center text-xs">No classes found</div>
+                        ) : (
+                          filteredClasses.map((c: ClassType) => (
+                            <ClassArmList
+                              key={c.id}
+                              schoolClass={c}
+                              selectedArms={selectedArms}
+                              onToggleArm={toggleArmSelection}
+                              isExpanded={expandedClasses.includes(c.id)}
+                              onToggleExpand={() => toggleClassExpand(c.id)}
+                            />
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {selectedArms.map(a => (
+                    <Badge
+                      key={a.id}
+                      className="bg-bg-state-secondary border-border-default text-text-default hover:bg-bg-state-secondary-hover flex items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-normal"
+                    >
+                      {a.className} {a.name}
+                      <X className="text-icon-default-muted size-3 cursor-pointer" onClick={() => removeArm(a.id)} />
+                    </Badge>
+                  ))}
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7! w-fit rounded-md px-4"
+                    onClick={handleAssignClassTeacher}
+                    disabled={isClassBusy || selectedArms.length === 0}
+                  >
+                    {isClassBusy && <Loader2 className="mr-2 size-3 animate-spin" />}
+                    {hasExistingClassAssignments ? "Update" : "Assign"}
+                  </Button>
+                </div>
+                <div className="border-border-default my-2 w-full border-b" />
+              </div>
+            )}
+          </div>
+
           <div className="border-border-default flex items-center justify-between gap-4 rounded-md border p-2 md:p-4">
             <div className="flex items-center gap-4">
               <div className="bg-bg-state-soft-hover rounded-sm p-1">
-                <Group fill="var(--color-icon-default-subtle)" className="size-6" />
+                <BookOpen fill="var(--color-icon-default-subtle)" className="size-6" />
               </div>
               <div className="flex flex-col">
-                <div className="text-text-default text-sm font-medium">Class Teacher</div>
-                <div className="text-text-muted text-xs">Assign specific classes {teacherName || "this teacher"} will manage</div>
+                <div className="text-text-default text-sm font-medium">Subject Teacher</div>
+                <div className="text-text-muted text-xs">Assign subjects and select which classes they apply to</div>
               </div>
             </div>
-            <Toggle withBorder={false} checked={isClassTeacher} onChange={handleToggleClassTeacher} />
+            <Toggle withBorder={false} checked={isSubjectTeacher} onChange={handleToggleSubjectTeacher} />
           </div>
 
-          {isClassTeacher && (
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-text-default text-sm font-semibold">Class</Label>
-                <span className="text-text-muted text-xs">You can select more than one</span>
+          {isSubjectTeacher && (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-text-default text-sm font-semibold">Subject</Label>
+                  <span className="text-text-muted text-xs">You can select more than one</span>
+                </div>
+
+                <Popover open={isSubjectPopoverOpen} onOpenChange={setIsSubjectPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <div className="border-border-default bg-bg-input-soft flex min-h-10 w-full cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm">
+                      <span className="text-text-muted">
+                        {selectedSubjects.length > 0 ? `${selectedSubjects.length} subjects selected` : "Select subject"}
+                      </span>
+                      <ChevronDown className="text-icon-default-muted size-4" />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="border-border-default bg-bg-default w-full! min-w-(--radix-popover-trigger-width) p-0" align="start">
+                    <div className="flex flex-col">
+                      <div className="border-border-default relative flex items-center border-b px-3 py-2">
+                        <Search className="text-icon-default-muted absolute left-3 size-4" />
+                        <Input
+                          placeholder="Search"
+                          className="placeholder:text-text-muted h-8 border-none bg-transparent pl-7 text-sm focus-visible:ring-0"
+                          value={subjectSearchQuery}
+                          onChange={e => setSubjectSearchQuery(e.target.value)}
+                        />
+                      </div>
+                      <div className="max-h-60 overflow-y-auto p-1">
+                        {loadingSubjects ? (
+                          <div className="text-text-muted p-2 text-center text-xs">Loading subjects...</div>
+                        ) : filteredSubjects.length === 0 ? (
+                          <div className="text-text-muted p-2 text-center text-xs">No subjects found</div>
+                        ) : (
+                          filteredSubjects.map((s: Levelsubject) => (
+                            <div
+                              key={s.id}
+                              className="hover:bg-bg-state-ghost-hover flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5"
+                              onClick={() => toggleSubjectSelection(s)}
+                            >
+                              <Checkbox
+                                checked={!!selectedSubjects.find(ss => ss.id === s.id)}
+                                className="border-border-darker data-[state=checked]:bg-bg-state-primary data-[state=checked]:text-text-white-default size-4"
+                                onCheckedChange={() => toggleSubjectSelection(s)}
+                              />
+                              <span className="text-text-default text-sm capitalize">{s.name.toLowerCase()}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {selectedSubjects.map(s => (
+                    <Badge
+                      key={s.id}
+                      className="bg-bg-state-secondary border-border-default text-text-default hover:bg-bg-state-secondary-hover flex items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-normal capitalize"
+                    >
+                      {s.name.toLowerCase()}
+                      <X className="text-icon-default-muted size-3 cursor-pointer" onClick={() => removeSubject(s.id)} />
+                    </Badge>
+                  ))}
+                </div>
               </div>
 
-              <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-                <PopoverTrigger asChild>
-                  <div className="border-border-default bg-bg-input-soft flex min-h-10 w-full cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm">
-                    <span className="text-text-muted">{selectedArms.length > 0 ? `${selectedArms.length} arms selected` : "Select class"}</span>
-                    <ChevronDown className="text-icon-default-muted size-4" />
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="border-border-default bg-bg-default w-full! min-w-(--radix-popover-trigger-width) p-0" align="start">
-                  <div className="flex flex-col">
-                    <div className="border-border-default relative flex items-center border-b px-3 py-2">
-                      <Search className="text-icon-default-muted absolute left-3 size-4" />
-                      <Input
-                        placeholder="Search"
-                        className="placeholder:text-text-muted h-8 border-none bg-transparent pl-7 text-sm focus-visible:ring-0"
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    <div className="max-h-60 overflow-y-auto p-1">
-                      {loadingClasses ? (
-                        <div className="text-text-muted p-2 text-center text-xs">Loading classes...</div>
-                      ) : filteredClasses.length === 0 ? (
-                        <div className="text-text-muted p-2 text-center text-xs">No classes found</div>
-                      ) : (
-                        filteredClasses.map((c: ClassType) => (
-                          <ClassArmList
-                            key={c.id}
-                            schoolClass={c}
-                            selectedArms={selectedArms}
-                            onToggleArm={toggleArmSelection}
-                            isExpanded={expandedClasses.includes(c.id)}
-                            onToggleExpand={() => toggleClassExpand(c.id)}
-                          />
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-
-              <div className="mt-1 flex flex-wrap gap-2">
-                {selectedArms.map(a => (
-                  <Badge
-                    key={a.id}
-                    className="bg-bg-state-secondary border-border-default text-text-default hover:bg-bg-state-secondary-hover flex items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-normal"
-                  >
-                    {a.className} {a.name}
-                    <X className="text-icon-default-muted size-3 cursor-pointer" onClick={() => removeArm(a.id)} />
-                  </Badge>
+              <div className="flex flex-col gap-4">
+                {selectedSubjects.map(s => (
+                  <SubjectCard
+                    key={s.id}
+                    subject={s}
+                    selectedArms={subjectArmsMap[s.id] || []}
+                    onToggleArm={(arm, className) => updateSubjectArms(s.id, arm, className)}
+                    classes={filteredClasses}
+                    loadingClasses={loadingClasses}
+                    expandedClasses={expandedClasses}
+                    onToggleExpand={toggleClassExpand}
+                  />
                 ))}
               </div>
 
               <div className="flex justify-end">
                 <Button
                   className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7! w-fit rounded-md px-4"
-                  onClick={handleAssignClassTeacher}
-                  disabled={isClassBusy || selectedArms.length === 0}
+                  onClick={handleAssignSubjectTeacher}
+                  disabled={isSubjectBusy || transformedSubjectArmmap.length === 0}
                 >
-                  {isClassBusy && <Loader2 className="mr-2 size-3 animate-spin" />}
-                  {hasExistingClassAssignments ? "Update" : "Assign"}
+                  {isSubjectBusy && <Loader2 className="mr-2 size-3 animate-spin" />}
+                  {hasExistingSubjectAssignments ? "Update" : "Assign"}
                 </Button>
               </div>
-              <div className="border-border-default my-2 w-full border-b" />
             </div>
           )}
         </div>
 
-        <div className="border-border-default flex items-center justify-between gap-4 rounded-md border p-2 md:p-4">
-          <div className="flex items-center gap-4">
-            <div className="bg-bg-state-soft-hover rounded-sm p-1">
-              <BookOpen fill="var(--color-icon-default-subtle)" className="size-6" />
-            </div>
-            <div className="flex flex-col">
-              <div className="text-text-default text-sm font-medium">Subject Teacher</div>
-              <div className="text-text-muted text-xs">Assign subjects and select which classes they apply to</div>
-            </div>
-          </div>
-          <Toggle withBorder={false} checked={isSubjectTeacher} onChange={handleToggleSubjectTeacher} />
-        </div>
-
-        {isSubjectTeacher && (
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-text-default text-sm font-semibold">Subject</Label>
-                <span className="text-text-muted text-xs">You can select more than one</span>
-              </div>
-
-              <Popover open={isSubjectPopoverOpen} onOpenChange={setIsSubjectPopoverOpen}>
-                <PopoverTrigger asChild>
-                  <div className="border-border-default bg-bg-input-soft flex min-h-10 w-full cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm">
-                    <span className="text-text-muted">
-                      {selectedSubjects.length > 0 ? `${selectedSubjects.length} subjects selected` : "Select subject"}
-                    </span>
-                    <ChevronDown className="text-icon-default-muted size-4" />
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="border-border-default bg-bg-default w-full! min-w-(--radix-popover-trigger-width) p-0" align="start">
-                  <div className="flex flex-col">
-                    <div className="border-border-default relative flex items-center border-b px-3 py-2">
-                      <Search className="text-icon-default-muted absolute left-3 size-4" />
-                      <Input
-                        placeholder="Search"
-                        className="placeholder:text-text-muted h-8 border-none bg-transparent pl-7 text-sm focus-visible:ring-0"
-                        value={subjectSearchQuery}
-                        onChange={e => setSubjectSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    <div className="max-h-60 overflow-y-auto p-1">
-                      {loadingSubjects ? (
-                        <div className="text-text-muted p-2 text-center text-xs">Loading subjects...</div>
-                      ) : filteredSubjects.length === 0 ? (
-                        <div className="text-text-muted p-2 text-center text-xs">No subjects found</div>
-                      ) : (
-                        filteredSubjects.map((s: Levelsubject) => (
-                          <div
-                            key={s.id}
-                            className="hover:bg-bg-state-ghost-hover flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5"
-                            onClick={() => toggleSubjectSelection(s)}
-                          >
-                            <Checkbox
-                              checked={!!selectedSubjects.find(ss => ss.id === s.id)}
-                              className="border-border-darker data-[state=checked]:bg-bg-state-primary data-[state=checked]:text-text-white-default size-4"
-                              onCheckedChange={() => toggleSubjectSelection(s)}
-                            />
-                            <span className="text-text-default text-sm capitalize">{s.name.toLowerCase()}</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-
-              <div className="mt-1 flex flex-wrap gap-2">
-                {selectedSubjects.map(s => (
-                  <Badge
-                    key={s.id}
-                    className="bg-bg-state-secondary border-border-default text-text-default hover:bg-bg-state-secondary-hover flex items-center gap-1 rounded-sm border px-2 py-0.5 text-xs font-normal capitalize"
-                  >
-                    {s.name.toLowerCase()}
-                    <X className="text-icon-default-muted size-3 cursor-pointer" onClick={() => removeSubject(s.id)} />
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              {selectedSubjects.map(s => (
-                <SubjectCard
-                  key={s.id}
-                  subject={s}
-                  selectedArms={subjectArmsMap[s.id] || []}
-                  onToggleArm={(arm, className) => updateSubjectArms(s.id, arm, className)}
-                  classes={filteredClasses}
-                  loadingClasses={loadingClasses}
-                  expandedClasses={expandedClasses}
-                  onToggleExpand={toggleClassExpand}
-                />
-              ))}
-            </div>
-
-            <div className="flex justify-end">
-              <Button
-                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7! w-fit rounded-md px-4"
-                onClick={handleAssignSubjectTeacher}
-                disabled={isSubjectBusy || transformedSubjectArmmap.length === 0}
-              >
-                {isSubjectBusy && <Loader2 className="mr-2 size-3 animate-spin" />}
-                {hasExistingSubjectAssignments ? "Update" : "Assign"}
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
+        {(hasExistingClassAssignments ||
+          hasExistingSubjectAssignments) && (
+            // <div className="border-border-default bottom-0! mx-0 flex w-full items-center justify-between border-t pt-4">
+            //   <Button
+            //     className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-subtle h-9! w-fit rounded-md px-4"
+            //     onClick={() => setShowEdit(false)}
+            //   >
+            //     Cancel
+            //   </Button>
+            //   <Button
+            //     className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-9! w-fit rounded-md px-4"
+            //     onClick={() => setShowEdit(false)}
+            //   >
+            //     Save Changes
+            //   </Button>
+            // </div>
 
-      {hasExistingClassAssignments ||
-        (hasExistingSubjectAssignments && (
-          <div className="border-border-default bottom-0! mx-0 flex w-full items-center justify-between border-t pt-4">
-            <Button
-              className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-subtle h-9! w-fit rounded-md px-4"
-              onClick={() => setShowEdit(false)}
-            >
+            <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
+            <Button onClick={() => setShowEdit(false)} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
               Cancel
             </Button>
-            <Button
-              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-9! w-fit rounded-md px-4"
-              onClick={() => setShowEdit(false)}
-            >
-              Save Changes
+            <Button onClick={() => setShowEdit(false)} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md">
+              {/* {isSubjectBusy && <Loader2 className="text-text-white-default size-4" />} */}
+              Save changes
             </Button>
           </div>
-        ))}
+          )}
     </div>
   );
 };
