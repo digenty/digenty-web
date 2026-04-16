@@ -1,23 +1,23 @@
 import { AllSubjects, Arm, ClassType, Levelsubject } from "@/api/types";
 import BookOpen from "@/components/Icons/BookOpen";
 import Group from "@/components/Icons/Group";
+import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useAssignClassTeacher, useGetClasses, useUpdateTeacherAssignment } from "@/hooks/queryHooks/useClass";
-import { useAssignSubjectTeacher, useGetAllSubjects } from "@/hooks/queryHooks/useSubject";
 import { useGetStaffDetails } from "@/hooks/queryHooks/useStaff";
+import { useUpdateAssignSubjectTeacher } from "@/hooks/queryHooks/useStudent";
+import { useAssignSubjectTeacher, useGetAllSubjects } from "@/hooks/queryHooks/useSubject";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Loader2, Search, X } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { transformSubjectArmMap } from "../utils";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/Toast";
-import { useUpdateAssignSubjectTeacher } from "@/hooks/queryHooks/useStudent";
 
 interface SelectedArm {
   id: number;
@@ -168,6 +168,7 @@ export const TeacherAssignments = ({
         description: `Classes ${hasExistingClassAssignments ? "updated" : "assigned"} for ${teacherName} successfully`,
         type: "success",
       });
+      setShowEdit(false);
     };
     const onError = (error: Error) => {
       toast({ title: "Failed to assign class(es)", description: error.message, type: "error" });
@@ -189,6 +190,7 @@ export const TeacherAssignments = ({
         description: `Subjects ${hasExistingSubjectAssignments ? "updated" : "assigned"} for ${teacherName} successfully`,
         type: "success",
       });
+      setShowEdit(false);
     };
     const onError = (error: Error) => {
       toast({ title: "Failed to assign subject(s)", description: error.message, type: "error" });
@@ -206,7 +208,7 @@ export const TeacherAssignments = ({
 
   return (
     <div>
-      <div className="flex flex-col gap-6 pb-6 px-4  md:mx-auto md:max-w-250 md:px-8 mb-16">
+      <div className="mb-16 flex flex-col gap-6 px-4 pb-6 md:mx-auto md:max-w-250 md:px-8">
         <div className="border-border-default flex w-full flex-col gap-4 rounded-md border p-4 md:p-6">
           <div className="flex flex-col gap-1">
             <div className="text-text-default text-lg font-semibold">Teacher Assignments</div>
@@ -409,35 +411,20 @@ export const TeacherAssignments = ({
             </div>
           )}
         </div>
-
       </div>
-        {(hasExistingClassAssignments ||
-          hasExistingSubjectAssignments) && (
-            // <div className="border-border-default bottom-0! mx-0 flex w-full items-center justify-between border-t pt-4">
-            //   <Button
-            //     className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-subtle h-9! w-fit rounded-md px-4"
-            //     onClick={() => setShowEdit(false)}
-            //   >
-            //     Cancel
-            //   </Button>
-            //   <Button
-            //     className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-9! w-fit rounded-md px-4"
-            //     onClick={() => setShowEdit(false)}
-            //   >
-            //     Save Changes
-            //   </Button>
-            // </div>
-
-            <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
-            <Button onClick={() => setShowEdit(false)} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
-              Cancel
-            </Button>
-            <Button onClick={() => setShowEdit(false)} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md">
-              {/* {isSubjectBusy && <Loader2 className="text-text-white-default size-4" />} */}
-              Save changes
-            </Button>
-          </div>
-          )}
+      {(hasExistingClassAssignments || hasExistingSubjectAssignments) && (
+        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
+          <Button onClick={() => setShowEdit(false)} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => setShowEdit(false)}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
+          >
+            Save changes
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -102,11 +102,9 @@ export const StaffDetails = () => {
   console.log(data?.data);
   // const teacherRoles =
 
-
   const hasExistingAssignments = data?.data?.branches.some(
     (branch: StaffBranch) => branch.subjectTeachings.length > 0 || branch.classTeacherArms.length > 0,
   );
-  console.log(hasExistingAssignments, data?.data?.branches)
 
   return (
     <>
@@ -130,9 +128,8 @@ export const StaffDetails = () => {
         </div>
       )}
 
-      <div>
-      
-        {data && !isPending && !isError && (
+      {data && !isPending && !isError && (
+        <div>
           <div className="flex w-full items-center justify-center px-4 py-4 md:mx-auto md:max-w-250 md:px-8 md:py-6">
             <div className="flex w-full flex-col gap-8">
               <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between md:gap-4">
@@ -155,8 +152,9 @@ export const StaffDetails = () => {
                     </div>
                   </div>
                 </div>
+              </div>
 
-                <div className="hide-scrollbar flex w-screen items-center gap-1 overflow-x-auto md:w-auto md:overflow-x-hidden">
+              <div className="hide-scrollbar flex w-screen items-center gap-1 overflow-x-auto md:w-auto md:overflow-x-hidden">
                   {/* <Button className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border">
                   <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" /> Delete
                 </Button> */}
@@ -329,7 +327,6 @@ export const StaffDetails = () => {
           )}
         </div>
       )}
-      </div>
     </>
   );
 };
