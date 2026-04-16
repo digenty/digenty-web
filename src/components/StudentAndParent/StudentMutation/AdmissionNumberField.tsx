@@ -12,15 +12,21 @@ import { Wand2 } from "lucide-react";
 import { StudentInputValues } from "../types";
 
 export const AdmissionNumberField = ({ formik }: { formik: FormikProps<StudentInputValues> }) => {
-  const { handleBlur, handleChange, errors, touched, values, setFieldValue, setErrors } = formik;
+  const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
   const { mutateAsync: generateMutation, isPending: isGenerating } = useGenerateAdmissionNumber();
   const { data: admissionResponse } = useGetAdmissionNumberDetails();
 
   const admissionFormat = () => {
-    const prefix = admissionResponse?.data?.prefix;
-    const numberFormat = admissionResponse?.data?.numberFormat;
-    const padding = admissionResponse?.data?.padding;
-    const startingNumber = admissionResponse?.data?.startingNumber;
+    const admission = admissionResponse?.data ?? (Array.isArray(admissionResponse) ? admissionResponse[0] : null);
+
+    if (!admission || (!admission.prefix && !admission.startingNumber)) {
+      return "Input Admission Number";
+    }
+
+    const prefix = admission.prefix || "";
+    const numberFormat = admission.numberFormat || "";
+    const padding = admission.padding || 0;
+    const startingNumber = admission.startingNumber || 0;
 
     const seq = String(parseInt(startingNumber) || 1).padStart(Number(padding) || 2, "0");
     return `${prefix}${numberFormat}${seq}`;
@@ -56,12 +62,12 @@ export const AdmissionNumberField = ({ formik }: { formik: FormikProps<StudentIn
         <Input
           id="admissionNumber"
           onChange={handleChange}
-          placeholder={admissionFormat() || "GFA/2023/01045"}
+          placeholder={admissionFormat()}
           onBlur={handleBlur}
           value={values.admissionNumber}
           type="text"
           className={cn(
-            "text-text-muted bg-bg-input-soft! placeholder-text-hint! border-none text-sm font-normal",
+            "text-text-muted bg-bg-input-soft! placeholder:text-text-hint border-none text-sm font-normal",
             errors.admissionNumber && touched.admissionNumber && "border-border-destructive border",
           )}
         />
@@ -78,7 +84,7 @@ export const AdmissionNumberField = ({ formik }: { formik: FormikProps<StudentIn
               {isGenerating ? <Spinner className="text-text-muted h-4 w-4" /> : <Wand2 className="text-text-muted h-4 w-4" />}
             </Button>
           }
-          description="auto generate admission number"
+          description="Auto generate admission number"
           side="top"
         />
       </div>

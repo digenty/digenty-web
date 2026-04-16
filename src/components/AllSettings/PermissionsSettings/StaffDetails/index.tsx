@@ -1,9 +1,9 @@
 "use client";
 
+import { StaffBranch } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import Building from "@/components/Icons/Building";
-import Edit from "@/components/Icons/Edit";
 import Mail from "@/components/Icons/Mail";
 import { Phone } from "@/components/Icons/Phone";
 import { UserForbid } from "@/components/Icons/UserForbid";
@@ -16,9 +16,7 @@ import { useDeactivateStaff, useGetStaffDetails } from "@/hooks/queryHooks/useSt
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useStaffStore } from "@/store/staff";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
 import { DeactivateStaffModal } from "./DeactivateStaffModal";
-import { StaffBranch } from "@/api/types";
 import { TeacherAssignments } from "./TeacherAssignments";
 
 export const StaffDetails = () => {
@@ -37,6 +35,10 @@ export const StaffDetails = () => {
 
   const { data, isPending, isError } = useGetStaffDetails(Number(staffId));
   const { mutate, isPending: deactivating } = useDeactivateStaff(Number(staffId));
+
+  const getAllRoleNames = (branches: StaffBranch[]): string[] => {
+    return branches.flatMap(branch => branch.roleNames || []);
+  };
 
   const deactivateStaff = () => {
     mutate(undefined, {
@@ -57,6 +59,8 @@ export const StaffDetails = () => {
       },
     });
   };
+  console.log(data?.data);
+  // const teacherRoles =
 
   return (
     <>
@@ -88,25 +92,26 @@ export const StaffDetails = () => {
                 <Avatar className="size-14 md:size-26" />
 
                 <div className="flex flex-col gap-1 md:gap-2">
-                  <div className="flex items-center gap-1">
+                  <div className="flex flex-col items-start gap-1 md:flex-row md:items-center">
                     <span className="text-text-default w-40 truncate text-lg font-semibold sm:w-auto">{data.data.fullname}</span>
-                    {data.data.branches
-                      .map((branch: StaffBranch) => (
+
+                    <div className="flex flex-wrap gap-2">
+                      {getAllRoleNames(data?.data?.branches).map((role: string) => (
                         <Badge
-                          key={branch.branchId}
-                          className="bg-bg-badge-lime border-border-default text-bg-basic-lime-strong flex-1 rounded-md border text-xs font-medium"
+                          key={role}
+                          className="bg-bg-badge-lime border-border-default text-bg-basic-lime-strong rounded-md border text-xs font-medium"
                         >
-                          {branch.roleNames[0] || "No role assigned yet"}
+                          {role}
                         </Badge>
-                      ))
-                      .slice(0, 1)}
+                      ))}
+                    </div>
                   </div>
                   <div className="text-text-subtle text-xs">{data.data.email}</div>
                   {data.data.status ? getStatusBadge(data.data.status.toLowerCase()) : "--"}
                 </div>
               </div>
 
-              <div className="hide-scrollbar flex w-screen items-center gap-1 overflow-x-auto md:w-auto md:overflow-x-hidden">
+              <div className="hide-scrollbar flex items-center gap-1 overflow-x-auto md:w-auto md:overflow-x-hidden">
                 {/* <Button className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border">
                 <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" /> Delete
               </Button> */}
@@ -130,27 +135,27 @@ export const StaffDetails = () => {
 
             <div className="bg-bg-muted border-border-default rounded-md border px-2 text-sm md:px-6">
               <div className="border-border-default flex items-center justify-between gap-2 border-b py-4">
-                <div className="flex flex-1 items-center gap-2">
+                <div className="flex w-1/2 items-center gap-2">
                   <Building fill="var(--color-icon-default-muted)" />
                   <div className="text-text-muted">Branch</div>
                 </div>
-                <div className="text-text-default max-w-1/3 truncate text-right font-medium">
+                <div className="text-text-default w-1/2 truncate text-right font-medium">
                   {data.data.branches.map((branch: StaffBranch) => branch.branchName).join(", ")}
                 </div>
               </div>
               <div className="border-border-default flex items-center justify-between gap-2 border-b py-4">
-                <div className="flex flex-1 items-center gap-2">
+                <div className="flex w-1/2 items-center gap-2">
                   <Mail fill="var(--color-icon-default-muted)" />
                   <div className="text-text-muted">Email Address</div>
                 </div>
-                <div className="text-text-informative max-w-1/3 truncate text-right font-medium">{data.data.email}</div>
+                <div className="text-text-informative w-1/2 truncate text-right font-medium">{data.data.email}</div>
               </div>
               <div className="flex items-center justify-between gap-2 py-4">
-                <div className="flex flex-1 items-center gap-2">
+                <div className="flex w-1/2 items-center gap-2">
                   <Phone fill="var(--color-icon-default-muted)" />
                   <div className="text-text-muted">Primary Phone Number</div>
                 </div>
-                <div className="text-text-informative max-w-1/3 truncate text-right font-medium">{data.data.phoneNumber}</div>
+                <div className="text-text-informative w-1/2 truncate text-right font-medium">{data.data.phoneNumber}</div>
               </div>
             </div>
 
