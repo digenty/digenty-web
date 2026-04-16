@@ -21,7 +21,6 @@ import BookOpen from "@/components/Icons/BookOpen";
 import CalendarCheck from "@/components/Icons/CalendarCheck";
 import ColorFilter from "@/components/Icons/ColorFilter";
 import { DoorOpen } from "@/components/Icons/DoorOpen";
-import Edit from "@/components/Icons/Edit";
 import FileList2 from "@/components/Icons/FileList2";
 import FileList3 from "@/components/Icons/FileList3";
 import { Gift2 } from "@/components/Icons/Gift2";
@@ -35,8 +34,8 @@ import Settings4 from "@/components/Icons/Settings4";
 import { Shield } from "@/components/Icons/Shield";
 import Store3 from "@/components/Icons/Store3";
 import Wallet from "@/components/Icons/Wallet";
-import { useState } from "react";
 import { DeactivateStaffModal } from "./DeactivateStaffModal";
+import Edit from "@/components/Icons/Edit";
 
 const permissionIcons = {
   "Student & Parent Records": Group,
@@ -68,8 +67,6 @@ export const StaffDetails = () => {
     { label: "Staff", url: "/staff/settings/permissions?tab=staff" },
     { label: "Staff Details", url: "" },
   ]);
-
-  const [showEdit, setShowEdit] = useState(false);
 
   const { openDeactivation, setOpenDeactivation, setStaffIdToDeactivate } = useStaffStore();
 
@@ -132,32 +129,30 @@ export const StaffDetails = () => {
         <div>
           <div className="flex w-full items-center justify-center px-4 py-4 md:mx-auto md:max-w-250 md:px-8 md:py-6">
             <div className="flex w-full flex-col gap-8">
+              
               <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between md:gap-4">
                 <div className="flex items-center gap-2">
                   <Avatar className="size-14 md:size-26" />
 
-                <div className="flex flex-col gap-1 md:gap-2">
-                  <div className="flex flex-col items-start gap-1 md:flex-row md:items-center">
-                    <span className="text-text-default w-40 truncate text-lg font-semibold sm:w-auto">{data.data.fullname}</span>
+                  <div className="flex flex-col gap-1 md:gap-2">
+                    <div className="flex flex-col items-start gap-1 md:flex-row md:items-center">
+                      <span className="text-text-default w-40 truncate text-lg font-semibold sm:w-auto">{data.data.fullname}</span>
 
-                    <div className="flex flex-wrap gap-2">
-                      {getAllRoleNames(data?.data?.branches).map((role: string) => (
-                        <Badge
-                          key={role}
-                          className="bg-bg-badge-lime border-border-default text-bg-basic-lime-strong rounded-md border text-xs font-medium"
-                        >
-                          {role}
-                        </Badge>
-                      ))}
+                      <div className="flex flex-wrap gap-2">
+                        {getAllRoleNames(data?.data?.branches).map((role: string) => (
+                          <Badge
+                            key={role}
+                            className="bg-bg-badge-lime border-border-default text-bg-basic-lime-strong rounded-md border text-xs font-medium"
+                          >
+                            {role}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="hide-scrollbar flex w-screen items-center gap-1 overflow-x-auto md:w-auto md:overflow-x-hidden">
-                  {/* <Button className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border">
-                  <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" /> Delete
-                </Button> */}
+                <div className="hide-scrollbar flex items-center gap-1 overflow-x-auto md:w-auto md:overflow-x-hidden">
                   <Button
                     onClick={() => {
                       setOpenDeactivation(true);
@@ -175,38 +170,34 @@ export const StaffDetails = () => {
                   </Button>
                 </div>
               </div>
- <div className="bg-bg-muted border-border-default rounded-md border px-2 text-sm md:px-6">
+
+              <div className="bg-bg-muted border-border-default rounded-md border px-2 text-sm md:px-6">
                 <div className="border-border-default flex items-center justify-between gap-2 border-b py-4">
-                  <div className="flex flex-1 items-center gap-2">
+                  <div className="flex w-1/2 flex-1 items-center gap-2">
                     <Building fill="var(--color-icon-default-muted)" />
                     <div className="text-text-muted">Branch</div>
                   </div>
-                  <div className="text-text-default max-w-1/3 truncate text-right font-medium">
+                  <div className="text-text-default w-1/2 truncate text-right font-medium">
                     {data.data.branches.map((branch: StaffBranch) => branch.branchName).join(", ")}
                   </div>
                 </div>
                 <div className="border-border-default flex items-center justify-between gap-2 border-b py-4">
-                  <div className="flex flex-1 items-center gap-2">
+                  <div className="flex w-1/2 flex-1 items-center gap-2">
                     <Mail fill="var(--color-icon-default-muted)" />
                     <div className="text-text-muted">Email Address</div>
                   </div>
-                  <div className="text-text-informative max-w-1/3 truncate text-right font-medium">{data.data.email}</div>
+                  <div className="text-text-informative w-1/2 truncate text-right font-medium">{data.data.email}</div>
                 </div>
                 <div className="flex items-center justify-between gap-2 py-4">
-                  <div className="flex flex-1 items-center gap-2">
+                  <div className="flex w-1/2 flex-1 items-center gap-2">
                     <Phone fill="var(--color-icon-default-muted)" />
                     <div className="text-text-muted">Primary Phone Number</div>
                   </div>
-                  <div className="text-text-informative max-w-1/3 truncate text-right font-medium">{data.data.phoneNumber}</div>
+                  <div className="text-text-informative w-1/2 truncate text-right font-medium">{data.data.phoneNumber}</div>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* {!hasExistingAssignments && (
-            <>{<TeacherAssignments teacherName={data.data.fullname} staffId={Number(staffId)} setShowEdit={setShowEdit} />}</>
-          )}
-          {showEdit && <>{<TeacherAssignments teacherName={data.data.fullname} staffId={Number(staffId)} setShowEdit={setShowEdit} />}</>} */}
 
           {hasExistingAssignments && (
             <div className="flex flex-col gap-8 px-4 py-4 md:mx-auto md:max-w-250 md:px-8">

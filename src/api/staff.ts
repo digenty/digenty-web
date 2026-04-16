@@ -2,9 +2,9 @@ import { AddStaffPayload, UpdateStaffPayload } from "@/components/AllSettings/ty
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
-export const updateStaff = async (payload: UpdateStaffPayload) => {
+export const updateStaff = async ({ payload, staffId }: { payload: AddStaffPayload; staffId: number }) => {
   try {
-    const { data } = await api.put("/staffs", payload);
+    const { data } = await api.put(`/staffs/${staffId}`, payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
