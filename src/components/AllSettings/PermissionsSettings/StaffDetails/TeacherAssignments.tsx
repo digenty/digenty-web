@@ -8,14 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
-import { useAssignClassTeacher, useGetClasses } from "@/hooks/queryHooks/useClass";
+import { useAssignClassTeacher, useGetClasses, useUpdateTeacherAssignment } from "@/hooks/queryHooks/useClass";
 import { useAssignSubjectTeacher, useGetAllSubjects } from "@/hooks/queryHooks/useSubject";
+import { useGetStaffDetails } from "@/hooks/queryHooks/useStaff";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Loader2, Search, X } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { transformSubjectArmMap } from "../utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/Toast";
+import { useUpdateAssignSubjectTeacher } from "@/hooks/queryHooks/useStudent";
 
 interface SelectedArm {
   id: number;
@@ -23,7 +25,15 @@ interface SelectedArm {
   className: string;
 }
 
-export const TeacherAssignments = ({ teacherName, staffId }: { teacherName: string; staffId: number }) => {
+export const TeacherAssignments = ({
+  teacherName,
+  staffId,
+  setShowEdit,
+}: {
+  teacherName: string;
+  staffId: number;
+  setShowEdit: (show: boolean) => void;
+}) => {
   const [isClassTeacher, setIsClassTeacher] = useState(false);
   const [selectedArms, setSelectedArms] = useState<SelectedArm[]>([]);
   const [isSubjectTeacher, setIsSubjectTeacher] = useState(false);
@@ -35,13 +45,61 @@ export const TeacherAssignments = ({ teacherName, staffId }: { teacherName: stri
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isSubjectPopoverOpen, setIsSubjectPopoverOpen] = useState(false);
 
+  const { data: staffData } = useGetStaffDetails(staffId);
   const { data: classesData, isPending: loadingClasses } = useGetClasses();
   const { data: subjectsData, isPending: loadingSubjects } = useGetAllSubjects();
 
   const { mutate: assignClassTeacher, isPending: isAssigningClass } = useAssignClassTeacher();
   const { mutate: assignSubjectTeacher, isPending: isAssigningSubject } = useAssignSubjectTeacher();
+  const { mutate: updateClassTeacher, isPending: isUpdatingClass } = useUpdateTeacherAssignment();
+  const { mutate: updateSubjectTeacher, isPending: isUpdatingSubject } = useUpdateAssignSubjectTeacher();
 
   const transformedSubjectArmmap = useMemo(() => transformSubjectArmMap(subjectArmsMap), [subjectArmsMap]);
+
+  const branchData = staffData?.data?.branches?.[0];
+  const existingClassArms: SelectedArm[] = useMemo(() => {
+    return (
+      branchData?.classTeacherArms?.map((a: { armId: number; armName: string }) => ({
+        id: a.armId,
+        name: a.armName,
+        className: "",
+      })) ?? []
+    );
+  }, [branchData]);
+
+  const existingSubjectTeachings = useMemo(() => branchData?.subjectTeachings ?? [], [branchData]);
+
+  const hasExistingClassAssignments = existingClassArms.length > 0;
+  const hasExistingSubjectAssignments = existingSubjectTeachings.length > 0;
+
+  useEffect(() => {
+    if (existingClassArms.length > 0) {
+      setIsClassTeacher(true);
+      setSelectedArms(existingClassArms);
+    }
+  }, [existingClassArms]);
+
+  useEffect(() => {
+    if (existingSubjectTeachings.length > 0) {
+      setIsSubjectTeacher(true);
+
+      const subjects: Levelsubject[] = existingSubjectTeachings.map((s: { subjectId: number; subjectName: string }) => ({
+        id: s.subjectId,
+        name: s.subjectName,
+      }));
+      setSelectedSubjects(subjects);
+
+      const armsMap: Record<number, SelectedArm[]> = {};
+      existingSubjectTeachings.forEach((s: { subjectId: number; arms: { armId: number; armName: string }[] }) => {
+        armsMap[s.subjectId] = s.arms.map(a => ({
+          id: a.armId,
+          name: a.armName,
+          className: "",
+        }));
+      });
+      setSubjectArmsMap(armsMap);
+    }
+  }, [existingSubjectTeachings]);
 
   const handleToggleClassTeacher = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsClassTeacher(e.target.checked);
@@ -80,15 +138,9 @@ export const TeacherAssignments = ({ teacherName, staffId }: { teacherName: stri
     const currentArms = subjectArmsMap[subjectId] || [];
     const isSelected = currentArms.find(a => a.id === arm.id);
     if (isSelected) {
-      setSubjectArmsMap({
-        ...subjectArmsMap,
-        [subjectId]: currentArms.filter(a => a.id !== arm.id),
-      });
+      setSubjectArmsMap({ ...subjectArmsMap, [subjectId]: currentArms.filter(a => a.id !== arm.id) });
     } else {
-      setSubjectArmsMap({
-        ...subjectArmsMap,
-        [subjectId]: [...currentArms, { id: arm.id, name: arm.name, className }],
-      });
+      setSubjectArmsMap({ ...subjectArmsMap, [subjectId]: [...currentArms, { id: arm.id, name: arm.name, className }] });
     }
   };
 
@@ -108,50 +160,49 @@ export const TeacherAssignments = ({ teacherName, staffId }: { teacherName: stri
     subjectsData?.data?.data?.filter((s: AllSubjects) => s.name.toLowerCase().includes(subjectSearchQuery.toLowerCase())) || [];
 
   const handleAssignClassTeacher = () => {
-    const payload = {
-      armDtos: selectedArms.map(arm => ({ armId: arm.id })),
-      teacherId: staffId,
+    const payload = { armDtos: selectedArms.map(arm => ({ armId: arm.id })), teacherId: staffId };
+
+    const onSuccess = () => {
+      toast({
+        title: "Operation successful",
+        description: `Classes ${hasExistingClassAssignments ? "updated" : "assigned"} for ${teacherName} successfully`,
+        type: "success",
+      });
     };
-    assignClassTeacher(payload, {
-      onSuccess: () => {
-        toast({
-          title: "Operation successful",
-          description: `Classes assigned to ${teacherName} successfully`,
-          type: "success",
-        });
-      },
-      onError: error => {
-        toast({
-          title: "Failed to assign class(es)",
-          description: error.message,
-          type: "error",
-        });
-      },
-    });
+    const onError = (error: Error) => {
+      toast({ title: "Failed to assign class(es)", description: error.message, type: "error" });
+    };
+
+    if (hasExistingClassAssignments) {
+      updateClassTeacher(payload, { onSuccess, onError });
+    } else {
+      assignClassTeacher(payload, { onSuccess, onError });
+    }
   };
 
   const handleAssignSubjectTeacher = () => {
-    const payload = {
-      subjectArmAndClassDtos: transformedSubjectArmmap,
-      teacherId: staffId,
+    const payload = { subjectArmAndClassDtos: transformedSubjectArmmap, teacherId: staffId };
+
+    const onSuccess = () => {
+      toast({
+        title: "Operation successful",
+        description: `Subjects ${hasExistingSubjectAssignments ? "updated" : "assigned"} for ${teacherName} successfully`,
+        type: "success",
+      });
     };
-    assignSubjectTeacher(payload, {
-      onSuccess: () => {
-        toast({
-          title: "Operation successful",
-          description: `Subjects assigned to ${teacherName} successfully`,
-          type: "success",
-        });
-      },
-      onError: error => {
-        toast({
-          title: "Failed to assign subject(s)",
-          description: error.message,
-          type: "error",
-        });
-      },
-    });
+    const onError = (error: Error) => {
+      toast({ title: "Failed to assign subject(s)", description: error.message, type: "error" });
+    };
+
+    if (hasExistingSubjectAssignments) {
+      updateSubjectTeacher(payload, { onSuccess, onError });
+    } else {
+      assignSubjectTeacher(payload, { onSuccess, onError });
+    }
   };
+
+  const isClassBusy = isAssigningClass || isUpdatingClass;
+  const isSubjectBusy = isAssigningSubject || isUpdatingSubject;
 
   return (
     <div className="flex flex-col gap-6 pb-6">
@@ -172,10 +223,7 @@ export const TeacherAssignments = ({ teacherName, staffId }: { teacherName: stri
                 <div className="text-text-muted text-xs">Assign specific classes {teacherName || "this teacher"} will manage</div>
               </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <Toggle withBorder={false} checked={isClassTeacher} onChange={handleToggleClassTeacher} />
-            </div>
+            <Toggle withBorder={false} checked={isClassTeacher} onChange={handleToggleClassTeacher} />
           </div>
 
           {isClassTeacher && (
@@ -241,13 +289,13 @@ export const TeacherAssignments = ({ teacherName, staffId }: { teacherName: stri
                 <Button
                   className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7! w-fit rounded-md px-4"
                   onClick={handleAssignClassTeacher}
-                  disabled={isAssigningClass || selectedArms.length === 0}
+                  disabled={isClassBusy || selectedArms.length === 0}
                 >
-                  {isAssigningClass && <Loader2 className="mr-2 size-3 animate-spin" />}
-                  Assign
+                  {isClassBusy && <Loader2 className="mr-2 size-3 animate-spin" />}
+                  {hasExistingClassAssignments ? "Update" : "Assign"}
                 </Button>
               </div>
-              <div className="border-border-default my-2 w-full border-b"></div>
+              <div className="border-border-default my-2 w-full border-b" />
             </div>
           )}
         </div>
@@ -262,9 +310,7 @@ export const TeacherAssignments = ({ teacherName, staffId }: { teacherName: stri
               <div className="text-text-muted text-xs">Assign subjects and select which classes they apply to</div>
             </div>
           </div>
-          <div className="flex items-center">
-            <Toggle withBorder={false} checked={isSubjectTeacher} onChange={handleToggleSubjectTeacher} />
-          </div>
+          <Toggle withBorder={false} checked={isSubjectTeacher} onChange={handleToggleSubjectTeacher} />
         </div>
 
         {isSubjectTeacher && (
@@ -353,38 +399,33 @@ export const TeacherAssignments = ({ teacherName, staffId }: { teacherName: stri
               <Button
                 className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7! w-fit rounded-md px-4"
                 onClick={handleAssignSubjectTeacher}
-                disabled={isAssigningSubject || transformedSubjectArmmap.length === 0}
+                disabled={isSubjectBusy || transformedSubjectArmmap.length === 0}
               >
-                {isAssigningSubject && <Loader2 className="mr-2 size-3 animate-spin" />}
-                Assign
+                {isSubjectBusy && <Loader2 className="mr-2 size-3 animate-spin" />}
+                {hasExistingSubjectAssignments ? "Update" : "Assign"}
               </Button>
             </div>
           </div>
         )}
       </div>
 
-      {/* <div className="border-border-default bg-bg-basic-blue-subtle flex flex-col gap-2 rounded-md border px-5 py-3">
-        <div className="text-text-subtle text-sm font-semibold">Automatic Academic Permissions</div>
-        <div className="text-text-subtle text-xs">Once assignments are made, the following permissions are automatically granted:</div>
-        <ul className="flex list-disc flex-col gap-2 pl-4">
-          <li className="text-text-subtle">
-            <span className="text-text-subtle text-xs font-semibold"> Class Teachers:</span>{" "}
-            <span className="text-text-subtle text-xs font-normal">View results, input scores, and comment on results for assigned classes</span>
-          </li>
-
-          <li className="text-text-subtle">
-            <span className="text-text-subtle text-xs font-semibold"> Subject Teachers:</span>{" "}
-            <span className="text-text-subtle text-xs font-normal">
-              View results, input scores, and comment on results for assigned subjects and classes
-            </span>
-          </li>
-
-          <li className="text-text-subtle">
-            <span className="text-text-subtle text-xs font-semibold">  Principals/Admins:</span>{" "}
-            <span className="text-text-subtle text-xs font-normal">All academic permissions including approval rights</span>
-          </li>
-        </ul>
-      </div> */}
+      {hasExistingClassAssignments ||
+        (hasExistingSubjectAssignments && (
+          <div className="border-border-default bottom-0! mx-0 flex w-full items-center justify-between border-t pt-4">
+            <Button
+              className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-subtle h-9! w-fit rounded-md px-4"
+              onClick={() => setShowEdit(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-9! w-fit rounded-md px-4"
+              onClick={() => setShowEdit(false)}
+            >
+              Save Changes
+            </Button>
+          </div>
+        ))}
     </div>
   );
 };

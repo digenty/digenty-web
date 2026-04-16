@@ -14,7 +14,9 @@ import {
   setPromotionDecision,
   submitClassReport,
   updateClass,
+  updateAssignClassTeacher,
 } from "@/api/class";
+import { updateAssignSubjectTeacher } from "@/api/subject";
 import { branchKeys } from "@/queries/branch";
 
 import { classKeys } from "@/queries/class";
@@ -160,6 +162,17 @@ export const useUpdateClass = () => {
       queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
       queryClient.invalidateQueries({ queryKey: [classKeys.classes] });
       queryClient.invalidateQueries({ queryKey: [classKeys.class] });
+    },
+  });
+};
+
+export const useUpdateTeacherAssignment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: classKeys.updateTeacherAssignment,
+    mutationFn: (payload: { teacherId: number; armDtos: { armId: number }[] }) => updateAssignClassTeacher(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [classKeys.updateTeacherAssignment] });
     },
   });
 };

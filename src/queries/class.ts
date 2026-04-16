@@ -15,4 +15,5 @@ export const classKeys = {
   requiredSubjectReport: (armId: number) => ["requiredSubjectReport", armId] as const,
   updateClass: "updateClass",
   assignClassTeacher: "assignClassTeacher",
+  updateTeacherAssignment: ["updateTeacherAssignment"] as const,
 };
