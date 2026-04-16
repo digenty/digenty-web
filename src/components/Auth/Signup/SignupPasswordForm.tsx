@@ -56,7 +56,7 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
           },
           onError: error => {
             toast({
-              title: error.message ?? "Something went wrong",
+              title: error?.message ?? "Something went wrong",
               description: "Could not sign you up",
               type: "error",
             });

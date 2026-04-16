@@ -46,8 +46,10 @@ export const AllClassesMain = () => {
     data,
     isPending: isFetchingBranch,
     isError,
+    error,
   } = useGetBranchDetails(activeBranchId!, termSelected?.termId, debouncedSearchQuery, levelSelected?.id); // Add leveId to this query levelSelected?.ids[0]
   const branchDetail = data?.data?.data;
+  console.log(data?.data, "@@@", error);
 
   const tableData: AllClassesMainTableProps[] =
     branchDetail?.branchArmReportResponseDtos?.map((arm: BranchArmReport) => ({

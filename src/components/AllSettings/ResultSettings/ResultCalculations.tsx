@@ -94,6 +94,7 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
 
 const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, isPending }: LevelFormProps) => {
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
   const { data: subjectsData, isLoading: isLoadingSubjects } = useGetSubjectsByLevel(levelType);
   const { data: gradingsData, isLoading: isLoadingGradings } = useGetGradingsByLevel(levelId);
 
@@ -109,202 +110,214 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-171 items-center justify-center">
-      <div className="flex w-full flex-col gap-6">
-        <div className="flex justify-between">
-          <div className="text-text-default text-xl font-semibold">Result Calculation</div>
-          <Button className="text-text-default border-border-darker h-8! rounded-md border">
-            <Edit fill="var(--color-icon-default-muted)" /> Edit
-          </Button>
-        </div>
-
-        <div>
-          <div className="text-text-default text-md font-semibold">Result Calculation Method</div>
-          <div className="text-text-muted text-sm">Choose how the final results are calculated.</div>
-        </div>
-        <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-6">
-          <div className="flex items-start gap-2">
-            <RoundedCheckbox
-              checked={formState.calculationMethod === "THIRD_TERM_ONLY"}
-              onChange={() => onChange({ calculationMethod: "THIRD_TERM_ONLY" })}
-            />
-            <div className="flex flex-col gap-1">
-              <div className="text-text-default text-sm">Third Term Only</div>
-              <div className="text-text-subtle text-sm">Use only the 3rd term scores for final results.</div>
-            </div>
+    <div>
+      <div className="mx-auto flex w-full max-w-171 items-center justify-center pb-20">
+        <div className="flex w-full flex-col gap-6">
+          <div className="flex justify-between">
+            <div className="text-text-default text-xl font-semibold">Result Calculation</div>
+            {!isEditing && (
+              <Button onClick={() => setIsEditing(true)} className="text-text-default border-border-darker h-8! rounded-md border">
+                <Edit fill="var(--color-icon-default-muted)" /> Edit
+              </Button>
+            )}
           </div>
-          <div className="flex items-start gap-2">
-            <RoundedCheckbox checked={formState.calculationMethod === "CUMULATIVE"} onChange={() => onChange({ calculationMethod: "CUMULATIVE" })} />
-            <div className="flex flex-col gap-1">
-              <div className="text-text-default text-sm">Cumulative Average</div>
-              <div className="text-text-subtle text-sm">Combine all terms (1st, 2nd, and 3rd) to calculate an overall average.</div>
-            </div>
-          </div>
-        </div>
 
-        <div className="flex flex-col gap-1">
-          <div className="text-text-default text-md font-semibold">Promotion Rules</div>
-          <div className="text-text-muted text-sm">Decide how students are promoted at the end of the session.</div>
-        </div>
-        <div className="bg-bg-card border-border-darker flex flex-col gap-6 rounded-md border p-6">
-          <div className="flex items-start gap-2">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <RoundedCheckbox checked={formState.promotionType === "PROMOTE_ALL"} onChange={() => onChange({ promotionType: "PROMOTE_ALL" })} />
-                <div className="text-text-default text-sm font-medium">Promote All</div>
+          <div>
+            <div className="text-text-default text-md font-semibold">Result Calculation Method</div>
+            <div className="text-text-muted text-sm">Choose how the final results are calculated.</div>
+          </div>
+          <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-6">
+            <div className="flex items-start gap-2">
+              <RoundedCheckbox
+                checked={formState.calculationMethod === "THIRD_TERM_ONLY"}
+                onChange={() => onChange({ calculationMethod: "THIRD_TERM_ONLY" })}
+              />
+              <div className="flex flex-col gap-1">
+                <div className="text-text-default text-sm">Third Term Only</div>
+                <div className="text-text-subtle text-sm">Use only the 3rd term scores for final results.</div>
               </div>
-
-              <div className="text-text-subtle pl-6 text-sm">Automatically promote every student.</div>
+            </div>
+            <div className="flex items-start gap-2">
+              <RoundedCheckbox
+                checked={formState.calculationMethod === "CUMULATIVE"}
+                onChange={() => onChange({ calculationMethod: "CUMULATIVE" })}
+              />
+              <div className="flex flex-col gap-1">
+                <div className="text-text-default text-sm">Cumulative Average</div>
+                <div className="text-text-subtle text-sm">Combine all terms (1st, 2nd, and 3rd) to calculate an overall average.</div>
+              </div>
             </div>
           </div>
-          <div className="flex items-start gap-2">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <RoundedCheckbox checked={formState.promotionType === "MANUAL"} onChange={() => onChange({ promotionType: "MANUAL" })} />
-                <div className="text-text-default text-sm font-medium">Manual Promotion</div>
-              </div>
-              <div className="text-text-subtle pl-6 text-sm">Decide each student&apos;s promotion manually.</div>
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <RoundedCheckbox
-                  checked={formState.promotionType === "BY_PERFORMANCE"}
-                  onChange={() => onChange({ promotionType: "BY_PERFORMANCE" })}
-                />
-                <div className="text-text-default text-sm font-medium">By Performance</div>
-              </div>
-              <div className="text-text-subtle pl-6 text-sm">Promote students who meet a minimum score (either cumulative or final term)</div>
 
-              <div className="space-y-2 pl-6">
-                <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
-                <div className="bg-bg-input-soft! text-text-muted flex w-32 items-center justify-between rounded-md">
-                  <Input
-                    type="number"
-                    className="text-text-muted h-9! border-none text-sm"
-                    placeholder="100"
-                    value={formState.minimumOverallPercentage}
-                    onChange={e => onChange({ minimumOverallPercentage: e.target.value })}
-                  />
-                  <div className="text-text-muted">%</div>
+          <div className="flex flex-col gap-1">
+            <div className="text-text-default text-md font-semibold">Promotion Rules</div>
+            <div className="text-text-muted text-sm">Decide how students are promoted at the end of the session.</div>
+          </div>
+          <div className="bg-bg-card border-border-darker flex flex-col gap-6 rounded-md border p-6">
+            <div className="flex items-start gap-2">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <RoundedCheckbox checked={formState.promotionType === "PROMOTE_ALL"} onChange={() => onChange({ promotionType: "PROMOTE_ALL" })} />
+                  <div className="text-text-default text-sm font-medium">Promote All</div>
                 </div>
+
+                <div className="text-text-subtle pl-6 text-sm">Automatically promote every student.</div>
               </div>
             </div>
-          </div>
-
-          <div className="flex items-start gap-4">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <RoundedCheckbox
-                  checked={formState.promotionType === "SUBJECT_COMBINATION"}
-                  onChange={() => onChange({ promotionType: "SUBJECT_COMBINATION" })}
-                />
-                <div className="text-text-default text-sm font-medium">Subject Combination</div>
+            <div className="flex items-start gap-2">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <RoundedCheckbox checked={formState.promotionType === "MANUAL"} onChange={() => onChange({ promotionType: "MANUAL" })} />
+                  <div className="text-text-default text-sm font-medium">Manual Promotion</div>
+                </div>
+                <div className="text-text-subtle pl-6 text-sm">Decide each student&apos;s promotion manually.</div>
               </div>
-              <div className="text-text-subtle pl-6 text-sm">Set specific subject requirements and performance criteria</div>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <RoundedCheckbox
+                    checked={formState.promotionType === "BY_PERFORMANCE"}
+                    onChange={() => onChange({ promotionType: "BY_PERFORMANCE" })}
+                  />
+                  <div className="text-text-default text-sm font-medium">By Performance</div>
+                </div>
+                <div className="text-text-subtle pl-6 text-sm">Promote students who meet a minimum score (either cumulative or final term)</div>
 
-              <div className="mt-4 flex flex-col gap-1 pl-6">
-                <Label className="text-text-default text-sm font-medium">A. Required passes (Compulsory)</Label>
-                <div className="text-text-subtle text-sm">Multi-select subjects that student must pass</div>
-
-                {isLoadingSubjects ? (
-                  <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
-                ) : (
-                  <>
-                    <Select value="" onValueChange={val => onChange({ requiredSubjectIds: [...formState.requiredSubjectIds, Number(val)] })}>
-                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-                        <SelectValue placeholder="Select subjects" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-default border-border-default">
-                        {subjects.map((sub: Subject) => (
-                          <SelectItem
-                            key={sub.id}
-                            value={String(sub.id)}
-                            className="text-text-default text-sm capitalize"
-                            onSelect={() => toggleSubject(sub.id)}
-                          >
-                            <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} onChange={() => toggleSubject(sub.id)} />
-                            {sub.name.toLowerCase()}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {formState.requiredSubjectIds.length > 0 && (
-                      <div className="mt-1 flex flex-wrap items-center gap-1">
-                        {subjects
-                          .filter((s: Subject) => formState.requiredSubjectIds.includes(s.id))
-                          .map((s: Subject) => (
-                            <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
-                              <span className="capitalize">{s.name.toLowerCase()}</span>
-                              <button onClick={() => toggleSubject(s.id)} className="text-text-muted hover:text-text-default">
-                                ×
-                              </button>
-                            </div>
-                          ))}
-                      </div>
-                    )}
-                    <div className="text-text-muted text-xs">Condition: Must pass all selected</div>
-                  </>
-                )}
-              </div>
-
-              <div className="mt-4 pl-6">
-                {isLoadingGradings ? (
-                  <Skeleton className="bg-bg-input-soft h-9 w-57 rounded-md" />
-                ) : (
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-text-default text-sm font-medium">Grade required to pass a subject</Label>
-                    <Select value={formState.minimumPassGrade} onValueChange={val => onChange({ minimumPassGrade: val })}>
-                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal md:w-57">
-                        <SelectValue placeholder="Select grade">
-                          <span className="text-text-default text-sm">{formState.minimumPassGrade}</span>
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-default border-border-default">
-                        {gradings.length === 0 && (
-                          <div className="text-text-default flex flex-col items-center justify-center gap-2 px-4 py-2 text-sm">
-                            No grades set for this level
-                            <Button
-                              onClick={() => router.push("/staff/settings/academic")}
-                              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
-                            >
-                              Set Grades
-                            </Button>
-                          </div>
-                        )}
-                        {gradings.map((g: SchoolGrading) => (
-                          <SelectItem key={g.id} value={g.grade} className="text-text-default text-sm">
-                            {g.grade}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <div className="space-y-2 pl-6">
+                  <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
+                  <div className="bg-bg-input-soft! text-text-muted flex w-32 items-center justify-between rounded-md">
+                    <Input
+                      type="number"
+                      className="text-text-muted h-9! border-none text-sm"
+                      placeholder="100"
+                      value={formState.minimumOverallPercentage}
+                      onChange={e => onChange({ minimumOverallPercentage: e.target.value })}
+                    />
+                    <div className="text-text-muted">%</div>
                   </div>
-                )}
+                </div>
               </div>
+            </div>
 
-              <div className="mt-4 flex flex-col gap-2 pl-6">
-                <div className="text-text-default text-sm font-medium">B. Overall Performance</div>
-                <div className="text-text-subtle text-sm">Set minimum overall percentage</div>
-                <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
-                <div className="bg-bg-input-soft! text-text-muted flex w-32 items-center justify-between rounded-md">
-                  <Input
-                    type="number"
-                    className="text-text-muted h-9! border-none text-xs"
-                    placeholder="100"
-                    value={formState.subjectCombinationMinPercentage}
-                    onChange={e => onChange({ subjectCombinationMinPercentage: e.target.value })}
+            <div className="flex items-start gap-4">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <RoundedCheckbox
+                    checked={formState.promotionType === "SUBJECT_COMBINATION"}
+                    onChange={() => onChange({ promotionType: "SUBJECT_COMBINATION" })}
                   />
-                  <div className="text-text-muted">%</div>
+                  <div className="text-text-default text-sm font-medium">Subject Combination</div>
+                </div>
+                <div className="text-text-subtle pl-6 text-sm">Set specific subject requirements and performance criteria</div>
+
+                <div className="mt-4 flex flex-col gap-1 pl-6">
+                  <Label className="text-text-default text-sm font-medium">A. Required passes (Compulsory)</Label>
+                  <div className="text-text-subtle text-sm">Multi-select subjects that student must pass</div>
+
+                  {isLoadingSubjects ? (
+                    <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
+                  ) : (
+                    <>
+                      <Select value="" onValueChange={val => onChange({ requiredSubjectIds: [...formState.requiredSubjectIds, Number(val)] })}>
+                        <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+                          <SelectValue placeholder="Select subjects" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-bg-default border-border-default">
+                          {subjects.map((sub: Subject) => (
+                            <SelectItem
+                              key={sub.id}
+                              value={String(sub.id)}
+                              className="text-text-default text-sm capitalize"
+                              onSelect={() => toggleSubject(sub.id)}
+                            >
+                              <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} onChange={() => toggleSubject(sub.id)} />
+                              {sub.name.toLowerCase()}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {formState.requiredSubjectIds.length > 0 && (
+                        <div className="mt-1 flex flex-wrap items-center gap-1">
+                          {subjects
+                            .filter((s: Subject) => formState.requiredSubjectIds.includes(s.id))
+                            .map((s: Subject) => (
+                              <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
+                                <span className="capitalize">{s.name.toLowerCase()}</span>
+                                <button onClick={() => toggleSubject(s.id)} className="text-text-muted hover:text-text-default">
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                      <div className="text-text-muted text-xs">Condition: Must pass all selected</div>
+                    </>
+                  )}
+                </div>
+
+                <div className="mt-4 pl-6">
+                  {isLoadingGradings ? (
+                    <Skeleton className="bg-bg-input-soft h-9 w-57 rounded-md" />
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      <Label className="text-text-default text-sm font-medium">Grade required to pass a subject</Label>
+                      <Select value={formState.minimumPassGrade} onValueChange={val => onChange({ minimumPassGrade: val })}>
+                        <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal md:w-57">
+                          <SelectValue placeholder="Select grade">
+                            <span className="text-text-default text-sm">{formState.minimumPassGrade}</span>
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="bg-bg-default border-border-default">
+                          {gradings.length === 0 && (
+                            <div className="text-text-default flex flex-col items-center justify-center gap-2 px-4 py-2 text-sm">
+                              No grades set for this level
+                              <Button
+                                onClick={() => router.push("/staff/settings/academic")}
+                                className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
+                              >
+                                Set Grades
+                              </Button>
+                            </div>
+                          )}
+                          {gradings.map((grading: SchoolGrading) => {
+                            if (grading.grade) {
+                              return (
+                                <SelectItem key={grading.id} value={grading.grade} className="text-text-default text-sm">
+                                  {grading.grade}
+                                </SelectItem>
+                              );
+                            }
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-4 flex flex-col gap-2 pl-6">
+                  <div className="text-text-default text-sm font-medium">B. Overall Performance</div>
+                  <div className="text-text-subtle text-sm">Set minimum overall percentage</div>
+                  <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
+                  <div className="bg-bg-input-soft! text-text-muted flex w-32 items-center justify-between rounded-md">
+                    <Input
+                      type="number"
+                      className="text-text-muted h-9! border-none text-xs"
+                      placeholder="100"
+                      value={formState.subjectCombinationMinPercentage}
+                      onChange={e => onChange({ subjectCombinationMinPercentage: e.target.value })}
+                    />
+                    <div className="text-text-muted">%</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        <div className="border-border-default mt-5 flex items-center justify-between border-t py-2">
-          <Button className="bg-bg-state-soft! text-text-subtle h-7! rounded-md" onClick={onCancel}>
+      </div>
+      {isEditing && (
+        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
+          <Button onClick={onCancel} disabled={isPending} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
           </Button>
           <Button
@@ -312,16 +325,16 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
             disabled={isPending}
             className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
           >
-            {isPending && <Spinner className="text-text-white-default" />}
-            Save Changes
+            {isPending && <Spinner className="text-text-white-default size-4" />}
+            Save changes
           </Button>
         </div>
-      </div>
+      )}
     </div>
   );
 };
 
-export const ClassesSetup = () => {
+export const ResultCalculations = () => {
   const { data: classLevel, isFetching: isLoadingLevels } = useGetClassLevel();
   const { data: academicData } = useGetActiveSession();
   const { mutate, isPending } = useAddResultCalculation();
@@ -383,7 +396,7 @@ export const ClassesSetup = () => {
   };
 
   return (
-    <div>
+    <div className="px-4">
       <ClassesResponsiveTabs
         isLoading={isLoadingLevels}
         levels={levels.map(({ levelName, levelType, id }) => ({
