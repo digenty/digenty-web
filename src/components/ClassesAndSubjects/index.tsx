@@ -93,7 +93,10 @@ const ClassesAndSubjects = () => {
                     )}
 
                     {user && user?.isMain && (
-                      <Button onClick={() => router.push("/staff/classes-and-subjects/all-branches")} className="border-border-default border">
+                      <Button
+                        onClick={() => router.push("/staff/classes-and-subjects/all-branches")}
+                        className="border-border-default text-text-default border"
+                      >
                         View All Branches
                       </Button>
                     )}
