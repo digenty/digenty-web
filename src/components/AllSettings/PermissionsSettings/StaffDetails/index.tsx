@@ -129,7 +129,6 @@ export const StaffDetails = () => {
         <div>
           <div className="flex w-full items-center justify-center px-4 py-4 md:mx-auto md:max-w-250 md:px-8 md:py-6">
             <div className="flex w-full flex-col gap-8">
-              
               <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between md:gap-4">
                 <div className="flex items-center gap-2">
                   <Avatar className="size-14 md:size-26" />

@@ -1,4 +1,4 @@
-import { Arm, ClassType, Levelsubject } from "@/api/types";
+import { Arm, ClassTeacherArm, ClassType, Levelsubject, StaffBranch, SubjectTeaching } from "@/api/types";
 import BookOpen from "@/components/Icons/BookOpen";
 import Group from "@/components/Icons/Group";
 import { toast } from "@/components/Toast";
@@ -25,7 +25,15 @@ interface SelectedArm {
   className: string;
 }
 
-export const TeacherAssignments = ({ teacherName, staffId, setIsEditing }: { teacherName: string; staffId: number, setIsEditing?: (show: boolean) => void; }) => {
+export const TeacherAssignments = ({
+  teacherName,
+  staffId,
+  setIsEditing,
+}: {
+  teacherName: string;
+  staffId: number;
+  setIsEditing?: (show: boolean) => void;
+}) => {
   const [isClassTeacher, setIsClassTeacher] = useState(false);
   const [selectedArms, setSelectedArms] = useState<SelectedArm[]>([]);
   const [isSubjectTeacher, setIsSubjectTeacher] = useState(false);
@@ -50,7 +58,29 @@ export const TeacherAssignments = ({ teacherName, staffId, setIsEditing }: { tea
 
   const transformedSubjectArmmap = useMemo(() => transformSubjectArmMap(subjectArmsMap), [subjectArmsMap]);
 
-   const branchData = staffData?.data?.branches?.[0];
+  const branchData = useMemo(() => {
+    const branches: StaffBranch[] = staffData?.data?.branches || [];
+    return branches.reduce(
+      (acc, branch) => {
+        acc.roleNames.push(...(branch.roleNames || []));
+        acc.subjectTeachings.push(...(branch.subjectTeachings || []));
+        acc.classTeacherArms.push(...(branch.classTeacherArms || []));
+
+        acc.permissions.push(...(branch.permissions || []));
+
+        return acc;
+      },
+      {
+        roleNames: [] as string[],
+        subjectTeachings: [] as SubjectTeaching[],
+        classTeacherArms: [] as ClassTeacherArm[],
+        permissions: [] as {
+          moduleName: string;
+          permissions: string[];
+        }[],
+      },
+    );
+  }, [staffData?.data?.branches]);
   const existingClassArms: SelectedArm[] = useMemo(() => {
     return (
       branchData?.classTeacherArms?.map((a: { armId: number; armName: string }) => ({
@@ -77,10 +107,10 @@ export const TeacherAssignments = ({ teacherName, staffId, setIsEditing }: { tea
     if (existingSubjectTeachings.length > 0) {
       setIsSubjectTeacher(true);
 
-      const subjects: Levelsubject[] = existingSubjectTeachings.map((s: { subjectId: number; subjectName: string }) => ({
+      const subjects = existingSubjectTeachings.map((s: { subjectId: number; subjectName: string }) => ({
         id: s.subjectId,
         name: s.subjectName,
-      }));
+      })) as Levelsubject[];
       setSelectedSubjects(subjects);
 
       const armsMap: Record<number, SelectedArm[]> = {};
@@ -116,7 +146,7 @@ export const TeacherAssignments = ({ teacherName, staffId, setIsEditing }: { tea
     setSelectedArms(selectedArms.filter(arm => arm.id !== id));
   };
 
-   const updateSubjectArms = (subjectId: number, arm: Arm, className: string) => {
+  const updateSubjectArms = (subjectId: number, arm: Arm, className: string) => {
     const currentArms = subjectArmsMap[subjectId] || [];
     const isSelected = currentArms.find(a => a.id === arm.id);
     if (isSelected) {
@@ -241,7 +271,7 @@ export const TeacherAssignments = ({ teacherName, staffId, setIsEditing }: { tea
   //   });
   // };
 
-    const handleAssignClassTeacher = () => {
+  const handleAssignClassTeacher = () => {
     const payload = { armDtos: selectedArms.map(arm => ({ armId: arm.id })), teacherId: staffId };
 
     const onSuccess = () => {
@@ -427,7 +457,7 @@ export const TeacherAssignments = ({ teacherName, staffId, setIsEditing }: { tea
               </div>
             )} */}
 
-             {isClassTeacher && (
+            {isClassTeacher && (
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <Label className="text-text-default text-sm font-semibold">Class</Label>
@@ -598,9 +628,6 @@ export const TeacherAssignments = ({ teacherName, staffId, setIsEditing }: { tea
               </div>
             </div>
           )}
-
-         
-
         </div>
 
         {/* <div className="border-border-default bg-bg-basic-blue-subtle flex flex-col gap-2 rounded-md border px-5 py-3">
@@ -627,7 +654,7 @@ export const TeacherAssignments = ({ teacherName, staffId, setIsEditing }: { tea
         </div> */}
       </div>
 
-       {(hasExistingClassAssignments || hasExistingSubjectAssignments) && setIsEditing && (
+      {(hasExistingClassAssignments || hasExistingSubjectAssignments) && setIsEditing && (
         <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
           <Button onClick={() => setIsEditing(false)} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
