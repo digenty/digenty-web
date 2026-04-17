@@ -3,8 +3,8 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { PrincipalComment } from "./PrincipalsComment";
-import { ClassesSetup } from "./ResultCalculations";
 import { Submission } from "./Submission";
+import { ResultCalculations } from "./ResultCalculations";
 
 const tabs = ["Result Calculation", "Submission Deadline", "Principal’s Comment"];
 
@@ -36,7 +36,7 @@ export const SettingsResult = () => {
           );
         })}
       </div>
-      {activeTab === "Result Calculation" && <ClassesSetup />}
+      {activeTab === "Result Calculation" && <ResultCalculations />}
       {activeTab === "Submission Deadline" && <Submission />}
       {activeTab === "Principal’s Comment" && <PrincipalComment />}
     </div>
