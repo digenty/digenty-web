@@ -46,7 +46,6 @@ import { canViewPortalCustomization } from "@/lib/permissions/portal-customizati
 import { canViewPortalOverview } from "@/lib/permissions/portal-overview";
 import { canViewDomain } from "@/lib/permissions/domain";
 import { useQueryClient } from "@tanstack/react-query";
-import { log } from "console";
 import { SetupGuideProgress } from "./SetupGuideProgress";
 
 export const Sidebar = () => {

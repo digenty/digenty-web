@@ -315,7 +315,7 @@ export interface Staff {
   fullName: string;
   email: string;
   roleName: string | null;
-  status: boolean;
+  status: "ACTIVE" | "INACTIVE" | "PENDING";
   branchName: string;
   lastLogin: Date;
 }
@@ -771,6 +771,7 @@ export interface PrincipalsComment {
 export interface Arm {
   armId: number;
   armName: string;
+  classId: number;
 }
 
 export interface SubjectTeaching {

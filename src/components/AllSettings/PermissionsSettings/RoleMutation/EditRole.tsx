@@ -81,13 +81,13 @@ export const EditRoleSettings = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="bg-bg-card-subtle border-border-default border-b p-3">
-        <div className="justify-left mx-auto flex w-full items-center md:max-w-225">
+        <div className="justify-left mx-auto flex w-full items-center px-4 md:max-w-225">
           <div className="text-text-default text-md text-left font-semibold">Edit Role</div>
         </div>
       </div>
       <div className="mx-auto flex w-full items-center justify-center md:max-w-225">
         <div className="flex w-full flex-col gap-6">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 px-4">
             <Label className="text-text-default text-sm font-medium">Role Name</Label>
             <Input
               id="name"
@@ -100,7 +100,7 @@ export const EditRoleSettings = () => {
             />
             {formik.touched.name && formik.errors.name && <p className="text-text-destructive text-xs font-light">{formik.errors.name}</p>}
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 px-4">
             <Label className="text-text-default text-sm font-medium">Role Description</Label>
             <Input
               id="description"
