@@ -19,10 +19,10 @@ type FormValues = {
   padding: string;
 };
 
-const buildPreview = (prefix: string, numberFormat: string, startingNumber: string, padding: string): string => {
+const buildPreview = (prefix: string, startingNumber: string, padding: string): string => {
   const seq = String(parseInt(startingNumber) || 1).padStart(Number(padding) || 2, "0");
-  const year = numberFormat;
-  return `${prefix || "ADM"}${year}${seq}`;
+  const year = new Date().getFullYear();
+  return `${prefix || "ADM"}-${year}${seq}`;
 };
 
 export const AdmissionNumberSetup = ({
@@ -73,11 +73,11 @@ export const AdmissionNumberSetup = ({
     },
   });
 
-  const preview = buildPreview(formik.values.prefix, formik.values.numberFormat, formik.values.startingNumber, formik.values.padding);
+  const preview = buildPreview(formik.values.prefix, formik.values.startingNumber, formik.values.padding);
 
   return (
-    <section className="">
-      <div className="mx-auto flex items-center justify-center pb-20 md:w-151">
+    <section>
+      <div className="mx-auto flex items-center justify-center md:w-151">
         <div className="flex w-full flex-col gap-6">
           <div className="flex flex-col gap-2">
             <Label className="text-text-default text-sm font-medium">Admission Number Prefix</Label>
@@ -101,7 +101,7 @@ export const AdmissionNumberSetup = ({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               className="bg-bg-input-soft! text-text-default rounded-md border-none text-sm"
-              placeholder={new Date().getFullYear().toString()}
+              placeholder="Input format"
             />
             {formik.touched.numberFormat && formik.errors.numberFormat && (
               <p className="text-text-destructive text-xs">{formik.errors.numberFormat}</p>

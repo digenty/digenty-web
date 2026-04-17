@@ -13,7 +13,6 @@ import { FormikProps } from "formik";
 import { useEffect, useState } from "react";
 import { AdmissionStatusValues, BoardingStatusValues } from "../../constants";
 import { StudentInputValues } from "../../types";
-import { AdmissionNumberField } from "../AdmissionNumberField";
 
 export const AcademicInformation = ({ formik, data }: { formik: FormikProps<StudentInputValues>; data: { data: Student } | undefined }) => {
   const [classId, setClassId] = useState<number | null>(null);
@@ -112,7 +111,24 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
           </Select>
         </div>
 
-        <AdmissionNumberField formik={formik} />
+        <div className="space-y-2">
+          <Label htmlFor="admissionNumber" className="text-text-default text-sm font-medium">
+            Admission Number
+          </Label>
+          <Input
+            id="admissionNumber"
+            onChange={handleChange}
+            placeholder="GFA/2023/01045"
+            onBlur={handleBlur}
+            value={values.admissionNumber}
+            type="text"
+            className={cn(
+              "text-text-muted bg-bg-input-soft! placeholder-text-hint! border-none text-sm font-normal",
+              errors.admissionNumber && touched.admissionNumber && "border-border-destructive border",
+            )}
+          />
+          {touched.admissionNumber && errors.admissionNumber && <p className="text-text-destructive text-xs font-light">{errors.admissionNumber}</p>}
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="branch" className="text-text-default text-sm font-medium">

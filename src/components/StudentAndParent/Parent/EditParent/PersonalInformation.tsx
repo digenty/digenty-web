@@ -206,9 +206,8 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
               }))}
               value={formik.values.nationality}
               onValueChange={country => {
-                if (formik.values.nationality !== country) {
-                  setFieldValue("nationality", country);
-                }
+                setFieldValue("nationality", country);
+                setFieldValue("stateOfOrigin", "");
               }}
               placeholder="Select Nationality"
               searchPlaceholder="Search country..."
@@ -226,9 +225,7 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
             value={formik.values.stateOfOrigin}
             disabled={!values.nationality}
             onValueChange={value => {
-              if (formik.values.nationality && availableStates.includes(value)) {
-                setFieldValue("stateOfOrigin", value);
-              }
+              setFieldValue("stateOfOrigin", value);
             }}
           >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">

@@ -43,7 +43,7 @@ export const SearchableSelect = ({
       onInputValueChange={setSearchValue}
     >
       <ComboboxInput
-        className={cn("bg-bg-input-soft! text-text-muted w-full rounded-md border-none text-sm! font-normal", className)}
+        className={cn("bg-bg-input-soft! text-text-muted w-full rounded-md border-none text-sm font-normal", className)}
         placeholder={placeholder}
         aria-label={placeholder}
         onBlur={() => {

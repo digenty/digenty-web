@@ -149,14 +149,6 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
                             onBlur={formik.handleBlur}
                             className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-none! text-sm"
                             placeholder="20"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            min="0"
-                            onKeyDown={e => {
-                              if (e.key === "-" || e.key === "e") {
-                                e.preventDefault();
-                              }
-                            }}
                           />
                           <span className="text-text-muted w-3">%</span>
                         </div>
@@ -220,14 +212,7 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
                                 value={formik.values.grades[index].lowerLimit}
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
-                                inputMode="numeric"
-                                pattern="[0-9]*"
-                                min="0"
-                                onKeyDown={e => {
-                                  if (e.key === "-" || e.key === "e") {
-                                    e.preventDefault();
-                                  }
-                                }}
+                                type="number"
                                 placeholder="70"
                                 className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent text-sm"
                               />
@@ -239,14 +224,7 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
                                 value={formik.values.grades[index].upperLimit}
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
-                                inputMode="numeric"
-                                pattern="[0-9]*"
-                                min="0"
-                                onKeyDown={e => {
-                                  if (e.key === "-" || e.key === "e") {
-                                    e.preventDefault();
-                                  }
-                                }}
+                                type="number"
                                 placeholder="100"
                                 className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent text-sm"
                               />

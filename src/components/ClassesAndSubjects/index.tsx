@@ -48,13 +48,13 @@ const ClassesAndSubjects = () => {
     ]);
   }, [activeTab, showTabs, hasSubjects, setBreadcrumbs]);
 
-  if (user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1 && !hasClasses && !hasSubjects) {
+  if (user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1) {
     return <AllClassesMain />;
   }
 
-  if (user && user?.isMain && !hasClasses && !hasSubjects) {
-    return <AllBranches />;
-  }
+  // if (user && user?.isMain) {
+  //   return <AllBranches />;
+  // }
 
   return (
     <ClassesAndSubjectsPermissionWrapper isLoading={isLoading}>
@@ -66,38 +66,25 @@ const ClassesAndSubjects = () => {
             {/* Case 1: Class teacher with subjects — show tabs */}
             {showTabs && (
               <>
-                <div className="flex w-full items-center justify-between">
-                  <div className="border-border-default mb-0 flex w-auto max-w-105 flex-1 items-center gap-3 border-b">
-                    {tabs.map(tab => {
-                      const isActive = activeTab === tab.id;
-                      return (
-                        <div
-                          role="button"
-                          onClick={() => router.push(`/staff/classes-and-subjects?tab=${tab.id}`)}
-                          key={tab.id}
-                          className={cn(
-                            "w-1/2 cursor-pointer py-2.5 text-center transition-all duration-150",
-                            isActive && "border-border-informative border-b-[1.5px]",
-                          )}
-                        >
-                          <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{tab.label}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div>
-                    {user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1 && (
-                      <Button onClick={() => router.push("/staff/classes-and-subjects/all-classes")} className="border-border-default border">
-                        View Branch Panel
-                      </Button>
-                    )}
+                <div className="border-border-default mb-0 flex w-auto max-w-105 items-center gap-3 border-b">
+                  {tabs.map(tab => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <div
+                        role="button"
+                        onClick={() => router.push(`/staff/classes-and-subjects?tab=${tab.id}`)}
+                        key={tab.id}
+                        className={cn(
+                          "w-1/2 cursor-pointer py-2.5 text-center transition-all duration-150",
+                          isActive && "border-border-informative border-b-[1.5px]",
+                        )}
+                      >
+                        <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{tab.label}</span>
+                      </div>
+                    );
+                  })}
 
-                    {user && user?.isMain && (
-                      <Button onClick={() => router.push("/staff/classes-and-subjects/all-branches")} className="border-border-default border">
-                        View All Branches
-                      </Button>
-                    )}
-                  </div>
+                  <Button>View Branch Panel</Button>
                 </div>
                 {activeTab === "classes" ? (
                   <MyClasses classes={classes} isLoading={isLoadingClasses} />
@@ -115,6 +102,17 @@ const ClassesAndSubjects = () => {
               <div className="flex flex-col gap-4 pb-10">
                 <div className="flex items-center justify-between">
                   <h2 className="text-text-default hidden text-lg font-semibold md:inline md:text-xl">My Classes</h2>
+                  {user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1 && (
+                    <Button onClick={() => router.push("/staff/classes-and-subjects/all-classes")} className="border-border-default border">
+                      View Branch Panel
+                    </Button>
+                  )}
+
+                  {user && user?.isMain && (
+                    <Button onClick={() => router.push("/staff/classes-and-subjects/all-branches")} className="border-border-default border">
+                      View All Branches
+                    </Button>
+                  )}
                 </div>
                 <MyClasses classes={classes} isLoading={isLoadingClasses} />
               </div>

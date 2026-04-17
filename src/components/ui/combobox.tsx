@@ -52,7 +52,7 @@ function ComboboxInput({
       <ComboboxPrimitive.Input
         render={<InputGroupInput disabled={disabled} />}
         {...props}
-        className="h-auto text-sm! focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
       />
       <InputGroupAddon align="inline-end">
         {showTrigger && (

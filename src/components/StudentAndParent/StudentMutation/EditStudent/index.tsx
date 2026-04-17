@@ -8,7 +8,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { studentSchema } from "@/schema/student";
 import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
 import { format } from "date-fns";
-import { FormikErrors, useFormik } from "formik";
+import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { StudentInputValues } from "../../types";
@@ -19,8 +19,6 @@ import { ContactInformation } from "./ContactInformation";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "../../ProfilePicture";
 import { Tags } from "./Tags";
-import { useGetAdmissionNumberDetails } from "@/hooks/queryHooks/useAdmisssion";
-import { formatToDynamicRegex } from "@/lib/utils";
 
 export const EditStudent = () => {
   const router = useRouter();
@@ -42,24 +40,6 @@ export const EditStudent = () => {
   ]);
 
   const { mutate, isPending } = useEditStudent();
-  const { data: admissionResponse } = useGetAdmissionNumberDetails();
-
-  const admissionFormat = () => {
-    const prefix = admissionResponse?.data?.prefix;
-    const numberFormat = admissionResponse?.data?.numberFormat;
-    const padding = admissionResponse?.data?.padding;
-    const startingNumber = admissionResponse?.data?.startingNumber;
-
-    const seq = String(parseInt(startingNumber) || 1).padStart(Number(padding) || 2, "0");
-    return `${prefix}${numberFormat}${seq}`;
-  };
-
-  const matchesDynamicAdmissionFormat = (input: string, formatExample: string, padding: number) => {
-    const regex = formatToDynamicRegex(formatExample, padding);
-    if (!regex) return false;
-
-    return regex.test(input);
-  };
 
   const formik = useFormik<StudentInputValues>({
     initialValues: {
@@ -89,13 +69,6 @@ export const EditStudent = () => {
       armId: null,
     },
     validationSchema: studentSchema,
-    validate: values => {
-      const errors: FormikErrors<StudentInputValues> = {};
-      if (admissionResponse && !matchesDynamicAdmissionFormat(values.admissionNumber, admissionFormat(), admissionResponse?.data?.padding)) {
-        errors.admissionNumber = `Please enter a valid admission number in the format ${admissionFormat()}`;
-      }
-      return errors;
-    },
     enableReinitialize: true,
     onSubmit: values => {
       mutate(

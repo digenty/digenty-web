@@ -37,15 +37,3 @@ export const updateAdmissionNumber = async (payload: UpdateAdmissionNumber, id: 
     throw error;
   }
 };
-
-export const generateAdmissionNumber = async () => {
-  try {
-    const { data } = await api.get(`/admission/number/generate`);
-    return data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) {
-      throw error.response?.data;
-    }
-    throw error;
-  }
-};

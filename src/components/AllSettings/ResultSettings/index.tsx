@@ -3,7 +3,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { PrincipalComment } from "./PrincipalsComment";
-import { ResultCalculations } from "./ResultCalculations";
+import { ClassesSetup } from "./ResultCalculations";
 import { Submission } from "./Submission";
 
 const tabs = ["Result Calculation", "Submission Deadline", "Principal’s Comment"];
@@ -15,8 +15,8 @@ export const SettingsResult = () => {
     { label: "Result Settings", url: "/staff/settings/result" },
   ]);
   return (
-    <div className="md:py-8">
-      <div className="border-border-default flex w-auto max-w-120 items-center gap-3 border-b px-4">
+    <div className="px-4 md:p-8">
+      <div className="border-border-default flex w-auto max-w-120 items-center gap-3 border-b">
         {tabs.map(tab => {
           const isActive = activeTab === tab;
           return (
@@ -36,7 +36,7 @@ export const SettingsResult = () => {
           );
         })}
       </div>
-      {activeTab === "Result Calculation" && <ResultCalculations />}
+      {activeTab === "Result Calculation" && <ClassesSetup />}
       {activeTab === "Submission Deadline" && <Submission />}
       {activeTab === "Principal’s Comment" && <PrincipalComment />}
     </div>

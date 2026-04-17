@@ -1,7 +1,6 @@
 import { ClassLevel, PrincipalsComment } from "@/api/types";
 import { AddFill } from "@/components/Icons/AddFill";
 import { DeleteBin2 } from "@/components/Icons/DeleteBin2";
-import Edit from "@/components/Icons/Edit";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,11 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
-import { useAddPrinciapleComment, useDeletePrincipalComment, useGetPrincipalCommentByLevel } from "@/hooks/queryHooks/useResult";
+import {
+  useAddPrinciapleComment,
+  useGetPrincipalComment,
+  useGetPrincipalCommentByLevel,
+  useDeletePrincipalComment,
+} from "@/hooks/queryHooks/useResult";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { CommentRow, LevelRowsState } from "./types";
+import Edit from "@/components/Icons/Edit";
 
 const defaultRow = (): CommentRow => ({
   id: crypto.randomUUID(),
@@ -22,6 +27,207 @@ const defaultRow = (): CommentRow => ({
   maxPercentage: "",
   comment: "",
 });
+
+function LevelsTabs({
+  levels,
+  isLoadingLevels,
+  activeLevel,
+  setActiveLevel,
+}: {
+  isLoadingLevels: boolean;
+  levels: ClassLevel[];
+  activeLevel?: ClassLevel;
+  setActiveLevel: (level?: ClassLevel) => void;
+}) {
+  const isMobile = useIsMobile();
+
+  const [levelRowsState, setLevelRowsState] = useState<LevelRowsState>({});
+  const [isEditing, setIsEditing] = useState(false);
+  const { data: principalComments, isFetching: isLoadingComments } = useGetPrincipalCommentByLevel(activeLevel?.id);
+  const { mutate, isPending } = useAddPrinciapleComment();
+
+  const getRows = (levelName: string): CommentRow[] => levelRowsState[levelName] ?? [];
+  const updateRows = (levelName: string, rows: CommentRow[]) => setLevelRowsState(prev => ({ ...prev, [levelName]: rows }));
+
+  useEffect(() => {
+    if (!isLoadingComments && principalComments?.data && activeLevel?.levelName) {
+      const rows = principalComments.data.rows || [];
+      if (rows.length > 0) {
+        const existingRows = rows.map((row: PrincipalsComment) => ({
+          id: String(row.id),
+          minPercentage: String(row.minPercentage),
+          maxPercentage: String(row.maxPercentage),
+          comment: row.comment,
+        }));
+        updateRows(activeLevel.levelName, existingRows);
+        setIsEditing(false);
+      } else {
+        updateRows(activeLevel.levelName, [defaultRow()]);
+        setIsEditing(true);
+      }
+    }
+  }, [principalComments, activeLevel, isLoadingComments]);
+
+  const handleSave = async () => {
+    const rows = getRows(activeLevel?.levelName || "");
+    const payload = {
+      levelId: activeLevel?.id,
+      rows: rows.map(row => ({
+        minPercentage: Number(row.minPercentage),
+        maxPercentage: Number(row.maxPercentage),
+        comment: row.comment,
+      })),
+    };
+
+    await mutate(payload, {
+      onSuccess: () => {
+        toast({ title: "Success", description: `Comment for ${activeLevel?.levelName} saved successfully`, type: "success" });
+        setIsEditing(false);
+      },
+      onError: () => {
+        toast({ title: "Error", description: `Failed to save comment for ${activeLevel?.levelName}`, type: "error" });
+      },
+    });
+  };
+
+  const handleCancel = () => {
+    if (principalComments?.data?.rows && principalComments.data.rows.length > 0 && activeLevel?.levelName) {
+      const existingRows = principalComments.data.rows.map((row: PrincipalsComment) => ({
+        id: String(row.id),
+        minPercentage: String(row.minPercentage),
+        maxPercentage: String(row.maxPercentage),
+        comment: row.comment,
+      }));
+      updateRows(activeLevel.levelName, existingRows);
+      setIsEditing(false);
+    } else if (activeLevel?.levelName) {
+      updateRows(activeLevel.levelName, [defaultRow()]);
+      setIsEditing(true);
+    }
+  };
+
+  if (isMobile) {
+    return (
+      <div className="mt-4 w-full">
+        <div className="mb-20">
+          {isLoadingLevels && <Skeleton className="bg-bg-input-soft h-8 w-full rounded-3xl" />}
+          {!isLoadingLevels && levels.length > 0 && (
+            <>
+              <Select
+                value={String(activeLevel?.id)}
+                onValueChange={value => {
+                  const level = levels.find(level => level.id === Number(value));
+                  setActiveLevel(level);
+                }}
+              >
+                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+                  <SelectValue>
+                    <span className="text-text-default text-sm capitalize">{activeLevel?.levelName.replaceAll("_", " ").toLowerCase()}</span>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-bg-default border-border-default">
+                  {levels.map((level, idx) => (
+                    <SelectItem key={level.levelName} value={String(level.id)} className="text-text-default text-sm capitalize">
+                      {level.levelName.replaceAll("_", " ").toLowerCase()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="mt-4">
+                <CommentSetup
+                  rows={getRows(activeLevel?.levelName || "")}
+                  onChange={rows => updateRows(activeLevel?.levelName || "", rows)}
+                  isEditing={isEditing}
+                  setIsEditing={setIsEditing}
+                  isLoading={isLoadingComments}
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        {isEditing && (
+          <div className="border-border-default bg-bg-default fixed right-0 bottom-0 mx-auto flex w-full place-content-center items-center border-t md:left-30 md:max-w-200">
+            <div className="flex w-full items-center justify-between px-4 py-4">
+              <Button onClick={handleCancel} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isPending}
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
+              >
+                {isPending && <Spinner className="text-text-white-default" />}
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="h-9 w-full p-4 md:p-8">
+        {isLoadingLevels && <Skeleton className="bg-bg-input-soft h-10 w-80 rounded-4xl" />}
+        {!isLoadingLevels && levels.length > 0 && (
+          <div className="bg-bg-state-soft flex w-full items-center justify-between gap-2.5 rounded-full p-0.5 md:w-fit">
+            {levels.map((level, index) => {
+              const isActive = level.id === activeLevel?.id;
+              return (
+                <button
+                  key={index}
+                  onClick={() => setActiveLevel(level)}
+                  className={cn(
+                    "transit flex justify-center px-4 py-2 text-sm font-medium whitespace-nowrap capitalize",
+                    isActive
+                      ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
+                      : "text-text-muted flex h-8 items-center gap-1",
+                  )}
+                >
+                  <span>{level.levelName.replaceAll("_", " ").toLowerCase()}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      <div className="mx-auto mt-6 flex w-full items-center justify-center md:max-w-150">
+        {isLoadingLevels && <Skeleton className="bg-bg-input-soft h-50 w-full rounded-md" />}
+        {!isLoadingLevels && levels.length > 0 && (
+          <div className="flex-1">
+            <CommentSetup
+              rows={getRows(activeLevel?.levelName || "")}
+              onChange={rows => updateRows(activeLevel?.levelName || "", rows)}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              isLoading={isLoadingComments}
+            />
+          </div>
+        )}
+      </div>
+
+      {isEditing && (
+        <div className="border-border-default bg-bg-default fixed right-0 bottom-0 mx-auto flex w-full place-content-center items-center border-t md:left-30 md:max-w-200">
+          <div className="flex w-full items-center justify-between py-6">
+            <Button onClick={handleCancel} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={isPending}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
+            >
+              {isPending && <Spinner className="text-text-white-default" />}
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface CommentSetupProps {
   rows: CommentRow[];
@@ -93,15 +299,7 @@ export const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoadin
                         <Input
                           className="text-text-muted placeholder:text-text-muted/40 h-9! border-none text-sm font-normal md:w-24"
                           placeholder="1"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          min={0}
-                          max={100}
-                          onKeyDown={e => {
-                            if (e.key === "-" || e.key === "e") {
-                              e.preventDefault();
-                            }
-                          }}
+                          type="number"
                           value={row.minPercentage}
                           onChange={e => updateRow(String(row.id), "minPercentage", e.target.value)}
                         />
@@ -124,23 +322,9 @@ export const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoadin
                         <Input
                           className="text-text-muted placeholder:text-text-muted/40 h-9! border-none text-sm font-normal md:w-24"
                           placeholder="51"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          min="0"
-                          max="100"
-                          onKeyDown={e => {
-                            if (e.key === "-" || e.key === "e") {
-                              e.preventDefault();
-                            }
-                          }}
+                          type="number"
                           value={row.maxPercentage}
-                          onChange={e => {
-                            if (Number(e.target.value) <= 100) {
-                              updateRow(String(row.id), "maxPercentage", e.target.value);
-                            } else {
-                              updateRow(String(row.id), "maxPercentage", "100");
-                            }
-                          }}
+                          onChange={e => updateRow(String(row.id), "maxPercentage", e.target.value)}
                         />
                       ) : (
                         <Input
@@ -214,192 +398,9 @@ export const PrincipalComment = () => {
     }
   }, [classLevel]);
 
-  const isMobile = useIsMobile();
-
-  const [levelRowsState, setLevelRowsState] = useState<LevelRowsState>({});
-  const [isEditing, setIsEditing] = useState(false);
-  const { data: principalComments, isFetching: isLoadingComments } = useGetPrincipalCommentByLevel(activeLevel?.id);
-  const { mutate, isPending } = useAddPrinciapleComment();
-
-  const getRows = (levelName: string): CommentRow[] => levelRowsState[levelName] ?? [];
-  const updateRows = (levelName: string, rows: CommentRow[]) => setLevelRowsState(prev => ({ ...prev, [levelName]: rows }));
-
-  useEffect(() => {
-    if (!isLoadingComments && principalComments?.data && activeLevel?.levelName) {
-      const rows = principalComments.data.rows || [];
-      if (rows.length > 0) {
-        const existingRows = rows.map((row: PrincipalsComment) => ({
-          id: String(row.id),
-          minPercentage: String(row.minPercentage),
-          maxPercentage: String(row.maxPercentage),
-          comment: row.comment,
-        }));
-        updateRows(activeLevel.levelName, existingRows);
-        setIsEditing(false);
-      } else {
-        updateRows(activeLevel.levelName, [defaultRow()]);
-        setIsEditing(true);
-      }
-    }
-  }, [principalComments, activeLevel, isLoadingComments]);
-
-  const handleSave = async () => {
-    const rows = getRows(activeLevel?.levelName || "");
-    const payload = {
-      levelId: activeLevel?.id,
-      rows: rows.map(row => ({
-        minPercentage: Number(row.minPercentage),
-        maxPercentage: Number(row.maxPercentage),
-        comment: row.comment,
-      })),
-    };
-
-    await mutate(payload, {
-      onSuccess: () => {
-        toast({ title: "Success", description: `Comment for ${activeLevel?.levelName} saved successfully`, type: "success" });
-        setIsEditing(false);
-      },
-      onError: () => {
-        toast({ title: "Error", description: `Failed to save comment for ${activeLevel?.levelName}`, type: "error" });
-      },
-    });
-  };
-
-  const handleCancel = () => {
-    if (principalComments?.data?.rows && principalComments.data.rows.length > 0 && activeLevel?.levelName) {
-      const existingRows = principalComments.data.rows.map((row: PrincipalsComment) => ({
-        id: String(row.id),
-        minPercentage: String(row.minPercentage),
-        maxPercentage: String(row.maxPercentage),
-        comment: row.comment,
-      }));
-      updateRows(activeLevel.levelName, existingRows);
-      setIsEditing(false);
-    } else if (activeLevel?.levelName) {
-      updateRows(activeLevel.levelName, [defaultRow()]);
-      setIsEditing(true);
-    }
-  };
-
-  if (isMobile) {
-    return (
-      <div className="mt-4 w-full">
-        <div className="mb-20">
-          {isLoadingLevels && !principalComments && <Skeleton className="bg-bg-input-soft h-8 w-full rounded-3xl" />}
-          {!isLoadingLevels && levels.length > 0 && (
-            <div className="px-4">
-              <Select
-                value={String(activeLevel?.id)}
-                onValueChange={value => {
-                  const level = levels.find(level => level.id === Number(value));
-                  setActiveLevel(level);
-                }}
-              >
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-                  <SelectValue>
-                    <span className="text-text-default text-sm capitalize">{activeLevel?.levelName.replaceAll("_", " ").toLowerCase()}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {levels.map((level, idx) => (
-                    <SelectItem key={level.levelName} value={String(level.id)} className="text-text-default text-sm capitalize">
-                      {level.levelName.replaceAll("_", " ").toLowerCase()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="mt-4">
-                <CommentSetup
-                  rows={getRows(activeLevel?.levelName || "")}
-                  onChange={rows => updateRows(activeLevel?.levelName || "", rows)}
-                  isEditing={isEditing}
-                  setIsEditing={setIsEditing}
-                  isLoading={isLoadingComments}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {isEditing && (
-          <div className="border-border-default bg-bg-default fixed right-0 bottom-0 mx-auto flex w-full place-content-center items-center border-t md:left-30 md:max-w-200">
-            <div className="flex w-full items-center justify-between px-4 py-4">
-              <Button onClick={() => setIsEditing(false)} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSave}
-                disabled={isPending}
-                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7!"
-              >
-                {isPending && <Spinner className="text-text-white-default" />}
-                Save Changes
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div>
-      <div className="px-4 md:px-8 md:py-12">
-        <div className="h-9 w-full px-4 md:px-8">
-          {isLoadingLevels && !principalComments && <Skeleton className="bg-bg-input-soft h-10 w-80 rounded-4xl" />}
-          {!isLoadingLevels && levels.length > 0 && (
-            <div className="bg-bg-state-soft flex w-full items-center justify-between gap-2.5 rounded-full p-0.5 md:w-fit">
-              {levels.map((level, index) => {
-                const isActive = level.id === activeLevel?.id;
-                return (
-                  <button
-                    key={index}
-                    onClick={() => setActiveLevel(level)}
-                    className={cn(
-                      "transit flex justify-center px-4 py-2 text-sm font-medium whitespace-nowrap capitalize",
-                      isActive
-                        ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
-                        : "text-text-muted flex h-8 items-center gap-1",
-                    )}
-                  >
-                    <span>{level.levelName.replaceAll("_", " ").toLowerCase()}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-        <div className="mx-auto mt-6 flex w-full items-center justify-center md:max-w-150">
-          {isLoadingLevels && <Skeleton className="bg-bg-input-soft h-50 w-full rounded-md" />}
-          {!isLoadingLevels && levels.length > 0 && (
-            <div className="flex-1">
-              <CommentSetup
-                rows={getRows(activeLevel?.levelName || "")}
-                onChange={rows => updateRows(activeLevel?.levelName || "", rows)}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                isLoading={isLoadingComments}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
-      {isEditing && (
-        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
-          <Button onClick={handleCancel} disabled={isPending} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={isPending}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
-          >
-            {isPending && <Spinner className="text-text-white-default size-4" />}
-            Save changes
-          </Button>
-        </div>
-      )}
+      <LevelsTabs isLoadingLevels={isLoadingLevels} levels={levels} activeLevel={activeLevel} setActiveLevel={setActiveLevel} />
     </div>
   );
 };

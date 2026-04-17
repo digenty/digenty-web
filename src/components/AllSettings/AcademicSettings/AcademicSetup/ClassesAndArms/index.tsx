@@ -465,7 +465,7 @@ export const ClassesAndArms = ({
         )}
 
         <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="w-3/4">
+          <div className="w-full min-w-0 flex-1">
             <ClassesSetup
               levels={levels}
               activeLevel={activeLevel}
@@ -571,15 +571,18 @@ export const ClassesSetup = ({
 
   return (
     <div>
-      {levels.length > 0 && (
-        <ClassesResponsiveTabs
-          levels={levels}
-          activeLevel={activeLevel}
-          setActiveLevel={setActiveLevel}
-          branchSpecific={branchSpecific}
-          branchId={branchId}
-        />
-      )}
+      {/* {openDeleteModal && <DeleteClass setOpenDeleteModal={setOpenDeleteModal} open={openDeleteModal} />} */}
+      <div className="w-full">
+        {levels.length > 0 && (
+          <ClassesResponsiveTabs
+            levels={levels}
+            activeLevel={activeLevel}
+            setActiveLevel={setActiveLevel}
+            branchSpecific={branchSpecific}
+            branchId={branchId}
+          />
+        )}
+      </div>
     </div>
   );
 };

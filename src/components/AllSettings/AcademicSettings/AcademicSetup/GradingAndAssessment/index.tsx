@@ -138,14 +138,6 @@ const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, b
                         onBlur={handleBlur}
                         className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-none! text-sm"
                         placeholder="20"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        min="0"
-                        onKeyDown={e => {
-                          if (e.key === "-" || e.key === "e") {
-                            e.preventDefault();
-                          }
-                        }}
                       />
                       <span className="text-text-muted w-3">%</span>
                     </div>
@@ -277,15 +269,8 @@ const GradingFields = ({ values, handleChange, handleBlur, level, branchId, bran
                             value={values.grades[index].lowerLimit}
                             onChange={handleChange}
                             onBlur={handleBlur}
+                            type="number"
                             placeholder="70"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            min="0"
-                            onKeyDown={e => {
-                              if (e.key === "-" || e.key === "e") {
-                                e.preventDefault();
-                              }
-                            }}
                             className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent px-0! pl-1 text-sm"
                           />
                         </div>
@@ -296,14 +281,7 @@ const GradingFields = ({ values, handleChange, handleBlur, level, branchId, bran
                             value={values.grades[index].upperLimit}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            min="0"
-                            onKeyDown={e => {
-                              if (e.key === "-" || e.key === "e") {
-                                e.preventDefault();
-                              }
-                            }}
+                            type="number"
                             placeholder="100"
                             className="text-text-default placeholder:text-text-muted/30 h-7! w-full border-none bg-transparent px-0! text-sm"
                           />
