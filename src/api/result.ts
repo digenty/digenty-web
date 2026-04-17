@@ -1,5 +1,11 @@
 import api from "@/lib/axios/axios-auth";
-import { PrincaleCommentPayload, ResultCalculationPayload, ResultSubmissionPayload, UpdateSubmissionDeadlinePayload } from "./types";
+import {
+  PrincaleCommentPayload,
+  ResultCalculationPayload,
+  ResultSubmissionPayload,
+  UpdateResultCalculationPayload,
+  UpdateSubmissionDeadlinePayload,
+} from "./types";
 import { isAxiosError } from "axios";
 
 export const addResultCalculations = async (payload: ResultCalculationPayload) => {
@@ -88,6 +94,30 @@ export const addPrincipaleComment = async (payload: PrincaleCommentPayload) => {
 export const deletePrincipalComment = async (commentId: number) => {
   try {
     const { data } = await api.delete(`/result-settings/principal-comment/${commentId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const updateResultCalculation = async (payload: UpdateResultCalculationPayload, resultSettingId: number) => {
+  try {
+    const { data } = await api.put(`/result-settings/${resultSettingId}`, payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const getResultCalculations = async () => {
+  try {
+    const { data } = await api.get(`/result-settings`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

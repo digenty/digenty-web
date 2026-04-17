@@ -5,9 +5,12 @@ import {
   deletePrincipalComment,
   getPrincipalComment,
   getPrincipalCommentByLevel,
+  getResultCalculations,
   getSubmissionDeadline,
+  updateResultCalculation,
   updateSubmissionDeadline,
 } from "@/api/result";
+import { UpdateResultCalculationPayload } from "@/api/types";
 import { resultKeys } from "@/queries/result";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -69,5 +72,20 @@ export const useDeletePrincipalComment = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [resultKeys.getPrincipalCommentByLevel] });
     },
+  });
+};
+
+export const useGetResultCalculation = () => {
+  return useQuery({
+    queryKey: resultKeys.getResultCalculation,
+    queryFn: () => getResultCalculations(),
+  });
+};
+
+export const useUpdateResultCalculation = () => {
+  return useMutation({
+    mutationKey: resultKeys.updateResultCalculation,
+    mutationFn: ({ payload, resultSettingId }: { payload: UpdateResultCalculationPayload; resultSettingId: number }) =>
+      updateResultCalculation(payload, resultSettingId),
   });
 };
