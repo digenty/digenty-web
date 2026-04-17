@@ -644,7 +644,13 @@ export interface ResultCalculationPayload {
   minimumPassGrade: string;
   requiredSubjectIds: number[];
 }
-
+export interface UpdateResultCalculationPayload {
+  calculationMethod: "THIRD_TERM_ONLY" | "CUMULATIVE";
+  promotionType: "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE";
+  minimumOverallPercentage: number;
+  minimumPassGrade: string;
+  requiredSubjectIds: number[];
+}
 export interface ResultSubmissionPayload {
   termsDeadline: [
     {
