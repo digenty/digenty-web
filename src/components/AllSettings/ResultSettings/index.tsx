@@ -3,8 +3,8 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { PrincipalComment } from "./PrincipalsComment";
-import { ResultCalculations } from "./ResultCalculations";
 import { Submission } from "./Submission";
+import { ResultCalculations } from "./ResultCalculations";
 
 const tabs = ["Result Calculation", "Submission Deadline", "Principal’s Comment"];
 
