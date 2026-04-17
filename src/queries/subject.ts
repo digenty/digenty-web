@@ -11,6 +11,7 @@ export const subjectKeys = {
   subjectsByClass: (className?: string, levelType?: string, branchId?: number) => ["subjectsByClass", className, levelType, branchId] as const,
   addSubjectToClass: ["addSubjectToClass"] as const,
   assignSubjectTeacher: "assignSubjectTeacher",
+  updateTeacherSubjectAssignment: ["updateTeacherSubjectAssignment"] as const,
 };
 
 export const REPORT_STATUS_CONFIG = {

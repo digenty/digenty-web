@@ -1,13 +1,11 @@
 "use client";
 
-import { StaffBranch } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import Building from "@/components/Icons/Building";
 import Mail from "@/components/Icons/Mail";
 import { Phone } from "@/components/Icons/Phone";
 import { UserForbid } from "@/components/Icons/UserForbid";
-import { getStatusBadge } from "@/components/Status";
 import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,8 +14,47 @@ import { useDeactivateStaff, useGetStaffDetails } from "@/hooks/queryHooks/useSt
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useStaffStore } from "@/store/staff";
 import { usePathname, useRouter } from "next/navigation";
+
+import { Arm, ClassTeacherArm, StaffBranch } from "@/api/types";
+import BankCard from "@/components/Icons/BankCard";
+import BookOpen from "@/components/Icons/BookOpen";
+import CalendarCheck from "@/components/Icons/CalendarCheck";
+import ColorFilter from "@/components/Icons/ColorFilter";
+import { DoorOpen } from "@/components/Icons/DoorOpen";
+import FileList2 from "@/components/Icons/FileList2";
+import FileList3 from "@/components/Icons/FileList3";
+import { Gift2 } from "@/components/Icons/Gift2";
+import Global from "@/components/Icons/Global";
+import GraduationCap from "@/components/Icons/GraduationCap";
+import Group from "@/components/Icons/Group";
+import LineChart from "@/components/Icons/LineChart";
+import Macbook from "@/components/Icons/Macbook";
+import Megaphone from "@/components/Icons/Megaphone";
+import Settings4 from "@/components/Icons/Settings4";
+import { Shield } from "@/components/Icons/Shield";
+import Store3 from "@/components/Icons/Store3";
+import Wallet from "@/components/Icons/Wallet";
 import { DeactivateStaffModal } from "./DeactivateStaffModal";
-import { TeacherAssignments } from "./TeacherAssignments";
+import Edit from "@/components/Icons/Edit";
+
+const permissionIcons = {
+  "Student & Parent Records": Group,
+  "Classes & Subjects": GraduationCap,
+  Attendance: CalendarCheck,
+  "Admission Management": DoorOpen,
+  Invoices: FileList3,
+  Fees: FileList2,
+  Expenses: BankCard,
+  Stock: Store3,
+  "Fee Collection": Wallet,
+  "Finance Report": LineChart,
+  Communication: Megaphone,
+  "Portal Overview": Macbook,
+  "Portal Customization": ColorFilter,
+  Domain: Global,
+  Settings: Settings4,
+  Referrals: Gift2,
+};
 
 export const StaffDetails = () => {
   const router = useRouter();
@@ -62,6 +99,10 @@ export const StaffDetails = () => {
   console.log(data?.data);
   // const teacherRoles =
 
+  const hasExistingAssignments = data?.data?.branches.some(
+    (branch: StaffBranch) => branch.subjectTeachings.length > 0 || branch.classTeacherArms.length > 0,
+  );
+
   return (
     <>
       {openDeactivation && (
@@ -85,169 +126,196 @@ export const StaffDetails = () => {
       )}
 
       {data && !isPending && !isError && (
-        <div className="flex w-full items-center justify-center px-4 py-4 md:mx-auto md:max-w-250 md:px-8 md:py-6">
-          <div className="flex w-full flex-col gap-8">
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between md:gap-4">
-              <div className="flex items-center gap-2">
-                <Avatar className="size-14 md:size-26" />
+        <div>
+          <div className="flex w-full items-center justify-center px-4 py-4 md:mx-auto md:max-w-250 md:px-8 md:py-6">
+            <div className="flex w-full flex-col gap-8">
+              
+              <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between md:gap-4">
+                <div className="flex items-center gap-2">
+                  <Avatar className="size-14 md:size-26" />
 
-                <div className="flex flex-col gap-1 md:gap-2">
-                  <div className="flex flex-col items-start gap-1 md:flex-row md:items-center">
-                    <span className="text-text-default w-40 truncate text-lg font-semibold sm:w-auto">{data.data.fullname}</span>
+                  <div className="flex flex-col gap-1 md:gap-2">
+                    <div className="flex flex-col items-start gap-1 md:flex-row md:items-center">
+                      <span className="text-text-default w-40 truncate text-lg font-semibold sm:w-auto">{data.data.fullname}</span>
 
-                    <div className="flex flex-wrap gap-2">
-                      {getAllRoleNames(data?.data?.branches).map((role: string) => (
-                        <Badge
-                          key={role}
-                          className="bg-bg-badge-lime border-border-default text-bg-basic-lime-strong rounded-md border text-xs font-medium"
-                        >
-                          {role}
-                        </Badge>
-                      ))}
+                      <div className="flex flex-wrap gap-2">
+                        {getAllRoleNames(data?.data?.branches).map((role: string) => (
+                          <Badge
+                            key={role}
+                            className="bg-bg-badge-lime border-border-default text-bg-basic-lime-strong rounded-md border text-xs font-medium"
+                          >
+                            {role}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div className="text-text-subtle text-xs">{data.data.email}</div>
-                  {data.data.status ? getStatusBadge(data.data.status.toLowerCase()) : "--"}
+                </div>
+
+                <div className="hide-scrollbar flex items-center gap-1 overflow-x-auto md:w-auto md:overflow-x-hidden">
+                  <Button
+                    onClick={() => {
+                      setOpenDeactivation(true);
+                      setStaffIdToDeactivate(data.data.staffId);
+                    }}
+                    className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
+                  >
+                    <UserForbid fill="var(--color-icon-default-muted)" className="size-4" /> Deactivate
+                  </Button>
+                  <Button
+                    onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staffId}`)}
+                    className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
+                  >
+                    <Edit fill="var(--color-icon-default-muted)" className="size-4" /> Edit Staff
+                  </Button>
                 </div>
               </div>
 
-              <div className="hide-scrollbar flex items-center gap-1 overflow-x-auto md:w-auto md:overflow-x-hidden">
-                {/* <Button className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border">
-                <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" /> Delete
-              </Button> */}
-                <Button
-                  onClick={() => {
-                    setOpenDeactivation(true);
-                    setStaffIdToDeactivate(data.data.staffId);
-                  }}
-                  className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
-                >
-                  <UserForbid fill="var(--color-icon-default-muted)" className="size-4" /> Deactivate
-                </Button>
-                {/* <Button
-                  onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staffId}`)}
-                  className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
-                >
-                  <Edit fill="var(--color-icon-default-muted)" className="size-4" /> Edit Staff
-                </Button> */}
-              </div>
-            </div>
-
-            <div className="bg-bg-muted border-border-default rounded-md border px-2 text-sm md:px-6">
-              <div className="border-border-default flex items-center justify-between gap-2 border-b py-4">
-                <div className="flex w-1/2 items-center gap-2">
-                  <Building fill="var(--color-icon-default-muted)" />
-                  <div className="text-text-muted">Branch</div>
+              <div className="bg-bg-muted border-border-default rounded-md border px-2 text-sm md:px-6">
+                <div className="border-border-default flex items-center justify-between gap-2 border-b py-4">
+                  <div className="flex w-1/2 flex-1 items-center gap-2">
+                    <Building fill="var(--color-icon-default-muted)" />
+                    <div className="text-text-muted">Branch</div>
+                  </div>
+                  <div className="text-text-default w-1/2 truncate text-right font-medium">
+                    {data.data.branches.map((branch: StaffBranch) => branch.branchName).join(", ")}
+                  </div>
                 </div>
-                <div className="text-text-default w-1/2 truncate text-right font-medium">
-                  {data.data.branches.map((branch: StaffBranch) => branch.branchName).join(", ")}
+                <div className="border-border-default flex items-center justify-between gap-2 border-b py-4">
+                  <div className="flex w-1/2 flex-1 items-center gap-2">
+                    <Mail fill="var(--color-icon-default-muted)" />
+                    <div className="text-text-muted">Email Address</div>
+                  </div>
+                  <div className="text-text-informative w-1/2 truncate text-right font-medium">{data.data.email}</div>
                 </div>
-              </div>
-              <div className="border-border-default flex items-center justify-between gap-2 border-b py-4">
-                <div className="flex w-1/2 items-center gap-2">
-                  <Mail fill="var(--color-icon-default-muted)" />
-                  <div className="text-text-muted">Email Address</div>
-                </div>
-                <div className="text-text-informative w-1/2 truncate text-right font-medium">{data.data.email}</div>
-              </div>
-              <div className="flex items-center justify-between gap-2 py-4">
-                <div className="flex w-1/2 items-center gap-2">
-                  <Phone fill="var(--color-icon-default-muted)" />
-                  <div className="text-text-muted">Primary Phone Number</div>
-                </div>
-                <div className="text-text-informative w-1/2 truncate text-right font-medium">{data.data.phoneNumber}</div>
-              </div>
-            </div>
-
-            <TeacherAssignments teacherName={data.data.fullname} staffId={Number(staffId)} />
-
-            {/* <div className="border-border-default gap-4 rounded-md border p-4">
-            <div className="border-border-default flex items-center gap-3 border-b pb-4">
-              <div className="bg-bg-badge-gray flex size-8 items-center justify-center rounded-sm p-1">
-                <BookOpen fill="var(--color-icon-default-muted)" className="" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <div className="text-text-default text-md font-medium">Lawanson</div>
-                <div className="text-text-muted text-sm">5 classes • 1 class teacher role • 5 Permissions</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 py-4">
-              <div className="bg-bg-badge-gray flex size-8 items-center justify-center rounded-sm p-1">
-                <BookOpen fill="var(--color-bg-basic-sky-accent)" className="" />
-              </div>
-              <div className="text-text-default text-md font-medium">Subject Teaching</div>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <div className="bg-bg-muted flex flex-col gap-2 rounded-md px-4 py-2">
-                <div className="text-text-default text-sm font-medium">Mathematics</div>
-                <div className="flex flex-wrap gap-3">
-                  <Badge className="text-text-subtle bg-bg-badge-default rounded-sm">JSS 1</Badge>{" "}
-                  <Badge className="text-text-subtle bg-bg-badge-default rounded-sm">JSS 1</Badge>
-                </div>
-              </div>
-              <div className="bg-bg-muted flex flex-col gap-2 rounded-md px-4 py-2">
-                <div className="text-text-default text-sm font-medium">Mathematics</div>
-                <div className="flex flex-wrap gap-3">
-                  <Badge className="text-text-subtle bg-bg-badge-default rounded-sm">JSS 1</Badge>{" "}
-                  <Badge className="text-text-subtle bg-bg-badge-default rounded-sm">JSS 1</Badge>
+                <div className="flex items-center justify-between gap-2 py-4">
+                  <div className="flex w-1/2 flex-1 items-center gap-2">
+                    <Phone fill="var(--color-icon-default-muted)" />
+                    <div className="text-text-muted">Primary Phone Number</div>
+                  </div>
+                  <div className="text-text-informative w-1/2 truncate text-right font-medium">{data.data.phoneNumber}</div>
                 </div>
               </div>
             </div>
-
-            <div className="flex items-center gap-3 py-4">
-              <div className="bg-bg-badge-gray flex size-8 items-center justify-center rounded-sm p-1">
-                <Group fill="var(--color-bg-basic-violet-accent)" className="" />
-              </div>
-              <div className="text-text-default text-md font-medium">Class Teacher For</div>
-            </div>
-
-            <div className="bg-bg-muted flex items-center justify-between gap-2 rounded-md px-4 py-2">
-              <div className="flex flex-col gap-2">
-                <div className="text-text-default text-sm font-medium">JSS 1</div>
-                <div className="text-text-muted text-xs">32 Students</div>{" "}
-              </div>
-              <Badge className="text-bg-basic-green-strong bg-bg-badge-green border-border-default rounded-md border text-sm font-medium">
-                Active
-              </Badge>
-            </div>
-
-            <div className="flex items-center gap-3 py-4">
-              <div className="bg-bg-badge-gray flex size-8 items-center justify-center rounded-sm p-1">
-                <Shield fill="var(--color-bg-basic-emerald-accent)" className="" />
-              </div>
-              <div className="text-text-default text-md font-medium">Permissions</div>
-            </div>
-
-            <div className="bg-bg-muted flex flex-col gap-2 rounded-md px-4 py-2">
-              <div className="itesm-center flex gap-2">
-                <div className="bg-bg-badge-gray flex size-5 items-center justify-center rounded-sm p-1">
-                  <Group fill="var(--color-icon-default-subtle)" className="" />
-                </div>
-                <div className="text-text-default text-sm font-medium">Student & Parent Records</div>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Badge className="text-text-subtle bg-bg-badge-default rounded-sm">view</Badge>{" "}
-                <Badge className="text-text-subtle bg-bg-badge-default rounded-sm">Manage</Badge>
-                <Badge className="text-text-subtle bg-bg-badge-default rounded-sm">Delete</Badge>
-              </div>
-            </div>
-
-
-            <div className="bg-bg-muted mt-4 flex flex-col gap-2 rounded-md px-4 py-2">
-              <div className="itesm-center flex gap-2">
-                <div className="bg-bg-badge-gray flex size-5 items-center justify-center rounded-sm p-1">
-                  <GraduationCap fill="var(--color-icon-default-subtle)" className="" />
-                </div>
-                <div className="text-text-default text-sm font-medium">Classes & Subjects</div>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Badge className="text-text-subtle bg-bg-badge-default rounded-sm">view</Badge>{" "}
-              </div>
-            </div>
-          </div> */}
           </div>
+
+          {hasExistingAssignments && (
+            <div className="flex flex-col gap-8 px-4 py-4 md:mx-auto md:max-w-250 md:px-8">
+              {data.data.branches.map((branch: StaffBranch) => (
+                <div key={branch.branchId} className="border-border-default gap-4 rounded-md border py-4">
+                  <div className="border-border-default flex items-center justify-between gap-3 border-b px-4 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-bg-badge-gray flex size-8 items-center justify-center rounded-sm p-1">
+                        <BookOpen fill="var(--color-icon-default-muted)" className="" />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <div className="text-text-default text-md font-medium">{branch.branchName}</div>
+                        <div className="text-text-muted text-sm">
+                          {branch.classTeacherArms.length} class{branch.classTeacherArms.length !== 1 ? "es" : ""} • {branch.roleNames.length} role
+                          {branch.roleNames.length !== 1 ? "s" : ""} • {branch.permissions.length} permission group
+                          {branch.permissions.length !== 1 ? "s" : ""}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {branch.subjectTeachings.length > 0 && (
+                    <div className="px-4">
+                      <div className="flex items-center gap-3 py-4">
+                        <div className="bg-bg-badge-sky flex size-8 items-center justify-center rounded-sm p-1">
+                          <BookOpen fill="var(--color-bg-basic-sky-accent)" className="" />
+                        </div>
+                        <div className="text-text-default text-sm font-semibold">Subject Teaching</div>
+                      </div>
+
+                      <div className="flex flex-col gap-4">
+                        {branch.subjectTeachings.map(subject => (
+                          <div key={subject.subjectId} className="bg-bg-muted flex flex-col gap-2 rounded-md px-4 py-2">
+                            <div className="text-text-default text-sm font-medium capitalize">{subject.subjectName.toLowerCase()}</div>
+                            <div className="flex flex-wrap gap-3">
+                              {subject.arms.map((arm: Arm) => (
+                                <Badge key={arm.armId} className="text-text-subtle bg-bg-badge-default rounded-sm">
+                                  {arm.armName}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {branch.classTeacherArms.length > 0 && (
+                    <div className="px-4">
+                      <div className="flex items-center gap-4 py-4">
+                        <div className="bg-bg-badge-gray flex size-8 items-center justify-center rounded-sm p-1">
+                          <Group fill="var(--color-bg-basic-violet-accent)" className="" />
+                        </div>
+                        <div className="text-text-default text-sm font-semibold">Class Teacher For</div>
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        {branch.classTeacherArms.map((classArm: ClassTeacherArm) => (
+                          <div key={classArm.armId} className="bg-bg-muted flex items-center justify-between gap-2 rounded-md px-4 py-2">
+                            <div className="flex flex-col gap-2">
+                              <div className="text-text-default text-sm font-medium capitalize">{classArm.armName.toLowerCase()}</div>
+                              <div className="text-text-muted text-xs">
+                                {classArm.studentCount} Student{classArm.studentCount !== 1 ? "s" : ""}
+                              </div>
+                            </div>
+                            <Badge
+                              className={`rounded-md border text-xs font-medium ${
+                                classArm.active
+                                  ? "text-bg-basic-green-strong bg-bg-badge-green border-border-default"
+                                  : "text-text-subtle bg-bg-badge-default border-border-default"
+                              }`}
+                            >
+                              {classArm.active ? "Active" : "Inactive"}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {branch.permissions.length > 0 && (
+                    <div className="px-4">
+                      <div className="flex items-center gap-3 py-4">
+                        <div className="bg-bg-badge-emerald flex size-8 items-center justify-center rounded-sm p-1">
+                          <Shield fill="var(--color-bg-basic-emerald-accent)" className="" />
+                        </div>
+                        <div className="text-text-default text-sm font-semibold">Permissions</div>
+                      </div>
+
+                      <div className="flex flex-col gap-4">
+                        {branch.permissions.map((permission, idx) => {
+                          const Icon = permissionIcons[permission.moduleName as keyof typeof permissionIcons];
+                          return (
+                            <div key={idx} className="bg-bg-muted flex flex-col gap-2 rounded-md px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                <div className="bg-bg-badge-gray flex size-5 items-center justify-center rounded-sm p-1">
+                                  {Icon && <Icon fill="var(--color-icon-default-subtle)" className="size-3" />}
+                                </div>
+
+                                <div className="text-text-default text-sm font-medium">{permission.moduleName}</div>
+                              </div>
+                              <div className="flex flex-wrap gap-3">
+                                {permission.permissions.map((perm, permIdx) => (
+                                  <Badge key={permIdx} className="text-text-subtle bg-bg-badge-default rounded-sm capitalize">
+                                    {perm}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </>

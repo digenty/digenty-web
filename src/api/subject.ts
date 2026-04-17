@@ -148,3 +148,15 @@ export const deleteSubjectFromClass = async (subjectId: number, classId: number)
     throw error;
   }
 };
+
+export const updateAssignSubjectTeacher = async (payload: { teacherId: number; subjectArmAndClassDtos: { subjectId: number; armId: number }[] }) => {
+  try {
+    const { data } = await api.put("/teacher/subject", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

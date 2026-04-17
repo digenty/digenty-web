@@ -10,6 +10,7 @@ import {
   getSubjectsByLevel,
   getSubjectStudents,
   getTeacherSubjects,
+  updateAssignSubjectTeacher,
 } from "@/api/subject";
 import { LevelType } from "@/api/types";
 import { classKeys } from "@/queries/class";
@@ -122,6 +123,18 @@ export const useDeleteSubjectFromClass = () => {
     mutationFn: ({ subjectId, classId }: { subjectId: number; classId: number }) => deleteSubjectFromClass(subjectId, classId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
+    },
+  });
+};
+
+export const useUpdateAssignSubjectTeacher = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subjectKeys.updateTeacherSubjectAssignment,
+    mutationFn: (payload: { teacherId: number; subjectArmAndClassDtos: { subjectId: number; armId: number }[] }) =>
+      updateAssignSubjectTeacher(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.updateTeacherSubjectAssignment] });
     },
   });
 };

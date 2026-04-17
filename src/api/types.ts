@@ -768,12 +768,30 @@ export interface PrincipalsComment {
   minPercentage: number;
 }
 
+export interface Arm {
+  armId: number;
+  armName: string;
+}
+
+export interface SubjectTeaching {
+  subjectId: number;
+  subjectName: string;
+  arms: Arm[];
+}
+
+export interface ClassTeacherArm {
+  armId: number;
+  armName: string;
+  studentCount: number;
+  active: boolean;
+}
+
 export interface StaffBranch {
   branchId: number;
   branchName: string;
   roleNames: string[];
-  subjectTeachings: string[];
-  classTeacherArms: string[];
+  subjectTeachings: SubjectTeaching[];
+  classTeacherArms: ClassTeacherArm[];
   permissions: [
     {
       moduleName: string;
