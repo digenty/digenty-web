@@ -58,12 +58,14 @@ export const StaffMobileCard = ({ staff }: { staff: Staff }) => {
                 <ShieldUser className="text-icon-default-subtle size-4" /> Make Branch Admin
               </div>
 
-              <div
-                onClick={handleDeactivate}
-                className="hover:bg-bg-muted border-border-darker text-text-destructive flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-              >
-                <UserForbid fill="var(--color-icon-destructive)" className="size-4" /> Deactivate Staff
-              </div>
+              {staff.status !== "INACTIVE" && (
+                <div
+                  onClick={handleDeactivate}
+                  className="hover:bg-bg-muted border-border-darker text-text-destructive flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                >
+                  <UserForbid fill="var(--color-icon-destructive)" className="size-4" /> Deactivate Staff
+                </div>
+              )}
             </div>
           </div>
         </MobileDrawer>
@@ -84,7 +86,7 @@ export const StaffMobileCard = ({ staff }: { staff: Staff }) => {
 
       <div className="flex justify-between px-3 py-2 text-sm">
         <span className="text-text-muted font-medium">Status</span>
-        {getStatusBadge(staff.status ? "Active" : "Inactive")}
+        {staff.status ? getStatusBadge(staff.status.toLowerCase()) : "--"}
       </div>
     </div>
   );

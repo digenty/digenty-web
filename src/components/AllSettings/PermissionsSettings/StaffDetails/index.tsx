@@ -36,6 +36,7 @@ import Store3 from "@/components/Icons/Store3";
 import Wallet from "@/components/Icons/Wallet";
 import { DeactivateStaffModal } from "./DeactivateStaffModal";
 import Edit from "@/components/Icons/Edit";
+import { getStatusBadge } from "@/components/Status";
 
 const permissionIcons = {
   "Student & Parent Records": Group,
@@ -96,8 +97,6 @@ export const StaffDetails = () => {
       },
     });
   };
-  console.log(data?.data);
-  // const teacherRoles =
 
   const hasExistingAssignments = data?.data?.branches.some(
     (branch: StaffBranch) => branch.subjectTeachings.length > 0 || branch.classTeacherArms.length > 0,
@@ -148,19 +147,24 @@ export const StaffDetails = () => {
                         ))}
                       </div>
                     </div>
+
+                    <div className="text-text-subtle text-xs">{data.data.email}</div>
+                    {data.data.status ? getStatusBadge(data.data.status.toLowerCase()) : "--"}
                   </div>
                 </div>
 
                 <div className="hide-scrollbar flex items-center gap-1 overflow-x-auto md:w-auto md:overflow-x-hidden">
-                  <Button
-                    onClick={() => {
-                      setOpenDeactivation(true);
-                      setStaffIdToDeactivate(data.data.staffId);
-                    }}
-                    className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
-                  >
-                    <UserForbid fill="var(--color-icon-default-muted)" className="size-4" /> Deactivate
-                  </Button>
+                  {data.data.status !== "INACTIVE" && (
+                    <Button
+                      onClick={() => {
+                        setOpenDeactivation(true);
+                        setStaffIdToDeactivate(data.data.staffId);
+                      }}
+                      className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
+                    >
+                      <UserForbid fill="var(--color-icon-default-muted)" className="size-4" /> Deactivate
+                    </Button>
+                  )}
                   <Button
                     onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staffId}`)}
                     className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"

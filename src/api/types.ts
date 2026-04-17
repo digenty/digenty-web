@@ -315,7 +315,7 @@ export interface Staff {
   fullName: string;
   email: string;
   roleName: string | null;
-  status: boolean;
+  status: "ACTIVE" | "INACTIVE" | "PENDING";
   branchName: string;
   lastLogin: Date;
 }

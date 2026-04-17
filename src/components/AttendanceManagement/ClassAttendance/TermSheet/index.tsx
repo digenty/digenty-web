@@ -26,8 +26,8 @@ export const TermSheet = () => {
   const armId = path.split("/")[4] ?? "";
 
   useBreadcrumb([
-    { label: "Attendance Management", url: "/staff/attendance-management" },
-    { label: "Class Attendance", url: "/staff/attendance-management/class-attendance" },
+    { label: "Attendance Management", url: "/staff/attendance" },
+    { label: "Class Attendance", url: "/staff/attendance- /class-attendance" },
     { label: "Term Sheet", url: "" },
   ]);
 
