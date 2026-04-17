@@ -79,11 +79,11 @@ export const useGetSubjectsByClass = (className?: string, levelType?: string, br
   });
 };
 
-export const useGetSubjectsByClassId = (classId: number) => {
+export const useGetSubjectsByClassId = (classId: number, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: [subjectKeys.subjectsByClassId, classId],
     queryFn: () => getSubjectsByClassId(classId),
-    enabled: !!classId,
+    enabled: options?.enabled !== undefined ? options.enabled && !!classId : !!classId,
     retry: false,
   });
 };
