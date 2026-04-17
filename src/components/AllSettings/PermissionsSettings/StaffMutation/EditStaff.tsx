@@ -159,7 +159,6 @@ export const EditStaff = () => {
     },
   });
 
-  console.log(formik.errors, formik.values, "9999999999");
   return (
     <div className="flex flex-col gap-6">
       <div className="bg-bg-card-subtle border-border-default border-b p-3">
@@ -397,7 +396,7 @@ export const EditStaff = () => {
                     {
                       label: "Teacher Assignment",
                       content: (
-                        <div className="mt-6 w-full max-w-full">
+                        <div className="mt-6 w-full max-w-full px-4 md:px-8">
                           <div className="-mx-4 md:-mx-8">
                             <TeacherAssignments
                               teacherName={`${formik.values.firstName} ${formik.values.lastName}`.trim()}
