@@ -1,4 +1,4 @@
-import { AcademicSession, Levelsubject, SchoolGrading } from "@/api/types";
+import { SchoolGrading } from "@/api/types";
 import Edit from "@/components/Icons/Edit";
 import { RoundedCheckbox } from "@/components/RoundedCheckbox";
 import { toast } from "@/components/Toast";
@@ -11,17 +11,26 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
-import { useGetSchoolGradings } from "@/hooks/queryHooks/useGrading";
-import { useAddResultCalculation } from "@/hooks/queryHooks/useResult";
+import { useAddResultCalculation, useGetResultCalculation, useUpdateResultCalculation } from "@/hooks/queryHooks/useResult";
 import { useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { defaultFormState, LevelFormProps, LevelFormState } from "./types";
 import { extractUniqueSubjectsByName, Subject } from "./utils";
 import { useGetGradingsByLevel } from "@/hooks/queryHooks/useLevel";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+interface ResultCalculationRecord {
+  id: number;
+  classId: number;
+  academicSessionId: number;
+  calculationMethod: string;
+  promotionType: string;
+  minimumOverallPercentage: number;
+  minimumPassGrade: string;
+  requiredSubjectIds: number[];
+}
 
 function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; levels: { label: string; content: React.ReactNode }[] }) {
   const isMobile = useIsMobile();
@@ -92,14 +101,29 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
   );
 }
 
-const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, isPending }: LevelFormProps) => {
+const LevelForm = ({
+  levelType,
+  levelId,
+  formState,
+  onChange,
+  onSave,
+  onCancel,
+  onEdit,
+  isPending,
+  existingRecord,
+  isEditing,
+}: LevelFormProps & {
+  existingRecord?: ResultCalculationRecord;
+  isEditing: boolean;
+  onEdit: () => void;
+}) => {
   const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
+  const [hasOpenedForm, setHasOpenedForm] = useState(!!existingRecord);
+
   const { data: subjectsData, isLoading: isLoadingSubjects } = useGetSubjectsByLevel(levelType);
   const { data: gradingsData, isLoading: isLoadingGradings } = useGetGradingsByLevel(levelId);
 
   const subjects = useMemo(() => extractUniqueSubjectsByName(subjectsData?.data ?? []), [subjectsData]);
-
   const gradings = gradingsData?.data ?? [];
 
   const toggleSubject = (subjectId: number) => {
@@ -109,14 +133,31 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
     });
   };
 
+  if (!existingRecord && !hasOpenedForm) {
+    return (
+      <div className="mx-auto flex h-screen w-full flex-col items-center justify-center gap-4 py-20">
+        <div className="text-text-muted text-sm">No result calculation set up for this level yet.</div>
+        <Button
+          onClick={() => {
+            setHasOpenedForm(true);
+            onEdit();
+          }}
+          className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-8! rounded-md px-4"
+        >
+          Set Up Result Calculation
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mx-auto flex w-full max-w-171 items-center justify-center pb-20">
         <div className="flex w-full flex-col gap-6">
           <div className="flex justify-between">
             <div className="text-text-default text-xl font-semibold">Result Calculation</div>
-            {!isEditing && (
-              <Button onClick={() => setIsEditing(true)} className="text-text-default border-border-darker h-8! rounded-md border">
+            {existingRecord && !isEditing && (
+              <Button onClick={onEdit} className="text-text-default border-border-darker h-8! rounded-md border">
                 <Edit fill="var(--color-icon-default-muted)" /> Edit
               </Button>
             )}
@@ -130,7 +171,8 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
             <div className="flex items-start gap-2">
               <RoundedCheckbox
                 checked={formState.calculationMethod === "THIRD_TERM_ONLY"}
-                onChange={() => onChange({ calculationMethod: "THIRD_TERM_ONLY" })}
+                onChange={() => isEditing && onChange({ calculationMethod: "THIRD_TERM_ONLY" })}
+                disabled={!isEditing}
               />
               <div className="flex flex-col gap-1">
                 <div className="text-text-default text-sm">Third Term Only</div>
@@ -140,7 +182,8 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
             <div className="flex items-start gap-2">
               <RoundedCheckbox
                 checked={formState.calculationMethod === "CUMULATIVE"}
-                onChange={() => onChange({ calculationMethod: "CUMULATIVE" })}
+                onChange={() => isEditing && onChange({ calculationMethod: "CUMULATIVE" })}
+                disabled={!isEditing}
               />
               <div className="flex flex-col gap-1">
                 <div className="text-text-default text-sm">Cumulative Average</div>
@@ -157,33 +200,42 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
             <div className="flex items-start gap-2">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
-                  <RoundedCheckbox checked={formState.promotionType === "PROMOTE_ALL"} onChange={() => onChange({ promotionType: "PROMOTE_ALL" })} />
+                  <RoundedCheckbox
+                    checked={formState.promotionType === "PROMOTE_ALL"}
+                    onChange={() => isEditing && onChange({ promotionType: "PROMOTE_ALL" })}
+                    disabled={!isEditing}
+                  />
                   <div className="text-text-default text-sm font-medium">Promote All</div>
                 </div>
-
                 <div className="text-text-subtle pl-6 text-sm">Automatically promote every student.</div>
               </div>
             </div>
+
             <div className="flex items-start gap-2">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
-                  <RoundedCheckbox checked={formState.promotionType === "MANUAL"} onChange={() => onChange({ promotionType: "MANUAL" })} />
+                  <RoundedCheckbox
+                    checked={formState.promotionType === "MANUAL"}
+                    onChange={() => isEditing && onChange({ promotionType: "MANUAL" })}
+                    disabled={!isEditing}
+                  />
                   <div className="text-text-default text-sm font-medium">Manual Promotion</div>
                 </div>
                 <div className="text-text-subtle pl-6 text-sm">Decide each student&apos;s promotion manually.</div>
               </div>
             </div>
+
             <div className="flex items-start gap-2">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <RoundedCheckbox
                     checked={formState.promotionType === "BY_PERFORMANCE"}
-                    onChange={() => onChange({ promotionType: "BY_PERFORMANCE" })}
+                    onChange={() => isEditing && onChange({ promotionType: "BY_PERFORMANCE" })}
+                    disabled={!isEditing}
                   />
                   <div className="text-text-default text-sm font-medium">By Performance</div>
                 </div>
                 <div className="text-text-subtle pl-6 text-sm">Promote students who meet a minimum score (either cumulative or final term)</div>
-
                 <div className="space-y-2 pl-6">
                   <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
                   <div className="bg-bg-input-soft! text-text-muted flex w-32 items-center justify-between rounded-md">
@@ -191,6 +243,7 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
                       type="number"
                       className="text-text-muted h-9! border-none text-sm"
                       placeholder="100"
+                      disabled={!isEditing}
                       value={formState.minimumOverallPercentage}
                       onChange={e => onChange({ minimumOverallPercentage: e.target.value })}
                     />
@@ -205,7 +258,8 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
                 <div className="flex items-center gap-2">
                   <RoundedCheckbox
                     checked={formState.promotionType === "SUBJECT_COMBINATION"}
-                    onChange={() => onChange({ promotionType: "SUBJECT_COMBINATION" })}
+                    onChange={() => isEditing && onChange({ promotionType: "SUBJECT_COMBINATION" })}
+                    disabled={!isEditing}
                   />
                   <div className="text-text-default text-sm font-medium">Subject Combination</div>
                 </div>
@@ -214,12 +268,15 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
                 <div className="mt-4 flex flex-col gap-1 pl-6">
                   <Label className="text-text-default text-sm font-medium">A. Required passes (Compulsory)</Label>
                   <div className="text-text-subtle text-sm">Multi-select subjects that student must pass</div>
-
                   {isLoadingSubjects ? (
                     <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
                   ) : (
                     <>
-                      <Select value="" onValueChange={val => onChange({ requiredSubjectIds: [...formState.requiredSubjectIds, Number(val)] })}>
+                      <Select
+                        value=""
+                        disabled={!isEditing}
+                        onValueChange={val => onChange({ requiredSubjectIds: [...formState.requiredSubjectIds, Number(val)] })}
+                      >
                         <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
                           <SelectValue placeholder="Select subjects" />
                         </SelectTrigger>
@@ -244,9 +301,11 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
                             .map((s: Subject) => (
                               <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
                                 <span className="capitalize">{s.name.toLowerCase()}</span>
-                                <button onClick={() => toggleSubject(s.id)} className="text-text-muted hover:text-text-default">
-                                  ×
-                                </button>
+                                {isEditing && (
+                                  <button onClick={() => toggleSubject(s.id)} className="text-text-muted hover:text-text-default">
+                                    ×
+                                  </button>
+                                )}
                               </div>
                             ))}
                         </div>
@@ -262,7 +321,7 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
                   ) : (
                     <div className="flex flex-col gap-1">
                       <Label className="text-text-default text-sm font-medium">Grade required to pass a subject</Label>
-                      <Select value={formState.minimumPassGrade} onValueChange={val => onChange({ minimumPassGrade: val })}>
+                      <Select value={formState.minimumPassGrade} disabled={!isEditing} onValueChange={val => onChange({ minimumPassGrade: val })}>
                         <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal md:w-57">
                           <SelectValue placeholder="Select grade">
                             <span className="text-text-default text-sm">{formState.minimumPassGrade}</span>
@@ -280,15 +339,13 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
                               </Button>
                             </div>
                           )}
-                          {gradings.map((grading: SchoolGrading) => {
-                            if (grading.grade) {
-                              return (
-                                <SelectItem key={grading.id} value={grading.grade} className="text-text-default text-sm">
-                                  {grading.grade}
-                                </SelectItem>
-                              );
-                            }
-                          })}
+                          {gradings.map((grading: SchoolGrading) =>
+                            grading.grade ? (
+                              <SelectItem key={grading.id} value={grading.grade} className="text-text-default text-sm">
+                                {grading.grade}
+                              </SelectItem>
+                            ) : null,
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -304,6 +361,7 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
                       type="number"
                       className="text-text-muted h-9! border-none text-xs"
                       placeholder="100"
+                      disabled={!isEditing}
                       value={formState.subjectCombinationMinPercentage}
                       onChange={e => onChange({ subjectCombinationMinPercentage: e.target.value })}
                     />
@@ -326,7 +384,7 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
             className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
           >
             {isPending && <Spinner className="text-text-white-default size-4" />}
-            Save changes
+            {existingRecord ? "Save changes" : "Save"}
           </Button>
         </div>
       )}
@@ -337,20 +395,58 @@ const LevelForm = ({ levelType, levelId, formState, onChange, onSave, onCancel, 
 export const ResultCalculations = () => {
   const { data: classLevel, isFetching: isLoadingLevels } = useGetClassLevel();
   const { data: academicData } = useGetActiveSession();
-  const { mutate, isPending } = useAddResultCalculation();
-  const levels = extractUniqueLevelsByType(classLevel?.data || []);
+  const { data: resultCalculationsData } = useGetResultCalculation();
+  const { mutate: addResult, isPending: isAdding } = useAddResultCalculation();
+  const { mutate: updateResult, isPending: isUpdating } = useUpdateResultCalculation();
 
+  const levels = extractUniqueLevelsByType(classLevel?.data || []);
   const academicSessionId = academicData?.data?.id;
 
+  const existingRecordsMap = useMemo(() => {
+    const records: Record<number, ResultCalculationRecord> = {};
+    (resultCalculationsData?.data ?? []).forEach((r: ResultCalculationRecord) => {
+      records[r.classId] = r;
+    });
+    return records;
+  }, [resultCalculationsData]);
+
   const [formStates, setFormStates] = useState<Record<string, LevelFormState>>({});
+
+  const [editingLevels, setEditingLevels] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (!resultCalculationsData?.data) return;
+    setFormStates(prev => {
+      const next = { ...prev };
+      (resultCalculationsData.data as ResultCalculationRecord[]).forEach(record => {
+        const level = levels.find(l => l.id === record.classId);
+        if (!level || next[level.levelName]) return;
+        next[level.levelName] = {
+          calculationMethod: record.calculationMethod as LevelFormState["calculationMethod"],
+          promotionType: (record.promotionType === "BY_PERFORMANCE" && record.requiredSubjectIds?.length > 0
+            ? "SUBJECT_COMBINATION"
+            : record.promotionType) as LevelFormState["promotionType"],
+          minimumOverallPercentage: String(record.minimumOverallPercentage ?? ""),
+          minimumPassGrade: record.minimumPassGrade ?? "",
+          requiredSubjectIds: record.requiredSubjectIds ?? [],
+          subjectCombinationMinPercentage: "",
+        };
+      });
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultCalculationsData]);
 
   const getFormState = (levelName: string): LevelFormState => formStates[levelName] ?? defaultFormState();
 
   const updateFormState = (levelName: string, updates: Partial<LevelFormState>) =>
     setFormStates(prev => ({ ...prev, [levelName]: { ...getFormState(levelName), ...updates } }));
 
-  const handleSave = async (levelName: string, levelId: number) => {
+  const setEditing = (levelName: string, value: boolean) => setEditingLevels(prev => ({ ...prev, [levelName]: value }));
+
+  const handleSave = (levelName: string, levelId: number) => {
     const state = getFormState(levelName);
+    const existingRecord = existingRecordsMap[levelId];
 
     if (!state.calculationMethod) {
       toast({ title: "Error", description: "Please select a calculation method.", type: "error" });
@@ -361,9 +457,7 @@ export const ResultCalculations = () => {
       return;
     }
 
-    const payload = {
-      levelId,
-      academicSessionId,
+    const sharedPayload = {
       calculationMethod: state.calculationMethod!,
       promotionType: state.promotionType === "SUBJECT_COMBINATION" ? "BY_PERFORMANCE" : state.promotionType!,
       minimumOverallPercentage: Number(state.minimumOverallPercentage) || 0,
@@ -371,49 +465,72 @@ export const ResultCalculations = () => {
       requiredSubjectIds: state.requiredSubjectIds,
     };
 
-    try {
-      await mutate(payload, {
-        onSuccess: () => {
-          toast({ title: "Success", description: `Result saved for ${levelName}`, type: "success" });
-        },
-        onError: error => {
-          const message = error?.message || `Could not save result settings for ${levelName}`;
-          toast({ title: "Failed to save", description: message, type: "error" });
-        },
+    const onSuccess = () => {
+      toast({
+        title: "Success",
+        description: `Result ${existingRecord ? "updated" : "saved"} for ${levelName}`,
+        type: "success",
       });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
-      toast({ title: "Failed to save", description: message, type: "error" });
+
+      setEditing(levelName, false);
+    };
+    const onError = (error: Error) => {
+      toast({
+        title: `Failed to ${existingRecord ? "update" : "save"}`,
+        description: error?.message || `Could not save result settings for ${levelName}`,
+        type: "error",
+      });
+    };
+
+    if (existingRecord) {
+      updateResult({ payload: sharedPayload, resultSettingId: existingRecord.id }, { onSuccess, onError });
+    } else {
+      addResult({ ...sharedPayload, levelId, academicSessionId }, { onSuccess, onError });
     }
   };
 
-  const handleCancel = (levelName: string) => {
-    setFormStates(prev => {
-      const next = { ...prev };
-      delete next[levelName];
-      return next;
-    });
+  const handleCancel = (levelName: string, levelId: number) => {
+    const existingRecord = existingRecordsMap[levelId];
+    setEditing(levelName, false);
+
+    if (!existingRecord) {
+      setFormStates(prev => {
+        const next = { ...prev };
+        delete next[levelName];
+        return next;
+      });
+    }
   };
+
+  const isPending = isAdding || isUpdating;
 
   return (
     <div className="px-4">
       <ClassesResponsiveTabs
         isLoading={isLoadingLevels}
-        levels={levels.map(({ levelName, levelType, id }) => ({
-          label: levelName.charAt(0) + levelName.slice(1).toLowerCase(),
-          content: (
-            <LevelForm
-              levelType={levelType}
-              levelId={id}
-              academicSessionId={academicSessionId}
-              formState={getFormState(levelName)}
-              onChange={updates => updateFormState(levelName, updates)}
-              onSave={() => handleSave(levelName, id)}
-              onCancel={() => handleCancel(levelName)}
-              isPending={isPending}
-            />
-          ),
-        }))}
+        levels={levels.map(({ levelName, levelType, id }) => {
+          const existingRecord = existingRecordsMap[id];
+          const isEditing = editingLevels[levelName] ?? false;
+          return {
+            label: levelName.charAt(0) + levelName.slice(1).toLowerCase(),
+            content: (
+              <LevelForm
+                key={existingRecord ? `existing-${id}` : `new-${id}`}
+                levelType={levelType}
+                levelId={id}
+                academicSessionId={academicSessionId}
+                formState={getFormState(levelName)}
+                onChange={updates => updateFormState(levelName, updates)}
+                onSave={() => handleSave(levelName, id)}
+                onCancel={() => handleCancel(levelName, id)}
+                onEdit={() => setEditing(levelName, true)}
+                isEditing={isEditing}
+                isPending={isPending}
+                existingRecord={existingRecord}
+              />
+            ),
+          };
+        })}
       />
     </div>
   );

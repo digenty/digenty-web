@@ -7,4 +7,6 @@ export const resultKeys = {
   getPrincipalComment: ["getPrincipalComment"] as const,
   getPrincipalCommentByLevel: ["getPrincipalCommentByLevel"] as const,
   deletetPrincipalComment: ["deletetPrincipalComment"] as const,
+  getResultCalculation: ["getResultCalculation"] as const,
+  updateResultCalculation: ["updateResultCalculation"] as const,
 };
