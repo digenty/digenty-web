@@ -75,7 +75,7 @@ export const UserProfile = () => {
       setPhoneNumber(profileData.phoneNumber || "");
       setEmail(profileData.email || "");
       setRole(profileData.role || "");
-      setImage(profileData.avatar || undefined);
+      setImage(profileData.image || undefined);
     }
   }, [profileData]);
 
