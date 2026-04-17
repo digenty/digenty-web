@@ -28,7 +28,7 @@ import { uploadImage } from "@/app/actions/upload-image";
 import { useGetCountries } from "@/hooks/queryHooks/useCountry";
 import { currencies } from "@/store/currenciesCode";
 import { Spinner } from "@/components/ui/spinner";
-import { Timezones } from "@/store/timeZone";
+// import { Timezones } from "@/store/timeZone";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Country } from "@/components/StudentAndParent/types";
 import { Branch, BranchWithClassLevels } from "@/api/types";

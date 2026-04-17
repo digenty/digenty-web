@@ -54,16 +54,18 @@ const RenderOptions = (row: Row<Staff>) => {
           <span>Make Branch Admin</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem
-          onClick={() => {
-            setOpenDeactivation(true);
-            setStaffIdToDeactivate(row.original.staffId);
-          }}
-          className="cursor-pointer gap-2.5 px-3"
-        >
-          <UserForbid fill="var(--color-icon-destructive)" className="size-4" />
-          <span className="text-icon-destructive">Deactivate staff</span>
-        </DropdownMenuItem>
+        {row.original.status !== "INACTIVE" && (
+          <DropdownMenuItem
+            onClick={() => {
+              setOpenDeactivation(true);
+              setStaffIdToDeactivate(row.original.staffId);
+            }}
+            className="cursor-pointer gap-2.5 px-3"
+          >
+            <UserForbid fill="var(--color-icon-destructive)" className="size-4" />
+            <span className="text-icon-destructive">Deactivate staff</span>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -119,14 +121,16 @@ export const StaffColumns: ColumnDef<Staff>[] = [
     accessorKey: "status",
     header: () => <div className="text-text-muted text-sm font-medium">Status</div>,
     cell: ({ row }) => (
-      <span className="text-text-muted cursor-pointer text-sm font-normal">{getStatusBadge(row.original.status ? "Active" : "Inactive")}</span>
+      <span className="text-text-muted cursor-pointer text-sm font-normal">
+        {row.original.status ? getStatusBadge(row.original.status.toLowerCase()) : "--"}
+      </span>
     ),
     // size: 32,
   },
   {
     accessorKey: "branch",
     header: () => <div className="text-text-muted text-sm font-medium">Branch</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.branchName}</span>,
+    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.branchName || "--"}</span>,
     // size: 150,
   },
   {

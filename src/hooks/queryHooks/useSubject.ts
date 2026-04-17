@@ -6,10 +6,12 @@ import {
   deleteSubjectFromClass,
   getAllSubjects,
   getBranchTeachersClassSubjects,
-  getSubjectsByClass,
+  getSubjectsByClassAndLevel,
+  getSubjectsByClassId,
   getSubjectsByLevel,
   getSubjectStudents,
   getTeacherSubjects,
+  updateAssignSubjectTeacher,
 } from "@/api/subject";
 import { LevelType } from "@/api/types";
 import { classKeys } from "@/queries/class";
@@ -71,8 +73,17 @@ export const useGetSubjectsByLevel = (levelType?: LevelType, branchId?: number) 
 export const useGetSubjectsByClass = (className?: string, levelType?: string, branchId?: number) => {
   return useQuery({
     queryKey: subjectKeys.subjectsByClass(className, levelType, branchId),
-    queryFn: () => getSubjectsByClass(className, levelType, branchId),
+    queryFn: () => getSubjectsByClassAndLevel(className, levelType, branchId),
     enabled: !!className && !!levelType,
+    retry: false,
+  });
+};
+
+export const useGetSubjectsByClassId = (classId: number, options?: { enabled?: boolean }) => {
+  return useQuery({
+    queryKey: [subjectKeys.subjectsByClassId, classId],
+    queryFn: () => getSubjectsByClassId(classId),
+    enabled: options?.enabled !== undefined ? options.enabled && !!classId : !!classId,
     retry: false,
   });
 };
@@ -122,6 +133,18 @@ export const useDeleteSubjectFromClass = () => {
     mutationFn: ({ subjectId, classId }: { subjectId: number; classId: number }) => deleteSubjectFromClass(subjectId, classId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
+    },
+  });
+};
+
+export const useUpdateAssignSubjectTeacher = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subjectKeys.updateTeacherSubjectAssignment,
+    mutationFn: (payload: { teacherId: number; subjectArmAndClassDtos: { subjectId: number; armId: number }[] }) =>
+      updateAssignSubjectTeacher(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.updateTeacherSubjectAssignment] });
     },
   });
 };
