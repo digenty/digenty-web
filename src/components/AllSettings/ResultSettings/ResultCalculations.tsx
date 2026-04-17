@@ -93,7 +93,11 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
         )}
       </div>
       <div className="mt-4 w-full">
-        {isLoading && <Skeleton className="bg-bg-input-soft h-80 w-full rounded-md" />}
+        {isLoading && (
+          <div className="px-4 md:px-8">
+            <Skeleton className="bg-bg-input-soft h-80 w-full rounded-md" />
+          </div>
+        )}
         {!isLoading && levels.length > 0 && (
           <div className="flex w-full">
             <div className="flex-1">{levels[activeIndex].content}</div>
