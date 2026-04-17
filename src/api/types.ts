@@ -771,6 +771,7 @@ export interface PrincipalsComment {
 export interface Arm {
   armId: number;
   armName: string;
+  classId: number;
 }
 
 export interface SubjectTeaching {

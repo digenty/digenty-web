@@ -34,14 +34,14 @@ export const Header = () => {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" className="border-border-darker hidden h-7 rounded-full border border-dashed px-2! py-0.5! md:flex">
+        {/* <Button variant="ghost" className="border-border-darker hidden h-7 rounded-full border border-dashed px-2! py-0.5! md:flex">
           <QuestionFill fill="var(--color-icon-default-subtle)" />
           <p className="text-text-default text-sm font-medium">Help</p>
         </Button>
 
         <Button variant="ghost" className="p-0!">
           <Notification2 fill="var(--color-icon-default-subtle)" />
-        </Button>
+        </Button> */}
 
         <div onClick={() => router.push("/staff/settings/profile")} className="border-border-darker cursor-pointer rounded-full">
           <Avatar className="size-8" />
