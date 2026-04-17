@@ -19,7 +19,7 @@ export const AllClassesMain = () => {
   const { data: branchesData, isPending: loadingBranches } = useGetBranches();
   const pathname = usePathname();
   const branchId = pathname.split("/")[4];
-  console.log(branchId);
+
   const [activeBranchId, setActiveBranchId] = useState<number | null>(null);
 
   const userBranchIds = user?.adminBranchIds || [];
@@ -49,10 +49,9 @@ export const AllClassesMain = () => {
     error,
   } = useGetBranchDetails(activeBranchId!, termSelected?.termId, debouncedSearchQuery, levelSelected?.id); // Add leveId to this query levelSelected?.ids[0]
   const branchDetail = data?.data?.data;
-  console.log(data?.data, "@@@", error);
 
   const tableData: AllClassesMainTableProps[] =
-    branchDetail?.branchArmReportResponseDtos?.map((arm: BranchArmReport) => ({
+    branchDetail?.branchArmReportResponseDtos?.content?.map((arm: BranchArmReport) => ({
       armId: arm.armId,
       classId: arm.classId,
       classArmName: arm.classArmName,

@@ -39,11 +39,11 @@ const EditableCell = <T,>({ isEditable, cell, maxWeight }: EditableCellProps<T>)
 
   const save = () => {
     setIsEditing(false);
-    if (value && Number(value) > maxWeight) {
+    if (value && (Number(value) > maxWeight || Number(value) < 0)) {
       setValue(0);
       toast({
         title: "Invalid Score",
-        description: `Score cannot be greater than ${maxWeight}`,
+        description: `Score cannot be greater than ${maxWeight} or less than 0`,
         type: "error",
       });
       return;
