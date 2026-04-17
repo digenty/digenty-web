@@ -6,7 +6,8 @@ import {
   deleteSubjectFromClass,
   getAllSubjects,
   getBranchTeachersClassSubjects,
-  getSubjectsByClass,
+  getSubjectsByClassAndLevel,
+  getSubjectsByClassId,
   getSubjectsByLevel,
   getSubjectStudents,
   getTeacherSubjects,
@@ -72,8 +73,17 @@ export const useGetSubjectsByLevel = (levelType?: LevelType, branchId?: number) 
 export const useGetSubjectsByClass = (className?: string, levelType?: string, branchId?: number) => {
   return useQuery({
     queryKey: subjectKeys.subjectsByClass(className, levelType, branchId),
-    queryFn: () => getSubjectsByClass(className, levelType, branchId),
+    queryFn: () => getSubjectsByClassAndLevel(className, levelType, branchId),
     enabled: !!className && !!levelType,
+    retry: false,
+  });
+};
+
+export const useGetSubjectsByClassId = (classId: number) => {
+  return useQuery({
+    queryKey: [subjectKeys.subjectsByClassId, classId],
+    queryFn: () => getSubjectsByClassId(classId),
+    enabled: !!classId,
     retry: false,
   });
 };

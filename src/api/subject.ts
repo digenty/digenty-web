@@ -125,9 +125,21 @@ export const addSubjectToClass = async (payload: AddSubjectToClassPayload) => {
   }
 };
 
-export const getSubjectsByClass = async (className?: string, levelType?: string, branchId?: number) => {
+export const getSubjectsByClassAndLevel = async (className?: string, levelType?: string, branchId?: number) => {
   try {
     const { data } = await api.get(`/subjects/class?className=${className}&levelType=${levelType}${branchId ? `&branchId=${branchId}` : ""}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const getSubjectsByClassId = async (classId: number) => {
+  try {
+    const { data } = await api.get(`/subjects/class/${classId}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

@@ -9,6 +9,7 @@ export const subjectKeys = {
   deleteSubject: ["deleteSubject"] as const,
   subjectsByLevel: (levelType?: LevelType, branchId?: number) => ["subjectsByLevel", levelType, branchId] as const,
   subjectsByClass: (className?: string, levelType?: string, branchId?: number) => ["subjectsByClass", className, levelType, branchId] as const,
+  subjectsByClassId: ["subjectsByClassId"] as const,
   addSubjectToClass: ["addSubjectToClass"] as const,
   assignSubjectTeacher: "assignSubjectTeacher",
   updateTeacherSubjectAssignment: ["updateTeacherSubjectAssignment"] as const,
