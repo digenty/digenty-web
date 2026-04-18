@@ -557,9 +557,10 @@ export const ClassQuickSetupSheet = ({
         {touched.classNamePrefix && errors.classNamePrefix && typeof errors.classNamePrefix === "string" && (
           <p className="text-text-destructive text-xs font-light">{errors.classNamePrefix}</p>
         )}
-        <small className="text-text-muted text-xs">Select the label that appears before the class number or type a custom one</small>
+        {/* <small className="text-text-muted text-xs">Select the label that appears before the class number or type a custom one</small> */}
+        <small className="text-text-muted text-xs">Enter the label that appears before the class number</small>
         <br />
-        <small className="text-text-muted text-xs">(eg: Grade 1, Grade 2, Form 1, Form 2, JSS 1, SSS 1 etc.)</small>
+        <small className="text-text-muted text-xs">(eg: Creche, Nursery, Grade, Primary, Form, JSS, SSS etc.)</small>
       </div>
 
       <div className="border-border-default flex flex-col gap-6 border-b pb-6">
