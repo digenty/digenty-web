@@ -47,6 +47,9 @@ import { canViewPortalOverview } from "@/lib/permissions/portal-overview";
 import { canViewDomain } from "@/lib/permissions/domain";
 import { useQueryClient } from "@tanstack/react-query";
 import { SetupGuideProgress } from "./SetupGuideProgress";
+import { canViewCBT } from "@/lib/permissions/cbt";
+import { getSessionToken } from "@/app/actions/auth";
+import { ListCheck3 } from "../Icons/ListCheck3";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -77,6 +80,16 @@ export const Sidebar = () => {
                 title: "Classes & Subjects",
                 url: "classes-and-subjects",
                 icon: GraduationCap,
+              },
+            ]
+          : []),
+
+        ...(canViewCBT(user?.permissions)
+          ? [
+              {
+                title: "CBT",
+                url: "cbt",
+                icon: ListCheck3,
               },
             ]
           : []),
@@ -251,6 +264,15 @@ export const Sidebar = () => {
     deleteSession();
   };
 
+  const handleCBTClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const { token } = await getSessionToken();
+    const baseUrl = process.env.NEXT_PUBLIC_CBT_URL?.replace(/\/$/, "");
+    const cbtUrl = `${baseUrl}/auth-entry?token=${encodeURIComponent(token)}`; // &returnTo="/subjects"
+    window.open(cbtUrl, "_blank"); // or window.location.href = cbtUrl
+    // window.location.href = cbtUrl;
+  };
+
   return (
     <aside className="h-screen">
       <div
@@ -315,7 +337,7 @@ export const Sidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          onClick={() => router.push(`/staff/${menu.url}`)}
+                          onClick={menu.url === "cbt" ? handleCBTClick : () => router.push(`/staff/${menu.url}`)}
                         >
                           <menu.icon fill="var(--color-icon-default-subtle)" />
                           {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
