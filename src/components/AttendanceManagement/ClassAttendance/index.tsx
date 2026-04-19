@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetArmAttendance } from "@/hooks/queryHooks/useAttendance";
 import { format } from "date-fns";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AttendanceTable } from "./AttendanceTable";
 import { ClassAttendanceHeader } from "./ClassAttendanceHeader";
 import { ClassAttendanceWrapper } from "./ClassAttendanceWrapper";
@@ -17,6 +17,10 @@ export const ClassAttendance = () => {
 
   const { data, isLoading, isError } = useGetArmAttendance({ armId: Number(armId), limit: 200, page: 0, date: format(date, "yyyy-MM-dd") });
   const [attendanceList, setAttendanceList] = useState<{ studentId: number; isPresent: boolean }[]>([]);
+
+  useEffect(() => {
+    setAttendanceList([]);
+  }, [date]);
 
   return (
     <ClassAttendanceWrapper armId={Number(armId)} isLoading={isLoading}>

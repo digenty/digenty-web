@@ -21,6 +21,7 @@ export const OnboardingStepsModal = ({ open, setOpen }: OnboardingStepsModalProp
   const router = useRouter();
   const { steps } = useOnboardingStore();
   const { data: progressResp } = useGetOnboardingProgress();
+  console.log(progressResp, "@@@")
 
   const apiSteps = progressResp?.data?.steps || [];
 

@@ -36,8 +36,6 @@ const ClassesAndSubjects = () => {
   const showTabs = hasClasses && hasSubjects;
   const user = useLoggedInUser();
 
-  console.log(user);
-
   useEffect(() => {
     setBreadcrumbs([
       { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },

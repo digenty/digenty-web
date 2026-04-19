@@ -128,7 +128,6 @@ export const EditStudent = () => {
       );
     },
   });
-  console.log(data?.data);
 
   useEffect(() => {
     if (data) {

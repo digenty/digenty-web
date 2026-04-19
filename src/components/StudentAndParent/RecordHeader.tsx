@@ -49,7 +49,6 @@ export const RecordHeader = ({
 }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
-  console.log();
 
   return (
     <div>

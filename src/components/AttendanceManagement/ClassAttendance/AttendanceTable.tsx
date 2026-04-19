@@ -1,7 +1,7 @@
+import { StudentAttendance } from "@/api/types";
+import { DataTable } from "@/components/DataTable";
 import { useState } from "react";
 import { getColumns } from "./AttendanceColumns";
-import { DataTable } from "@/components/DataTable";
-import { StudentAttendance } from "@/api/types";
 
 export const AttendanceTable = ({
   students,
@@ -13,8 +13,6 @@ export const AttendanceTable = ({
   attendanceList: { studentId: number; isPresent: boolean }[];
 }) => {
   const [page, setPage] = useState(1);
-  const [rowSelection, setRowSelection] = useState({});
-  const [selectedRows, setSelectedRows] = useState<StudentAttendance[]>([]);
 
   const handleToggleAttendance = (studentId: number, isPresent: boolean) => {
     setAttendanceList(prev => {
@@ -41,14 +39,7 @@ export const AttendanceTable = ({
         page={page}
         setCurrentPage={setPage}
         pageSize={pageSize}
-        clickHandler={row => {
-          // setIsDetailsOpen(true);
-          // setSelectedRole(row.original);
-        }}
         showPagination={false}
-        rowSelection={rowSelection}
-        setRowSelection={setRowSelection}
-        onSelectRows={setSelectedRows}
         fullBorder
       />
     </div>

@@ -22,7 +22,7 @@ export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
   return (
     <>
       {showInitial && <OnboardingModal initialShow={showInitial} />}
-      {/* {!showInitial && showSteps && <OnboardingStepsModal open={showSteps} setOpen={setShowSteps} />} */}
+      {!showInitial && showSteps && <OnboardingStepsModal open={showSteps} setOpen={setShowSteps} />}
     </>
   );
 };
