@@ -1,28 +1,54 @@
 "use client";
 
+import { useGetOnboardingProgress } from "@/hooks/queryHooks/useSchool";
 import { JWTPayload } from "@/types";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import OnboardingModal from "./OnBoardingModal";
 import { OnboardingStepsModal } from "./OnboardingStepsModal";
+import { OnboardingStepsType } from "@/api/types";
 
 interface OnboardingFlowProps {
   user: Partial<JWTPayload> | null;
 }
 
 export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
-  // If no schoolId, we show the initial onboarding modal
-  const showInitial = !user?.schoolId;
+  const pathname = usePathname();
+  const { data: progressResp, isLoading: isProgressLoading } = useGetOnboardingProgress();
 
-  // We show the steps modal if they have a schoolId
-  // In a real app, this would also check an "onboardingCompleted" state from an API
-  // or examine if sessions/branches have been configured.
-  // For now, we'll follow the requirement to show it "immediately after" the initial modal.
-  const [showSteps, setShowSteps] = useState(!!user?.schoolId);
+  // If no schoolId, we show the onboarding modal
+  const showOnboardingModal = !user?.schoolId;
+
+  const apiSteps = progressResp?.data?.steps || [];
+
+  const areRequiredStepsCompleted = [1, 2, 3, 4].every(id => {
+    const apiStep = apiSteps.find((step: OnboardingStepsType) => step.stepNumber === id);
+    return apiStep?.completed ?? false;
+  });
+
+  // We show the setup steps modal if they have a schoolId
+  const [showSetupSteps, setShowSetupSteps] = useState(!!user?.schoolId);
+
+  useEffect(() => {
+    if (user?.schoolId) {
+      setShowSetupSteps(true);
+    }
+  }, [user?.schoolId]);
+
+  useEffect(() => {
+    // If user navigates away from setup pages, re-open the modal if required steps are not completed
+    const isSetupPage = pathname.includes("/settings") || pathname.includes("/student-and-parent-record");
+    if (!areRequiredStepsCompleted && !isSetupPage) {
+      setShowSetupSteps(true);
+    }
+  }, [pathname, areRequiredStepsCompleted]);
 
   return (
     <>
-      {showInitial && <OnboardingModal initialShow={showInitial} />}
-      {/* {!showInitial && showSteps && <OnboardingStepsModal open={showSteps} setOpen={setShowSteps} />} */}
+      {showOnboardingModal && <OnboardingModal initialShow={showOnboardingModal} />}
+      {!showOnboardingModal && showSetupSteps && user?.isMain && !isProgressLoading && !areRequiredStepsCompleted && (
+        <OnboardingStepsModal open={showSetupSteps} setOpen={setShowSetupSteps} apiSteps={apiSteps} />
+      )}
     </>
   );
 };

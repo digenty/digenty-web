@@ -30,11 +30,9 @@ export const AdmissionNumberSetupDone = () => {
   const [padding, setPadding] = useState("");
 
   const { data: admissionResponse, isLoading, isError, error } = useGetAdmissionNumberDetails();
-  console.log(admissionResponse?.data, "888");
   const { mutateAsync: updateAdmission } = useUpdateAdmissionNumber();
 
   const admission = admissionResponse?.data ?? admissionResponse?.[0];
-  console.log(prefix, "prefix");
 
   useEffect(() => {
     if (!admission) return;

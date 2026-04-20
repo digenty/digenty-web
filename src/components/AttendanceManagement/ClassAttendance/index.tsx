@@ -2,21 +2,32 @@
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetArmAttendance } from "@/hooks/queryHooks/useAttendance";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { format } from "date-fns";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AttendanceTable } from "./AttendanceTable";
 import { ClassAttendanceHeader } from "./ClassAttendanceHeader";
 import { ClassAttendanceWrapper } from "./ClassAttendanceWrapper";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { Term } from "@/api/types";
 
 export const ClassAttendance = () => {
   const path = usePathname();
   const armId = path.split("/")[4] ?? "";
   const classArmName = path.split("/")[3] ?? "";
   const [date, setDate] = useState<Date>(new Date());
+  const [attendanceList, setAttendanceList] = useState<{ studentId: number; isPresent: boolean }[]>([]);
+  const user = useLoggedInUser();
 
   const { data, isLoading, isError } = useGetArmAttendance({ armId: Number(armId), limit: 200, page: 0, date: format(date, "yyyy-MM-dd") });
-  const [attendanceList, setAttendanceList] = useState<{ studentId: number; isPresent: boolean }[]>([]);
+  const { data: terms } = useGetTerms(user?.schoolId);
+
+  const currentTerm = terms?.data?.terms?.find((term: Term) => term.isActiveTerm);
+
+  useEffect(() => {
+    setAttendanceList([]);
+  }, [date]);
 
   return (
     <ClassAttendanceWrapper armId={Number(armId)} isLoading={isLoading}>
@@ -28,6 +39,7 @@ export const ClassAttendance = () => {
           students={data?.data?.studentsPresent || []}
           date={date}
           setDate={setDate}
+          activeTerm={currentTerm}
         />
 
         <div className="px-4 pb-10 md:px-8">

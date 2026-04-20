@@ -115,7 +115,6 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
       );
     }
   }, [assessmentDefaultData]);
-  console.log(formik.errors, "###");
 
   const totalWeight = getTotalWeight(formik.values.assessments);
   const isOverWeight = totalWeight > 100;

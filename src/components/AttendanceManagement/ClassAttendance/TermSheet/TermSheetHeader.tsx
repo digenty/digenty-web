@@ -42,12 +42,12 @@ export const TermSheetHeader = ({
   const { data: terms, isPending: loadingTerms } = useGetTerms(user.schoolId);
 
   useEffect(() => {
-    if (terms) {
+    if (terms && !termSelected) {
       const activeTerm = terms.data.terms.find((term: Term) => term.isActiveTerm);
       setTermSelected(activeTerm);
       setActiveSession(terms.data.academicSessionName);
     }
-  }, [setActiveSession, setTermSelected, terms]);
+  }, [terms, termSelected, setTermSelected, setActiveSession]);
 
   return (
     <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle md:flex-row md:items-center md:py-3">
@@ -95,21 +95,23 @@ export const TermSheetHeader = ({
         </div>
       </div>
 
-      <div className="border-border-default hide-scrollbar flex w-full gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
-        {termWeeks.map(week => (
-          <span
-            key={week.week}
-            role="button"
-            onClick={() => setActiveWeek(week.week)}
-            className={cn(
-              "bg-bg-state-soft text-text-subtle h-7 w-fit rounded-md px-2 py-1 text-sm text-nowrap",
-              activeWeek === week.week && "bg-bg-state-primary text-text-white-default",
-            )}
-          >
-            {week.week}
-          </span>
-        ))}
-      </div>
+      {termWeeks && termWeeks.length > 0 && (
+        <div className="border-border-default hide-scrollbar flex w-full gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
+          {termWeeks?.map(week => (
+            <span
+              key={week.week}
+              role="button"
+              onClick={() => setActiveWeek(week.week)}
+              className={cn(
+                "bg-bg-state-soft text-text-subtle h-7 w-fit rounded-md px-2 py-1 text-sm text-nowrap",
+                activeWeek === week.week && "bg-bg-state-primary text-text-white-default",
+              )}
+            >
+              {week.week}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

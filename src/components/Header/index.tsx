@@ -15,7 +15,6 @@ export const Header = () => {
   const router = useRouter();
   const { data } = useGetUserProfile();
 
-  console.log(data);
   return (
     <header className="border-border-default sticky flex h-16 w-full items-center justify-between border-b px-4 py-4 text-zinc-950 md:px-8">
       <Breadcrumb className="hidden md:block" />
