@@ -855,3 +855,18 @@ export interface ArmDetails {
   name: string;
   schoolId: number;
 }
+
+export interface OnboardingStepsType {
+  stepNumber: number;
+  title: string;
+  description: string;
+  completed: boolean;
+}
+
+export interface OnboardingStep {
+  id: number;
+  title: string;
+  description: string;
+  isCompleted: boolean;
+  link?: string;
+}
