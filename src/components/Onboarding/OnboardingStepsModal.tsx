@@ -9,23 +9,22 @@ import { useRouter } from "next/navigation";
 import { MobileDrawer } from "../MobileDrawer";
 import { Modal } from "../Modal";
 import { Button } from "../ui/button";
+import { OnboardingStep, OnboardingStepsType } from "@/api/types";
 
 interface OnboardingStepsModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  apiSteps: OnboardingStepsType[];
 }
 
-export const OnboardingStepsModal = ({ open, setOpen }: OnboardingStepsModalProps) => {
+export const OnboardingStepsModal = ({ open, setOpen, apiSteps }: OnboardingStepsModalProps) => {
   const isMobile = useIsMobile();
   const { data } = useGetSchoolDetails();
   const router = useRouter();
   const { steps } = useOnboardingStore();
-  const { data: progressResp } = useGetOnboardingProgress();
-
-  const apiSteps = progressResp?.data?.steps || [];
 
   const mergedSteps = steps.map(storeStep => {
-    const apiStep = apiSteps.find((step: { stepNumber: number; completed: boolean }) => step.stepNumber === storeStep.id);
+    const apiStep = apiSteps.find((step: OnboardingStepsType) => step.stepNumber === storeStep.id);
     return {
       ...storeStep,
       isCompleted: apiStep ? apiStep.completed : storeStep.isCompleted,
@@ -34,7 +33,7 @@ export const OnboardingStepsModal = ({ open, setOpen }: OnboardingStepsModalProp
 
   const completedStepsCount = mergedSteps.filter(step => step.isCompleted).length;
   const progressPercentage = (completedStepsCount / mergedSteps.length) * 100;
-  const isStep1Completed = mergedSteps.find(step => step.id === 1)?.isCompleted ?? false;
+  const areRequiredStepsCompleted = [1, 2, 3, 4].every(id => mergedSteps.find(step => step.id === id)?.isCompleted ?? false);
 
   const title = (
     <div className="flex flex-col gap-1 py-1">
@@ -107,7 +106,7 @@ export const OnboardingStepsModal = ({ open, setOpen }: OnboardingStepsModalProp
 
   if (isMobile) {
     return (
-      <MobileDrawer open={open} setIsOpen={setOpen} showCloseButton={isStep1Completed} className="max-h-170 overflow-y-auto">
+      <MobileDrawer open={open} setIsOpen={setOpen} showCloseButton={areRequiredStepsCompleted} className="max-h-170 overflow-y-auto">
         {content}
       </MobileDrawer>
     );
@@ -117,7 +116,7 @@ export const OnboardingStepsModal = ({ open, setOpen }: OnboardingStepsModalProp
     <Modal
       open={open}
       setOpen={setOpen}
-      // showCloseButton={isStep1Completed}
+      showCloseButton={areRequiredStepsCompleted}
       className="max-h-170 overflow-y-auto sm:max-w-160 md:max-w-180"
       showFooter={false}
     >

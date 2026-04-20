@@ -18,7 +18,7 @@ export default async function CoreLayout({
         <Header />
         <div className="flex-1 overflow-y-auto">
           {children}
-          {/* <OnboardingFlow user={user} /> */}
+          <OnboardingFlow user={user} />
         </div>
       </div>
     </div>

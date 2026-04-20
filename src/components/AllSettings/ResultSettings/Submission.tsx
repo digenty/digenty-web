@@ -28,7 +28,6 @@ export const Submission = () => {
   const terms = termLists?.data?.terms ?? [];
   const deadlines = deadlineData?.data ?? [];
   const isLoading = isLoadingTerms || isLoadingDeadlines;
-  console.log(deadlines);
 
   useEffect(() => {
     if (isEditing) {

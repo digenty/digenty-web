@@ -1,12 +1,5 @@
+import { OnboardingStep } from "@/api/types";
 import { create } from "zustand";
-
-export interface OnboardingStep {
-  id: number;
-  title: string;
-  description: string;
-  isCompleted: boolean;
-  link?: string;
-}
 
 interface OnboardingState {
   steps: OnboardingStep[];
@@ -35,7 +28,7 @@ export const useOnboardingStore = create<OnboardingState>()(set => ({
       title: "Complete Your Gradings and Assessments Setup",
       description: "Define gradings, assessment types and scores for each level",
       isCompleted: false,
-      link: "/staff/settings/academic/academic-setup?step=gradings-and-assessments",
+      link: "/staff/settings/academic/academic-setup?step=grading-and-assessment",
     },
     {
       id: 4,
