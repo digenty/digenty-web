@@ -3,11 +3,15 @@ import { create } from "zustand";
 
 interface OnboardingState {
   steps: OnboardingStep[];
+  showSetupSteps: boolean;
+  setShowSetupSteps: (show: boolean) => void;
   setSteps: (steps: OnboardingStep[]) => void;
   updateStepCompleted: (id: number, isCompleted: boolean) => void;
 }
 
 export const useOnboardingStore = create<OnboardingState>()(set => ({
+  showSetupSteps: false,
+  setShowSetupSteps: show => set({ showSetupSteps: show }),
   steps: [
     {
       id: 1,
@@ -70,6 +74,7 @@ export const useOnboardingStore = create<OnboardingState>()(set => ({
       title: "Set Up School Fees",
       description: "Define fee items and set prices per level or branch.",
       isCompleted: false,
+      link: "/staff/settings/fees",
     },
     {
       id: 10,

@@ -352,7 +352,7 @@ export const Sidebar = () => {
         </div>
 
         <div className={cn("absolute right-4 bottom-4 left-4")}>
-          <div className="right-10">{isSidebarOpen && <SetupGuideProgress />}</div>
+          <div className="right-10">{isSidebarOpen && user?.isMain && <SetupGuideProgress />}</div>
 
           <div>
             {canViewSettings(user?.permissions) && (
@@ -436,9 +436,11 @@ export const Sidebar = () => {
             </div>
 
             <div className={cn("absolute right-4 bottom-4 left-4")}>
-              <div className="right-10">
-                <SetupGuideProgress />
-              </div>
+              {user?.isMain && (
+                <div className="right-10">
+                  <SetupGuideProgress />
+                </div>
+              )}
 
               <div className="space-y-2">
                 {canViewSettings(user?.permissions) && (

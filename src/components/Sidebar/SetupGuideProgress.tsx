@@ -1,17 +1,35 @@
-"use client";
-
+import { useGetOnboardingProgress } from "@/hooks/queryHooks/useSchool";
 import { useOnboardingStore } from "@/store";
 
 export const SetupGuideProgress = () => {
-  const { steps } = useOnboardingStore();
-  const completedStepsCount = steps.filter(s => s.isCompleted).length;
-  // Prevent division by zero if steps array is empty
-  const progressPercentage = steps.length > 0 ? (completedStepsCount / steps.length) * 100 : 0;
+  const { steps, setShowSetupSteps } = useOnboardingStore();
+  const { data: progressResp, isLoading } = useGetOnboardingProgress();
 
-  // Don't show if all steps are magically completed (optional, but usually a guide goes away when 100% done, but let's keep it if 100% until dismissed by other logic. Actually, standard is to show it always until onboarding is officially closed. We will just render it).
+  if (isLoading || !progressResp) return null;
+
+  const apiSteps = progressResp.data.steps || [];
+
+  const mergedSteps = steps.map(storeStep => {
+    const apiStep = apiSteps.find((step: { stepNumber: number; completed: boolean }) => step.stepNumber === storeStep.id);
+    return {
+      ...storeStep,
+      isCompleted: apiStep ? apiStep.completed : storeStep.isCompleted,
+    };
+  });
+
+  const completedStepsCount = mergedSteps.filter(s => s.isCompleted).length;
+  const progressPercentage = mergedSteps.length > 0 ? (completedStepsCount / mergedSteps.length) * 100 : 0;
+
+  // If the progress is 100%, don't show the setup guide on the sidebar
+  if (progressPercentage === 100) return null;
 
   return (
-    <div className="bg-bg-basic-gray-alpha-4 border-border-default my-4 flex flex-col gap-2.5 rounded-xl border p-3">
+    <div
+      onClick={() => setShowSetupSteps(true)}
+      role="button"
+      tabIndex={0}
+      className="bg-bg-basic-gray-alpha-4 border-border-default hover:bg-bg-basic-gray-alpha-8 my-4 flex cursor-pointer flex-col gap-2.5 rounded-xl border p-3 transition-colors"
+    >
       <div className="flex items-center justify-between">
         <span className="text-text-default text-sm font-medium">Setup Guide</span>
         <span className="text-text-muted text-sm font-normal">{Math.round(progressPercentage)}%</span>

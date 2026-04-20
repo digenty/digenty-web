@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import OnboardingModal from "./OnBoardingModal";
 import { OnboardingStepsModal } from "./OnboardingStepsModal";
 import { OnboardingStepsType } from "@/api/types";
+import { useOnboardingStore } from "@/store";
 
 interface OnboardingFlowProps {
   user: Partial<JWTPayload> | null;
@@ -26,27 +27,24 @@ export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
     return apiStep?.completed ?? false;
   });
 
-  // We show the setup steps modal if they have a schoolId
-  const [showSetupSteps, setShowSetupSteps] = useState(!!user?.schoolId);
+  const { showSetupSteps, setShowSetupSteps } = useOnboardingStore();
 
   useEffect(() => {
-    if (user?.schoolId) {
-      setShowSetupSteps(true);
-    }
-  }, [user?.schoolId]);
+    // Only auto-open if we have a schoolId and progress has finished loading
+    if (user?.schoolId && !isProgressLoading) {
+      const isSetupPage = pathname.includes("/settings") || pathname.includes("/student-and-parent-record");
 
-  useEffect(() => {
-    // If user navigates away from setup pages, re-open the modal if required steps are not completed
-    const isSetupPage = pathname.includes("/settings") || pathname.includes("/student-and-parent-record");
-    if (!areRequiredStepsCompleted && !isSetupPage) {
-      setShowSetupSteps(true);
+      // Auto-open if required steps are not completed AND (it's not a setup page OR it's the initial mount/school creation)
+      if (!areRequiredStepsCompleted && (!isSetupPage || !showSetupSteps)) {
+        setShowSetupSteps(true);
+      }
     }
-  }, [pathname, areRequiredStepsCompleted]);
+  }, [user?.schoolId, isProgressLoading, areRequiredStepsCompleted, pathname, setShowSetupSteps]);
 
   return (
     <>
       {showOnboardingModal && <OnboardingModal initialShow={showOnboardingModal} />}
-      {!showOnboardingModal && showSetupSteps && user?.isMain && !isProgressLoading && !areRequiredStepsCompleted && (
+      {!showOnboardingModal && showSetupSteps && user?.isMain && (
         <OnboardingStepsModal open={showSetupSteps} setOpen={setShowSetupSteps} apiSteps={apiSteps} />
       )}
     </>
