@@ -1,7 +1,7 @@
 "use client";
 
 import { Arm, BranchWithClassLevels, ClassType, Parent } from "@/api/types";
-import { getCountries, getStatesForCountry } from "@/app/actions/country";
+import { getCountries } from "@/app/actions/country";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Country, State, StudentInputValues } from "@/components/StudentAndParent/types";
 import { toast } from "@/components/Toast";
@@ -27,17 +27,17 @@ import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useGetParent } from "@/hooks/queryHooks/useParent";
+import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 
 type AccordionItem = { id: number; title: string; studentId?: number };
 
 const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSaveSuccess: (id: number) => void; studentId?: number }) => {
   const [avatar, setAvatar] = useState<string | undefined>();
   const [countries, setCountries] = useState<Country[]>([]);
-  const [states, setStates] = useState<State[]>([]);
-  const [activeCountryCode, setActiveCountryCode] = useState("");
+  const [availableStates, setAvailableStates] = useState<string[]>([]);
   const [date, setDate] = useState<Date | undefined>();
   const [branchId, setBranchId] = useState<number | undefined>();
-  const [classId, setClassId] = useState<number | undefined>();
+  const [classId, setClassId] = useState<number | null>(null);
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses(branchId);
@@ -46,21 +46,27 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
   const { mutate: addStudent, isPending: isAddingStudent } = useAddStudent();
   const { mutate: updateStudentData, isPending: isUpdatingStudentData } = useEditStudent();
   const student = studentData?.data;
+
   useEffect(() => {
-    getCountries().then(setCountries);
+    const fetchData = async () => {
+      const countryList = await getCountries();
+      setCountries(countryList);
+    };
+    fetchData();
   }, []);
 
-  const fetchStates = useCallback(async () => {
-    const stateList = await getStatesForCountry(activeCountryCode);
-    setStates(stateList);
-  }, [activeCountryCode]);
-
   useEffect(() => {
-    if (activeCountryCode) {
-      setStates([]);
-      fetchStates();
+    if (countries.length > 0 && values.nationality) {
+      const selectedCountry = countries.find(c => c.name === values.nationality);
+      if (selectedCountry) {
+        setAvailableStates(selectedCountry.states || []);
+      } else {
+        setAvailableStates([]);
+      }
+    } else {
+      setAvailableStates([]);
     }
-  }, [activeCountryCode, fetchStates]);
+  }, [countries]);
 
   const formik = useFormik<StudentInputValues>({
     enableReinitialize: true,
@@ -174,12 +180,12 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
 
   const { values, errors, touched, handleChange, handleBlur, setFieldValue, setFieldTouched, handleSubmit } = formik;
 
-  const handleCountryChange = (countryName: string) => {
-    const selected = countries.find(c => c.name === countryName);
-    setActiveCountryCode(selected?.iso2 || "");
-    setFieldValue("nationality", countryName);
-    setFieldValue("stateOfOrigin", "");
-  };
+  // const handleCountryChange = (countryName: string) => {
+  //   const selected = countries.find(c => c.name === countryName);
+  //   setActiveCountryCode(selected?.iso2 || "");
+  //   setFieldValue("nationality", countryName);
+  //   setFieldValue("stateOfOrigin", "");
+  // };
 
   const isPending = isAddingStudent || isUpdatingStudentData;
 
@@ -321,22 +327,21 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
             <Label className="text-text-default text-sm font-medium">
               Nationality <span className="text-text-destructive text-xs">*</span>
             </Label>
-            {countries.length > 0 ? (
-              <Select value={values.nationality} onValueChange={handleCountryChange}>
-                <SelectTrigger
-                  className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal"
-                  onBlur={() => setFieldTouched("nationality", true)}
-                >
-                  <SelectValue placeholder="Select Nationality" />
-                </SelectTrigger>
-                <SelectContent className="bg-bg-card border-none">
-                  {countries.map(country => (
-                    <SelectItem key={country.id} value={country.name} className="text-text-default">
-                      {country.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {countries && countries.length > 0 ? (
+              <SearchableSelect
+                options={countries.map(country => ({
+                  label: country.name,
+                  value: country.name,
+                  flag: country.flag,
+                }))}
+                value={values.nationality}
+                onValueChange={country => {
+                  setFieldValue("nationality", country);
+                  setFieldValue("stateOfOrigin", ""); // Reset state if country changes
+                }}
+                placeholder="Select Nationality"
+                searchPlaceholder="Search country..."
+              />
             ) : (
               <Skeleton className="bg-bg-input-soft h-9 w-full" />
             )}
@@ -347,22 +352,25 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
             <Label className="text-text-default text-sm font-medium">
               State of Origin <span className="text-text-destructive text-xs">*</span>
             </Label>
-            <Select disabled={!activeCountryCode} value={values.stateOfOrigin} onValueChange={v => setFieldValue("stateOfOrigin", v)}>
-              <SelectTrigger
-                className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal"
-                onBlur={() => setFieldTouched("stateOfOrigin", true)}
-              >
-                <SelectValue placeholder={!activeCountryCode ? "Select a country first" : "Select State of Origin"} />
+            <Select
+              disabled={!values.nationality}
+              value={values.stateOfOrigin}
+              onValueChange={value => {
+                setFieldValue("stateOfOrigin", value);
+              }}
+            >
+              <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">
+                <SelectValue placeholder="Select State of Origin" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {states.length === 0 ? (
+                {availableStates.length === 0 && values.nationality ? (
                   <div className="flex items-center justify-center p-2">
-                    <Spinner className="text-text-default" />
+                    <span className="text-text-muted text-xs">No states available</span>
                   </div>
                 ) : (
-                  states.map(state => (
-                    <SelectItem key={state.id} value={state.name} className="text-text-default">
-                      {state.name}
+                  availableStates.map(stateName => (
+                    <SelectItem key={stateName} className="text-text-default" value={stateName}>
+                      {stateName}
                     </SelectItem>
                   ))
                 )}
@@ -585,7 +593,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
                   setFieldValue("branchId", branch?.branch.id ?? null);
                   setFieldValue("classId", null);
                   setFieldValue("armId", null);
-                  setClassId(undefined);
+                  setClassId(null);
                 }}
               >
                 <SelectTrigger

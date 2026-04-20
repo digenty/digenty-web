@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { useSignup } from "@/hooks/queryHooks/useAuth";
+import { useParentSignup, useSignup } from "@/hooks/queryHooks/useAuth";
 import { cn } from "@/lib/utils";
 import { authSchema } from "@/schema/auth";
 import { useFormik } from "formik";
@@ -23,6 +23,7 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
   const [passwordIsFulfilled, setPasswordIsFulfilled] = useState(false);
 
   const { mutate, isPending } = useSignup();
+  const { mutate: parentMutate, isPending: parentIsPending } = useParentSignup();
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [legalModal, setLegalModal] = useState<{ open: boolean; title: string; content: string }>({
     open: false,
@@ -33,6 +34,9 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
   };
+
+  console.log(userType, "3333");
+
   const formik = useFormik({
     initialValues: {
       email,
@@ -40,29 +44,55 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
     },
     validationSchema: authSchema,
     onSubmit: async values => {
-      await mutate(
-        {
-          email: values.email.toLowerCase(),
-          password: values.password,
-        },
-        {
-          onSuccess: data => {
-            toast({
-              title: "Log in to continue",
-              description: data.message,
-              type: "success",
-            });
-            router.push(`/auth${userType === "SCHOOL_STAFF" ? "/staff" : "/parent"}?step=login`);
+      if (userType === "SCHOOL_STAFF") {
+        await mutate(
+          {
+            email: values.email.toLowerCase(),
+            password: values.password,
           },
-          onError: error => {
-            toast({
-              title: error?.message ?? "Something went wrong",
-              description: "Could not sign you up",
-              type: "error",
-            });
+          {
+            onSuccess: data => {
+              toast({
+                title: "Log in to continue",
+                description: data.message,
+                type: "success",
+              });
+              router.push(`/auth/staff?step=login`);
+            },
+            onError: error => {
+              toast({
+                title: error?.message ?? "Something went wrong",
+                description: "Could not sign you up",
+                type: "error",
+              });
+            },
           },
-        },
-      );
+        );
+      } else {
+        await parentMutate(
+          {
+            email: values.email.toLowerCase(),
+            password: values.password,
+          },
+          {
+            onSuccess: data => {
+              toast({
+                title: "Log in to continue",
+                description: data.message,
+                type: "success",
+              });
+              router.push(`/auth/parent?step=login`);
+            },
+            onError: error => {
+              toast({
+                title: error?.message ?? "Something went wrong",
+                description: "Could not sign you up",
+                type: "error",
+              });
+            },
+          },
+        );
+      }
     },
   });
 
@@ -147,7 +177,7 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
           type="submit"
           className="bg-bg-state-primary disabled:bg-bg-state-primary-hover disabled:text-text-white-default hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full"
         >
-          {isPending && <Spinner className="text-text-white-default" />}
+          {(isPending || parentIsPending) && <Spinner className="text-text-white-default" />}
           Signup
         </Button>
       </div>

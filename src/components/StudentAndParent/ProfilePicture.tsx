@@ -5,7 +5,15 @@ import { Button } from "../ui/button";
 import { uploadImage } from "@/app/actions/upload-image";
 import { Spinner } from "@/components/ui/spinner";
 
-export const ProfilePicture = ({ setAvatar, defaultImageUrl }: { setAvatar: (url?: string) => void; defaultImageUrl?: string | null }) => {
+export const ProfilePicture = ({
+  setAvatar,
+  defaultImageUrl,
+  showTitle = true,
+}: {
+  setAvatar: (url?: string) => void;
+  defaultImageUrl?: string | null;
+  showTitle?: boolean;
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState<string | undefined>(defaultImageUrl || "/images/profile-picture.png");
   const [isUploading, setIsUploading] = useState(false);
@@ -37,7 +45,7 @@ export const ProfilePicture = ({ setAvatar, defaultImageUrl }: { setAvatar: (url
 
   return (
     <div className="border-border-default space-y-4 border-b pb-6 md:space-y-6">
-      <h2 className="text-lg font-semibold">Profile Picture</h2>
+      {showTitle && <h2 className="text-text-default text-lg font-semibold">Profile Picture</h2>}
 
       <div className="flex items-center gap-4">
         <div className="flex size-10 items-center justify-between rounded-full">
