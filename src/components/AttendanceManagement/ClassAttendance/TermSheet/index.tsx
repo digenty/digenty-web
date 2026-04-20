@@ -62,16 +62,18 @@ export const TermSheet = () => {
       {isPending && !isError && <Skeleton className="bg-bg-input-soft mx-4 mt-8 hidden h-100 w-full md:mx-8 md:block" />}
 
       <div className="space-y-6">
-        <TermSheetHeader
-          classname={classGroup.replaceAll("-", " ")}
-          termWeeks={data ? data?.data[0]?.weeks : []}
-          activeWeek={activeWeek}
-          setActiveWeek={setActiveWeek}
-          termSelected={termSelected}
-          activeSession={activeSession}
-          setActiveSession={setActveSesion}
-          setTermSelected={setTermSelected}
-        />
+        {!isError && data && (
+          <TermSheetHeader
+            classname={classGroup.replaceAll("-", " ")}
+            termWeeks={data ? data?.data[0]?.weeks : []}
+            activeWeek={activeWeek}
+            setActiveWeek={setActiveWeek}
+            termSelected={termSelected}
+            activeSession={activeSession}
+            setActiveSession={setActveSesion}
+            setTermSelected={setTermSelected}
+          />
+        )}
 
         {!isPending && !isError && data.data.length === 0 && (
           <div className="flex h-80 items-center justify-center">
