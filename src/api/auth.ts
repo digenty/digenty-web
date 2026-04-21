@@ -37,6 +37,18 @@ export const signup = async (payload: SignupPayload) => {
   }
 };
 
+export const parentSignup = async (payload: SignupPayload) => {
+  try {
+    const { data } = await apiPublic.post("/auth/register/parent", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const login = async (payload: LoginPayload) => {
   try {
     const { data } = await apiPublic.post("/auth/login", payload);

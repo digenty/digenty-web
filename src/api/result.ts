@@ -33,7 +33,7 @@ export const getSubmissionDeadline = async () => {
 };
 export const updateSubmissionDeadline = async (payload: UpdateSubmissionDeadlinePayload) => {
   try {
-    const { data } = await api.put(`/result-settings/submission-deadline/`, payload);
+    const { data } = await api.put(`/result-settings/submission-deadline`, payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

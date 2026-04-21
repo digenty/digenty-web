@@ -58,7 +58,7 @@ export const QuickActions = () => {
         </Button>
 
         <Button
-          onClick={() => router.push("/staff/attendance/view-attendance")}
+          onClick={() => router.push("/staff/attendance")}
           className="bg-bg-state-secondary border-border-darker shadow-light h-10 gap-2 rounded-md border px-3.5!"
         >
           <UserRoundCheck fill="var(--color-icon-default-muted)" stroke="var(--color-icon-default-muted)" className="size-4.5" />
