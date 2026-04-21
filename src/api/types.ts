@@ -560,24 +560,21 @@ export interface ResultCalculationPayload {
 }
 
 export interface ResultSubmissionPayload {
-  termsDeadline: [
-    {
-      termId: number;
-      openDate: string;
-      closeDate: string;
-      autoLockAfterDeadline: boolean;
-    },
-  ];
+  termsDeadline: {
+    termId: number;
+    openDate: string;
+    closeDate: string;
+    autoLockAfterDeadline: boolean;
+  }[];
 }
+
 export interface UpdateSubmissionDeadlinePayload {
-  termsDeadline: [
-    {
-      termId: number;
-      openDate: string;
-      closeDate: string;
-      autoLockAfterDeadline: boolean;
-    },
-  ];
+  termsDeadline: {
+    termId: number;
+    openDate: string;
+    closeDate: string;
+    autoLockAfterDeadline: boolean;
+  }[];
 }
 
 export interface TermDeadlineState {
@@ -643,23 +640,6 @@ export interface ResultCalculationPayload {
   minimumOverallPercentage: number;
   minimumPassGrade: string;
   requiredSubjectIds: number[];
-}
-export interface UpdateResultCalculationPayload {
-  calculationMethod: "THIRD_TERM_ONLY" | "CUMULATIVE";
-  promotionType: "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE";
-  minimumOverallPercentage: number;
-  minimumPassGrade: string;
-  requiredSubjectIds: number[];
-}
-export interface ResultSubmissionPayload {
-  termsDeadline: [
-    {
-      termId: number;
-      openDate: string;
-      closeDate: string;
-      autoLockAfterDeadline: boolean;
-    },
-  ];
 }
 
 export interface TermDeadlineState {
