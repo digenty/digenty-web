@@ -65,7 +65,7 @@ export const UserProfile = () => {
     .sort((a: Timezone, b: Timezone) => a.zoneName.localeCompare(b.zoneName))
     .map((timezone: Timezone) => ({
       label: timezone.zoneName,
-      value: timezone.gmtOffsetName,
+      value: `${timezone.zoneName} ${timezone.gmtOffsetName}`,
     }));
 
   useEffect(() => {

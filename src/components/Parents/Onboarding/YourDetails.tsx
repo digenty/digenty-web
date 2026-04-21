@@ -13,7 +13,7 @@ import { parentSchema } from "@/schema/parent";
 import { Gender, genders, Relationship, relationships } from "@/types";
 import { Branch } from "@/api/types";
 import { useFormik } from "formik";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Country, ParentInputValues, State } from "@/components/StudentAndParent/types";
@@ -23,6 +23,8 @@ import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect
 export const YourDetails = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const params = useParams();
+  const schoolSlug = params.schoolSlug as string;
 
   const [countries, setCountries] = useState<Country[]>([]);
   const [availableStates, setAvailableStates] = useState<string[]>([]);
