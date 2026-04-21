@@ -9,8 +9,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAddSubmission, useGetSubmissionDeadline, useUpdateSubmissionDeadline } from "@/hooks/queryHooks/useResult";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { resultKeys } from "@/queries/result";
-import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 interface TermDeadlineState {
@@ -48,7 +46,7 @@ const seedTermStates = (deadlines: SubmissionDeadline[]): Record<number, TermDea
 
 export const Submission = () => {
   const user = useLoggedInUser();
-  const queryClient = useQueryClient();
+
   const [isEditing, setIsEditing] = useState(false);
 
   const [hasOpenedForm, setHasOpenedForm] = useState(false);
@@ -312,7 +310,6 @@ export const Submission = () => {
           </Button>
         </div>
       )}
-
-</div>
+    </div>
   );
 };
