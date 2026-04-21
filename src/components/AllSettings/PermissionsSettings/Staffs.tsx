@@ -134,7 +134,7 @@ export const Staffs = () => {
                 {branches.data?.map((branch: BranchWithClassLevels) => (
                   <DropdownMenuItem
                     key={branch.branch.id}
-                    className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm"
+                    className="hover:bg-bg-state-ghost-hover! flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm"
                     onClick={() => setBranchSelected(branch.branch)}
                   >
                     <span className="text-text-default font-normal">{branch.branch.name}</span>
