@@ -60,6 +60,7 @@ export const AllClassesMainTable = ({
 
   const { data: levels, isLoading: loadingLevels } = useGetLevels();
 
+  console.log(data, "###");
   useBreadcrumb([{ label: "All Classes", url: "/staff/classes-and-subjects/all-classes" }]);
 
   const { mutate: approveReport, isPending: isSubmitting } = useSubmitClassReport();

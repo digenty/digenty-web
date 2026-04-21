@@ -35,7 +35,6 @@ export const ClassFees = () => {
   const [visibleCount, setVisibleCount] = useState(3);
   const [isOpen, setIsOpen] = useState(false);
   const pageSize = 4;
-  console.log(selectedRows);
 
   // Empty State
   // <EmptyFeeState

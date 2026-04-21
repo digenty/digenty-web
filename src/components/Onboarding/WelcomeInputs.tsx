@@ -147,14 +147,8 @@ export const WelcomeInputs = ({ formik }: { formik: FormikProps<CreateSchoolType
                 flag: country.flag,
               }))}
               value={values.country}
-              // onValueChange={value => {
-              //   const selectedCountry = countries.find(country => country.countryCode === value);
-              //   setFieldValue("country", value);
-              //   setActiveCountry(selectedCountry);
-              // }}
               onValueChange={country => {
                 setFieldValue("country", country);
-                // setFieldValue("stateOfOrigin", ""); // Reset state if country changes
               }}
               placeholder="Select Country"
               searchPlaceholder="Search country..."

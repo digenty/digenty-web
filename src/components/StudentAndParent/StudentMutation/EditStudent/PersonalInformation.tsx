@@ -42,7 +42,7 @@ export const PersonalInformation = ({
 
   useEffect(() => {
     if (countries.length > 0 && values.nationality) {
-      const selectedCountry = countries.find(c => c.name === values.nationality);
+      const selectedCountry = countries.find(c => c.name.trim().toLowerCase() === values.nationality.trim().toLowerCase());
       if (selectedCountry) {
         setAvailableStates(selectedCountry.states || []);
       } else {
@@ -52,6 +52,16 @@ export const PersonalInformation = ({
       setAvailableStates([]);
     }
   }, [countries, values.nationality]);
+
+  // Synchronize stateOfOrigin if the casing differs from what is in availableStates
+  useEffect(() => {
+    if (availableStates.length > 0 && values.stateOfOrigin) {
+      const match = availableStates.find(s => s.trim().toLowerCase() === values.stateOfOrigin.trim().toLowerCase());
+      if (match && match !== values.stateOfOrigin) {
+        setFieldValue("stateOfOrigin", match);
+      }
+    }
+  }, [availableStates, values.stateOfOrigin, setFieldValue]);
 
   return (
     <div className="border-border-default space-y-6 border-b py-6">
@@ -211,8 +221,10 @@ export const PersonalInformation = ({
               }))}
               value={formik.values.nationality}
               onValueChange={country => {
-                setFieldValue("nationality", country);
-                setFieldValue("stateOfOrigin", ""); // Reset state if country changes
+                if (formik.values.nationality !== country) {
+                  setFieldValue("nationality", country);
+                  setFieldValue("stateOfOrigin", ""); // Reset state if country changes
+                }
               }}
               placeholder="Select Nationality"
               searchPlaceholder="Search country..."
@@ -230,7 +242,9 @@ export const PersonalInformation = ({
             disabled={!values.nationality}
             value={formik.values.stateOfOrigin}
             onValueChange={value => {
-              setFieldValue("stateOfOrigin", value);
+              if (formik.values.nationality && availableStates.includes(value)) {
+                setFieldValue("stateOfOrigin", value);
+              }
             }}
           >
             <SelectTrigger className="text-text-muted bg-bg-input-soft! w-full border-none text-sm font-normal">

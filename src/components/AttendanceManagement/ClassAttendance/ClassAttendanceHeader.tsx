@@ -14,7 +14,7 @@ import { Button } from "../../ui/button";
 import { Calendar as AttendanceCalendar } from "../../ui/calendar";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "../../ui/select";
 
-import { StudentAttendance } from "@/api/types";
+import { StudentAttendance, Term } from "@/api/types";
 
 export const ClassAttendanceHeader = ({
   classArmName,
@@ -23,6 +23,7 @@ export const ClassAttendanceHeader = ({
   students,
   date,
   setDate,
+  activeTerm,
 }: {
   classArmName: string;
   attendanceList: { studentId: number; isPresent: boolean }[];
@@ -30,6 +31,7 @@ export const ClassAttendanceHeader = ({
   students: StudentAttendance[];
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
+  activeTerm?: Term;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -152,6 +154,10 @@ export const ClassAttendanceHeader = ({
                   setDate(date as Date);
                   setOpen(false);
                 }}
+                disabled={[
+                  ...(activeTerm?.startDate ? [{ before: new Date(activeTerm.startDate) }] : []),
+                  ...(activeTerm?.endDate ? [{ after: new Date(activeTerm.endDate) }] : []),
+                ]}
               />
             </SelectContent>
           </Select>

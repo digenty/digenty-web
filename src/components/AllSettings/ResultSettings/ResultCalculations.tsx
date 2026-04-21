@@ -20,6 +20,18 @@ import { defaultFormState, LevelFormProps, LevelFormState } from "./types";
 import { extractUniqueSubjectsByName, Subject } from "./utils";
 import { useGetGradingsByLevel } from "@/hooks/queryHooks/useLevel";
 import { useRouter } from "next/navigation";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+
+interface ResultCalculationRecord {
+  id: number;
+  classId: number;
+  academicSessionId: number;
+  calculationMethod: string;
+  promotionType: string;
+  minimumOverallPercentage: number;
+  minimumPassGrade: string;
+  requiredSubjectIds: number[];
+}
 
 interface ResultCalculationRecord {
   id: number;
@@ -42,20 +54,22 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
         {isLoading && <Skeleton className="bg-bg-input-soft h-8 w-full rounded-3xl" />}
         {!isLoading && levels.length > 0 && (
           <>
-            <Select value={String(activeIndex)} onValueChange={value => setActiveIndex(Number(value))}>
-              <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-                <SelectValue>
-                  <span className="text-text-default text-sm capitalize">{levels[activeIndex].label.replaceAll("_", " ").toLowerCase()}</span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="bg-bg-default border-border-default">
-                {levels.map((level, idx) => (
-                  <SelectItem key={level.label} value={String(idx)} className="text-text-default text-sm capitalize">
-                    {level.label.replaceAll("_", " ")}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="px-4">
+              <Select value={String(activeIndex)} onValueChange={value => setActiveIndex(Number(value))}>
+                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+                  <SelectValue>
+                    <span className="text-text-default text-sm capitalize">{levels[activeIndex].label.replaceAll("_", " ").toLowerCase()}</span>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-bg-default border-border-default">
+                  {levels.map((level, idx) => (
+                    <SelectItem key={level.label} value={String(idx)} className="text-text-default text-sm capitalize">
+                      {level.label.replaceAll("_", " ")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="mt-4">{levels[activeIndex].content}</div>
           </>
         )}
@@ -64,7 +78,7 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
   }
 
   return (
-    <div>
+    <div className="">
       <div className="h-9 w-full p-4 md:w-fit md:p-8">
         {isLoading && <Skeleton className="bg-bg-input-soft h-8 w-50 rounded-3xl" />}
         {!isLoading && levels.length > 0 && (
@@ -90,7 +104,11 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
         )}
       </div>
       <div className="mt-4 w-full">
-        {isLoading && <Skeleton className="bg-bg-input-soft h-80 w-full rounded-md" />}
+        {isLoading && (
+          <div className="px-4 md:px-8">
+            <Skeleton className="bg-bg-input-soft h-80 w-full rounded-md" />
+          </div>
+        )}
         {!isLoading && levels.length > 0 && (
           <div className="flex w-full">
             <div className="flex-1">{levels[activeIndex].content}</div>
@@ -135,24 +153,35 @@ const LevelForm = ({
 
   if (!existingRecord && !hasOpenedForm) {
     return (
-      <div className="mx-auto flex h-screen w-full flex-col items-center justify-center gap-4 py-20">
-        <div className="text-text-muted text-sm">No result calculation set up for this level yet.</div>
-        <Button
+      <div className="flex flex-col items-center justify-center gap-4 py-20">
+        <ErrorComponent
+          title="Not Found"
+          description="No result configurations set up for this level yet."
           onClick={() => {
             setHasOpenedForm(true);
             onEdit();
           }}
-          className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-8! rounded-md px-4"
-        >
-          Set Up Result Calculation
-        </Button>
+          buttonText="Set Up Result Calculation"
+        />
       </div>
     );
   }
 
+  const allSelected = subjects.length > 0 && subjects.every(s => formState.requiredSubjectIds.includes(s.id));
+
+  const toggleAllSubjects = () => {
+    if (allSelected) {
+      onChange({ requiredSubjectIds: [] });
+    } else {
+      onChange({
+        requiredSubjectIds: subjects.map(s => s.id),
+      });
+    }
+  };
+
   return (
     <div>
-      <div className="mx-auto flex w-full max-w-171 items-center justify-center pb-20">
+      <div className="mx-auto flex w-full max-w-171 items-center justify-center px-4 pb-20">
         <div className="flex w-full flex-col gap-6">
           <div className="flex justify-between">
             <div className="text-text-default text-xl font-semibold">Result Calculation</div>
@@ -240,7 +269,14 @@ const LevelForm = ({
                   <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
                   <div className="bg-bg-input-soft! text-text-muted flex w-32 items-center justify-between rounded-md">
                     <Input
-                      type="number"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      min="0"
+                      onKeyDown={e => {
+                        if (e.key === "-" || e.key === "e") {
+                          e.preventDefault();
+                        }
+                      }}
                       className="text-text-muted h-9! border-none text-sm"
                       placeholder="100"
                       disabled={!isEditing}
@@ -272,25 +308,28 @@ const LevelForm = ({
                     <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
                   ) : (
                     <>
-                      <Select
-                        value=""
-                        disabled={!isEditing}
-                        onValueChange={val => onChange({ requiredSubjectIds: [...formState.requiredSubjectIds, Number(val)] })}
-                      >
+                      <Select value="" disabled={!isEditing}>
                         <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
                           <SelectValue placeholder="Select subjects" />
                         </SelectTrigger>
                         <SelectContent className="bg-bg-default border-border-default">
+                          <div
+                            className="hover:bg-bg-input-soft flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2"
+                            onClick={toggleAllSubjects}
+                          >
+                            <Checkbox checked={allSelected} />
+                            <span className="text-text-default text-sm font-medium">Select All</span>
+                          </div>
+
                           {subjects.map((sub: Subject) => (
-                            <SelectItem
+                            <div
                               key={sub.id}
-                              value={String(sub.id)}
-                              className="text-text-default text-sm capitalize"
-                              onSelect={() => toggleSubject(sub.id)}
+                              className="hover:bg-bg-input-soft text-text-default flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm capitalize"
+                              onClick={() => toggleSubject(sub.id)}
                             >
-                              <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} onChange={() => toggleSubject(sub.id)} />
+                              <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} />
                               {sub.name.toLowerCase()}
-                            </SelectItem>
+                            </div>
                           ))}
                         </SelectContent>
                       </Select>
@@ -358,7 +397,14 @@ const LevelForm = ({
                   <Label className="text-text-default text-sm font-medium">Minimum Overall %</Label>
                   <div className="bg-bg-input-soft! text-text-muted flex w-32 items-center justify-between rounded-md">
                     <Input
-                      type="number"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      min="0"
+                      onKeyDown={e => {
+                        if (e.key === "-" || e.key === "e") {
+                          e.preventDefault();
+                        }
+                      }}
                       className="text-text-muted h-9! border-none text-xs"
                       placeholder="100"
                       disabled={!isEditing}
@@ -373,7 +419,6 @@ const LevelForm = ({
           </div>
         </div>
       </div>
-
       {isEditing && (
         <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
           <Button onClick={onCancel} disabled={isPending} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
@@ -506,7 +551,7 @@ export const ResultCalculations = () => {
   const isPending = isAdding || isUpdating;
 
   return (
-    <div className="px-4">
+    <div className="">
       <ClassesResponsiveTabs
         isLoading={isLoadingLevels}
         levels={levels.map(({ levelName, levelType, id }) => {

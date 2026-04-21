@@ -1,13 +1,35 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { parseCookieString } from "./lib/utils";
 
 export default async function middleware(req: NextRequest) {
-  const path = req.nextUrl.pathname;
+  const url = req.nextUrl.clone();
+  const host = req.headers.get("host");
+  const path = url.pathname;
+  console.log(url, host, path);
+
+  // Subdomain handling
+  // For local testing: greenwood.localhost:3000
+  // For production: school.axis.com
+  const mainDomains = ["axis.com", "localhost:3000", "app.axis.com"];
+
+  if (host && !mainDomains.includes(host)) {
+    const parts = host.split(".");
+    // Check if we have a subdomain (e.g., greenwood.axis.com or greenwood.localhost:3000)
+    // For localhost:3000, parts would be ["greenwood", "localhost:3000"]
+    // For axis.com, parts would be ["greenwood", "axis", "com"]
+    const subdomain = parts.length > 2 || (parts.length === 2 && parts[1].includes("localhost")) ? parts[0] : null;
+
+    if (subdomain && subdomain !== "www") {
+      // Rewrite root /onboarding to /parents/[schoolSlug]/onboarding
+      if (path === "/onboarding" || path === "/parent/onboarding") {
+        url.pathname = `/parents/${subdomain}/onboarding`;
+        return NextResponse.rewrite(url);
+      }
+    }
+  }
 
   const cookieStore = await cookies();
-  const tokenString = cookieStore.get("token")?.value;
-  const token = parseCookieString(tokenString);
+  const token = cookieStore.get("token")?.value;
 
   //include all routes that you want to be accessed without auth
   const authRoutes = [
@@ -30,20 +52,16 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/staff/", req.nextUrl));
   }
 
-  // Redirect to /login if user is not authenticated and tries to visit non-auth routes
-  // if (!token && !isAuthRoute) {
-  //   return NextResponse.redirect(new URL("/auth/staff", req.nextUrl));
-  // }
-
   if (!token && !isAuthRoute) {
-    const path = req.nextUrl.pathname;
-
     if (path.startsWith("/staff")) {
       return NextResponse.redirect(new URL("/auth/staff", req.url));
     }
 
     if (path.startsWith("/parent")) {
-      return NextResponse.redirect(new URL("/auth/parent", req.url));
+      // Don't redirect if it's already a rewritten path or subdomain specific
+      if (!path.includes(`/${host?.split(".")[0]}/`)) {
+        return NextResponse.redirect(new URL("/auth/parent", req.url));
+      }
     }
   }
 

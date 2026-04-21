@@ -1,20 +1,17 @@
+import { OnboardingStep } from "@/api/types";
 import { create } from "zustand";
-
-export interface OnboardingStep {
-  id: number;
-  title: string;
-  description: string;
-  isCompleted: boolean;
-  link?: string;
-}
 
 interface OnboardingState {
   steps: OnboardingStep[];
+  showSetupSteps: boolean;
+  setShowSetupSteps: (show: boolean) => void;
   setSteps: (steps: OnboardingStep[]) => void;
   updateStepCompleted: (id: number, isCompleted: boolean) => void;
 }
 
 export const useOnboardingStore = create<OnboardingState>()(set => ({
+  showSetupSteps: false,
+  setShowSetupSteps: show => set({ showSetupSteps: show }),
   steps: [
     {
       id: 1,
@@ -35,7 +32,7 @@ export const useOnboardingStore = create<OnboardingState>()(set => ({
       title: "Complete Your Gradings and Assessments Setup",
       description: "Define gradings, assessment types and scores for each level",
       isCompleted: false,
-      link: "/staff/settings/academic/academic-setup?step=gradings-and-assessments",
+      link: "/staff/settings/academic/academic-setup?step=grading-and-assessment",
     },
     {
       id: 4,
@@ -77,6 +74,7 @@ export const useOnboardingStore = create<OnboardingState>()(set => ({
       title: "Set Up School Fees",
       description: "Define fee items and set prices per level or branch.",
       isCompleted: false,
+      link: "/staff/settings/fees",
     },
     {
       id: 10,

@@ -130,7 +130,7 @@ export interface Parent {
   address: string;
   secondaryPhoneNumber: string;
   tags: string[];
-  linkedStudents: { id: number; fullName: string; avatar: string | null }[];
+  linkedStudents: { id: number; fullName: string; avatar: string | null; relationship: string }[];
 }
 
 export interface AttendanceCard {
@@ -315,7 +315,7 @@ export interface Staff {
   fullName: string;
   email: string;
   roleName: string | null;
-  status: boolean;
+  status: "ACTIVE" | "INACTIVE" | "PENDING";
   branchName: string;
   lastLogin: Date;
 }
@@ -774,12 +774,31 @@ export interface PrincipalsComment {
   minPercentage: number;
 }
 
+export interface Arm {
+  armId: number;
+  armName: string;
+  classId: number;
+}
+
+export interface SubjectTeaching {
+  subjectId: number;
+  subjectName: string;
+  arms: Arm[];
+}
+
+export interface ClassTeacherArm {
+  armId: number;
+  armName: string;
+  studentCount: number;
+  active: boolean;
+}
+
 export interface StaffBranch {
   branchId: number;
   branchName: string;
   roleNames: string[];
-  subjectTeachings: string[];
-  classTeacherArms: string[];
+  subjectTeachings: SubjectTeaching[];
+  classTeacherArms: ClassTeacherArm[];
   permissions: [
     {
       moduleName: string;
@@ -835,4 +854,19 @@ export interface ArmDetails {
   levelId: number;
   name: string;
   schoolId: number;
+}
+
+export interface OnboardingStepsType {
+  stepNumber: number;
+  title: string;
+  description: string;
+  completed: boolean;
+}
+
+export interface OnboardingStep {
+  id: number;
+  title: string;
+  description: string;
+  isCompleted: boolean;
+  link?: string;
 }

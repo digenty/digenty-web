@@ -48,6 +48,12 @@ export const getStatusBadge = (status: string) => {
         </Badge>
       );
 
+    case "inactive":
+      return (
+        <Badge className="bg-bg-badge-red text-bg-basic-red-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Inactive</span>
+        </Badge>
+      );
     case "successful":
       return (
         <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md text-xs font-medium">

@@ -5,6 +5,7 @@ import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { useAddSubmission, useGetSubmissionDeadline, useUpdateSubmissionDeadline } from "@/hooks/queryHooks/useResult";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -27,7 +28,6 @@ export const Submission = () => {
   const terms = termLists?.data?.terms ?? [];
   const deadlines = deadlineData?.data ?? [];
   const isLoading = isLoadingTerms || isLoadingDeadlines;
-  console.log(deadlines);
 
   useEffect(() => {
     if (isEditing) {
@@ -66,37 +66,39 @@ export const Submission = () => {
       };
     });
 
-    addSubmission(
-      { termsDeadline },
-      {
-        onSuccess: () => {
-          toast({ title: "Successful ", description: "Submission deadlines saved successfully.", type: "success" });
+    if (isEditing) {
+      updateSubmission(
+        { termsDeadline },
+        {
+          onSuccess: () => {
+            toast({ title: "Successful", description: "Submission deadlines updated successfully.", type: "success" });
+            setIsEditing(false);
+          },
+          onError: (error: unknown) => {
+            const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+            toast({ title: "Failed to update submission deadlines", description: message, type: "error" });
+          },
         },
-        onError: (error: unknown) => {
-          const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      );
+    } else {
+      addSubmission(
+        { termsDeadline },
+        {
+          onSuccess: () => {
+            toast({ title: "Successful ", description: "Submission deadlines saved successfully.", type: "success" });
+          },
+          onError: (error: unknown) => {
+            const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
 
-          toast({
-            title: "Failed to add submission deadlines",
-            description: message,
-            type: "error",
-          });
+            toast({
+              title: "Failed to add submission deadlines",
+              description: message,
+              type: "error",
+            });
+          },
         },
-      },
-    );
-    // };
-    updateSubmission(
-      { termsDeadline },
-      {
-        onSuccess: () => {
-          toast({ title: "Successful", description: "Submission deadlines updated successfully.", type: "success" });
-          setIsEditing(false);
-        },
-        onError: (error: unknown) => {
-          const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
-          toast({ title: "Failed to update submission deadlines", description: message, type: "error" });
-        },
-      },
-    );
+      );
+    }
   };
 
   const handleCancel = () => {
@@ -105,108 +107,112 @@ export const Submission = () => {
   };
 
   return (
-    <div className="mx-auto my-8 flex w-full max-w-181 items-center justify-center">
-      <div className="flex w-full flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <div className="text-text-default text-xl font-semibold">Submission Deadline</div>
-          {!isLoading && !isEditing && (
-            <Button
-              onClick={() => setIsEditing(true)}
-              className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-default h-8 border"
-            >
-              <Edit fill="var(--color-icon-default-muted)" /> Edit
-            </Button>
+    <div>
+      <div className="mx-auto my-8 flex w-full max-w-181 items-center justify-center px-4">
+        <div className="flex w-full flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <div className="text-text-default text-xl font-semibold">Submission Deadline</div>
+            {!isLoading && !isEditing && (
+              <Button
+                onClick={() => setIsEditing(true)}
+                className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-default h-8 border"
+              >
+                <Edit fill="var(--color-icon-default-muted)" /> Edit
+              </Button>
+            )}
+          </div>
+
+          {isLoading && (
+            <div className="flex flex-col gap-4">
+              <Skeleton className="bg-bg-input-soft h-40 w-full" />
+              <Skeleton className="bg-bg-input-soft h-40 w-full" />
+              <Skeleton className="bg-bg-input-soft h-40 w-full" />
+            </div>
+          )}
+
+          {!isLoading && (
+            <>
+              {terms.map((term: Term) => {
+                const deadline = getDeadline(term.termId);
+                const state = getTermState(term.termId);
+
+                return (
+                  <div key={term.termId} className="bg-bg-card border-border-darker w-full rounded-md border p-4 md:p-6">
+                    <div className="text-text-default text-md mb-4 font-semibold capitalize">{term.term.toLowerCase()} Term</div>
+
+                    {!isEditing && (
+                      <>
+                        <div className="mb-2 flex items-center justify-between gap-2">
+                          <div className="flex w-full flex-col gap-1">
+                            <span className="text-text-muted text-sm font-normal">Open Date</span>
+                            <div className="bg-bg-input-soft text-text-default flex h-9 w-full items-center rounded-md px-3 text-sm">
+                              {deadline?.openDate ?? <span className="text-text-muted">Not set</span>}
+                            </div>
+                          </div>
+                          <div className="flex w-full flex-col gap-1">
+                            <span className="text-text-muted text-sm font-normal">Close Date</span>
+                            <div className="bg-bg-input-soft text-text-default flex h-9 w-full items-center rounded-md px-3 text-sm">
+                              {deadline?.closeDate ?? <span className="text-text-muted">Not set</span>}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Checkbox checked={deadline?.autoLockAfterDeadline ?? false} disabled />
+                          <div className="text-text-muted text-sm font-medium">Auto-lock after deadline</div>
+                        </div>
+                      </>
+                    )}
+
+                    {isEditing && (
+                      <>
+                        <div className="mb-2 flex items-center justify-between gap-2">
+                          <DateRangePicker
+                            label="Open Date"
+                            date={state.openDate}
+                            setDate={val => updateTermState(term.termId, { openDate: val, closeDate: undefined })}
+                            className="bg-bg-input-soft! text-text-default h-9! w-full"
+                          />
+                          <DateRangePicker
+                            label="Close Date"
+                            date={state.closeDate}
+                            setDate={val => updateTermState(term.termId, { closeDate: val })}
+                            disabled={
+                              state.openDate ? { before: new Date(new Date(state.openDate).setDate(state.openDate.getDate() + 1)) } : undefined
+                            }
+                            className="bg-bg-input-soft! text-text-default h-9! w-full"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            checked={state.autoLockAfterDeadline}
+                            onCheckedChange={checked => updateTermState(term.termId, { autoLockAfterDeadline: checked === true })}
+                          />
+                          <div className="text-text-muted text-sm font-medium">Auto-lock after deadline</div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </>
           )}
         </div>
-
-        {isLoading && (
-          <div className="flex flex-col gap-4">
-            <Skeleton className="bg-bg-input-soft h-40 w-full" />
-            <Skeleton className="bg-bg-input-soft h-40 w-full" />
-            <Skeleton className="bg-bg-input-soft h-40 w-full" />
-          </div>
-        )}
-
-        {!isLoading && (
-          <>
-            {terms.map((term: Term) => {
-              const deadline = getDeadline(term.termId);
-              const state = getTermState(term.termId);
-
-              return (
-                <div key={term.termId} className="bg-bg-card border-border-darker w-full rounded-md border p-4 md:p-6">
-                  <div className="text-text-default text-md mb-4 font-semibold capitalize">{term.term.toLowerCase()} Term</div>
-
-                  {!isEditing && (
-                    <>
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <div className="flex w-full flex-col gap-1">
-                          <span className="text-text-muted text-sm font-normal">Open Date</span>
-                          <div className="bg-bg-input-soft text-text-default flex h-9 w-full items-center rounded-md px-3 text-sm">
-                            {deadline?.openDate ?? <span className="text-text-muted">Not set</span>}
-                          </div>
-                        </div>
-                        <div className="flex w-full flex-col gap-1">
-                          <span className="text-text-muted text-sm font-normal">Close Date</span>
-                          <div className="bg-bg-input-soft text-text-default flex h-9 w-full items-center rounded-md px-3 text-sm">
-                            {deadline?.closeDate ?? <span className="text-text-muted">Not set</span>}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Checkbox checked={deadline?.autoLockAfterDeadline ?? false} disabled />
-                        <div className="text-text-muted text-sm font-medium">Auto-lock after deadline</div>
-                      </div>
-                    </>
-                  )}
-
-                  {isEditing && (
-                    <>
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <DateRangePicker
-                          label="Open Date"
-                          date={state.openDate}
-                          setDate={val => updateTermState(term.termId, { openDate: val, closeDate: undefined })}
-                          className="bg-bg-input-soft! text-text-default h-9! w-full"
-                        />
-                        <DateRangePicker
-                          label="Close Date"
-                          date={state.closeDate}
-                          setDate={val => updateTermState(term.termId, { closeDate: val })}
-                          disabled={state.openDate ? { before: new Date(new Date(state.openDate).setDate(state.openDate.getDate() + 1)) } : undefined}
-                          className="bg-bg-input-soft! text-text-default h-9! w-full"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          checked={state.autoLockAfterDeadline}
-                          onCheckedChange={checked => updateTermState(term.termId, { autoLockAfterDeadline: checked === true })}
-                        />
-                        <div className="text-text-muted text-sm font-medium">Auto-lock after deadline</div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })}
-
-            {isEditing && (
-              <div className="flex w-full items-center justify-between">
-                <Button className="bg-bg-state-soft! text-text-subtle rounded-md" onClick={handleCancel}>
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSave}
-                  disabled={isUpdating || isAdding}
-                  className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default"
-                >
-                  {isUpdating || isAdding ? "Saving..." : "Save Changes"}
-                </Button>
-              </div>
-            )}
-          </>
-        )}
       </div>
+      {isEditing && (
+        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
+          <Button onClick={handleCancel} disabled={isUpdating} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={isUpdating}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
+          >
+            {isUpdating && <Spinner className="text-text-white-default size-4" />}
+            Save changes
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

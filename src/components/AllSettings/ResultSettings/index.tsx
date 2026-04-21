@@ -15,8 +15,8 @@ export const SettingsResult = () => {
     { label: "Result Settings", url: "/staff/settings/result" },
   ]);
   return (
-    <div className="px-4 md:p-8">
-      <div className="border-border-default flex w-auto max-w-120 items-center gap-3 border-b">
+    <div className="md:py-8">
+      <div className="border-border-default flex w-auto max-w-120 items-center gap-3 border-b px-4">
         {tabs.map(tab => {
           const isActive = activeTab === tab;
           return (

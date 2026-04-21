@@ -52,7 +52,7 @@ function ComboboxInput({
       <ComboboxPrimitive.Input
         render={<InputGroupInput disabled={disabled} />}
         {...props}
-        className="h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="h-auto text-sm! focus-visible:ring-0 focus-visible:ring-offset-0"
       />
       <InputGroupAddon align="inline-end">
         {showTrigger && (
@@ -122,7 +122,7 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
     <ComboboxPrimitive.List
       data-slot="combobox-list"
       className={cn(
-        "max-h-[min(calc(--spacing(96)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto p-1 data-empty:p-0",
+        "text-text-default max-h-[min(calc(--spacing(96)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto p-1 data-empty:p-0",
         className,
       )}
       {...props}

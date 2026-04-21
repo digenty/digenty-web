@@ -40,7 +40,6 @@ export const getArmsByLevel = async (levelType?: LevelType, branchId?: number) =
 };
 
 export const deleteArmByLevel = async (armId: number, levelId: number) => {
-  console.log("i was called");
   try {
     const { data } = await api.delete(`/arms/level?armId=${armId}&levelId=${levelId}`);
     return data;
@@ -53,7 +52,6 @@ export const deleteArmByLevel = async (armId: number, levelId: number) => {
 };
 
 export const addArm = async (payload: AddArmPayload) => {
-  console.log("i was called");
   try {
     const { data } = await api.post("/arms/level", payload);
     return data;

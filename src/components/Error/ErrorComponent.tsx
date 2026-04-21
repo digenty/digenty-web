@@ -10,22 +10,24 @@ export const ErrorComponent = ({
   buttonText,
   url,
   buttonStyle,
+  onClick,
 }: {
   title: string;
   description: string;
   buttonText?: string;
   url?: string;
   buttonStyle?: string;
+  onClick?: () => void;
 }) => {
   const router = useRouter();
   return (
     <div className="flex max-w-80 flex-col items-center gap-4">
-      <QuickReferenceAll />
-      <p className="text-text-default text-lg font-medium">{title}</p>
+      <QuickReferenceAll fill="var(--color-icon-default-muted)" />
+      <p className="text-text-default text-center text-lg font-medium">{title}</p>
       <p className="text-text-muted text-center text-xs font-normal">{description}</p>
-      {buttonText && (
+      {(buttonText || onClick) && (
         <Button
-          onClick={() => router.push(url ?? "/staff/")}
+          onClick={() => (onClick ? onClick() : router.push(url ?? "/staff/"))}
           className={cn("bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2", buttonStyle)}
         >
           {buttonText}

@@ -11,8 +11,8 @@ export const LinkedStudents = ({
   setSelectedStudents,
 }: {
   setOpen: (open: boolean) => void;
-  selectedStudents: { id: number; name: string; avatar: string | null }[];
-  setSelectedStudents: Dispatch<SetStateAction<{ id: number; name: string; avatar: string | null }[]>>;
+  selectedStudents: { id: number; fullName: string; image: string | null }[];
+  setSelectedStudents: Dispatch<SetStateAction<{ id: number; fullName: string; image: string | null }[]>>;
 }) => {
   const removeStudent = (id: number) => {
     const students = selectedStudents.filter(student => student.id !== id);
@@ -29,8 +29,8 @@ export const LinkedStudents = ({
             className="bg-bg-card shadow-light border-border-default flex items-center justify-between rounded-xl border py-2 pr-4 pl-2"
           >
             <div className="flex items-center gap-2">
-              <Avatar className="size-10" url={student.avatar ?? ""} />
-              <p className="text-text-default text-sm font-medium">{student.name}</p>
+              <Avatar className="size-10" url={student.image ?? ""} />
+              <p className="text-text-default text-sm font-medium">{student.fullName}</p>
             </div>
 
             <Button

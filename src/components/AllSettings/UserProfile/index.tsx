@@ -22,6 +22,14 @@ import { useGetCountries } from "@/hooks/queryHooks/useCountry";
 import { Country } from "@/components/StudentAndParent/types";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 
+type Timezone = {
+  abbreviation: string;
+  gmtOffset: number;
+  gmtOffsetName: string;
+  tzName: string;
+  zoneName: string;
+};
+
 type EditProps = "editName" | "editPhoneNum" | "editTimezone" | null;
 export const UserProfile = () => {
   useBreadcrumb([
@@ -46,15 +54,20 @@ export const UserProfile = () => {
 
   const { data: countries = [] } = useGetCountries();
 
-  const uniqueTimezones = Array.from(new Set<string>(countries.flatMap((c: Country) => c.timezones || [])))
-    .filter(Boolean)
-    .sort()
-    .map(tz => ({
-      label: tz,
-      value: tz,
+  const uniqueTimezones = Array.from(
+    new globalThis.Map<string, Timezone>(
+      countries
+        .flatMap((country: Country) => country.timezones || [])
+        .filter(Boolean)
+        .map((timezone: Timezone) => [timezone.zoneName, timezone] as [string, Timezone]),
+    ).values(),
+  )
+    .sort((a: Timezone, b: Timezone) => a.zoneName.localeCompare(b.zoneName))
+    .map((timezone: Timezone) => ({
+      label: timezone.zoneName,
+      value: `${timezone.zoneName} ${timezone.gmtOffsetName}`,
     }));
 
-  console.log(profileData);
   useEffect(() => {
     if (profileData) {
       setFirstName(profileData.firstName || "");
@@ -62,7 +75,7 @@ export const UserProfile = () => {
       setPhoneNumber(profileData.phoneNumber || "");
       setEmail(profileData.email || "");
       setRole(profileData.role || "");
-      setImage(profileData.avatar || undefined);
+      setImage(profileData.image || undefined);
     }
   }, [profileData]);
 

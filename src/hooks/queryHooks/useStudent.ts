@@ -11,8 +11,10 @@ import {
   uploadStudents,
   withdrawStudents,
 } from "@/api/student";
+import { updateAssignSubjectTeacher } from "@/api/subject";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { studentKeys } from "@/queries/student";
+import { subjectKeys } from "@/queries/subject";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAddStudent = () => {
@@ -149,6 +151,18 @@ export const useAddTeacherInput = () => {
     mutationFn: addTeacherInput,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [studentKeys.studentReport] });
+    },
+  });
+};
+
+export const useUpdateAssignSubjectTeacher = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subjectKeys.updateTeacherSubjectAssignment,
+    mutationFn: (payload: { teacherId: number; subjectArmAndClassDtos: { subjectId: number; armId: number }[] }) =>
+      updateAssignSubjectTeacher(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.updateTeacherSubjectAssignment] });
     },
   });
 };

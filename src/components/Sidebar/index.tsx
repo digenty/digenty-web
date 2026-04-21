@@ -46,8 +46,10 @@ import { canViewPortalCustomization } from "@/lib/permissions/portal-customizati
 import { canViewPortalOverview } from "@/lib/permissions/portal-overview";
 import { canViewDomain } from "@/lib/permissions/domain";
 import { useQueryClient } from "@tanstack/react-query";
-import { log } from "console";
 import { SetupGuideProgress } from "./SetupGuideProgress";
+import { canViewCBT } from "@/lib/permissions/cbt";
+import { getSessionToken } from "@/app/actions/auth";
+import { ListCheck3 } from "../Icons/ListCheck3";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -78,6 +80,16 @@ export const Sidebar = () => {
                 title: "Classes & Subjects",
                 url: "classes-and-subjects",
                 icon: GraduationCap,
+              },
+            ]
+          : []),
+
+        ...(canViewCBT(user?.permissions)
+          ? [
+              {
+                title: "CBT",
+                url: "cbt",
+                icon: ListCheck3,
               },
             ]
           : []),
@@ -220,20 +232,20 @@ export const Sidebar = () => {
     //     ]
     //   : []),
 
-    ...(canViewSettings(user?.permissions)
-      ? [
-          {
-            title: "",
-            menu: [
-              {
-                title: "Settings",
-                url: "settings",
-                icon: Settings4,
-              },
-            ],
-          },
-        ]
-      : []),
+    // ...(canViewSettings(user?.permissions)
+    //   ? [
+    //       {
+    //         title: "",
+    //         menu: [
+    //           {
+    //             title: "Settings",
+    //             url: "settings",
+    //             icon: Settings4,
+    //           },
+    //         ],
+    //       },
+    //     ]
+    //   : []),
   ];
 
   const pathname = usePathname();
@@ -252,12 +264,21 @@ export const Sidebar = () => {
     deleteSession();
   };
 
+  const handleCBTClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const { token } = await getSessionToken();
+    const baseUrl = process.env.NEXT_PUBLIC_CBT_URL?.replace(/\/$/, "");
+    const cbtUrl = `${baseUrl}/auth-entry?token=${encodeURIComponent(token)}`; // &returnTo="/subjects"
+    window.open(cbtUrl, "_blank"); // or window.location.href = cbtUrl
+    // window.location.href = cbtUrl;
+  };
+
   return (
     <aside className="h-screen">
       <div
         className={cn(
           "border-border-default bg-bg-sidebar-subtle hide-scrollbar relative hidden h-screen w-69 space-y-4 overflow-y-auto border-r p-4 md:block md:space-y-8",
-          !isSidebarOpen && "w-auto",
+          !isSidebarOpen && "w-16",
         )}
       >
         <div className={cn("flex", isSidebarOpen ? "justify-between" : "justify-center")}>
@@ -316,7 +337,7 @@ export const Sidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          onClick={() => router.push(`/staff/${menu.url}`)}
+                          onClick={menu.url === "cbt" ? handleCBTClick : () => router.push(`/staff/${menu.url}`)}
                         >
                           <menu.icon fill="var(--color-icon-default-subtle)" />
                           {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
@@ -331,12 +352,33 @@ export const Sidebar = () => {
         </div>
 
         <div className={cn("absolute right-4 bottom-4 left-4")}>
-          <div className="right-10">{isSidebarOpen && <SetupGuideProgress />}</div>
+          <div className="right-10">{isSidebarOpen && user?.isMain && <SetupGuideProgress />}</div>
 
-          <nav onClick={logout} className={cn("flex cursor-pointer items-center gap-[11px] py-2", !isSidebarOpen && "justify-center")}>
-            <Logout fill="var(--color-icon-default-subtle)" />
-            {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">Sign out</p>}
-          </nav>
+          <div>
+            {canViewSettings(user?.permissions) && (
+              <Tooltip
+                description="Settings"
+                Trigger={
+                  <nav
+                    className={cn(
+                      "flex cursor-pointer items-center gap-[11px] px-2 py-2",
+                      !isSidebarOpen && "justify-center px-0",
+                      activeNav === "settings" && "bg-bg-state-soft rounded-md",
+                    )}
+                    onClick={() => router.push(`/staff/settings`)}
+                  >
+                    <Settings4 fill="var(--color-icon-default-subtle)" />
+                    {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">Settings</p>}
+                  </nav>
+                }
+              />
+            )}
+
+            <nav onClick={logout} className={cn("flex cursor-pointer items-center gap-[11px] py-2", !isSidebarOpen && "justify-center")}>
+              <Logout fill="var(--color-icon-default-subtle)" />
+              {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">Sign out</p>}
+            </nav>
+          </div>
         </div>
       </div>
 
@@ -394,14 +436,32 @@ export const Sidebar = () => {
             </div>
 
             <div className={cn("absolute right-4 bottom-4 left-4")}>
-              <div className="right-10">
-                <SetupGuideProgress />
-              </div>
+              {user?.isMain && (
+                <div className="right-10">
+                  <SetupGuideProgress />
+                </div>
+              )}
 
-              <nav onClick={logout} className={cn("flex cursor-pointer gap-2.75 py-2 pr-2")}>
-                <Logout fill="var(--color-icon-default-subtle)" />
-                <p className="text-sm leading-5 font-medium">Sign out</p>
-              </nav>
+              <div className="space-y-2">
+                {canViewSettings(user?.permissions) && (
+                  <nav
+                    className={cn(
+                      "flex cursor-pointer gap-2.75 p-2",
+                      !isSidebarOpen && "justify-center px-0",
+                      activeNav === "settings" && "bg-bg-state-soft rounded-md",
+                    )}
+                    onClick={() => router.push("/staff/settings")}
+                  >
+                    <Settings4 fill="var(--color-icon-default-subtle)" />
+                    <p className="text-sm leading-5 font-medium">Settings</p>
+                  </nav>
+                )}
+
+                <nav onClick={logout} className={cn("flex cursor-pointer gap-2.75 py-2 pr-2")}>
+                  <Logout fill="var(--color-icon-default-subtle)" />
+                  <p className="text-sm leading-5 font-medium">Sign out</p>
+                </nav>
+              </div>
             </div>
           </SheetContent>
         </Sheet>

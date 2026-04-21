@@ -15,9 +15,9 @@ import { useEffect, useState } from "react";
 
 const DIGITS = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-const buildPreview = (prefix: string, startingNumber: string, padding: string): string => {
+const buildPreview = (prefix: string, numberFormat: string, startingNumber: string, padding: string): string => {
   const seq = String(parseInt(startingNumber) || 1).padStart(Number(padding) || 2, "0");
-  const year = new Date().getFullYear();
+  const year = numberFormat;
   return `${prefix || "ADM"}-${year}${seq}`.toUpperCase();
 };
 
@@ -30,11 +30,9 @@ export const AdmissionNumberSetupDone = () => {
   const [padding, setPadding] = useState("");
 
   const { data: admissionResponse, isLoading, isError, error } = useGetAdmissionNumberDetails();
-  console.log(admissionResponse?.data, "888");
   const { mutateAsync: updateAdmission } = useUpdateAdmissionNumber();
 
   const admission = admissionResponse?.data ?? admissionResponse?.[0];
-  console.log(prefix, "prefix");
 
   useEffect(() => {
     if (!admission) return;
@@ -44,7 +42,7 @@ export const AdmissionNumberSetupDone = () => {
     setPadding(String(admission.padding ?? ""));
   }, [admission]);
 
-  const preview = buildPreview(prefix, startingNumber, padding);
+  const preview = buildPreview(prefix, numberFormat, startingNumber, padding);
 
   const handleEdit = () => setIsEditing(true);
 
@@ -97,7 +95,7 @@ export const AdmissionNumberSetupDone = () => {
     <div className="w-full">
       <div
         className={cn(
-          "mx-auto flex w-full items-center justify-center px-4 md:w-151",
+          "mx-auto flex w-full items-center justify-center px-4 pb-20 md:w-151",
           !isEditing && "mx-auto flex w-full items-center justify-center md:max-w-200",
         )}
       >
