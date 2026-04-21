@@ -165,6 +165,7 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
           {
             onSuccess: () => {
               toast({ title: "Academic session updated", type: "success" });
+              router.push(`${pathname}?step=class-and-arms`);
             },
             onError: error => {
               toast({

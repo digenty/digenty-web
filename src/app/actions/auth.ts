@@ -29,7 +29,7 @@ export const getSessionToken = async () => {
   const token = cookieStore.get("token")?.value;
 
   if (!token) {
-    redirect("/auth");
+    redirect("/");
   }
 
   return { token };

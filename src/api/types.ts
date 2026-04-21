@@ -130,7 +130,7 @@ export interface Parent {
   address: string;
   secondaryPhoneNumber: string;
   tags: string[];
-  linkedStudents: { id: number; fullName: string; avatar: string | null }[];
+  linkedStudents: { id: number; fullName: string; avatar: string | null; relationship: string }[];
 }
 
 export interface AttendanceCard {
