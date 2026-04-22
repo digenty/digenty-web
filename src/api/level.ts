@@ -11,6 +11,12 @@ type UpdateLevelPayload = {
   branchSpecific: boolean;
 };
 
+type AddLevelPayload = {
+  levelType: "CRECHE" | "KINDERGARTEN" | "NURSERY" | "PRIMARY" | "JUNIOR_SECONDARY" | "SENIOR_SECONDARY";
+  name: string;
+  branchId: number;
+};
+
 export const getLevels = async (branchId?: number) => {
   try {
     const { data } = await api.get(`/class-levels/names${branchId ? `?branchId=${branchId}` : ""}`);
@@ -60,6 +66,30 @@ export const getAssessmentsByLevel = async (levelId: number) => {
 export const getGradingsByLevel = async (levelId: number) => {
   try {
     const { data } = await api.get(`/gradings/level?levelId=${levelId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const addLevel = async (payload: AddLevelPayload) => {
+  try {
+    const { data } = await api.post("/class-levels", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const deleteLevel = async (levelId: number) => {
+  try {
+    const { data } = await api.delete(`/class-levels/${levelId}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
