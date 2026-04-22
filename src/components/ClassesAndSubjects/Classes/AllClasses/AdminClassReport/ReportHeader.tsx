@@ -34,6 +34,7 @@ export const ReportHeader = ({
   onExport,
   classArmName,
   classArmReportId,
+  reportStatus,
 }: {
   termSelected: Term | null;
   setTermSelected: React.Dispatch<React.SetStateAction<Term | null>>;
@@ -45,6 +46,7 @@ export const ReportHeader = ({
   onExport?: () => void;
   classArmName: string;
   classArmReportId?: number;
+  reportStatus: "APPROVED" | "NOT_SUBMITTED" | "SUBMITTED";
 }) => {
   const isMobile = useIsMobile();
 
@@ -163,13 +165,15 @@ export const ReportHeader = ({
               >
                 <ArrowGoBack fill="var(--color-icon-white-default)" /> Return Result
               </Button>
-              <Button
-                onClick={() => setOpenApprove(true)}
-                className="bg-bg-state-primary hover:bg-bg-state-primary/90! border-border-default text-text-white-default flex h-8 w-39.5 items-center gap-1 rounded-md border text-sm font-medium md:w-36.5"
-              >
-                <Approve fill="var(--color-icon-white-default)" />
-                Approve Result
-              </Button>
+              {reportStatus !== "APPROVED" && (
+                <Button
+                  onClick={() => setOpenApprove(true)}
+                  className="bg-bg-state-primary hover:bg-bg-state-primary/90! border-border-default text-text-white-default flex h-8 w-39.5 items-center gap-1 rounded-md border text-sm font-medium md:w-36.5"
+                >
+                  <Approve fill="var(--color-icon-white-default)" />
+                  Approve Result
+                </Button>
+              )}
 
               <DropdownMenu>
                 <DropdownMenuTrigger

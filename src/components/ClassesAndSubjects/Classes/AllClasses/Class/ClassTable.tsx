@@ -47,7 +47,7 @@ export const ClassTable = ({
 
       {!isError && !isLoading && classData.length === 0 && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Subjects" description="No subject has been added yet" buttonText="Go to the Home page" />
+          <ErrorComponent title="No Subject Report" description="No subject report available for this class yet" buttonText="Go to the Home page" />
         </div>
       )}
 
@@ -117,7 +117,7 @@ export const ClassTable = ({
                       <span className="text-text-muted text-sm font-medium">Status</span>
                       <Badge
                         // className={`capitalize ${item.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "REQUESTED_EDIT_ACCESS" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} ${item.status === "PENDING_APPROVAL" ? "bg-bg-badge-orange text-bg-basic-orange-strong" : null} border-border-default rounded-md border p-1 text-xs font-medium`}
-                        className={`capitalize ${item.status === "SUBMITTED" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "REQUESTED_EDIT_ACCESS" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} border-border-default rounded-md border p-1 text-xs font-medium`}
+                        className={`capitalize ${item.status === "SUBMITTED" || item.status === "APPROVED_EDIT_ACCESS" ? "bg-bg-badge-green text-bg-basic-green-strong" : ""} ${item.status === "REQUESTED_EDIT_ACCESS" ? "bg-bg-badge-lime text-bg-basic-lime-strong" : ""} ${item.status === "NOT_SUBMITTED" ? "bg-bg-badge-red text-bg-basic-red-strong" : ""} border-border-default rounded-md border p-1 text-xs font-medium`}
                       >
                         {item.status ? item.status.replaceAll("_", " ").toLowerCase() : ""}
                       </Badge>

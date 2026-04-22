@@ -43,7 +43,7 @@ export const UserProfile = () => {
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -74,7 +74,7 @@ export const UserProfile = () => {
       setLastName(profileData.lastName || "");
       setPhoneNumber(profileData.phoneNumber || "");
       setEmail(profileData.email || "");
-      setRole(profileData.role || "");
+      setRole(profileData.roles || "");
       setImage(profileData.image || undefined);
     }
   }, [profileData]);
@@ -282,7 +282,7 @@ export const UserProfile = () => {
               <IdCard fill="var(--color-icon-default-muted)" />
               <div className="text-text-default text-sm font-medium">Role</div>
             </div>
-            <div className="text-text-muted text-sm">{role || "—-"}</div>
+            <div className="text-text-muted text-sm">{role.length > 0 ? role.map(rol => rol).join(", ") : "—-"}</div>
           </div>
         </div>
 

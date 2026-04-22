@@ -9,4 +9,6 @@ export const departmentKeys = {
   departmentSubjectsByClass: ["departmentSubjectsByClass"] as const,
   assignArmToDepartment: ["assignArmToDepartment"] as const,
   deleteDepartmentSubjects: ["deleteDepartmentSubjects"] as const,
+  assignedDepartments: (levelId?: number, departmentId?: number, branchId?: number) =>
+    ["assignedDepartments", levelId, departmentId, branchId] as const,
 };

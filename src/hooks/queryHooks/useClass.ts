@@ -20,6 +20,7 @@ import { updateAssignSubjectTeacher } from "@/api/subject";
 import { branchKeys } from "@/queries/branch";
 
 import { classKeys } from "@/queries/class";
+import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetClasses = (branchId?: number) => {
@@ -59,7 +60,7 @@ export const useGetClassTeachersInClass = (armId: number) => {
 
 export const useGetClassReport = (armId?: number, termId?: number) => {
   return useQuery({
-    queryKey: classKeys.classReport(armId, termId),
+    queryKey: [classKeys.classReport, armId, termId],
     queryFn: () => getClassReport(armId, termId),
     enabled: !!armId && !!termId,
   });
@@ -74,9 +75,14 @@ export const useGetClassCumulativeReport = (armId?: number, filter?: string) => 
 };
 
 export const useRequestEditAccess = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: classKeys.requestEditAccess,
     mutationFn: requestEditAccess,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.mysubjects] });
+    },
   });
 };
 
@@ -120,7 +126,7 @@ export const useSubmitClassReport = () => {
     mutationKey: [classKeys.submitClassReport],
     mutationFn: (payload: { classArmReportId: number; status: string }) => submitClassReport(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [classKeys.classReport()] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classReport] });
       queryClient.invalidateQueries({ queryKey: [branchKeys.branchDetail] });
     },
   });

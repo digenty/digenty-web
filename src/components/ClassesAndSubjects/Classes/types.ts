@@ -14,7 +14,7 @@ export type ClassProps = {
   subjectId: number;
   subjectName: string;
   subjectTeacherName: string;
-  status: "SUBMITTED" | "NOT_SUBMITTED" | "IN_PROGRESS" | "REQUESTED_EDIT_ACCESS";
+  status: "SUBMITTED" | "NOT_SUBMITTED" | "IN_PROGRESS" | "REQUESTED_EDIT_ACCESS" | "APPROVED_EDIT_ACCESS";
 };
 
 export type ClassReportProps = {

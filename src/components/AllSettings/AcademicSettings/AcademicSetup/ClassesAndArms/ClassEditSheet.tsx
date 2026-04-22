@@ -678,7 +678,7 @@ export const ClassEditSheet = ({
           </div>
         </div>
 
-        <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} />
+        {/* <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} /> */}
       </div>
     </div>
   );

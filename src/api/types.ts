@@ -870,3 +870,18 @@ export interface OnboardingStep {
   isCompleted: boolean;
   link?: string;
 }
+
+export interface AssignedArm {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  name: string;
+  classId: number;
+  levelId: number;
+  departmentId: number;
+  branchId: number;
+  schoolId: number;
+}

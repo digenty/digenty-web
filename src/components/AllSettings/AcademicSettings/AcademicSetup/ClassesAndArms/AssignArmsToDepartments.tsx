@@ -1,10 +1,57 @@
-import { ArmDetails, DepartmentWithSubjects } from "@/api/types";
+import { ArmDetails, AssignedArm, DepartmentWithSubjects } from "@/api/types";
 import { toast } from "@/components/Toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getAssignedDepartments } from "@/api/department";
+import { departmentKeys } from "@/queries/department";
 import { useAssignArmToDepartment } from "@/hooks/queryHooks/useDepartment";
-import { useState } from "react";
+import { useQueries } from "@tanstack/react-query";
+import { useEffect, useState, useMemo } from "react";
 
-export const AssignArmsToDepartments = ({ arms, departments }: { arms: ArmDetails[]; departments: DepartmentWithSubjects[] }) => {
+export const AssignArmsToDepartments = ({
+  arms,
+  departments,
+  levelId,
+  branchId,
+}: {
+  arms: ArmDetails[];
+  departments: DepartmentWithSubjects[];
+  levelId: number;
+  branchId?: number;
+}) => {
+  const departmentQueries = useQueries({
+    queries: departments.map(dept => ({
+      queryKey: departmentKeys.assignedDepartments(levelId, dept.departmentId, branchId),
+      queryFn: () => getAssignedDepartments(levelId, dept.departmentId, 96),
+      enabled: !!levelId && !!dept.departmentId,
+    })),
+  });
+
+  const isLoading = departmentQueries.some(q => q.isLoading);
+
+  const armToDepartmentMap = useMemo(() => {
+    const map: Record<number, number> = {};
+    departmentQueries.forEach((query, index) => {
+      // Handle various response structures
+      const data = query.data;
+      const assignedArms = query.data?.data || [];
+      // const assignedArms = Array.isArray(data?.data)
+      //   ? data.data
+      //   : Array.isArray(data)
+      //     ? data
+      //     : [];
+
+      const deptId = departments[index].departmentId;
+      assignedArms.forEach((assignment: AssignedArm) => {
+        // Handle both armId and id
+        const armId = assignment.id;
+        if (armId) {
+          map[armId] = deptId;
+        }
+      });
+    });
+    return map;
+  }, [departmentQueries, departments]);
+
   if (!arms?.length || !departments?.length) return null;
 
   return (
@@ -13,16 +60,38 @@ export const AssignArmsToDepartments = ({ arms, departments }: { arms: ArmDetail
 
       <div className="flex flex-col gap-6">
         {arms.map(arm => (
-          <ArmDepartmentSelect key={arm.id} arm={arm} departments={departments} />
+          <ArmDepartmentSelect
+            key={arm.id}
+            arm={arm}
+            departments={departments}
+            initialDeptId={armToDepartmentMap[arm.id]}
+            isLoadingInitial={isLoading}
+          />
         ))}
       </div>
     </div>
   );
 };
 
-const ArmDepartmentSelect = ({ arm, departments }: { arm: ArmDetails; departments: DepartmentWithSubjects[] }) => {
+const ArmDepartmentSelect = ({
+  arm,
+  departments,
+  initialDeptId,
+  isLoadingInitial,
+}: {
+  arm: ArmDetails;
+  departments: DepartmentWithSubjects[];
+  initialDeptId?: number;
+  isLoadingInitial?: boolean;
+}) => {
   const { mutate, isPending } = useAssignArmToDepartment();
-  const [selectedDept, setSelectedDept] = useState<number>();
+  const [selectedDept, setSelectedDept] = useState<number | undefined>(initialDeptId);
+
+  useEffect(() => {
+    if (initialDeptId !== undefined) {
+      setSelectedDept(initialDeptId);
+    }
+  }, [initialDeptId]);
 
   const handleAssign = (departmentId: string) => {
     const deptId = parseInt(departmentId, 10);
@@ -51,7 +120,7 @@ const ArmDepartmentSelect = ({ arm, departments }: { arm: ArmDetails; department
   return (
     <div className="flex flex-col gap-2">
       <div className="text-text-default text-sm font-medium capitalize">{arm.name}</div>
-      <Select value={selectedDept?.toString()} onValueChange={handleAssign} disabled={isPending}>
+      <Select value={selectedDept?.toString()} onValueChange={handleAssign} disabled={isPending || isLoadingInitial}>
         <SelectTrigger className="h-11 w-full border-none">
           <SelectValue placeholder="Assign to a department" className="capitalize">
             <span className="text-text-default capitalize">

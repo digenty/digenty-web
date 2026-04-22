@@ -155,6 +155,7 @@ export const ClassAttendanceHeader = ({
                   setOpen(false);
                 }}
                 disabled={[
+                  { dayOfWeek: [0, 6] },
                   ...(activeTerm?.startDate ? [{ before: new Date(activeTerm.startDate) }] : []),
                   ...(activeTerm?.endDate ? [{ after: new Date(activeTerm.endDate) }] : []),
                 ]}
