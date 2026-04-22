@@ -185,6 +185,7 @@ const ClassReport = () => {
         setActiveFilter={setActiveFilter}
         students={transformedStudents}
         classArmReportId={classArmReportId}
+        reportStatus={classReportData?.data?.status}
       />
 
       <div className="relative">

@@ -195,7 +195,7 @@ export const CSVUpload = ({
             </div>
           </div>
           <Button onClick={() => clearFile()} className="p-0!">
-            <XIcon className="size-4" />
+            <XIcon className="text-text-default! size-4" />
           </Button>
         </div>
       )}
@@ -219,12 +219,12 @@ export const CSVUpload = ({
           </DropdownMenuTrigger>
 
           <DropdownMenuContent className="bg-bg-card border-none" align="start">
-            <DropdownMenuItem onClick={() => handleCSVDownload()} className="text-text-default">
+            <DropdownMenuItem onClick={() => handleCSVDownload()} className="text-text-default! cursor-pointer">
               <FileExcel fill="var(--color-icon-default-subtle)" className="size-4" /> CSV Template
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => handleXSLXDownload()} className="text-text-default">
-              <FileExcel2 fill="var(--color-default-subtle)" className="size-4" /> XSLX Template
+            <DropdownMenuItem onClick={() => handleXSLXDownload()} className="text-text-default! cursor-pointer">
+              <FileExcel2 fill="var(--color-icon-default-subtle)" className="size-4" /> XSLX Template
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

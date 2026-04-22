@@ -25,7 +25,7 @@ const RenderOptions = ({
         className="bg-bg-state-secondary border-border-default flex h-7 w-20 items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors"
       >
         <span className="text-text-destructive text-xs font-semibold">✕</span>
-        <span>Reject</span>
+        <span className="text-text-default">Reject</span>
       </Button>
 
       <Button
@@ -36,7 +36,7 @@ const RenderOptions = ({
         className="bg-bg-state-secondary border-border-default flex h-7 w-fit items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors"
       >
         <span className="text-text-success text-xs font-semibold">✓</span>
-        <span>Approve</span>
+        <span className="text-text-default">Approve</span>
       </Button>
     </div>
   );

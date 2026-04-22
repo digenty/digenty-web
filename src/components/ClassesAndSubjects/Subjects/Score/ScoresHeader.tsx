@@ -66,7 +66,7 @@ export default function ScoresHeader({
                 <ShareBox fill="var(--color-icon-default-muted)" /> Export
               </Button>
 
-              {(status === "NOT_SUBMITTED" || status === "IN_PROGRESS") && (
+              {(status === "NOT_SUBMITTED" || status === "IN_PROGRESS" || status === "APPROVED_EDIT_ACCESS") && (
                 <div className="flex items-center gap-2 md:gap-1">
                   <Button
                     disabled={isError}

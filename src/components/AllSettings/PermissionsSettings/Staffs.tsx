@@ -126,15 +126,21 @@ export const Staffs = () => {
               <DropdownMenuTrigger asChild>
                 <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex">
                   <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
-                  Branch
+                  {branchSelected?.name || "Branch"}
                 </Badge>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent className="bg-bg-card border-border-default text-text-default hidden w-48 py-1 shadow-sm md:block">
+                <DropdownMenuItem
+                  className="hover:bg-bg-state-ghost-hover! flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm"
+                  onClick={() => setBranchSelected(undefined)}
+                >
+                  <span className="text-text-default font-normal">All</span>
+                </DropdownMenuItem>
                 {branches.data?.map((branch: BranchWithClassLevels) => (
                   <DropdownMenuItem
                     key={branch.branch.id}
-                    className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm"
+                    className="hover:bg-bg-state-ghost-hover! flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm"
                     onClick={() => setBranchSelected(branch.branch)}
                   >
                     <span className="text-text-default font-normal">{branch.branch.name}</span>

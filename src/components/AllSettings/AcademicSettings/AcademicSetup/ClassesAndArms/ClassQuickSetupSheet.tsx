@@ -228,7 +228,6 @@ export const ClassQuickSetupSheet = ({
   useEffect(() => {
     if (armsData) {
       const armsWithDetails = Array.isArray(armsData?.data[0]?.arms) ? armsData?.data[0]?.arms : (armsData?.data ?? []);
-
       setArms(armsWithDetails.map((arm: ArmDetails) => arm.name));
       setArmsDetails(armsWithDetails);
       setArmsEnabled(true);
@@ -908,7 +907,7 @@ export const ClassQuickSetupSheet = ({
         </div>
 
         {/* {departmentsEnabled && <AssignArmsToDepartments arms={arms} departments={departments} />} */}
-        <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} />
+        <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} levelId={level.id} branchId={branchId} />
       </div>
     </div>
   );

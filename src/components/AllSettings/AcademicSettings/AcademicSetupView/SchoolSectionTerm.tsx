@@ -1,31 +1,116 @@
 "use client";
 
-import { AcademicSession, Level, Term } from "@/api/types";
+import { AcademicSession, Level, NewBranchForm, Term } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { AddFill } from "@/components/Icons/AddFill";
+import Map from "@/components/Icons/Map";
 import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetActiveSession, useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
+import { useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
+import { useAddBranch } from "@/hooks/queryHooks/useBranch";
 import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
+import { useAddLevel, useDeleteLevel } from "@/hooks/queryHooks/useLevel";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { getAcademicYears } from "@/lib/utils";
+import { LEVELS } from "@/store/classes";
 import { format, parseISO } from "date-fns";
 import { Edit2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DateRange } from "react-day-picker";
 
-const toDateString = (range: DateRange | undefined): string => (range?.from ? format(range.from, "yyyy-MM-dd") : "");
+type ClassLevel = Level["classLevels"][number];
+type LevelType = ClassLevel["levelType"];
+
+const emptyNewBranch = (): NewBranchForm => ({
+  id: crypto.randomUUID(),
+  branchName: "",
+  address: "",
+  levels: [],
+  isSubmitting: false,
+});
 
 const ViewField = ({ label, value }: { label: string; value: string }) => (
   <div className="flex flex-col gap-1">
     <Label className="text-text-default text-sm font-medium">{label}</Label>
     <div className="text-text-default bg-bg-input-soft rounded-md p-2 text-sm font-medium">{value || "—"}</div>
+  </div>
+);
+
+interface BranchLevelSelectorProps {
+  level: Level;
+  branchLevels: Record<number, string[]>;
+  isBusy: boolean;
+  onToggle: (branchId: number, levelValue: string) => void;
+  onSaveLevels: (level: Level, toAdd: string[], toRemove: string[]) => Promise<void>;
+}
+interface BranchLevelViewProps {
+  level: Level;
+}
+
+const BranchLevelSelector = ({ level, branchLevels, isBusy, onToggle, onSaveLevels }: BranchLevelSelectorProps) => {
+  const originalTypes = level.classLevels.map(l => l.levelType as string);
+  const selectedTypes = branchLevels[level.branchId] ?? [];
+  const toAdd = selectedTypes.filter(t => !originalTypes.includes(t));
+  const toRemove = originalTypes.filter(t => !selectedTypes.includes(t));
+  const hasChanges = toAdd.length > 0 || toRemove.length > 0;
+
+  return (
+    <div className="border-border-darker rounded-md border p-3">
+      <div className="text-text-default mb-3 text-sm font-medium">Select Levels</div>
+      <div className="flex flex-wrap gap-3">
+        {LEVELS.map(lvlOption => {
+          const checked = selectedTypes.includes(lvlOption.value);
+          return (
+            <div
+              key={lvlOption.value}
+              onClick={() => onToggle(level.branchId, lvlOption.value)}
+              className="bg-bg-card text-text-default border-border-darker flex h-8 cursor-pointer items-center gap-3 rounded-md border p-2.5 text-sm shadow-xs md:h-9"
+            >
+              <Checkbox checked={checked} onCheckedChange={() => onToggle(level.branchId, lvlOption.value)} />
+              <span className="capitalize">{lvlOption.label.toLowerCase()}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {hasChanges && (
+        <div className="mt-3 flex justify-end">
+          <Button
+            type="button"
+            disabled={isBusy}
+            onClick={() => onSaveLevels(level, toAdd, toRemove)}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
+          >
+            {isBusy && <Spinner className="text-text-white-default size-3" />}
+            Save Levels
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const BranchLevelView = ({ level }: BranchLevelViewProps) => (
+  <div className="border-border-darker rounded-md border p-3">
+    <div className="text-text-default mb-3 text-sm font-medium">Levels</div>
+    <div className="flex flex-wrap gap-3">
+      {level.classLevels.map(lvl => (
+        <div
+          key={lvl.id}
+          className="bg-bg-card text-text-default border-border-darker flex h-8 items-center rounded-md border p-2.5 text-sm shadow-xs md:h-9"
+        >
+          <span className="capitalize">{lvl.levelName.replaceAll("_", " ").toLowerCase()}</span>
+        </div>
+      ))}
+    </div>
   </div>
 );
 
@@ -35,6 +120,7 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [newBranches, setNewBranches] = useState<NewBranchForm[]>([]);
   const [sessionName, setSessionName] = useState("");
   const [currentTerm, setCurrentTerm] = useState("");
   const [firstTermStart, setFirstTermStart] = useState<Date | undefined>();
@@ -43,22 +129,28 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
   const [secondTermEnd, setSecondTermEnd] = useState<Date | undefined>();
   const [thirdTermStart, setThirdTermStart] = useState<Date | undefined>();
   const [thirdTermEnd, setThirdTermEnd] = useState<Date | undefined>();
+  const [branchLevels, setBranchLevels] = useState<Record<number, string[]>>({});
 
   const { data: termList } = useGetTerms(schoolId);
-  const { data: levelsData, isLoading: isLoadingLevels, isError: isLevelError } = useGetClassLevel();
+  const { data: levelsData, isLoading: isLoadingLevels, isError: isLevelError, refetch: refetchBranches } = useGetClassLevel();
   const { mutateAsync: updateAcademic } = useUpdateAcademic();
+  const { mutateAsync: createBranch } = useAddBranch();
+  const { mutateAsync: addLevel, isPending: isAddingLevel } = useAddLevel();
+  const { mutateAsync: removeLevel, isPending: isRemovingLevel } = useDeleteLevel();
 
   const terms: Term[] = termList?.data?.terms ?? [];
-  const levels = levelsData?.data ?? [];
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const levels: Level[] = levelsData?.data ?? [];
+  const isBusy = isSaving || isAddingLevel || isRemovingLevel;
 
   const findTerm = (name: string) => terms.find(t => t.term === name);
 
   useEffect(() => {
-    if (termList) {
-      const activeTerm = termList.data.terms.find((term: Term) => term.isActiveTerm);
-      setCurrentTerm(activeTerm?.term);
-      setSessionName(termList.data.academicSessionName);
-    }
+    if (!termList) return;
+    const activeTerm = termList.data.terms.find((t: Term) => t.isActiveTerm);
+    setCurrentTerm(activeTerm?.term ?? "");
+    setSessionName(termList.data.academicSessionName ?? "");
   }, [termList]);
 
   useEffect(() => {
@@ -78,21 +170,41 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
       setThirdTermStart(third.startDate ? parseISO(third.startDate) : undefined);
       setThirdTermEnd(third.endDate ? parseISO(third.endDate) : undefined);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [terms]);
+
+  useEffect(() => {
+    if (!levels.length) return;
+    const map: Record<number, string[]> = {};
+    levels.forEach((level: Level) => {
+      map[level.branchId] = level.classLevels.map(l => l.levelType);
+    });
+    setBranchLevels(map);
+  }, [levels]);
+
+  const resetBranchLevels = () => {
+    const map: Record<number, string[]> = {};
+    levels.forEach((level: Level) => {
+      map[level.branchId] = level.classLevels.map(l => l.levelType);
+    });
+    setBranchLevels(map);
+  };
 
   const handleTermChange = (selected: string) => {
     setCurrentTerm(selected);
     const matched = findTerm(selected);
     if (!matched) return;
+    const start = matched.startDate ? parseISO(matched.startDate) : undefined;
+    const end = matched.endDate ? parseISO(matched.endDate) : undefined;
     if (selected === "FIRST") {
-      setFirstTermStart(matched.startDate ? parseISO(matched.startDate) : undefined);
-      setFirstTermEnd(matched.endDate ? parseISO(matched.endDate) : undefined);
+      setFirstTermStart(start);
+      setFirstTermEnd(end);
     } else if (selected === "SECOND") {
-      setSecondTermStart(matched.startDate ? parseISO(matched.startDate) : undefined);
-      setSecondTermEnd(matched.endDate ? parseISO(matched.endDate) : undefined);
+      setSecondTermStart(start);
+      setSecondTermEnd(end);
     } else if (selected === "THIRD") {
-      setThirdTermStart(matched.startDate ? parseISO(matched.startDate) : undefined);
-      setThirdTermEnd(matched.endDate ? parseISO(matched.endDate) : undefined);
+      setThirdTermStart(start);
+      setThirdTermEnd(end);
     }
   };
 
@@ -118,18 +230,19 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
       setThirdTermStart(third.startDate ? parseISO(third.startDate) : undefined);
       setThirdTermEnd(third.endDate ? parseISO(third.endDate) : undefined);
     }
+    resetBranchLevels();
+    setNewBranches([]);
     setIsEditing(false);
   };
 
   const handleSave = async () => {
     if (!session?.id) return;
-
     setIsSaving(true);
     try {
       await updateAcademic({
         payload: {
           name: sessionName,
-          currentTerm: currentTerm,
+          currentTerm,
           firstTermStartDate: firstTermStart ? format(firstTermStart, "yyyy-MM-dd") : "",
           firstTermEndDate: firstTermEnd ? format(firstTermEnd, "yyyy-MM-dd") : "",
           secondTermStartDate: secondTermStart ? format(secondTermStart, "yyyy-MM-dd") : "",
@@ -139,24 +252,92 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
         },
         sessionId: session.id,
       });
-
-      toast({ title: "Session updated", description: "Academic session has been updated successfully.", type: "success" });
+      toast({ title: "Session updated", description: "Academic session updated successfully.", type: "success" });
       setIsEditing(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
-
-      toast({
-        title: "Failed to update",
-        description: message,
-        type: "error",
-      });
+      toast({ title: "Failed to update", description: message, type: "error" });
     } finally {
       setIsSaving(false);
     }
   };
 
+  const toggleExistingBranchLevel = (branchId: number, levelValue: string) => {
+    setBranchLevels(prev => {
+      const current = prev[branchId] ?? [];
+      const updated = current.includes(levelValue) ? current.filter(l => l !== levelValue) : [...current, levelValue];
+      return { ...prev, [branchId]: updated };
+    });
+  };
+
+  const handleSaveLevels = async (level: Level, toAdd: string[], toRemove: string[]) => {
+    try {
+      await Promise.all([
+        ...toAdd.map(levelType =>
+          addLevel({
+            name: levelType,
+            levelType: levelType as LevelType,
+            branchId: level.branchId,
+          }),
+        ),
+        ...toRemove.map(levelType => {
+          const existing = level.classLevels.find(l => l.levelType === levelType);
+          if (!existing) return Promise.resolve();
+          return removeLevel(existing.id);
+        }),
+      ]);
+      await refetchBranches();
+      toast({ title: "Levels updated", description: `Levels updated for ${level.branchName}.`, type: "success" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Something went wrong.";
+      toast({ title: "Failed to update levels", description: message, type: "error" });
+    }
+  };
+
+  const updateNewBranch = (id: string, field: keyof NewBranchForm, value: string | string[] | boolean) => {
+    setNewBranches(prev => prev.map(b => (b.id === id ? { ...b, [field]: value } : b)));
+  };
+
+  const toggleNewBranchLevel = (id: string, levelValue: string) => {
+    setNewBranches(prev =>
+      prev.map(b => {
+        if (b.id !== id) return b;
+        const updated = b.levels.includes(levelValue) ? b.levels.filter(l => l !== levelValue) : [...b.levels, levelValue];
+        return { ...b, levels: updated };
+      }),
+    );
+  };
+
+  const handleAddBranch = async (id: string) => {
+    const branch = newBranches.find(b => b.id === id);
+    if (!branch) return;
+    if (!branch.branchName.trim()) {
+      toast({ title: "Branch name is required", description: "Please enter a name for the branch.", type: "warning" });
+      return;
+    }
+    if (branch.levels.length === 0) {
+      toast({ title: "Select at least one level", description: "Please select at least one level for this branch.", type: "warning" });
+      return;
+    }
+    updateNewBranch(id, "isSubmitting", true);
+    try {
+      await createBranch({
+        branchDtos: [{ branchName: branch.branchName, address: branch.address, levels: branch.levels }],
+      });
+      setNewBranches(prev => prev.filter(b => b.id !== id));
+      await refetchBranches();
+      toast({ title: "Branch created", description: `${branch.branchName} has been added successfully.`, type: "success" });
+    } catch (error: unknown) {
+      updateNewBranch(id, "isSubmitting", false);
+      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      toast({ title: "Failed to create branch", description: message, type: "error" });
+    }
+  };
+
+  const handleCancelNewBranch = (id: string) => setNewBranches(prev => prev.filter(b => b.id !== id));
+
   return (
-    <div className="">
+    <div>
       <div className="mx-auto mb-10 flex w-full flex-col gap-4 px-4 pb-12 md:w-150">
         <div className="flex items-center justify-between">
           <div className="text-text-default text-lg font-semibold">Academic Session & Term</div>
@@ -281,6 +462,8 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
           </div>
         )}
 
+        <div className="text-text-default text-lg font-semibold">Branches & Levels</div>
+
         {isLoadingLevels && <Skeleton className="bg-bg-input-soft h-50 w-full" />}
 
         {isLevelError && (
@@ -300,46 +483,124 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
           </div>
         )}
 
-        <div className="text-text-default text-lg font-semibold">Branches & Levels</div>
-
         {!isLoadingLevels && !isLevelError && levels.length > 0 && (
           <div className="flex flex-col gap-6">
             {levels.map((level: Level, index: number) => (
               <div key={level.branchId} className="bg-bg-state-soft rounded-md p-1">
-                <div className="flex items-center justify-between px-5 py-2">
+                <div className="flex items-center px-5 py-2">
                   <Badge className="bg-bg-badge-default! text-text-subtle rounded-md">Branch {index + 1}</Badge>
                 </div>
                 <div className="bg-bg-card flex flex-col gap-4 rounded-md px-5 py-6">
                   <div className="flex flex-col gap-2">
                     <Label className="text-text-default text-sm font-medium">Branch Name</Label>
-                    <div className="bg-bg-input-soft! text-text-muted rounded-md border-none p-2 text-sm">{level.branchName}</div>
+                    <div className="bg-bg-input-soft text-text-muted rounded-md p-2 text-sm">{level.branchName}</div>
                   </div>
-                  <div className="border-border-darker rounded-md border p-3">
-                    <div className="text-text-default mb-3 text-sm font-medium">Levels</div>
-                    <div className="flex flex-wrap gap-3">
-                      {level.classLevels.map(lvl => (
-                        <div
-                          key={lvl.id}
-                          className="bg-bg-card text-text-default border-border-darker flex h-8 items-center gap-3 rounded-md border p-2.5 text-sm capitalize shadow-xs md:h-9"
-                        >
-                          {lvl.levelName.replaceAll("_", " ").toLowerCase()}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  {isEditing ? (
+                    <BranchLevelSelector
+                      level={level}
+                      branchLevels={branchLevels}
+                      isBusy={isBusy}
+                      onToggle={toggleExistingBranchLevel}
+                      onSaveLevels={handleSaveLevels}
+                    />
+                  ) : (
+                    <BranchLevelView level={level} />
+                  )}
                 </div>
               </div>
             ))}
           </div>
         )}
+
+        {isEditing && newBranches.length > 0 && (
+          <div className="flex flex-col gap-6">
+            {newBranches.map(branch => (
+              <div key={branch.id} className="bg-bg-state-soft rounded-md p-1">
+                <div className="bg-bg-card flex flex-col gap-4 rounded-md px-5 py-6">
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-text-default text-sm font-medium">Branch Name</Label>
+                    <Input
+                      className="bg-bg-input-soft! text-text-muted rounded-md border-none"
+                      placeholder="e.g Lawanson Branch"
+                      value={branch.branchName}
+                      onChange={e => updateNewBranch(branch.id, "branchName", e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-text-default text-sm font-medium">
+                      <Map fill="var(--color-icon-default-muted)" /> Branch Address
+                    </Label>
+                    <Input
+                      className="bg-bg-input-soft! text-text-muted rounded-md border-none"
+                      placeholder="e.g 11 example street"
+                      value={branch.address}
+                      onChange={e => updateNewBranch(branch.id, "address", e.target.value)}
+                    />
+                  </div>
+                  <div className="border-border-darker rounded-md border p-3">
+                    <div className="text-text-default mb-3 text-sm font-medium">Select Levels</div>
+                    <div className="flex flex-wrap gap-3">
+                      {LEVELS.map(lvlOption => {
+                        const selected = branch.levels.includes(lvlOption.value);
+                        return (
+                          <div
+                            key={lvlOption.value}
+                            onClick={() => toggleNewBranchLevel(branch.id, lvlOption.value)}
+                            className="bg-bg-card text-text-default border-border-darker flex h-8 cursor-pointer items-center gap-3 rounded-md border p-2.5 text-sm shadow-xs md:h-9"
+                          >
+                            <Checkbox checked={selected} onCheckedChange={() => toggleNewBranchLevel(branch.id, lvlOption.value)} />
+                            <span>{lvlOption.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between px-2 py-2">
+                  <Button
+                    type="button"
+                    onClick={() => handleCancelNewBranch(branch.id)}
+                    disabled={branch.isSubmitting}
+                    className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-muted h-7! w-fit"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => handleAddBranch(branch.id)}
+                    disabled={branch.isSubmitting}
+                    className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
+                  >
+                    {branch.isSubmitting && <Spinner className="text-text-white-default size-3" />}
+                    Add
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isEditing && (
+          <Button
+            type="button"
+            onClick={() => setNewBranches(prev => [...prev, emptyNewBranch()])}
+            className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit text-sm"
+          >
+            <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Branch
+          </Button>
+        )}
       </div>
 
       {isEditing && (
         <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
-          <Button onClick={handleCancel} disabled={isSaving} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
+          <Button onClick={handleCancel} disabled={isBusy} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
           </Button>
-          <Button onClick={handleSave} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md">
+          <Button
+            onClick={handleSave}
+            disabled={isBusy}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
+          >
             {isSaving && <Spinner className="text-text-white-default size-4" />}
             Save changes
           </Button>

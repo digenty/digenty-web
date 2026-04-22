@@ -60,7 +60,6 @@ export const AllClassesMainTable = ({
 
   const { data: levels, isLoading: loadingLevels } = useGetLevels();
 
-  console.log(data, "###");
   useBreadcrumb([{ label: "All Classes", url: "/staff/classes-and-subjects/all-classes" }]);
 
   const { mutate: approveReport, isPending: isSubmitting } = useSubmitClassReport();
@@ -207,6 +206,8 @@ export const AllClassesMainTable = ({
               </Button>
               <Button
                 onClick={() => setOpenApproveModalMobile(true)}
+                // disabled={row.original.status === "NOT_SUBMITTED" || row.original.status === "APPROVED" }
+
                 className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
               >
                 <div className="flex items-center gap-1">

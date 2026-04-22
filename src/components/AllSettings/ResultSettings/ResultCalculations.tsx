@@ -33,6 +33,17 @@ interface ResultCalculationRecord {
   requiredSubjectIds: number[];
 }
 
+interface ResultCalculationRecord {
+  id: number;
+  classId: number;
+  academicSessionId: number;
+  calculationMethod: string;
+  promotionType: string;
+  minimumOverallPercentage: number;
+  minimumPassGrade: string;
+  requiredSubjectIds: number[];
+}
+
 function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; levels: { label: string; content: React.ReactNode }[] }) {
   const isMobile = useIsMobile();
   const [activeIndex, setActiveIndex] = useState(0);

@@ -60,7 +60,7 @@ export const SearchableSelect = ({
           )}
           {filteredOptions.map((option, index) => (
             <ComboboxItem key={`${option.value}-${index}`} value={option.value} className="hover:bg-bg-state-ghost-hover hover:text-text-default">
-              <span className="flex items-center gap-2">
+              <span className="text-text-default flex items-center gap-2">
                 {option.flag && <span>{option.flag}</span>}
                 {option.label}
               </span>
