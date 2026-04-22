@@ -30,7 +30,7 @@ export function DateRangePicker({ label, className, disabled, date, setDate }: D
           <Button
             variant={"outline"}
             className={cn(
-              "text-text-muted bg-bg-input-soft! focus-visible:border-border-default! hover:bg-bg-input-soft! w-full border-none text-sm font-normal shadow-none focus-visible:border!",
+              "text-text-muted bg-bg-input-soft! focus-visible:border-border-default! hover:bg-bg-input-soft! hover:text-text-default! w-full border-none text-sm font-normal shadow-none focus-visible:border!",
             )}
           >
             {date ? format(date, "dd/MM/yyyy") : <span className="text-text-muted font-light">DD / MM / YYYY</span>}

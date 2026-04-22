@@ -95,7 +95,10 @@ export const EditRoleSettings = () => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.name}
-              className={cn("bg-bg-input-soft! w-full border-none", formik.errors.name && formik.touched.name && "border-border-destructive border")}
+              className={cn(
+                "bg-bg-input-soft! text-text-default w-full border-none",
+                formik.errors.name && formik.touched.name && "border-border-destructive border",
+              )}
               placeholder="Input Role Name"
             />
             {formik.touched.name && formik.errors.name && <p className="text-text-destructive text-xs font-light">{formik.errors.name}</p>}
@@ -109,7 +112,7 @@ export const EditRoleSettings = () => {
               onBlur={formik.handleBlur}
               value={formik.values.description}
               className={cn(
-                "bg-bg-input-soft! w-full border-none",
+                "bg-bg-input-soft! text-text-default w-full border-none",
                 formik.errors.description && formik.touched.description && "border-border-destructive border",
               )}
               placeholder="Input Role Description"
