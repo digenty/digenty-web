@@ -5,7 +5,6 @@ import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
 import { useAddSubmission, useGetSubmissionDeadline, useUpdateSubmissionDeadline } from "@/hooks/queryHooks/useResult";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -24,7 +23,13 @@ interface SubmissionDeadline {
   autoLockAfterDeadline: boolean;
 }
 
-const toDateString = (date: Date | undefined): string => (date ? date.toISOString().split("T")[0] : "");
+const toDateString = (date: Date | undefined): string => {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const defaultTermState = (): TermDeadlineState => ({
   openDate: undefined,
@@ -32,12 +37,17 @@ const defaultTermState = (): TermDeadlineState => ({
   autoLockAfterDeadline: false,
 });
 
+const parseLocalDate = (dateStr: string): Date => {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
 const seedTermStates = (deadlines: SubmissionDeadline[]): Record<number, TermDeadlineState> => {
   const map: Record<number, TermDeadlineState> = {};
   for (const d of deadlines) {
     map[d.termId] = {
-      openDate: d.openDate ? new Date(d.openDate) : undefined,
-      closeDate: d.closeDate ? new Date(d.closeDate) : undefined,
+      openDate: d.openDate ? parseLocalDate(d.openDate) : undefined,
+      closeDate: d.closeDate ? parseLocalDate(d.closeDate) : undefined,
       autoLockAfterDeadline: d.autoLockAfterDeadline,
     };
   }
@@ -58,6 +68,8 @@ export const Submission = () => {
   const { mutate: addSubmission, isPending: isAdding } = useAddSubmission();
 
   const terms: Term[] = termLists?.data?.terms ?? [];
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const deadlines: SubmissionDeadline[] = deadlineData?.data ?? [];
   const isLoading = isLoadingTerms || isLoadingDeadlines;
   const hasExistingDeadlines = deadlines.length > 0;
@@ -139,8 +151,6 @@ export const Submission = () => {
         description: `Submission deadlines ${hasExistingDeadlines ? "updated" : "saved"} successfully.`,
         type: "success",
       });
-      queryClient.invalidateQueries({ queryKey: resultKeys.getSubmissionDeadline });
-
       setIsEditing(false);
       setHasOpenedForm(false);
     };
@@ -192,7 +202,7 @@ export const Submission = () => {
 
         {!isLoading && !hasExistingDeadlines && !hasOpenedForm && (
           <div className="flex h-screen items-center justify-center">
-            <div className="flex flex-col items-center justify-center gap-3">
+            <div className="flex flex-col items-center justify-center gap-3 py-20">
               <div className="text-text-muted text-sm">No submission deadlines have been set yet.</div>
               <Button
                 onClick={() => {
@@ -295,21 +305,6 @@ export const Submission = () => {
           </>
         )}
       </div>
-      {isEditing && (
-        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
-          <Button onClick={handleCancel} disabled={isUpdating} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={isUpdating}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
-          >
-            {isUpdating && <Spinner className="text-text-white-default size-4" />}
-            Save changes
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

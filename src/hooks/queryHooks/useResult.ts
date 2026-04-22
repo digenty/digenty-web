@@ -21,13 +21,6 @@ export const useAddResultCalculation = () => {
   });
 };
 
-export const useAddSubmission = () => {
-  return useMutation({
-    mutationKey: resultKeys.addSubmission,
-    mutationFn: addSubmission,
-  });
-};
-
 export const useAddPrinciapleComment = () => {
   return useMutation({
     mutationKey: resultKeys.addPrincipaleComment,
@@ -35,17 +28,32 @@ export const useAddPrinciapleComment = () => {
   });
 };
 
-export const useGetSubmissionDeadline = () => {
-  return useQuery({
-    queryKey: resultKeys.getSubmissionDeadline,
-    queryFn: getSubmissionDeadline,
+export const useAddSubmission = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: resultKeys.addSubmission,
+    mutationFn: addSubmission,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [...resultKeys.getSubmissionDeadline] });
+    },
   });
 };
 
 export const useUpdateSubmissionDeadline = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: resultKeys.updateSubmissionDeadline,
     mutationFn: updateSubmissionDeadline,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [...resultKeys.getSubmissionDeadline] });
+    },
+  });
+};
+
+export const useGetSubmissionDeadline = () => {
+  return useQuery({
+    queryKey: resultKeys.getSubmissionDeadline,
+    queryFn: getSubmissionDeadline,
   });
 };
 
