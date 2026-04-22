@@ -580,13 +580,15 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
           </div>
         )}
 
-        <Button
-          type="button"
-          onClick={() => setNewBranches(prev => [...prev, emptyNewBranch()])}
-          className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit text-sm"
-        >
-          <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Branch
-        </Button>
+        {isEditing && (
+          <Button
+            type="button"
+            onClick={() => setNewBranches(prev => [...prev, emptyNewBranch()])}
+            className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit text-sm"
+          >
+            <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Branch
+          </Button>
+        )}
       </div>
 
       {isEditing && (
