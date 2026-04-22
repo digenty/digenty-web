@@ -63,6 +63,7 @@ export const useCreateDepartmentSubjects = () => {
       queryClient.invalidateQueries({ queryKey: departmentKeys.departments });
       queryClient.invalidateQueries({ queryKey: [departmentKeys.departmentSubjectsByClass] });
       queryClient.invalidateQueries({ queryKey: [departmentKeys.departmentSubjectsByLevel] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
   });
 };

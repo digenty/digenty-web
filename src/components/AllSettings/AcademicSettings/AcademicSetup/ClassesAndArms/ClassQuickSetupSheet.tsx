@@ -224,11 +224,11 @@ export const ClassQuickSetupSheet = ({
       setSubjects(names);
     }
   }, [subjectsData]);
+  console.log(armsData);
 
   useEffect(() => {
     if (armsData) {
       const armsWithDetails = Array.isArray(armsData?.data[0]?.arms) ? armsData?.data[0]?.arms : (armsData?.data ?? []);
-
       setArms(armsWithDetails.map((arm: ArmDetails) => arm.name));
       setArmsDetails(armsWithDetails);
       setArmsEnabled(true);

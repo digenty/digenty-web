@@ -5,6 +5,7 @@ import { useAssignArmToDepartment } from "@/hooks/queryHooks/useDepartment";
 import { useState } from "react";
 
 export const AssignArmsToDepartments = ({ arms, departments }: { arms: ArmDetails[]; departments: DepartmentWithSubjects[] }) => {
+  console.log(arms, departments);
   if (!arms?.length || !departments?.length) return null;
 
   return (

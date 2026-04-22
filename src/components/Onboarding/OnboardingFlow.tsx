@@ -34,8 +34,8 @@ export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
     if (user?.schoolId && !isProgressLoading) {
       const isSetupPage = pathname.includes("/settings") || pathname.includes("/student-and-parent-record");
 
-      // Auto-open if required steps are not completed AND (it's not a setup page OR it's the initial mount/school creation)
-      if (!areRequiredStepsCompleted && (!isSetupPage || !showSetupSteps)) {
+      // Auto-open if required steps are not completed AND it's not a setup page AND it's currently closed
+      if (!areRequiredStepsCompleted && !isSetupPage && !showSetupSteps) {
         setShowSetupSteps(true);
       }
     }
