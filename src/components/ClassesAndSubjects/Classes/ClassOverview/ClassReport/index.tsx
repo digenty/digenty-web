@@ -259,12 +259,7 @@ export const ClassReport = () => {
 
         {!isLoadingReport && !isErrorReport && classReportData && classReportData?.data?.classArmStudentReports?.length > 0 && (
           <>
-            <div
-              className={cn(
-                "overflow-y-auto px-4 md:h-screen md:px-8",
-                (activeFilter === "spreadsheet" || activeFilter === "promotion") && "hidden md:block",
-              )}
-            >
+            <div className={cn("px-4 md:h-screen md:px-8", (activeFilter === "spreadsheet" || activeFilter === "promotion") && "hidden md:block")}>
               {activeFilter === "spreadsheet" && (
                 <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
                   {!classReportData || isLoadingReport ? (

@@ -156,7 +156,7 @@ export default function Score() {
             <ScoreViewBySubject
               scores={studentsData}
               columns={assessmentHeader}
-              isEditable={status === "IN_PROGRESS" || status === "NOT_SUBMITTED"}
+              isEditable={status === "IN_PROGRESS" || status === "NOT_SUBMITTED" || status === "APPROVED_EDIT_ACCESS"}
               subjectId={Number(subjectId)}
               armId={Number(armId)}
               gradings={gradings}

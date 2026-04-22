@@ -20,7 +20,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetTeacherSubjects = () => {
   return useQuery({
-    queryKey: subjectKeys.mysubjects,
+    queryKey: [subjectKeys.mysubjects],
     queryFn: () => getTeacherSubjects(),
     retry: false,
   });

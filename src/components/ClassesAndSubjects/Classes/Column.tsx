@@ -71,7 +71,7 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
             <span>View class</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            disabled={row.original.status === "NOT_SUBMITTED"}
+            disabled={row.original.status === "NOT_SUBMITTED" || row.original.status === "APPROVED"}
             className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
             onClick={() => setOpenApproveModal(true)}
           >
@@ -231,6 +231,7 @@ export const ClassTableColumns = (armId: number, classId: number, classArmName: 
     cell: ({ row }) => {
       const statusStyles = {
         SUBMITTED: "bg-bg-badge-green text-bg-basic-green-strong ",
+        APPROVED_EDIT_ACCESS: "bg-bg-badge-green text-bg-basic-green-strong ",
         IN_PROGRESS: "bg-bg-badge-orange text-bg-basic-orange-strong ",
         NOT_SUBMITTED: "bg-bg-badge-red text-bg-basic-red-strong ",
         REQUESTED_EDIT_ACCESS: "bg-bg-badge-lime text-bg-basic-lime-strong ",

@@ -123,3 +123,17 @@ export const assignArmToDepartment = async (payload: { departmentId: number; arm
     throw error;
   }
 };
+
+export const getAssignedDepartments = async (levelId?: number, departmentId?: number, branchId?: number) => {
+  try {
+    const { data } = await api.get(
+      `/departments/arms/level?${levelId ? `levelId=${levelId}` : ""}${departmentId ? `&departmentId=${departmentId}` : ""}${branchId ? `&branchId=${branchId}` : ""}`,
+    );
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

@@ -32,4 +32,8 @@ export const REPORT_STATUS_CONFIG = {
     label: "Edit Requested",
     className: "bg-bg-badge-orange text-bg-basic-orange-strong",
   },
+  APPROVED_EDIT_ACCESS: {
+    label: "Approved Edit Access",
+    className: "bg-bg-badge-green text-bg-basic-green-strong",
+  },
 } as const;

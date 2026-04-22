@@ -30,6 +30,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
         <h2 className="text-text-default text-md px-3 pt-1.5 font-semibold md:px-5 md:pt-3">{subjectName}</h2>
         <ul className="bg-bg-card border-border-default w-full rounded-sm border shadow-sm md:max-w-213">
           {classes.map(cl => {
+            console.log(classes, "###");
             const statusUpdate = REPORT_STATUS_CONFIG[cl.reportStatus];
 
             return (
@@ -46,7 +47,7 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
                   </div>
 
                   <div>
-                    {(cl.reportStatus === "NOT_SUBMITTED" || cl.reportStatus === "IN_PROGRESS") && (
+                    {(cl.reportStatus === "NOT_SUBMITTED" || cl.reportStatus === "IN_PROGRESS" || cl.reportStatus === "APPROVED_EDIT_ACCESS") && (
                       <Button
                         onClick={() =>
                           router.push(

@@ -224,7 +224,6 @@ export const ClassQuickSetupSheet = ({
       setSubjects(names);
     }
   }, [subjectsData]);
-  console.log(armsData);
 
   useEffect(() => {
     if (armsData) {
@@ -908,7 +907,7 @@ export const ClassQuickSetupSheet = ({
         </div>
 
         {/* {departmentsEnabled && <AssignArmsToDepartments arms={arms} departments={departments} />} */}
-        <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} />
+        <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} levelId={level.id} branchId={branchId} />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { Avatar } from "@/components/Avatar";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import Building from "@/components/Icons/Building";
 import Mail from "@/components/Icons/Mail";
 import { Phone } from "@/components/Icons/Phone";
@@ -317,6 +318,17 @@ export const StaffDetails = () => {
                   )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {!hasExistingAssignments && (
+            <div className="flex w-full items-center justify-center py-20 pb-40">
+              <ErrorComponent
+                title="No Subject/Class Assignments"
+                description="Edit staff to update the teacher's assignments"
+                buttonText="Edit Staff"
+                url={`/staff/settings/permissions/edit-staff/${staffId}`}
+              />
             </div>
           )}
         </div>
