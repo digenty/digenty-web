@@ -351,11 +351,13 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
 
         {isLoadingBranches && <Skeleton className="bg-bg-state-soft! h-100 w-full" />}
         {isError && (
-          <ErrorComponent
-            title="Could not get Branch"
-            description="This is our problem, we are looking into it so as to serve you better"
-            buttonText="Go to the Home page"
-          />
+          <div className="flex items-center justify-center py-6">
+            <ErrorComponent
+              title="Could not get Branch"
+              description="This is our problem, we are looking into it so as to serve you better"
+              // buttonText="Go to the Home page"
+            />
+          </div>
         )}
 
         {!isLoadingBranches && existingBranches.length > 0 && (

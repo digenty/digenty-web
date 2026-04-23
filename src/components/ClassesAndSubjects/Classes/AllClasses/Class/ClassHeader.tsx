@@ -34,7 +34,7 @@ export const ClassHeader = ({
   const [open, setOpen] = useState(false);
 
   useBreadcrumb([
-    { label: "All Classes", url: "/staff/classes-and-subjects/all-classes" },
+    { label: "All Classes", url: `/staff/classes-and-subjects` },
     { label: classArmName.replaceAll("-", " "), url: "" },
   ]);
 

@@ -1,23 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { OverviewStats } from "./OverviewStats";
-import { AllBranchesTable } from "./AllBranchesTable";
-import { useGetAllBranchesDetails } from "@/hooks/queryHooks/useBranch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Calendar from "@/components/Icons/Calendar";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { MobileDrawer } from "@/components/MobileDrawer";
-import { Label } from "@/components/ui/label";
-import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
-import { useGetTerms } from "@/hooks/queryHooks/useTerm";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { Term, Terms } from "@/api/types";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import useDebounce from "@/hooks/useDebounce";
+import Calendar from "@/components/Icons/Calendar";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { Button } from "@/components/ui/button";
+import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetAllBranchesDetails } from "@/hooks/queryHooks/useBranch";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import useDebounce from "@/hooks/useDebounce";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { AllBranchesTable } from "./AllBranchesTable";
+import { OverviewStats } from "./OverviewStats";
 
 export const AllBranches = () => {
   const user = useLoggedInUser();
@@ -30,7 +29,7 @@ export const AllBranches = () => {
 
   const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
 
-  const { data: allBranchList, isPending, isError } = useGetAllBranchesDetails(termSelected?.termId, debouncedSearchQuery);
+  const { data: allBranchList, isPending, isError, isFetching } = useGetAllBranchesDetails(termSelected?.termId, debouncedSearchQuery);
 
   useBreadcrumb([{ label: "All Branches", url: "/staff/classes-and-subjects/all-branches" }]);
 
@@ -127,13 +126,16 @@ export const AllBranches = () => {
       </div>
 
       <OverviewStats loadingStats={isPending} stats={allBranchList?.data} />
+
       {isError && (
         <div className="flex items-center justify-center pt-20">
           <ErrorComponent title="Error fetching all branches" description="This is our problem, we are looking into it so as to serve you better" />
         </div>
       )}
-      {isPending && <Skeleton className="bg-bg-input-soft h-120 w-full" />}
-      {!isPending && allBranchList && !isError && allBranchList?.data?.branchReports.length === 0 && (
+
+      {isPending && !allBranchList && <Skeleton className="bg-bg-input-soft h-120 w-full" />}
+
+      {allBranchList && allBranchList?.data?.branchReports.length === 0 && (
         <ErrorComponent
           title="No branches found"
           description="No branches have been added to this school"
@@ -141,11 +143,12 @@ export const AllBranches = () => {
           url="/staff/settings"
         />
       )}
-      {allBranchList && !isPending && (
+
+      {allBranchList && (
         <AllBranchesTable
           allBranchList={allBranchList?.data?.branchReports}
-          isFetching={isPending}
-          searchQuery={debouncedSearchQuery}
+          isFetching={isFetching}
+          searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           isError={isError}
         />

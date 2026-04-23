@@ -9,8 +9,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 import { useAddTeacherInput } from "@/hooks/queryHooks/useStudent";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { Spinner } from "../ui/spinner";
+import { toast } from "../Toast";
 
 const ratingOptions = ["Excellent", "Good", "Fair", "Poor"];
 
@@ -57,7 +57,11 @@ export const EditTeacherInputModal = ({
 
   const handleSubmit = () => {
     if (!studentId || !armId || branchId === undefined) {
-      toast.error("Missing required information (Student ID, Arm ID, or Branch ID)");
+      toast({
+        title: "Missing values",
+        description: "Missing required information (Student ID, Arm ID, or Branch ID)",
+        type: "error",
+      });
       return;
     }
 
@@ -73,11 +77,19 @@ export const EditTeacherInputModal = ({
       },
       {
         onSuccess: () => {
-          toast.success("Teacher input updated successfully");
+          toast({
+            title: "Updated",
+            description: "Teacher input updated successfully",
+            type: "success",
+          });
           setIsOpen(false);
         },
         onError: error => {
-          toast.error(error?.message || "Failed to update teacher input");
+          toast({
+            title: "Could not update",
+            description: error?.message || "Failed to update teacher input",
+            type: "error",
+          });
         },
       },
     );
@@ -95,12 +107,12 @@ export const EditTeacherInputModal = ({
                   <div className="flex flex-col gap-2">
                     <Label className="text-text-default text-sm font-medium">Neatness</Label>
                     <Select value={formData.neatness} onValueChange={val => setFormData(prev => ({ ...prev, neatness: val }))}>
-                      <SelectTrigger className="border-border-default bg-bg-card w-full rounded-lg border px-3 py-2 text-sm">
+                      <SelectTrigger className="border-border-default text-text-default bg-bg-card w-full rounded-lg border px-3 py-2 text-sm">
                         <SelectValue placeholder="Select an option" />
                       </SelectTrigger>
                       <SelectContent className="bg-bg-card border-none">
                         {ratingOptions.map(option => (
-                          <SelectItem key={option} value={option.toLowerCase()}>
+                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
                             {option}
                           </SelectItem>
                         ))}
@@ -111,12 +123,12 @@ export const EditTeacherInputModal = ({
                   <div className="flex flex-col gap-2">
                     <Label className="text-text-default text-sm font-medium">Punctuality</Label>
                     <Select value={formData.punctuality} onValueChange={val => setFormData(prev => ({ ...prev, punctuality: val }))}>
-                      <SelectTrigger className="border-border-default bg-bg-card w-full rounded-lg border px-3 py-2 text-sm">
+                      <SelectTrigger className="border-border-default text-text-default bg-bg-card w-full rounded-lg border px-3 py-2 text-sm">
                         <SelectValue placeholder="Select an option" />
                       </SelectTrigger>
                       <SelectContent className="bg-bg-card border-none">
                         {ratingOptions.map(option => (
-                          <SelectItem key={option} value={option.toLowerCase()}>
+                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
                             {option}
                           </SelectItem>
                         ))}
@@ -127,12 +139,12 @@ export const EditTeacherInputModal = ({
                   <div className="flex flex-col gap-2">
                     <Label className="text-text-default text-sm font-medium">Diligence</Label>
                     <Select value={formData.diligence} onValueChange={val => setFormData(prev => ({ ...prev, diligence: val }))}>
-                      <SelectTrigger className="border-border-default bg-bg-card w-full rounded-lg border px-3 py-2 text-sm">
+                      <SelectTrigger className="border-border-default text-text-default bg-bg-card w-full rounded-lg border px-3 py-2 text-sm">
                         <SelectValue placeholder="Select an option" />
                       </SelectTrigger>
                       <SelectContent className="bg-bg-card border-none">
                         {ratingOptions.map(option => (
-                          <SelectItem key={option} value={option.toLowerCase()}>
+                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
                             {option}
                           </SelectItem>
                         ))}
@@ -144,11 +156,14 @@ export const EditTeacherInputModal = ({
 
               <div className="border-border-default border-t pt-4">
                 <div className="flex flex-col gap-2">
-                  <Label className="text-text-default text-sm font-medium">Class Teacher Comment</Label>
+                  <Label htmlFor="mobileClassTeacherComment" className="text-text-default text-sm font-medium">
+                    Class Teacher Comment
+                  </Label>
                   <Textarea
+                    id="mobileClassTeacherComment"
                     value={formData.classTeacherComment}
                     onChange={e => setFormData(prev => ({ ...prev, classTeacherComment: e.target.value }))}
-                    className="bg-bg-input-soft! h-32 w-full resize-none rounded-lg p-3 text-sm"
+                    className="text-text-default border-border-default bg-bg-input-soft! focus:border-border-highlight! h-32 w-full resize-none rounded-lg border p-3 text-sm"
                     placeholder="Enter your comment"
                   />
                 </div>
@@ -206,12 +221,12 @@ export const EditTeacherInputModal = ({
                   <div className="flex items-center justify-between gap-4">
                     <Label className="text-text-default w-1/3 text-sm font-medium">Neatness</Label>
                     <Select value={formData.neatness} onValueChange={val => setFormData(prev => ({ ...prev, neatness: val }))}>
-                      <SelectTrigger className="border-border-default bg-bg-card h-10 w-full rounded-lg border px-3 py-2 text-sm">
+                      <SelectTrigger className="text-text-default border-border-default bg-bg-card h-10 w-full rounded-lg border px-3 py-2 text-sm">
                         <SelectValue placeholder="Select an option" />
                       </SelectTrigger>
                       <SelectContent className="bg-bg-card border-none">
                         {ratingOptions.map(option => (
-                          <SelectItem key={option} value={option.toLowerCase()}>
+                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
                             {option}
                           </SelectItem>
                         ))}
@@ -222,12 +237,12 @@ export const EditTeacherInputModal = ({
                   <div className="flex items-center justify-between gap-4">
                     <Label className="text-text-default w-1/3 text-sm font-medium">Punctuality</Label>
                     <Select value={formData.punctuality} onValueChange={val => setFormData(prev => ({ ...prev, punctuality: val }))}>
-                      <SelectTrigger className="border-border-default bg-bg-card h-10 w-full rounded-lg border px-3 py-2 text-sm">
+                      <SelectTrigger className="border-border-default text-text-default bg-bg-card h-10 w-full rounded-lg border px-3 py-2 text-sm">
                         <SelectValue placeholder="Select an option" />
                       </SelectTrigger>
                       <SelectContent className="bg-bg-card border-none">
                         {ratingOptions.map(option => (
-                          <SelectItem key={option} value={option.toLowerCase()}>
+                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
                             {option}
                           </SelectItem>
                         ))}
@@ -238,12 +253,12 @@ export const EditTeacherInputModal = ({
                   <div className="flex items-center justify-between gap-4">
                     <Label className="text-text-default w-1/3 text-sm font-medium">Diligence</Label>
                     <Select value={formData.diligence} onValueChange={val => setFormData(prev => ({ ...prev, diligence: val }))}>
-                      <SelectTrigger className="border-border-default bg-bg-card h-10 w-full rounded-lg border px-3 py-2 text-sm">
+                      <SelectTrigger className="border-border-default text-text-default bg-bg-card h-10 w-full rounded-lg border px-3 py-2 text-sm">
                         <SelectValue placeholder="Select an option" />
                       </SelectTrigger>
                       <SelectContent className="bg-bg-card border-none">
                         {ratingOptions.map(option => (
-                          <SelectItem key={option} value={option.toLowerCase()}>
+                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
                             {option}
                           </SelectItem>
                         ))}
@@ -255,11 +270,14 @@ export const EditTeacherInputModal = ({
 
               <div className="border-border-default border-t pt-4">
                 <div className="flex flex-col gap-2">
-                  <Label className="text-text-default text-sm font-semibold">Class Teacher Comment</Label>
+                  <Label htmlFor="classTeacherComment" className="text-text-default text-sm font-semibold">
+                    Class Teacher Comment
+                  </Label>
                   <Textarea
+                    id="classTeacherComment"
                     value={formData.classTeacherComment}
                     onChange={e => setFormData(prev => ({ ...prev, classTeacherComment: e.target.value }))}
-                    className="bg-bg-input-soft! h-32 w-full resize-none rounded-lg p-3 text-sm"
+                    className="text-text-default border-border-default bg-bg-input-soft! focus:border-border-highlight! h-32 w-full resize-none rounded-lg border p-3 text-sm"
                     placeholder="Enter your comment"
                   />
                 </div>

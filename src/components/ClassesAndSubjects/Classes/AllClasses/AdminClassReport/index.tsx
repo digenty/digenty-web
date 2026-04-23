@@ -199,19 +199,19 @@ const ClassReport = () => {
           </div>
         )}
 
-        {isLoadingReport && (
+        {(isLoadingReport || (!classReportData && !isErrorReport)) && (
           <div className="flex p-4 md:p-8">
             <Skeleton className="bg-bg-input-soft h-100 w-full" />
           </div>
         )}
 
-        {!isLoadingReport && !isErrorReport && transformedStudents.length === 0 && (
+        {!isLoadingReport && !isErrorReport && classReportData && transformedStudents.length === 0 && (
           <div className="flex h-80 items-center justify-center">
             <ErrorComponent title="No Class Report" description="No class report has been generated yet" />
           </div>
         )}
 
-        {!isLoadingReport && !isErrorReport && transformedStudents.length > 0 && (
+        {!isLoadingReport && !isErrorReport && classReportData && transformedStudents.length > 0 && (
           <>
             <div
               className={cn(

@@ -208,7 +208,7 @@ export const ClassReportHeader = ({
                 <Button
                   size="sm"
                   onClick={() => setOpenRequest(true)}
-                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto flex-1 items-center justify-between gap-1 border text-sm md:flex-auto"
+                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm md:flex-auto"
                 >
                   <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
                 </Button>
@@ -218,7 +218,7 @@ export const ClassReportHeader = ({
                 <Button
                   disabled
                   size="sm"
-                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto flex-1 items-center justify-between gap-1 border text-sm md:flex-auto"
+                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm md:flex-auto"
                 >
                   <Question fill="var(--color-icon-default-muted)" /> Requested Edit Access
                 </Button>
@@ -227,7 +227,7 @@ export const ClassReportHeader = ({
               {status === "APPROVED" && (
                 <Button
                   size="sm"
-                  className="border-border-default bg-bg-basic-green-subtle text-bg-basic-green-strong flex h-8 w-auto flex-1 items-center justify-between gap-1 border text-sm md:flex-auto"
+                  className="border-border-default bg-bg-basic-green-subtle text-bg-basic-green-strong flex h-8 w-auto items-center justify-between gap-1 border text-sm md:flex-auto"
                 >
                   <Question fill="var(--color-bg-basic-green-strong)" /> Approved
                 </Button>

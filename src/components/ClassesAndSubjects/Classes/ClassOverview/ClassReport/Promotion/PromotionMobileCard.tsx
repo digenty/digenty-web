@@ -78,28 +78,28 @@ export const PromotionMobileCard = ({
           <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
             1st Term %
           </div>
-          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.firstTermPercentage}</div>
+          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.firstTermPercentage.toFixed(2)}%</div>
         </div>
 
         <div className="border-border-default flex h-12 border-b text-center last:border-b-0">
           <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
             2nd Term %
           </div>
-          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.secondTermPercentage}</div>
+          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.secondTermPercentage.toFixed(2)}%</div>
         </div>
 
         <div className="border-border-default flex h-12 border-b text-center last:border-b-0">
           <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
             3rd Term %
           </div>
-          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.thirdTermPercentage}</div>
+          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{student.thirdTermPercentage.toFixed(2)}%</div>
         </div>
 
         <div className="border-border-default flex h-12 border-b text-center last:border-b-0">
           <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
             Cumulative %
           </div>
-          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{cumulativePercentage}</div>
+          <div className="text-text-default flex flex-1 items-center justify-center text-sm">{cumulativePercentage.toFixed(2)}%</div>
         </div>
 
         {(isSubjectCombination || promotionType === "BY_PERFORMANCE") && (

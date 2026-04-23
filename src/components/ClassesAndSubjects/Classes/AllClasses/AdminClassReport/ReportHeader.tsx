@@ -52,6 +52,8 @@ export const ReportHeader = ({
 
   const [openApprove, setOpenApprove] = useState(false);
   const [openReturn, setOpenReturn] = useState(false);
+  const [returnReason, setReturnReason] = useState("");
+
   const user = useLoggedInUser();
 
   const { mutate: submitReport, isPending: isSubmitting } = useSubmitClassReport();
@@ -75,7 +77,7 @@ export const ReportHeader = ({
   const handleReturn = () => {
     if (!classArmReportId) return;
     submitReport(
-      { classArmReportId, status: "NOT_SUBMITTED" },
+      { classArmReportId, status: "NOT_SUBMITTED", reason: returnReason },
       {
         onSuccess: () => {
           toast.success("Result returned for correction");
@@ -121,6 +123,8 @@ export const ReportHeader = ({
           classArmName={classArmName}
           onConfirm={handleReturn}
           isSubmitting={isSubmitting}
+          returnReason={returnReason}
+          setReturnReason={setReturnReason}
         />
       )}
       <div className="border-border-default border-b">
