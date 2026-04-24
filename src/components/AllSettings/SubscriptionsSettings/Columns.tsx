@@ -2,13 +2,6 @@ import { Check, Download2, Eye } from "@digenty/icons";
 import { ColumnDef } from "@tanstack/react-table";
 import { SubscriptionHistoryProps, SubscriptionPlanProps } from "./type";
 import { Badge } from "@/components/ui/badge";
-<<<<<<< HEAD
-
-=======
-import { Check } from "@/components/Icons/Check";
-import Eye from "@/components/Icons/Eye";
-import Download2 from "@/components/Icons/Download2";
->>>>>>> 2def84d (feat: implement subscription)
 import { Button } from "@/components/ui/button";
 import { paymentStatus } from "@/components/Status";
 
