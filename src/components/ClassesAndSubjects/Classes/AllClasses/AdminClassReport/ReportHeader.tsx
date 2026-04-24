@@ -46,7 +46,7 @@ export const ReportHeader = ({
   onExport?: () => void;
   classArmName: string;
   classArmReportId?: number;
-  reportStatus: "APPROVED" | "NOT_SUBMITTED" | "SUBMITTED";
+  reportStatus: "APPROVED" | "NOT_SUBMITTED" | "SUBMITTED" | "PENDING_APPROVAL" | "EDIT_REQUEST";
 }) => {
   const isMobile = useIsMobile();
 
@@ -114,7 +114,7 @@ export const ReportHeader = ({
     }
   }, [setActiveSession, setTermSelected, terms]);
   return (
-    <div>
+    <div className="w-screen pr-12">
       {openApprove && (
         <ApproveModal
           openApproveModal={openApprove}
@@ -171,12 +171,15 @@ export const ReportHeader = ({
               <Button className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-22! items-center gap-1 rounded-md border text-sm font-medium md:flex">
                 <ShareBox fill="var(--color-icon-default-muted)" /> Export
               </Button>
-              <Button
-                onClick={() => setOpenReturn(true)}
-                className="bg-bg-state-destructive hover:bg-bg-state-destructive/90! border-border-default text-text-white-default flex h-8 w-39.5! items-center gap-1 rounded-md border text-sm font-medium md:w-33.5"
-              >
-                <ArrowGoBack fill="var(--color-icon-white-default)" /> Return Result
-              </Button>
+              {(reportStatus === "PENDING_APPROVAL" || reportStatus === "APPROVED" || reportStatus === "EDIT_REQUEST") && (
+                <Button
+                  onClick={() => setOpenReturn(true)}
+                  className="bg-bg-state-destructive hover:bg-bg-state-destructive/90! border-border-default text-text-white-default flex h-8 w-39.5! items-center gap-1 rounded-md border text-sm font-medium md:w-33.5"
+                >
+                  <ArrowGoBack fill="var(--color-icon-white-default)" /> Return Result
+                </Button>
+              )}
+
               {reportStatus !== "APPROVED" && (
                 <Button
                   onClick={() => setOpenApprove(true)}

@@ -34,7 +34,6 @@ export const ClassReportHeader = ({
   classArmReportId,
   status,
   decisions,
-  promotionStatus,
 }: {
   students: StudentRow[];
   activeFilter: string;
@@ -48,7 +47,6 @@ export const ClassReportHeader = ({
   classArmReportId?: number;
   status?: string;
   decisions: Decision[];
-  promotionStatus?: string;
 }) => {
   const path = usePathname();
   const armId = path.split("/")[5];
@@ -133,7 +131,7 @@ export const ClassReportHeader = ({
   }, [activeFilter, isMobile]);
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-min-full w-screen pr-12">
       {openModal && (
         <SubmitClassReportModal open={openModal} onOpenChange={setOpenModal} onConfirm={handleReportSubmission} isLoading={isSubmitting} />
       )}

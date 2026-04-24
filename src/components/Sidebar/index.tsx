@@ -28,6 +28,7 @@ import Macbook from "../Icons/Macbook";
 import Megaphone from "../Icons/Megaphone";
 import Settings4 from "../Icons/Settings4";
 import Store3 from "../Icons/Store3";
+import User from "../Icons/User";
 import Wallet from "../Icons/Wallet";
 import { Tooltip } from "../Tooltip";
 import { Button } from "../ui/button";
@@ -256,7 +257,12 @@ export const Sidebar = () => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    setActiveNav(pathname.split("/")[2]);
+    const segments = pathname.split("/");
+    if (segments[2] === "settings" && segments[3] === "profile") {
+      setActiveNav("profile");
+    } else {
+      setActiveNav(segments[2]);
+    }
   }, [pathname, setActiveNav]);
 
   const logout = () => {
@@ -355,13 +361,30 @@ export const Sidebar = () => {
           <div className="right-10">{isSidebarOpen && user?.isMain && <SetupGuideProgress />}</div>
 
           <div>
+            <Tooltip
+              description="Profile"
+              Trigger={
+                <nav
+                  className={cn(
+                    "flex cursor-pointer items-center gap-[11px] px-2 py-2",
+                    !isSidebarOpen && "justify-center px-0",
+                    activeNav === "profile" && "bg-bg-state-soft rounded-md",
+                  )}
+                  onClick={() => router.push(`/staff/profile`)}
+                >
+                  <User fill="var(--color-icon-default-subtle)" />
+                  {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">Profile</p>}
+                </nav>
+              }
+            />
+
             {canViewSettings(user?.permissions) && (
               <Tooltip
                 description="Settings"
                 Trigger={
                   <nav
                     className={cn(
-                      "flex cursor-pointer items-center gap-[11px] px-2 py-2",
+                      "flex cursor-pointer items-center gap-[11px] py-2 pr-2 pl-1",
                       !isSidebarOpen && "justify-center px-0",
                       activeNav === "settings" && "bg-bg-state-soft rounded-md",
                     )}
@@ -443,6 +466,18 @@ export const Sidebar = () => {
               )}
 
               <div className="space-y-2">
+                <nav
+                  className={cn(
+                    "flex cursor-pointer gap-2.75 p-2",
+                    !isSidebarOpen && "justify-center px-0",
+                    activeNav === "profile" && "bg-bg-state-soft rounded-md",
+                  )}
+                  onClick={() => router.push("/staff/profile")}
+                >
+                  <User fill="var(--color-icon-default-subtle)" />
+                  <p className="text-sm leading-5 font-medium">Profile</p>
+                </nav>
+
                 {canViewSettings(user?.permissions) && (
                   <nav
                     className={cn(

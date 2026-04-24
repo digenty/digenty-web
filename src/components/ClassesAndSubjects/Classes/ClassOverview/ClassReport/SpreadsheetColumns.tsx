@@ -91,14 +91,14 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
 
   return [
     {
-      accessorKey: "s/n",
+      accessorKey: "class_report_s/n",
       header: () => <span className="text-text-muted pr-2 text-sm font-medium">S/N</span>,
       cell: ({ row }) => <span className="text-text-default pr-2 text-sm">{row.index + 1}</span>,
       size: 50,
       maxSize: 50,
     },
     {
-      accessorKey: "name",
+      accessorKey: "class_report_name",
       header: () => (
         <div className="text-text-muted absolute top-0 left-0 flex h-14 w-70 items-center pl-2 text-left! text-sm font-medium">Student Name</div>
       ),

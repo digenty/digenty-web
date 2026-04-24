@@ -76,7 +76,7 @@ export const createPromotionColumns = (
     },
 
     {
-      accessorKey: "studentName",
+      accessorKey: "promotion_studentName",
       header: () => (
         <div className="text-text-muted absolute top-0 left-0 flex h-14 w-70 items-center pl-2 text-left! text-sm font-medium">Student Name</div>
       ),
@@ -203,7 +203,7 @@ export const createSubjectCombinationColumns = (
   };
 
   const nameCol: ColumnDef<PromotionBySubjectReport> = {
-    accessorKey: "studentName",
+    accessorKey: "promotion_studentName",
     header: () => <div className="text-text-muted flex h-14 items-center pl-2 text-left! text-sm font-medium">Student Name</div>,
     cell: ({ row }) => (
       <div className="flex items-center gap-2">

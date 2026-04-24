@@ -34,7 +34,7 @@ type EditProps = "editName" | "editPhoneNum" | "editTimezone" | null;
 export const UserProfile = () => {
   useBreadcrumb([
     { label: "Settings", url: "/staff/settings" },
-    { label: "Profile Settings", url: "/staff/settings/profile" },
+    { label: "Profile", url: "/staff/profile" },
   ]);
   const [timeZone, setTimeZone] = useState("");
   const [edit, setEdit] = useState<EditProps>(null);
@@ -126,7 +126,7 @@ export const UserProfile = () => {
 
   return (
     <div className="p-4 md:p-8">
-      <div className="text-text-default mb-8 text-xl font-semibold">Profile Settings</div>
+      <div className="text-text-default mb-8 text-xl font-semibold">Profile</div>
       <div className="flex w-full flex-col md:max-w-150">
         <div className="">
           <div className="text-text-default mb-4 text-sm font-medium">Profile Picture</div>
