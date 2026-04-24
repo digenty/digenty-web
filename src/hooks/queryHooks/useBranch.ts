@@ -1,6 +1,6 @@
 import { addBranch, deleteBranch, getAllBranchesDetails, getBranchDetails, getBranchesForASchool, updateBranch } from "@/api/branch";
 import { branchKeys } from "@/queries/branch";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetBranches = () => {
   return useQuery({
@@ -20,7 +20,7 @@ export const useGetAllBranchesDetails = (termId?: number, search?: string) => {
   return useQuery({
     queryKey: branchKeys.allBranchesDetail(termId, search),
     queryFn: () => getAllBranchesDetails(termId, search),
-    // enabled: !!termId,
+    placeholderData: keepPreviousData,
   });
 };
 

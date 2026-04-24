@@ -2,6 +2,9 @@ import { Avatar } from "@/components/Avatar";
 import ArrowDown from "@/components/Icons/ArrowDown";
 import ArrowUp from "@/components/Icons/ArrowUp";
 import React from "react";
+import { Button } from "@/components/ui/button";
+import ShareBox from "@/components/Icons/ShareBox";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { StudentRow } from "./students";
 
 export const SpreadsheetMobileCard = ({
@@ -15,9 +18,19 @@ export const SpreadsheetMobileCard = ({
   setActiveStudent: React.Dispatch<React.SetStateAction<number | undefined>>;
   selectedTerm: string;
 }) => {
+  const pathname = usePathname();
+  const router = useRouter();
+  const params = useSearchParams();
+
   const studentScore = student.terms.find(term => term.term === selectedTerm);
   const toggleCard = () => {
     setActiveStudent(prev => (prev === student.id ? undefined : student.id));
+  };
+
+  const handleViewReport = () => {
+    const newParams = new URLSearchParams(params.toString());
+    newParams.set("studentId", String(student.id));
+    window.open(`${pathname}?${newParams.toString()}`, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -67,6 +80,16 @@ export const SpreadsheetMobileCard = ({
         <div className="flex h-12 text-center">
           <div className="bg-bg-subtle text-text-muted border-border-default flex w-1/2 items-center justify-center border-r px-4 py-2">Position</div>
           <div className="text-text-default flex w-1/2 items-center justify-center text-sm">{studentScore?.position || 0}</div>
+        </div>
+
+        <div className="flex h-[46px] items-center justify-center px-3 py-1 text-center">
+          <Button
+            className="border-border-darker bg-bg-state-secondary! text-text-default h-8! w-full justify-between border px-4 font-normal"
+            onClick={handleViewReport}
+          >
+            View Student Report
+            <ShareBox fill="var(--color-icon-default-muted)" className="size-3" />
+          </Button>
         </div>
       </div>
     </li>

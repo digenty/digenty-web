@@ -105,12 +105,12 @@ export const PromotionDecisionModal = ({ open, onOpenChange, selectedStudents, s
                 setSelectedClassId(value);
               }}
             >
-              <SelectTrigger className="bg-bg-input-soft h-11 w-full border-none">
+              <SelectTrigger className="bg-bg-input-soft text-text-default! h-11 w-full border-none">
                 <SelectValue placeholder="Select Class" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
                 {classes?.data?.content?.map((cls: ClassType) => (
-                  <SelectItem key={cls.id} value={cls.id.toString()}>
+                  <SelectItem className="text-text-default" key={cls.id} value={cls.id.toString()}>
                     {cls.name}
                   </SelectItem>
                 ))}
@@ -128,12 +128,12 @@ export const PromotionDecisionModal = ({ open, onOpenChange, selectedStudents, s
               }}
               disabled={!selectedClassId}
             >
-              <SelectTrigger className="bg-bg-input-soft h-11 w-full border-none capitalize">
+              <SelectTrigger className="bg-bg-input-soft text-text-default! h-11 w-full border-none capitalize">
                 <SelectValue placeholder="Select Arm" className="capitalize" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
                 {arms?.data?.map((arm: Arm) => (
-                  <SelectItem key={arm.id} value={arm.id.toString()} className="capitalize">
+                  <SelectItem key={arm.id} value={arm.id.toString()} className="text-text-default capitalize">
                     {arm.name.toLowerCase()}
                   </SelectItem>
                 ))}
@@ -150,7 +150,7 @@ export const PromotionDecisionModal = ({ open, onOpenChange, selectedStudents, s
       <Button
         variant="outline"
         onClick={() => onOpenChange(false)}
-        className="bg-bg-state-secondary border-border-darker text-text-default h-7! px-4 text-sm font-medium"
+        className="bg-bg-state-secondary border-border-darker text-text-default! h-7! px-4 text-sm font-medium"
       >
         Cancel
       </Button>

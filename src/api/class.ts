@@ -164,7 +164,7 @@ export const getClassDetails = async (classId: number | null) => {
   }
 };
 
-export const submitClassReport = async (payload: { classArmReportId: number; status: string }) => {
+export const submitClassReport = async (payload: { classArmReportId: number; status: string; reason?: string }) => {
   try {
     const { data } = await api.put("/report/class/arm", payload);
     return data;

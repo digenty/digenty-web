@@ -560,24 +560,21 @@ export interface ResultCalculationPayload {
 }
 
 export interface ResultSubmissionPayload {
-  termsDeadline: [
-    {
-      termId: number;
-      openDate: string;
-      closeDate: string;
-      autoLockAfterDeadline: boolean;
-    },
-  ];
+  termsDeadline: {
+    termId: number;
+    openDate: string;
+    closeDate: string;
+    autoLockAfterDeadline: boolean;
+  }[];
 }
+
 export interface UpdateSubmissionDeadlinePayload {
-  termsDeadline: [
-    {
-      termId: number;
-      openDate: string;
-      closeDate: string;
-      autoLockAfterDeadline: boolean;
-    },
-  ];
+  termsDeadline: {
+    termId: number;
+    openDate: string;
+    closeDate: string;
+    autoLockAfterDeadline: boolean;
+  }[];
 }
 
 export interface TermDeadlineState {
@@ -650,16 +647,6 @@ export interface UpdateResultCalculationPayload {
   minimumOverallPercentage: number;
   minimumPassGrade: string;
   requiredSubjectIds: number[];
-}
-export interface ResultSubmissionPayload {
-  termsDeadline: [
-    {
-      termId: number;
-      openDate: string;
-      closeDate: string;
-      autoLockAfterDeadline: boolean;
-    },
-  ];
 }
 
 export interface TermDeadlineState {

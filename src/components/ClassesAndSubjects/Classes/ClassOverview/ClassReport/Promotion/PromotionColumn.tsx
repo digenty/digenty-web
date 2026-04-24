@@ -93,7 +93,9 @@ export const createPromotionColumns = (
     {
       accessorKey: "firstTermPercentage",
       header: () => <span className="text-text-muted truncate text-sm font-medium">1st Term %</span>,
-      cell: ({ row }) => <span className="text-text-default text-sm">{row.original.firstTermPercentage}</span>,
+      cell: ({ row }) => (
+        <span className="text-text-default text-sm">{row.original.firstTermPercentage && row.original.firstTermPercentage?.toFixed(2)}%</span>
+      ),
       size: 136,
       minSize: 136,
     },
@@ -101,7 +103,9 @@ export const createPromotionColumns = (
     {
       accessorKey: "secondTermPercentage",
       header: () => <span className="text-text-muted truncate text-sm font-medium">2nd Term %</span>,
-      cell: ({ row }) => <span className="text-text-default text-sm">{row.original.secondTermPercentage}</span>,
+      cell: ({ row }) => (
+        <span className="text-text-default text-sm">{row.original.secondTermPercentage && row.original.secondTermPercentage?.toFixed(2)}%</span>
+      ),
       size: 136,
       minSize: 136,
     },
@@ -109,7 +113,9 @@ export const createPromotionColumns = (
     {
       accessorKey: "thirdTermPercentage",
       header: () => <span className="text-text-muted truncate text-sm font-medium">3rd Term %</span>,
-      cell: ({ row }) => <span className="text-text-default text-sm">{row.original.thirdTermPercentage}</span>,
+      cell: ({ row }) => (
+        <span className="text-text-default text-sm">{row.original.thirdTermPercentage && row.original.thirdTermPercentage?.toFixed(2)}%</span>
+      ),
       size: 136,
       minSize: 136,
     },
@@ -120,7 +126,7 @@ export const createPromotionColumns = (
       cell: ({ row }) => {
         const cumulative =
           ((row.original.firstTermPercentage || 0) + (row.original.secondTermPercentage || 0) + (row.original.thirdTermPercentage || 0)) / 3;
-        return <span className="text-text-default text-sm">{cumulative.toFixed(0)}%</span>;
+        return <span className="text-text-default text-sm">{cumulative.toFixed(2)}%</span>;
       },
       size: 136,
       minSize: 136,
@@ -230,7 +236,9 @@ export const createSubjectCombinationColumns = (
     {
       accessorKey: "percentage",
       header: () => <span className="text-text-muted truncate text-sm font-medium">Percentage %</span>,
-      cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => <span className="text-text-default text-sm">{row.original.percentage ?? 0}%</span>,
+      cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => (
+        <span className="text-text-default text-sm">{row.original.percentage && row.original.percentage?.toFixed(2)}%</span>
+      ),
       size: 120,
     },
     {
