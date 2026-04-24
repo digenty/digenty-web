@@ -162,6 +162,7 @@ export const Promotion = ({
             tableBodyCell: "text-center pr-2 w-34",
             tableRow: "h-14",
             table: "table-fixed",
+            tableWrapper: "w-screen pr-20",
           }}
         />
       ) : (
@@ -183,6 +184,7 @@ export const Promotion = ({
             tableBodyCell: "text-center pr-2 w-34",
             tableRow: "h-14",
             table: "table-fixed",
+            tableWrapper: "w-screen pr-20",
           }}
         />
       )}

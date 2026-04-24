@@ -253,8 +253,7 @@ export const ClassReport = () => {
           classArmName={classArmName}
           onExport={handleExport}
           classArmReportId={classReportData?.data?.classArmReportId}
-          status={activeFilter === "spreadsheet" ? classReportData?.data?.status : ""}
-          promotionStatus={activeFilter === "promotion" ? classCumulativeReportData?.data?.status : ""}
+          status={classReportData?.data?.status}
           decisions={decisions}
         />
 
@@ -301,7 +300,8 @@ export const ClassReport = () => {
                         tableHeadCell: "text-center pr-2 w-34",
                         tableBodyCell: "text-center pr-2 w-34",
                         tableRow: "h-14",
-                        // table: "table-fixed",
+                        table: "table-fixed",
+                        tableWrapper: "w-screen",
                       }}
                     />
                   )}
