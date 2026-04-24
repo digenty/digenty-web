@@ -247,7 +247,9 @@ export const AddStaff = () => {
                     title={
                       <div className="flex w-full items-center justify-between pr-4">
                         <div className="flex items-center gap-2">
-                          <SchoolFill fill="var(--color-icon-default-muted)" /> Branch Assignment {assignmentIndex + 1}
+                          {/* TODO: Uncomment this when we want to start adding more than one branch assignment */}
+                          {/* <SchoolFill fill="var(--color-icon-default-muted)" /> Branch Assignment {assignmentIndex + 1} */}
+                          <SchoolFill fill="var(--color-icon-default-muted)" /> Branch Assignment
                         </div>
                       </div>
                     }
@@ -306,13 +308,14 @@ export const AddStaff = () => {
                             ))}
                           </div>
 
-                          <Button
+                          {/* TODO: Uncomment this when we want to start adding more than one role per branch assignment */}
+                          {/* <Button
                             className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! mt-2 flex h-7! w-fit items-center justify-start gap-2 rounded font-medium"
                             onClick={() => addRole(assignmentIndex)}
                           >
                             <PlusIcon className="text-icon-default-muted" />
                             Add Role
-                          </Button>
+                          </Button> */}
                         </div>
                       ) : (
                         <div className="flex justify-center">
@@ -346,7 +349,8 @@ export const AddStaff = () => {
             </div>
           )}
 
-          <div className="border-border-darker bg-bg-state-secondary flex items-center justify-center rounded-md border border-dashed p-6">
+          {/* TODO: Uncomment this when we want to start adding more than one branch assignment */}
+          {/* <div className="border-border-darker bg-bg-state-secondary flex items-center justify-center rounded-md border border-dashed p-6">
             <div className="flex flex-col items-center gap-2">
               <div className="text-text-default flex items-center gap-1 text-xs">
                 <School fill="var(--color-icon-default-muted)" /> Add another branch assignment
@@ -358,7 +362,7 @@ export const AddStaff = () => {
                 <PlusIcon className="text-icon-default-muted" /> Add Branch
               </Button>
             </div>
-          </div>
+          </div> */}
 
           <div className="border-border-default border-t p-3">
             <div className="mx-auto flex h-15! w-full items-center justify-center md:max-w-225">

@@ -57,7 +57,7 @@ export const Modal = ({
               <DialogClose asChild>
                 <Button
                   variant="outline"
-                  className="bg-bg-state-soft! hover:bg-bg-state-soft! text-text-subtle hover:text-text-subtle h-7 border-none px-2 py-1 text-sm font-medium"
+                  className="bg-bg-state-soft! hover:bg-bg-state-soft! text-text-subtle hover:text-text-subtle! h-7 border-none px-2 py-1 text-sm font-medium"
                 >
                   Cancel
                 </Button>

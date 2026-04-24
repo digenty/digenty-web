@@ -124,7 +124,7 @@ export const useSubmitClassReport = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: [classKeys.submitClassReport],
-    mutationFn: (payload: { classArmReportId: number; status: string }) => submitClassReport(payload),
+    mutationFn: (payload: { classArmReportId: number; status: string; reason?: string }) => submitClassReport(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [classKeys.classReport] });
       queryClient.invalidateQueries({ queryKey: [branchKeys.branchDetail] });

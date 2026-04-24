@@ -1,9 +1,12 @@
 "use client";
 
 import { Avatar } from "@/components/Avatar";
-import { ColumnDef, Row } from "@tanstack/react-table";
-import { StudentRow } from "./students";
 import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
+import ShareBox from "@/components/Icons/ShareBox";
+import { Button } from "@/components/ui/button";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { usePathname } from "next/navigation";
+import { StudentRow } from "./students";
 
 export const createColumns = (data: StudentRow[], term: string): ColumnDef<StudentRow>[] => {
   if (!data.length) return [];
@@ -13,6 +16,26 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
   if (!termData) return [];
 
   const subjects = termData.subjects;
+
+  const RenderViewButon = (row: Row<StudentRow>) => {
+    const pathname = usePathname();
+
+    return (
+      <div>
+        <Button
+          className="text-text-default border-border-default border text-xs"
+          onClick={() => {
+            const params = new URLSearchParams(window.location.search);
+            params.set("studentId", String(row.original.id));
+            window.open(`${pathname}?${params.toString()}`, "_blank", "noopener,noreferrer");
+          }}
+        >
+          View
+          <ShareBox fill="var(--color-icon-default-muted)" className="size-3" />
+        </Button>
+      </div>
+    );
+  };
 
   const subjectColumns: ColumnDef<StudentRow>[] = subjects.map((subject, index) => ({
     id: `subject-${index}`,
@@ -92,5 +115,12 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
     totalScoreColumn,
     percentageColumn,
     positionColumn,
+    {
+      accessorKey: "view",
+      header: () => <span className="text-text-muted pr-2 text-sm font-medium"></span>,
+      cell: ({ row }) => RenderViewButon(row),
+      size: 50,
+      maxSize: 50,
+    },
   ];
 };
