@@ -641,6 +641,7 @@ export interface ResultCalculationPayload {
   minimumPassGrade: string;
   requiredSubjectIds: number[];
 }
+
 export interface UpdateResultCalculationPayload {
   calculationMethod: "THIRD_TERM_ONLY" | "CUMULATIVE";
   promotionType: "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE";
@@ -871,4 +872,13 @@ export interface AssignedArm {
   departmentId: number;
   branchId: number;
   schoolId: number;
+}
+export interface UpdatePrincipaleCommentPayload {
+  levelId: number;
+  rows: {
+    commentId: number;
+    minPercentage: number;
+    maxPercentage: number;
+    comment: string;
+  }[];
 }

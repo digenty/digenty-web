@@ -10,13 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
-import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
+import { useGetClassesByLevel, useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import { useAddResultCalculation, useGetResultCalculation, useUpdateResultCalculation } from "@/hooks/queryHooks/useResult";
 import { useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import React, { useEffect, useMemo, useState } from "react";
-import { defaultFormState, LevelFormProps, LevelFormState } from "./types";
+import { defaultFormState, LevelFormProps, LevelFormState, PromotionType } from "./types";
 import { extractUniqueSubjectsByName, Subject } from "./utils";
 import { useGetGradingsByLevel } from "@/hooks/queryHooks/useLevel";
 import { useRouter } from "next/navigation";
@@ -26,22 +26,26 @@ interface ResultCalculationRecord {
   id: number;
   classId: number;
   academicSessionId: number;
-  calculationMethod: string;
-  promotionType: string;
+  calculationMethod: "THIRD_TERM_ONLY" | "CUMULATIVE";
+  promotionType: "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE";
   minimumOverallPercentage: number;
   minimumPassGrade: string;
   requiredSubjectIds: number[];
 }
 
-interface ResultCalculationRecord {
-  id: number;
+interface DepartmentDetails {
+  departmentId: number;
+  departmentName: string;
+  subjects: { id: number; name: string }[];
+}
+
+interface ClassInLevelDetails {
   classId: number;
-  academicSessionId: number;
-  calculationMethod: string;
-  promotionType: string;
-  minimumOverallPercentage: number;
-  minimumPassGrade: string;
-  requiredSubjectIds: number[];
+  className: string;
+  levelId: number;
+  arms: { id: number; name: string }[];
+  subjects: { id: number; name: string }[];
+  departments: DepartmentDetails[];
 }
 
 function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; levels: { label: string; content: React.ReactNode }[] }) {
@@ -78,7 +82,7 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
   }
 
   return (
-    <div className="">
+    <div>
       <div className="h-9 w-full p-4 md:w-fit md:p-8">
         {isLoading && <Skeleton className="bg-bg-input-soft h-8 w-50 rounded-3xl" />}
         {!isLoading && levels.length > 0 && (
@@ -138,17 +142,52 @@ const LevelForm = ({
   const router = useRouter();
   const [hasOpenedForm, setHasOpenedForm] = useState(!!existingRecord);
 
+  const isSeniorSecondary = levelType === "SENIOR_SECONDARY";
+
   const { data: subjectsData, isLoading: isLoadingSubjects } = useGetSubjectsByLevel(levelType);
   const { data: gradingsData, isLoading: isLoadingGradings } = useGetGradingsByLevel(levelId);
+  const { data: classesByLevelData, isLoading: isLoadingClasses } = useGetClassesByLevel(isSeniorSecondary ? levelId : undefined);
 
   const subjects = useMemo(() => extractUniqueSubjectsByName(subjectsData?.data ?? []), [subjectsData]);
   const gradings = gradingsData?.data ?? [];
+
+  const allDepartments = useMemo<DepartmentDetails[]>(() => {
+    if (!isSeniorSecondary) return [];
+    const content: ClassInLevelDetails[] = classesByLevelData?.data?.content ?? [];
+    const deptMap = new Map<number, DepartmentDetails>();
+    content.forEach(cls => {
+      cls.departments?.forEach(dept => {
+        if (!deptMap.has(dept.departmentId)) {
+          deptMap.set(dept.departmentId, {
+            departmentId: dept.departmentId,
+            departmentName: dept.departmentName,
+            subjects: dept.subjects ?? [],
+          });
+        }
+      });
+    });
+    return Array.from(deptMap.values());
+  }, [classesByLevelData, isSeniorSecondary]);
+
+  const setPromotionType = (type: PromotionType) => {
+    onChange({
+      promotionType: type,
+
+      ...(type === "PROMOTE_ALL" || type === "MANUAL" ? { requiredSubjectIds: [] } : {}),
+    });
+  };
 
   const toggleSubject = (subjectId: number) => {
     const exists = formState.requiredSubjectIds.includes(subjectId);
     onChange({
       requiredSubjectIds: exists ? formState.requiredSubjectIds.filter(id => id !== subjectId) : [...formState.requiredSubjectIds, subjectId],
     });
+  };
+
+  const allSelected = subjects.length > 0 && subjects.every(s => formState.requiredSubjectIds.includes(s.id));
+
+  const toggleAllSubjects = () => {
+    onChange({ requiredSubjectIds: allSelected ? [] : subjects.map(s => s.id) });
   };
 
   if (!existingRecord && !hasOpenedForm) {
@@ -166,18 +205,6 @@ const LevelForm = ({
       </div>
     );
   }
-
-  const allSelected = subjects.length > 0 && subjects.every(s => formState.requiredSubjectIds.includes(s.id));
-
-  const toggleAllSubjects = () => {
-    if (allSelected) {
-      onChange({ requiredSubjectIds: [] });
-    } else {
-      onChange({
-        requiredSubjectIds: subjects.map(s => s.id),
-      });
-    }
-  };
 
   return (
     <div>
@@ -231,7 +258,7 @@ const LevelForm = ({
                 <div className="flex items-center gap-2">
                   <RoundedCheckbox
                     checked={formState.promotionType === "PROMOTE_ALL"}
-                    onChange={() => isEditing && onChange({ promotionType: "PROMOTE_ALL" })}
+                    onChange={() => isEditing && setPromotionType("PROMOTE_ALL")}
                     disabled={!isEditing}
                   />
                   <div className="text-text-default text-sm font-medium">Promote All</div>
@@ -245,7 +272,7 @@ const LevelForm = ({
                 <div className="flex items-center gap-2">
                   <RoundedCheckbox
                     checked={formState.promotionType === "MANUAL"}
-                    onChange={() => isEditing && onChange({ promotionType: "MANUAL" })}
+                    onChange={() => isEditing && setPromotionType("MANUAL")}
                     disabled={!isEditing}
                   />
                   <div className="text-text-default text-sm font-medium">Manual Promotion</div>
@@ -259,7 +286,7 @@ const LevelForm = ({
                 <div className="flex items-center gap-2">
                   <RoundedCheckbox
                     checked={formState.promotionType === "BY_PERFORMANCE"}
-                    onChange={() => isEditing && onChange({ promotionType: "BY_PERFORMANCE" })}
+                    onChange={() => isEditing && setPromotionType("BY_PERFORMANCE")}
                     disabled={!isEditing}
                   />
                   <div className="text-text-default text-sm font-medium">By Performance</div>
@@ -272,11 +299,7 @@ const LevelForm = ({
                       inputMode="numeric"
                       pattern="[0-9]*"
                       min="0"
-                      onKeyDown={e => {
-                        if (e.key === "-" || e.key === "e") {
-                          e.preventDefault();
-                        }
-                      }}
+                      onKeyDown={e => (e.key === "-" || e.key === "e") && e.preventDefault()}
                       className="text-text-muted h-9! border-none text-sm"
                       placeholder="100"
                       disabled={!isEditing}
@@ -290,21 +313,98 @@ const LevelForm = ({
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="flex flex-col gap-1">
+              <div className="flex w-full flex-col gap-1">
                 <div className="flex items-center gap-2">
                   <RoundedCheckbox
                     checked={formState.promotionType === "SUBJECT_COMBINATION"}
-                    onChange={() => isEditing && onChange({ promotionType: "SUBJECT_COMBINATION" })}
+                    onChange={() => isEditing && setPromotionType("SUBJECT_COMBINATION")}
                     disabled={!isEditing}
                   />
                   <div className="text-text-default text-sm font-medium">Subject Combination</div>
                 </div>
                 <div className="text-text-subtle pl-6 text-sm">Set specific subject requirements and performance criteria</div>
 
-                <div className="mt-4 flex flex-col gap-1 pl-6">
+                <div className="mt-4 flex flex-col gap-2 pl-6">
                   <Label className="text-text-default text-sm font-medium">A. Required passes (Compulsory)</Label>
                   <div className="text-text-subtle text-sm">Multi-select subjects that student must pass</div>
-                  {isLoadingSubjects ? (
+
+                  {isSeniorSecondary ? (
+                    isLoadingClasses ? (
+                      <div className="flex flex-col gap-3">
+                        <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
+                        <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
+                        <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
+                      </div>
+                    ) : allDepartments.length === 0 ? (
+                      <p className="text-text-subtle text-sm">No departments found for this level.</p>
+                    ) : (
+                      <div className="flex flex-col gap-4">
+                        {allDepartments.map(dept => {
+                          const deptSubjects = dept.subjects;
+                          const allDeptSelected = deptSubjects.length > 0 && deptSubjects.every(s => formState.requiredSubjectIds.includes(s.id));
+
+                          const toggleAllDept = () => {
+                            if (allDeptSelected) {
+                              onChange({
+                                requiredSubjectIds: formState.requiredSubjectIds.filter(id => !deptSubjects.some(s => s.id === id)),
+                              });
+                            } else {
+                              const newIds = deptSubjects.map(s => s.id).filter(id => !formState.requiredSubjectIds.includes(id));
+                              onChange({ requiredSubjectIds: [...formState.requiredSubjectIds, ...newIds] });
+                            }
+                          };
+
+                          return (
+                            <div key={dept.departmentId} className="flex flex-col gap-1">
+                              <div className="text-text-default text-sm font-medium capitalize">{dept.departmentName.toLowerCase()} Subjects</div>
+                              <Select value="" disabled={!isEditing}>
+                                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+                                  <SelectValue placeholder="Select subjects" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-bg-default border-border-default">
+                                  <div
+                                    className="hover:bg-bg-input-soft flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2"
+                                    onClick={toggleAllDept}
+                                  >
+                                    <Checkbox checked={allDeptSelected} />
+                                    <span className="text-text-default text-sm font-medium">Select All</span>
+                                  </div>
+                                  {deptSubjects.map(sub => (
+                                    <div
+                                      key={sub.id}
+                                      className="hover:bg-bg-input-soft text-text-default flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm capitalize"
+                                      onClick={() => toggleSubject(sub.id)}
+                                    >
+                                      <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} />
+                                      {sub.name.toLowerCase()}
+                                    </div>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+
+                              {deptSubjects.some(s => formState.requiredSubjectIds.includes(s.id)) && (
+                                <div className="mt-1 flex flex-wrap items-center gap-1">
+                                  {deptSubjects
+                                    .filter(s => formState.requiredSubjectIds.includes(s.id))
+                                    .map(s => (
+                                      <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
+                                        <span className="capitalize">{s.name.toLowerCase()}</span>
+                                        {isEditing && (
+                                          <button onClick={() => toggleSubject(s.id)} className="text-text-muted hover:text-text-default">
+                                            ×
+                                          </button>
+                                        )}
+                                      </div>
+                                    ))}
+                                </div>
+                              )}
+                              <div className="text-text-muted text-xs">Condition: Must pass all selected</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )
+                  ) : isLoadingSubjects ? (
                     <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
                   ) : (
                     <>
@@ -320,7 +420,6 @@ const LevelForm = ({
                             <Checkbox checked={allSelected} />
                             <span className="text-text-default text-sm font-medium">Select All</span>
                           </div>
-
                           {subjects.map((sub: Subject) => (
                             <div
                               key={sub.id}
@@ -333,6 +432,7 @@ const LevelForm = ({
                           ))}
                         </SelectContent>
                       </Select>
+
                       {formState.requiredSubjectIds.length > 0 && (
                         <div className="mt-1 flex flex-wrap items-center gap-1">
                           {subjects
@@ -400,11 +500,7 @@ const LevelForm = ({
                       inputMode="numeric"
                       pattern="[0-9]*"
                       min="0"
-                      onKeyDown={e => {
-                        if (e.key === "-" || e.key === "e") {
-                          e.preventDefault();
-                        }
-                      }}
+                      onKeyDown={e => (e.key === "-" || e.key === "e") && e.preventDefault()}
                       className="text-text-muted h-9! border-none text-xs"
                       placeholder="100"
                       disabled={!isEditing}
@@ -419,6 +515,7 @@ const LevelForm = ({
           </div>
         </div>
       </div>
+
       {isEditing && (
         <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
           <Button onClick={onCancel} disabled={isPending} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
@@ -457,7 +554,6 @@ export const ResultCalculations = () => {
   }, [resultCalculationsData]);
 
   const [formStates, setFormStates] = useState<Record<string, LevelFormState>>({});
-
   const [editingLevels, setEditingLevels] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -467,11 +563,13 @@ export const ResultCalculations = () => {
       (resultCalculationsData.data as ResultCalculationRecord[]).forEach(record => {
         const level = levels.find(l => l.id === record.classId);
         if (!level || next[level.levelName]) return;
+
+        const promotionType: PromotionType =
+          record.promotionType === "BY_PERFORMANCE" && (record.requiredSubjectIds?.length ?? 0) > 0 ? "SUBJECT_COMBINATION" : record.promotionType;
+
         next[level.levelName] = {
-          calculationMethod: record.calculationMethod as LevelFormState["calculationMethod"],
-          promotionType: (record.promotionType === "BY_PERFORMANCE" && record.requiredSubjectIds?.length > 0
-            ? "SUBJECT_COMBINATION"
-            : record.promotionType) as LevelFormState["promotionType"],
+          calculationMethod: record.calculationMethod,
+          promotionType,
           minimumOverallPercentage: String(record.minimumOverallPercentage ?? ""),
           minimumPassGrade: record.minimumPassGrade ?? "",
           requiredSubjectIds: record.requiredSubjectIds ?? [],
@@ -503,9 +601,11 @@ export const ResultCalculations = () => {
       return;
     }
 
+    const apiPromotionType = state.promotionType === "SUBJECT_COMBINATION" ? "BY_PERFORMANCE" : state.promotionType;
+
     const sharedPayload = {
-      calculationMethod: state.calculationMethod!,
-      promotionType: state.promotionType === "SUBJECT_COMBINATION" ? "BY_PERFORMANCE" : state.promotionType!,
+      calculationMethod: state.calculationMethod,
+      promotionType: apiPromotionType as "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE",
       minimumOverallPercentage: Number(state.minimumOverallPercentage) || 0,
       minimumPassGrade: state.minimumPassGrade,
       requiredSubjectIds: state.requiredSubjectIds,
@@ -517,9 +617,9 @@ export const ResultCalculations = () => {
         description: `Result ${existingRecord ? "updated" : "saved"} for ${levelName}`,
         type: "success",
       });
-
       setEditing(levelName, false);
     };
+
     const onError = (error: Error) => {
       toast({
         title: `Failed to ${existingRecord ? "update" : "save"}`,
@@ -538,7 +638,6 @@ export const ResultCalculations = () => {
   const handleCancel = (levelName: string, levelId: number) => {
     const existingRecord = existingRecordsMap[levelId];
     setEditing(levelName, false);
-
     if (!existingRecord) {
       setFormStates(prev => {
         const next = { ...prev };
@@ -551,7 +650,7 @@ export const ResultCalculations = () => {
   const isPending = isAdding || isUpdating;
 
   return (
-    <div className="">
+    <div>
       <ClassesResponsiveTabs
         isLoading={isLoadingLevels}
         levels={levels.map(({ levelName, levelType, id }) => {

@@ -7,10 +7,11 @@ import {
   getPrincipalCommentByLevel,
   getResultCalculations,
   getSubmissionDeadline,
+  updatePrincipaleComment,
   updateResultCalculation,
   updateSubmissionDeadline,
 } from "@/api/result";
-import { UpdateResultCalculationPayload } from "@/api/types";
+import { UpdatePrincipaleCommentPayload, UpdateResultCalculationPayload } from "@/api/types";
 import { resultKeys } from "@/queries/result";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -95,5 +96,16 @@ export const useUpdateResultCalculation = () => {
     mutationKey: resultKeys.updateResultCalculation,
     mutationFn: ({ payload, resultSettingId }: { payload: UpdateResultCalculationPayload; resultSettingId: number }) =>
       updateResultCalculation(payload, resultSettingId),
+  });
+};
+
+export const useUpdatePrincipalComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: resultKeys.updatePrincipalComment,
+    mutationFn: (payload: UpdatePrincipaleCommentPayload) => updatePrincipaleComment(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [resultKeys.getPrincipalCommentByLevel] });
+    },
   });
 };
