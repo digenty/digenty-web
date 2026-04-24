@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AddFill } from "@/components/Icons/AddFill";
@@ -9,22 +10,69 @@ import { User3 } from "@/components/Icons/User3";
 import { BuildingFill } from "@/components/Icons/BuildingFill";
 import Information from "@/components/Icons/Information";
 import { OrderSummary } from "./OrderSummary";
-import { PRICE_PER_STUDENT, SubscriptionView } from "./type";
+import { STUDENT_TIER_RANGES, SubscriptionView } from "./type";
+import { useCreateSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
 
 interface AddStudentsFormProps {
   onViewChange: (view: SubscriptionView) => void;
 }
 
-const ACTIVE_STUDENTS = 1868;
-const BRANCH_COUNT = 3;
-const REFERRAL_BALANCE = 1104;
-const CURRENT_PLAN = "Advanced" as const;
+const REFERRAL_BALANCE = 0;
+
+const tierForCount = (count: number) => {
+  for (const [tier, range] of Object.entries(STUDENT_TIER_RANGES)) {
+    if (count >= range.min && count <= range.max) return tier;
+  }
+  return "1-200";
+};
 
 export const AddStudentsForm = ({ onViewChange }: AddStudentsFormProps) => {
-  const [studentCount, setStudentCount] = useState(1);
+  const { data: subscription, isLoading: isLoadingSubscription } = useGetCurrentSubscription();
+  const { data: plans } = useGetPlans();
+  const { mutate: createSubscription, isPending } = useCreateSubscription();
+
+  const currentPlan = useMemo(() => plans?.find(p => p.name === subscription?.planName), [plans, subscription?.planName]);
+
+  const initialCount = (subscription?.studentCapacity ?? 0) + 1;
+  const [studentCount, setStudentCount] = useState(initialCount);
   const [useReferral, setUseReferral] = useState(false);
 
-  const subtotal = useMemo(() => PRICE_PER_STUDENT[CURRENT_PLAN] * studentCount, [studentCount]);
+  useEffect(() => {
+    if (subscription?.studentCapacity) {
+      setStudentCount(prev => (prev <= 1 ? subscription.studentCapacity + 1 : prev));
+    }
+  }, [subscription?.studentCapacity]);
+
+  const pricePerStudent = currentPlan?.pricePerStudent ?? 0;
+  const additionalStudents = Math.max(0, studentCount - (subscription?.studentCapacity ?? 0));
+  const subtotal = pricePerStudent * additionalStudents;
+
+  const handlePay = () => {
+    if (!currentPlan || !subscription) {
+      toast.error("Unable to find your current plan");
+      return;
+    }
+    if (additionalStudents <= 0) {
+      toast.error("Please increase the student count beyond your current capacity");
+      return;
+    }
+    createSubscription(
+      { planId: currentPlan.id, studentCapacity: studentCount },
+      {
+        onSuccess: () => {
+          toast.success("Students added to your plan");
+          onViewChange("dashboard");
+        },
+        onError: (error: unknown) => {
+          const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
+          toast.error(message || "Failed to add students");
+        },
+      },
+    );
+  };
+
+  const planName = subscription?.planName ?? "—";
+  const tier = tierForCount(studentCount);
 
   return (
     <div className="flex flex-col gap-8">
@@ -37,21 +85,21 @@ export const AddStudentsForm = ({ onViewChange }: AddStudentsFormProps) => {
         <div className="lg:col-span-2">
           <div className="bg-bg-default border-border-default flex flex-col gap-6 rounded-xl border p-4 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-text-default text-sm font-medium">{CURRENT_PLAN} Plan</h3>
+              <h3 className="text-text-default text-sm font-medium">{planName} Plan</h3>
               <span className="text-text-default text-sm font-medium">
-                ₦{PRICE_PER_STUDENT[CURRENT_PLAN].toLocaleString()} <span className="text-text-muted text-xs font-normal">per student</span>
+                ₦{pricePerStudent.toLocaleString()} <span className="text-text-muted text-xs font-normal">per student</span>
               </span>
             </div>
-            <p className="text-text-subtle text-xs">16+ modules</p>
+            {currentPlan?.features?.length ? <p className="text-text-subtle text-xs">{currentPlan.features.length}+ modules</p> : null}
 
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="bg-bg-subtle text-text-subtle border-border-default h-6 rounded-md px-2 text-xs font-medium">
                 <User3 fill="var(--color-icon-default-muted)" className="h-3 w-3" />
-                {ACTIVE_STUDENTS.toLocaleString()} students
+                {(subscription?.activeStudentCount ?? 0).toLocaleString()} students
               </Badge>
               <Badge className="bg-bg-subtle text-text-subtle border-border-default h-6 rounded-md px-2 text-xs font-medium">
                 <BuildingFill fill="var(--color-icon-default-muted)" className="h-3 w-3" />
-                {BRANCH_COUNT} Branches
+                Capacity {(subscription?.studentCapacity ?? 0).toLocaleString()}
               </Badge>
             </div>
 
@@ -83,6 +131,9 @@ export const AddStudentsForm = ({ onViewChange }: AddStudentsFormProps) => {
                 <Button
                   type="button"
                   variant="ghost"
+                  onClick={() => {
+                    if (subscription?.activeStudentCount) setStudentCount(subscription.activeStudentCount);
+                  }}
                   className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-10 w-full rounded-md px-3 text-xs font-medium sm:w-auto"
                 >
                   Auto-Fill Active Students
@@ -90,7 +141,7 @@ export const AddStudentsForm = ({ onViewChange }: AddStudentsFormProps) => {
               </div>
               <p className="text-text-muted text-xs">Specify how many students you want to pay for</p>
               <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default h-5 w-fit rounded-md px-1.5 text-xs font-medium">
-                0 - 200 Students Tier
+                {tier} Students Tier
               </Badge>
             </div>
 
@@ -103,14 +154,16 @@ export const AddStudentsForm = ({ onViewChange }: AddStudentsFormProps) => {
 
         <div className="lg:col-span-1">
           <OrderSummary
-            planName={CURRENT_PLAN}
+            planName={planName}
             studentCount={studentCount}
             billingCycle="Termly"
             subtotal={subtotal}
             useReferral={useReferral}
             onToggleReferral={setUseReferral}
             referralBalance={REFERRAL_BALANCE}
-            onPay={() => onViewChange("dashboard")}
+            onPay={handlePay}
+            isPending={isPending}
+            disabled={isLoadingSubscription || !currentPlan || additionalStudents <= 0}
           />
         </div>
       </div>

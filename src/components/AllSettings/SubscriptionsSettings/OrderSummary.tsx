@@ -3,11 +3,11 @@
 import { Button } from "@/components/ui/button";
 import BankCard from "@/components/Icons/BankCard";
 import { Alert } from "@/components/Icons/Alert";
-import { BillingCycle, PlanName } from "./type";
+import { BillingCycle } from "./type";
 import { Toggle } from "@/components/Toggle";
 
 interface OrderSummaryProps {
-  planName: PlanName;
+  planName: string;
   studentCount: number;
   billingCycle: BillingCycle;
   subtotal: number;
@@ -15,6 +15,8 @@ interface OrderSummaryProps {
   onToggleReferral: (v: boolean) => void;
   referralBalance: number;
   onPay: () => void;
+  isPending?: boolean;
+  disabled?: boolean;
 }
 
 export const OrderSummary = ({
@@ -26,6 +28,8 @@ export const OrderSummary = ({
   onToggleReferral,
   referralBalance,
   onPay,
+  isPending,
+  disabled,
 }: OrderSummaryProps) => {
   const billingLabel = billingCycle === "Termly" ? "Monthly" : "Yearly";
   const totalCost = useReferral ? Math.max(0, subtotal - referralBalance) : subtotal;
@@ -84,10 +88,11 @@ export const OrderSummary = ({
 
       <Button
         onClick={onPay}
+        disabled={disabled || isPending}
         className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full rounded-md text-sm font-medium"
       >
         <BankCard fill="var(--color-icon-white-default)" className="h-4 w-4" />
-        Pay ₦{totalCost.toLocaleString()}
+        {isPending ? "Processing..." : `Pay ₦${totalCost.toLocaleString()}`}
       </Button>
     </div>
   );

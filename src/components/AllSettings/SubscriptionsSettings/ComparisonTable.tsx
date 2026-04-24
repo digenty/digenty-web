@@ -6,11 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Check } from "@/components/Icons/Check";
 import { CloseFill } from "@/components/Icons/CloseFill";
 import { cn } from "@/lib/utils";
-import { PlanName, planFeaturesData, PRICE_PER_STUDENT } from "./type";
+import { planFeaturesData } from "./type";
+
+type PlanName = "Standard" | "Advanced";
 
 interface ComparisonTableProps {
   onSubscribe?: () => void;
+  standardPrice?: number;
+  advancedPrice?: number;
 }
+
+const formatPrice = (price?: number) => (typeof price === "number" ? `₦${price.toLocaleString()}` : "—");
 
 const featureCell = (included: boolean) =>
   included ? (
@@ -24,9 +30,10 @@ const featureCell = (included: boolean) =>
 
 const MOBILE_TABS: PlanName[] = ["Standard", "Advanced"];
 
-const MobileComparison = ({ onSubscribe }: ComparisonTableProps) => {
+const MobileComparison = ({ onSubscribe, standardPrice, advancedPrice }: ComparisonTableProps) => {
   const [activeTab, setActiveTab] = useState<PlanName>("Standard");
   const isStandard = activeTab === "Standard";
+  const activePrice = isStandard ? standardPrice : advancedPrice;
 
   return (
     <div className="border-border-default w-full overflow-hidden rounded-lg border">
@@ -48,7 +55,7 @@ const MobileComparison = ({ onSubscribe }: ComparisonTableProps) => {
 
       <div className="flex flex-col gap-4 p-4">
         <div className="flex items-baseline gap-1">
-          <span className="text-text-default text-base font-medium">₦{PRICE_PER_STUDENT[activeTab].toLocaleString()}</span>
+          <span className="text-text-default text-base font-medium">{formatPrice(activePrice)}</span>
           <span className="text-text-muted text-xs">per student</span>
         </div>
         {isStandard ? (
@@ -83,11 +90,11 @@ const MobileComparison = ({ onSubscribe }: ComparisonTableProps) => {
   );
 };
 
-export const ComparisonTable = ({ onSubscribe }: ComparisonTableProps) => {
+export const ComparisonTable = ({ onSubscribe, standardPrice, advancedPrice }: ComparisonTableProps) => {
   return (
     <>
       <div className="w-full md:hidden">
-        <MobileComparison onSubscribe={onSubscribe} />
+        <MobileComparison onSubscribe={onSubscribe} standardPrice={standardPrice} advancedPrice={advancedPrice} />
       </div>
 
       <div className="border-border-default hidden w-full overflow-x-auto rounded-lg border md:block">
@@ -98,7 +105,7 @@ export const ComparisonTable = ({ onSubscribe }: ComparisonTableProps) => {
               <div className="flex flex-col gap-1">
                 <p className="text-text-default text-sm font-medium">Standard</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-text-default text-base font-medium">₦{PRICE_PER_STUDENT.Standard.toLocaleString()}</span>
+                  <span className="text-text-default text-base font-medium">{formatPrice(standardPrice)}</span>
                   <span className="text-text-muted text-xs">per student</span>
                 </div>
               </div>
@@ -113,7 +120,7 @@ export const ComparisonTable = ({ onSubscribe }: ComparisonTableProps) => {
               <div className="flex flex-col gap-1">
                 <p className="text-text-default text-sm font-medium">Advanced</p>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-text-default text-base font-medium">₦{PRICE_PER_STUDENT.Advanced.toLocaleString()}</span>
+                  <span className="text-text-default text-base font-medium">{formatPrice(advancedPrice)}</span>
                   <span className="text-text-muted text-xs">per student</span>
                 </div>
               </div>

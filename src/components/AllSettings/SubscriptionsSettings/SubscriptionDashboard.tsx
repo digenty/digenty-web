@@ -1,21 +1,38 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/DataTable";
-import { ListCheck3 } from "@/components/Icons/ListCheck3";
-import Wallet from "@/components/Icons/Wallet";
-import { User3 } from "@/components/Icons/User3";
 import { AddFill } from "@/components/Icons/AddFill";
 import Eye from "@/components/Icons/Eye";
 import Download2 from "@/components/Icons/Download2";
 import { paymentStatus } from "@/components/Status";
-import { billingHistoryData, BillingHistoryRow, SubscriptionView } from "./type";
+import { BillingHistoryRow, billingStatusLabel, subscriptionStatusLabel, SubscriptionView } from "./type";
 import Group from "@/components/Icons/Group";
 import { VipDiamond } from "@/components/Icons/VipDiamond";
 import ListCheck from "@/components/Icons/ListCheck";
+import { useGetCurrentSubscription, useGetBillingHistory } from "@/hooks/queryHooks/useSubscription";
+import { BillingHistoryDto, SubscriptionStatus } from "@/api/subscription";
+import { cn, formatDate } from "@/lib/utils";
+
+const PAGE_SIZE = 10;
+
+const STATUS_BADGE_CLASS: Record<SubscriptionStatus, string> = {
+  ACTIVE: "bg-bg-badge-green text-bg-basic-green-strong",
+  PENDING: "bg-bg-badge-orange text-bg-basic-orange-strong",
+  EXPIRED: "bg-bg-badge-red text-bg-basic-red-strong",
+  CANCELLED: "bg-bg-badge-red text-bg-basic-red-strong",
+};
+
+const toRow = (dto: BillingHistoryDto): BillingHistoryRow => ({
+  period: `${formatDate(dto.periodStart)} – ${formatDate(dto.periodEnd)}`,
+  plan: dto.planName,
+  status: billingStatusLabel[dto.status] ?? dto.status,
+  amount: dto.amount,
+});
 
 const BillingHistoryMobileCard = ({ row }: { row: BillingHistoryRow }) => (
   <div className="border-border-default bg-bg-default overflow-hidden rounded-lg border">
@@ -43,9 +60,6 @@ const BillingHistoryMobileCard = ({ row }: { row: BillingHistoryRow }) => (
 interface SubscriptionDashboardProps {
   onViewChange: (view: SubscriptionView) => void;
 }
-
-const STUDENT_CAPACITY_USED = 1247;
-const STUDENT_CAPACITY_TOTAL = 2000;
 
 const billingColumns: ColumnDef<BillingHistoryRow>[] = [
   {
@@ -85,7 +99,16 @@ const billingColumns: ColumnDef<BillingHistoryRow>[] = [
 ];
 
 export const SubscriptionDashboard = ({ onViewChange }: SubscriptionDashboardProps) => {
-  const percentUsed = Math.min(100, (STUDENT_CAPACITY_USED / STUDENT_CAPACITY_TOTAL) * 100);
+  const [page, setPage] = useState(1);
+
+  const { data: subscription, isLoading: isLoadingSubscription } = useGetCurrentSubscription();
+  const { data: billing, isLoading: isLoadingBilling } = useGetBillingHistory({ page: page - 1, size: PAGE_SIZE });
+
+  const studentCapacityUsed = subscription?.activeStudentCount ?? 0;
+  const studentCapacityTotal = subscription?.studentCapacity ?? 0;
+  const percentUsed = studentCapacityTotal > 0 ? Math.min(100, (studentCapacityUsed / studentCapacityTotal) * 100) : 0;
+
+  const billingRows = useMemo(() => billing?.content?.map(toRow) ?? [], [billing]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -102,49 +125,76 @@ export const SubscriptionDashboard = ({ onViewChange }: SubscriptionDashboardPro
       </div>
 
       <div className="bg-bg-subtle border-border-default flex w-full max-w-81 flex-col gap-6 rounded-lg border p-4 sm:p-6">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between">
-            <p className="text-text-default text-xs font-medium">Main Campus</p>
-            <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md px-1.5 text-xs font-medium">
-              Active
-            </Badge>
+        {isLoadingSubscription ? (
+          <div className="flex flex-col gap-3">
+            <div className="bg-bg-state-soft h-4 w-24 animate-pulse rounded" />
+            <div className="bg-bg-state-soft h-3 w-40 animate-pulse rounded" />
+            <div className="bg-bg-state-soft h-1 w-full animate-pulse rounded-full" />
           </div>
-          <p className="text-text-muted text-xs">Advanced Plan</p>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Group fill="var(--color-icon-default-muted)" className="h-4 w-4" />
-              <span className="text-text-default text-sm font-medium">Student Capacity</span>
+        ) : subscription ? (
+          <>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <p className="text-text-default text-xs font-medium">Main Campus</p>
+                <Badge
+                  className={cn(
+                    "border-border-default h-5 rounded-md px-1.5 text-xs font-medium",
+                    STATUS_BADGE_CLASS[subscription.status] ?? STATUS_BADGE_CLASS.PENDING,
+                  )}
+                >
+                  {subscriptionStatusLabel[subscription.status] ?? subscription.status}
+                </Badge>
+              </div>
+              <p className="text-text-muted text-xs">{subscription.planName} Plan</p>
             </div>
-            <span className="text-text-muted text-sm">
-              {STUDENT_CAPACITY_USED} / {STUDENT_CAPACITY_TOTAL}
-            </span>
-          </div>
-          <div className="bg-bg-basic-gray-alpha-10 h-1 w-full overflow-hidden rounded-full">
-            <div className="bg-bg-basic-emerald-accent h-full rounded-full" style={{ width: `${percentUsed}%` }} />
-          </div>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            onClick={() => onViewChange("add-students")}
-            className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-7 flex-1 rounded-md text-xs font-medium"
-          >
-            <AddFill fill="var(--color-icon-default-subtle)" className="size-3" />
-            Add Students
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => onViewChange("upgrade")}
-            className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 flex-1 rounded-md text-xs font-medium"
-          >
-            <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
-            Upgrade Plan
-          </Button>
-        </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Group fill="var(--color-icon-default-muted)" className="h-4 w-4" />
+                  <span className="text-text-default text-sm font-medium">Student Capacity</span>
+                </div>
+                <span className="text-text-muted text-sm">
+                  {studentCapacityUsed} / {studentCapacityTotal}
+                </span>
+              </div>
+              <div className="bg-bg-basic-gray-alpha-10 h-1 w-full overflow-hidden rounded-full">
+                <div className="bg-bg-basic-emerald-accent h-full rounded-full" style={{ width: `${percentUsed}%` }} />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => onViewChange("add-students")}
+                className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-7 flex-1 rounded-md text-xs font-medium"
+              >
+                <AddFill fill="var(--color-icon-default-subtle)" className="size-3" />
+                Add Students
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => onViewChange("upgrade")}
+                className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 flex-1 rounded-md text-xs font-medium"
+              >
+                <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
+                Upgrade Plan
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <p className="text-text-muted text-xs">No active subscription</p>
+            <Button
+              variant="ghost"
+              onClick={() => onViewChange("plans")}
+              className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 rounded-md text-xs font-medium"
+            >
+              <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
+              Choose a Plan
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-4 sm:gap-6">
@@ -152,19 +202,21 @@ export const SubscriptionDashboard = ({ onViewChange }: SubscriptionDashboardPro
         <div className="hidden md:block">
           <DataTable
             columns={billingColumns}
-            data={billingHistoryData}
-            totalCount={billingHistoryData.length}
-            page={1}
-            setCurrentPage={() => {}}
-            pageSize={50}
-            showPagination={false}
+            data={billingRows}
+            totalCount={billing?.totalElements ?? 0}
+            page={page}
+            setCurrentPage={setPage}
+            pageSize={PAGE_SIZE}
+            loadingContent={isLoadingBilling}
             fullBorder={false}
           />
         </div>
         <div className="flex flex-col gap-3 md:hidden">
-          {billingHistoryData.map((row, idx) => (
-            <BillingHistoryMobileCard key={`${row.period}-${idx}`} row={row} />
-          ))}
+          {billingRows.length === 0 && !isLoadingBilling ? (
+            <p className="text-text-muted text-sm">No billing history yet.</p>
+          ) : (
+            billingRows.map((row, idx) => <BillingHistoryMobileCard key={`${row.period}-${idx}`} row={row} />)
+          )}
         </div>
       </div>
     </div>

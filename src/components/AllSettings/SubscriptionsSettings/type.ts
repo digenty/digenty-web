@@ -1,10 +1,10 @@
+import { BillingStatus, PlanType, SubscriptionStatus } from "@/api/subscription";
+
 export type SubscriptionView = "dashboard" | "plans" | "upgrade" | "subscribe" | "add-students";
 
 export type BillingCycle = "Termly" | "Yearly";
 
 export type StudentTier = "1-200" | "201-400" | "401+";
-
-export type PlanName = "Standard" | "Advanced";
 
 export interface PlanFeatureRow {
   feature: string;
@@ -19,20 +19,29 @@ export interface BillingHistoryRow {
   amount: number;
 }
 
-export const PRICE_PER_STUDENT: Record<PlanName, number> = {
-  Standard: 1000,
-  Advanced: 1350,
+export const BILLING_CYCLE_TO_PLAN_TYPE: Record<BillingCycle, PlanType> = {
+  Termly: "TERMLY",
+  Yearly: "YEARLY",
 };
 
-export const STANDARD_FEATURES = ["Computer-based testing and examination", "School Website", "Students Attendance Management", "16+ modules"];
+export const STUDENT_TIER_RANGES: Record<StudentTier, { min: number; max: number }> = {
+  "1-200": { min: 1, max: 200 },
+  "201-400": { min: 201, max: 400 },
+  "401+": { min: 401, max: Number.MAX_SAFE_INTEGER },
+};
 
-export const ADVANCED_FEATURES = ["Everything in Standard,", "Live class sessions and online courses", "Transport management", "20+ modules"];
+export const subscriptionStatusLabel: Record<SubscriptionStatus, string> = {
+  ACTIVE: "Active",
+  EXPIRED: "Expired",
+  CANCELLED: "Cancelled",
+  PENDING: "Pending",
+};
 
-export const billingHistoryData: BillingHistoryRow[] = [
-  { period: "Jan 1, 2025 – Jan 31, 2025", plan: "Premium", status: "Paid", amount: 50000 },
-  { period: "Jan 1, 2025 – Jan 31, 2025", plan: "Premium", status: "Paid", amount: 50000 },
-  { period: "Jan 1, 2025 – Jan 31, 2025", plan: "Premium", status: "Failed", amount: 50000 },
-];
+export const billingStatusLabel: Record<BillingStatus, "Paid" | "Failed" | "Pending"> = {
+  SUCCESS: "Paid",
+  FAILED: "Failed",
+  PENDING: "Pending",
+};
 
 export const planFeaturesData: PlanFeatureRow[] = [
   { feature: "Administrator Tools", standard: true, advanced: true },
