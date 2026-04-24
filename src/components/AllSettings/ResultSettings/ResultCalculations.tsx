@@ -141,6 +141,7 @@ const LevelForm = ({
 }) => {
   const router = useRouter();
   const [hasOpenedForm, setHasOpenedForm] = useState(!!existingRecord);
+  const [openDeptId, setOpenDeptId] = useState<number | null>(null);
 
   const isSeniorSecondary = levelType === "SENIOR_SECONDARY";
 
@@ -173,18 +174,32 @@ const LevelForm = ({
     onChange({
       promotionType: type,
 
-      ...(type === "PROMOTE_ALL" || type === "MANUAL" ? { requiredSubjectIds: [] } : {}),
+      ...(type === "PROMOTE_ALL" || type === "MANUAL" ? { requiredSubjectIds: isSeniorSecondary ? {} : [] } : {}),
     });
   };
 
-  const toggleSubject = (subjectId: number) => {
-    const exists = formState.requiredSubjectIds.includes(subjectId);
+  const toggleSubjectInDept = (departmentId: number, subjectId: number) => {
+    const map = formState.requiredSubjectIds as Record<number, number[]>;
+    const current = map[departmentId] ?? [];
+    const exists = current.includes(subjectId);
     onChange({
-      requiredSubjectIds: exists ? formState.requiredSubjectIds.filter(id => id !== subjectId) : [...formState.requiredSubjectIds, subjectId],
+      requiredSubjectIds: {
+        ...map,
+        [departmentId]: exists ? current.filter(id => id !== subjectId) : [...current, subjectId],
+      },
     });
   };
 
-  const allSelected = subjects.length > 0 && subjects.every(s => formState.requiredSubjectIds.includes(s.id));
+  const toggleSubjectFlat = (subjectId: number) => {
+    const arr = formState.requiredSubjectIds as number[];
+    const exists = arr.includes(subjectId);
+    onChange({
+      requiredSubjectIds: exists ? arr.filter(id => id !== subjectId) : [...arr, subjectId],
+    });
+  };
+
+  const flatIds = isSeniorSecondary ? [] : (formState.requiredSubjectIds as number[]);
+  const allSelected = subjects.length > 0 && subjects.every(s => flatIds.includes(s.id));
 
   const toggleAllSubjects = () => {
     onChange({ requiredSubjectIds: allSelected ? [] : subjects.map(s => s.id) });
@@ -341,24 +356,30 @@ const LevelForm = ({
                       <div className="flex flex-col gap-4">
                         {allDepartments.map(dept => {
                           const deptSubjects = dept.subjects;
-                          const allDeptSelected = deptSubjects.length > 0 && deptSubjects.every(s => formState.requiredSubjectIds.includes(s.id));
+                          const map = formState.requiredSubjectIds as Record<number, number[]>;
+                          const currentDeptIds = map[dept.departmentId] ?? [];
+                          const allDeptSelected = deptSubjects.length > 0 && deptSubjects.every(s => currentDeptIds.includes(s.id));
 
                           const toggleAllDept = () => {
-                            if (allDeptSelected) {
-                              onChange({
-                                requiredSubjectIds: formState.requiredSubjectIds.filter(id => !deptSubjects.some(s => s.id === id)),
-                              });
-                            } else {
-                              const newIds = deptSubjects.map(s => s.id).filter(id => !formState.requiredSubjectIds.includes(id));
-                              onChange({ requiredSubjectIds: [...formState.requiredSubjectIds, ...newIds] });
-                            }
+                            onChange({
+                              requiredSubjectIds: {
+                                ...map,
+                                [dept.departmentId]: allDeptSelected ? [] : deptSubjects.map(s => s.id),
+                              },
+                            });
                           };
 
                           return (
                             <div key={dept.departmentId} className="flex flex-col gap-1">
                               <div className="text-text-default text-sm font-medium capitalize">{dept.departmentName.toLowerCase()} Subjects</div>
-                              <Select value="" disabled={!isEditing}>
-                                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+                              <Select
+                                open={isEditing && openDeptId === dept.departmentId}
+                                onOpenChange={open => setOpenDeptId(open ? dept.departmentId : null)}
+                              >
+                                <SelectTrigger
+                                  className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal"
+                                  disabled={!isEditing}
+                                >
                                   <SelectValue placeholder="Select subjects" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-bg-default border-border-default">
@@ -373,24 +394,27 @@ const LevelForm = ({
                                     <div
                                       key={sub.id}
                                       className="hover:bg-bg-input-soft text-text-default flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm capitalize"
-                                      onClick={() => toggleSubject(sub.id)}
+                                      onClick={() => toggleSubjectInDept(dept.departmentId, sub.id)}
                                     >
-                                      <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} />
+                                      <Checkbox checked={currentDeptIds.includes(sub.id)} />
                                       {sub.name.toLowerCase()}
                                     </div>
                                   ))}
                                 </SelectContent>
                               </Select>
 
-                              {deptSubjects.some(s => formState.requiredSubjectIds.includes(s.id)) && (
+                              {currentDeptIds.length > 0 && (
                                 <div className="mt-1 flex flex-wrap items-center gap-1">
                                   {deptSubjects
-                                    .filter(s => formState.requiredSubjectIds.includes(s.id))
+                                    .filter(s => currentDeptIds.includes(s.id))
                                     .map(s => (
                                       <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
                                         <span className="capitalize">{s.name.toLowerCase()}</span>
                                         {isEditing && (
-                                          <button onClick={() => toggleSubject(s.id)} className="text-text-muted hover:text-text-default">
+                                          <button
+                                            onClick={() => toggleSubjectInDept(dept.departmentId, s.id)}
+                                            className="text-text-muted hover:text-text-default"
+                                          >
                                             ×
                                           </button>
                                         )}
@@ -408,8 +432,11 @@ const LevelForm = ({
                     <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
                   ) : (
                     <>
-                      <Select value="" disabled={!isEditing}>
-                        <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+                      <Select open={isEditing ? undefined : false}>
+                        <SelectTrigger
+                          className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal"
+                          disabled={!isEditing}
+                        >
                           <SelectValue placeholder="Select subjects" />
                         </SelectTrigger>
                         <SelectContent className="bg-bg-default border-border-default">
@@ -424,24 +451,24 @@ const LevelForm = ({
                             <div
                               key={sub.id}
                               className="hover:bg-bg-input-soft text-text-default flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm capitalize"
-                              onClick={() => toggleSubject(sub.id)}
+                              onClick={() => toggleSubjectFlat(sub.id)}
                             >
-                              <Checkbox checked={formState.requiredSubjectIds.includes(sub.id)} />
+                              <Checkbox checked={flatIds.includes(sub.id)} />
                               {sub.name.toLowerCase()}
                             </div>
                           ))}
                         </SelectContent>
                       </Select>
 
-                      {formState.requiredSubjectIds.length > 0 && (
+                      {flatIds.length > 0 && (
                         <div className="mt-1 flex flex-wrap items-center gap-1">
                           {subjects
-                            .filter((s: Subject) => formState.requiredSubjectIds.includes(s.id))
+                            .filter((s: Subject) => flatIds.includes(s.id))
                             .map((s: Subject) => (
                               <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
                                 <span className="capitalize">{s.name.toLowerCase()}</span>
                                 {isEditing && (
-                                  <button onClick={() => toggleSubject(s.id)} className="text-text-muted hover:text-text-default">
+                                  <button onClick={() => toggleSubjectFlat(s.id)} className="text-text-muted hover:text-text-default">
                                     ×
                                   </button>
                                 )}
@@ -564,6 +591,8 @@ export const ResultCalculations = () => {
         const level = levels.find(l => l.id === record.classId);
         if (!level || next[level.levelName]) return;
 
+        const isSeniorSecondary = level.levelType === "SENIOR_SECONDARY";
+
         const promotionType: PromotionType =
           record.promotionType === "BY_PERFORMANCE" && (record.requiredSubjectIds?.length ?? 0) > 0 ? "SUBJECT_COMBINATION" : record.promotionType;
 
@@ -572,7 +601,7 @@ export const ResultCalculations = () => {
           promotionType,
           minimumOverallPercentage: String(record.minimumOverallPercentage ?? ""),
           minimumPassGrade: record.minimumPassGrade ?? "",
-          requiredSubjectIds: record.requiredSubjectIds ?? [],
+          requiredSubjectIds: isSeniorSecondary ? {} : (record.requiredSubjectIds ?? []),
           subjectCombinationMinPercentage: "",
         };
       });
@@ -591,6 +620,7 @@ export const ResultCalculations = () => {
   const handleSave = (levelName: string, levelId: number) => {
     const state = getFormState(levelName);
     const existingRecord = existingRecordsMap[levelId];
+    const isSeniorSecondary = levels.find(l => l.id === levelId)?.levelType === "SENIOR_SECONDARY";
 
     if (!state.calculationMethod) {
       toast({ title: "Error", description: "Please select a calculation method.", type: "error" });
@@ -603,12 +633,16 @@ export const ResultCalculations = () => {
 
     const apiPromotionType = state.promotionType === "SUBJECT_COMBINATION" ? "BY_PERFORMANCE" : state.promotionType;
 
+    const flatSubjectIds: number[] = isSeniorSecondary
+      ? Object.values(state.requiredSubjectIds as Record<number, number[]>).flat()
+      : (state.requiredSubjectIds as number[]);
+
     const sharedPayload = {
       calculationMethod: state.calculationMethod,
       promotionType: apiPromotionType as "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE",
       minimumOverallPercentage: Number(state.minimumOverallPercentage) || 0,
       minimumPassGrade: state.minimumPassGrade,
-      requiredSubjectIds: state.requiredSubjectIds,
+      requiredSubjectIds: flatSubjectIds,
     };
 
     const onSuccess = () => {
