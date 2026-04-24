@@ -1,16 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import Information from "@/components/Icons/Information";
 import { AddFill } from "@/components/Icons/AddFill";
 import { Subtract } from "@/components/Icons/Subtract";
 import { User3 } from "@/components/Icons/User3";
 import { BuildingFill } from "@/components/Icons/BuildingFill";
 import { OrderSummary } from "./OrderSummary";
-import { BillingCycle, PRICE_PER_STUDENT, PlanName, SubscriptionView } from "./type";
+import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, STUDENT_TIER_RANGES, SubscriptionView } from "./type";
+import { useCreateSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
+import { PlanResponseDto } from "@/api/subscription";
 
 interface UpgradeOrSubscribeFormProps {
   isUpgrade?: boolean;
@@ -37,17 +40,82 @@ const BillingCycleTabs = ({ value, onChange }: { value: BillingCycle; onChange: 
   </div>
 );
 
-const ACTIVE_STUDENTS = 1868;
-const BRANCH_COUNT = 3;
-const REFERRAL_BALANCE = 1104;
+const REFERRAL_BALANCE = 0;
+
+const tierForCount = (count: number) => {
+  for (const [tier, range] of Object.entries(STUDENT_TIER_RANGES)) {
+    if (count >= range.min && count <= range.max) return tier;
+  }
+  return "1-200";
+};
 
 export const UpgradeOrSubscribeForm = ({ isUpgrade, onViewChange }: UpgradeOrSubscribeFormProps) => {
-  const [selectedPlan, setSelectedPlan] = useState<PlanName>(isUpgrade ? "Advanced" : "Standard");
+  const { data: plans, isLoading: isLoadingPlans } = useGetPlans();
+  const { data: currentSubscription } = useGetCurrentSubscription();
+  const { mutate: createSubscription, isPending } = useCreateSubscription();
+
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("Termly");
+  const [selectedPlanName, setSelectedPlanName] = useState<string | null>(null);
   const [studentCount, setStudentCount] = useState(1);
   const [useReferral, setUseReferral] = useState(false);
 
-  const subtotal = useMemo(() => PRICE_PER_STUDENT[selectedPlan] * studentCount, [selectedPlan, studentCount]);
+  const planType = BILLING_CYCLE_TO_PLAN_TYPE[billingCycle];
+
+  const plansForCycle = useMemo(() => {
+    if (!plans?.data) return [];
+    const matched = plans?.data?.filter(
+      (plan: PlanResponseDto) => plan.planType === planType && studentCount >= plan.minStudentCount && studentCount <= plan.maxStudentCount,
+    );
+    if (matched?.length > 0) return matched;
+    return plans?.data?.filter((plan: PlanResponseDto) => plan.planType === planType);
+  }, [plans, planType, studentCount]);
+
+  const distinctNamedPlans = useMemo(() => {
+    const byName = new Map<string, PlanResponseDto>();
+    for (const plan of plansForCycle) {
+      const existing = byName.get(plan.name);
+      if (!existing || plan.pricePerStudent < existing.pricePerStudent) {
+        byName.set(plan.name, plan);
+      }
+    }
+    return Array.from(byName.values());
+  }, [plansForCycle]);
+
+  useEffect(() => {
+    if (selectedPlanName && distinctNamedPlans.some(p => p.name === selectedPlanName)) return;
+    if (distinctNamedPlans.length === 0) return;
+    const preferred = isUpgrade
+      ? (distinctNamedPlans.find(p => p.name.toLowerCase().includes("advanced")) ?? distinctNamedPlans[0])
+      : (distinctNamedPlans.find(p => p.name.toLowerCase().includes("standard")) ?? distinctNamedPlans[0]);
+    setSelectedPlanName(preferred.name);
+  }, [distinctNamedPlans, isUpgrade, selectedPlanName]);
+
+  const selectedPlan = useMemo(
+    () => distinctNamedPlans.find(p => p.name === selectedPlanName) ?? distinctNamedPlans[0],
+    [distinctNamedPlans, selectedPlanName],
+  );
+
+  const subtotal = useMemo(() => (selectedPlan ? selectedPlan.pricePerStudent * studentCount : 0), [selectedPlan, studentCount]);
+
+  const handlePay = () => {
+    if (!selectedPlan) {
+      toast.error("Please select a plan");
+      return;
+    }
+    createSubscription(
+      { planId: selectedPlan.id, studentCapacity: studentCount },
+      {
+        onSuccess: () => {
+          toast.success(isUpgrade ? "Plan upgrade initiated" : "Subscription created successfully");
+          onViewChange("dashboard");
+        },
+        onError: (error: unknown) => {
+          const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
+          toast.error(message || "Failed to create subscription");
+        },
+      },
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6 sm:gap-8">
@@ -58,22 +126,24 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade, onViewChange }: UpgradeOrSub
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-6 lg:col-span-2">
-          {isUpgrade && (
+          {isUpgrade && currentSubscription && (
             <div className="bg-bg-default border-border-default flex flex-col gap-1 rounded-xl border p-4 sm:p-5">
               <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
                 <div className="flex flex-col gap-1">
                   <p className="text-text-muted text-xs">Your Current Plan</p>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-text-default text-sm font-medium">Standard Plan</span>
+                    <span className="text-text-default text-sm font-medium">{currentSubscription.planName} Plan</span>
                     <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md px-1.5 text-xs font-medium">
-                      Active
+                      {currentSubscription.status}
                     </Badge>
-                    <span className="text-text-muted text-xs">• 200 students • ₦1,500/student/mo</span>
+                    <span className="text-text-muted text-xs">• {currentSubscription.studentCapacity} students</span>
                   </div>
                 </div>
-                <Badge className="bg-bg-badge-rose text-bg-basic-rose-strong border-border-default h-5 shrink-0 rounded-md px-1.5 text-xs font-medium">
-                  Expires March 24
-                </Badge>
+                {currentSubscription.endDate && (
+                  <Badge className="bg-bg-badge-rose text-bg-basic-rose-strong border-border-default h-5 shrink-0 rounded-md px-1.5 text-xs font-medium">
+                    Expires {formatDate(currentSubscription.endDate)}
+                  </Badge>
+                )}
               </div>
             </div>
           )}
@@ -95,35 +165,47 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade, onViewChange }: UpgradeOrSub
             </div>
 
             <div className="flex flex-col gap-4">
-              <PlanRadio
-                name="Standard"
-                price={PRICE_PER_STUDENT.Standard}
-                selected={selectedPlan === "Standard"}
-                onSelect={() => setSelectedPlan("Standard")}
-              />
-
-              <PlanRadio
-                name="Advanced"
-                price={PRICE_PER_STUDENT.Advanced}
-                selected={selectedPlan === "Advanced"}
-                onSelect={() => setSelectedPlan("Advanced")}
-              >
-                <StudentCountConfigurator value={studentCount} onChange={setStudentCount} />
-              </PlanRadio>
+              {isLoadingPlans ? (
+                <>
+                  <div className="bg-bg-state-soft h-20 animate-pulse rounded-xl" />
+                  <div className="bg-bg-state-soft h-20 animate-pulse rounded-xl" />
+                </>
+              ) : distinctNamedPlans.length === 0 ? (
+                <p className="text-text-muted text-sm">No plans available right now.</p>
+              ) : (
+                distinctNamedPlans.map(plan => (
+                  <PlanRadio
+                    key={plan.id}
+                    name={plan.name}
+                    price={plan.pricePerStudent}
+                    selected={selectedPlanName === plan.name}
+                    onSelect={() => setSelectedPlanName(plan.name)}
+                    featureSummary={plan.features?.length ? `${plan.features.length}+ modules` : undefined}
+                  >
+                    <StudentCountConfigurator
+                      value={studentCount}
+                      onChange={setStudentCount}
+                      activeStudents={currentSubscription?.activeStudentCount ?? 0}
+                    />
+                  </PlanRadio>
+                ))
+              )}
             </div>
           </div>
         </div>
 
         <div className="lg:col-span-1">
           <OrderSummary
-            planName={selectedPlan}
+            planName={selectedPlan?.name ?? "—"}
             studentCount={studentCount}
             billingCycle={billingCycle}
             subtotal={subtotal}
             useReferral={useReferral}
             onToggleReferral={setUseReferral}
             referralBalance={REFERRAL_BALANCE}
-            onPay={() => onViewChange("dashboard")}
+            onPay={handlePay}
+            isPending={isPending}
+            disabled={!selectedPlan}
           />
         </div>
       </div>
@@ -132,14 +214,15 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade, onViewChange }: UpgradeOrSub
 };
 
 interface PlanRadioProps {
-  name: PlanName;
+  name: string;
   price: number;
   selected: boolean;
   onSelect: () => void;
+  featureSummary?: string;
   children?: React.ReactNode;
 }
 
-const PlanRadio = ({ name, price, selected, onSelect, children }: PlanRadioProps) => (
+const PlanRadio = ({ name, price, selected, onSelect, featureSummary, children }: PlanRadioProps) => (
   <div
     onClick={onSelect}
     className={cn(
@@ -163,7 +246,7 @@ const PlanRadio = ({ name, price, selected, onSelect, children }: PlanRadioProps
         ₦{price.toLocaleString()} <span className="text-text-muted text-xs font-normal">per student</span>
       </span>
     </div>
-    <p className="text-text-subtle text-xs">16+ modules</p>
+    {featureSummary && <p className="text-text-subtle text-xs">{featureSummary}</p>}
     {selected && children}
   </div>
 );
@@ -171,68 +254,75 @@ const PlanRadio = ({ name, price, selected, onSelect, children }: PlanRadioProps
 interface StudentCountConfiguratorProps {
   value: number;
   onChange: (v: number) => void;
+  activeStudents: number;
 }
 
-export const StudentCountConfigurator = ({ value, onChange }: StudentCountConfiguratorProps) => (
-  <div className="flex flex-col gap-3">
-    <div className="flex flex-wrap items-center gap-2">
-      <Badge className="bg-bg-subtle text-text-subtle border-border-default h-6 rounded-md px-2 text-xs font-medium">
-        <User3 fill="var(--color-icon-default-muted)" className="h-3 w-3" />
-        {ACTIVE_STUDENTS.toLocaleString()} students
-      </Badge>
-      <Badge className="bg-bg-subtle text-text-subtle border-border-default h-6 rounded-md px-2 text-xs font-medium">
-        <BuildingFill fill="var(--color-icon-default-muted)" className="h-3 w-3" />
-        {BRANCH_COUNT} Branches
-      </Badge>
-    </div>
-
-    <label className="text-text-default text-xs font-medium">Number of Students</label>
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="bg-bg-subtle border-border-default flex h-10 w-full items-center overflow-hidden rounded-md border sm:max-w-72">
-        <button
-          type="button"
-          onClick={e => {
-            e.stopPropagation();
-            onChange(Math.max(1, value - 1));
-          }}
-          className="hover:bg-bg-state-soft border-border-default flex h-full items-center justify-center border-r px-4"
-        >
-          <Subtract fill="var(--color-icon-default)" className="h-3 w-3" />
-        </button>
-        <input
-          type="number"
-          value={value}
-          onClick={e => e.stopPropagation()}
-          onChange={e => onChange(Math.max(1, parseInt(e.target.value) || 1))}
-          className="text-text-default flex-1 bg-transparent text-center text-sm font-medium outline-none"
-        />
-        <button
-          type="button"
-          onClick={e => {
-            e.stopPropagation();
-            onChange(value + 1);
-          }}
-          className="hover:bg-bg-state-soft border-border-default flex h-full items-center justify-center border-l px-4"
-        >
-          <AddFill fill="var(--color-icon-default)" className="h-3 w-3" />
-        </button>
+export const StudentCountConfigurator = ({ value, onChange, activeStudents }: StudentCountConfiguratorProps) => {
+  const tier = tierForCount(value);
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge className="bg-bg-subtle text-text-subtle border-border-default h-6 rounded-md px-2 text-xs font-medium">
+          <User3 fill="var(--color-icon-default-muted)" className="h-3 w-3" />
+          {activeStudents.toLocaleString()} students
+        </Badge>
+        <Badge className="bg-bg-subtle text-text-subtle border-border-default h-6 rounded-md px-2 text-xs font-medium">
+          <BuildingFill fill="var(--color-icon-default-muted)" className="h-3 w-3" />
+          Active
+        </Badge>
       </div>
-      <Button
-        type="button"
-        onClick={e => e.stopPropagation()}
-        variant="ghost"
-        className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-10 w-full rounded-md px-3 text-xs font-medium sm:w-auto"
-      >
-        Auto-Fill Active Students
-      </Button>
-    </div>
-    <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default h-5 w-fit rounded-md px-1.5 text-xs font-medium">
-      0 - 200 Students Tier
-    </Badge>
 
-    <div className="bg-bg-badge-blue flex gap-2 rounded-md p-3">
-      <Information fill="var(--color-icon-informative)" className="h-4 w-4 shrink-0" />
-      <p className="text-text-subtle text-xs leading-relaxed">You&apos;re paying for the exact number of active students</p>
+      <label className="text-text-default text-xs font-medium">Number of Students</label>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="bg-bg-subtle border-border-default flex h-10 w-full items-center overflow-hidden rounded-md border sm:max-w-72">
+          <button
+            type="button"
+            onClick={e => {
+              e.stopPropagation();
+              onChange(Math.max(1, value - 1));
+            }}
+            className="hover:bg-bg-state-soft border-border-default flex h-full items-center justify-center border-r px-4"
+          >
+            <Subtract fill="var(--color-icon-default)" className="h-3 w-3" />
+          </button>
+          <input
+            type="number"
+            value={value}
+            onClick={e => e.stopPropagation()}
+            onChange={e => onChange(Math.max(1, parseInt(e.target.value) || 1))}
+            className="text-text-default flex-1 bg-transparent text-center text-sm font-medium outline-none"
+          />
+          <button
+            type="button"
+            onClick={e => {
+              e.stopPropagation();
+              onChange(value + 1);
+            }}
+            className="hover:bg-bg-state-soft border-border-default flex h-full items-center justify-center border-l px-4"
+          >
+            <AddFill fill="var(--color-icon-default)" className="h-3 w-3" />
+          </button>
+        </div>
+        <Button
+          type="button"
+          onClick={e => {
+            e.stopPropagation();
+            if (activeStudents > 0) onChange(activeStudents);
+          }}
+          variant="ghost"
+          className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-10 w-full rounded-md px-2.5! px-3 text-xs font-medium sm:w-auto"
+        >
+          Auto-Fill Active Students
+        </Button>
+      </div>
+      <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default h-5 w-fit rounded-md px-1.5 text-xs font-medium">
+        {tier} Students Tier
+      </Badge>
+
+      <div className="bg-bg-badge-blue flex gap-2 rounded-md p-3">
+        <Information fill="var(--color-icon-informative)" className="h-4 w-4 shrink-0" />
+        <p className="text-text-subtle text-xs leading-relaxed">You&apos;re paying for the exact number of active students</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
