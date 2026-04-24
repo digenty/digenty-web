@@ -73,7 +73,11 @@ export const AllBranchDetailsColumns: ColumnDef<AllBranchesTableProps>[] = [
   {
     accessorKey: "subjectSheet",
     header: () => <div className="text-text-muted text-sm font-medium">Subject Sheet</div>,
-    cell: ({ row }) => <div className="text-text-default text-sm font-medium">{row.original.numberOfClassTeacherSubmitted || 0}/0</div>,
+    cell: ({ row }) => (
+      <div className="text-text-default text-sm font-medium">
+        {row.original.numberOfSubmittedSubjects || 0}/{row.original.numberOfSubjects}
+      </div>
+    ),
     size: 140,
   },
 

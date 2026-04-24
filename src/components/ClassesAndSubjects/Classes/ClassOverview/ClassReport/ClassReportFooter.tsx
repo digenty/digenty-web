@@ -27,7 +27,7 @@ export const ClassReportFooter = ({
   return (
     <div
       ref={footerRef}
-      className="bg-bg-card border-border-default hide-scrollbar fixed bottom-0 hidden w-full items-center overflow-x-auto border-t py-4 md:flex"
+      className="bg-bg-card border-border-default hide-scrollbar fixed bottom-0 z-10 hidden w-full items-center overflow-x-auto border-t py-4 md:flex"
     >
       <div className="bg-bg-card sticky left-0 z-10 flex items-center gap-2 pl-8 md:pl-10">
         <Button

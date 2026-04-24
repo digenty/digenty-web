@@ -82,6 +82,7 @@ export const useRequestEditAccess = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
       queryClient.invalidateQueries({ queryKey: [subjectKeys.mysubjects] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classReport] });
     },
   });
 };

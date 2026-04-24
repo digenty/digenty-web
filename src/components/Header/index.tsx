@@ -45,7 +45,7 @@ export const Header = () => {
           <Notification2 fill="var(--color-icon-default-subtle)" />
         </Button> */}
 
-        <div onClick={() => router.push("/staff/settings/profile")} className="border-border-darker cursor-pointer rounded-full">
+        <div onClick={() => router.push("/staff/profile")} className="border-border-darker cursor-pointer rounded-full">
           <Avatar className="size-8" url={data?.data?.image || undefined} />
         </div>
       </div>
