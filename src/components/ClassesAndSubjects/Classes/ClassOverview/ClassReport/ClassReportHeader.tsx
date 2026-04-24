@@ -133,7 +133,7 @@ export const ClassReportHeader = ({
   }, [activeFilter, isMobile]);
 
   return (
-    <>
+    <div className="w-full overflow-x-auto">
       {openModal && (
         <SubmitClassReportModal open={openModal} onOpenChange={setOpenModal} onConfirm={handleReportSubmission} isLoading={isSubmitting} />
       )}
@@ -192,7 +192,7 @@ export const ClassReportHeader = ({
                 <ShareBox fill="var(--color-icon-default-muted)" /> Export
               </Button>
 
-              {status === "NOT_SUBMITTED" && activeFilter === "spreadsheet" && (
+              {status === "NOT_SUBMITTED" && (
                 <Button
                   onClick={handleOpenModal}
                   size="sm"
@@ -203,7 +203,7 @@ export const ClassReportHeader = ({
                 </Button>
               )}
 
-              {promotionStatus === "NOT_SUBMITTED" && activeFilter === "promotion" && (
+              {/* {promotionStatus === "NOT_SUBMITTED" && activeFilter === "promotion" && (
                 <Button
                   onClick={() => setOpenPromotionModal(true)}
                   size="sm"
@@ -212,7 +212,7 @@ export const ClassReportHeader = ({
                   <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
                   Submit
                 </Button>
-              )}
+              )} */}
 
               {status === "PENDING_APPROVAL" && (
                 <Button
@@ -234,7 +234,7 @@ export const ClassReportHeader = ({
                 </Button>
               )}
 
-              {(status === "APPROVED" || promotionStatus === "APPROVED") && (
+              {status === "APPROVED" && (
                 <Button
                   size="sm"
                   className="border-border-default bg-bg-basic-green-subtle text-bg-basic-green-strong flex h-8 w-auto items-center justify-between gap-1 border text-sm md:flex-auto"
@@ -287,6 +287,6 @@ export const ClassReportHeader = ({
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
