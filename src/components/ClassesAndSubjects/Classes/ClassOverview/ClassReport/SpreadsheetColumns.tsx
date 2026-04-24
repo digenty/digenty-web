@@ -8,24 +8,6 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { usePathname } from "next/navigation";
 import { StudentRow } from "./students";
 
-const RenderViewButon = (row: Row<StudentRow>) => {
-  const pathname = usePathname();
-
-  return (
-    <div>
-      <Button
-        className="text-text-default border-border-default border text-xs"
-        onClick={() => {
-          window.open(`${pathname}?studentId=${row.original.id}`, "_blank", "noopener,noreferrer");
-        }}
-      >
-        View
-        <ShareBox fill="var(--color-icon-default-muted)" className="size-3" />
-      </Button>
-    </div>
-  );
-};
-
 export const createColumns = (data: StudentRow[], term: string): ColumnDef<StudentRow>[] => {
   if (!data.length) return [];
 
@@ -34,6 +16,26 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
   if (!termData) return [];
 
   const subjects = termData.subjects;
+
+  const RenderViewButon = (row: Row<StudentRow>) => {
+    const pathname = usePathname();
+
+    return (
+      <div>
+        <Button
+          className="text-text-default border-border-default border text-xs"
+          onClick={() => {
+            const params = new URLSearchParams(window.location.search);
+            params.set("studentId", String(row.original.id));
+            window.open(`${pathname}?${params.toString()}`, "_blank", "noopener,noreferrer");
+          }}
+        >
+          View
+          <ShareBox fill="var(--color-icon-default-muted)" className="size-3" />
+        </Button>
+      </div>
+    );
+  };
 
   const subjectColumns: ColumnDef<StudentRow>[] = subjects.map((subject, index) => ({
     id: `subject-${index}`,

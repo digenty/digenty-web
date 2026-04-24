@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 
 import { DataTable } from "@/components/DataTable";
 import { StudentResult } from "@/components/StudentResult";
@@ -20,7 +20,7 @@ import { StudentCumulative, Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ClassPermissionWrapper } from "../../ClassPermissionWrapper";
 import { ClassReportFooter } from "./ClassReportFooter";
 import { ClassReportHeader } from "./ClassReportHeader";
@@ -82,6 +82,7 @@ type ClassArmStudentReport = {
 
 export const ClassReport = () => {
   const path = usePathname();
+  const router = useRouter();
   const params = useSearchParams();
   const armId = path.split("/")[5];
   const { branchIds } = useLoggedInUser();
@@ -106,6 +107,27 @@ export const ClassReport = () => {
     }[]
   >([]);
   const pageSize = 100;
+
+  const studentIdParam = params.get("studentId");
+
+  useEffect(() => {
+    if (studentIdParam) {
+      setActiveFilter(studentIdParam);
+    } else if (activeFilter !== "spreadsheet" && activeFilter !== "promotion") {
+      setActiveFilter("spreadsheet");
+    }
+  }, [studentIdParam]);
+
+  const handleSetActiveFilter = (filter: string) => {
+    setActiveFilter(filter);
+    const newParams = new URLSearchParams(params.toString());
+    if (filter !== "spreadsheet" && filter !== "promotion") {
+      newParams.set("studentId", filter);
+    } else {
+      newParams.delete("studentId");
+    }
+    router.push(`${path}?${newParams.toString()}`);
+  };
 
   useBreadcrumb([
     { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
@@ -223,7 +245,7 @@ export const ClassReport = () => {
         <ClassReportHeader
           students={transformedStudents}
           activeFilter={activeFilter}
-          setActiveFilter={setActiveFilter}
+          setActiveFilter={handleSetActiveFilter}
           termSelected={termSelected}
           setTermSelected={setTermSelected}
           activeSession={activeSession}
@@ -232,6 +254,7 @@ export const ClassReport = () => {
           onExport={handleExport}
           classArmReportId={classReportData?.data?.classArmReportId}
           status={activeFilter === "spreadsheet" ? classReportData?.data?.status : ""}
+          promotionStatus={activeFilter === "promotion" ? classCumulativeReportData?.data?.status : ""}
           decisions={decisions}
         />
 
@@ -338,7 +361,12 @@ export const ClassReport = () => {
             </div>
 
             {!isMobile && (
-              <ClassReportFooter students={transformedStudents} activeFilter={activeFilter} setActiveFilter={setActiveFilter} footerRef={footerRef} />
+              <ClassReportFooter
+                students={transformedStudents}
+                activeFilter={activeFilter}
+                setActiveFilter={handleSetActiveFilter}
+                footerRef={footerRef}
+              />
             )}
 
             {!isMobile && (

@@ -33,7 +33,6 @@ export const ClassTable = ({
   const [page, setPage] = useState(1);
   const [action, setAction] = useState(false);
 
-  console.log(isError, isLoading, classData, "###");
   return (
     <div className="px-4 py-3 md:px-8">
       {isError && (

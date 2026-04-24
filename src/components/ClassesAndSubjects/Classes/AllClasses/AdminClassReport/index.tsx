@@ -4,8 +4,8 @@ import { useGetClassReport } from "@/hooks/queryHooks/useClass";
 import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { StudentRow } from "../../ClassOverview/ClassReport/students";
 import { ReportHeader } from "./ReportHeader";
 
@@ -65,6 +65,7 @@ type ClassArmStudentReport = {
 
 const ClassReport = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const armId = pathname.split("/")[6];
   const params = useSearchParams();
   const classArmName = params.get("classArmName")?.replaceAll("-", " ") || "";
@@ -77,6 +78,27 @@ const ClassReport = () => {
   const [activeFilter, setActiveFilter] = useState("spreadsheet");
   const [activeStudentId, setActiveStudentId] = useState<number>();
   const pageSize = 100;
+
+  const studentIdParam = params.get("studentId");
+
+  useEffect(() => {
+    if (studentIdParam) {
+      setActiveFilter(studentIdParam);
+    } else if (activeFilter !== "spreadsheet" && activeFilter !== "promotion") {
+      setActiveFilter("spreadsheet");
+    }
+  }, [studentIdParam]);
+
+  const handleSetActiveFilter = (filter: string) => {
+    setActiveFilter(filter);
+    const newParams = new URLSearchParams(params.toString());
+    if (filter !== "spreadsheet" && filter !== "promotion") {
+      newParams.set("studentId", filter);
+    } else {
+      newParams.delete("studentId");
+    }
+    router.push(`${pathname}?${newParams.toString()}`);
+  };
 
   const {
     data: classReportData,
@@ -182,7 +204,7 @@ const ClassReport = () => {
         onExport={handleExport}
         classArmName={classArmName}
         activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
+        setActiveFilter={handleSetActiveFilter}
         students={transformedStudents}
         classArmReportId={classArmReportId}
         reportStatus={classReportData?.data?.status}
@@ -272,7 +294,7 @@ const ClassReport = () => {
               <ClassReportFooter
                 students={transformedStudents}
                 activeFilter={activeFilter}
-                setActiveFilter={setActiveFilter}
+                setActiveFilter={handleSetActiveFilter}
                 footerRef={footerRef}
                 type="admin"
               />

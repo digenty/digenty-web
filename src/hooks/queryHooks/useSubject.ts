@@ -55,7 +55,7 @@ export const useGetSubjectStudents = (subjectId: number, amrId: number) => {
 
 export const useGetBranchTeachersClassSubjects = (armId: number) => {
   return useQuery({
-    queryKey: [subjectKeys.mysubjects],
+    queryKey: [subjectKeys.mysubjects, armId],
     queryFn: () => getBranchTeachersClassSubjects(armId),
     enabled: !!armId,
   });

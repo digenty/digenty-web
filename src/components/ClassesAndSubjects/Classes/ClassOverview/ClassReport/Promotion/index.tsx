@@ -76,7 +76,7 @@ export const Promotion = ({
             <span>Selected Student{selectedRows.length !== 1 && "s"}</span>
           </div>
 
-          {isSubjectCombination && (
+          {/* {isSubjectCombination && (
             <Button
               className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
               onClick={() => {
@@ -87,9 +87,9 @@ export const Promotion = ({
               <UserSetting fill="var(--color-icon-default-subtle)" />
               <span>Set Decision</span>
             </Button>
-          )}
+          )} */}
 
-          {(promotionType === "MANUAL" || promotionType === "BY_PERFORMANCE") && (
+          {(isSubjectCombination || promotionType === "MANUAL" || promotionType === "BY_PERFORMANCE") && (
             <Button
               className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
               onClick={() => {

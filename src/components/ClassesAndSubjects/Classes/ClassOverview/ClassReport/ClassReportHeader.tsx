@@ -11,7 +11,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { StudentRow } from "./students";
 import { SubmitClassReportModal } from "./SubmitClassReportModal";
 import { SubmitPromotionModal } from "./SubmitPromotionModal";
@@ -34,6 +34,7 @@ export const ClassReportHeader = ({
   classArmReportId,
   status,
   decisions,
+  promotionStatus,
 }: {
   students: StudentRow[];
   activeFilter: string;
@@ -47,6 +48,7 @@ export const ClassReportHeader = ({
   classArmReportId?: number;
   status?: string;
   decisions: Decision[];
+  promotionStatus?: string;
 }) => {
   const path = usePathname();
   const armId = path.split("/")[5];
@@ -122,6 +124,14 @@ export const ClassReportHeader = ({
     });
   };
 
+  const activeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (isMobile && activeFilter !== "spreadsheet" && activeFilter !== "promotion" && activeRef.current) {
+      activeRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, [activeFilter, isMobile]);
+
   return (
     <>
       {openModal && (
@@ -193,7 +203,7 @@ export const ClassReportHeader = ({
                 </Button>
               )}
 
-              {activeFilter === "promotion" && (
+              {promotionStatus === "NOT_SUBMITTED" && activeFilter === "promotion" && (
                 <Button
                   onClick={() => setOpenPromotionModal(true)}
                   size="sm"
@@ -224,7 +234,7 @@ export const ClassReportHeader = ({
                 </Button>
               )}
 
-              {status === "APPROVED" && (
+              {(status === "APPROVED" || promotionStatus === "APPROVED") && (
                 <Button
                   size="sm"
                   className="border-border-default bg-bg-basic-green-subtle text-bg-basic-green-strong flex h-8 w-auto items-center justify-between gap-1 border text-sm md:flex-auto"
@@ -236,38 +246,43 @@ export const ClassReportHeader = ({
           </div>
 
           {isMobile && (
-            <div className="border-border-default hide-scrollbar flex w-screen gap-2 overflow-x-auto border-t px-4 py-2">
-              <Button
-                onClick={() => setActiveFilter("spreadsheet")}
-                className={cn(
-                  "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
-                  activeFilter === "spreadsheet" && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
-                )}
-              >
-                Spreadsheet
-              </Button>
-              <Button
-                onClick={() => setActiveFilter("promotion")}
-                className={cn(
-                  "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
-                  activeFilter === "promotion" && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
-                )}
-              >
-                Promotion
-              </Button>
-
-              {students.map(student => (
+            <div className="border-border-default hide-scrollbar flex w-screen overflow-x-auto border-t py-2">
+              <div className="bg-bg-card sticky left-0 z-10 flex gap-2 px-4">
                 <Button
-                  onClick={() => setActiveFilter(student.id.toString())}
-                  key={student.id}
+                  onClick={() => setActiveFilter("spreadsheet")}
                   className={cn(
                     "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
-                    activeFilter === student.id.toString() && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
+                    activeFilter === "spreadsheet" && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
                   )}
                 >
-                  {student.name}
+                  Spreadsheet
                 </Button>
-              ))}
+                <Button
+                  onClick={() => setActiveFilter("promotion")}
+                  className={cn(
+                    "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
+                    activeFilter === "promotion" && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
+                  )}
+                >
+                  Promotion
+                </Button>
+              </div>
+
+              <div className="flex gap-2 pr-4">
+                {students.map(student => (
+                  <Button
+                    ref={activeFilter === student.id.toString() ? activeRef : null}
+                    onClick={() => setActiveFilter(student.id.toString())}
+                    key={student.id}
+                    className={cn(
+                      "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
+                      activeFilter === student.id.toString() && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
+                    )}
+                  >
+                    {student.name}
+                  </Button>
+                ))}
+              </div>
             </div>
           )}
         </div>

@@ -150,7 +150,7 @@ export const PromotionDecisionModal = ({ open, onOpenChange, selectedStudents, s
       <Button
         variant="outline"
         onClick={() => onOpenChange(false)}
-        className="bg-bg-state-secondary border-border-darker text-text-default h-7! px-4 text-sm font-medium"
+        className="bg-bg-state-secondary border-border-darker text-text-default! h-7! px-4 text-sm font-medium"
       >
         Cancel
       </Button>

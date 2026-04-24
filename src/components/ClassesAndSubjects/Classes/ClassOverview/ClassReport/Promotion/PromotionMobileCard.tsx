@@ -5,6 +5,8 @@ import ArrowUp from "@/components/Icons/ArrowUp";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import React, { Dispatch, SetStateAction, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import ShareBox from "@/components/Icons/ShareBox";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -28,6 +30,10 @@ export const PromotionMobileCard = ({
   setDecisions: Dispatch<SetStateAction<Decision[]>>;
   resultSettings: ResultSettings;
 }) => {
+  const pathname = usePathname();
+  const router = useRouter();
+  const params = useSearchParams();
+
   const [showDecisionModal, setShowDecisionModal] = useState(false);
 
   const decision = decisions.find(d => d.studentId === student.studentId);
@@ -37,6 +43,12 @@ export const PromotionMobileCard = ({
   const cumulativePercentage = (student.firstTermPercentage + student.secondTermPercentage + student.thirdTermPercentage) / 3;
   const toggleCard = () => {
     setActiveStudent(prev => (prev === student.studentId ? undefined : student.studentId));
+  };
+
+  const handleViewReport = () => {
+    const newParams = new URLSearchParams(params.toString());
+    newParams.set("studentId", String(student.studentId));
+    window.open(`${pathname}?${newParams.toString()}`, "_blank", "noopener,noreferrer");
   };
 
   const getButtonText = () => {
@@ -128,6 +140,16 @@ export const PromotionMobileCard = ({
           >
             {getButtonText()}
             <ChevronDown className="text-text-muted" />
+          </Button>
+        </div>
+
+        <div className="flex h-[46px] items-center justify-center px-3 py-1 text-center">
+          <Button
+            className="border-border-darker bg-bg-state-secondary! text-text-default h-8! w-full justify-between border px-4 font-normal"
+            onClick={handleViewReport}
+          >
+            View Student Report
+            <ShareBox fill="var(--color-icon-default-muted)" className="size-3" />
           </Button>
         </div>
       </div>
