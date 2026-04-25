@@ -1,17 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckDouble } from "@/components/Icons/CheckDouble";
+import BankCard from "@/components/Icons/BankCard";
 import { cn } from "@/lib/utils";
 import { ComparisonTable } from "./ComparisonTable";
-import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, STUDENT_TIER_RANGES, StudentTier, SubscriptionView } from "./type";
+import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, STUDENT_TIER_RANGES, StudentTier } from "./type";
 import { useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
 import { PlanResponseDto } from "@/api/subscription";
 
 interface PlansViewProps {
-  onViewChange: (view: SubscriptionView) => void;
+  showNoSubscriptionBanner?: boolean;
 }
 
 const TIERS: StudentTier[] = ["1-200", "201-400", "401+"];
@@ -21,6 +23,19 @@ const tierMatchesPlan = (tier: StudentTier, plan: PlanResponseDto) => {
   const range = STUDENT_TIER_RANGES[tier];
   return plan.maxStudentCount >= range.min && plan.minStudentCount <= range.max;
 };
+
+const buildSubscribeHref = (planName: string, cycle: BillingCycle) =>
+  `/staff/settings/subscription/subscribe?plan=${encodeURIComponent(planName)}&cycle=${encodeURIComponent(cycle)}`;
+
+const NoSubscriptionBanner = () => (
+  <div className="bg-bg-badge-blue flex items-start gap-3 rounded-lg p-4">
+    <BankCard fill="var(--color-icon-informative)" className="mt-0.5 h-5 w-5 shrink-0" />
+    <div className="flex flex-col gap-1">
+      <p className="text-text-default text-sm font-semibold">You do not have an active subscription plan</p>
+      <p className="text-text-subtle text-xs">To continue, select a subscription plan and get the full benefit of digenty</p>
+    </div>
+  </div>
+);
 
 const StudentTierTabs = ({ value, onChange }: { value: StudentTier; onChange: (v: StudentTier) => void }) => (
   <div className="bg-bg-state-soft flex w-full max-w-full items-center gap-1 overflow-x-auto rounded-full p-0.5 sm:w-auto">
@@ -68,12 +83,12 @@ const PlanCardSkeleton = () => (
   </div>
 );
 
-export const PlansView = ({ onViewChange }: PlansViewProps) => {
+export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
+  const router = useRouter();
   const [studentTier, setStudentTier] = useState<StudentTier>("1-200");
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("Termly");
 
   const { data: plans, isLoading } = useGetPlans();
-  console.log(plans);
   const { data: currentSubscription } = useGetCurrentSubscription();
 
   const filteredPlans = useMemo(() => {
@@ -94,8 +109,12 @@ export const PlansView = ({ onViewChange }: PlansViewProps) => {
   const standardPrice = filteredPlans.find(p => p.name.toLowerCase().includes("standard"))?.pricePerStudent;
   const advancedPrice = filteredPlans.find(p => p.name.toLowerCase().includes("advanced"))?.pricePerStudent;
 
+  const goToSubscribe = (planName: string) => router.push(buildSubscribeHref(planName, billingCycle));
+
   return (
-    <div className="flex flex-col gap-8 md:gap-12">
+    <div className="flex flex-col gap-4 md:gap-12">
+      {showNoSubscriptionBanner && <NoSubscriptionBanner />}
+
       <div className="flex items-center justify-between">
         <h2 className="text-text-default text-lg font-semibold sm:text-xl">Subscription</h2>
       </div>
@@ -134,7 +153,7 @@ export const PlansView = ({ onViewChange }: PlansViewProps) => {
                     <span className="text-text-muted text-xs">per student</span>
                   </div>
                   <Button
-                    onClick={() => onViewChange("subscribe")}
+                    onClick={() => goToSubscribe(plan.name)}
                     className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 w-full rounded-md text-sm font-medium"
                   >
                     Subscribe
@@ -165,7 +184,7 @@ export const PlansView = ({ onViewChange }: PlansViewProps) => {
         <div className="self-start">
           <BillingCycleTabs value={billingCycle} onChange={setBillingCycle} />
         </div>
-        <ComparisonTable standardPrice={standardPrice} advancedPrice={advancedPrice} onSubscribe={() => onViewChange("subscribe")} />
+        <ComparisonTable standardPrice={standardPrice} advancedPrice={advancedPrice} onSubscribe={() => goToSubscribe("Standard")} />
       </div>
     </div>
   );

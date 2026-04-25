@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,12 +11,8 @@ import { User3 } from "@/components/Icons/User3";
 import { BuildingFill } from "@/components/Icons/BuildingFill";
 import Information from "@/components/Icons/Information";
 import { OrderSummary } from "./OrderSummary";
-import { STUDENT_TIER_RANGES, SubscriptionView } from "./type";
+import { STUDENT_TIER_RANGES } from "./type";
 import { useCreateSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
-
-interface AddStudentsFormProps {
-  onViewChange: (view: SubscriptionView) => void;
-}
 
 const REFERRAL_BALANCE = 0;
 
@@ -26,7 +23,8 @@ const tierForCount = (count: number) => {
   return "1-200";
 };
 
-export const AddStudentsForm = ({ onViewChange }: AddStudentsFormProps) => {
+export const AddStudentsForm = () => {
+  const router = useRouter();
   const { data: subscription, isLoading: isLoadingSubscription } = useGetCurrentSubscription();
   const { data: plans } = useGetPlans();
   const { mutate: createSubscription, isPending } = useCreateSubscription();
@@ -61,7 +59,7 @@ export const AddStudentsForm = ({ onViewChange }: AddStudentsFormProps) => {
       {
         onSuccess: () => {
           toast.success("Students added to your plan");
-          onViewChange("dashboard");
+          router.push("/staff/settings/subscription");
         },
         onError: (error: unknown) => {
           const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;

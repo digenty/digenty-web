@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { AddFill } from "@/components/Icons/AddFill";
 import Eye from "@/components/Icons/Eye";
 import Download2 from "@/components/Icons/Download2";
 import { paymentStatus } from "@/components/Status";
-import { BillingHistoryRow, billingStatusLabel, subscriptionStatusLabel, SubscriptionView } from "./type";
+import { BillingHistoryRow, billingStatusLabel, subscriptionStatusLabel } from "./type";
 import Group from "@/components/Icons/Group";
 import { VipDiamond } from "@/components/Icons/VipDiamond";
 import ListCheck from "@/components/Icons/ListCheck";
@@ -57,10 +58,6 @@ const BillingHistoryMobileCard = ({ row }: { row: BillingHistoryRow }) => (
   </div>
 );
 
-interface SubscriptionDashboardProps {
-  onViewChange: (view: SubscriptionView) => void;
-}
-
 const billingColumns: ColumnDef<BillingHistoryRow>[] = [
   {
     accessorKey: "period",
@@ -98,7 +95,7 @@ const billingColumns: ColumnDef<BillingHistoryRow>[] = [
   },
 ];
 
-export const SubscriptionDashboard = ({ onViewChange }: SubscriptionDashboardProps) => {
+export const SubscriptionDashboard = () => {
   const [page, setPage] = useState(1);
 
   const { data: subscription, isLoading: isLoadingSubscription } = useGetCurrentSubscription();
@@ -115,12 +112,14 @@ export const SubscriptionDashboard = ({ onViewChange }: SubscriptionDashboardPro
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-text-default text-lg font-semibold sm:text-xl">Subscription</h2>
         <Button
+          asChild
           variant="ghost"
-          onClick={() => onViewChange("plans")}
           className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-8 shrink-0 rounded-md px-2.5! text-sm font-medium"
         >
-          <ListCheck fill="var(--color-icon-default-muted)" className="size-3" />
-          See All Plans
+          <Link href="/staff/settings/subscription/plans">
+            <ListCheck fill="var(--color-icon-default-muted)" className="size-3" />
+            See All Plans
+          </Link>
         </Button>
       </div>
 
@@ -131,69 +130,63 @@ export const SubscriptionDashboard = ({ onViewChange }: SubscriptionDashboardPro
             <div className="bg-bg-state-soft h-3 w-40 animate-pulse rounded" />
             <div className="bg-bg-state-soft h-1 w-full animate-pulse rounded-full" />
           </div>
-        ) : subscription ? (
-          <>
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between">
-                <p className="text-text-default text-xs font-medium">Main Campus</p>
-                <Badge
-                  className={cn(
-                    "border-border-default h-5 rounded-md px-1.5 text-xs font-medium",
-                    STATUS_BADGE_CLASS[subscription.status] ?? STATUS_BADGE_CLASS.PENDING,
-                  )}
-                >
-                  {subscriptionStatusLabel[subscription.status] ?? subscription.status}
-                </Badge>
-              </div>
-              <p className="text-text-muted text-xs">{subscription.planName} Plan</p>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Group fill="var(--color-icon-default-muted)" className="h-4 w-4" />
-                  <span className="text-text-default text-sm font-medium">Student Capacity</span>
-                </div>
-                <span className="text-text-muted text-sm">
-                  {studentCapacityUsed} / {studentCapacityTotal}
-                </span>
-              </div>
-              <div className="bg-bg-basic-gray-alpha-10 h-1 w-full overflow-hidden rounded-full">
-                <div className="bg-bg-basic-emerald-accent h-full rounded-full" style={{ width: `${percentUsed}%` }} />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => onViewChange("add-students")}
-                className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-7 flex-1 rounded-md text-xs font-medium"
-              >
-                <AddFill fill="var(--color-icon-default-subtle)" className="size-3" />
-                Add Students
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => onViewChange("upgrade")}
-                className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 flex-1 rounded-md text-xs font-medium"
-              >
-                <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
-                Upgrade Plan
-              </Button>
-            </div>
-          </>
         ) : (
-          <div className="flex flex-col gap-3">
-            <p className="text-text-muted text-xs">No active subscription</p>
-            <Button
-              variant="ghost"
-              onClick={() => onViewChange("plans")}
-              className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 rounded-md text-xs font-medium"
-            >
-              <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
-              Choose a Plan
-            </Button>
-          </div>
+          subscription && (
+            <>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <p className="text-text-default text-xs font-medium">Main Campus</p>
+                  <Badge
+                    className={cn(
+                      "border-border-default h-5 rounded-md px-1.5 text-xs font-medium",
+                      STATUS_BADGE_CLASS[subscription.status] ?? STATUS_BADGE_CLASS.PENDING,
+                    )}
+                  >
+                    {subscriptionStatusLabel[subscription.status] ?? subscription.status}
+                  </Badge>
+                </div>
+                <p className="text-text-muted text-xs">{subscription.planName} Plan</p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Group fill="var(--color-icon-default-muted)" className="h-4 w-4" />
+                    <span className="text-text-default text-sm font-medium">Student Capacity</span>
+                  </div>
+                  <span className="text-text-muted text-sm">
+                    {studentCapacityUsed} / {studentCapacityTotal}
+                  </span>
+                </div>
+                <div className="bg-bg-basic-gray-alpha-10 h-1 w-full overflow-hidden rounded-full">
+                  <div className="bg-bg-basic-emerald-accent h-full rounded-full" style={{ width: `${percentUsed}%` }} />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-7 flex-1 rounded-md text-xs font-medium"
+                >
+                  <Link href="/staff/settings/subscription/add-students">
+                    <AddFill fill="var(--color-icon-default-subtle)" className="size-3" />
+                    Add Students
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 flex-1 rounded-md text-xs font-medium"
+                >
+                  <Link href="/staff/settings/subscription/upgrade">
+                    <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
+                    Upgrade Plan
+                  </Link>
+                </Button>
+              </div>
+            </>
+          )
         )}
       </div>
 
