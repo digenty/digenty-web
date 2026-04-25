@@ -1,7 +1,5 @@
 import { BillingStatus, PlanType, SubscriptionStatus } from "@/api/subscription";
 
-export type SubscriptionView = "dashboard" | "plans" | "upgrade" | "subscribe" | "add-students";
-
 export type BillingCycle = "Termly" | "Yearly";
 
 export type StudentTier = "1-200" | "201-400" | "401+";

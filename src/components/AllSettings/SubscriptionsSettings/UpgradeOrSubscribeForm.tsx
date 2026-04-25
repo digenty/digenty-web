@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,14 +12,15 @@ import { Subtract } from "@/components/Icons/Subtract";
 import { User3 } from "@/components/Icons/User3";
 import { BuildingFill } from "@/components/Icons/BuildingFill";
 import { OrderSummary } from "./OrderSummary";
-import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, STUDENT_TIER_RANGES, SubscriptionView } from "./type";
+import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, STUDENT_TIER_RANGES } from "./type";
 import { useCreateSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
 import { PlanResponseDto } from "@/api/subscription";
 
 interface UpgradeOrSubscribeFormProps {
   isUpgrade?: boolean;
-  onViewChange: (view: SubscriptionView) => void;
 }
+
+const isBillingCycle = (value: string | null): value is BillingCycle => value === "Termly" || value === "Yearly";
 
 const CYCLES: BillingCycle[] = ["Termly", "Yearly"];
 
@@ -49,13 +51,18 @@ const tierForCount = (count: number) => {
   return "1-200";
 };
 
-export const UpgradeOrSubscribeForm = ({ isUpgrade, onViewChange }: UpgradeOrSubscribeFormProps) => {
+export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProps) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const cycleParam = searchParams.get("cycle");
+  const planParam = searchParams.get("plan");
+
   const { data: plans, isLoading: isLoadingPlans } = useGetPlans();
   const { data: currentSubscription } = useGetCurrentSubscription();
   const { mutate: createSubscription, isPending } = useCreateSubscription();
 
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>("Termly");
-  const [selectedPlanName, setSelectedPlanName] = useState<string | null>(null);
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>(isBillingCycle(cycleParam) ? cycleParam : "Termly");
+  const [selectedPlanName, setSelectedPlanName] = useState<string | null>(planParam);
   const [studentCount, setStudentCount] = useState(1);
   const [useReferral, setUseReferral] = useState(false);
 
@@ -107,7 +114,7 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade, onViewChange }: UpgradeOrSub
       {
         onSuccess: () => {
           toast.success(isUpgrade ? "Plan upgrade initiated" : "Subscription created successfully");
-          onViewChange("dashboard");
+          router.push("/staff/settings/subscription");
         },
         onError: (error: unknown) => {
           const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
@@ -222,34 +229,37 @@ interface PlanRadioProps {
   children?: React.ReactNode;
 }
 
-const PlanRadio = ({ name, price, selected, onSelect, featureSummary, children }: PlanRadioProps) => (
-  <div
-    onClick={onSelect}
-    className={cn(
-      "flex cursor-pointer flex-col gap-4 rounded-xl border p-4 transition-colors",
-      selected ? "border-border-informative ring-1 ring-[var(--color-border-informative)]" : "border-border-default bg-bg-default",
-    )}
-  >
-    <div className="flex flex-wrap items-center justify-between gap-2">
-      <div className="flex items-center gap-3">
-        <span
-          className={cn(
-            "flex size-4 shrink-0 items-center justify-center rounded-full border-2",
-            selected ? "border-border-informative" : "border-border-strong",
-          )}
-        >
-          {selected && <span className="bg-bg-state-primary size-2 rounded-full" />}
+const PlanRadio = ({ name, price, selected, onSelect, featureSummary, children }: PlanRadioProps) => {
+  console.log(name);
+  return (
+    <div
+      onClick={onSelect}
+      className={cn(
+        "flex cursor-pointer flex-col gap-4 rounded-xl border p-4 transition-colors",
+        selected ? "border-border-informative ring-1 ring-[var(--color-border-informative)]" : "border-border-default bg-bg-default",
+      )}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <span
+            className={cn(
+              "flex size-4 shrink-0 items-center justify-center rounded-full border-2",
+              selected ? "border-border-informative" : "border-border-strong",
+            )}
+          >
+            {selected && <span className="bg-bg-state-primary size-2 rounded-full" />}
+          </span>
+          <span className="text-text-default text-sm font-medium">{name} Plan</span>
+        </div>
+        <span className="text-text-default text-sm font-medium">
+          ₦{price.toLocaleString()} <span className="text-text-muted text-xs font-normal">per student</span>
         </span>
-        <span className="text-text-default text-sm font-medium">{name} Plan</span>
       </div>
-      <span className="text-text-default text-sm font-medium">
-        ₦{price.toLocaleString()} <span className="text-text-muted text-xs font-normal">per student</span>
-      </span>
+      {featureSummary && <p className="text-text-subtle text-xs">{featureSummary}</p>}
+      {name !== "FREEMIUM" && selected && children}
     </div>
-    {featureSummary && <p className="text-text-subtle text-xs">{featureSummary}</p>}
-    {selected && children}
-  </div>
-);
+  );
+};
 
 interface StudentCountConfiguratorProps {
   value: number;
