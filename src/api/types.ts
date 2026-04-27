@@ -641,6 +641,7 @@ export interface ResultCalculationPayload {
   minimumPassGrade: string;
   requiredSubjectIds: number[];
 }
+
 export interface UpdateResultCalculationPayload {
   calculationMethod: "THIRD_TERM_ONLY" | "CUMULATIVE";
   promotionType: "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE";
@@ -700,10 +701,14 @@ export interface StudentCumulative {
   secondTermPercentage: number;
   thirdTermPercentage: number;
   cumulativePercentage: number;
+  suggestion?: "PROMOTE" | "REPEAT";
+  decision?: string;
 }
 
 export interface CumulativeReport {
   studentCumulative: StudentCumulative[];
+  status: "APPROVED" | "NOT_SUBMITTED" | "PENDING_APPROVAL" | "EDIT_REQUEST";
+  levelId: number;
 }
 
 export interface PromotionBySubjectStudent {
@@ -871,4 +876,13 @@ export interface AssignedArm {
   departmentId: number;
   branchId: number;
   schoolId: number;
+}
+export interface UpdatePrincipaleCommentPayload {
+  levelId: number;
+  rows: {
+    commentId: number;
+    minPercentage: number;
+    maxPercentage: number;
+    comment: string;
+  }[];
 }

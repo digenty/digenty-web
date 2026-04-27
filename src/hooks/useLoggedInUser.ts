@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export const useLoggedInUser = () => {
   const [currentUser, setCurrentUser] = useState<JWTPayload>();
+  const [isUserLoading, setIsUserLoading] = useState(true);
 
   const getLoggedInUser = async () => {
     try {
@@ -19,6 +20,8 @@ export const useLoggedInUser = () => {
       }
     } catch (error) {
       console.warn(error);
+    } finally {
+      setIsUserLoading(false);
     }
   };
 
@@ -29,5 +32,6 @@ export const useLoggedInUser = () => {
 
   return {
     ...currentUser,
+    isUserLoading,
   };
 };

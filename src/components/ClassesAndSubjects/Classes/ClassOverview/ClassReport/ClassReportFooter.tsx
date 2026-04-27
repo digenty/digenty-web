@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { StudentRow } from "./students";
+import { Term } from "@/api/types";
 
 export const ClassReportFooter = ({
   students,
@@ -9,12 +10,14 @@ export const ClassReportFooter = ({
   setActiveFilter,
   footerRef,
   type = "teacher",
+  termSelected,
 }: {
   students: StudentRow[];
   activeFilter: string;
   setActiveFilter: (filter: string) => void;
   footerRef: React.RefObject<HTMLDivElement | null>;
   type?: "admin" | "teacher";
+  termSelected: Term | null;
 }) => {
   const activeRef = useRef<HTMLButtonElement>(null);
 
@@ -39,8 +42,8 @@ export const ClassReportFooter = ({
         >
           Spreadsheet
         </Button>
-        {type === "teacher" && <div className="border-border-default h-7 border-r" />}
-        {type === "teacher" && (
+        {type === "teacher" && termSelected?.term === "THIRD" && <div className="border-border-default h-7 border-r" />}
+        {type === "teacher" && termSelected?.term === "THIRD" && (
           <Button
             onClick={() => setActiveFilter("promotion")}
             className={cn(

@@ -19,23 +19,24 @@ export interface LevelRowsState {
 export type CalculationMethod = "THIRD_TERM_ONLY" | "CUMULATIVE";
 export type PromotionType = "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE" | "SUBJECT_COMBINATION";
 
-export interface LevelFormState {
-  calculationMethod: CalculationMethod | null;
-  promotionType: PromotionType | null;
-  minimumOverallPercentage: string;
-  subjectCombinationMinPercentage: string;
-  minimumPassGrade: string;
-  requiredSubjectIds: number[];
-}
-
+// types.ts
 export const defaultFormState = (): LevelFormState => ({
-  calculationMethod: null,
-  promotionType: null,
+  calculationMethod: undefined,
+  promotionType: undefined,
   minimumOverallPercentage: "",
-  subjectCombinationMinPercentage: "",
   minimumPassGrade: "",
-  requiredSubjectIds: [],
+  requiredSubjectIds: {},
+  subjectCombinationMinPercentage: "",
 });
+
+export interface LevelFormState {
+  calculationMethod: "THIRD_TERM_ONLY" | "CUMULATIVE" | undefined;
+  promotionType: PromotionType | undefined;
+  minimumOverallPercentage: string;
+  minimumPassGrade: string;
+  requiredSubjectIds: Record<number, number[]> | number[];
+  subjectCombinationMinPercentage: string;
+}
 export interface LevelFormProps {
   levelType: LevelType;
   levelId: number;

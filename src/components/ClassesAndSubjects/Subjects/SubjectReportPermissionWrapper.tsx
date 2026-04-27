@@ -13,28 +13,26 @@ export const SubjectReportPermissionWrapper = ({
   isLoading: boolean;
   type: "view" | "edit";
 }) => {
-  const user = useLoggedInUser();
-  const userExists = user && Object.keys(user).length > 0;
-  const adminEditAccess = userExists && user.isMain && type === "edit";
-  const adminViewAccess = userExists && (user.isMain || user.isAdmin) && type === "view";
-  const hasSubjectAccess = userExists && user.subjectIds?.includes(Number(subjectId));
+  const { isUserLoading, ...user } = useLoggedInUser();
+  const adminEditAccess = user.isMain && type === "edit";
+  const adminViewAccess = (user.isMain || user.isAdmin) && type === "view";
+  const hasSubjectAccess = user.subjectIds?.includes(Number(subjectId));
 
   return (
     <>
-      {!userExists && (
+      {isUserLoading && (
         <div className="flex items-center justify-center p-4 md:px-8 md:py-4">
           <Skeleton className="bg-bg-input-soft h-screen w-full" />
         </div>
       )}
 
-      {/* {userExists && !hasSubjectAccess && adminEditAccess && !isLoading && ( */}
-      {userExists && !hasSubjectAccess && adminEditAccess && !isLoading && (
+      {!isUserLoading && !hasSubjectAccess && adminEditAccess && !isLoading && (
         <div className="flex h-80 items-center justify-center pt-15">
           <PageEmptyState title="Unauthorized" description="You are not authorized to view this page" buttonText="Go to Home page" url="/staff/" />
         </div>
       )}
 
-      {userExists && (hasSubjectAccess || adminViewAccess) && children}
+      {!isUserLoading && (hasSubjectAccess || adminViewAccess) && children}
     </>
   );
 };

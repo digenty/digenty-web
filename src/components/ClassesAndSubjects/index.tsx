@@ -34,7 +34,7 @@ const ClassesAndSubjects = () => {
   const hasClasses = classes.length > 0;
   const hasSubjects = subjectList.length > 0;
   const showTabs = hasClasses && hasSubjects;
-  const user = useLoggedInUser();
+  const { isUserLoading, ...user } = useLoggedInUser();
 
   useEffect(() => {
     setBreadcrumbs([
@@ -46,9 +46,7 @@ const ClassesAndSubjects = () => {
     ]);
   }, [activeTab, showTabs, hasSubjects, setBreadcrumbs]);
 
-  const userExists = user && Object.keys(user).length > 0;
-
-  if (isLoading || !userExists) {
+  if (isLoading || isUserLoading) {
     return (
       <ClassesAndSubjectsPermissionWrapper isLoading={true}>
         <div className="flex flex-col gap-4 px-4 py-4 md:px-8">

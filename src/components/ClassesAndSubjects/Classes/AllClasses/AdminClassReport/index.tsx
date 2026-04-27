@@ -61,6 +61,8 @@ type ClassArmStudentReport = {
   total: number;
   position: number;
   percentage: number;
+  suggestion?: string;
+  decision?: string;
 };
 
 const ClassReport = () => {
@@ -122,6 +124,7 @@ const ClassReport = () => {
       serial: index + 1,
       name: student.studentName,
       avatar: "/staff/avatar.png",
+      decision: student.decision,
       terms: [
         {
           term: termSelected?.term ?? "FIRST",
@@ -247,7 +250,7 @@ const ClassReport = () => {
                     <Skeleton className="bg-bg-input-soft h-100 w-full" />
                   ) : (
                     <DataTable
-                      columns={createColumns(transformedStudents, termSelected?.term ?? "")}
+                      columns={createColumns(transformedStudents, termSelected?.term ?? "", termSelected?.term === "THIRD")}
                       data={transformedStudents}
                       totalCount={transformedStudents.length}
                       page={page}
@@ -270,7 +273,7 @@ const ClassReport = () => {
               {activeFilter !== "spreadsheet" && (
                 <div>
                   {isErrorStudentReport ? (
-                    <div className="flex h-screen items-center justify-center">
+                    <div className="flex items-center justify-center pt-24">
                       <ErrorComponent
                         title="Could not get Student's report"
                         description={`${studentReportError?.message || "This is our problem, we are looking into it so as to serve you better"}`}
@@ -298,6 +301,7 @@ const ClassReport = () => {
                 setActiveFilter={handleSetActiveFilter}
                 footerRef={footerRef}
                 type="admin"
+                termSelected={termSelected}
               />
             )}
 
@@ -329,6 +333,7 @@ const ClassReport = () => {
                       activeStudent={activeStudentId}
                       setActiveStudent={setActiveStudentId}
                       selectedTerm={termSelected?.term ?? ""}
+                      showDecisionColumn={termSelected?.term === "THIRD"}
                     />
                   );
                 }

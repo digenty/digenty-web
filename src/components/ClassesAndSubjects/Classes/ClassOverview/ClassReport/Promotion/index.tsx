@@ -16,12 +16,14 @@ export const Promotion = ({
   resultSettings,
   decisions,
   setDecisions,
+  reportStatus,
 }: {
   cumulativeReport: CumulativeReport;
   armId: number;
   resultSettings: ResultSettings;
   decisions: Decision[];
   setDecisions: Dispatch<SetStateAction<Decision[]>>;
+  reportStatus?: string;
 }) => {
   const promotionType = resultSettings?.promotionType;
   const [page, setPage] = useState(1);
@@ -54,6 +56,7 @@ export const Promotion = ({
     decisions,
     promotionType,
     resultSettings?.minimumOverallPercentage,
+    reportStatus,
   );
 
   const promotionColumns = createPromotionColumns(
@@ -65,6 +68,7 @@ export const Promotion = ({
     decisions,
     promotionType,
     resultSettings?.minimumOverallPercentage,
+    reportStatus,
   );
 
   return (
