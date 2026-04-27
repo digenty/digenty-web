@@ -12,15 +12,15 @@ import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
+import { useGetUserProfile, useUpdateUserProfile } from "@/hooks/queryHooks/useProfile";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import React, { useEffect, useRef, useState } from "react";
 
-import { useGetCountries } from "@/hooks/queryHooks/useCountry";
-import { Country } from "@/components/StudentAndParent/types";
+import { uploadImage } from "@/app/actions/upload-image";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
+import { Country } from "@/components/StudentAndParent/types";
+import { useGetCountries } from "@/hooks/queryHooks/useCountry";
 
 type Timezone = {
   abbreviation: string;
@@ -39,18 +39,20 @@ export const UserProfile = () => {
   const [timeZone, setTimeZone] = useState("");
   const [edit, setEdit] = useState<EditProps>(null);
   const [image, setImage] = useState<string | undefined>(undefined);
+  const [isUploading, setIsUploading] = useState(false);
   const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<string[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const prevUrl = useRef<string | null>(null);
 
   const { data } = useGetUserProfile();
   const profileData = data?.data;
+
+  const { mutate, isPending } = useUpdateUserProfile();
 
   const { data: countries = [] } = useGetCountries();
 
@@ -71,25 +73,22 @@ export const UserProfile = () => {
   useEffect(() => {
     if (profileData) {
       setFirstName(profileData.firstName || "");
+      setMiddleName(profileData.middleName || "");
       setLastName(profileData.lastName || "");
       setPhoneNumber(profileData.phoneNumber || "");
       setEmail(profileData.email || "");
       setRole(profileData.roles || "");
       setImage(profileData.image || undefined);
+      setTimeZone(profileData.timezone || "");
     }
   }, [profileData]);
 
-  useEffect(() => {
-    return () => {
-      if (prevUrl.current) URL.revokeObjectURL(prevUrl.current);
-    };
-  }, []);
-
   const handleUploadClick = () => inputRef.current?.click();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     const validTypes = ["image/jpeg", "image/png"];
     const maxSize = 1024 * 1024;
 
@@ -105,23 +104,41 @@ export const UserProfile = () => {
       return;
     }
 
-    const url = URL.createObjectURL(file);
-    if (prevUrl.current) URL.revokeObjectURL(prevUrl.current);
-    prevUrl.current = url;
-    setImage(url);
-    toast({ title: "Avatar updated", description: "Your profile picture has been uploaded.", type: "success" });
-    e.currentTarget.value = "";
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const data = await uploadImage(formData);
+      if (data?.url) {
+        setImage(data.url);
+        mutate(
+          { image: data.url, firstName, middleName, lastName, phoneNumber, timezone: timeZone },
+          {
+            onSuccess: () => toast({ title: "Avatar updated", description: "Your profile picture has been updated.", type: "success" }),
+            onError: () => toast({ title: "Failed to update", description: "Could not update profile picture.", type: "error" }),
+          },
+        );
+      }
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+    } finally {
+      setIsUploading(false);
+      // e.currentTarget.value = "";
+    }
   };
 
-  const handleSaveProfile = (updatedFields: Partial<{ firstName: string; lastName: string; phoneNumber: string; timezone: string }>) => {
-    setIsSaving(true);
-    // Mock update function
-    setTimeout(() => {
-      console.log("Saving profile changes:", updatedFields);
-      toast({ title: "Saved", description: "Profile updated successfully.", type: "success" });
-      setIsSaving(false);
-      setEdit(null);
-    }, 1000);
+  const handleSaveProfile = (overrides: { firstName?: string; lastName?: string; middleName?: string; phoneNumber?: string; timezone?: string }) => {
+    mutate(
+      { image, firstName, middleName, lastName, phoneNumber, timezone: timeZone, ...overrides },
+      {
+        onSuccess: () => {
+          toast({ title: "Saved", description: "Profile updated successfully.", type: "success" });
+          setEdit(null);
+        },
+        onError: () => toast({ title: "Failed to save", description: "Could not update your profile.", type: "error" }),
+      },
+    );
   };
 
   return (
@@ -144,9 +161,10 @@ export const UserProfile = () => {
               <Avatar className="size-10" url={image} />
               <Button
                 onClick={handleUploadClick}
+                disabled={isUploading || isPending}
                 className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
               >
-                Upload
+                {isUploading || isPending ? <Spinner className="size-3" /> : "Upload"}
               </Button>
               <div className="text-text-muted text-xs">JPG or PNG. 1MB Max.</div>
             </div>
@@ -180,6 +198,16 @@ export const UserProfile = () => {
                   </div>
 
                   <div className="flex flex-col gap-2">
+                    <Label className="text-text-default text-sm font-medium">Middle Name</Label>
+                    <Input
+                      className="bg-bg-input-soft! text-text-default rounded-md border-none text-sm font-normal"
+                      value={middleName}
+                      onChange={e => setMiddleName(e.target.value)}
+                      placeholder="Middle name"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
                     <Label className="text-text-default text-sm font-medium">Last Name</Label>
                     <Input
                       className="bg-bg-input-soft! text-text-default rounded-md border-none text-sm font-normal"
@@ -194,6 +222,7 @@ export const UserProfile = () => {
                       className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! w-fit rounded-md border text-sm font-medium"
                       onClick={() => {
                         setFirstName(profileData?.firstName || "");
+                        setMiddleName(profileData?.middleName || "");
                         setLastName(profileData?.lastName || "");
                         setEdit(null);
                       }}
@@ -202,10 +231,10 @@ export const UserProfile = () => {
                     </Button>
                     <Button
                       className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-                      onClick={() => handleSaveProfile({ firstName, lastName })}
-                      disabled={isSaving}
+                      onClick={() => handleSaveProfile({ firstName, middleName, lastName })}
+                      disabled={isPending}
                     >
-                      {isSaving ? <Spinner className="size-3" /> : <Save fill="var(--color-icon-white-default)" />}
+                      {isPending ? <Spinner className="size-3" /> : <Save fill="var(--color-icon-white-default)" />}
                       Save
                     </Button>
                   </div>
@@ -256,9 +285,9 @@ export const UserProfile = () => {
                 <Button
                   className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! flex h-7! items-center gap-1"
                   onClick={() => handleSaveProfile({ phoneNumber })}
-                  disabled={isSaving}
+                  disabled={isPending}
                 >
-                  {isSaving ? <Spinner className="size-3" /> : <Save fill="var(--color-icon-white-default)" />}
+                  {isPending ? <Spinner className="size-3" /> : <Save fill="var(--color-icon-white-default)" />}
                   Save
                 </Button>
               </div>
