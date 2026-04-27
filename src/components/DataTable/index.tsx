@@ -3,6 +3,7 @@
 import { ColumnDef, flexRender, getCoreRowModel, Row, TableMeta, useReactTable } from "@tanstack/react-table";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { Pagination } from "./Pagination";
@@ -113,7 +114,17 @@ export const DataTable = <TData, TValue>({
             ))}
           </TableHeader>
           <TableBody className={cn("border-border-default border-y", fullBorder && "border")}>
-            {table.getRowModel().rows?.length ? (
+            {loadingContent ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <TableRow key={i} className={cn("border-border-default border-y", classNames?.tableRow)}>
+                  {columns.map((_, j) => (
+                    <TableCell key={j} className={cn("pr-7.5", fullBorder && "border-border-default border-r", classNames?.tableBodyCell)}>
+                      <Skeleton className="h-4 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => (
                 <TableRow
                   key={row.id}

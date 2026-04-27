@@ -147,6 +147,7 @@ export const ClassReport = () => {
     data: classCumulativeReportData,
     isLoading: isLoadingCumulativeReport,
     isError: isErrorCumulativeReport,
+    error: cumulativeReportError,
   } = useGetClassCumulativeReport(Number(armId), activeFilter);
 
   const levelId = classCumulativeReportData?.data?.levelId;
@@ -171,6 +172,7 @@ export const ClassReport = () => {
     data: studentReportData,
     isPending: loadingStudentReport,
     isError: isErrorStudentReport,
+    error: studentReportError,
   } = useGetStudentReport({ studentId: Number(activeFilter), termId: termSelected?.termId, armId: Number(armId) });
 
   const transformedStudents: StudentRow[] = useMemo(() => {
@@ -323,12 +325,12 @@ export const ClassReport = () => {
               )}
 
               {activeFilter === "promotion" && (
-                <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
+                <div className="hidden overflow-x-auto pt-24 pb-24 md:block">
                   {isErrorCumulativeReport ? (
                     <ErrorComponent
                       title="Could not get Student's report"
-                      description="This is our problem, we are looking into it so as to serve you better"
-                      buttonText="Go to the Home page"
+                      description={cumulativeReportError?.message || "This is our problem, we are looking into it so as to serve you better"}
+                      // buttonText="Go to the Home page"
                     />
                   ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
                     <Skeleton className="bg-bg-input-soft h-100 w-full" />
@@ -351,8 +353,8 @@ export const ClassReport = () => {
                     <div className="flex items-center justify-center pt-24">
                       <ErrorComponent
                         title="Could not get Student's report"
-                        description="This is our problem, we are looking into it so as to serve you better"
-                        buttonText="Go to the Home page"
+                        description={studentReportError?.message || "This is our problem, we are looking into it so as to serve you better"}
+                        // buttonText="Go to the Home page"
                       />
                     </div>
                   ) : loadingStudentReport && !studentReportData ? (
