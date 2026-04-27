@@ -1,5 +1,17 @@
+import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createSubscription, getActiveSubscription, getBillingHistory, getCurrentSubscription, getPlans } from "@/api/subscription";
+import {
+  cancelSubscription,
+  checkoutSubscription,
+  createSubscription,
+  getActiveSubscription,
+  getBillingHistory,
+  getCurrentSubscription,
+  getPlans,
+  renewSubscription,
+  updateSubscription,
+  verifySubscription,
+} from "@/api/subscription";
 import { subscriptionKeys } from "@/queries/subscription";
 
 export const useGetCurrentSubscription = () => {
@@ -44,5 +56,64 @@ export const useCreateSubscription = () => {
       queryClient.invalidateQueries({ queryKey: subscriptionKeys.active });
       queryClient.invalidateQueries({ queryKey: ["subscriptionBillingHistory"] });
     },
+  });
+};
+
+export const useCheckoutSubscription = () => {
+  return useMutation({
+    mutationKey: subscriptionKeys.checkout,
+    mutationFn: checkoutSubscription,
+  });
+};
+
+export const useVerifySubscription = (reference: string) => {
+  const queryClient = useQueryClient();
+  const result = useQuery({
+    queryKey: subscriptionKeys.verify(reference),
+    queryFn: () => verifySubscription(reference),
+    enabled: !!reference,
+    staleTime: Infinity,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (result.isSuccess) {
+      queryClient.invalidateQueries({ queryKey: subscriptionKeys.current });
+      queryClient.invalidateQueries({ queryKey: subscriptionKeys.active });
+      queryClient.invalidateQueries({ queryKey: ["subscriptionBillingHistory"] });
+    }
+  }, [result.isSuccess, queryClient]);
+
+  return result;
+};
+
+export const useUpdateSubscription = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subscriptionKeys.update,
+    mutationFn: ({ id, ...payload }: { id: number; planId?: number; studentCapacity?: number }) => updateSubscription(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: subscriptionKeys.current });
+      queryClient.invalidateQueries({ queryKey: subscriptionKeys.active });
+    },
+  });
+};
+
+export const useCancelSubscription = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subscriptionKeys.cancel,
+    mutationFn: (id: number) => cancelSubscription(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: subscriptionKeys.current });
+      queryClient.invalidateQueries({ queryKey: subscriptionKeys.active });
+    },
+  });
+};
+
+export const useRenewSubscription = () => {
+  return useMutation({
+    mutationKey: subscriptionKeys.renew,
+    mutationFn: (id: number) => renewSubscription(id),
   });
 };

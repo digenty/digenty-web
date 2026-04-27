@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AddFill } from "@/components/Icons/AddFill";
@@ -12,7 +10,13 @@ import { BuildingFill } from "@/components/Icons/BuildingFill";
 import Information from "@/components/Icons/Information";
 import { OrderSummary } from "./OrderSummary";
 import { STUDENT_TIER_RANGES } from "./type";
-import { useCreateSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
+import { useCheckoutSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
+import { useGetStudentsDistribution } from "@/hooks/queryHooks/useStudent";
+import { StudentsStatus } from "@/components/StudentAndParent/types";
+import { PlanResponseDto } from "@/api/subscription";
+import { title } from "process";
+import { toast } from "@/components/Toast";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 const REFERRAL_BALANCE = 0;
 
@@ -24,12 +28,19 @@ const tierForCount = (count: number) => {
 };
 
 export const AddStudentsForm = () => {
-  const router = useRouter();
+  useBreadcrumb([
+    { label: "Settings", url: "/staff/settings" },
+    { label: "Subscriptions", url: "/staff/settings/subscription" },
+    { label: "Add Students", url: "/staff/settings/subscription/add-students" },
+  ]);
   const { data: subscription, isLoading: isLoadingSubscription } = useGetCurrentSubscription();
   const { data: plans } = useGetPlans();
-  const { mutate: createSubscription, isPending } = useCreateSubscription();
+  const { mutate: checkout, isPending } = useCheckoutSubscription();
+  const { data: distribution } = useGetStudentsDistribution();
+  const totalActiveStudents =
+    distribution?.data?.find((d: { status: StudentsStatus; count: number }) => d.status === StudentsStatus.Active)?.count ?? 0;
 
-  const currentPlan = useMemo(() => plans?.find(p => p.name === subscription?.planName), [plans, subscription?.planName]);
+  const currentPlan = useMemo(() => plans?.find((plan: PlanResponseDto) => plan.name === subscription?.planName), [plans, subscription?.planName]);
 
   const initialCount = (subscription?.studentCapacity ?? 0) + 1;
   const [studentCount, setStudentCount] = useState(initialCount);
@@ -47,23 +58,37 @@ export const AddStudentsForm = () => {
 
   const handlePay = () => {
     if (!currentPlan || !subscription) {
-      toast.error("Unable to find your current plan");
+      toast({
+        title: "Unable to find your current plan",
+        type: "warning",
+      });
       return;
     }
     if (additionalStudents <= 0) {
-      toast.error("Please increase the student count beyond your current capacity");
+      toast({
+        title: "Please increase the student count beyond your current capacity",
+        type: "warning",
+      });
       return;
     }
-    createSubscription(
-      { planId: currentPlan.id, studentCapacity: studentCount },
+    checkout(
       {
-        onSuccess: () => {
-          toast.success("Students added to your plan");
-          router.push("/staff/settings/subscription");
+        planId: currentPlan.id,
+        studentCapacity: studentCount,
+        // useReferralCredit: useReferral,
+        // callbackUrl: `${window.location.origin}/staff/settings/subscription/verify`,
+      },
+      {
+        onSuccess: ({ authorizationUrl }) => {
+          window.location.href = authorizationUrl;
         },
         onError: (error: unknown) => {
           const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
-          toast.error(message || "Failed to add students");
+          toast({
+            title: "Failed to initiate payment",
+            type: "error",
+            description: message || "Failed to initiate payment",
+          });
         },
       },
     );
@@ -93,7 +118,7 @@ export const AddStudentsForm = () => {
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="bg-bg-subtle text-text-subtle border-border-default h-6 rounded-md px-2 text-xs font-medium">
                 <User3 fill="var(--color-icon-default-muted)" className="h-3 w-3" />
-                {(subscription?.activeStudentCount ?? 0).toLocaleString()} students
+                {totalActiveStudents.toLocaleString()} students
               </Badge>
               <Badge className="bg-bg-subtle text-text-subtle border-border-default h-6 rounded-md px-2 text-xs font-medium">
                 <BuildingFill fill="var(--color-icon-default-muted)" className="h-3 w-3" />
@@ -130,7 +155,7 @@ export const AddStudentsForm = () => {
                   type="button"
                   variant="ghost"
                   onClick={() => {
-                    if (subscription?.activeStudentCount) setStudentCount(subscription.activeStudentCount);
+                    if (totalActiveStudents > 0) setStudentCount(totalActiveStudents);
                   }}
                   className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-10 w-full rounded-md px-3 text-xs font-medium sm:w-auto"
                 >

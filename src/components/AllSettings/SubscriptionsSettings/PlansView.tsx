@@ -11,6 +11,7 @@ import { ComparisonTable } from "./ComparisonTable";
 import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, STUDENT_TIER_RANGES, StudentTier } from "./type";
 import { useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
 import { PlanResponseDto } from "@/api/subscription";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 interface PlansViewProps {
   showNoSubscriptionBanner?: boolean;
@@ -84,6 +85,11 @@ const PlanCardSkeleton = () => (
 );
 
 export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
+  useBreadcrumb([
+    { label: "Settings", url: "/staff/settings" },
+    { label: "Subscriptions", url: "/staff/settings/subscription" },
+    { label: "Plans", url: "/staff/settings/subscription/plans" },
+  ]);
   const router = useRouter();
   const [studentTier, setStudentTier] = useState<StudentTier>("1-200");
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("Termly");

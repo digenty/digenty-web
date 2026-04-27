@@ -10,14 +10,17 @@ import { DataTable } from "@/components/DataTable";
 import { AddFill } from "@/components/Icons/AddFill";
 import Eye from "@/components/Icons/Eye";
 import Download2 from "@/components/Icons/Download2";
+import AlertFill from "@/components/Icons/AlertFill";
 import { paymentStatus } from "@/components/Status";
+import { Modal } from "@/components/Modal";
 import { BillingHistoryRow, billingStatusLabel, subscriptionStatusLabel } from "./type";
 import Group from "@/components/Icons/Group";
 import { VipDiamond } from "@/components/Icons/VipDiamond";
 import ListCheck from "@/components/Icons/ListCheck";
-import { useGetCurrentSubscription, useGetBillingHistory } from "@/hooks/queryHooks/useSubscription";
+import { useCancelSubscription, useGetBillingHistory, useGetCurrentSubscription, useRenewSubscription } from "@/hooks/queryHooks/useSubscription";
 import { BillingHistoryDto, SubscriptionStatus } from "@/api/subscription";
 import { cn, formatDate } from "@/lib/utils";
+import { toast } from "@/components/Toast";
 
 const PAGE_SIZE = 10;
 
@@ -58,6 +61,65 @@ const BillingHistoryMobileCard = ({ row }: { row: BillingHistoryRow }) => (
   </div>
 );
 
+interface CancelSubscriptionModalProps {
+  open: boolean;
+  setOpen: (v: boolean) => void;
+  subscriptionId: number;
+}
+
+const CancelSubscriptionModal = ({ open, setOpen, subscriptionId }: CancelSubscriptionModalProps) => {
+  const { mutate: cancel, isPending } = useCancelSubscription();
+
+  const handleConfirm = () => {
+    cancel(subscriptionId, {
+      onSuccess: () => {
+        toast({
+          title: "Subscription cancelled",
+          description: "You have successfully cancelled your subscription",
+          type: "success",
+        });
+        setOpen(false);
+      },
+      onError: (error: unknown) => {
+        const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
+        toast({
+          title: "Failed to cancel subscription",
+          description: message || "Failed to cancel subscription",
+          type: "error",
+        });
+      },
+    });
+  };
+
+  return (
+    <Modal
+      open={open}
+      setOpen={setOpen}
+      title="Cancel Subscription"
+      ActionButton={
+        <Button
+          onClick={handleConfirm}
+          disabled={isPending}
+          className="bg-bg-state-destructive hover:bg-bg-state-destructive-hover! text-text-white-default h-7 rounded-md px-3 text-sm font-medium"
+        >
+          {isPending ? "Cancelling…" : "Yes, cancel"}
+        </Button>
+      }
+    >
+      <div className="flex flex-col gap-4 p-4">
+        <div className="bg-bg-badge-red flex gap-3 rounded-md p-3">
+          <AlertFill fill="var(--color-icon-destructive)" className="mt-0.5 h-4 w-4 shrink-0" />
+          <p className="text-text-subtle text-xs leading-relaxed">
+            Cancelling your subscription will end your access to all paid features at the end of the current billing period. This action cannot be
+            undone.
+          </p>
+        </div>
+        <p className="text-text-default text-sm">Are you sure you want to cancel your subscription?</p>
+      </div>
+    </Modal>
+  );
+};
+
 const billingColumns: ColumnDef<BillingHistoryRow>[] = [
   {
     accessorKey: "period",
@@ -97,15 +159,37 @@ const billingColumns: ColumnDef<BillingHistoryRow>[] = [
 
 export const SubscriptionDashboard = () => {
   const [page, setPage] = useState(1);
+  const [cancelOpen, setCancelOpen] = useState(false);
 
   const { data: subscription, isLoading: isLoadingSubscription } = useGetCurrentSubscription();
   const { data: billing, isLoading: isLoadingBilling } = useGetBillingHistory({ page: page - 1, size: PAGE_SIZE });
+  const { mutate: renew, isPending: isRenewing } = useRenewSubscription();
 
   const studentCapacityUsed = subscription?.activeStudentCount ?? 0;
   const studentCapacityTotal = subscription?.studentCapacity ?? 0;
   const percentUsed = studentCapacityTotal > 0 ? Math.min(100, (studentCapacityUsed / studentCapacityTotal) * 100) : 0;
 
   const billingRows = useMemo(() => billing?.content?.map(toRow) ?? [], [billing]);
+
+  const isActive = subscription?.status === "ACTIVE";
+  const isInactive = subscription?.status === "EXPIRED" || subscription?.status === "CANCELLED";
+
+  const handleRenew = () => {
+    if (!subscription) return;
+    renew(subscription.subscriptionId, {
+      onSuccess: ({ authorizationUrl }) => {
+        window.location.href = authorizationUrl;
+      },
+      onError: (error: unknown) => {
+        const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
+        toast({
+          title: "Failed to initiate renewal",
+          description: message || "Failed to initiate renewal",
+          type: "error",
+        });
+      },
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -163,32 +247,59 @@ export const SubscriptionDashboard = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              {isActive && (
+                <>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      asChild
+                      variant="ghost"
+                      className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-7 flex-1 rounded-md text-xs font-medium"
+                    >
+                      <Link href="/staff/settings/subscription/add-students">
+                        <AddFill fill="var(--color-icon-default-subtle)" className="size-3" />
+                        Add Students
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 flex-1 rounded-md text-xs font-medium"
+                    >
+                      <Link href="/staff/settings/subscription/upgrade">
+                        <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
+                        Upgrade Plan
+                      </Link>
+                    </Button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCancelOpen(true)}
+                    className="text-text-destructive hover:text-text-destructive/80 w-fit cursor-pointer text-xs font-medium transition-colors"
+                  >
+                    Cancel Subscription
+                  </button>
+                </>
+              )}
+
+              {isInactive && (
                 <Button
-                  asChild
                   variant="ghost"
-                  className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-7 flex-1 rounded-md text-xs font-medium"
+                  onClick={handleRenew}
+                  disabled={isRenewing}
+                  className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 w-full rounded-md text-xs font-medium"
                 >
-                  <Link href="/staff/settings/subscription/add-students">
-                    <AddFill fill="var(--color-icon-default-subtle)" className="size-3" />
-                    Add Students
-                  </Link>
+                  <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
+                  {isRenewing ? "Redirecting…" : "Renew Plan"}
                 </Button>
-                <Button
-                  asChild
-                  variant="ghost"
-                  className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 flex-1 rounded-md text-xs font-medium"
-                >
-                  <Link href="/staff/settings/subscription/upgrade">
-                    <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
-                    Upgrade Plan
-                  </Link>
-                </Button>
-              </div>
+              )}
             </>
           )
         )}
       </div>
+
+      {subscription && cancelOpen && (
+        <CancelSubscriptionModal open={cancelOpen} setOpen={setCancelOpen} subscriptionId={subscription.subscriptionId} />
+      )}
 
       <div className="flex flex-col gap-4 sm:gap-6">
         <h3 className="text-text-default text-lg font-semibold sm:text-xl">Billing History</h3>
