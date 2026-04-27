@@ -12,11 +12,13 @@ export const SpreadsheetMobileCard = ({
   activeStudent,
   setActiveStudent,
   selectedTerm,
+  showDecisionColumn = false,
 }: {
   student: StudentRow;
   activeStudent: number | undefined;
   setActiveStudent: React.Dispatch<React.SetStateAction<number | undefined>>;
   selectedTerm: string;
+  showDecisionColumn?: boolean;
 }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -81,6 +83,17 @@ export const SpreadsheetMobileCard = ({
           <div className="bg-bg-subtle text-text-muted border-border-default flex w-1/2 items-center justify-center border-r px-4 py-2">Position</div>
           <div className="text-text-default flex w-1/2 items-center justify-center text-sm">{studentScore?.position || 0}</div>
         </div>
+
+        {showDecisionColumn && (
+          <div className="border-border-default flex h-12 border-y text-center">
+            <div className="bg-bg-subtle text-text-muted border-border-default flex w-1/2 items-center justify-center border-r px-4 py-2">
+              Promotion Decision
+            </div>
+            <div className="text-text-default flex w-1/2 items-center justify-center text-sm">
+              {student.decision ? student.decision.charAt(0).toUpperCase() + student.decision.slice(1).toLowerCase() : "Not set by teacher"}
+            </div>
+          </div>
+        )}
 
         <div className="flex h-[46px] items-center justify-center px-3 py-1 text-center">
           <Button

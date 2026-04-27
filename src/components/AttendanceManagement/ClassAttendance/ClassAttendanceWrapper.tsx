@@ -3,20 +3,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const ClassAttendanceWrapper = ({ children, armId, isLoading }: { children: React.ReactNode; armId: number; isLoading: boolean }) => {
-  const user = useLoggedInUser();
+  const { isUserLoading, ...user } = useLoggedInUser();
   const userExists = user && Object.keys(user).length > 0;
   const hasArmAccess = userExists && user.armIds?.includes(armId);
   const isAdmin = userExists && (user.isAdmin || user.isMain || (user?.adminBranchIds?.length ?? 0) > 0);
 
   return (
     <>
-      {!userExists && isLoading && (
+      {(isUserLoading || isLoading) && (
         <div className="flex items-center justify-center p-4 md:px-8 md:py-4">
           <Skeleton className="bg-bg-input-soft h-screen w-full" />
         </div>
       )}
 
-      {userExists && !isLoading && !hasArmAccess && !isAdmin && (
+      {!isUserLoading && userExists && !isLoading && !hasArmAccess && !isAdmin && (
         <div className="flex h-150 items-center justify-center pt-15">
           <PageEmptyState
             title="Unauthorized"
@@ -27,7 +27,7 @@ export const ClassAttendanceWrapper = ({ children, armId, isLoading }: { childre
         </div>
       )}
 
-      {userExists && !isLoading && (hasArmAccess || isAdmin) && children}
+      {!isUserLoading && userExists && !isLoading && (hasArmAccess || isAdmin) && children}
     </>
   );
 };

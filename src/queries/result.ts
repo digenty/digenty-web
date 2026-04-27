@@ -9,4 +9,5 @@ export const resultKeys = {
   deletetPrincipalComment: ["deletetPrincipalComment"] as const,
   getResultCalculation: ["getResultCalculation"] as const,
   updateResultCalculation: ["updateResultCalculation"] as const,
+  updatePrincipalComment: ["updatePrincipalComment"] as const,
 };

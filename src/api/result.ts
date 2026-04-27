@@ -3,6 +3,7 @@ import {
   PrincaleCommentPayload,
   ResultCalculationPayload,
   ResultSubmissionPayload,
+  UpdatePrincipaleCommentPayload,
   UpdateResultCalculationPayload,
   UpdateSubmissionDeadlinePayload,
 } from "./types";
@@ -118,6 +119,18 @@ export const updateResultCalculation = async (payload: UpdateResultCalculationPa
 export const getResultCalculations = async () => {
   try {
     const { data } = await api.get(`/result-settings`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const updatePrincipaleComment = async (payload: UpdatePrincipaleCommentPayload) => {
+  try {
+    const { data } = await api.put(`/result-settings/principal-comment`, payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

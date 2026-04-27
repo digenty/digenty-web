@@ -147,16 +147,32 @@ export const ClassReport = () => {
     data: classCumulativeReportData,
     isLoading: isLoadingCumulativeReport,
     isError: isErrorCumulativeReport,
+    error: cumulativeReportError,
   } = useGetClassCumulativeReport(Number(armId), activeFilter);
 
   const levelId = classCumulativeReportData?.data?.levelId;
+  const cumulativeReportStatus = classCumulativeReportData?.data?.status;
 
   const { data: levelResultSettings } = useGetLevelResultSettings(Number(levelId), activeFilter);
+
+  useEffect(() => {
+    if (!classCumulativeReportData?.data?.studentCumulative) return;
+    const prePopulated = classCumulativeReportData.data.studentCumulative
+      .filter((s: StudentCumulative) => s.decision)
+      .map((s: StudentCumulative) => ({
+        studentId: s.studentId,
+        status: s.decision as string,
+      }));
+    if (prePopulated.length > 0) {
+      setDecisions(prePopulated);
+    }
+  }, [classCumulativeReportData]);
 
   const {
     data: studentReportData,
     isPending: loadingStudentReport,
     isError: isErrorStudentReport,
+    error: studentReportError,
   } = useGetStudentReport({ studentId: Number(activeFilter), termId: termSelected?.termId, armId: Number(armId) });
 
   const transformedStudents: StudentRow[] = useMemo(() => {
@@ -309,12 +325,12 @@ export const ClassReport = () => {
               )}
 
               {activeFilter === "promotion" && (
-                <div className="hidden overflow-x-auto pt-6 pb-24 md:block">
+                <div className="hidden overflow-x-auto pt-24 pb-24 md:block">
                   {isErrorCumulativeReport ? (
                     <ErrorComponent
                       title="Could not get Student's report"
-                      description="This is our problem, we are looking into it so as to serve you better"
-                      buttonText="Go to the Home page"
+                      description={cumulativeReportError?.message || "This is our problem, we are looking into it so as to serve you better"}
+                      // buttonText="Go to the Home page"
                     />
                   ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
                     <Skeleton className="bg-bg-input-soft h-100 w-full" />
@@ -325,6 +341,7 @@ export const ClassReport = () => {
                       resultSettings={levelResultSettings?.data}
                       decisions={decisions}
                       setDecisions={setDecisions}
+                      reportStatus={cumulativeReportStatus}
                     />
                   )}
                 </div>
@@ -333,11 +350,11 @@ export const ClassReport = () => {
               {activeFilter !== "spreadsheet" && activeFilter !== "promotion" && (
                 <div>
                   {isErrorStudentReport ? (
-                    <div className="flex h-screen items-center justify-center">
+                    <div className="flex items-center justify-center pt-24">
                       <ErrorComponent
                         title="Could not get Student's report"
-                        description="This is our problem, we are looking into it so as to serve you better"
-                        buttonText="Go to the Home page"
+                        description={studentReportError?.message || "This is our problem, we are looking into it so as to serve you better"}
+                        // buttonText="Go to the Home page"
                       />
                     </div>
                   ) : loadingStudentReport && !studentReportData ? (
@@ -366,6 +383,7 @@ export const ClassReport = () => {
                 activeFilter={activeFilter}
                 setActiveFilter={handleSetActiveFilter}
                 footerRef={footerRef}
+                termSelected={termSelected}
               />
             )}
 
@@ -413,6 +431,7 @@ export const ClassReport = () => {
                       decisions={decisions}
                       setDecisions={setDecisions}
                       resultSettings={levelResultSettings?.data}
+                      reportStatus={cumulativeReportStatus}
                     />
                   ))}
                 </>
