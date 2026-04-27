@@ -116,6 +116,24 @@ export const getBillingHistory = async ({ page, size }: { page: number; size: nu
   }
 };
 
+export interface CheckoutResponseDto {
+  authorizationUrl: string;
+  reference: string;
+  subscriptionId: number;
+}
+
+export interface InitiateCheckoutDto {
+  planId: number;
+  studentCapacity: number;
+  // useReferralCredit?: boolean;
+  // callbackUrl?: string;
+}
+
+export interface UpdateSubscriptionDto {
+  planId?: number;
+  studentCapacity?: number;
+}
+
 export const createSubscription = async (payload: CreateSubscriptionDto) => {
   try {
     const { data } = await api.post<Subscription>("/subscriptions", payload);
@@ -124,6 +142,55 @@ export const createSubscription = async (payload: CreateSubscriptionDto) => {
     if (isAxiosError(error)) {
       throw error.response?.data;
     }
+    throw error;
+  }
+};
+
+export const checkoutSubscription = async (payload: InitiateCheckoutDto) => {
+  try {
+    const { data } = await api.post<CheckoutResponseDto>("/subscriptions/checkout", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const verifySubscription = async (reference: string) => {
+  try {
+    const { data } = await api.get<SubscriptionOverviewDto>(`/subscriptions/verify?reference=${encodeURIComponent(reference)}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const updateSubscription = async (id: number, payload: UpdateSubscriptionDto) => {
+  try {
+    const { data } = await api.patch<Subscription>(`/subscriptions/${id}`, payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const cancelSubscription = async (id: number) => {
+  try {
+    await api.post(`/subscriptions/${id}/cancel`);
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const renewSubscription = async (id: number) => {
+  try {
+    const { data } = await api.post<CheckoutResponseDto>(`/subscriptions/${id}/renew`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
     throw error;
   }
 };

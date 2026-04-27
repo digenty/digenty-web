@@ -12,10 +12,10 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
 import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
 import { AllClassesMainTableProps, ClassProps } from "./types";
+import { toast } from "@/components/Toast";
 
 const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => {
   const router = useRouter();
@@ -32,11 +32,19 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
       { classArmReportId: row.original.classArmReportId, status: "APPROVED" },
       {
         onSuccess: () => {
-          toast.success("Submission approved successfully");
+          toast({
+            title: "Submission approved successfully",
+            description: "You have successfully approved the submission",
+            type: "success",
+          });
           setOpenApproveModal(false);
         },
         onError: error => {
-          toast.error(error?.message || "Failed to approve submission");
+          toast({
+            title: "Failed to approve submission",
+            description: error?.message || "Failed to approve submission",
+            type: "error",
+          });
         },
       },
     );

@@ -3,8 +3,15 @@
 import { SubscriptionDashboard } from "./SubscriptionDashboard";
 import { PlansView } from "./PlansView";
 import { useGetCurrentSubscription } from "@/hooks/queryHooks/useSubscription";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+
+const BASE_CRUMBS = [
+  { label: "Settings", url: "/staff/settings" },
+  { label: "Subscriptions", url: "/staff/settings/subscription" },
+];
 
 export const SettingSubscription = () => {
+  useBreadcrumb(BASE_CRUMBS);
   const { data: subscription, isFetching } = useGetCurrentSubscription();
 
   // if (isFetching) {

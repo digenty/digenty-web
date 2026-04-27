@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatDate } from "@/lib/utils";
@@ -13,8 +12,12 @@ import { User3 } from "@/components/Icons/User3";
 import { BuildingFill } from "@/components/Icons/BuildingFill";
 import { OrderSummary } from "./OrderSummary";
 import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, STUDENT_TIER_RANGES } from "./type";
-import { useCreateSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
+import { useCheckoutSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
+import { useGetStudentsDistribution } from "@/hooks/queryHooks/useStudent";
+import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { PlanResponseDto } from "@/api/subscription";
+import { toast } from "@/components/Toast";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 interface UpgradeOrSubscribeFormProps {
   isUpgrade?: boolean;
@@ -52,14 +55,24 @@ const tierForCount = (count: number) => {
 };
 
 export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProps) => {
-  const router = useRouter();
+  useBreadcrumb([
+    { label: "Settings", url: "/staff/settings" },
+    { label: "Subscriptions", url: "/staff/settings/subscription" },
+    {
+      label: isUpgrade ? "Upgrade Plan" : "Subscribe",
+      url: isUpgrade ? "/staff/settings/subscription/upgrade" : "/staff/settings/subscription/subscribe",
+    },
+  ]);
   const searchParams = useSearchParams();
   const cycleParam = searchParams.get("cycle");
   const planParam = searchParams.get("plan");
 
   const { data: plans, isLoading: isLoadingPlans } = useGetPlans();
   const { data: currentSubscription } = useGetCurrentSubscription();
-  const { mutate: createSubscription, isPending } = useCreateSubscription();
+  const { mutate: checkout, isPending } = useCheckoutSubscription();
+  const { data: distribution } = useGetStudentsDistribution();
+  const totalActiveStudents =
+    distribution?.data?.find((d: { status: StudentsStatus; count: number }) => d.status === StudentsStatus.Active)?.count ?? 0;
 
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(isBillingCycle(cycleParam) ? cycleParam : "Termly");
   const [selectedPlanName, setSelectedPlanName] = useState<string | null>(planParam);
@@ -106,19 +119,30 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProp
 
   const handlePay = () => {
     if (!selectedPlan) {
-      toast.error("Please select a plan");
+      toast({
+        title: "Please select a plan",
+        type: "error",
+      });
       return;
     }
-    createSubscription(
-      { planId: selectedPlan.id, studentCapacity: studentCount },
+    checkout(
       {
-        onSuccess: () => {
-          toast.success(isUpgrade ? "Plan upgrade initiated" : "Subscription created successfully");
-          router.push("/staff/settings/subscription");
+        planId: selectedPlan.id,
+        studentCapacity: studentCount,
+        // useReferralCredit: useReferral,
+        // callbackUrl: `${window.location.origin}/staff/settings/subscription/verify`,
+      },
+      {
+        onSuccess: ({ authorizationUrl }) => {
+          window.location.href = authorizationUrl;
         },
         onError: (error: unknown) => {
           const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
-          toast.error(message || "Failed to create subscription");
+          toast({
+            title: "Failed to initiate payment",
+            description: message || "Could not complete payment",
+            type: "error",
+          });
         },
       },
     );
@@ -189,11 +213,7 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProp
                     onSelect={() => setSelectedPlanName(plan.name)}
                     featureSummary={plan.features?.length ? `${plan.features.length}+ modules` : undefined}
                   >
-                    <StudentCountConfigurator
-                      value={studentCount}
-                      onChange={setStudentCount}
-                      activeStudents={currentSubscription?.activeStudentCount ?? 0}
-                    />
+                    <StudentCountConfigurator value={studentCount} onChange={setStudentCount} activeStudents={totalActiveStudents} />
                   </PlanRadio>
                 ))
               )}
