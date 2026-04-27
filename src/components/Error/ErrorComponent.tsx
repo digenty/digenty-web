@@ -22,7 +22,7 @@ export const ErrorComponent = ({
   const router = useRouter();
   return (
     <div className="flex max-w-80 flex-col items-center gap-4">
-      <QuickReferenceAll fill="var(--color-icon-default-muted)" />
+      <QuickReferenceAll stroke="var(--color-icon-default-muted)" />
       <p className="text-text-default text-center text-lg font-medium">{title}</p>
       <p className="text-text-muted text-center text-xs font-normal">{description}</p>
       {(buttonText || onClick) && (

@@ -150,8 +150,22 @@ export const ClassReport = () => {
   } = useGetClassCumulativeReport(Number(armId), activeFilter);
 
   const levelId = classCumulativeReportData?.data?.levelId;
+  const cumulativeReportStatus = classCumulativeReportData?.data?.status;
 
   const { data: levelResultSettings } = useGetLevelResultSettings(Number(levelId), activeFilter);
+
+  useEffect(() => {
+    if (!classCumulativeReportData?.data?.studentCumulative) return;
+    const prePopulated = classCumulativeReportData.data.studentCumulative
+      .filter((s: StudentCumulative) => s.decision)
+      .map((s: StudentCumulative) => ({
+        studentId: s.studentId,
+        status: s.decision as string,
+      }));
+    if (prePopulated.length > 0) {
+      setDecisions(prePopulated);
+    }
+  }, [classCumulativeReportData]);
 
   const {
     data: studentReportData,
@@ -325,6 +339,7 @@ export const ClassReport = () => {
                       resultSettings={levelResultSettings?.data}
                       decisions={decisions}
                       setDecisions={setDecisions}
+                      reportStatus={cumulativeReportStatus}
                     />
                   )}
                 </div>
@@ -414,6 +429,7 @@ export const ClassReport = () => {
                       decisions={decisions}
                       setDecisions={setDecisions}
                       resultSettings={levelResultSettings?.data}
+                      reportStatus={cumulativeReportStatus}
                     />
                   ))}
                 </>

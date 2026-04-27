@@ -22,6 +22,7 @@ export const PromotionMobileCard = ({
   decisions,
   setDecisions,
   resultSettings,
+  reportStatus,
 }: {
   student: StudentCumulative;
   activeStudent?: number;
@@ -29,6 +30,7 @@ export const PromotionMobileCard = ({
   decisions: Decision[];
   setDecisions: Dispatch<SetStateAction<Decision[]>>;
   resultSettings: ResultSettings;
+  reportStatus?: string;
 }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -51,13 +53,14 @@ export const PromotionMobileCard = ({
     window.open(`${pathname}?${newParams.toString()}`, "_blank", "noopener,noreferrer");
   };
 
-  const getButtonText = () => {
+  const getDecisionLabel = () => {
     if (!decision) return "Set Decision";
     if (promotionType === "PROMOTE_ALL") return "Next Class";
     if (decision.status === "PROMOTED" && decision.className && decision.armName) {
       return `Promote to ${decision.className} ${decision.armName}`;
     }
-    if (decision.status === "REPEAT") return "Repeat";
+    if (decision.status === "PROMOTED") return "Promoted";
+    if (decision.status === "REPEAT" || decision.status === "REPEATED") return "Repeat";
     return "Set Decision";
   };
 
@@ -133,15 +136,24 @@ export const PromotionMobileCard = ({
           </div>
         )}
 
-        <div className="flex h-[46px] items-center justify-center px-3 py-1 text-center">
-          <Button
-            className="border-border-darker bg-bg-state-secondary! text-text-default h-8! w-full justify-between border px-4 font-normal"
-            onClick={() => setShowDecisionModal(true)}
-          >
-            {getButtonText()}
-            <ChevronDown className="text-text-muted" />
-          </Button>
-        </div>
+        {reportStatus === "APPROVED" && decision ? (
+          <div className="border-border-default flex h-12 w-full border-b text-center last:border-b-0">
+            <div className="bg-bg-subtle text-text-muted border-border-default flex flex-1 items-center justify-center border-r px-4 py-2">
+              Promotion Decision
+            </div>
+            <div className="text-text-default flex flex-1 items-center justify-center text-sm">{getDecisionLabel()}</div>
+          </div>
+        ) : (
+          <div className="flex h-[46px] items-center justify-center px-3 py-1 text-center">
+            <Button
+              className="border-border-darker bg-bg-state-secondary! text-text-default h-8! w-full justify-between border px-4 font-normal"
+              onClick={() => setShowDecisionModal(true)}
+            >
+              {getDecisionLabel()}
+              <ChevronDown className="text-text-muted" />
+            </Button>
+          </div>
+        )}
 
         <div className="flex h-[46px] items-center justify-center px-3 py-1 text-center">
           <Button

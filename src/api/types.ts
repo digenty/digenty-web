@@ -701,10 +701,14 @@ export interface StudentCumulative {
   secondTermPercentage: number;
   thirdTermPercentage: number;
   cumulativePercentage: number;
+  suggestion?: "PROMOTE" | "REPEAT";
+  decision?: string;
 }
 
 export interface CumulativeReport {
   studentCumulative: StudentCumulative[];
+  status: "APPROVED" | "NOT_SUBMITTED" | "PENDING_APPROVAL" | "EDIT_REQUEST";
+  levelId: number;
 }
 
 export interface PromotionBySubjectStudent {

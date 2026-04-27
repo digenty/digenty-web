@@ -15,26 +15,31 @@ const RenderAction = <T extends { studentId: number }>(
   onSetDecision: (student: T) => void,
   decisions: { studentId: number; className?: string; armName?: string; status: string }[],
   promotionType: string,
+  reportStatus?: string,
 ) => {
   const decision = decisions.find(d => d.studentId === row.original.studentId);
 
-  const getButtonText = () => {
+  const getDecisionLabel = () => {
     if (!decision) return "Set Decision";
     if (promotionType === "PROMOTE_ALL") return "Next Class";
     if (decision.status === "PROMOTED" && decision.className && decision.armName) {
       return `Promote to ${decision.className} ${decision.armName}`;
     }
-    if (decision.status === "REPEAT") return "Repeat";
-    // if (decision.status === "GRADUATED") return "Graduate";
+    if (decision.status === "PROMOTED") return "Promoted";
+    if (decision.status === "REPEAT" || decision.status === "REPEATED") return "Repeat";
     return "Set Decision";
   };
+
+  if (reportStatus === "APPROVED" && decision) {
+    return <span className="text-text-default text-sm font-normal">{getDecisionLabel()}</span>;
+  }
 
   return (
     <Button
       className="border-border-darker bg-bg-state-secondary! text-text-muted h-7! w-fit border px-4 font-normal"
       onClick={() => onSetDecision(row.original)}
     >
-      {getButtonText()}
+      {getDecisionLabel()}
       <ChevronDown className="text-text-muted" />
     </Button>
   );
@@ -46,6 +51,7 @@ export const createPromotionColumns = (
   decisions: { studentId: number; className?: string; armName?: string; status: string }[],
   promotionType: string,
   minimumScore: number,
+  reportStatus?: string,
 ): ColumnDef<PromotionStudent>[] => {
   if (!data.length) return [];
 
@@ -167,7 +173,7 @@ export const createPromotionColumns = (
         {promotionType === "PROMOTE_ALL" ? "Next Class" : "Promotion Decision"}
       </div>
     ),
-    cell: ({ row }) => RenderAction(row, onSetDecision, decisions, promotionType),
+    cell: ({ row }) => RenderAction(row, onSetDecision, decisions, promotionType, reportStatus),
     size: 209,
     minSize: 209,
   });
@@ -181,6 +187,7 @@ export const createSubjectCombinationColumns = (
   decisions: { studentId: number; className?: string; armName?: string; status: string }[],
   promotionType: string,
   minimumScore: number,
+  reportStatus?: string,
 ): ColumnDef<PromotionBySubjectReport>[] => {
   // Find Student Name column to insert subjects after it
   const selectCol: ColumnDef<PromotionBySubjectReport> = {
@@ -268,7 +275,7 @@ export const createSubjectCombinationColumns = (
   const actionCol: ColumnDef<PromotionBySubjectReport> = {
     id: "actions",
     header: () => <div className="text-text-muted text-sm font-medium">Promotion Decision</div>,
-    cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => RenderAction(row, onSetDecision, decisions, promotionType),
+    cell: ({ row }: { row: Row<PromotionBySubjectReport> }) => RenderAction(row, onSetDecision, decisions, promotionType, reportStatus),
     size: 200,
   };
 

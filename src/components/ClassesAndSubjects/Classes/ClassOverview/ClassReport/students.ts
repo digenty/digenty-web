@@ -31,6 +31,7 @@ export interface StudentRow {
   name: string;
   avatar: string;
   terms: TermResult[];
+  decision?: string;
 }
 
 export type PromotionStudent = {

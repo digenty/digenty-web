@@ -132,7 +132,7 @@ export const DataTable = <TData, TValue>({
                         cell.column.id === "actions" && "text-right",
                         cell.column.id === "s/n" && "pr-4 text-center",
                         (cell.column.id === "class_report_name" || cell.column.id === "promotion_studentName") &&
-                          "data-[state=selected]:bg-bg-basic-gray-alpha-2 hover:bg-bg-basic-gray-alpha-2 bg-bg-default sticky left-0 z-10 shadow-sm",
+                          "data-[state=selected]:bg-bg-basic-gray-alpha-2 hover:bg-bg-default bg-bg-default sticky left-0 z-10 shadow-sm",
                         cell.column.id === "totalAttendance" && "bg-bg-default border-border-default sticky right-0 z-5 border px-5.5 text-center",
                         fullBorder && "border-border-default border-r",
                         classNames?.tableBodyCell,

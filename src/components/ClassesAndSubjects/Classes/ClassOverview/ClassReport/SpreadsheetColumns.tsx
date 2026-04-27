@@ -8,7 +8,7 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { usePathname } from "next/navigation";
 import { StudentRow } from "./students";
 
-export const createColumns = (data: StudentRow[], term: string): ColumnDef<StudentRow>[] => {
+export const createColumns = (data: StudentRow[], term: string, showDecisionColumn = false): ColumnDef<StudentRow>[] => {
   if (!data.length) return [];
 
   const firstStudent = data[0];
@@ -89,6 +89,18 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
     },
   };
 
+  const promotionDecisionColumn: ColumnDef<StudentRow> = {
+    id: "promotionDecision",
+    header: () => <span className="text-text-muted truncate text-sm font-medium">Promotion Decision</span>,
+    size: 180,
+    minSize: 180,
+    cell: ({ row }: { row: Row<StudentRow> }) => {
+      const raw = row.original.decision;
+      const display = raw ? raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase() : "Not set by teacher";
+      return <span className="text-text-default text-sm font-normal">{display}</span>;
+    },
+  };
+
   return [
     {
       accessorKey: "class_report_s/n",
@@ -115,6 +127,7 @@ export const createColumns = (data: StudentRow[], term: string): ColumnDef<Stude
     totalScoreColumn,
     percentageColumn,
     positionColumn,
+    ...(showDecisionColumn ? [promotionDecisionColumn] : []),
     {
       accessorKey: "view",
       header: () => <span className="text-text-muted pr-2 text-sm font-medium"></span>,
