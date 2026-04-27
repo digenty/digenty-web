@@ -298,6 +298,7 @@ const ClassReport = () => {
                 setActiveFilter={handleSetActiveFilter}
                 footerRef={footerRef}
                 type="admin"
+                termSelected={termSelected}
               />
             )}
 

@@ -27,7 +27,6 @@ export const AttendanceManagement = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const user = useLoggedInUser();
-  const armsIds = user.armIds || [];
 
   const { data, isPending, isError, isLoading } = useGetAllAttendance(branchSelected?.id, termSelected?.termId, debouncedSearchQuery);
   const attendanceStats = {
@@ -38,7 +37,7 @@ export const AttendanceManagement = () => {
   };
 
   return (
-    <AttendanceMgtWrapper armIds={armsIds} isLoading={isLoading}>
+    <AttendanceMgtWrapper isLoading={isLoading}>
       <div className="flex flex-col">
         <AttendanceHeader
           setBranchSelected={setBranchSelected}

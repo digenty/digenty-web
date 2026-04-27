@@ -333,7 +333,7 @@ export const ClassReport = () => {
               {activeFilter !== "spreadsheet" && activeFilter !== "promotion" && (
                 <div>
                   {isErrorStudentReport ? (
-                    <div className="flex h-screen items-center justify-center">
+                    <div className="flex items-center justify-center pt-24">
                       <ErrorComponent
                         title="Could not get Student's report"
                         description="This is our problem, we are looking into it so as to serve you better"
@@ -366,6 +366,7 @@ export const ClassReport = () => {
                 activeFilter={activeFilter}
                 setActiveFilter={handleSetActiveFilter}
                 footerRef={footerRef}
+                termSelected={termSelected}
               />
             )}
 

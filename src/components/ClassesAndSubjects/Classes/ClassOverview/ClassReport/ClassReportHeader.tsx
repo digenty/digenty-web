@@ -255,15 +255,17 @@ export const ClassReportHeader = ({
                 >
                   Spreadsheet
                 </Button>
-                <Button
-                  onClick={() => setActiveFilter("promotion")}
-                  className={cn(
-                    "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
-                    activeFilter === "promotion" && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
-                  )}
-                >
-                  Promotion
-                </Button>
+                {termSelected?.term === "THIRD" && (
+                  <Button
+                    onClick={() => setActiveFilter("promotion")}
+                    className={cn(
+                      "bg-bg-state-soft text-text-subtle no-wrap h-7! w-fit rounded-md px-2 text-sm font-medium",
+                      activeFilter === "promotion" && "bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover!",
+                    )}
+                  >
+                    Promotion
+                  </Button>
+                )}
               </div>
 
               <div className="flex gap-2 pr-4">
