@@ -143,7 +143,7 @@ const LevelForm = ({
   const [hasOpenedForm, setHasOpenedForm] = useState(!!existingRecord);
   const [openDeptId, setOpenDeptId] = useState<number | null>(null);
 
-  const isSeniorSecondary = levelType === "SENIOR_SECONDARY";
+  const isSeniorSecondary = levelType === "SENIOR_SECONDARY" || levelType === "JUNIOR_SECONDARY";
 
   const { data: subjectsData, isLoading: isLoadingSubjects } = useGetSubjectsByLevel(levelType);
   const { data: gradingsData, isLoading: isLoadingGradings } = useGetGradingsByLevel(levelId);
@@ -343,46 +343,44 @@ const LevelForm = ({
                   <Label className="text-text-default text-sm font-medium">A. Required passes (Compulsory)</Label>
                   <div className="text-text-subtle text-sm">Multi-select subjects that student must pass</div>
 
-                  {isSeniorSecondary ? (
-                    isLoadingClasses ? (
-                      <div className="flex flex-col gap-3">
-                        <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
-                        <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
-                        <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
-                      </div>
-                    ) : allDepartments.length === 0 ? (
-                      <p className="text-text-subtle text-sm">No departments found for this level.</p>
-                    ) : (
-                      <div className="flex flex-col gap-4">
-                        {allDepartments.map(dept => {
-                          const deptSubjects = dept.subjects;
-                          const map = formState.requiredSubjectIds as Record<number, number[]>;
-                          const currentDeptIds = map[dept.departmentId] ?? [];
-                          const allDeptSelected = deptSubjects.length > 0 && deptSubjects.every(s => currentDeptIds.includes(s.id));
+                  {isSeniorSecondary && isLoadingClasses ? (
+                    <div className="flex flex-col gap-3">
+                      <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
+                      <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
+                      <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
+                    </div>
+                  ) : isSeniorSecondary && allDepartments.length > 0 ? (
+                    <div className="flex flex-col gap-4">
+                      {allDepartments.map(dept => {
+                        const deptSubjects = dept.subjects;
+                        const map = formState.requiredSubjectIds as Record<number, number[]>;
+                        const currentDeptIds = map[dept.departmentId] ?? [];
+                        const allDeptSelected = deptSubjects.length > 0 && deptSubjects.every(s => currentDeptIds.includes(s.id));
 
-                          const toggleAllDept = () => {
-                            onChange({
-                              requiredSubjectIds: {
-                                ...map,
-                                [dept.departmentId]: allDeptSelected ? [] : deptSubjects.map(s => s.id),
-                              },
-                            });
-                          };
+                        const toggleAllDept = () => {
+                          onChange({
+                            requiredSubjectIds: {
+                              ...map,
+                              [dept.departmentId]: allDeptSelected ? [] : deptSubjects.map(s => s.id),
+                            },
+                          });
+                        };
 
-                          return (
-                            <div key={dept.departmentId} className="flex flex-col gap-1">
-                              <div className="text-text-default text-sm font-medium capitalize">{dept.departmentName.toLowerCase()} Subjects</div>
-                              <Select
-                                open={isEditing && openDeptId === dept.departmentId}
-                                onOpenChange={open => setOpenDeptId(open ? dept.departmentId : null)}
+                        return (
+                          <div key={dept.departmentId} className="flex flex-col gap-1">
+                            <div className="text-text-default text-sm font-medium capitalize">{dept.departmentName.toLowerCase()} Subjects</div>
+                            <Select
+                              open={isEditing && openDeptId === dept.departmentId}
+                              onOpenChange={open => setOpenDeptId(open ? dept.departmentId : null)}
+                            >
+                              <SelectTrigger
+                                className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal md:w-57"
+                                disabled={!isEditing}
                               >
-                                <SelectTrigger
-                                  className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal"
-                                  disabled={!isEditing}
-                                >
-                                  <SelectValue placeholder="Select subjects" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-bg-default border-border-default">
+                                <SelectValue placeholder="Select subjects" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-bg-default border-border-default">
+                                {deptSubjects.length > 0 ? (
                                   <div
                                     className="hover:bg-bg-input-soft flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2"
                                     onClick={toggleAllDept}
@@ -390,44 +388,46 @@ const LevelForm = ({
                                     <Checkbox checked={allDeptSelected} />
                                     <span className="text-text-default text-sm font-medium">Select All</span>
                                   </div>
-                                  {deptSubjects.map(sub => (
-                                    <div
-                                      key={sub.id}
-                                      className="hover:bg-bg-input-soft text-text-default flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm capitalize"
-                                      onClick={() => toggleSubjectInDept(dept.departmentId, sub.id)}
-                                    >
-                                      <Checkbox checked={currentDeptIds.includes(sub.id)} />
-                                      {sub.name.toLowerCase()}
+                                ) : (
+                                  <div className="text-text-subtle px-3 text-sm">No subjects found</div>
+                                )}
+                                {deptSubjects.map(sub => (
+                                  <div
+                                    key={sub.id}
+                                    className="hover:bg-bg-input-soft text-text-default flex cursor-pointer items-center gap-2 rounded-sm px-3 py-2 text-sm capitalize"
+                                    onClick={() => toggleSubjectInDept(dept.departmentId, sub.id)}
+                                  >
+                                    <Checkbox checked={currentDeptIds.includes(sub.id)} />
+                                    {sub.name.toLowerCase()}
+                                  </div>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
+                            {currentDeptIds.length > 0 && (
+                              <div className="mt-1 flex flex-wrap items-center gap-1">
+                                {deptSubjects
+                                  .filter(s => currentDeptIds.includes(s.id))
+                                  .map(s => (
+                                    <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
+                                      <span className="capitalize">{s.name.toLowerCase()}</span>
+                                      {isEditing && (
+                                        <button
+                                          onClick={() => toggleSubjectInDept(dept.departmentId, s.id)}
+                                          className="text-text-muted hover:text-text-default"
+                                        >
+                                          ×
+                                        </button>
+                                      )}
                                     </div>
                                   ))}
-                                </SelectContent>
-                              </Select>
-
-                              {currentDeptIds.length > 0 && (
-                                <div className="mt-1 flex flex-wrap items-center gap-1">
-                                  {deptSubjects
-                                    .filter(s => currentDeptIds.includes(s.id))
-                                    .map(s => (
-                                      <div key={s.id} className="bg-bg-badge-default text-text-subtle flex items-center gap-1 rounded-sm p-1 text-xs">
-                                        <span className="capitalize">{s.name.toLowerCase()}</span>
-                                        {isEditing && (
-                                          <button
-                                            onClick={() => toggleSubjectInDept(dept.departmentId, s.id)}
-                                            className="text-text-muted hover:text-text-default"
-                                          >
-                                            ×
-                                          </button>
-                                        )}
-                                      </div>
-                                    ))}
-                                </div>
-                              )}
-                              <div className="text-text-muted text-xs">Condition: Must pass all selected</div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )
+                              </div>
+                            )}
+                            <div className="text-text-muted text-xs">Condition: Must pass all selected</div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   ) : isLoadingSubjects ? (
                     <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
                   ) : (
@@ -599,10 +599,10 @@ export const ResultCalculations = () => {
         next[level.levelName] = {
           calculationMethod: record.calculationMethod,
           promotionType,
-          minimumOverallPercentage: String(record.minimumOverallPercentage ?? ""),
+          minimumOverallPercentage: promotionType === "SUBJECT_COMBINATION" ? "" : String(record.minimumOverallPercentage ?? ""),
           minimumPassGrade: record.minimumPassGrade ?? "",
           requiredSubjectIds: isSeniorSecondary ? {} : (record.requiredSubjectIds ?? []),
-          subjectCombinationMinPercentage: "",
+          subjectCombinationMinPercentage: promotionType === "SUBJECT_COMBINATION" ? String(record.minimumOverallPercentage ?? "") : "",
         };
       });
       return next;
@@ -640,7 +640,10 @@ export const ResultCalculations = () => {
     const sharedPayload = {
       calculationMethod: state.calculationMethod,
       promotionType: apiPromotionType as "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE",
-      minimumOverallPercentage: Number(state.minimumOverallPercentage) || 0,
+      minimumOverallPercentage:
+        state.promotionType === "SUBJECT_COMBINATION"
+          ? Number(state.subjectCombinationMinPercentage) || 0
+          : Number(state.minimumOverallPercentage) || 0,
       minimumPassGrade: state.minimumPassGrade,
       requiredSubjectIds: flatSubjectIds,
     };

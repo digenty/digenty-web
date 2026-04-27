@@ -35,8 +35,7 @@ export const Promotion = ({
 
   const { data: academic } = useGetActiveSession();
 
-  // const isSubjectCombination = resultSettings?.promotionType === "BY_PERFORMANCE" && resultSettings?.requiredSubjectIds?.length > 0;
-  const isSubjectCombination = true;
+  const isSubjectCombination = resultSettings?.promotionType === "BY_PERFORMANCE" && resultSettings?.requiredSubjectIds?.length > 0;
   const { data: subjectReportData, isLoading: isLoadingSubjectReport } = useGetRequiredSubjectReport(armId, isSubjectCombination);
 
   const subjectReport = subjectReportData?.data;
