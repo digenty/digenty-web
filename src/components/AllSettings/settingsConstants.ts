@@ -18,5 +18,5 @@ export const SETTINGS_NAV = [
   { label: "Permissions", url: "/staff/settings/permissions", icon: Group },
   // { label: "Stock", url: "/staff/settings/stock", icon: Box3 },
   // { label: "KYC", url: "/staff/settings/kyc", icon: IdCard },
-  // { label: "Security", url: "/staff/settings/security", icon: Shield },
+  { label: "Security", url: "/staff/settings/security", icon: Shield },
 ];

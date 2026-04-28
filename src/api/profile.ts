@@ -12,3 +12,24 @@ export const getUserProfileDetails = async () => {
     throw error;
   }
 };
+
+export interface UpdateUserProfilePayload {
+  image?: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  timezone?: string;
+}
+
+export const updateUserProfile = async (payload: UpdateUserProfilePayload) => {
+  try {
+    const { data } = await api.put("/users", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
