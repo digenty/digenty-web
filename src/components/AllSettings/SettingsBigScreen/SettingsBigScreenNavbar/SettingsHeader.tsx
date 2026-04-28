@@ -1,10 +1,9 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import React from "react";
-import { SETTINGS_NAV } from "../../settingsConstants";
-import Link from "next/link";
 import { useSidebarStore } from "@/store";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { SETTINGS_NAV } from "../../settingsConstants";
 
 export const SettingsHeader = () => {
   const pathname = usePathname();

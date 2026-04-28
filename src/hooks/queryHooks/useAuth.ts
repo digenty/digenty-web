@@ -1,4 +1,15 @@
-import { forgetPassword, login, parentSignup, reAuthenticateUser, resetPassword, signup, verifyOtp } from "@/api/auth";
+import {
+  changePassword,
+  forgetPassword,
+  login,
+  parentSignup,
+  reAuthenticateUser,
+  resetPassword,
+  sendChangePasswordOtp,
+  signup,
+  verifyChangePasswordOtp,
+  verifyOtp,
+} from "@/api/auth";
 import { authKeys } from "@/queries/auth";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -50,6 +61,27 @@ export const useResetPassword = () => {
   return useMutation({
     mutationKey: authKeys.resetPassword,
     mutationFn: resetPassword,
+  });
+};
+
+export const useSendChangePasswordOtp = () => {
+  return useMutation({
+    mutationKey: authKeys.sendChangePasswordOtp,
+    mutationFn: sendChangePasswordOtp,
+  });
+};
+
+export const useVerifyChangePasswordOtp = () => {
+  return useMutation({
+    mutationKey: authKeys.verifyChangePasswordOtp,
+    mutationFn: verifyChangePasswordOtp,
+  });
+};
+
+export const useChangePassword = () => {
+  return useMutation({
+    mutationKey: authKeys.changePassword,
+    mutationFn: changePassword,
   });
 };
 
