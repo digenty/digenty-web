@@ -24,3 +24,18 @@ export const verifyOtpSchema = yup.object().shape({
 export const userEmailSchema = yup.object().shape({
   email: yup.string().max(254, "Email should not exceed 254 characters").trim().email("Invalid email").required("Email is required!"),
 });
+
+export const verifyChangePasswordOtpSchema = yup.object().shape({
+  otp: yup.string().length(6, "OTP must be 6 characters").required("OTP is required!"),
+});
+
+export const changePasswordSchema = yup.object().shape({
+  oldPassword: yup.string().trim().min(8, "Password must be at least 8 characters").required("Old password is required!"),
+  newPassword: yup.string().trim().min(8, "Password must be at least 8 characters").required("New password is required!"),
+  confirmPassword: yup
+    .string()
+    .trim()
+    .min(8, "Password must be at least 8 characters")
+    .oneOf([yup.ref("newPassword")], "Confirm password must match new password")
+    .required("Confirm password is required!"),
+});

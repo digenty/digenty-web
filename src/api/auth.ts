@@ -25,6 +25,12 @@ type ResetPasswordPayload = {
   confirmPassword: string;
 };
 
+type ChangePasswordPayload = {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
 export const signup = async (payload: SignupPayload) => {
   try {
     const { data } = await apiPublic.post("/auth/register", payload);
@@ -98,6 +104,52 @@ export const verifyOtp = async (payload: VerifyOtpPayload) => {
 export const resetPassword = async (payload: ResetPasswordPayload) => {
   try {
     const { data } = await apiPublic.post("/auth/reset-password", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const sendChangePasswordOtp = async () => {
+  try {
+    const { data } = await api.post("/users/change-password-otp");
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const verifyChangePasswordOtp = async ({ otp }: { otp: string }) => {
+  try {
+    const { data } = await api.post(`/users/verify-change-password-otp?otp=${otp}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const changePassword = async ({
+  oldPassword,
+  newPassword,
+  confirmPassword,
+}: {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}) => {
+  try {
+    const { data } = await api.post(
+      `/users/change-password?oldPassword=${oldPassword}&newPassword=${newPassword}&confirmPassword=${confirmPassword}`,
+    );
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

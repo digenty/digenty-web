@@ -907,7 +907,9 @@ export const ClassQuickSetupSheet = ({
         </div>
 
         {/* {departmentsEnabled && <AssignArmsToDepartments arms={arms} departments={departments} />} */}
-        <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} levelId={level.id} branchId={branchId} />
+        {armsDetails.length > 0 && departmentsDetails.length > 0 && (
+          <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} levelId={level.id} branchId={branchId} />
+        )}
       </div>
     </div>
   );

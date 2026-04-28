@@ -52,7 +52,7 @@ export const AssignArmsToDepartments = ({
     return map;
   }, [departmentQueries, departments]);
 
-  if (!arms?.length || !departments?.length) return null;
+  // if (!arms?.length || !departments?.length) return null;
 
   return (
     <div className="flex flex-col gap-6">

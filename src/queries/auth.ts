@@ -6,4 +6,7 @@ export const authKeys = {
   forgetPassword: ["forgetPassword"] as const,
   verifyOtp: ["verifyOtp"] as const,
   resetPassword: ["resetPassword"] as const,
+  sendChangePasswordOtp: ["sendChangePasswordOtp"] as const,
+  verifyChangePasswordOtp: ["verifyChangePasswordOtp"] as const,
+  changePassword: ["changePassword"] as const,
 };
