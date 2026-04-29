@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn, formatDate } from "@/lib/utils";
@@ -15,7 +15,7 @@ import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, STUDENT_TIER_RANGES } from ".
 import { useCheckoutSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
 import { useGetStudentsDistribution } from "@/hooks/queryHooks/useStudent";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
-import { PlanResponseDto } from "@/api/subscription";
+import { PlanResponseDto, CheckoutResponseDto } from "@/api/subscription";
 import { toast } from "@/components/Toast";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
@@ -55,6 +55,7 @@ const tierForCount = (count: number) => {
 };
 
 export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProps) => {
+  const router = useRouter();
   useBreadcrumb([
     { label: "Settings", url: "/staff/settings" },
     { label: "Subscriptions", url: "/staff/settings/subscription" },
@@ -133,8 +134,8 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProp
         // callbackUrl: `${window.location.origin}/staff/settings/subscription/verify`,
       },
       {
-        onSuccess: ({ authorizationUrl }) => {
-          window.location.href = authorizationUrl;
+        onSuccess: (data: CheckoutResponseDto) => {
+          router.push(data.authorizationUrl);
         },
         onError: (error: unknown) => {
           const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
