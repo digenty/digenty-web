@@ -17,10 +17,10 @@ import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { toast } from "sonner";
 import { StudentRow } from "../../ClassOverview/ClassReport/students";
 import { ApproveModal } from "../AllClassesModal";
 import { ReturnModal } from "./ClassReportModal";
+import { toast } from "@/components/Toast";
 
 export const ReportHeader = ({
   termSelected,
@@ -64,11 +64,19 @@ export const ReportHeader = ({
       { classArmReportId, status: "APPROVED" },
       {
         onSuccess: () => {
-          toast.success("Result approved successfully");
+          toast({
+            title: "Result approved successfully",
+            description: "You have successfully approved the result",
+            type: "success",
+          });
           setOpenApprove(false);
         },
         onError: error => {
-          toast.error(error?.message || "Failed to approve result");
+          toast({
+            title: "Failed to approve result",
+            description: error?.message || "Failed to approve result",
+            type: "error",
+          });
         },
       },
     );
@@ -80,11 +88,19 @@ export const ReportHeader = ({
       { classArmReportId, status: "NOT_SUBMITTED", reason: returnReason },
       {
         onSuccess: () => {
-          toast.success("Result returned for correction");
+          toast({
+            title: "Result returned for correction",
+            description: "You have successfully returned the result for correction",
+            type: "success",
+          });
           setOpenReturn(false);
         },
         onError: error => {
-          toast.error(error?.message || "Failed to return result");
+          toast({
+            title: "Failed to return result",
+            description: error?.message || "Failed to return result",
+            type: "error",
+          });
         },
       },
     );

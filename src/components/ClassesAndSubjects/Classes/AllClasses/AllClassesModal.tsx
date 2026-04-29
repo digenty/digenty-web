@@ -5,6 +5,7 @@ import { StickyNote } from "@/components/Icons/StickyNote";
 import { Timee } from "@/components/Icons/Timee";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
+import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
@@ -14,7 +15,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useApproveEditRequest, useGetEditRequestBySubjectAndArm } from "@/hooks/queryHooks/useRequests";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { formatRelativeDate } from "@/lib/utils";
-import { toast } from "sonner";
 
 type NotifyModalProps = {
   openNotifyModal: boolean;
@@ -185,11 +185,18 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
       { editAccessId: request.editRequestId, isApproved },
       {
         onSuccess: () => {
-          toast.success(`Request ${isApproved ? "approved" : "rejected"} successfully`);
+          toast({
+            title: `Request ${isApproved ? "approved" : "rejected"} successfully`,
+            type: "success",
+          });
           setEditRequestModal(false);
         },
-        onError: () => {
-          toast.error(`Failed to ${isApproved ? "approve" : "reject"} request`);
+        onError: error => {
+          toast({
+            title: `Failed to ${isApproved ? "approve" : "reject"} request`,
+            description: error?.message || `Failed to ${isApproved ? "approve" : "reject"} request`,
+            type: "error",
+          });
         },
       },
     );
