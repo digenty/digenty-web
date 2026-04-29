@@ -19,13 +19,12 @@ export interface LevelRowsState {
 export type CalculationMethod = "THIRD_TERM_ONLY" | "CUMULATIVE";
 export type PromotionType = "PROMOTE_ALL" | "MANUAL" | "BY_PERFORMANCE" | "SUBJECT_COMBINATION";
 
-// types.ts
-export const defaultFormState = (): LevelFormState => ({
+export const defaultFormState = (isSeniorSecondary = false): LevelFormState => ({
   calculationMethod: undefined,
   promotionType: undefined,
   minimumOverallPercentage: "",
   minimumPassGrade: "",
-  requiredSubjectIds: {},
+  requiredSubjectIds: isSeniorSecondary ? {} : [],
   subjectCombinationMinPercentage: "",
 });
 
