@@ -1,4 +1,4 @@
-import { SchoolGrading } from "@/api/types";
+import { LevelType, SchoolGrading } from "@/api/types";
 import Edit from "@/components/Icons/Edit";
 import { RoundedCheckbox } from "@/components/RoundedCheckbox";
 import { toast } from "@/components/Toast";
@@ -47,6 +47,8 @@ interface ClassInLevelDetails {
   subjects: { id: number; name: string }[];
   departments: DepartmentDetails[];
 }
+
+const isSeniorLevelType = (t?: LevelType) => t === "SENIOR_SECONDARY" || t === "JUNIOR_SECONDARY";
 
 function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; levels: { label: string; content: React.ReactNode }[] }) {
   const isMobile = useIsMobile();
@@ -143,7 +145,7 @@ const LevelForm = ({
   const [hasOpenedForm, setHasOpenedForm] = useState(!!existingRecord);
   const [openDeptId, setOpenDeptId] = useState<number | null>(null);
 
-  const isSeniorSecondary = levelType === "SENIOR_SECONDARY" || levelType === "JUNIOR_SECONDARY";
+  const isSeniorSecondary = isSeniorLevelType(levelType);
 
   const { data: subjectsData, isLoading: isLoadingSubjects } = useGetSubjectsByLevel(levelType);
   const { data: gradingsData, isLoading: isLoadingGradings } = useGetGradingsByLevel(levelId);
@@ -591,7 +593,7 @@ export const ResultCalculations = () => {
         const level = levels.find(l => l.id === record.classId);
         if (!level || next[level.levelName]) return;
 
-        const isSeniorSecondary = level.levelType === "SENIOR_SECONDARY";
+        const isSeniorSecondary = isSeniorLevelType(level.levelType);
 
         const promotionType: PromotionType =
           record.promotionType === "BY_PERFORMANCE" && (record.requiredSubjectIds?.length ?? 0) > 0 ? "SUBJECT_COMBINATION" : record.promotionType;
@@ -610,17 +612,21 @@ export const ResultCalculations = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultCalculationsData]);
 
-  const getFormState = (levelName: string): LevelFormState => formStates[levelName] ?? defaultFormState();
+  const getFormState = (levelName: string, levelType?: LevelType): LevelFormState =>
+    formStates[levelName] ?? defaultFormState(isSeniorLevelType(levelType));
 
-  const updateFormState = (levelName: string, updates: Partial<LevelFormState>) =>
-    setFormStates(prev => ({ ...prev, [levelName]: { ...getFormState(levelName), ...updates } }));
+  const updateFormState = (levelName: string, updates: Partial<LevelFormState>) => {
+    const levelType = levels.find(l => l.levelName === levelName)?.levelType;
+    setFormStates(prev => ({ ...prev, [levelName]: { ...getFormState(levelName, levelType), ...updates } }));
+  };
 
   const setEditing = (levelName: string, value: boolean) => setEditingLevels(prev => ({ ...prev, [levelName]: value }));
 
   const handleSave = (levelName: string, levelId: number) => {
-    const state = getFormState(levelName);
+    const levelType = levels.find(l => l.id === levelId)?.levelType;
+    const state = getFormState(levelName, levelType);
     const existingRecord = existingRecordsMap[levelId];
-    const isSeniorSecondary = levels.find(l => l.id === levelId)?.levelType === "SENIOR_SECONDARY";
+    const isSeniorSecondary = isSeniorLevelType(levelType);
 
     if (!state.calculationMethod) {
       toast({ title: "Error", description: "Please select a calculation method.", type: "error" });
@@ -701,7 +707,7 @@ export const ResultCalculations = () => {
                 levelType={levelType}
                 levelId={id}
                 academicSessionId={academicSessionId}
-                formState={getFormState(levelName)}
+                formState={getFormState(levelName, levelType)}
                 onChange={updates => updateFormState(levelName, updates)}
                 onSave={() => handleSave(levelName, id)}
                 onCancel={() => handleCancel(levelName, id)}

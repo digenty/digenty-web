@@ -32,7 +32,8 @@ export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
   useEffect(() => {
     // Only auto-open if we have a schoolId and progress has finished loading
     if (user?.schoolId && !isProgressLoading) {
-      const isSetupPage = pathname.includes("/settings") || pathname.includes("/student-and-parent-record");
+      // const isSetupPage = pathname.includes("/settings") || pathname.includes("/student-and-parent-record");
+      const isSetupPage = pathname.includes("/settings");
 
       // Auto-open if required steps are not completed AND it's not a setup page AND it's currently closed
       if (!areRequiredStepsCompleted && !isSetupPage && !showSetupSteps) {
