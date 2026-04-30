@@ -1,12 +1,34 @@
 "use client";
 
+import {
+  BankCard,
+  BookOpen,
+  Building,
+  CalendarCheck,
+  ColorFilter,
+  DoorOpen,
+  Edit,
+  FileList2,
+  FileList3,
+  Gift2,
+  Global,
+  GraduationCap,
+  Group,
+  LineChart,
+  Macbook,
+  Mail,
+  Megaphone,
+  Phone,
+  Settings4,
+  Shield,
+  Store3,
+  UserForbid,
+  Wallet,
+} from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import Building from "@/components/Icons/Building";
-import Mail from "@/components/Icons/Mail";
-import { Phone } from "@/components/Icons/Phone";
-import { UserForbid } from "@/components/Icons/UserForbid";
+
 import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,26 +39,9 @@ import { useStaffStore } from "@/store/staff";
 import { usePathname, useRouter } from "next/navigation";
 
 import { Arm, ClassTeacherArm, StaffBranch } from "@/api/types";
-import BankCard from "@/components/Icons/BankCard";
-import BookOpen from "@/components/Icons/BookOpen";
-import CalendarCheck from "@/components/Icons/CalendarCheck";
-import ColorFilter from "@/components/Icons/ColorFilter";
-import { DoorOpen } from "@/components/Icons/DoorOpen";
-import FileList2 from "@/components/Icons/FileList2";
-import FileList3 from "@/components/Icons/FileList3";
-import { Gift2 } from "@/components/Icons/Gift2";
-import Global from "@/components/Icons/Global";
-import GraduationCap from "@/components/Icons/GraduationCap";
-import Group from "@/components/Icons/Group";
-import LineChart from "@/components/Icons/LineChart";
-import Macbook from "@/components/Icons/Macbook";
-import Megaphone from "@/components/Icons/Megaphone";
-import Settings4 from "@/components/Icons/Settings4";
-import { Shield } from "@/components/Icons/Shield";
-import Store3 from "@/components/Icons/Store3";
-import Wallet from "@/components/Icons/Wallet";
+
 import { DeactivateStaffModal } from "./DeactivateStaffModal";
-import Edit from "@/components/Icons/Edit";
+
 import { getStatusBadge } from "@/components/Status";
 
 const permissionIcons = {

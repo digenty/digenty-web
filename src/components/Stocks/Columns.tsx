@@ -1,16 +1,15 @@
+import { DeleteBin, Edit, ExpandUpAndDown, FileCopy } from "@digenty/icons";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { Checkbox } from "../ui/checkbox";
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
-import Edit from "../Icons/Edit";
-import DeleteBin from "../Icons/DeleteBin";
+
 import { stocksItemsProps } from "./types";
 import Image from "next/image";
 import { Badge } from "../ui/badge";
 import { stockStatus } from "../Status";
-import { FileCopy } from "../Icons/FileCopy";
-import { ExpandUpAndDown } from "../Icons/ExpandUpAndDown";
+
 import { Avatar } from "../ui/avatar";
 
 const RenderOptions = (row: Row<stocksItemsProps>) => {

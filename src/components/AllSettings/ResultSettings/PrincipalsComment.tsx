@@ -1,7 +1,6 @@
+import { AddFill, DeleteBin2, Edit } from "@digenty/icons";
 import { ClassLevel, PrincipalsComment } from "@/api/types";
-import { AddFill } from "@/components/Icons/AddFill";
-import { DeleteBin2 } from "@/components/Icons/DeleteBin2";
-import Edit from "@/components/Icons/Edit";
+
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

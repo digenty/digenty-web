@@ -1,17 +1,16 @@
 "use client";
 
+import { ArrowUpDown, IndeterminateCircleFill, ReplyFill, Store3 } from "@digenty/icons";
 import React, { useState } from "react";
 import { StockDetailHeader } from "./StockDetailHeader";
 import { OverviewCard } from "@/components/OverviewCard";
-import Store3 from "@/components/Icons/Store3";
-import IndeterminateCircleFill from "@/components/Icons/IndeterminateCircleFill";
-import { ReplyFill } from "@/components/Icons/ReplyFill";
+
 import { StockDetailsManagement } from "./StockDetailsManagement";
 import { StockHistories } from "./StockHistories";
 import { Tabs } from "@/components/Tabs";
 import { Button } from "@/components/ui/button";
 import { StockQuantityManagementItems } from "./type";
-import { ArrowUpDown } from "@/components/Icons/ArrowUpDown";
+
 import { stockStatus } from "@/components/Status";
 import { StockDetailsAdjustQtyModal } from "./StockDetailsAdjustQtyModal";
 

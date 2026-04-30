@@ -1,6 +1,7 @@
+import { Draft } from "@digenty/icons";
 import { Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { Draft } from "@/components/Icons/Draft";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

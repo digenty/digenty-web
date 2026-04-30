@@ -1,9 +1,8 @@
 "use client";
 
+import { AddFill, DeleteBin2, Settings4 } from "@digenty/icons";
 import { AssessmentType } from "@/api/types";
-import { AddFill } from "@/components/Icons/AddFill";
-import { DeleteBin2 } from "@/components/Icons/DeleteBin2";
-import Settings4 from "@/components/Icons/Settings4";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";

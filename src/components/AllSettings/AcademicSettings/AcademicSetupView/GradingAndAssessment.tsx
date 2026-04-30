@@ -1,18 +1,17 @@
 "use client";
 
+import { AddFill, BookOpen, DeleteBin2, Edit, Loader2Fill, School } from "@digenty/icons";
 import React, { useEffect, useState } from "react";
-import Loader2Fill from "@/components/Icons/Loader2Fill";
+
 import { Button } from "@/components/ui/button";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
-import { AddFill } from "@/components/Icons/AddFill";
+
 import { Input } from "@/components/ui/input";
-import { DeleteBin2 } from "@/components/Icons/DeleteBin2";
-import Edit from "@/components/Icons/Edit";
+
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Label } from "@/components/ui/label";
-import BookOpen from "@/components/Icons/BookOpen";
-import School from "@/components/Icons/School";
+
 import { AssessmentType, Branch, BranchWithClassLevels, ClassLevel, SchoolGrading } from "@/api/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetLevels, useGetAssessmentsByLevel, useGetGradingsByLevel } from "@/hooks/queryHooks/useLevel";

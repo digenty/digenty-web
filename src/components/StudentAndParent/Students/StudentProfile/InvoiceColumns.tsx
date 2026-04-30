@@ -1,10 +1,10 @@
 "use client";
 
-import Printer from "@/components/Icons/Printer";
+import { DeleteBin, Printer } from "@digenty/icons";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
-import DeleteBin from "../../../Icons/DeleteBin";
+
 import { Invoice } from "./types";
 import { getBadge } from "./StudentInvoiceTable";
 

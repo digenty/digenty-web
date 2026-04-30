@@ -1,7 +1,6 @@
+import { CheckboxCircleFill, Loader2Fill } from "@digenty/icons";
 import { cn } from "@/lib/utils";
 import { Step } from "./types";
-import Loader2Fill from "@/components/Icons/Loader2Fill";
-import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
 
 export const CSVUploadProgress = ({
   className,

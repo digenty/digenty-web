@@ -1,5 +1,5 @@
-import School from "@/components/Icons/School";
-import { Stack } from "@/components/Icons/Stack";
+import { School, Stack } from "@digenty/icons";
+
 import { RoundedCheckbox } from "@/components/RoundedCheckbox";
 import { cn } from "@/lib/utils";
 import React from "react";

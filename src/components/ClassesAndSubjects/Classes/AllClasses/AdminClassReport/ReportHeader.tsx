@@ -1,10 +1,8 @@
 "use client";
 
+import { Approve, ArrowGoBack, Calendar, ShareBox } from "@digenty/icons";
 import { Term } from "@/api/types";
-import Approve from "@/components/Icons/Approve";
-import { ArrowGoBack } from "@/components/Icons/ArrowGoBack";
-import Calendar from "@/components/Icons/Calendar";
-import ShareBox from "@/components/Icons/ShareBox";
+
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";

@@ -1,6 +1,7 @@
+import { Draft } from "@digenty/icons";
 import { Student } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
-import { Draft } from "@/components/Icons/Draft";
+
 import { Badge } from "@/components/ui/badge";
 import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
 import { Check, CheckCheck, TriangleAlert, X } from "lucide-react";

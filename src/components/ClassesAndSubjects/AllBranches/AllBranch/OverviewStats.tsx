@@ -1,11 +1,8 @@
 "use client";
 
+import { AlertFill, BuildingFill, CheckboxCircleFill, GraduationCapFill, RocketFill } from "@digenty/icons";
 import { AllBranchesReport } from "@/api/types";
-import AlertFill from "@/components/Icons/AlertFill";
-import { BuildingFill } from "@/components/Icons/BuildingFill";
-import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
-import GraduationCapFill from "@/components/Icons/GraduationCapFill";
-import { RocketFill } from "@/components/Icons/RocketFill";
+
 import { OverviewCard } from "@/components/OverviewCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetAllBranchesDetails } from "@/hooks/queryHooks/useBranch";

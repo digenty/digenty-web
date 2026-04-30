@@ -1,7 +1,5 @@
-import { AddFill } from "@/components/Icons/AddFill";
-import Edit from "@/components/Icons/Edit";
-import { Gtbank } from "@/components/Icons/Gtbank";
-import { QuickReferenceAll } from "@/components/Icons/QuickReferenceAll";
+import { AddFill, Edit, Gtbank, QuickReferenceAll } from "@digenty/icons";
+
 import { SearchInput } from "@/components/SearchInput";
 import { Tabs } from "@/components/Tabs";
 import { Button } from "@/components/ui/button";

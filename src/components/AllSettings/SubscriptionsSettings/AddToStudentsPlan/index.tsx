@@ -1,13 +1,6 @@
 "use client";
 
-import { AddFill } from "@/components/Icons/AddFill";
-import { Alert } from "@/components/Icons/Alert";
-import BankCard from "@/components/Icons/BankCard";
-import { Gift2 } from "@/components/Icons/Gift2";
-import Information from "@/components/Icons/Information";
-import School from "@/components/Icons/School";
-import { Substract } from "@/components/Icons/Substract";
-import { User3 } from "@/components/Icons/User3";
+import { AddFill, Alert, BankCard, Gift2, Information, School, Substract, User3 } from "@digenty/icons";
 import { RoundedCheckbox } from "@/components/RoundedCheckbox";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";

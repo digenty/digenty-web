@@ -1,18 +1,12 @@
 "use client";
 
+import { Attachment2, Bold, ImageCircleFill, Italic, LineVerticale, Link, ListCheck3, ListOrdered2, Underline } from "@digenty/icons";
 import { useRef } from "react";
 import { Label } from "@/components/ui/label";
-import { Bold } from "@/components/Icons/Bold";
-import { Italic } from "@/components/Icons/Italic";
+
 import { Button } from "@/components/ui/button";
-import { Underline } from "@/components/Icons/Underline";
-import { ListOrdered2 } from "@/components/Icons/ListOrdered2";
-import { Link } from "@/components/Icons/Link";
-import { ImageCircleFill } from "@/components/Icons/ImageCircleFill";
-import { Attachment2 } from "@/components/Icons/Attachment2";
+
 import { Input } from "@/components/ui/input";
-import { LineVerticale } from "@/components/Icons/LineVerticale";
-import { ListCheck3 } from "@/components/Icons/ListCheck3";
 
 type NoteEditorProps = {
   value: string;

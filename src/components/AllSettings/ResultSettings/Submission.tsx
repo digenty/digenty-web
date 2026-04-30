@@ -1,6 +1,7 @@
+import { Edit } from "@digenty/icons";
 import { Term } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
-import Edit from "@/components/Icons/Edit";
+
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";

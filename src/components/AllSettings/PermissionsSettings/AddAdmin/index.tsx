@@ -1,4 +1,5 @@
-import Mail from "@/components/Icons/Mail";
+import { Mail } from "@digenty/icons";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";

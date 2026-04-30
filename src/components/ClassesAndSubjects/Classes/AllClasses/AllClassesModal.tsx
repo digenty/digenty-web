@@ -1,8 +1,6 @@
+import { Calendar, GraduationCap, StickyNote, Timee } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import Calendar from "@/components/Icons/Calendar";
-import GraduationCap from "@/components/Icons/GraduationCap";
-import { StickyNote } from "@/components/Icons/StickyNote";
-import { Timee } from "@/components/Icons/Timee";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";

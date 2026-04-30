@@ -1,16 +1,12 @@
 "use client";
 
+import { Bank, BankCard, Download2, EyeClose, FileCopy, LogoMark } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import { Bank } from "@/components/Icons/Bank";
-import BankCard from "@/components/Icons/BankCard";
-import { LogoMark } from "@/components/Icons/LogoMark";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { PreviewTable } from "./PreviewTable";
-import { FileCopy } from "@/components/Icons/FileCopy";
-import Download2 from "@/components/Icons/Download2";
-import { EyeClose } from "@/components/Icons/EyeClose";
 
 type ToggleProp = {
   onPreviewToggle: (open: boolean) => void;

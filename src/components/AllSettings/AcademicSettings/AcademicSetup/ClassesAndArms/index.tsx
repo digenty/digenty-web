@@ -1,16 +1,9 @@
 "use client";
 
+import { BookFill, BookOpen, DeleteBin, Edit, GitMergeFill, GraduationCapFill, Loader2Fill, School, Settings4 } from "@digenty/icons";
 import { Branch, BranchWithClassLevels, ClassInLevel, ClassInLevelDetails, ClassLevel } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { BookFill } from "@/components/Icons/BookFill";
-import BookOpen from "@/components/Icons/BookOpen";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
-import { GitMergeFill } from "@/components/Icons/GitMergeFill";
-import GraduationCapFill from "@/components/Icons/GraduationCapFill";
-import Loader2Fill from "@/components/Icons/Loader2Fill";
-import School from "@/components/Icons/School";
-import Settings4 from "@/components/Icons/Settings4";
+
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

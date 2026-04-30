@@ -1,7 +1,5 @@
-import AlertFill from "@/components/Icons/AlertFill";
-import Bill from "@/components/Icons/Bill";
-import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
-import Download2 from "@/components/Icons/Download2";
+import { AlertFill, Bill, CheckboxCircleFill, Download2 } from "@digenty/icons";
+
 import { OverviewCard } from "@/components/OverviewCard";
 import { Button } from "@/components/ui/button";
 import { ValidationError } from "./CSVUpload";

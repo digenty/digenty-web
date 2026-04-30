@@ -1,8 +1,8 @@
 "use client";
+import { QuickReferenceAll } from "@digenty/icons";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Tooltip as CustomTooltip } from "./Tooltip";
 import { ChartData } from "./types";
-import { QuickReferenceAll } from "../Icons/QuickReferenceAll";
 
 export const StackedBarChart = ({ data }: { data: ChartData[] }) => {
   return (

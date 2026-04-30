@@ -1,5 +1,6 @@
 "use client";
 
+import { DeleteBin, Edit, Eye, FileCopy } from "@digenty/icons";
 import React, { useState } from "react";
 import { DataTable } from "../DataTable";
 import { StocksOverviewTableColumns } from "./Columns";
@@ -7,13 +8,11 @@ import { stocksItems, stocksItemsProps } from "./types";
 import { Button } from "../ui/button";
 import { Ellipsis } from "lucide-react";
 import { MobileDrawer } from "../MobileDrawer";
-import Eye from "../Icons/Eye";
+
 import Image from "next/image";
 import { stockStatus } from "../Status";
 import { Badge } from "../ui/badge";
-import Edit from "../Icons/Edit";
-import { FileCopy } from "../Icons/FileCopy";
-import DeleteBin from "../Icons/DeleteBin";
+
 import { useRouter } from "next/navigation";
 
 export const StockOverviewTable = () => {

@@ -1,12 +1,9 @@
 "use client";
 
+import { BookFill, BookOpen, Edit, GitMergeFill, GraduationCapFill } from "@digenty/icons";
 import { Branch, BranchWithClassLevels, ClassInLevelDetails, ClassLevel } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { BookFill } from "@/components/Icons/BookFill";
-import BookOpen from "@/components/Icons/BookOpen";
-import Edit from "@/components/Icons/Edit";
-import { GitMergeFill } from "@/components/Icons/GitMergeFill";
-import GraduationCapFill from "@/components/Icons/GraduationCapFill";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

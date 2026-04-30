@@ -1,19 +1,19 @@
 "use client";
 
+import { AddFill, Calendar, School, ShareBox } from "@digenty/icons";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
 import { useState } from "react";
-import School from "../Icons/School";
+
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import Calendar from "../Icons/Calendar";
+
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { SearchInput } from "../SearchInput";
 import { Toggle } from "../Toggle";
-import ShareBox from "../Icons/ShareBox";
-import { AddFill } from "../Icons/AddFill";
+
 import { Modal } from "../Modal";
 import { Badge } from "../ui/badge";
 import { PlusIcon } from "lucide-react";

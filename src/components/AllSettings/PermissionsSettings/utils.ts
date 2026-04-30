@@ -1,24 +1,27 @@
+import {
+  BankCard,
+  CalendarCheck,
+  ColorFilter,
+  DeleteBin,
+  DoorOpen,
+  Edit,
+  Eye,
+  FileList2,
+  FileList3,
+  Gift2,
+  Global,
+  GraduationCap,
+  Group,
+  LineChart,
+  Macbook,
+  Megaphone,
+  SendPlane,
+  Settings4,
+  Store3,
+  Wallet,
+} from "@digenty/icons";
 // import { Trash2, Send, Settings, Users, BookOpen, Calendar, FileText, DollarSign, Package, BarChart2, Globe, Layout, UserPlus } from "lucide-react";
-import BankCard from "@/components/Icons/BankCard";
-import CalendarCheck from "@/components/Icons/CalendarCheck";
-import ColorFilter from "@/components/Icons/ColorFilter";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import { DoorOpen } from "@/components/Icons/DoorOpen";
-import Edit from "@/components/Icons/Edit";
-import Eye from "@/components/Icons/Eye";
-import FileList2 from "@/components/Icons/FileList2";
-import FileList3 from "@/components/Icons/FileList3";
-import { Gift2 } from "@/components/Icons/Gift2";
-import Global from "@/components/Icons/Global";
-import GraduationCap from "@/components/Icons/GraduationCap";
-import Group from "@/components/Icons/Group";
-import LineChart from "@/components/Icons/LineChart";
-import Macbook from "@/components/Icons/Macbook";
-import Megaphone from "@/components/Icons/Megaphone";
-import { SendPlane } from "@/components/Icons/SendPlane";
-import Settings4 from "@/components/Icons/Settings4";
-import Store3 from "@/components/Icons/Store3";
-import Wallet from "@/components/Icons/Wallet";
+
 import React from "react";
 
 type Input = Record<string, { id: number }[]>;

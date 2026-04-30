@@ -1,6 +1,7 @@
 "use client";
+import { DeleteBin } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import DeleteBin from "@/components/Icons/DeleteBin";
+
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";

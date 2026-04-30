@@ -1,7 +1,8 @@
+import { ShareBox } from "@digenty/icons";
 import { Branch, BranchWithClassLevels, Staff } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import ShareBox from "@/components/Icons/ShareBox";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { toast } from "@/components/Toast";

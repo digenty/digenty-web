@@ -1,5 +1,6 @@
 "use client";
 
+import { DatePickerIcon } from "@digenty/icons";
 import * as React from "react";
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -7,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { DateRange, Matcher } from "react-day-picker";
 import { cn } from "@/lib/utils";
-import { DatePickerIcon } from "../Icons/DatePickerIcon";
+
 import { CalendarIcon } from "lucide-react";
 
 type DateRangePickerProps = {

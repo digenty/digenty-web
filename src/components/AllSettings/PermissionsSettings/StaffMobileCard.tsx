@@ -1,8 +1,7 @@
+import { Edit, Eye, UserForbid } from "@digenty/icons";
 import { Staff } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import Edit from "@/components/Icons/Edit";
-import Eye from "@/components/Icons/Eye";
-import { UserForbid } from "@/components/Icons/UserForbid";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { getStatusBadge, staffStatusBadge } from "@/components/Status";
 import { Button } from "@/components/ui/button";

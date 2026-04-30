@@ -1,6 +1,6 @@
 "use client";
-import Eye from "@/components/Icons/Eye";
-import Notification2 from "@/components/Icons/Notification2";
+
+import { Eye, Notification2 } from "@digenty/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Subject } from ".";

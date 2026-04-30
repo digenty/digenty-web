@@ -1,5 +1,6 @@
 "use client";
 
+import { BallPen, Eye, Notification2, Printer } from "@digenty/icons";
 import React, { useState } from "react";
 import { InvoicesOverviewTableProps } from "./types";
 import { DataTable } from "../DataTable";
@@ -7,13 +8,11 @@ import { InvoiceOverviewTableColumns } from "./Column";
 import { getBadge } from "../StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import { Ellipsis, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
-import Eye from "../Icons/Eye";
-import Printer from "../Icons/Printer";
+
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Avatar } from "../Avatar";
 import { MobileDrawer } from "../MobileDrawer";
-import { BallPen } from "../Icons/BallPen";
-import Notification2 from "../Icons/Notification2";
+
 import { useRouter } from "next/navigation";
 
 const InvoicesItems = [

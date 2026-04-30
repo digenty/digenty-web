@@ -1,11 +1,9 @@
 "use client";
+import { DeleteBin, Import, ShareBox, WarningIcon } from "@digenty/icons";
 import { Arm, Branch, ClassType, Department, Parent } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Import from "@/components/Icons/Import";
-import ShareBox from "@/components/Icons/ShareBox";
-import WarningIcon from "@/components/Icons/WarningIcon";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { SearchInput } from "@/components/SearchInput";

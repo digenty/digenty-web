@@ -1,7 +1,8 @@
 "use client";
 
+import { ArrRight } from "@digenty/icons";
 import { useState } from "react";
-import { ArrRight } from "../../Icons/ArrRight";
+
 import { Button } from "../../ui/button";
 import { NewInvoiceDetail } from "./NewInvoiceDetails/NewInvoiceDetail";
 import { NewInvoiceHeader } from "./NewInvoiceHeader";

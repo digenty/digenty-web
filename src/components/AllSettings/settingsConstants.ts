@@ -1,13 +1,4 @@
-import { Award } from "../Icons/Award";
-import BankCard from "../Icons/BankCard";
-import { Box3 } from "../Icons/Box3";
-import FileList3 from "../Icons/FileList3";
-import GraduationCap from "../Icons/GraduationCap";
-import Group from "../Icons/Group";
-import { IdCard } from "../Icons/IdCard";
-import School from "../Icons/School";
-import { Shield } from "../Icons/Shield";
-import User from "../Icons/User";
+import { Award, BankCard, Box3, FileList3, GraduationCap, Group, IdCard, School, Shield, User } from "@digenty/icons";
 
 export const SETTINGS_NAV = [
   { label: "General Settings", url: "/staff/settings/general", icon: School },

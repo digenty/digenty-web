@@ -1,8 +1,9 @@
 "use client";
+import { AddFill } from "@digenty/icons";
 import React from "react";
 import { DashProgress } from "@/components/ProgressBar/DashProgress";
 import { Button } from "@/components/ui/button";
-import { AddFill } from "@/components/Icons/AddFill";
+
 import { useRouter } from "next/navigation";
 
 export const InvoicePaymentSummary = () => {

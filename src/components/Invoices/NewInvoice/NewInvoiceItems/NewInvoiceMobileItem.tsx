@@ -1,12 +1,11 @@
 "use client";
 
+import { DeleteBin, Draggable } from "@digenty/icons";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import { Draggable } from "@/components/Icons/Draggable";
 
 export type InvoiceItem = {
   id: string;

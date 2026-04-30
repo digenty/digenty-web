@@ -1,8 +1,6 @@
 "use client";
 
-import { AddFill } from "@/components/Icons/AddFill";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
+import { AddFill, DeleteBin, Edit } from "@digenty/icons";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";

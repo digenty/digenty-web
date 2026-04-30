@@ -1,11 +1,10 @@
 "use client";
 
+import { DeleteBin, School, SchoolFill } from "@digenty/icons";
 import { BranchWithClassLevels, Role, StaffBranch } from "@/api/types";
 import Accordion from "@/components/Accordion";
 import { AddStaffPayload, UpdateStaffPayload } from "@/components/AllSettings/types";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import School from "@/components/Icons/School";
-import { SchoolFill } from "@/components/Icons/SchoolFill";
+
 import { StaffInputValues } from "@/components/StudentAndParent/types";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";

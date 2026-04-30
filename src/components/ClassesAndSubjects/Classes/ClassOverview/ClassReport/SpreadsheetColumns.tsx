@@ -1,8 +1,9 @@
 "use client";
 
+import { ShareBox } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
 import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
-import ShareBox from "@/components/Icons/ShareBox";
+
 import { Button } from "@/components/ui/button";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { usePathname } from "next/navigation";

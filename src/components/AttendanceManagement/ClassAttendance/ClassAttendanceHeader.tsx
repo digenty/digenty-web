@@ -1,6 +1,6 @@
 "use client";
 
-import ListCheck from "@/components/Icons/ListCheck";
+import { Calendar, ListCheck } from "@digenty/icons";
 import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
 import { useMarkAllAttendance, useMarkAttendance } from "@/hooks/queryHooks/useAttendance";
@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { CheckIcon, XIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
-import Calendar from "../../Icons/Calendar";
+
 import { Button } from "../../ui/button";
 import { Calendar as AttendanceCalendar } from "../../ui/calendar";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "../../ui/select";

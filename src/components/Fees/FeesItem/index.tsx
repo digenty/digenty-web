@@ -1,3 +1,4 @@
+import { Edit, Eye, FileCopy } from "@digenty/icons";
 import React, { useState } from "react";
 import { FeesHeader } from "../FeesHeader";
 import { FeeItemProp } from "./feeItemType";
@@ -6,11 +7,10 @@ import { FeeItemsColumns } from "./FeetItemColumns";
 import { Button } from "@/components/ui/button";
 import { Ellipsis, Trash2 } from "lucide-react";
 import { MobileDrawer } from "@/components/MobileDrawer";
-import Eye from "@/components/Icons/Eye";
+
 import { Badge } from "@/components/ui/badge";
 import { getStatusBadge } from "@/components/Status";
-import Edit from "@/components/Icons/Edit";
-import { FileCopy } from "@/components/Icons/FileCopy";
+
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
