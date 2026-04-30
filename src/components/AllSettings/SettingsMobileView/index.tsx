@@ -1,5 +1,6 @@
+import { ArrowRightS } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import { ArrowRightS } from "@/components/Icons/ArrowRightS";
+
 import { useGetSchoolDetails } from "@/hooks/queryHooks/useSchool";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

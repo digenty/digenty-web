@@ -1,18 +1,18 @@
 "use client";
 
+import { Eye, FileList3Fill, GraduationCapFill } from "@digenty/icons";
 import React, { useState } from "react";
 import { classesFee, ClassFeeTypes } from "./classTypes";
 import { DataTable } from "@/components/DataTable";
 import { columnsClassFees } from "./ClassColumns";
 import { useRouter } from "next/navigation";
 import { OverviewCard } from "@/components/OverviewCard";
-import GraduationCapFill from "@/components/Icons/GraduationCapFill";
-import FileList3Fill from "@/components/Icons/FileList3Fill";
+
 import { FeesHeader } from "../FeesHeader";
 import { Button } from "@/components/ui/button";
 import { Ellipsis, Trash2 } from "lucide-react";
 import { MobileDrawer } from "@/components/MobileDrawer";
-import Eye from "@/components/Icons/Eye";
+
 import { Badge } from "@/components/ui/badge";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];

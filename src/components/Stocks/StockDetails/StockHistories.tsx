@@ -1,11 +1,12 @@
 "use client";
 
+import { Eye } from "@digenty/icons";
 import { DataTable } from "@/components/DataTable";
 import React, { useState } from "react";
 import { StocksHistoryColumns } from "./Columns";
 import { StockHistoryList, StockHistoryProps } from "./type";
 import { StockHistoryHeader } from "./StockHistoryHeader";
-import Eye from "@/components/Icons/Eye";
+
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/Avatar";
 import { Badge } from "@/components/ui/badge";

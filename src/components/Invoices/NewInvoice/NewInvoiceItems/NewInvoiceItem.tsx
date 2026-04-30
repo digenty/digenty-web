@@ -1,7 +1,6 @@
 "use client";
 
-import DeleteBin from "@/components/Icons/DeleteBin";
-import { Draggable } from "@/components/Icons/Draggable";
+import { DeleteBin, Draggable } from "@digenty/icons";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

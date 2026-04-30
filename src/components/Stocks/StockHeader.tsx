@@ -1,15 +1,15 @@
 "use client";
 
+import { FolderReduce, School } from "@digenty/icons";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
 import { useState } from "react";
-import School from "../Icons/School";
+
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { FolderReduce } from "../Icons/FolderReduce";
 
 const branches = ["All Branches", "Lawanson", "Ilasamaja"];
 

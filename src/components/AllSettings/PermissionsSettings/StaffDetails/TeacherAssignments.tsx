@@ -1,6 +1,6 @@
+import { BookOpen, Group } from "@digenty/icons";
 import { Arm, ClassTeacherArm, ClassType, Levelsubject, StaffBranch, SubjectTeaching } from "@/api/types";
-import BookOpen from "@/components/Icons/BookOpen";
-import Group from "@/components/Icons/Group";
+
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";

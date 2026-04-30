@@ -1,3 +1,4 @@
+import { DeleteBin, Edit, UserMinus } from "@digenty/icons";
 import { Student } from "@/api/types";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
@@ -6,9 +7,7 @@ import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Avatar } from "../../Avatar";
-import DeleteBin from "../../Icons/DeleteBin";
-import Edit from "../../Icons/Edit";
-import UserMinus from "../../Icons/UserMinus";
+
 import { MobileDrawer } from "../../MobileDrawer";
 import { Button } from "../../ui/button";
 

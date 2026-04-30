@@ -1,9 +1,7 @@
+import { Eye, EyeClose, Save, SendPlane } from "@digenty/icons";
 import React from "react";
 import { Button } from "../../ui/button";
-import Eye from "../../Icons/Eye";
-import Save from "../../Icons/Save";
-import { SendPlane } from "../../Icons/SendPlane";
-import { EyeClose } from "../../Icons/EyeClose";
+
 import { INVOICE_STEPS, useInvoiceStep } from "./step";
 import { Badge } from "../../ui/badge";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";

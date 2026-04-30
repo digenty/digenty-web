@@ -1,9 +1,6 @@
+import { FileList3Fill, IndeterminateCircleFill, Notification2Fill, SendPlaneFill, UserFill } from "@digenty/icons";
 import { useRouter } from "next/navigation";
-import FileList3Fill from "../Icons/FileList3Fill";
-import IndeterminateCircleFill from "../Icons/IndeterminateCircleFill";
-import Notification2Fill from "../Icons/Notification2Fill";
-import SendPlaneFill from "../Icons/SendPlaneFill";
-import UserFill from "../Icons/UserFill";
+
 import { Button } from "../ui/button";
 import { Shield, UserRoundCheck, UserRoundPlus, Users } from "lucide-react";
 

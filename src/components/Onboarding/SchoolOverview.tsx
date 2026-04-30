@@ -1,11 +1,12 @@
+import { DeleteBin, Map, School } from "@digenty/icons";
 import React from "react";
-import School from "../Icons/School";
+
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import Map from "../Icons/Map";
+
 import { Checkbox } from "../ui/checkbox";
 import { Button } from "../ui/button";
-import DeleteBin from "../Icons/DeleteBin";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { BranchType } from "./types";
 import { FormikProps } from "formik";

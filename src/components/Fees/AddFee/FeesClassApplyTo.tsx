@@ -1,9 +1,6 @@
 "use client";
 
-import { ArrowUpSFill } from "@/components/Icons/ArrowUpSFill";
-import BookOpen from "@/components/Icons/BookOpen";
-import GraduationCap from "@/components/Icons/GraduationCap";
-import School from "@/components/Icons/School";
+import { ArrowUpSFill, BookOpen, GraduationCap, School } from "@digenty/icons";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";

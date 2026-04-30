@@ -1,6 +1,7 @@
+import { UserSetting } from "@digenty/icons";
 import { CumulativeReport, PromotionBySubjectReport, PromotionBySubjectStudent, ResultSettings } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
-import { UserSetting } from "@/components/Icons/UserSetting";
+
 import { Button } from "@/components/ui/button";
 import { useGetRequiredSubjectReport } from "@/hooks/queryHooks/useClass";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";

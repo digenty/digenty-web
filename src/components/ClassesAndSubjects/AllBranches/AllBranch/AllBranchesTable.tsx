@@ -1,5 +1,6 @@
 "use client";
 
+import { Eye, Key, Notification2 } from "@digenty/icons";
 import { useState } from "react";
 import { AllBranchesTableProps } from "./types";
 
@@ -7,9 +8,7 @@ import { Avatar } from "@/components/Avatar";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
-import Eye from "@/components/Icons/Eye";
-import { Key } from "@/components/Icons/Key";
-import Notification2 from "@/components/Icons/Notification2";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import StatusBadge from "@/components/StatusBadge";

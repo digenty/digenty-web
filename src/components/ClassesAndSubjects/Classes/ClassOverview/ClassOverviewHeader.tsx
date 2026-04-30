@@ -1,6 +1,6 @@
 "use client";
 
-import FileList2 from "@/components/Icons/FileList2";
+import { FileList2 } from "@digenty/icons";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 

@@ -1,10 +1,9 @@
 "use client";
+import { Menu2, Notification2, QuestionFill } from "@digenty/icons";
 import { useSidebarStore } from "@/store";
 import Image from "next/image";
 import { Avatar } from "../Avatar";
-import Menu2 from "../Icons/Menu2";
-import Notification2 from "../Icons/Notification2";
-import QuestionFill from "../Icons/QuestionFill";
+
 import { Button } from "../ui/button";
 import { Breadcrumb } from "./Breadcrumb";
 import { useRouter } from "next/navigation";

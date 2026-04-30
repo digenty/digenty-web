@@ -1,14 +1,11 @@
 "use client";
 
+import { DeleteBin, Edit, UserMinus, WarningIcon } from "@digenty/icons";
 import { useEffect, useState } from "react";
 import { Avatar } from "../../../Avatar";
 import { Button } from "../../../ui/button";
 import { DialogDescription } from "../../../ui/dialog";
 
-import DeleteBin from "../../../Icons/DeleteBin";
-import Edit from "../../../Icons/Edit";
-import UserMinus from "../../../Icons/UserMinus";
-import WarningIcon from "../../../Icons/WarningIcon";
 import { Modal } from "../../../Modal";
 import { Checkbox } from "../../../ui/checkbox";
 import StudentTabs from "./StudentTabs";

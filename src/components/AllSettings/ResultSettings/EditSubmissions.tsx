@@ -1,5 +1,6 @@
+import { Edit } from "@digenty/icons";
 import { DateRangePicker } from "@/components/DatePicker";
-import Edit from "@/components/Icons/Edit";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";

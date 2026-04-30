@@ -1,11 +1,10 @@
+import { Check, Download2, Eye } from "@digenty/icons";
 import { ColumnDef } from "@tanstack/react-table";
 import { SubscriptionHistoryProps, SubscriptionPlanProps } from "./type";
 import { Badge } from "@/components/ui/badge";
-import { Check } from "@/components/Icons/Check";
+
 import { Button } from "@/components/ui/button";
 import { paymentStatus } from "@/components/Status";
-import Eye from "@/components/Icons/Eye";
-import Download2 from "@/components/Icons/Download2";
 
 const renderFeatureValue = (value: boolean | string) => {
   if (value === true) {

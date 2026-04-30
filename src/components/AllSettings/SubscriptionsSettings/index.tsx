@@ -1,14 +1,15 @@
 "use client";
 
+import { CheckDouble, Information } from "@digenty/icons";
 import { DataTable } from "@/components/DataTable";
-import { CheckDouble } from "@/components/Icons/CheckDouble";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { SubscriptionColumns } from "./Columns";
 import { subscriptionTableData } from "./type";
 import { Tabs } from "@/components/Tabs";
-import Information from "@/components/Icons/Information";
+
 import { useRouter } from "next/navigation";
 
 export const pricingPlans = [

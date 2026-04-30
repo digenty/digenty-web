@@ -1,5 +1,6 @@
+import { Gtbank } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import { Gtbank } from "@/components/Icons/Gtbank";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

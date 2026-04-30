@@ -1,6 +1,6 @@
+import { Draft } from "@digenty/icons";
 import { Check, CheckCheck, TriangleAlert, X } from "lucide-react";
 import { Badge } from "../ui/badge";
-import { Draft } from "../Icons/Draft";
 
 export const stockStatus = (status: string) => {
   switch (status) {

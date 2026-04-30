@@ -1,9 +1,8 @@
 "use client";
+import { ArrowOpenRight, NumStudentIcon, TimeFill } from "@digenty/icons";
 import { formatRelativeDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import ArrowOpenRight from "../Icons/ArrowOpenRight";
-import NumStudentIcon from "../Icons/NumStudentIcon";
-import { TimeFill } from "../Icons/TimeFill";
+
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { useCreateAttendanceSheet } from "@/hooks/queryHooks/useAttendance";

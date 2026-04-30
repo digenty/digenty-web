@@ -1,15 +1,14 @@
 "use client";
 
+import { ArrowRightS, Bank, QuickReferenceAll, ResetLeft } from "@digenty/icons";
 import React, { useState } from "react";
 import { NoteEditor } from "./NoteEditor";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ArrowRightS } from "@/components/Icons/ArrowRightS";
-import { ResetLeft } from "@/components/Icons/ResetLeft";
-import { QuickReferenceAll } from "@/components/Icons/QuickReferenceAll";
+
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from "@/components/ui/select";
-import { Bank } from "@/components/Icons/Bank";
+
 import { Avatar } from "@/components/Avatar";
 import { Switch } from "@/components/ui/switch";
 const payMethod = ["Bank Transfer", "Credit Card", "Cash"];

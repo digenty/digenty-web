@@ -1,7 +1,8 @@
 "use client";
-import { QuickReferenceAll } from "../Icons/QuickReferenceAll";
+
+import { AddFill, QuickReferenceAll } from "@digenty/icons";
 import { Button } from "../ui/button";
-import { AddFill } from "../Icons/AddFill";
+
 import { useRouter } from "next/navigation";
 
 export const EmptyFeeState = ({ title, description, buttonText, url }: { title: string; description: string; buttonText: string; url?: string }) => {

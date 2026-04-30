@@ -1,5 +1,6 @@
 "use client";
 
+import { BookOpen, GraduationCap, Group, School } from "@digenty/icons";
 import { Arm, Branch, BranchWithClassLevels, ClassType } from "@/api/types";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
@@ -7,10 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import Image from "next/image";
 import { useState } from "react";
-import BookOpen from "../Icons/BookOpen";
-import GraduationCap from "../Icons/GraduationCap";
-import Group from "../Icons/Group";
-import School from "../Icons/School";
+
 import { MobileDrawer } from "../MobileDrawer";
 import { PermissionCheck } from "../ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "../ui/button";

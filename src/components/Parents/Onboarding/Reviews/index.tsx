@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckboxCircleFill } from "@digenty/icons";
 import React, { useState } from "react";
 import { StudentReview } from "./StudentReview";
 import { ParentReview } from "./ParentReview";
@@ -10,7 +11,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
-import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
 
 const tabs = ["Your Details", "Student Details"];
 

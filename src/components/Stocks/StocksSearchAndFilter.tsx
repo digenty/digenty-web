@@ -1,5 +1,6 @@
 "use client";
 
+import { ShareBox } from "@digenty/icons";
 import Image from "next/image";
 import { useState } from "react";
 import { SearchInput } from "../SearchInput";
@@ -7,7 +8,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 
 import { Ellipsis, Plus } from "lucide-react";
-import ShareBox from "../Icons/ShareBox";
+
 import { MobileDrawer } from "../MobileDrawer";
 import { DrawerClose, DrawerFooter } from "../ui/drawer";
 import { useIsMobile } from "@/hooks/useIsMobile";

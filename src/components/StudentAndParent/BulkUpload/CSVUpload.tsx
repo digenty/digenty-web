@@ -1,11 +1,6 @@
 "use client";
-import Download2 from "@/components/Icons/Download2";
-import File from "@/components/Icons/File";
-import { FileExcel } from "@/components/Icons/FileExcel";
-import { FileExcel2 } from "@/components/Icons/FileExcel2";
-import FileExcelFill from "@/components/Icons/FileExcelFill";
-import Information from "@/components/Icons/Information";
-import ViewComfyAlt from "@/components/Icons/ViewComfyAlt";
+
+import { Download2, File, FileExcel, FileExcel2, FileExcelFill, Information, ViewComfyAlt } from "@digenty/icons";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";

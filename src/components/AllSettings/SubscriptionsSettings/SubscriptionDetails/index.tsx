@@ -1,10 +1,8 @@
 "use client";
 
+import { AddFill, Group, ListCheck, VipDiamond } from "@digenty/icons";
 import { DataTable } from "@/components/DataTable";
-import { AddFill } from "@/components/Icons/AddFill";
-import Group from "@/components/Icons/Group";
-import ListCheck from "@/components/Icons/ListCheck";
-import { VipDiamond } from "@/components/Icons/VipDiamond";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";

@@ -1,5 +1,6 @@
+import { CloseFill } from "@digenty/icons";
 import { ArmDetails, ClassLevel, Department, DepartmentResponse, DepartmentWithSubjects } from "@/api/types";
-import { CloseFill } from "@/components/Icons/CloseFill";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";

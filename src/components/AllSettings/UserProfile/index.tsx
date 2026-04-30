@@ -1,13 +1,8 @@
 "use client";
 
+import { Edit, IdCard, Mail, Phone, Save, Timee, User } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import Edit from "@/components/Icons/Edit";
-import { IdCard } from "@/components/Icons/IdCard";
-import Mail from "@/components/Icons/Mail";
-import { Phone } from "@/components/Icons/Phone";
-import Save from "@/components/Icons/Save";
-import { Timee } from "@/components/Icons/Timee";
-import User from "@/components/Icons/User";
+
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

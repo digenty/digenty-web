@@ -1,9 +1,8 @@
 "use client";
+import { DeleteBin, Edit, Printer } from "@digenty/icons";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
-import Printer from "@/components/Icons/Printer";
+
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
 

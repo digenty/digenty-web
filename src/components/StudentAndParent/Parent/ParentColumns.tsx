@@ -1,5 +1,6 @@
 "use client";
 
+import { DeleteBin, Edit } from "@digenty/icons";
 import { Parent } from "@/api/types";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,8 +11,7 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "../../Avatar";
-import DeleteBin from "../../Icons/DeleteBin";
-import Edit from "../../Icons/Edit";
+
 import { cn } from "@/lib/utils";
 
 const RenderOptions = (row: Row<Parent>) => {

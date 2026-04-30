@@ -1,6 +1,7 @@
 "use client";
+import { QuickReferenceAll } from "@digenty/icons";
 import { useRouter } from "next/navigation";
-import { QuickReferenceAll } from "../Icons/QuickReferenceAll";
+
 import { Button } from "../ui/button";
 
 export const PageEmptyState = ({ title, description, buttonText, url }: { title: string; description: string; buttonText: string; url?: string }) => {

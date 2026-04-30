@@ -1,10 +1,6 @@
+import { Building, Flag, Mail, Map, PhoneFill, User } from "@digenty/icons";
 import { Parent } from "@/api/types";
-import Building from "@/components/Icons/Building";
-import Flag from "@/components/Icons/Flag";
-import Mail from "@/components/Icons/Mail";
-import Map from "@/components/Icons/Map";
-import PhoneFill from "@/components/Icons/PhoneFill";
-import User from "@/components/Icons/User";
+
 import { Phone } from "lucide-react";
 
 export const Biodata = ({ parent }: { parent: Parent }) => {

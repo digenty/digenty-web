@@ -1,9 +1,6 @@
 "use client";
 
-import { AddFill } from "@/components/Icons/AddFill";
-import AlertFill from "@/components/Icons/AlertFill";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
+import { AddFill, AlertFill, DeleteBin, Edit } from "@digenty/icons";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { getStatusBadge } from "@/components/Status";

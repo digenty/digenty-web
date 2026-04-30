@@ -1,4 +1,5 @@
 "use client";
+import { Edit, Eye, FileCopy } from "@digenty/icons";
 import React, { useState } from "react";
 import { FeesHeader } from "../FeesHeader";
 import { DataTable } from "@/components/DataTable";
@@ -7,9 +8,7 @@ import { FeeGroupColumn } from "./FeeGroupColumns";
 import { Button } from "@/components/ui/button";
 import { Ellipsis, Trash2 } from "lucide-react";
 import { MobileDrawer } from "@/components/MobileDrawer";
-import Eye from "@/components/Icons/Eye";
-import Edit from "@/components/Icons/Edit";
-import { FileCopy } from "@/components/Icons/FileCopy";
+
 import { Badge } from "@/components/ui/badge";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";

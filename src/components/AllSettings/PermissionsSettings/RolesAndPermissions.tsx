@@ -1,8 +1,7 @@
+import { DeleteBin, Edit, WarningIcon } from "@digenty/icons";
 import { Role } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
-import WarningIcon from "@/components/Icons/WarningIcon";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { SearchInput } from "@/components/SearchInput";

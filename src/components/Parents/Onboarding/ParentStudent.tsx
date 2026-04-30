@@ -1,12 +1,12 @@
 "use client";
 
+import { ArrowUpS, CalendarIcon } from "@digenty/icons";
 import { Arm, BranchWithClassLevels, ClassType, Parent } from "@/api/types";
 import { getCountries } from "@/app/actions/country";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Country, State, StudentInputValues } from "@/components/StudentAndParent/types";
 import { toast } from "@/components/Toast";
-import { ArrowUpS } from "@/components/Icons/ArrowUpS";
-import CalendarIcon from "@/components/Icons/CalendarIcon";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
