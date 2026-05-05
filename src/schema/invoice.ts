@@ -36,11 +36,7 @@ export const addPaymentSchema = yup.object().shape({
   method: yup.string().required("Payment method is required"),
   terminalTransactionId: yup.string().nullable(),
   paidById: yup.number().min(1, "Please select who paid").required("Please select who paid"),
-  amount: yup
-    .number()
-    .typeError("Amount must be a number")
-    .min(0.01, "Amount must be greater than 0")
-    .required("Amount is required"),
+  amount: yup.number().typeError("Amount must be a number").min(0.01, "Amount must be greater than 0").required("Amount is required"),
   note: yup.string(),
 });
 
