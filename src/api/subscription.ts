@@ -126,7 +126,7 @@ export interface InitiateCheckoutDto {
   planId: number;
   studentCapacity: number;
   // useReferralCredit?: boolean;
-  // callbackUrl?: string;
+  callbackUrl: string;
 }
 
 export interface UpdateSubscriptionDto {

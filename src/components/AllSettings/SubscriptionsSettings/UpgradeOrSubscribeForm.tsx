@@ -130,8 +130,7 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProp
       {
         planId: selectedPlan.id,
         studentCapacity: studentCount,
-        // useReferralCredit: useReferral,
-        // callbackUrl: `${window.location.origin}/staff/settings/subscription/verify`,
+        callbackUrl: `${process.env.NEXT_PUBLIC_FRONTEND_BASE_URL}/staff/settings/subscription?reference={reference}`,
       },
       {
         onSuccess: (data: CheckoutResponseDto) => {
