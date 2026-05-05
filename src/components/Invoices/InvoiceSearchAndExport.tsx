@@ -19,7 +19,12 @@ import { useRouter } from "next/navigation";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
-export const InvoiceSearchAndExport = () => {
+type InvoiceSearchAndExportProps = {
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+};
+
+export const InvoiceSearchAndExport = ({ searchQuery, setSearchQuery }: InvoiceSearchAndExportProps) => {
   const isMobile = useIsMobile();
   const router = useRouter();
 
@@ -56,7 +61,11 @@ export const InvoiceSearchAndExport = () => {
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
         <div className="flex items-center gap-1">
-          <SearchInput className="border-border-default border text-sm" />
+          <SearchInput
+            className="border-border-default rounded-md border text-sm"
+            value={searchQuery}
+            onChange={evt => setSearchQuery(evt.target.value)}
+          />
 
           <DropdownMenu open={openFilter} onOpenChange={setOpenFilter}>
             <DropdownMenuTrigger asChild>
