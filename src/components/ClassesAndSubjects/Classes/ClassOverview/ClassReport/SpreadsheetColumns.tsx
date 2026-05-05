@@ -24,7 +24,7 @@ export const createColumns = (data: StudentRow[], term: string, showDecisionColu
     return (
       <div>
         <Button
-          className="text-text-default border-border-default border text-xs"
+          className="text-text-default border-border-default h-7! border text-xs"
           onClick={() => {
             const params = new URLSearchParams(window.location.search);
             params.set("studentId", String(row.original.id));
