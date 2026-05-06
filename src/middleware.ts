@@ -60,7 +60,7 @@ export default async function middleware(req: NextRequest) {
     if (path.startsWith("/parent")) {
       // Don't redirect if it's already a rewritten path or subdomain specific
       if (!path.includes(`/${host?.split(".")[0]}/`)) {
-        return NextResponse.redirect(new URL("/auth/parent", req.url));
+        return NextResponse.redirect(new URL("/auth/parent/login", req.url));
       }
     }
   }
