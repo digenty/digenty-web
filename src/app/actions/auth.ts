@@ -20,6 +20,7 @@ export const createSession = async (token: string, userType: "SCHOOL_STAFF" | "P
 export const deleteSession = async () => {
   const cookieStore = await cookies();
   cookieStore.delete("token");
+  cookieStore.delete("school");
 
   redirect("/auth/staff");
 };

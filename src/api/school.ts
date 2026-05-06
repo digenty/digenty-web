@@ -1,5 +1,6 @@
 import { CreateSchoolTypes } from "@/components/Onboarding/types";
 import api from "@/lib/axios/axios-auth";
+import apiPublic from "@/lib/axios/axios-public";
 import { isAxiosError } from "axios";
 import { updateSchoolPayload } from "./types";
 
@@ -54,6 +55,18 @@ export const getSchoolDetails = async () => {
 export const getOnboardingProgress = async () => {
   try {
     const { data } = await api.get("/schools/onboarding/progress");
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const lookupSchoolByDomain = async (host: string) => {
+  try {
+    const { data } = await apiPublic.get("/parent/portal/lookup/schools/by-domain", { params: { host } });
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
