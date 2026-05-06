@@ -13,7 +13,7 @@ import { STUDENT_TIER_RANGES } from "./type";
 import { useCheckoutSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
 import { useGetStudentsDistribution } from "@/hooks/queryHooks/useStudent";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
-import { PlanResponseDto } from "@/api/subscription";
+import { CheckoutResponseDto, PlanResponseDto } from "@/api/subscription";
 import { title } from "process";
 import { toast } from "@/components/Toast";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
@@ -40,20 +40,23 @@ export const AddStudentsForm = () => {
   const totalActiveStudents =
     distribution?.data?.find((d: { status: StudentsStatus; count: number }) => d.status === StudentsStatus.Active)?.count ?? 0;
 
-  const currentPlan = useMemo(() => plans?.find((plan: PlanResponseDto) => plan.name === subscription?.planName), [plans, subscription?.planName]);
+  const currentPlan = useMemo(
+    () => plans?.find((plan: PlanResponseDto) => plan.name === subscription?.data?.planName),
+    [plans, subscription?.data?.planName],
+  );
 
-  const initialCount = (subscription?.studentCapacity ?? 0) + 1;
+  const initialCount = (subscription?.data?.studentCapacity ?? 0) + 1;
   const [studentCount, setStudentCount] = useState(initialCount);
   const [useReferral, setUseReferral] = useState(false);
 
   useEffect(() => {
-    if (subscription?.studentCapacity) {
-      setStudentCount(prev => (prev <= 1 ? subscription.studentCapacity + 1 : prev));
+    if (subscription?.data?.studentCapacity) {
+      setStudentCount(prev => (prev <= 1 ? subscription?.data?.studentCapacity + 1 : prev));
     }
-  }, [subscription?.studentCapacity]);
+  }, [subscription?.data?.studentCapacity]);
 
   const pricePerStudent = currentPlan?.pricePerStudent ?? 0;
-  const additionalStudents = Math.max(0, studentCount - (subscription?.studentCapacity ?? 0));
+  const additionalStudents = Math.max(0, studentCount - (subscription?.data?.studentCapacity ?? 0));
   const subtotal = pricePerStudent * additionalStudents;
 
   const handlePay = () => {
@@ -76,11 +79,11 @@ export const AddStudentsForm = () => {
         planId: currentPlan.id,
         studentCapacity: studentCount,
         // useReferralCredit: useReferral,
-        callbackUrl: `${process.env.NEXT_PUBLIC_FRONTEND_BASE_URL}/staff/settings/subscription?reference={reference}`,
+        callbackUrl: `${process.env.NEXT_PUBLIC_FRONTEND_BASE_URL}/staff/settings/subscription/verify`,
       },
       {
-        onSuccess: ({ authorizationUrl }) => {
-          window.location.href = authorizationUrl;
+        onSuccess: (data: CheckoutResponseDto) => {
+          window.location.href = data?.authorizationUrl;
         },
         onError: (error: unknown) => {
           const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
@@ -94,7 +97,7 @@ export const AddStudentsForm = () => {
     );
   };
 
-  const planName = subscription?.planName ?? "—";
+  const planName = subscription?.data?.planName ?? "—";
   const tier = tierForCount(studentCount);
 
   return (
@@ -122,7 +125,7 @@ export const AddStudentsForm = () => {
               </Badge>
               <Badge className="bg-bg-subtle text-text-subtle border-border-default h-6 rounded-md px-2 text-xs font-medium">
                 <BuildingFill fill="var(--color-icon-default-muted)" className="h-3 w-3" />
-                Capacity {(subscription?.studentCapacity ?? 0).toLocaleString()}
+                Capacity {(subscription?.data?.studentCapacity ?? 0).toLocaleString()}
               </Badge>
             </div>
 

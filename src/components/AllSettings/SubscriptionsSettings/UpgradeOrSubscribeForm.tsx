@@ -130,11 +130,11 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProp
       {
         planId: selectedPlan.id,
         studentCapacity: studentCount,
-        callbackUrl: `${process.env.NEXT_PUBLIC_FRONTEND_BASE_URL}/staff/settings/subscription?reference={reference}`,
+        callbackUrl: `${process.env.NEXT_PUBLIC_FRONTEND_BASE_URL}/staff/settings/subscription/verify`,
       },
       {
         onSuccess: (data: CheckoutResponseDto) => {
-          router.push(data.authorizationUrl);
+          window.location.href = data?.authorizationUrl;
         },
         onError: (error: unknown) => {
           const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
@@ -163,16 +163,16 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProp
                 <div className="flex flex-col gap-1">
                   <p className="text-text-muted text-xs">Your Current Plan</p>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-text-default text-sm font-medium">{currentSubscription.planName} Plan</span>
+                    <span className="text-text-default text-sm font-medium">{currentSubscription.data?.planName} Plan</span>
                     <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md px-1.5 text-xs font-medium">
-                      {currentSubscription.status}
+                      {currentSubscription.data?.status}
                     </Badge>
-                    <span className="text-text-muted text-xs">• {currentSubscription.studentCapacity} students</span>
+                    <span className="text-text-muted text-xs">• {currentSubscription.data?.studentCapacity} students</span>
                   </div>
                 </div>
-                {currentSubscription.endDate && (
+                {currentSubscription.data?.endDate && (
                   <Badge className="bg-bg-badge-rose text-bg-basic-rose-strong border-border-default h-5 shrink-0 rounded-md px-1.5 text-xs font-medium">
-                    Expires {formatDate(currentSubscription.endDate)}
+                    Expires {formatDate(currentSubscription.data?.endDate ?? "")}
                   </Badge>
                 )}
               </div>
@@ -250,7 +250,6 @@ interface PlanRadioProps {
 }
 
 const PlanRadio = ({ name, price, selected, onSelect, featureSummary, children }: PlanRadioProps) => {
-  console.log(name);
   return (
     <div
       onClick={onSelect}

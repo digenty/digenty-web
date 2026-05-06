@@ -16,7 +16,7 @@ import { subscriptionKeys } from "@/queries/subscription";
 
 export const useGetCurrentSubscription = () => {
   return useQuery({
-    queryKey: subscriptionKeys.current,
+    queryKey: [subscriptionKeys.current],
     queryFn: getCurrentSubscription,
     retry: false,
   });
@@ -105,8 +105,9 @@ export const useCancelSubscription = () => {
     mutationKey: subscriptionKeys.cancel,
     mutationFn: (id: number) => cancelSubscription(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: subscriptionKeys.current });
-      queryClient.invalidateQueries({ queryKey: subscriptionKeys.active });
+      queryClient.setQueryData([subscriptionKeys.current], null);
+      queryClient.setQueryData(subscriptionKeys.active, null);
+      queryClient.invalidateQueries({ queryKey: ["subscriptionBillingHistory"] });
     },
   });
 };

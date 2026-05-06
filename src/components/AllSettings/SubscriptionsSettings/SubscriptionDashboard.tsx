@@ -1,26 +1,25 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { BillingHistoryDto, SubscriptionStatus } from "@/api/subscription";
 import { DataTable } from "@/components/DataTable";
 import { AddFill } from "@/components/Icons/AddFill";
-import Eye from "@/components/Icons/Eye";
-import Download2 from "@/components/Icons/Download2";
 import AlertFill from "@/components/Icons/AlertFill";
-import { paymentStatus } from "@/components/Status";
-import { Modal } from "@/components/Modal";
-import { BillingHistoryRow, billingStatusLabel, subscriptionStatusLabel } from "./type";
 import Group from "@/components/Icons/Group";
-import { VipDiamond } from "@/components/Icons/VipDiamond";
 import ListCheck from "@/components/Icons/ListCheck";
-import { useCancelSubscription, useGetBillingHistory, useGetCurrentSubscription, useRenewSubscription } from "@/hooks/queryHooks/useSubscription";
-import { BillingHistoryDto, SubscriptionStatus } from "@/api/subscription";
-import { cn, formatDate } from "@/lib/utils";
+import { VipDiamond } from "@/components/Icons/VipDiamond";
+import { Modal } from "@/components/Modal";
+import { paymentStatus } from "@/components/Status";
 import { toast } from "@/components/Toast";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useCancelSubscription, useGetBillingHistory, useGetCurrentSubscription, useRenewSubscription } from "@/hooks/queryHooks/useSubscription";
+import { cn } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
+import { MoreHorizontal } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { BillingHistoryRow, billingStatusLabel, subscriptionStatusLabel } from "./type";
 
 const PAGE_SIZE = 10;
 
@@ -32,7 +31,7 @@ const STATUS_BADGE_CLASS: Record<SubscriptionStatus, string> = {
 };
 
 const toRow = (dto: BillingHistoryDto): BillingHistoryRow => ({
-  period: `${formatDate(dto.periodStart)} – ${formatDate(dto.periodEnd)}`,
+  period: `${format(dto.periodStart, "MMM dd, yyyy")} – ${format(dto.periodEnd, "MMM dd, yyyy")}`,
   plan: dto.planName,
   status: billingStatusLabel[dto.status] ?? dto.status,
   amount: dto.amount,
@@ -129,7 +128,7 @@ const billingColumns: ColumnDef<BillingHistoryRow>[] = [
   {
     accessorKey: "plan",
     header: () => <div className="text-text-muted text-sm font-medium">Plan</div>,
-    cell: ({ row }) => <div className="text-text-default text-sm">{row.original.plan}</div>,
+    cell: ({ row }) => <div className="text-text-default text-sm capitalize">{row.original.plan && row.original.plan.toLowerCase()}</div>,
   },
   {
     accessorKey: "status",
@@ -141,20 +140,20 @@ const billingColumns: ColumnDef<BillingHistoryRow>[] = [
     header: () => <div className="text-text-muted text-sm font-medium">Amount</div>,
     cell: ({ row }) => <div className="text-text-default text-sm">₦{row.original.amount.toLocaleString()}</div>,
   },
-  {
-    accessorKey: "actions",
-    header: () => <div />,
-    cell: () => (
-      <div className="flex items-center gap-6">
-        <button className="cursor-pointer" aria-label="View">
-          <Eye fill="var(--color-icon-default-muted)" />
-        </button>
-        <button className="cursor-pointer" aria-label="Download">
-          <Download2 fill="var(--color-icon-default-muted)" />
-        </button>
-      </div>
-    ),
-  },
+  // {
+  //   accessorKey: "actions",
+  //   header: () => <div />,
+  //   cell: () => (
+  //     <div className="flex items-center gap-6">
+  //       <button className="cursor-pointer" aria-label="View">
+  //         <Eye fill="var(--color-icon-default-muted)" />
+  //       </button>
+  //       <button className="cursor-pointer" aria-label="Download">
+  //         <Download2 fill="var(--color-icon-default-muted)" />
+  //       </button>
+  //     </div>
+  //   ),
+  // },
 ];
 
 export const SubscriptionDashboard = () => {
@@ -165,18 +164,18 @@ export const SubscriptionDashboard = () => {
   const { data: billing, isLoading: isLoadingBilling } = useGetBillingHistory({ page: page - 1, size: PAGE_SIZE });
   const { mutate: renew, isPending: isRenewing } = useRenewSubscription();
 
-  const studentCapacityUsed = subscription?.activeStudentCount ?? 0;
-  const studentCapacityTotal = subscription?.studentCapacity ?? 0;
+  const studentCapacityUsed = subscription?.data?.activeStudentCount ?? 0;
+  const studentCapacityTotal = subscription?.data?.studentCapacity ?? 0;
   const percentUsed = studentCapacityTotal > 0 ? Math.min(100, (studentCapacityUsed / studentCapacityTotal) * 100) : 0;
 
-  const billingRows = useMemo(() => billing?.content?.map(toRow) ?? [], [billing]);
+  const billingRows = useMemo(() => billing?.data?.content?.map(toRow) ?? [], [billing]);
 
-  const isActive = subscription?.status === "ACTIVE";
-  const isInactive = subscription?.status === "EXPIRED" || subscription?.status === "CANCELLED";
+  const isActive = subscription?.data?.status === "ACTIVE";
+  const isInactive = subscription?.data?.status === "EXPIRED" || subscription?.data?.status === "CANCELLED";
 
   const handleRenew = () => {
     if (!subscription) return;
-    renew(subscription.subscriptionId, {
+    renew(subscription.data?.subscriptionId, {
       onSuccess: ({ authorizationUrl }) => {
         window.location.href = authorizationUrl;
       },
@@ -223,13 +222,13 @@ export const SubscriptionDashboard = () => {
                   <Badge
                     className={cn(
                       "border-border-default h-5 rounded-md px-1.5 text-xs font-medium",
-                      STATUS_BADGE_CLASS[subscription.status] ?? STATUS_BADGE_CLASS.PENDING,
+                      STATUS_BADGE_CLASS[subscription?.data?.status] ?? STATUS_BADGE_CLASS.PENDING,
                     )}
                   >
-                    {subscriptionStatusLabel[subscription.status] ?? subscription.status}
+                    {subscriptionStatusLabel[subscription?.data?.status] ?? subscription?.data?.status}
                   </Badge>
                 </div>
-                <p className="text-text-muted text-xs">{subscription.planName} Plan</p>
+                <p className="text-text-muted text-xs capitalize">{subscription?.data?.planName.toLowerCase()} Plan</p>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -298,7 +297,7 @@ export const SubscriptionDashboard = () => {
       </div>
 
       {subscription && cancelOpen && (
-        <CancelSubscriptionModal open={cancelOpen} setOpen={setCancelOpen} subscriptionId={subscription.subscriptionId} />
+        <CancelSubscriptionModal open={cancelOpen} setOpen={setCancelOpen} subscriptionId={subscription?.data?.subscriptionId} />
       )}
 
       <div className="flex flex-col gap-4 sm:gap-6">
@@ -307,7 +306,7 @@ export const SubscriptionDashboard = () => {
           <DataTable
             columns={billingColumns}
             data={billingRows}
-            totalCount={billing?.totalElements ?? 0}
+            totalCount={billing?.data?.totalElements ?? 0}
             page={page}
             setCurrentPage={setPage}
             pageSize={PAGE_SIZE}

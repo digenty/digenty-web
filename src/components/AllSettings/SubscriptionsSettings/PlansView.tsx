@@ -143,7 +143,7 @@ export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
             <p className="text-text-muted col-span-full text-center text-sm">No plans available for this selection.</p>
           ) : (
             filteredPlans.map(plan => {
-              const isCurrent = currentSubscription?.planName === plan.name;
+              const isCurrent = currentSubscription?.data?.planName === plan.name;
               return (
                 <div key={plan.id} className="bg-bg-default border-border-default flex flex-col gap-4 rounded-xl border p-4 sm:p-6">
                   <div className="flex items-center justify-between">

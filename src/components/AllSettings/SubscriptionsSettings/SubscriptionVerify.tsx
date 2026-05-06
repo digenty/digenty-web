@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/components/Toast";
 import { useVerifySubscription } from "@/hooks/queryHooks/useSubscription";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
@@ -16,6 +16,7 @@ export const SubscriptionVerify = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reference = searchParams.get("reference") ?? "";
+  const hasHandledSuccess = useRef(false);
 
   useEffect(() => {
     if (!reference) {
@@ -26,8 +27,9 @@ export const SubscriptionVerify = () => {
   const { isLoading, isSuccess, isError, error } = useVerifySubscription(reference);
 
   useEffect(() => {
-    if (isSuccess) {
-      toast.success("Subscription activated successfully");
+    if (isSuccess && !hasHandledSuccess.current) {
+      hasHandledSuccess.current = true;
+      toast({ title: "Subscription activated successfully", type: "success" });
       router.replace("/staff/settings/subscription");
     }
   }, [isSuccess, router]);

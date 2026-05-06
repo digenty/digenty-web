@@ -70,7 +70,7 @@ export interface PageBillingHistoryDto {
 
 export const getCurrentSubscription = async () => {
   try {
-    const { data } = await api.get<SubscriptionOverviewDto>("/subscriptions");
+    const { data } = await api.get<{ data: SubscriptionOverviewDto }>("/subscriptions");
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
@@ -106,7 +106,7 @@ export const getPlans = async () => {
 
 export const getBillingHistory = async ({ page, size }: { page: number; size: number }) => {
   try {
-    const { data } = await api.get<PageBillingHistoryDto>(`/subscriptions/billing?page=${page}&size=${size}`);
+    const { data } = await api.get<{ data: PageBillingHistoryDto }>(`/subscriptions/billing?page=${page}&size=${size}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
@@ -148,8 +148,8 @@ export const createSubscription = async (payload: CreateSubscriptionDto) => {
 
 export const checkoutSubscription = async (payload: InitiateCheckoutDto) => {
   try {
-    const { data } = await api.post<CheckoutResponseDto>("/subscriptions/checkout", payload);
-    return data;
+    const { data } = await api.post<{ data: CheckoutResponseDto }>("/subscriptions/checkout", payload);
+    return data?.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
