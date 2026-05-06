@@ -3,7 +3,7 @@
 import { Calendar, ListCheck } from "@digenty/icons";
 import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
-import { useMarkAllAttendance, useMarkAttendance } from "@/hooks/queryHooks/useAttendance";
+import { useCreateAttendanceSheet, useMarkAllAttendance, useMarkAttendance } from "@/hooks/queryHooks/useAttendance";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { format } from "date-fns";
 import { CheckIcon, XIcon } from "lucide-react";
@@ -40,6 +40,7 @@ export const ClassAttendanceHeader = ({
 
   const { mutate: saveAttendance, isPending: saving } = useMarkAttendance();
   const { mutate: markAllAttendance, isPending: markingAll } = useMarkAllAttendance();
+  const { mutate: createSheet } = useCreateAttendanceSheet();
 
   useBreadcrumb([
     { label: "Attendance Management", url: "/staff/attendance" },
@@ -79,7 +80,7 @@ export const ClassAttendanceHeader = ({
     markAllAttendance(
       {
         armId: Number(armId),
-        date: date.toISOString(),
+        date: format(date, "yyyy-MM-dd"),
         isPresent,
       },
       {
@@ -150,9 +151,28 @@ export const ClassAttendanceHeader = ({
                 className="text-text-default"
                 mode="single"
                 selected={date}
-                onSelect={date => {
-                  setDate(date as Date);
+                onSelect={selected => {
+                  const newDate = selected as Date;
+                  setDate(newDate);
                   setOpen(false);
+                  createSheet(
+                    { armId: Number(armId), date: format(newDate, "yyyy-MM-dd") },
+                    {
+                      onSuccess: data => {
+                        toast({
+                          title: "Attendance sheet ready",
+                          description: data.message,
+                          type: "success",
+                        });
+                      },
+                      onError: error => {
+                        toast({
+                          title: error?.message ?? "Could not create attendance sheet",
+                          type: "error",
+                        });
+                      },
+                    },
+                  );
                 }}
                 disabled={[
                   { dayOfWeek: [0, 6] },
