@@ -1,8 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import BankCard from "@/components/Icons/BankCard";
-import { Alert } from "@/components/Icons/Alert";
+import { BankCard, Alert } from "@digenty/icons";
 import { BillingCycle } from "./type";
 import { Toggle } from "@/components/Toggle";
 

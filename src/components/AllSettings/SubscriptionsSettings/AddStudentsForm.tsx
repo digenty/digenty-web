@@ -3,11 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AddFill } from "@/components/Icons/AddFill";
-import { Subtract } from "@/components/Icons/Subtract";
-import { User3 } from "@/components/Icons/User3";
-import { BuildingFill } from "@/components/Icons/BuildingFill";
-import Information from "@/components/Icons/Information";
+import { AddFill, Subtract, User3, BuildingFill, Information } from "@digenty/icons";
 import { OrderSummary } from "./OrderSummary";
 import { STUDENT_TIER_RANGES } from "./type";
 import { useCheckoutSubscription, useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeftS } from "@/components/Icons/ArrowLeftS";
+import { ArrowLeftS } from "@digenty/icons";
 
 interface SubscriptionBackLinkProps {
   href: string;

@@ -2,11 +2,7 @@
 
 import { BillingHistoryDto, SubscriptionStatus } from "@/api/subscription";
 import { DataTable } from "@/components/DataTable";
-import { AddFill } from "@/components/Icons/AddFill";
-import AlertFill from "@/components/Icons/AlertFill";
-import Group from "@/components/Icons/Group";
-import ListCheck from "@/components/Icons/ListCheck";
-import { VipDiamond } from "@/components/Icons/VipDiamond";
+import { AddFill, AlertFill, Group, ListCheck, VipDiamond } from "@digenty/icons";
 import { Modal } from "@/components/Modal";
 import { paymentStatus } from "@/components/Status";
 import { toast } from "@/components/Toast";

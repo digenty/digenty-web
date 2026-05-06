@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check } from "@/components/Icons/Check";
-import { CloseFill } from "@/components/Icons/CloseFill";
+import { Check, CloseFill } from "@digenty/icons";
 import { cn } from "@/lib/utils";
 import { planFeaturesData } from "./type";
 
