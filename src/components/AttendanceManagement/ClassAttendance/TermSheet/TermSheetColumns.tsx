@@ -31,7 +31,7 @@ const RenderCell = (row: Row<StudentAttendance>, week: string, day: AttendanceDa
 export const generateColumns = ({ weeks, totalStudents }: { weeks: AttendanceWeek[]; totalStudents: number }): ColumnDef<StudentAttendance>[] => {
   return [
     {
-      accessorKey: "name",
+      accessorKey: "attendance-name",
 
       header: () => (
         <div className="bg-bg-muted fill-header text-text-muted absolute -top-10 left-0 flex h-20 w-full flex-col justify-center pl-4 font-medium">
