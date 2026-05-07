@@ -1,153 +1,266 @@
-import { Edit, Eye, FileCopy } from "@digenty/icons";
-import React, { useState } from "react";
+"use client";
+
+import { Edit, Eye } from "@digenty/icons";
+import { Modal } from "@/components/Modal";
+import { Button } from "@/components/ui/button";
+import React, { useMemo, useState } from "react";
 import { FeesHeader } from "../FeesHeader";
-import { FeeItemProp } from "./feeItemType";
 import { DataTable } from "@/components/DataTable";
 import { FeeItemsColumns } from "./FeetItemColumns";
-import { Button } from "@/components/ui/button";
 import { Ellipsis, Trash2 } from "lucide-react";
 import { MobileDrawer } from "@/components/MobileDrawer";
-
 import { Badge } from "@/components/ui/badge";
 import { getStatusBadge } from "@/components/Status";
-
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
-const branches = ["All Branches", "Lawanson", "Ilasamaja"];
-const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
+import { EmptyFeeState } from "../EmptyFeeState";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useGetFeeItems, useDeleteFeeItem } from "@/hooks/queryHooks/useFee";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { toast } from "sonner";
+import { Branch } from "@/api/types";
+import * as XLSX from "xlsx";
+import { unwrapArray } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const TERM_LABEL: Record<string, string> = { FIRST: "First Term", SECOND: "Second Term", THIRD: "Third Term" };
+
+interface FeeItemRow {
+  id: number;
+  feeName: string;
+  status: string;
+  applyTo: { school: string; count: number };
+  totalAmount: number;
+}
 
 export const FeesItem = () => {
   const router = useRouter();
+  const { schoolId } = useLoggedInUser();
+
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
     { label: "Fee Items", url: "/staff/fees?tab=Fee Items" },
   ]);
-  const [branchSelected, setBranchSelected] = useState(branches[0]);
-  const [termSelected, setTermSelected] = useState(termsOptions[0]);
+
+  const { data: branchesData } = useGetBranches();
+  const { data: termsData } = useGetTerms(schoolId);
+
+  const branches: Branch[] = unwrapArray<Branch>(branchesData);
+  // Terms shape: termsData.data.terms → [{termId, term, ...}]
+  const rawTerms = unwrapArray<{ termId: number; term: string; label?: string; name?: string }>(termsData);
+
+  const branchOptions = ["All Branches", ...branches.filter(b => b.name).map((b: Branch) => b.name!)];
+  const termOptions = rawTerms.map(t => t.label ?? t.name ?? TERM_LABEL[t.term] ?? t.term);
+
+  const [branchSelected, setBranchSelected] = useState("All Branches");
+  const [termSelected, setTermSelected] = useState(termOptions[0] ?? "");
   const [rowSelection, setRowSelection] = useState({});
-  const [selectedRows, setSelectedRows] = useState<FeeItemProp[]>([]);
   const [visibleCount, setVisibleCount] = useState(3);
-  const [isOpen, setIsOpen] = useState(false);
+  const [openItemId, setOpenItemId] = useState<number | null>(null);
+  const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
+  const { mutate: deleteFeeItem, isPending: isDeleting } = useDeleteFeeItem();
   const pageSize = 6;
 
-  const feesItems: FeeItemProp[] = Array.from({ length: 15 }, (_, i) => ({
-    id: i + 1,
-    feeName: "Tuition Fee",
-    status: "Required",
-    applyTo: { school: "Lawanson: SS1", count: 20 },
-    totalAmount: 1500000,
-  }));
+  const selectedBranch = branches.find((b: Branch) => b.name === branchSelected);
+  const selectedTermObj = rawTerms.find(t => (t.label ?? t.name ?? TERM_LABEL[t.term]) === termSelected);
 
-  // Empty Fee Item STate
-  // <EmptyFeeState
-  //       title="No Fees Created"
-  //       description="Add fees here to start managing tuition, exams, levies, or other charges for your classes."
-  //       buttonText="Add First Fee"
-  //     />
+  const { data: feeItemsData, isLoading } = useGetFeeItems(selectedBranch?.id, selectedTermObj?.termId);
+
+  const feeItems: FeeItemRow[] = useMemo(() => {
+    const raw = unwrapArray<{ id: number; name: string; required: boolean; amount: number; branchId?: number }>(feeItemsData);
+    return raw.map(item => ({
+      id: item.id,
+      feeName: item.name,
+      status: item.required ? "Required" : "Optional",
+      applyTo: { school: branchSelected !== "All Branches" ? branchSelected : "All Branches", count: 1 },
+      totalAmount: item.amount ?? 0,
+    }));
+  }, [feeItemsData, branchSelected]);
+
+  const handleExport = () => {
+    const rows = feeItems.map(item => ({
+      "Fee Name": item.feeName,
+      Requirement: item.status,
+      "Applies To": item.applyTo.school,
+      "Total Amount (₦)": item.totalAmount,
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Fee Items");
+    XLSX.writeFile(wb, "fee-items.xlsx");
+  };
 
   return (
-    <div className="flex flex-col gap-4 md:gap-6">
-      <FeesHeader
-        title="Fee Items"
-        branches={branches}
-        branchSelected={branchSelected}
-        setBranchSelected={setBranchSelected}
-        termsOptions={termsOptions}
-        termSelected={termSelected}
-        setTermSelected={setTermSelected}
-        onAddClick={() => {}}
-        showToggle={false}
-        exportTitle="Export Fee Items"
-        exportActionButton="Export Fees"
-      />
+    <>
+      {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
-      <div className="hidden md:block">
-        <DataTable
-          columns={FeeItemsColumns}
-          data={feesItems}
-          totalCount={feesItems.length}
-          page={page}
-          setCurrentPage={setPage}
-          pageSize={pageSize}
-          clickHandler={row => {
-            router.push(`/staff/fees/fee-item/${row.original.id}`);
-          }}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          onSelectRows={setSelectedRows}
-          showPagination={false}
-          classNames={{
-            tableRow: "cursor-pointer",
-          }}
+      {!isLoading && feeItems.length === 0 && (
+        <EmptyFeeState
+          title="No Fees Created"
+          description="Add fees here to start managing tuition, exams, levies, or other charges for your classes."
+          buttonText="Add First Fee"
+          url="/staff/fees/add"
         />
-      </div>
-      <div className="flex flex-col gap-4 md:hidden">
-        {feesItems.slice(0, visibleCount).map(item => {
-          return (
-            <div key={item.id} className="border-border-default bg-bg-subtle rounded-md border">
-              <div className="flex h-[38px] items-center justify-between px-3 py-1.5">
-                <span className="text-text-default text-sm font-medium">{item.feeName}</span>
-                <Button onClick={() => setIsOpen(true)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
-                  <Ellipsis className="size-5" />
-                </Button>
-                <MobileDrawer open={isOpen} setIsOpen={setIsOpen} title="Actions">
-                  <div className="flex w-full flex-col gap-4 px-3 py-4">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
-                        <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View fee item
-                      </div>
-                      <div className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
-                        <Edit className="size-4" fill="var(--color-icon-default-subtle)" /> Edit fee item
-                      </div>
+      )}
+      <div className="flex flex-col gap-4 md:gap-6">
+        {!isLoading && feeItems.length > 0 && (
+          <FeesHeader
+            title="Fee Items"
+            branches={branchOptions}
+            branchSelected={branchSelected}
+            setBranchSelected={v => {
+              setBranchSelected(v);
+              setPage(1);
+            }}
+            termsOptions={termOptions.length ? termOptions : ["No terms"]}
+            termSelected={termSelected}
+            setTermSelected={v => {
+              setTermSelected(v);
+              setPage(1);
+            }}
+            onAddClick={() => router.push("/staff/fees/add")}
+            showToggle={false}
+            exportTitle="Export Fee Items"
+            exportActionButton="Export Fees"
+          />
+        )}
 
-                      <div className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
-                        <FileCopy className="size-4" fill="var(--color-icon-default-subtle)" /> Duplicate fee item
+        {!isLoading && feeItems.length > 0 && (
+          <>
+            <div className="hidden md:block">
+              <DataTable
+                columns={FeeItemsColumns}
+                data={feeItems}
+                totalCount={feeItems.length}
+                page={page}
+                setCurrentPage={setPage}
+                pageSize={pageSize}
+                clickHandler={row => router.push(`/staff/fees/fee-item/${row.original.id}`)}
+                rowSelection={rowSelection}
+                setRowSelection={setRowSelection}
+                onSelectRows={() => {}}
+                showPagination={feeItems.length > pageSize}
+                classNames={{ tableRow: "cursor-pointer" }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-4 md:hidden">
+              {feeItems.slice(0, visibleCount).map(item => (
+                <div key={item.id} className="border-border-default bg-bg-subtle rounded-md border">
+                  <div className="flex h-9.5 items-center justify-between px-3 py-1.5">
+                    <span className="text-text-default text-sm font-medium">{item.feeName}</span>
+                    <Button onClick={() => setOpenItemId(item.id)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
+                      <Ellipsis className="size-5" />
+                    </Button>
+                    <MobileDrawer
+                      open={openItemId === item.id}
+                      setIsOpen={v => {
+                        if (!v) setOpenItemId(null);
+                      }}
+                      title="Actions"
+                    >
+                      <div className="flex w-full flex-col gap-4 px-3 py-4">
+                        <div className="flex flex-col items-center gap-2">
+                          <div
+                            onClick={() => {
+                              setOpenItemId(null);
+                              router.push(`/staff/fees/fee-item/${item.id}`);
+                            }}
+                            className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                          >
+                            <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View fee item
+                          </div>
+                          <div
+                            onClick={() => {
+                              setOpenItemId(null);
+                              router.push(`/staff/fees/fee-item/${item.id}`);
+                            }}
+                            className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                          >
+                            <Edit className="size-4" fill="var(--color-icon-default-subtle)" /> Edit fee item
+                          </div>
+                          <div
+                            onClick={() => {
+                              setOpenItemId(null);
+                              setDeleteItemId(item.id);
+                            }}
+                            className="hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600"
+                          >
+                            <Trash2 className="size-4" /> Delete
+                          </div>
+                        </div>
                       </div>
-                      <div className="hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600">
-                        <Trash2 className="size-4" /> Delete invoice
+                    </MobileDrawer>
+                  </div>
+
+                  <div className="border-border-default flex justify-between border-t px-3 py-2 text-sm">
+                    <span className="text-text-muted font-medium">Requirement</span>
+                    {getStatusBadge(item.status)}
+                  </div>
+                  <div className="border-border-default border-t">
+                    <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
+                      <span className="text-text-muted font-medium">Applies To</span>
+                      <div className="flex items-center gap-2">
+                        <Badge className="text-text-default bg-bg-badge-default border-border-default rounded-md border text-sm font-medium">
+                          {item.applyTo.school}
+                        </Badge>
                       </div>
                     </div>
                   </div>
-                </MobileDrawer>
-              </div>
-              <div className="border-border-default flex justify-between border-t px-3 py-2 text-sm">
-                <span className="text-text-muted font-medium">Requirement</span>
-                {getStatusBadge(item.status)}
-              </div>
-              <div className="border-border-default border-t">
-                <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
-                  <span className="text-text-muted font-medium">Applies To</span>
-                  <div className="flex items-center gap-2">
-                    <Badge className="text-text-default bg-bg-badge-default border-border-default rounded-md border text-sm font-medium">
-                      {item.applyTo.school}
-                    </Badge>
-                    <Badge className="text-text-default bg-bg-badge-default border-border-default rounded-md border text-sm font-medium">
-                      +{item.applyTo.count}
-                    </Badge>
-                  </div>{" "}
+                  <div className="border-border-default flex justify-between px-3 py-2 text-sm">
+                    <span className="text-text-muted font-medium">Total Amount</span>
+                    <span className="text-text-default text-sm font-medium">₦{item.totalAmount.toLocaleString()}</span>
+                  </div>
                 </div>
-              </div>
+              ))}
 
-              <div className="">
-                <div className="border-border-default flex justify-between px-3 py-2 text-sm">
-                  <span className="text-text-muted font-medium">Total Amount</span>
-                  <span className="text-text-default text-sm font-medium">₦{item.totalAmount.toLocaleString()}</span>
-                </div>
-              </div>
+              {visibleCount < feeItems.length && (
+                <Button
+                  onClick={() => setVisibleCount(feeItems.length)}
+                  className="bg-bg-state-soft! text-text-subtle! mx-auto my-2 flex w-39 items-center justify-center rounded-md"
+                >
+                  Load More
+                </Button>
+              )}
             </div>
-          );
-        })}
-
-        {visibleCount < feesItems.length && (
-          <Button
-            onClick={() => setVisibleCount(feesItems.length)}
-            className="bg-bg-state-soft! text-text-subtle! mx-auto my-2 flex w-39 items-center justify-center rounded-md"
-          >
-            Load More
-          </Button>
+          </>
         )}
       </div>
-    </div>
+
+      <Modal
+        open={deleteItemId !== null}
+        setOpen={v => {
+          if (!v) setDeleteItemId(null);
+        }}
+        title="Delete Fee Item?"
+        ActionButton={
+          <Button
+            onClick={() => {
+              if (!deleteItemId) return;
+              deleteFeeItem(deleteItemId, {
+                onSuccess: () => {
+                  toast.success("Fee item deleted");
+                  setDeleteItemId(null);
+                },
+                onError: (err: unknown) => {
+                  toast.error((err as { message?: string })?.message ?? "Failed to delete");
+                  setDeleteItemId(null);
+                },
+              });
+            }}
+            disabled={isDeleting}
+            className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!"
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </Button>
+        }
+      >
+        <div className="text-text-subtle px-6 py-4 text-sm font-medium">
+          Are you sure you want to permanently delete this fee item? This action cannot be undone.
+        </div>
+      </Modal>
+    </>
   );
 };

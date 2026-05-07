@@ -316,8 +316,8 @@ export const FeesHeader = ({
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
-                    {branches.map(branch => (
-                      <SelectItem key={branch} value={branch} className="text-text-default text-sm font-medium">
+                    {branches.map((branch, i) => (
+                      <SelectItem key={`${branch}-${i}`} value={branch} className="text-text-default text-sm font-medium">
                         {branch}
                       </SelectItem>
                     ))}
@@ -334,8 +334,8 @@ export const FeesHeader = ({
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
-                    {termsOptions.map(status => (
-                      <SelectItem key={status} value={status} className="text-text-default text-sm font-medium">
+                    {termsOptions.map((status, i) => (
+                      <SelectItem key={`${status}-${i}`} value={status} className="text-text-default text-sm font-medium">
                         {status}
                       </SelectItem>
                     ))}
@@ -364,8 +364,8 @@ export const FeesHeader = ({
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-bg-default border-border-default">
-                      {branches.map(branch => (
-                        <SelectItem key={branch} value={branch} className="text-text-default text-sm">
+                      {branches.map((branch, i) => (
+                        <SelectItem key={`${branch}-${i}`} value={branch} className="text-text-default text-sm">
                           {branch}
                         </SelectItem>
                       ))}
@@ -387,8 +387,8 @@ export const FeesHeader = ({
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-bg-default border-border-default">
-                      {termsOptions.map(status => (
-                        <SelectItem key={status} value={status} className="text-text-default text-sm">
+                      {termsOptions.map((status, i) => (
+                        <SelectItem key={`${status}-${i}`} value={status} className="text-text-default text-sm">
                           {status}
                         </SelectItem>
                       ))}
