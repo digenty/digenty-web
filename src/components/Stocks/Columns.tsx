@@ -1,18 +1,31 @@
-import { DeleteBin, Edit, ExpandUpAndDown, FileCopy } from "@digenty/icons";
+import { DeleteBin, Edit, ExpandUpAndDown } from "@digenty/icons";
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { Checkbox } from "../ui/checkbox";
-import { useState } from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
-
-import { stocksItemsProps } from "./types";
-import Image from "next/image";
-import { Badge } from "../ui/badge";
-import { stockStatus } from "../Status";
-
+import { useState } from "react";
 import { Avatar } from "../ui/avatar";
+import { Badge } from "../ui/badge";
+import { Checkbox } from "../ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { stockStatus } from "../Status";
+import { StockListItem } from "./types";
 
-const RenderOptions = (row: Row<stocksItemsProps>) => {
+const STATUS_LABELS: Record<string, string> = {
+  IN_STOCK: "In Stock",
+  LOW_STOCK: "Low Stock",
+  OUT_OF_STOCK: "Out of Stock",
+};
+
+const RenderOptions = ({
+  row,
+  onView,
+  onEdit,
+  onDelete,
+}: {
+  row: Row<StockListItem>;
+  onView?: (row: Row<StockListItem>) => void;
+  onEdit?: (row: Row<StockListItem>) => void;
+  onDelete?: (row: Row<StockListItem>) => void;
+}) => {
   const [open, setOpen] = useState(false);
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -23,25 +36,33 @@ const RenderOptions = (row: Row<stocksItemsProps>) => {
         <DropdownMenuItem
           onClick={evt => {
             evt.stopPropagation();
+            onView?.(row);
           }}
           className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
         >
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View stock</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3">
+        <DropdownMenuItem
+          onClick={evt => {
+            evt.stopPropagation();
+            onEdit?.(row);
+          }}
+          className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3"
+        >
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit stock</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3">
-          <FileCopy fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Duplicate stock</span>
-        </DropdownMenuItem>
-
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem
+          onClick={evt => {
+            evt.stopPropagation();
+            onDelete?.(row);
+          }}
+          className="gap-2.5 px-3"
+        >
           <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
           <span className="text-icon-destructive">Delete stock</span>
         </DropdownMenuItem>
@@ -50,7 +71,15 @@ const RenderOptions = (row: Row<stocksItemsProps>) => {
   );
 };
 
-export const StocksOverviewTableColumns: ColumnDef<stocksItemsProps>[] = [
+export const buildStocksOverviewTableColumns = ({
+  onView,
+  onEdit,
+  onDelete,
+}: {
+  onView?: (row: Row<StockListItem>) => void;
+  onEdit?: (row: Row<StockListItem>) => void;
+  onDelete?: (row: Row<StockListItem>) => void;
+}): ColumnDef<StockListItem>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -87,16 +116,6 @@ export const StocksOverviewTableColumns: ColumnDef<stocksItemsProps>[] = [
   },
 
   {
-    accessorKey: "category",
-    header: () => <div></div>,
-    cell: ({ row }) => (
-      <Badge className="border-border-default bg-bg-badge-lime text-bg-basic-lime-strong w-fit rounded-md border text-xs font-medium">
-        {row.original.category}
-      </Badge>
-    ),
-  },
-
-  {
     accessorKey: "quantity",
     header: () => <div className="text-text-muted text-sm font-medium">Quantity</div>,
     cell: ({ row }) => <span className="text-text-muted text-sm font-medium">{row.original.quantity}</span>,
@@ -106,40 +125,35 @@ export const StocksOverviewTableColumns: ColumnDef<stocksItemsProps>[] = [
     accessorKey: "amount",
     header: () => (
       <div className="text-text-muted flex items-center gap-2 text-sm font-medium">
-        Amount <ExpandUpAndDown fill="var(--color-icon-default-muted)" />{" "}
+        Amount <ExpandUpAndDown fill="var(--color-icon-default-muted)" />
       </div>
     ),
     cell: ({ row }) => (
-      <span className="text-text-default cursor-pointer text-sm font-medium">
-        {row.original.currency} {row.original.amount.toLocaleString()}
-      </span>
+      <span className="text-text-default cursor-pointer text-sm font-medium">₦ {Number(row.original.amount ?? 0).toLocaleString()}</span>
     ),
   },
   {
-    accessorKey: "status",
+    accessorKey: "stockStatus",
     header: () => (
       <div className="text-text-muted flex items-center gap-2 text-sm font-medium">
         Status <ExpandUpAndDown fill="var(--color-icon-default-muted)" />
       </div>
     ),
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{stockStatus(row.original.status)}</span>,
-    size: 32,
-  },
-  {
-    accessorKey: "lastActivity",
-    header: () => (
-      <div className="text-text-muted flex items-center gap-2 text-sm font-medium">
-        Last Activity <ExpandUpAndDown fill="var(--color-icon-default-muted)" />
-      </div>
-    ),
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.lastUpdated}</span>,
+    cell: ({ row }) => <span>{stockStatus(STATUS_LABELS[row.original.stockStatus] ?? row.original.stockStatus)}</span>,
     size: 32,
   },
 
   {
     id: "actions",
-    header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,
-    cell: ({ row }) => RenderOptions(row),
+    header: () => <div></div>,
+    cell: ({ row }) => <RenderOptions row={row} onView={onView} onEdit={onEdit} onDelete={onDelete} />,
     size: 11,
   },
 ];
+
+export const STATUS_DISPLAY = STATUS_LABELS;
+
+export const StockCategoryBadge = ({ name }: { name?: string | null }) =>
+  name ? (
+    <Badge className="border-border-default bg-bg-badge-lime text-bg-basic-lime-strong w-fit rounded-md border text-xs font-medium">{name}</Badge>
+  ) : null;
