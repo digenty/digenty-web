@@ -253,6 +253,66 @@ export const updatePayment = async (invoiceId: string, paymentId: string, payloa
   }
 };
 
+export type StudentInvoiceEntry = {
+  id: number;
+  invoiceId: string;
+  invoiceNumber: string;
+  status: string;
+  issuedDate: string;
+  dueDate?: string;
+  totalAmount: number;
+  termId?: number;
+};
+
+export type StudentInvoicesPage = {
+  content: StudentInvoiceEntry[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+};
+
+export type PaymentDetailResponse = {
+  id: number;
+  transactionDate: string;
+  amount: number;
+  method: string;
+  terminalTransactionId?: string | null;
+  paidBy: { id: number; name: string; avatar?: string };
+  status: string;
+  note?: string;
+};
+
+export const getInvoicesByStudent = async (studentId: number, page = 0, size = 20) => {
+  try {
+    const { data } = await api.get(`/invoices/student/${studentId}?page=${page}&size=${size}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const getPaymentById = async (invoiceId: string, paymentId: string) => {
+  try {
+    const { data } = await api.get(`/invoices/${invoiceId}/payments/${paymentId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const downloadInvoicePdf = async (invoiceId: string) => {
+  try {
+    const response = await api.post(`/invoices/${invoiceId}/pdf`, {}, { responseType: "blob" });
+    return response.data as Blob;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
 export const getInvoicesByBranch = async ({
   branchId,
   page,
@@ -260,6 +320,9 @@ export const getInvoicesByBranch = async ({
   classId,
   termId,
   search,
+  status,
+  startDate,
+  endDate,
 }: {
   branchId: number;
   page: number;
@@ -267,11 +330,19 @@ export const getInvoicesByBranch = async ({
   classId?: number;
   termId?: number;
   search?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
 }) => {
   try {
-    const { data } = await api.get(
-      `/invoices/${branchId}?page=${page}&size=${size}${classId ? `&classId=${classId}` : ""}${termId ? `&termId=${termId}` : ""}${search ? `&search=${search}` : ""}`,
-    );
+    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    if (classId) params.set("classId", String(classId));
+    if (termId) params.set("termId", String(termId));
+    if (search) params.set("search", search);
+    if (status) params.set("status", status);
+    if (startDate) params.set("startDate", startDate);
+    if (endDate) params.set("endDate", endDate);
+    const { data } = await api.get(`/invoices/${branchId}?${params.toString()}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

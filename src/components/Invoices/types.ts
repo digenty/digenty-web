@@ -21,6 +21,7 @@ export const formatInvoiceStatus = (status?: string) => {
     UNPAID: "Unpaid",
     OUTSTANDING: "Outstanding",
     FULLY_PAID: "Fully Paid",
+    PARTIALLY_PAID: "Partially Paid",
     DRAFT: "Draft",
   };
   return map[status.toUpperCase()] ?? status;

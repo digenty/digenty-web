@@ -44,7 +44,7 @@ export default function StudentTabs({ student }: { student: Student }) {
 
       <div className="mt-4 md:mt-6">
         {activeTab === "biodata" && <Biodata student={student} />}
-        {activeTab === "invoices" && <StudentInvoiceTable />}
+        {activeTab === "invoices" && <StudentInvoiceTable studentId={student.id} />}
         {activeTab === "academic-records" && <StudentAcademicRecord studentId={student.id} armId={student.armId} />}
       </div>
     </div>

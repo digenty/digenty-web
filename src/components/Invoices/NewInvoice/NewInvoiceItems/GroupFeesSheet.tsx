@@ -96,7 +96,7 @@ export const GroupFeesSheet = ({ branchId, onAddItems }: Props) => {
 
                     {openGroupId === group.id && (
                       <div className="mt-2 flex flex-col gap-2">
-                        {group.items?.map(item => (
+                        {group.items?.map((item: FeeGroupInvoiceItem) => (
                           <div key={item.id} className="border-border-default flex items-start gap-2.5 border-b py-2">
                             <Checkbox
                               checked={selectedItems.has(item.id)}

@@ -31,7 +31,7 @@ export const EditInvoice = () => {
       termId: null,
       issuedDate: null,
       dueDate: null,
-      items: [{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }],
+      items: [{ id: "init", name: "", qty: 1, price: 0, required: false }],
       note: "",
       showAccountDetails: false,
       paymentStatus: "UNPAID",
@@ -40,7 +40,6 @@ export const EditInvoice = () => {
       transactionDate: null,
     },
     validationSchema: editInvoiceSchema,
-    enableReinitialize: true,
     onSubmit: values => {
       const studentIds = values.billTo.filter(r => r.type === "student").map(r => r.id);
       const subtotal = values.items.reduce((acc, i) => acc + i.qty * i.price, 0);

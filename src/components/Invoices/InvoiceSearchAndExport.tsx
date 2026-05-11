@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertFill, Check, CheckDouble, CloseCircle, Draft, ShareBox } from "@digenty/icons";
+import { BranchWithClassLevels, Terms } from "@/api/types";
 import Image from "next/image";
 import { useState } from "react";
 import { SearchInput } from "../SearchInput";
@@ -22,42 +23,55 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dr
 type InvoiceSearchAndExportProps = {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
+  statusFilter: string;
+  setStatusFilter: (value: string) => void;
+  branches?: { data: BranchWithClassLevels[] };
+  terms?: { data: Terms };
+  currentBranchId?: number;
 };
 
-export const InvoiceSearchAndExport = ({ searchQuery, setSearchQuery }: InvoiceSearchAndExportProps) => {
+const filterItems = [
+  { icon: <CloseCircle className="size-4" fill="var(--color-icon-default-muted)" />, label: "Unpaid", value: "UNPAID" },
+  { icon: <AlertFill className="size-4" fill="var(--color-icon-default-muted)" />, label: "Outstanding", value: "OUTSTANDING" },
+  { icon: <Check className="size-4" fill="var(--color-icon-default-muted)" />, label: "Paid", value: "PAID" },
+  { icon: <CheckDouble className="size-4" fill="var(--color-icon-default-muted)" />, label: "Fully Paid", value: "FULLY_PAID" },
+  { icon: <Draft className="size-4" fill="var(--color-icon-default-muted)" />, label: "Draft", value: "DRAFT" },
+];
+
+export const InvoiceSearchAndExport = ({
+  searchQuery,
+  setSearchQuery,
+  statusFilter,
+  setStatusFilter,
+  branches,
+  terms,
+  currentBranchId,
+}: InvoiceSearchAndExportProps) => {
   const isMobile = useIsMobile();
   const router = useRouter();
 
   const [openExport, setOpenExport] = useState(false);
-  const [isOpen, setIsOpen] = useState(false); // action drawer
+  const [isOpen, setIsOpen] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
 
-  const filterItems = [
-    {
-      icon: <CloseCircle className="size-4" fill="var(--color-icon-default-muted)" />,
-      label: "Unpaid",
-    },
-    {
-      icon: <AlertFill className="size-4" fill="var(--color-icon-default-muted)" />,
-      label: "Outstanding",
-    },
-    {
-      icon: <Check className="size-4" fill="var(--color-icon-default-muted)" />,
-      label: "Paid",
-    },
-    {
-      icon: <CheckDouble className="size-4" fill="var(--color-icon-default-muted)" />,
-      label: "Fully Paid",
-    },
-    {
-      icon: <Draft className="size-4" fill="var(--color-icon-default-muted)" />,
-      label: "Draft",
-    },
-  ];
+  const handleStatusClick = (value: string) => {
+    setStatusFilter(statusFilter === value ? "" : value);
+    setOpenFilter(false);
+  };
+
+  const activeLabel = filterItems.find(f => f.value === statusFilter)?.label;
 
   return (
     <>
-      {openExport && <InvoiceExportModal open={openExport} setOpen={setOpenExport} />}
+      {openExport && (
+        <InvoiceExportModal
+          open={openExport}
+          setOpen={setOpenExport}
+          branches={branches}
+          terms={terms}
+          initialBranchId={currentBranchId}
+        />
+      )}
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
         <div className="flex items-center gap-1">
@@ -69,18 +83,25 @@ export const InvoiceSearchAndExport = ({ searchQuery, setSearchQuery }: InvoiceS
 
           <DropdownMenu open={openFilter} onOpenChange={setOpenFilter}>
             <DropdownMenuTrigger asChild>
-              <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex">
+              <Badge
+                className={`border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex ${statusFilter ? "border-solid bg-bg-state-primary/10 text-text-default" : ""}`}
+              >
                 <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
-                Status
+                {activeLabel ?? "Status"}
               </Badge>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent className="bg-bg-card border-border-default text-text-default hidden w-48 py-2.5 shadow-sm md:block">
               <div className="flex flex-col gap-1 px-1 py-2">
-                {filterItems.map((item, i) => (
-                  <div key={i} className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm">
+                {filterItems.map(item => (
+                  <div
+                    key={item.value}
+                    onClick={() => handleStatusClick(item.value)}
+                    className={`hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm ${statusFilter === item.value ? "bg-bg-state-ghost-hover font-medium" : ""}`}
+                  >
                     {item.icon}
                     <span className="text-text-default font-normal">{item.label}</span>
+                    {statusFilter === item.value && <span className="ml-auto text-xs">✓</span>}
                   </div>
                 ))}
               </div>
@@ -132,14 +153,17 @@ export const InvoiceSearchAndExport = ({ searchQuery, setSearchQuery }: InvoiceS
         )}
 
         {isMobile && (
-          <MobileDrawer open={openFilter} setIsOpen={setOpenFilter} title="Filter">
+          <MobileDrawer open={openFilter} setIsOpen={setOpenFilter} title="Filter by Status">
             <div className="flex w-full flex-col gap-2 px-6 py-4">
-              {filterItems.map((item, i) => (
-                <div key={i} className="flex flex-col items-center gap-2">
-                  <div className="flex w-full items-center gap-2 p-2 text-sm">
-                    {item.icon}
-                    <span className="text-text-default font-normal">{item.label}</span>
-                  </div>
+              {filterItems.map(item => (
+                <div
+                  key={item.value}
+                  onClick={() => handleStatusClick(item.value)}
+                  className={`flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm ${statusFilter === item.value ? "bg-bg-state-ghost-hover font-medium" : ""}`}
+                >
+                  {item.icon}
+                  <span className="text-text-default font-normal">{item.label}</span>
+                  {statusFilter === item.value && <span className="ml-auto text-xs">✓</span>}
                 </div>
               ))}
             </div>
@@ -147,12 +171,19 @@ export const InvoiceSearchAndExport = ({ searchQuery, setSearchQuery }: InvoiceS
             <DrawerFooter className="border-border-default border-t">
               <div className="flex justify-between">
                 <DrawerClose asChild>
-                  <Button className="bg-bg-state-soft text-text-subtle h-8 rounded-md! px-2.5 py-1 text-sm font-medium">Cancel</Button>
+                  <Button
+                    onClick={() => setStatusFilter("")}
+                    className="bg-bg-state-soft text-text-subtle h-8 rounded-md! px-2.5 py-1 text-sm font-medium"
+                  >
+                    Clear
+                  </Button>
                 </DrawerClose>
 
-                <Button className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-8 rounded-md px-2.5 py-1 text-sm">
-                  Apply
-                </Button>
+                <DrawerClose asChild>
+                  <Button className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-8 rounded-md px-2.5 py-1 text-sm">
+                    Apply
+                  </Button>
+                </DrawerClose>
               </div>
             </DrawerFooter>
           </MobileDrawer>

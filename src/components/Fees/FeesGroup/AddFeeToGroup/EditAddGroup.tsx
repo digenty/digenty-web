@@ -44,6 +44,11 @@ export const EditAddGroup = () => {
   const removeItem = (id: string) => {
     setItems(prev => prev.filter(i => i.id !== id));
   };
+
+  const handleAddFromSheet = (newItems: ItemRow[]) => {
+    setItems(prev => [...prev.filter(i => i.name.trim()), ...newItems]);
+  };
+
   return (
     <div className="flex items-center justify-center p-3">
       <div className="">
@@ -86,11 +91,11 @@ export const EditAddGroup = () => {
           <div className="mb-6">
             <div className="text-text-default text-md mb-3 font-semibold">Group Items</div>
             <div className="hidden flex-wrap gap-1 md:flex">
-              <StockSheet />
+              <StockSheet onAddItems={handleAddFromSheet} />
 
-              <FeesSheet />
+              <FeesSheet onAddItems={handleAddFromSheet} />
 
-              <GroupFeesSheet />
+              <GroupFeesSheet onAddItems={handleAddFromSheet} />
             </div>
             <div className="flex md:hidden">
               <Button
@@ -104,11 +109,11 @@ export const EditAddGroup = () => {
               {openMobileDrawer && (
                 <MobileDrawer title="Action" open={openMobileDrawer} setIsOpen={setOpenMobileDrawer}>
                   <div className="flex flex-col content-center gap-2 p-4">
-                    <StockSheet />
+                    <StockSheet onAddItems={handleAddFromSheet} />
 
-                    <FeesSheet />
+                    <FeesSheet onAddItems={handleAddFromSheet} />
 
-                    <GroupFeesSheet />
+                    <GroupFeesSheet onAddItems={handleAddFromSheet} />
                   </div>
                 </MobileDrawer>
               )}

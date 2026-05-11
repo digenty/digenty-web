@@ -1,4 +1,4 @@
-import { addPayment, AddPaymentPayload, createInvoice, createInvoiceDraft, CreateInvoicePayload, createInvoiceSettings, CreateInvoiceSettingsPayload, deleteInvoice, getInvoiceDetail, getInvoicesByBranch, getInvoiceSettings, getNextInvoiceNumber, getPaymentHistory, sendInvoiceReminder, updateInvoice, UpdateInvoicePayload, updateInvoiceSettings, UpdateInvoiceSettingsPayload, updatePayment } from "@/api/invoice";
+import { addPayment, AddPaymentPayload, createInvoice, createInvoiceDraft, CreateInvoicePayload, createInvoiceSettings, CreateInvoiceSettingsPayload, deleteInvoice, downloadInvoicePdf, getInvoiceDetail, getInvoicesByBranch, getInvoicesByStudent, getInvoiceSettings, getNextInvoiceNumber, getPaymentById, getPaymentHistory, sendInvoiceReminder, updateInvoice, UpdateInvoicePayload, updateInvoiceSettings, UpdateInvoiceSettingsPayload, updatePayment } from "@/api/invoice";
 import { invoiceKeys } from "@/queries/invoice";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -9,6 +9,9 @@ export const useGetInvoices = ({
   classId,
   termId,
   search,
+  status,
+  startDate,
+  endDate,
 }: {
   branchId?: number;
   page: number;
@@ -16,10 +19,13 @@ export const useGetInvoices = ({
   classId?: number;
   termId?: number;
   search?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
 }) => {
   return useQuery({
-    queryKey: invoiceKeys.byBranch(branchId, page, size, classId, termId, search),
-    queryFn: () => getInvoicesByBranch({ branchId: branchId as number, page, size, classId, termId, search }),
+    queryKey: invoiceKeys.byBranch(branchId, page, size, classId, termId, search, status, startDate, endDate),
+    queryFn: () => getInvoicesByBranch({ branchId: branchId as number, page, size, classId, termId, search, status, startDate, endDate }),
     enabled: !!branchId,
     placeholderData: keepPreviousData,
   });
@@ -135,6 +141,25 @@ export const useDeleteInvoice = () => {
     },
   });
 };
+
+export const useGetInvoicesByStudent = (studentId?: number, page = 0, size = 50) =>
+  useQuery({
+    queryKey: invoiceKeys.byStudent(studentId, page, size),
+    queryFn: () => getInvoicesByStudent(studentId!, page, size),
+    enabled: !!studentId,
+  });
+
+export const useGetPaymentById = (invoiceId?: string, paymentId?: string) =>
+  useQuery({
+    queryKey: invoiceKeys.paymentById(invoiceId, paymentId),
+    queryFn: () => getPaymentById(invoiceId!, paymentId!),
+    enabled: !!invoiceId && !!paymentId,
+  });
+
+export const useDownloadInvoicePdf = () =>
+  useMutation({
+    mutationFn: (invoiceId: string) => downloadInvoicePdf(invoiceId),
+  });
 
 export const useUpdatePayment = (invoiceId?: string, paymentId?: string) => {
   const queryClient = useQueryClient();

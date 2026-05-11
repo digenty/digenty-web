@@ -8,7 +8,7 @@ import { useGetInvoices } from "@/hooks/queryHooks/useInvoice";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import useDebounce from "@/hooks/useDebounce";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { OverviewCard } from "../OverviewCard";
 import { InvoiceOverviewTable } from "./InvoiceOverviewTable";
 import { InvoicesHeader } from "./InvoicesHeader";
@@ -29,13 +29,13 @@ export const Invoices = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 500);
 
+  const [statusFilter, setStatusFilter] = useState("");
   const [filter, setFilter] = useState<InvoiceFilter>({});
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses(filter.branchSelected?.id);
   const { data: terms, isPending: loadingTerms } = useGetTerms(schoolId);
 
-  // Default to first available branch when branches load
   useEffect(() => {
     if (!filter.branchSelected && branches?.data?.length) {
       const first: BranchWithClassLevels = branches.data[0];
@@ -48,21 +48,35 @@ export const Invoices = () => {
     setFilter(prev => ({ ...prev, [key]: value }));
   };
 
-  // Reset to first page whenever search changes
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch]);
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter]);
 
+  // Fetch all invoices at once so search and status can filter client-side
   const { data, isFetching: loadingInvoices } = useGetInvoices({
     branchId: filter.branchSelected?.id,
     classId: filter.classSelected?.id,
     termId: filter.termSelected?.termId,
-    page: page - 1,
-    size: pageSize,
-    search: debouncedSearch || undefined,
+    page: 0,
+    size: 1000,
   });
 
-  const invoiceData = data as InvoicesResponse | undefined;
+  const invoiceData = (data as { data: InvoicesResponse } | undefined)?.data;
+  const allInvoices = invoiceData?.invoices ?? [];
+
+  const filteredInvoices = useMemo(() => {
+    const q = debouncedSearch.toLowerCase();
+    return allInvoices.filter(inv => {
+      const matchesSearch = !q || inv.studentName.toLowerCase().includes(q) || (inv.invoiceId ?? "").toLowerCase().includes(q);
+      const matchesStatus = !statusFilter || inv.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [allInvoices, debouncedSearch, statusFilter]);
+
+  const paginatedInvoices = filteredInvoices.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div>
@@ -111,14 +125,24 @@ export const Invoices = () => {
               />
             </div>
           </div>
-          <InvoiceSearchAndExport searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+
+          <InvoiceSearchAndExport
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            branches={branches}
+            terms={terms}
+            currentBranchId={filter.branchSelected?.id}
+          />
+
           <InvoiceOverviewTable
-            invoices={invoiceData?.invoices ?? []}
+            invoices={paginatedInvoices}
             loading={loadingInvoices}
             page={page}
             setPage={setPage}
             pageSize={pageSize}
-            totalCount={invoiceData?.totalElements ?? invoiceData?.invoices?.length ?? 0}
+            totalCount={filteredInvoices.length}
           />
         </div>
       </div>

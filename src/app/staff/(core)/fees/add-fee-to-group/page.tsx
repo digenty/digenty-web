@@ -1,4 +1,4 @@
-import { AddFeeToGroup } from "@/components/Fees/FeesGroup/AddFeeToGroup";
+import { AddFeeToGroup } from "@/components/Fees/feesGroup/addFeeToGroup";
 import React from "react";
 
 const AddFeeToGroupPage = () => {

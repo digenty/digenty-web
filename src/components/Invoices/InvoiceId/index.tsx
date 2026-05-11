@@ -14,17 +14,14 @@ export const InvoiceDetail = () => {
   const invoiceId = params.id as string;
 
   const { data, isPending: loading } = useGetInvoiceDetail(invoiceId);
-  const invoice = data as InvoiceDetailResponse | undefined;
+
+  const invoice = (data as { data: InvoiceDetailResponse } | undefined)?.data;
 
   return (
     <div>
       {/* Desktop */}
       <div className="hidden flex-col px-4 py-4 md:flex md:px-8">
-        <InvoiceIdHeader
-          invoiceNumber={invoice?.invoiceNumber}
-          invoiceId={invoice?.id}
-          loading={loading}
-        />
+        <InvoiceIdHeader invoiceNumber={invoice?.invoiceNumber} invoiceId={invoice?.id} urlInvoiceId={invoiceId} loading={loading} />
         <div className="mt-4.5 space-y-8">
           <InvoiceView invoice={invoice} loading={loading} />
           <div className="flex w-full flex-col gap-6 lg:flex-row lg:gap-4">
@@ -52,11 +49,7 @@ export const InvoiceDetail = () => {
               label: "Overview",
               content: (
                 <div className="flex flex-col gap-6 md:gap-8">
-                  <InvoiceIdHeader
-                    invoiceNumber={invoice?.invoiceNumber}
-                    invoiceId={invoice?.id}
-                    loading={loading}
-                  />
+                  <InvoiceIdHeader invoiceNumber={invoice?.invoiceNumber} invoiceId={invoice?.id} urlInvoiceId={invoiceId} loading={loading} />
                   <InvoiceView invoice={invoice} loading={loading} />
                   <InvoicePaymentSummary
                     invoiceId={invoice?.id}

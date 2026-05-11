@@ -99,7 +99,7 @@ export const FeesSheet = ({ branchId, termId, onAddItems }: Props) => {
 
                     {openFeeId === fee.id && (
                       <div className="mt-2 flex flex-col gap-2">
-                        {fee.items?.map(item => (
+                        {fee.items?.map((item: FeeInvoiceItem) => (
                           <div key={item.id} className="border-border-default flex items-start gap-2.5 border-b py-2">
                             <Checkbox
                               checked={selectedItems.has(item.id)}

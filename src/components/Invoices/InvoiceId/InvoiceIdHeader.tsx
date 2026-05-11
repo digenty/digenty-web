@@ -6,18 +6,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
-import { useDeleteInvoice } from "@/hooks/queryHooks/useInvoice";
+import { useDeleteInvoice, useDownloadInvoicePdf } from "@/hooks/queryHooks/useInvoice";
 import { toast } from "@/components/Toast";
 
 type InvoiceIdHeaderProps = {
   invoiceNumber?: string;
   invoiceId?: number;
+  urlInvoiceId?: string;
   loading: boolean;
 };
 
-export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, loading }: InvoiceIdHeaderProps) => {
+export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, urlInvoiceId, loading }: InvoiceIdHeaderProps) => {
   const router = useRouter();
   const { mutate: deleteInvoice, isPending: deleting } = useDeleteInvoice();
+  const { mutate: downloadPdf, isPending: downloadingPdf } = useDownloadInvoicePdf();
 
   useBreadcrumb([
     { label: "Invoices", url: "/staff/invoices" },
@@ -32,6 +34,23 @@ export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, loading }: InvoiceId
         router.push("/staff/invoices");
       },
       onError: () => toast({ title: "Failed to delete invoice", type: "error" }),
+    });
+  };
+
+  const handleDownloadPdf = () => {
+    if (!urlInvoiceId) return;
+    downloadPdf(urlInvoiceId, {
+      onSuccess: blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${invoiceNumber ?? "invoice"}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      },
+      onError: () => toast({ title: "Failed to download PDF", type: "error" }),
     });
   };
 
@@ -61,15 +80,19 @@ export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, loading }: InvoiceId
               {deleting ? "Deleting..." : "Delete"}
             </Button>
             <Button
-              role="button"
               onClick={() => router.push(`/staff/invoices/edit-invoice?id=${invoiceId}`)}
               className="bg-bg-state-secondary border-border-darker text-text-default hover:bg-bg-state-secondary-hover! flex h-8 w-30.5 items-center gap-1 border"
             >
               <Edit fill="var(--color-icon-default-muted)" />
               Edit Invoice
             </Button>
-            <Button className="border-border-darker bg-bg-state-secondary text-text-default hover:bg-bg-state-secondary-hover! flex h-8 w-19 items-center gap-1 border">
-              <Printer fill="var(--color-icon-default-muted)" /> Print
+            <Button
+              onClick={handleDownloadPdf}
+              disabled={downloadingPdf || !urlInvoiceId}
+              className="border-border-darker bg-bg-state-secondary text-text-default hover:bg-bg-state-secondary-hover! flex h-8 w-19 items-center gap-1 border disabled:opacity-60"
+            >
+              {downloadingPdf ? <Spinner className="size-4" /> : <Printer fill="var(--color-icon-default-muted)" />}
+              {downloadingPdf ? "..." : "Print"}
             </Button>
           </>
         )}

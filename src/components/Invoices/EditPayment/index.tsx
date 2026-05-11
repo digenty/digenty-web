@@ -10,13 +10,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/Avatar";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/Toast";
-import { useUpdatePayment } from "@/hooks/queryHooks/useInvoice";
+import { useGetInvoiceDetail, useGetPaymentById, useUpdatePayment } from "@/hooks/queryHooks/useInvoice";
 import { addPaymentSchema } from "@/schema/invoice";
+import { InvoiceDetailResponse } from "@/components/Invoices/InvoiceId/invoiceIdTypes";
+import { PaymentDetailResponse } from "@/api/invoice";
 import { cn } from "@/lib/utils";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const payMethod = [
@@ -35,6 +38,12 @@ export const EditPayment = () => {
   const [calendarOpen, setCalendarOpen] = useState(false);
 
   const { mutate, isPending } = useUpdatePayment(invoiceId, paymentId);
+  const { data: paymentData, isPending: loadingPayment } = useGetPaymentById(invoiceId, paymentId);
+  const { data: invoiceData } = useGetInvoiceDetail(invoiceId);
+
+  const payment = (paymentData as { data: PaymentDetailResponse } | undefined)?.data;
+  const invoice = (invoiceData as { data: InvoiceDetailResponse } | undefined)?.data;
+  const paidBy = payment?.paidBy ?? invoice?.issueTo;
 
   const formik = useFormik({
     initialValues: {
@@ -70,7 +79,29 @@ export const EditPayment = () => {
     },
   });
 
+  // Pre-fill form when payment data loads
+  useEffect(() => {
+    if (!payment) return;
+    formik.setValues({
+      transactionDate: payment.transactionDate ? new Date(payment.transactionDate) : null,
+      method: payment.method ?? "BANK_TRANSFER_TERMINAL",
+      terminalTransactionId: payment.terminalTransactionId ?? "",
+      paidById: payment.paidBy?.id ?? 0,
+      amount: payment.amount ?? "",
+      note: payment.note ?? "",
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [payment]);
+
   const selectedMethod = payMethod.find(m => m.value === formik.values.method) ?? payMethod[0];
+
+  if (loadingPayment) {
+    return (
+      <div className="flex w-full flex-col gap-6 p-8 md:max-w-150 md:mx-auto">
+        {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="bg-bg-input-soft h-12 w-full" />)}
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -253,12 +284,12 @@ export const EditPayment = () => {
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default text-text-default border">
                 <SelectGroup>
-                  <SelectItem value="1">
-                    <Avatar className="size-4" /> <span>Damilare John</span>
-                  </SelectItem>
-                  <SelectItem value="2">
-                    <Avatar className="size-4" /> <span>Damilare John</span>
-                  </SelectItem>
+                  {paidBy && (
+                    <SelectItem value={String(paidBy.id)}>
+                      <Avatar className="size-4" url={paidBy.avatar} />
+                      <span>{paidBy.name}</span>
+                    </SelectItem>
+                  )}
                 </SelectGroup>
               </SelectContent>
             </Select>

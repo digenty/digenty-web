@@ -2,7 +2,7 @@ import * as yup from "yup";
 
 export const newInvoiceSchema = yup.object({
   billTo: yup.array().min(1, "Please select at least one recipient"),
-  invoiceNumber: yup.string().trim().required("Invoice number is required"),
+  invoiceNumber: yup.string().trim(),
   termId: yup.number().nullable().typeError("Must be a number"),
   issuedDate: yup.date().nullable().required("Issued date is required").typeError("Issued date is required"),
   dueDate: yup.date().nullable().required("Due date is required").typeError("Due date is required"),

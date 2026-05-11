@@ -12,7 +12,8 @@ import { Avatar } from "@/components/Avatar";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/Toast";
-import { useAddPayment } from "@/hooks/queryHooks/useInvoice";
+import { useAddPayment, useGetInvoiceDetail } from "@/hooks/queryHooks/useInvoice";
+import { InvoiceDetailResponse } from "@/components/Invoices/InvoiceId/invoiceIdTypes";
 import { addPaymentSchema } from "@/schema/invoice";
 import { cn } from "@/lib/utils";
 import { useFormik } from "formik";
@@ -34,6 +35,9 @@ export const AddPAyment = () => {
   const [calendarOpen, setCalendarOpen] = useState(false);
 
   const { mutate, isPending } = useAddPayment(invoiceId);
+  const { data: invoiceData } = useGetInvoiceDetail(invoiceId);
+  const invoiceDetail = (invoiceData as { data: InvoiceDetailResponse } | undefined)?.data;
+  const issuedTo = invoiceDetail?.issueTo;
 
   const formik = useFormik({
     initialValues: {
@@ -248,12 +252,12 @@ export const AddPAyment = () => {
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default text-text-default border">
                 <SelectGroup>
-                  <SelectItem value="1">
-                    <Avatar className="size-4" /> <span>Damilare John</span>
-                  </SelectItem>
-                  <SelectItem value="2">
-                    <Avatar className="size-4" /> <span>Damilare John</span>
-                  </SelectItem>
+                  {issuedTo && (
+                    <SelectItem value={String(issuedTo.id)}>
+                      <Avatar className="size-4" url={issuedTo.avatar} />
+                      <span>{issuedTo.name}</span>
+                    </SelectItem>
+                  )}
                 </SelectGroup>
               </SelectContent>
             </Select>
