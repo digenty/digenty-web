@@ -351,3 +351,44 @@ export const getInvoicesByBranch = async ({
     throw error;
   }
 };
+
+export type InvoicePreviewPayment = {
+  id: number;
+  date: string;
+  amount: number;
+  method: string;
+  status: string;
+  paidByName: string;
+  note: string;
+};
+
+export type InvoicePreviewResponse = {
+  school: { name: string; logo: string | null; address: string | null; phone: string | null; email: string | null; currency: string };
+  branch: { id: number; name: string; address: string | null; phone: string | null; email: string | null };
+  id: number;
+  invoiceNumber: string;
+  status: string;
+  issuedDate: string;
+  dueDate: string;
+  termName: string;
+  billTo: { studentId: number; name: string; avatar: string | null; classLabel: string }[];
+  items: { id: number; name: string; quantity: number; price: number; total: number; required: boolean; stockItemId: number; feeId: number }[];
+  subtotal: number;
+  totalAmount: number;
+  totalPaid: number;
+  outstandingBalance: number;
+  paymentProgress: number;
+  payments: InvoicePreviewPayment[];
+  accountDetails: null | unknown;
+  note: string;
+};
+
+export const getInvoicePreview = async (invoiceId: string) => {
+  try {
+    const { data } = await api.get(`/invoices/${invoiceId}/preview`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};

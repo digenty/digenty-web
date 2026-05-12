@@ -13,11 +13,16 @@ import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger } from "@/co
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/Toast";
 import { useAddPayment, useGetInvoiceDetail } from "@/hooks/queryHooks/useInvoice";
+import { useGetStudent } from "@/hooks/queryHooks/useStudent";
 import { InvoiceDetailResponse } from "@/components/Invoices/InvoiceId/invoiceIdTypes";
 import { addPaymentSchema } from "@/schema/invoice";
+import { getParent } from "@/api/parent";
+import { Parent, Student } from "@/api/types";
+import { parentKeys } from "@/queries/parent";
 import { cn } from "@/lib/utils";
 import { useFormik } from "formik";
 import { useState } from "react";
+import { useQueries } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const payMethod = [
@@ -38,6 +43,19 @@ export const AddPAyment = () => {
   const { data: invoiceData } = useGetInvoiceDetail(invoiceId);
   const invoiceDetail = (invoiceData as { data: InvoiceDetailResponse } | undefined)?.data;
   const issuedTo = invoiceDetail?.issueTo;
+
+  const { data: studentData } = useGetStudent(issuedTo?.id);
+  const student = (studentData as { data: Student } | undefined)?.data;
+  const linkedParentIds = student?.linkedParents ?? [];
+
+  const parentQueries = useQueries({
+    queries: linkedParentIds.map(id => ({
+      queryKey: [parentKeys.getParent, id],
+      queryFn: () => getParent(id),
+      enabled: !!id,
+    })),
+  });
+  const linkedParents = parentQueries.map(q => (q.data as { data: Parent } | undefined)?.data).filter(Boolean) as Parent[];
 
   const formik = useFormik({
     initialValues: {
@@ -62,7 +80,7 @@ export const AddPAyment = () => {
         {
           onSuccess: () => {
             toast({ title: "Payment added successfully", type: "success" });
-            router.back();
+            router.push(`/staff/invoices/${invoiceId}`);
           },
           onError: (error: unknown) => {
             const message = error instanceof Error ? error.message : "Failed to add payment";
@@ -258,6 +276,14 @@ export const AddPAyment = () => {
                       <span>{issuedTo.name}</span>
                     </SelectItem>
                   )}
+                  {linkedParents.map(parent => (
+                    <SelectItem key={parent.id} value={String(parent.id)}>
+                      <Avatar className="size-4" url={parent.image ?? undefined} />
+                      <span>
+                        {parent.firstName} {parent.lastName}
+                      </span>
+                    </SelectItem>
+                  ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -284,7 +310,7 @@ export const AddPAyment = () => {
       <div className="border-border-default bg-bg-default fixed bottom-0 w-screen overflow-hidden border-t p-4">
         <div className="flex items-center justify-center">
           <div className="relative flex w-full justify-between md:ml-[-65] md:max-w-150">
-            <Button onClick={() => router.back()} className="bg-bg-state-soft text-text-subtle h-7 w-18 rounded-md px-2.5 py-1.5 text-sm">
+            <Button onClick={() => router.push(`/staff/invoices/${invoiceId}`)} className="bg-bg-state-soft text-text-subtle h-7 w-18 rounded-md px-2.5 py-1.5 text-sm">
               Close
             </Button>
             <Button

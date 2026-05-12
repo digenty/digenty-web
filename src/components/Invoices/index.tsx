@@ -13,6 +13,7 @@ import { OverviewCard } from "../OverviewCard";
 import { InvoiceOverviewTable } from "./InvoiceOverviewTable";
 import { InvoicesHeader } from "./InvoicesHeader";
 import { InvoiceSearchAndExport } from "./InvoiceSearchAndExport";
+import { PageEmptyState } from "../Error/PageEmptyState";
 import { formatNaira, InvoicesResponse } from "./types";
 
 type InvoiceFilter = {
@@ -56,7 +57,7 @@ export const Invoices = () => {
   }, [statusFilter]);
 
   // Fetch all invoices at once so search and status can filter client-side
-  const { data, isFetching: loadingInvoices } = useGetInvoices({
+  const { data, isFetching: loadingInvoices, isError: invoicesError } = useGetInvoices({
     branchId: filter.branchSelected?.id,
     classId: filter.classSelected?.id,
     termId: filter.termSelected?.termId,
@@ -77,6 +78,16 @@ export const Invoices = () => {
   }, [allInvoices, debouncedSearch, statusFilter]);
 
   const paginatedInvoices = filteredInvoices.slice((page - 1) * pageSize, page * pageSize);
+
+  if (invoicesError)
+    return (
+      <PageEmptyState
+        title="Failed to load invoices"
+        description="We couldn't load your invoices. Please try again."
+        buttonText="Retry"
+        url="/staff/invoices"
+      />
+    );
 
   return (
     <div>

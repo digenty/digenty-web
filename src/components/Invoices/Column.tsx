@@ -122,7 +122,7 @@ export const InvoiceOverviewTableColumns: ColumnDef<InvoicesOverviewTableProps>[
     id: "invoiceId",
     accessorKey: "invoiceId",
     header: () => <div className="text-text-muted text-sm font-medium">Invoice ID</div>,
-    cell: ({ row }) => <div className="text-text-default text-sm font-medium">{row.original.invoiceId}</div>,
+    cell: ({ row }) => <div className="text-text-default text-sm font-medium">{row.original.invoiceNumber}</div>,
     size: 55,
   },
   {

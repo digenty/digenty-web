@@ -7,15 +7,26 @@ import { InvoiceIdBreakDownTable, InvoiceIdPaymentHistoryTable } from "./Invoice
 import { InvoicePaymentSummary } from "./InvoicePaymentSummary";
 import { InvoiceIdHeader } from "./InvoiceIdHeader";
 import { InvoiceDetailResponse } from "./invoiceIdTypes";
+import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { Tabs } from "../../Tabs";
 
 export const InvoiceDetail = () => {
   const params = useParams();
   const invoiceId = params.id as string;
 
-  const { data, isPending: loading } = useGetInvoiceDetail(invoiceId);
+  const { data, isPending: loading, isError } = useGetInvoiceDetail(invoiceId);
 
   const invoice = (data as { data: InvoiceDetailResponse } | undefined)?.data;
+
+  if (isError)
+    return (
+      <PageEmptyState
+        title="Failed to load invoice"
+        description="We couldn't load this invoice. Please try again."
+        buttonText="Back to Invoices"
+        url="/staff/invoices"
+      />
+    );
 
   return (
     <div>

@@ -15,4 +15,5 @@ export const invoiceKeys = {
   deleteInvoice: (invoiceId?: string) => ["invoices", "delete", invoiceId] as const,
   byStudent: (studentId?: number, page?: number, size?: number) => ["invoices", "student", studentId, page, size] as const,
   paymentById: (invoiceId?: string, paymentId?: string) => ["invoices", "payment", invoiceId, paymentId] as const,
+  preview: (invoiceId?: string) => ["invoices", "preview", invoiceId] as const,
 };

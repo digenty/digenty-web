@@ -2,6 +2,7 @@
 
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetInvoiceDetail, useUpdateInvoice } from "@/hooks/queryHooks/useInvoice";
 import { editInvoiceSchema } from "@/schema/invoice";
 import { useFormik } from "formik";
@@ -10,6 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs } from "@/components/Tabs";
 import type { InvoiceFormValues } from "@/components/Invoices/NewInvoice/index";
 import type { InvoiceItem } from "@/components/Invoices/NewInvoice/NewInvoiceItems/NewInvoiceMobileItem";
+import { InvoiceDetailResponse } from "@/components/Invoices/InvoiceId/invoiceIdTypes";
 import { EditInvoiceDetail } from "./EditInvoiceDetails/EditInvoiceDetail";
 import { EditInvoiceHeader } from "./EditInvoiceHeader";
 import { EditInvoiceItem } from "./EditInvoiceItems/EditInvoiceItem";
@@ -21,7 +23,8 @@ export const EditInvoice = () => {
   const invoiceId = searchParams.get("id") ?? undefined;
   const [openPreview, setOpenPreview] = useState(false);
 
-  const { data: invoiceData } = useGetInvoiceDetail(invoiceId);
+  const { data: rawInvoiceData, isPending: loadingInvoice } = useGetInvoiceDetail(invoiceId);
+  const inv = (rawInvoiceData as { data: InvoiceDetailResponse } | undefined)?.data;
   const { mutate, isPending } = useUpdateInvoice(invoiceId);
 
   const formik = useFormik<InvoiceFormValues>({
@@ -73,10 +76,8 @@ export const EditInvoice = () => {
     },
   });
 
-  // Prefill form when invoice detail loads
   useEffect(() => {
-    if (!invoiceData) return;
-    const inv = invoiceData;
+    if (!inv) return;
     formik.setValues({
       billTo: inv.issueTo ? [{ type: "student", id: inv.issueTo.id, name: inv.issueTo.name, avatar: inv.issueTo.avatar }] : [],
       invoiceNumber: inv.invoiceNumber ?? "",
@@ -84,13 +85,7 @@ export const EditInvoice = () => {
       issuedDate: inv.issuedDate ? new Date(inv.issuedDate) : null,
       dueDate: inv.dueDate ? new Date(inv.dueDate) : null,
       items: inv.items?.length
-        ? inv.items.map((item: { id: number; name: string; quantity: number; price: number; total: number; required: boolean }) => ({
-            id: String(item.id),
-            name: item.name,
-            qty: item.quantity,
-            price: item.price,
-            required: item.required,
-          }) as InvoiceItem)
+        ? inv.items.map(item => ({ id: String(item.id), name: item.name, qty: item.quantity, price: item.price, required: item.required }) as InvoiceItem)
         : [{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }],
       note: inv.note ?? "",
       showAccountDetails: inv.showAccountDetails ?? false,
@@ -100,7 +95,17 @@ export const EditInvoice = () => {
       transactionDate: null,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoiceData]);
+  }, [inv]);
+
+  if (loadingInvoice) {
+    return (
+      <div className="flex flex-col gap-4 p-8">
+        <Skeleton className="bg-bg-input-soft h-10 w-full" />
+        <Skeleton className="bg-bg-input-soft h-40 w-full" />
+        <Skeleton className="bg-bg-input-soft h-64 w-full" />
+      </div>
+    );
+  }
 
   return (
     <div>

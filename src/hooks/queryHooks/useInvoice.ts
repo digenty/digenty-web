@@ -1,4 +1,4 @@
-import { addPayment, AddPaymentPayload, createInvoice, createInvoiceDraft, CreateInvoicePayload, createInvoiceSettings, CreateInvoiceSettingsPayload, deleteInvoice, downloadInvoicePdf, getInvoiceDetail, getInvoicesByBranch, getInvoicesByStudent, getInvoiceSettings, getNextInvoiceNumber, getPaymentById, getPaymentHistory, sendInvoiceReminder, updateInvoice, UpdateInvoicePayload, updateInvoiceSettings, UpdateInvoiceSettingsPayload, updatePayment } from "@/api/invoice";
+import { addPayment, AddPaymentPayload, createInvoice, createInvoiceDraft, CreateInvoicePayload, createInvoiceSettings, CreateInvoiceSettingsPayload, deleteInvoice, downloadInvoicePdf, getInvoiceDetail, getInvoicePreview, getInvoicesByBranch, getInvoicesByStudent, getInvoiceSettings, getNextInvoiceNumber, getPaymentById, getPaymentHistory, sendInvoiceReminder, updateInvoice, UpdateInvoicePayload, updateInvoiceSettings, UpdateInvoiceSettingsPayload, updatePayment } from "@/api/invoice";
 import { invoiceKeys } from "@/queries/invoice";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -171,3 +171,10 @@ export const useUpdatePayment = (invoiceId?: string, paymentId?: string) => {
     },
   });
 };
+
+export const useGetInvoicePreview = (invoiceId?: string) =>
+  useQuery({
+    queryKey: invoiceKeys.preview(invoiceId),
+    queryFn: () => getInvoicePreview(invoiceId!),
+    enabled: !!invoiceId,
+  });

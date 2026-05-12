@@ -4,6 +4,7 @@ export type InvoicesOverviewTableProps = {
   amount: number;
   status: string;
   lastActivity: string;
+  invoiceNumber: string;
 };
 
 export type InvoicesResponse = {

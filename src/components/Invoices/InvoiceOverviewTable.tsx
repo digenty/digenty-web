@@ -1,7 +1,7 @@
 "use client";
 
 import { BallPen, Eye, Notification2, Printer } from "@digenty/icons";
-import { Trash2 } from "lucide-react";
+import { MoreHorizontalIcon, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Avatar } from "../Avatar";
@@ -85,20 +85,16 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
             {invoices.slice(0, visibleCount).map(invoice => (
               <div key={invoice.invoiceId} className="border-border-default bg-bg-subtle rounded-md border">
                 <div className="flex h-9.5 items-center justify-between px-3 py-1.5">
-                  <span className="text-text-default text-sm font-medium">{invoice.invoiceId}</span>
+                  <span className="text-text-default text-sm font-medium">{invoice.invoiceNumber}</span>
                   <Button
                     onClick={() => setSelectedInvoiceId(invoice.invoiceId)}
-                    className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!"
+                    className="text-text-muted bg-bg-none! cursor-pointer bg-transparent! p-0! focus-visible:ring-0!"
                   >
-                    <Printer className="size-5" />
+                    <MoreHorizontalIcon className="size-5" />
                   </Button>
                 </div>
 
-                <MobileDrawer
-                  open={selectedInvoiceId === invoice.invoiceId}
-                  setIsOpen={open => !open && setSelectedInvoiceId(null)}
-                  title="Actions"
-                >
+                <MobileDrawer open={selectedInvoiceId === invoice.invoiceId} setIsOpen={open => !open && setSelectedInvoiceId(null)} title="Actions">
                   <div className="flex w-full flex-col gap-4 px-3 py-4">
                     <div className="flex flex-col items-center gap-2">
                       <div
