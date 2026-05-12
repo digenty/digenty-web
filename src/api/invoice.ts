@@ -21,8 +21,8 @@ export type CreateInvoiceSettingsPayload = {
   invoicePrefix?: string;
   numberFormat?: string;
   startNumber?: number;
-  numberPadding?: number;
-  padding?: string;
+  numberPadding: string | number;
+
   defaultDueDate?: string;
   defaultInvoiceNote?: string;
   noOfDaysBeforeDueDate?: number;
@@ -36,7 +36,7 @@ export type UpdateInvoiceSettingsPayload = {
   invoicePrefix?: string;
   numberFormat?: string;
   startingNumber?: number;
-  padding?: number;
+  numberPadding: string | number;
   defaultDueDate?: string;
   defaultNote?: string;
   remindBeforeDays?: number;

@@ -99,7 +99,7 @@ export const InvoiceSetting = () => {
           invoicePrefix: values.invoicePrefix || undefined,
           numberFormat: values.numberFormat || undefined,
           startingNumber: values.startingNumber,
-          padding: values.padding,
+          numberPadding: values.padding,
           defaultDueDate: values.defaultDueDate ? values.defaultDueDate.toISOString() : undefined,
           defaultNote: values.defaultNote || undefined,
           remindBeforeDays: values.remindBeforeDays,
@@ -225,7 +225,7 @@ export const InvoiceSetting = () => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               disabled={disabled}
-              className="bg-bg-input-soft! text-text-default w-full border-none disabled:opacity-100"
+              className="bg-bg-input-soft! text-text-default w-full border-none capitalize! disabled:opacity-100"
               placeholder="Input Prefix"
             />
             {formik.touched.invoicePrefix && formik.errors.invoicePrefix && (
