@@ -7,6 +7,7 @@ export const invoiceSettingsSchema = yup.object({
   padding: yup.number().min(3).max(9).typeError("Must be a number").required("Padding is required"),
   defaultDueDate: yup.string().required("Default due date is required"),
   defaultNote: yup.string().required("Default note is required"),
+  resetRule: yup.string().oneOf(["NEVER", "YEARLY", "MONTHLY", "TERMLY", "SESSION"]).required("Reset rule is required"),
   remindBeforeDays: yup.number().min(0).typeError("Must be a number").required("Remind before days is required"),
   remindAfterDays: yup.number().min(0).typeError("Must be a number").required("Remind after days is required"),
   repeatReminders: yup.boolean(),

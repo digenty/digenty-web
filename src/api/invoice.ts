@@ -1,7 +1,10 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
+export type ResetRule = "NEVER" | "YEARLY" | "MONTHLY" | "TERMLY" | "SESSION";
+
 export type InvoiceSettingsResponse = {
+  id?: number;
   schoolLogoUrl?: string;
   invoicePrefix?: string;
   numberFormat?: string;
@@ -10,6 +13,7 @@ export type InvoiceSettingsResponse = {
   nextInvoiceNumber?: string;
   defaultDueDate?: string;
   defaultNote?: string;
+  resetRule?: ResetRule;
   remindBeforeDays?: number;
   remindAfterDays?: number;
   repeatReminders?: boolean;
@@ -22,13 +26,12 @@ export type CreateInvoiceSettingsPayload = {
   numberFormat?: string;
   startNumber?: number;
   numberPadding: string | number;
-
   defaultDueDate?: string;
   defaultInvoiceNote?: string;
+  resetRule?: ResetRule;
   noOfDaysBeforeDueDate?: number;
   noOfDaysAfterDueDate?: number;
   repeatFrequency?: number;
-  lastGeneratedNumber?: number;
 };
 
 export type UpdateInvoiceSettingsPayload = {
@@ -36,9 +39,10 @@ export type UpdateInvoiceSettingsPayload = {
   invoicePrefix?: string;
   numberFormat?: string;
   startingNumber?: number;
-  numberPadding: string | number;
+  padding: number;
   defaultDueDate?: string;
   defaultNote?: string;
+  resetRule?: ResetRule;
   remindBeforeDays?: number;
   remindAfterDays?: number;
   repeatReminders?: boolean;
@@ -65,9 +69,9 @@ export const createInvoiceSettings = async (payload: CreateInvoiceSettingsPayloa
   }
 };
 
-export const updateInvoiceSettings = async (payload: UpdateInvoiceSettingsPayload) => {
+export const updateInvoiceSettings = async (invoiceId: number, payload: UpdateInvoiceSettingsPayload) => {
   try {
-    const { data } = await api.put(`/invoice-settings`, payload);
+    const { data } = await api.put(`/invoice-settings/${invoiceId}`, payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;

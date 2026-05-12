@@ -19,11 +19,19 @@ import { CalendarIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 
-import { InvoiceSettingsResponse, UpdateInvoiceSettingsPayload } from "@/api/invoice";
+import { InvoiceSettingsResponse, ResetRule, UpdateInvoiceSettingsPayload } from "@/api/invoice";
 import { useCreateInvoiceSettings, useGetInvoiceSettings, useUpdateInvoiceSettings } from "@/hooks/queryHooks/useInvoice";
 import { invoiceSettingsSchema } from "@/schema/invoice";
 
 const digits = [3, 4, 5, 6, 7, 8, 9];
+
+const RESET_RULES: { value: ResetRule; label: string }[] = [
+  { value: "NEVER", label: "Never" },
+  { value: "YEARLY", label: "Yearly" },
+  { value: "MONTHLY", label: "Monthly" },
+  { value: "TERMLY", label: "Termly" },
+  { value: "SESSION", label: "Session" },
+];
 
 type FormValues = {
   schoolLogoUrl: string;
@@ -33,6 +41,7 @@ type FormValues = {
   padding: number;
   defaultDueDate: Date | null;
   defaultNote: string;
+  resetRule: ResetRule;
   remindBeforeDays: number;
   remindAfterDays: number;
   repeatReminders: boolean;
@@ -47,6 +56,7 @@ const emptyValues: FormValues = {
   padding: 4,
   defaultDueDate: null,
   defaultNote: "",
+  resetRule: "NEVER",
   remindBeforeDays: 0,
   remindAfterDays: 0,
   repeatReminders: false,
@@ -55,7 +65,9 @@ const emptyValues: FormValues = {
 
 export const InvoiceSetting = () => {
   const { data: rawData, isPending: loadingSettings, isError } = useGetInvoiceSettings();
-  const settings: InvoiceSettingsResponse | undefined = (rawData as { data?: InvoiceSettingsResponse } | undefined)?.data ?? rawData;
+
+  const rawList = (rawData as { data?: InvoiceSettingsResponse[] } | undefined)?.data ?? rawData;
+  const settings: InvoiceSettingsResponse | undefined = Array.isArray(rawList) ? rawList[0] : rawList;
   const hasSettings = !!settings && !isError;
   const { mutate: createSettings, isPending: creating } = useCreateInvoiceSettings();
   const { mutate: updateSettings, isPending: updating } = useUpdateInvoiceSettings();
@@ -75,6 +87,7 @@ export const InvoiceSetting = () => {
           padding: settings.padding ?? 4,
           defaultDueDate: settings.defaultDueDate ? new Date(settings.defaultDueDate) : null,
           defaultNote: settings.defaultNote ?? "",
+          resetRule: settings.resetRule ?? "NEVER",
           remindBeforeDays: settings.remindBeforeDays ?? 0,
           remindAfterDays: settings.remindAfterDays ?? 0,
           repeatReminders: settings.repeatReminders ?? false,
@@ -99,15 +112,16 @@ export const InvoiceSetting = () => {
           invoicePrefix: values.invoicePrefix || undefined,
           numberFormat: values.numberFormat || undefined,
           startingNumber: values.startingNumber,
-          numberPadding: values.padding,
+          padding: values.padding,
           defaultDueDate: values.defaultDueDate ? values.defaultDueDate.toISOString() : undefined,
           defaultNote: values.defaultNote || undefined,
+          resetRule: values.resetRule,
           remindBeforeDays: values.remindBeforeDays,
           remindAfterDays: values.remindAfterDays,
           repeatReminders: values.repeatReminders,
           repeatEveryDays: values.repeatEveryDays,
         };
-        updateSettings(updatePayload, { onSuccess, onError });
+        updateSettings({ invoiceId: settings!.id!, payload: updatePayload }, { onSuccess, onError });
       } else {
         createSettings(
           {
@@ -118,6 +132,7 @@ export const InvoiceSetting = () => {
             numberPadding: values.padding,
             defaultDueDate: values.defaultDueDate ? values.defaultDueDate.toISOString() : undefined,
             defaultInvoiceNote: values.defaultNote || undefined,
+            resetRule: values.resetRule,
             noOfDaysBeforeDueDate: values.remindBeforeDays,
             noOfDaysAfterDueDate: values.remindAfterDays,
             repeatFrequency: values.repeatEveryDays,
@@ -288,6 +303,26 @@ export const InvoiceSetting = () => {
             </Select>
             {formik.touched.padding && formik.errors.padding && <p className="text-text-destructive text-xs font-light">{formik.errors.padding}</p>}
           </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label className="text-text-default text-sm font-medium">Reset Rule</Label>
+          <Select value={formik.values.resetRule} onValueChange={v => formik.setFieldValue("resetRule", v)} disabled={disabled}>
+            <SelectTrigger className="bg-bg-input-soft! h-9! w-full rounded-md border-none disabled:opacity-100">
+              <SelectValue>
+                <span className="text-text-default text-sm">{RESET_RULES.find(r => r.value === formik.values.resetRule)?.label}</span>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent className="bg-bg-card border-border-default">
+              {RESET_RULES.map(rule => (
+                <SelectItem key={rule.value} value={rule.value} className="text-text-default text-sm font-medium">
+                  {rule.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {formik.touched.resetRule && formik.errors.resetRule && (
+            <p className="text-text-destructive text-xs font-light">{formik.errors.resetRule}</p>
+          )}
         </div>
 
         <div className="border-border-default bg-bg-basic-blue-subtle flex w-full items-center gap-2 rounded-md border px-3 py-2.5">

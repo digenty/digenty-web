@@ -28,7 +28,8 @@ export const useCreateInvoiceSettings = () => {
 export const useUpdateInvoiceSettings = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: UpdateInvoiceSettingsPayload) => updateInvoiceSettings(payload),
+    mutationFn: ({ invoiceId, payload }: { invoiceId: number; payload: UpdateInvoiceSettingsPayload }) =>
+      updateInvoiceSettings(invoiceId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.settings() });
     },
