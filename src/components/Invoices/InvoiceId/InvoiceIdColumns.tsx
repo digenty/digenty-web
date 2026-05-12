@@ -65,8 +65,8 @@ export const getPaymentMethodIcon = (method: string) => {
 
 export const breakdownColumns: ColumnDef<invoiceBreakdownType>[] = [
   {
-    accessorKey: "invoiceId",
-    header: () => <div className="text-text-muted text-sm font-medium">Invoice ID</div>,
+    accessorKey: "name",
+    header: () => <div className="text-text-muted text-sm font-medium">Fee Name</div>,
     cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.name}</span>,
   },
   {
@@ -85,9 +85,11 @@ export const breakdownColumns: ColumnDef<invoiceBreakdownType>[] = [
     cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-medium">₦{row.original.total.toLocaleString()}</span>,
   },
   {
-    accessorKey: "type",
+    accessorKey: "required",
     header: () => <div className="text-text-muted text-sm font-medium">Type</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{getBadge(row.original.status)}</span>,
+    cell: ({ row }) => (
+      <span className="text-text-muted cursor-pointer text-sm font-normal">{getBadge(row.original.required ? "Required" : "Optional")}</span>
+    ),
     size: 22,
   },
 ];
