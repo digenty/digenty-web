@@ -10,28 +10,24 @@ import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useGetFeeGroupById, useDeleteFeeGroup } from "@/hooks/queryHooks/useFee";
+import { FeeGroupByIdData } from "@/api/fee";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 import React, { useState } from "react";
-
-interface GroupItem {
-  id: number;
-  title: string;
-  qty: number;
-  status: string;
-  amount: number;
-}
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const FeeGroup = () => {
   const router = useRouter();
   const params = useParams();
   const groupId = params?.id ? Number(params.id) : undefined;
 
-  const { data: groupData, isLoading } = useGetFeeGroupById(groupId);
+  const { data: rawGroupData, isLoading } = useGetFeeGroupById(groupId);
   const { mutate: deleteFeeGroup, isPending: isDeleting } = useDeleteFeeGroup();
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
-  const groupName = groupData?.name ?? `Fee Group #${groupId}`;
+  const group = ((rawGroupData as { data?: FeeGroupByIdData })?.data ?? rawGroupData) as FeeGroupByIdData | undefined;
+
+  const groupName = group?.name ?? `Fee Group #${groupId} `;
 
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
@@ -39,14 +35,12 @@ export const FeeGroup = () => {
     { label: groupName, url: "#" },
   ]);
 
-  const items: GroupItem[] = (
-    groupData?.items ?? []
-  ).map((item: { id: number; itemName?: string; name?: string; quantity?: number; optional?: boolean; total?: number; unitPrice?: number }) => ({
+  const items = (group?.items ?? []).map(item => ({
     id: item.id,
-    title: item.itemName ?? item.name ?? "Item",
-    qty: item.quantity ?? 1,
+    title: item.itemName,
+    qty: item.quantity,
     status: item.optional ? "Optional" : "Required",
-    amount: item.total ?? item.unitPrice ?? 0,
+    amount: item.total,
   }));
 
   const subtotal = items.reduce((acc, item) => acc + item.amount, 0);
@@ -67,18 +61,9 @@ export const FeeGroup = () => {
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <Spinner className="size-10" />
-      </div>
-    );
-  }
-
   return (
     <div className="mx-auto flex items-center justify-center">
       <div className="w-full px-4 py-3 md:px-30 lg:px-60">
-
         {openDeleteModal && (
           <>
             <Modal
@@ -132,7 +117,11 @@ export const FeeGroup = () => {
                   <DrawerClose asChild>
                     <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
                   </DrawerClose>
-                  <Button onClick={handleDelete} disabled={isDeleting} className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!">
+                  <Button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!"
+                  >
                     {isDeleting ? "Deleting..." : "Delete"}
                   </Button>
                 </div>
@@ -141,48 +130,59 @@ export const FeeGroup = () => {
           </>
         )}
 
-        <div className="mb-4 flex flex-col justify-between gap-3 md:mb-9 md:flex-row">
-          <div className="text-text-default text-xl font-semibold">{groupName}</div>
-          <div className="flex gap-2">
-            <Button onClick={() => setOpenDeleteModal(true)} className="bg-bg-state-secondary! border-border-darker hover:bg-bg-state-secondary-hover! h-8! w-8! border shadow-sm!">
-              <DeleteBin fill="var(--color-bg-state-destructive)" className="size-4" />
-            </Button>
-            <Button
-              type="button"
-              onClick={() => router.push(`/staff/fees/fee-group/${groupId}/edit`)}
-              className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! h-8! border font-medium shadow-sm!"
-            >
-              <Edit fill="var(--color-icon-default-muted)" />
-              <p className="inline md:hidden">Edit Fee Group</p>
-            </Button>
+        {isLoading ? (
+          <Skeleton className="bg-bg-input-soft h-10 w-full" />
+        ) : (
+          <div className="mb-4 flex flex-col justify-between gap-3 md:mb-9 md:flex-row">
+            <div className="text-text-default text-xl font-semibold">{groupName}</div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setOpenDeleteModal(true)}
+                className="bg-bg-state-secondary! border-border-darker hover:bg-bg-state-secondary-hover! h-8! w-8! border shadow-sm!"
+              >
+                <DeleteBin fill="var(--color-bg-state-destructive)" className="size-4" />
+              </Button>
+              <Button
+                type="button"
+                onClick={() => router.push(`/staff/fees/fee-group/${groupId}/edit`)}
+                className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! h-8! border font-medium shadow-sm!"
+              >
+                <Edit fill="var(--color-icon-default-muted)" />
+                <p className="inline md:hidden">Edit Fee Group</p>
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div>
-          <div className="flex flex-col gap-6">
-            {items.map(itm => (
-              <div className="border-border-default flex items-center justify-between rounded-md border px-6 py-4" key={itm.id}>
-                <div className="flex flex-col gap-2">
-                  <div className="flex gap-2">
-                    <div className="text-text-default font-medium">{itm.title}</div>
-                    <Badge className="bg-bg-state-secondary! border-border-default text-text-default size-5 rounded-md border">{itm.qty}</Badge>
+        {isLoading ? (
+          <Skeleton className="bg-bg-input-soft h-100 w-full" />
+        ) : (
+          <div>
+            <div className="flex flex-col gap-6">
+              {items.map(itm => (
+                <div className="border-border-default flex items-center justify-between rounded-md border px-6 py-4" key={itm.id}>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <div className="text-text-default font-medium">{itm.title}</div>
+                      <Badge className="bg-bg-state-secondary! border-border-default text-text-default size-5 rounded-md border">{itm.qty}</Badge>
+                    </div>
+                    <Badge
+                      className={`border-border-default rounded-md border text-xs font-medium ${itm.status === "Required" ? "text-bg-basic-blue-strong bg-bg-badge-blue" : "text-bg-basic-fuchsia-strong bg-bg-badge-fuchsia"}`}
+                    >
+                      {itm.status}
+                    </Badge>
                   </div>
-                  <Badge
-                    className={`border-border-default rounded-md border text-xs font-medium ${itm.status === "Required" ? "text-bg-basic-blue-strong bg-bg-badge-blue" : "text-bg-basic-fuchsia-strong bg-bg-badge-fuchsia"}`}
-                  >
-                    {itm.status}
-                  </Badge>
+                  <div className="text-text-default text-base font-semibold">₦{itm.amount.toLocaleString()}</div>
                 </div>
-                <div className="text-text-default text-base font-semibold">₦{itm.amount.toLocaleString()}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          <div className="border-border-default mt-6 flex items-center justify-between rounded-md border px-6 py-4">
-            <div className="text-text-muted text-md font-semibold">Total</div>
-            <div className="text-text-default text-sm font-medium">₦{subtotal.toLocaleString()}</div>
+            <div className="border-border-default mt-6 flex items-center justify-between rounded-md border px-6 py-4">
+              <div className="text-text-muted text-md font-semibold">Total</div>
+              <div className="text-text-default text-sm font-medium">₦{subtotal.toLocaleString()}</div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

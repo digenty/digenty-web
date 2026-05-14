@@ -52,6 +52,9 @@ const FeeAmount = ({ formik }: Props) => {
 
   const updateBranchAmount = (branchId: number, amount: number) => {
     const updated = values.branchAmounts.map(ba => (ba.branchId === branchId ? { ...ba, amount } : ba));
+    if (!updated.some(ba => ba.branchId === branchId)) {
+      updated.push({ branchId, amount });
+    }
     setFieldValue("branchAmounts", updated);
   };
 
@@ -103,9 +106,9 @@ const FeeAmount = ({ formik }: Props) => {
               </div>
 
               {values.setDifferentPricesPerBranch && !values.setDifferentPricesPerClass && (
-                <div className="flex items-center gap-3 px-4 py-3">
+                <div className="border-border-default flex items-center gap-3 border-b px-4 py-3">
                   <span className="text-text-muted w-full text-sm">Branch amount</span>
-                  <div className="flex w-full items-center gap-1 rounded-md bg-white px-2 shadow-sm ring-1 ring-gray-200">
+                  <div className="bg-bg-input-soft flex w-full items-center gap-1 rounded-md px-2">
                     <span className="text-text-muted text-sm">₦</span>
                     <Input
                       type="number"

@@ -18,16 +18,12 @@ export interface FeeItemDto {
   session: number;
   term: FeeTermType;
   quantity?: number;
-  /** branch IDs this fee applies to */
   branchIds?: number[];
-  /** arm IDs this fee applies to */
   armIds: number[];
-  amount?: number;
+  amount: number;
   setDifferentPricesPerBranch?: boolean;
   setDifferentPricesPerClass?: boolean;
-  /** amounts per branch when setDifferentPricesPerBranch is true */
   branchAmounts?: BranchAmount[];
-  /** amounts per arm/class when setDifferentPricesPerClass is true */
   classArmAmounts?: ClassArmAmount[];
   allowPartPayment?: boolean;
   minimumPartPayment?: number;
@@ -63,6 +59,37 @@ export interface FeeGroupDto {
   items: FeeGroupItemDto[];
   allowPartPayment?: boolean;
   minimumPartPayment?: number;
+}
+
+export interface FeeGroupItemResponse {
+  id: number;
+  itemType: "FEE_CLASS" | "STOCK" | "CUSTOM";
+  itemName: string;
+  unitPrice: number;
+  quantity: number;
+  total: number;
+  optional: boolean;
+}
+
+export interface FeeGroupAppliedArm {
+  armId: number;
+  armName: string;
+  classId: number;
+  className: string;
+}
+
+export interface FeeGroupByIdData {
+  feeGroupId: number;
+  name: string;
+  description: string;
+  branchId: number;
+  branchName: string;
+  termId: number;
+  items: FeeGroupItemResponse[];
+  appliedToArms: FeeGroupAppliedArm[];
+  totalAmount: number;
+  allowPartPayment: boolean | null;
+  minimumPartPayment: number | null;
 }
 
 export interface FeeRouteRequestDto {
@@ -118,6 +145,27 @@ export const deleteFee = async (id: number) => {
 export const publishFee = async (id: number) => {
   try {
     const { data } = await api.post(`/fee/fees/${id}/publish`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export interface FeeItemForArmDto {
+  name: string;
+  session: number;
+  term: FeeTermType;
+  quantity: number;
+  amount: number;
+  required: boolean;
+  allowPartPayment: boolean;
+  minimumPartPayment: number;
+}
+
+export const createFeeItemForArm = async (armId: number, payload: FeeItemForArmDto) => {
+  try {
+    const { data } = await api.post(`/fee/items/arms/${armId}`, payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -270,6 +318,83 @@ export const deleteFeeRoute = async (id: number) => {
   try {
     const { data } = await api.delete(`/fee/route/${id}`);
     return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+const triggerDownload = (blob: Blob, fallbackName: string, disposition?: string) => {
+  const filename = disposition?.match(/filename="?([^"]+)"?/)?.[1] ?? fallbackName;
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+export const exportFeeItems = async ({ branchId, termId }: { branchId?: number; termId?: number }) => {
+  try {
+    const params = new URLSearchParams();
+    if (branchId) params.append("branchId", String(branchId));
+    if (termId) params.append("termId", String(termId));
+    const res = await api.get(`/fee/items/export?${params}`, { responseType: "blob" });
+    triggerDownload(
+      new Blob([res.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),
+      "fee-items.xlsx",
+      res.headers["content-disposition"],
+    );
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const exportFeeGroups = async ({ branchId }: { branchId?: number }) => {
+  try {
+    const params = new URLSearchParams();
+    if (branchId) params.append("branchId", String(branchId));
+    const res = await api.get(`/fee/group/export?${params}`, { responseType: "blob" });
+    triggerDownload(
+      new Blob([res.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),
+      "fee-groups.xlsx",
+      res.headers["content-disposition"],
+    );
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const exportClassFees = async ({
+  sessionId,
+  term,
+  branchId,
+  classId,
+  armId,
+}: {
+  sessionId?: number;
+  term?: FeeTermType;
+  branchId?: number;
+  classId?: number;
+  armId?: number;
+}) => {
+  try {
+    const params = new URLSearchParams();
+    if (sessionId) params.append("sessionId", String(sessionId));
+    if (term) params.append("term", term);
+    if (branchId) params.append("branchId", String(branchId));
+    if (classId) params.append("classId", String(classId));
+    if (armId) params.append("armId", String(armId));
+    const res = await api.get(`/fee/class/overview/export?${params}`, { responseType: "blob" });
+    triggerDownload(
+      new Blob([res.data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),
+      "class-fees.xlsx",
+      res.headers["content-disposition"],
+    );
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

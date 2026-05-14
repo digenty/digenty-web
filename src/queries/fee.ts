@@ -26,4 +26,8 @@ export const feeKeys = {
   deleteFee: ["deleteFee"] as const,
   deleteFeeItem: ["deleteFeeItem"] as const,
   deleteFeeGroup: ["deleteFeeGroup"] as const,
+
+  exportFeeItems: ["exportFeeItems"] as const,
+  exportFeeGroups: ["exportFeeGroups"] as const,
+  exportClassFees: ["exportClassFees"] as const,
 };

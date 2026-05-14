@@ -29,9 +29,11 @@ export const ClassFeeDetail = () => {
   const feeId = params?.id ? Number(params.id) : undefined;
 
   const { data: feeData, isLoading } = useGetFeeById(feeId);
+
   const { mutate: deleteFee, isPending: isDeleting } = useDeleteFee();
 
   const [openDeleteModal, setOpeDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
   const [openClassDeleteModal, setOpenClassDeleteModal] = useState(false);
 
   useBreadcrumb([
@@ -98,69 +100,66 @@ export const ClassFeeDetail = () => {
   return (
     <div className="flex items-center justify-center px-4 md:px-30 lg:px-70.5">
       <div className="w-full py-4">
-
-        {/* Class-level delete modal */}
-        {openClassDeleteModal && (
-          <>
-            <Modal
-              open={openClassDeleteModal}
-              setOpen={setOpenClassDeleteModal}
-              title="Delete Class Fee?"
-              ActionButton={
-                <Button
-                  onClick={handleDeleteClass}
-                  disabled={isDeleting}
-                  className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!"
-                >
-                  {isDeleting ? "Deleting..." : "Delete"}
-                </Button>
-              }
+        <Modal
+          open={openClassDeleteModal}
+          setOpen={setOpenClassDeleteModal}
+          title="Delete Class Fee?"
+          ActionButton={
+            <Button
+              onClick={handleDeleteClass}
+              disabled={isDeleting}
+              className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!"
             >
-              <div className="flex flex-col gap-4 px-6 py-4">
-                <div className="text-text-subtle text-sm font-medium">
-                  Are you sure you want to permanently delete all fees for {title}? This action cannot be undone.
-                </div>
-                <div className="bg-bg-basic-orange-subtle border-border-default flex items-center gap-3 rounded-md border px-3 py-2">
-                  <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-12" />
-                  <div className="text-text-subtle text-sm">
-                    Deleting this class fee will remove it from the fee setup and it will no longer appear in new invoices.
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Checkbox />
-                  <div className="text-text-subtle text-sm">I understand that deleting this class fee is permanent.</div>
-                </div>
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          }
+        >
+          <div className="flex flex-col gap-4 px-6 py-4">
+            <div className="text-text-subtle text-sm font-medium">
+              Are you sure you want to permanently delete all fees for {title}? This action cannot be undone.
+            </div>
+            <div className="bg-bg-basic-orange-subtle border-border-default flex items-center gap-3 rounded-md border px-3 py-2">
+              <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-12" />
+              <div className="text-text-subtle text-sm">
+                Deleting this class fee will remove it from the fee setup and it will no longer appear in new invoices.
               </div>
-            </Modal>
-            <MobileDrawer title="Delete Class Fee?" open={openClassDeleteModal} setIsOpen={setOpenClassDeleteModal}>
-              <div className="flex flex-col gap-4 px-3 py-4">
-                <div className="text-text-subtle text-sm font-medium">
-                  Are you sure you want to permanently delete all fees for {title}?
-                </div>
-                <div className="bg-bg-basic-orange-subtle border-border-default flex items-center gap-3 rounded-md border px-3 py-2">
-                  <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-24" />
-                  <div className="text-text-subtle text-sm">
-                    Deleting this class fee will remove it from the fee setup and it will no longer appear in new invoices.
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Checkbox />
-                  <div className="text-text-subtle text-sm">I understand that deleting this class fee is permanent.</div>
-                </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Checkbox />
+              <div className="text-text-subtle text-sm">I understand that deleting this class fee is permanent.</div>
+            </div>
+          </div>
+        </Modal>
+
+        <MobileDrawer title="Delete Class Fee?" open={openClassDeleteModal} setIsOpen={setOpenClassDeleteModal}>
+          <div className="flex flex-col gap-4 px-3 py-4">
+            <div className="text-text-subtle text-sm font-medium">Are you sure you want to permanently delete all fees for {title}?</div>
+            <div className="bg-bg-basic-orange-subtle border-border-default flex items-center gap-3 rounded-md border px-3 py-2">
+              <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-24" />
+              <div className="text-text-subtle text-sm">
+                Deleting this class fee will remove it from the fee setup and it will no longer appear in new invoices.
               </div>
-              <DrawerFooter className="border-border-default border-t">
-                <div className="flex justify-between">
-                  <DrawerClose asChild>
-                    <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
-                  </DrawerClose>
-                  <Button onClick={handleDeleteClass} disabled={isDeleting} className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!">
-                    {isDeleting ? "Deleting..." : "Delete"}
-                  </Button>
-                </div>
-              </DrawerFooter>
-            </MobileDrawer>
-          </>
-        )}
+            </div>
+            <div className="flex items-start gap-3">
+              <Checkbox />
+              <div className="text-text-subtle text-sm">I understand that deleting this class fee is permanent.</div>
+            </div>
+          </div>
+          <DrawerFooter className="border-border-default border-t">
+            <div className="flex justify-between">
+              <DrawerClose asChild>
+                <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
+              </DrawerClose>
+              <Button
+                onClick={handleDeleteClass}
+                disabled={isDeleting}
+                className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </DrawerFooter>
+        </MobileDrawer>
 
         <div className="mb-4 flex flex-col justify-between gap-4 md:mb-9 md:flex-row">
           <div className="text-text-default text-xl font-semibold">{title}</div>
@@ -181,75 +180,75 @@ export const ClassFeeDetail = () => {
           </div>
         </div>
 
+        <Modal
+          open={openDeleteModal}
+          setOpen={setOpeDeleteModal}
+          title="Delete Fee from Class?"
+          ActionButton={
+            <Button
+              onClick={() => {
+                if (deleteTargetId !== null) remove(deleteTargetId);
+                setOpeDeleteModal(false);
+              }}
+              className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!"
+            >
+              Delete
+            </Button>
+          }
+        >
+          <div className="flex flex-col gap-4 px-6 py-4">
+            <div className="text-text-subtle text-sm font-medium">
+              Are you sure you want to permanently delete this fee from {title}? This action cannot be undone.
+            </div>
+            <div className="bg-bg-basic-orange-subtle border-border-default flex items-center gap-3 rounded-md border px-3 py-2">
+              <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-12" />
+              <div className="text-text-subtle text-sm">
+                Deleting this fee will remove it from the class&apos;s fee setup and it will no longer appear in new invoices.
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Checkbox />
+              <div className="text-text-subtle text-sm">I understand that deleting this fee from the class is permanent.</div>
+            </div>
+          </div>
+        </Modal>
+
+        <MobileDrawer title="Delete Fee from Class?" open={openDeleteModal} setIsOpen={setOpeDeleteModal}>
+          <div className="flex flex-col gap-4 px-3 py-4">
+            <div className="text-text-subtle text-sm font-medium">Are you sure you want to permanently delete this fee from {title}?</div>
+            <div className="bg-bg-basic-orange-subtle border-border-default flex items-center gap-3 rounded-md border px-3 py-2">
+              <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-24" />
+              <div className="text-text-subtle text-sm">
+                Deleting this fee will remove it from the class&apos;s fee setup and it will no longer appear in new invoices.
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Checkbox />
+              <div className="text-text-subtle text-sm">I understand that deleting this fee from the class is permanent.</div>
+            </div>
+          </div>
+          <DrawerFooter className="border-border-default border-t">
+            <div className="flex justify-between">
+              <DrawerClose asChild>
+                <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
+              </DrawerClose>
+              <Button
+                onClick={() => {
+                  if (deleteTargetId !== null) remove(deleteTargetId);
+                  setOpeDeleteModal(false);
+                }}
+                className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!"
+              >
+                Delete
+              </Button>
+            </div>
+          </DrawerFooter>
+        </MobileDrawer>
+
         <div>
           <div className="flex flex-col gap-6">
             {items.map(itm => (
               <div key={itm.id}>
-                {openDeleteModal && (
-                  <div>
-                    <Modal
-                      open={openDeleteModal}
-                      setOpen={setOpeDeleteModal}
-                      title="Delete Fee from Class?"
-                      ActionButton={
-                        <Button
-                          onClick={() => { remove(itm.id); setOpeDeleteModal(false); }}
-                          className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!"
-                        >
-                          Delete
-                        </Button>
-                      }
-                    >
-                      <div className="flex flex-col gap-4 px-6 py-4">
-                        <div className="text-text-subtle text-sm font-medium">
-                          Are you sure you want to permanently delete this fee from {title}? This action cannot be undone.
-                        </div>
-                        <div className="bg-bg-basic-orange-subtle border-border-default flex items-center gap-3 rounded-md border px-3 py-2">
-                          <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-12" />
-                          <div className="text-text-subtle text-sm">
-                            Deleting this fee will remove it from the class's fee setup and it will no longer appear in new invoices.
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <Checkbox />
-                          <div className="text-text-subtle text-sm">I understand that deleting this fee from the class is permanent.</div>
-                        </div>
-                      </div>
-                    </Modal>
-
-                    <MobileDrawer title="Delete Fee from Class?" open={openDeleteModal} setIsOpen={setOpeDeleteModal}>
-                      <div className="flex flex-col gap-4 px-3 py-4">
-                        <div className="text-text-subtle text-sm font-medium">
-                          Are you sure you want to permanently delete this fee from {title}?
-                        </div>
-                        <div className="bg-bg-basic-orange-subtle border-border-default flex items-center gap-3 rounded-md border px-3 py-2">
-                          <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-24" />
-                          <div className="text-text-subtle text-sm">
-                            Deleting this fee will remove it from the class's fee setup and it will no longer appear in new invoices.
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <Checkbox />
-                          <div className="text-text-subtle text-sm">I understand that deleting this fee from the class is permanent.</div>
-                        </div>
-                      </div>
-                      <DrawerFooter className="border-border-default border-t">
-                        <div className="flex justify-between">
-                          <DrawerClose asChild>
-                            <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
-                          </DrawerClose>
-                          <Button
-                            onClick={() => { remove(itm.id); setOpeDeleteModal(false); }}
-                            className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!"
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </DrawerFooter>
-                    </MobileDrawer>
-                  </div>
-                )}
-
                 <div className="border-border-default flex items-center justify-between rounded-md border px-6 py-4">
                   <div className="flex flex-col gap-2">
                     <div className="flex gap-2">
@@ -261,7 +260,7 @@ export const ClassFeeDetail = () => {
                   <div className="flex gap-7">
                     <div className="text-text-default text-base font-semibold">₦{itm.amount.toLocaleString()}</div>
                     <div className="flex gap-3">
-                      <DeleteBin onClick={() => setOpeDeleteModal(true)} fill="var(--color-icon-default-subtle)" className="cursor-pointer" />
+                      <DeleteBin onClick={() => { setDeleteTargetId(itm.id); setOpeDeleteModal(true); }} fill="var(--color-icon-default-subtle)" className="cursor-pointer" />
                       <Edit fill="var(--color-icon-default-subtle)" className="cursor-pointer" />
                     </div>
                   </div>

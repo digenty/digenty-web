@@ -31,7 +31,12 @@ function ClassRow({ cls, formik }: { cls: ClassRowEntry; formik: FormikProps<Fee
   const [open, setOpen] = useState(false);
   const selectedArmIds = formik.values.armIds ?? [];
   const allArmIds = cls.arms.map(a => a.id);
-  const allSelected = allArmIds.length > 0 && allArmIds.every(id => selectedArmIds.includes(id));
+  const hasNoArms = cls.arms.length === 0;
+
+  // For arm-less classes use classId as a sentinel arm ID
+  const allSelected = hasNoArms
+    ? selectedArmIds.includes(cls.classId)
+    : allArmIds.length > 0 && allArmIds.every(id => selectedArmIds.includes(id));
 
   const updateArm = (armId: number, armName: string, checked: boolean) => {
     const currentIds = formik.values.armIds ?? [];
@@ -56,6 +61,27 @@ function ClassRow({ cls, formik }: { cls: ClassRowEntry; formik: FormikProps<Fee
   const toggleAll = (checked: boolean) => {
     const currentIds = formik.values.armIds ?? [];
     const currentInfo = formik.values.selectedArmsInfo ?? [];
+
+    if (hasNoArms) {
+      // No arms — treat the class itself as the selectable unit
+      if (checked) {
+        const meta: SelectedArmInfo = {
+          armId: cls.classId,
+          armName: cls.className,
+          classId: cls.classId,
+          className: cls.className,
+          branchId: cls.branchId,
+          branchName: cls.branchName,
+        };
+        formik.setFieldValue("armIds", [...currentIds, cls.classId]);
+        formik.setFieldValue("selectedArmsInfo", [...currentInfo, meta]);
+      } else {
+        formik.setFieldValue("armIds", currentIds.filter(id => id !== cls.classId));
+        formik.setFieldValue("selectedArmsInfo", currentInfo.filter(a => a.armId !== cls.classId));
+      }
+      return;
+    }
+
     if (checked) {
       const newArms = cls.arms.filter(a => !currentIds.includes(a.id));
       const newInfo: SelectedArmInfo[] = newArms.map(a => ({
@@ -82,7 +108,7 @@ function ClassRow({ cls, formik }: { cls: ClassRowEntry; formik: FormikProps<Fee
           <GraduationCap fill="var(--color-icon-default-muted)" />
           <span className="text-text-default text-sm font-medium">{cls.className}</span>
         </div>
-        {cls.arms.length > 0 && (
+        {!hasNoArms && (
           <Button
             type="button"
             onClick={() => setOpen(p => !p)}
@@ -93,7 +119,7 @@ function ClassRow({ cls, formik }: { cls: ClassRowEntry; formik: FormikProps<Fee
         )}
       </div>
 
-      {open && cls.arms.length > 0 && (
+      {open && !hasNoArms && (
         <div className="flex flex-col gap-3 px-8 pt-3">
           {cls.arms.map(arm => (
             <div key={arm.id} className="flex items-center gap-2">

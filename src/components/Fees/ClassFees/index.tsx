@@ -1,7 +1,7 @@
 "use client";
 
 import { FileList3Fill, GraduationCapFill } from "@digenty/icons";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { DataTable } from "@/components/DataTable";
 import { useRouter } from "next/navigation";
 import { OverviewCard } from "@/components/OverviewCard";
@@ -15,12 +15,30 @@ import { EmptyFeeState } from "../EmptyFeeState";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
-import { useGetFeeClassOverview } from "@/hooks/queryHooks/useFee";
+import { useGetFeeClassOverview, useExportClassFees } from "@/hooks/queryHooks/useFee";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { Branch } from "@/api/types";
+import { Branch, BranchWithClassLevels } from "@/api/types";
+
+function extractBranches(data: unknown): Branch[] {
+  const list = (() => {
+    if (Array.isArray(data)) return data;
+    const d = data as Record<string, unknown> | undefined;
+    if (Array.isArray(d?.data)) return d!.data as unknown[];
+    if (d?.data && typeof d.data === "object") {
+      const inner = d.data as Record<string, unknown>;
+      if (Array.isArray(inner.content)) return inner.content as unknown[];
+    }
+    return [];
+  })();
+  return list
+    .map(item => {
+      if (item && typeof item === "object" && "branch" in item) return (item as BranchWithClassLevels).branch;
+      return item as Branch;
+    })
+    .filter((b): b is Branch => !!b && typeof b === "object" && typeof (b as Branch).id === "number");
+}
 import { FeeTermType } from "@/api/fee";
 import { Spinner } from "@/components/ui/spinner";
-import * as XLSX from "xlsx";
 import { unwrapArray, extractSessionId } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { columnsClassFees } from "./ClassColumns";
@@ -33,7 +51,6 @@ const TERM_LABEL: Record<FeeTermType, string> = {
 
 interface TermOption {
   id: number;
-  sessionId: number;
   term: FeeTermType;
   label: string;
 }
@@ -46,28 +63,32 @@ export const ClassFees = () => {
 
   const router = useRouter();
   const { schoolId } = useLoggedInUser();
-
   const { data: branchesData } = useGetBranches();
   const { data: termsData } = useGetTerms(schoolId);
   const { data: activeSessionData } = useGetActiveSession();
 
-  const branches: Branch[] = unwrapArray<Branch>(branchesData);
-  const sessionId = extractSessionId(activeSessionData) ?? 0;
+  const branches: Branch[] = extractBranches(branchesData);
+  const sessionId = extractSessionId(activeSessionData);
 
   const termOptions: TermOption[] = useMemo(() => {
     return unwrapArray<{ termId: number; term: FeeTermType }>(termsData).map(t => ({
       id: t.termId,
-      sessionId,
       term: t.term,
       label: TERM_LABEL[t.term] ?? t.term,
     }));
-  }, [termsData, sessionId]);
+  }, [termsData]);
 
   const branchOptions = ["All Branches", ...branches.filter(b => b.name).map((b: Branch) => b.name!)];
   const termLabelOptions = termOptions.map(t => t.label);
 
   const [branchSelected, setBranchSelected] = useState("All Branches");
-  const [termSelected, setTermSelected] = useState(termLabelOptions[0] ?? "");
+  const [termSelected, setTermSelected] = useState("");
+
+  useEffect(() => {
+    if (termSelected === "" && termLabelOptions.length > 0) {
+      setTermSelected(termLabelOptions[0]);
+    }
+  }, [termLabelOptions, termSelected]);
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
   const [visibleCount, setVisibleCount] = useState(3);
@@ -77,53 +98,60 @@ export const ClassFees = () => {
   const selectedTermObj = termOptions.find(t => t.label === termSelected) ?? termOptions[0];
   const selectedBranch = branches.find((b: Branch) => b.name === branchSelected);
 
-  const { data: overview, isLoading } = useGetFeeClassOverview(selectedTermObj?.sessionId, selectedTermObj?.term, selectedBranch?.id);
+  const { data: overviewRaw, isLoading } = useGetFeeClassOverview(sessionId, selectedTermObj?.term, selectedBranch?.id);
 
-  const overviewBranches: {
+  // Unwrap both { data: { branches } } and direct { branches } response shapes
+  const overviewData = (overviewRaw as { data?: unknown } | undefined)?.data ?? overviewRaw;
+
+  interface ArmEntry {
+    armId: number;
+    armName: string;
+    totalAmount: number;
+  }
+  interface ClassEntry {
+    classId: number;
+    className: string;
+    arms: ArmEntry[];
+    feeNames: string[];
+    totalAmount: number;
+  }
+  interface OverviewBranch {
     branchId: number;
     branchName: string;
     totalFees: number;
     totalClassVariations: number;
-    classes: { classId: number; className: string; feeNames: string[]; totalAmount: number }[];
-  }[] = overview?.branches ?? [];
+    classes: ClassEntry[];
+  }
 
-  const handleExport = () => {
-    const rows = overviewBranches.flatMap(b =>
-      b.classes.map(c => ({
-        Branch: b.branchName,
-        Class: c.className,
-        "Fee Items": c.feeNames.join(", "),
-        "Total Amount (₦)": c.totalAmount,
-      })),
-    );
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Class Fees");
-    XLSX.writeFile(wb, "class-fees.xlsx");
+  const overviewBranches: OverviewBranch[] = (overviewData as { branches?: OverviewBranch[] } | undefined)?.branches ?? [];
+
+  const exportClassNames = [...new Set(overviewBranches.flatMap(b => b.classes.map(c => c.className)))];
+  const exportArmNames = [...new Set(overviewBranches.flatMap(b => b.classes.flatMap(c => c.arms.map(a => a.armName))))];
+  const totalClassCount = overviewBranches.reduce((acc, b) => acc + b.classes.length, 0);
+
+  const { mutate: doExport, isPending: isExporting } = useExportClassFees();
+
+  const handleExportConfirm = ({ branchName, termLabel, className, armName }: { branchName: string; termLabel: string; className?: string; armName?: string }) => {
+    const branch = branches.find((b: Branch) => b.name === branchName);
+    const termObj = termOptions.find(t => t.label === termLabel);
+    const classEntry = overviewBranches.flatMap(b => b.classes).find(c => c.className === className);
+    const armEntry = overviewBranches.flatMap(b => b.classes.flatMap(c => c.arms)).find(a => a.armName === armName);
+    doExport({ sessionId, term: termObj?.term, branchId: branch?.id, classId: classEntry?.classId, armId: armEntry?.armId });
   };
 
   return (
     <>
       {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
-      {!isLoading && overviewBranches.length === 0 && (
-        <EmptyFeeState
-          title="Let's set up your fees"
-          description="You can add fees for one or more classes, branches and arms. We'll guide you step-by-step."
-          buttonText="Add First Fee"
-          url="/staff/fees/add"
-        />
-      )}
-
       <div>
         <FeesHeader
           title="Class Fees Overview"
           branches={branchOptions}
           branchSelected={branchSelected}
-          classes={[]}
+          classes={exportClassNames}
           selectedClass=""
           setSelectedClass={() => {}}
-          arms={[]}
+          arms={exportArmNames}
           setSelectedArm={() => {}}
           selectedArm=""
           setBranchSelected={setBranchSelected}
@@ -136,6 +164,10 @@ export const ClassFees = () => {
           onAddClick={() => router.push("/staff/fees/add")}
           exportTitle="Export Class Fees"
           exportActionButton="Export Class Fees"
+          onExportConfirm={handleExportConfirm}
+          isExporting={isExporting}
+          exportResultCount={totalClassCount}
+          exportResultLabel="Classes Found"
         />
 
         <div className="mt-4 md:mt-6">
@@ -240,6 +272,15 @@ export const ClassFees = () => {
           ))}
         </div>
       </div>
+
+      {!isLoading && overviewBranches.length === 0 && (
+        <EmptyFeeState
+          title="Let's set up your fees"
+          description="You can add fees for one or more classes, branches and arms. We'll guide you step-by-step."
+          buttonText="Add First Fee"
+          url="/staff/fees/add"
+        />
+      )}
     </>
   );
 };

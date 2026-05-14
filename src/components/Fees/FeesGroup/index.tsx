@@ -4,8 +4,6 @@ import { Edit, Eye } from "@digenty/icons";
 import React, { useMemo, useState } from "react";
 import { FeesHeader } from "../FeesHeader";
 import { DataTable } from "@/components/DataTable";
-import { FeeGroupProp } from "./feeGroupType";
-import { FeeGroupColumn } from "./FeeGroupColumns";
 import { Button } from "@/components/ui/button";
 import { Ellipsis, Trash2 } from "lucide-react";
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -14,7 +12,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
 import { EmptyFeeState } from "../EmptyFeeState";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { useGetFeeGroupsForPicker, useDeleteFeeGroup } from "@/hooks/queryHooks/useFee";
+import { useGetFeeGroups, useDeleteFeeGroup, useExportFeeGroups } from "@/hooks/queryHooks/useFee";
 import { Branch, BranchWithClassLevels } from "@/api/types";
 import { Modal } from "@/components/Modal";
 import { toast } from "sonner";
@@ -40,8 +38,10 @@ function extractBranches(data: unknown): Branch[] {
   return [];
 }
 import { Spinner } from "@/components/ui/spinner";
-import * as XLSX from "xlsx";
 import { unwrapArray } from "@/lib/utils";
+import { FeeGroupApiItem, FeeGroupProp } from "./feeGroupType";
+import { FeeGroupColumn } from "./FeeGroupColumns";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const FeesGroup = () => {
   const router = useRouter();
@@ -65,164 +65,185 @@ export const FeesGroup = () => {
   const pageSize = 5;
 
   const selectedBranch = branches.find((b: Branch) => b.name === branchSelected);
+  const branchIdForQuery = branchSelected !== "All Branches" ? selectedBranch?.id : undefined;
 
-  const { data: groupsData, isLoading } = useGetFeeGroupsForPicker(selectedBranch?.id ?? branches[0]?.id);
+  const { data: groupsData, isLoading } = useGetFeeGroups(branchIdForQuery);
 
   const feeGroups: FeeGroupProp[] = useMemo(() => {
-    const raw = unwrapArray<{ id: number; name: string; items: { name: string }[]; totalAmount: number }>(groupsData);
-    return raw.map((g, i) => ({
-      id: g.id,
-      classname: g.name,
-      applyTo: {
-        item1: g.items?.[0]?.name ?? "",
-        item2: g.items?.[1]?.name ?? "",
-        count: g.items?.length ?? 0,
-      },
+    const raw = unwrapArray<FeeGroupApiItem>(groupsData);
+    return raw.map(g => ({
+      id: g.feeGroupId,
+      name: g.name,
+      feeNames: g.feeNames ?? [],
       totalAmount: g.totalAmount ?? 0,
+      appliedToArmsCount: g.appliedToArmsCount ?? 0,
     }));
   }, [groupsData]);
 
-  const handleExport = () => {
-    const rows = feeGroups.map(g => ({
-      "Group Name": g.classname,
-      "Items": `${g.applyTo.item1}${g.applyTo.item2 ? `, ${g.applyTo.item2}` : ""}${g.applyTo.count > 2 ? ` +${g.applyTo.count - 2} more` : ""}`,
-      "Total Amount (₦)": g.totalAmount,
-    }));
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Fee Groups");
-    XLSX.writeFile(wb, "fee-groups.xlsx");
+  const { mutate: doExport, isPending: isExporting } = useExportFeeGroups();
+
+  const handleExportConfirm = ({ branchName }: { branchName: string }) => {
+    const branch = branches.find((b: Branch) => b.name === branchName);
+    doExport({ branchId: branch?.id });
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <Spinner className="size-10" />
-      </div>
-    );
-  }
-
-  if (!isLoading && feeGroups.length === 0) {
-    return (
-      <EmptyFeeState
-        title="No Fee Groups Yet"
-        description="Create groups to organise related fees into bundles you can reuse when setting up invoices."
-        buttonText="Add Fee Group"
-        url="/staff/fees/add-fee-to-group"
-      />
-    );
-  }
 
   return (
     <div className="flex flex-col gap-6">
-      <FeesHeader
-        title="Fee Groups"
-        branches={branchOptions}
-        branchSelected={branchSelected}
-        setBranchSelected={v => { setBranchSelected(v); setPage(1); }}
-        termSelected=""
-        setTermSelected={() => {}}
-        onAddClick={() => router.push("/staff/fees/add-fee-to-group")}
-        showToggle={false}
-        showExport={false}
-        showTermFilter={false}
-        exportTitle="Export Group Fee"
-        exportActionButton="Export Group"
-        termsOptions={[]}
-        addButttonText="Add Fee Group"
-      />
-
-      {/* Desktop */}
-      <div className="hidden md:block">
-        <DataTable
-          columns={FeeGroupColumn}
-          data={feeGroups}
-          totalCount={feeGroups.length}
-          page={page}
-          setCurrentPage={setPage}
-          pageSize={pageSize}
-          clickHandler={row => router.push(`/staff/fees/fee-group/${row.original.id}`)}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          onSelectRows={() => {}}
-          showPagination={feeGroups.length > pageSize}
-          classNames={{ tableRow: "cursor-pointer" }}
+      {isLoading ? (
+        <Skeleton className="bg-bg-input-soft h-10 w-full" />
+      ) : (
+        <FeesHeader
+          title="Fee Groups"
+          branches={branchOptions}
+          branchSelected={branchSelected}
+          setBranchSelected={v => {
+            setBranchSelected(v);
+            setPage(1);
+          }}
+          termSelected=""
+          setTermSelected={() => {}}
+          onAddClick={() => router.push("/staff/fees/add-fee-to-group")}
+          showToggle={false}
+          showExport={true}
+          showTermFilter={false}
+          exportTitle="Export Fee Groups"
+          exportActionButton="Export Groups"
+          onExportConfirm={handleExportConfirm}
+          isExporting={isExporting}
+          exportResultCount={feeGroups.length}
+          exportResultLabel="Fee Groups Found"
+          termsOptions={[]}
+          addButttonText="Add Fee Group"
         />
-      </div>
+      )}
 
-      {/* Mobile */}
-      <div className="flex flex-col gap-4 md:hidden">
-        {feeGroups.slice(0, visibleCount).map(item => (
-          <div key={item.id} className="border-border-default bg-bg-subtle rounded-md border">
-            <div className="flex h-9.5 items-center justify-between px-3 py-1.5">
-              <span className="text-text-default text-sm font-medium">{item.classname}</span>
-              <Button onClick={() => setOpenItemId(item.id)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
-                <Ellipsis className="size-5" />
-              </Button>
-              <MobileDrawer open={openItemId === item.id} setIsOpen={v => { if (!v) setOpenItemId(null); }} title="Actions">
-                <div className="flex w-full flex-col gap-4 px-3 py-4">
-                  <div className="flex flex-col items-center gap-2">
-                    <div
-                      onClick={() => { setOpenItemId(null); router.push(`/staff/fees/fee-group/${item.id}`); }}
-                      className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                    >
-                      <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View fee group
+      {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
+
+      {!isLoading && feeGroups.length === 0 && (
+        <EmptyFeeState
+          title="No Fee Groups Yet"
+          description="Create groups to organise related fees into bundles you can reuse when setting up invoices."
+          buttonText="Add Fee Group"
+          url="/staff/fees/add-fee-to-group"
+        />
+      )}
+
+      {!isLoading && feeGroups.length > 0 && (
+        <>
+          <div className="hidden md:block">
+            <DataTable
+              columns={FeeGroupColumn}
+              data={feeGroups}
+              totalCount={feeGroups.length}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={pageSize}
+              clickHandler={row => router.push(`/staff/fees/fee-group/${row.original.id}`)}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              onSelectRows={() => {}}
+              showPagination={feeGroups.length > pageSize}
+              classNames={{ tableRow: "cursor-pointer" }}
+            />
+          </div>
+
+          <div className="flex flex-col gap-4 md:hidden">
+            {feeGroups.slice(0, visibleCount).map(item => (
+              <div key={item.id} className="border-border-default bg-bg-subtle rounded-md border">
+                <div className="flex h-9.5 items-center justify-between px-3 py-1.5">
+                  <span className="text-text-default text-sm font-medium">{item.name}</span>
+                  <Button onClick={() => setOpenItemId(item.id)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
+                    <Ellipsis className="size-5" />
+                  </Button>
+                  <MobileDrawer
+                    open={openItemId === item.id}
+                    setIsOpen={v => {
+                      if (!v) setOpenItemId(null);
+                    }}
+                    title="Actions"
+                  >
+                    <div className="flex w-full flex-col gap-4 px-3 py-4">
+                      <div className="flex flex-col items-center gap-2">
+                        <div
+                          onClick={() => {
+                            setOpenItemId(null);
+                            router.push(`/staff/fees/fee-group/${item.id}`);
+                          }}
+                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                        >
+                          <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View fee group
+                        </div>
+                        <div
+                          onClick={() => {
+                            setOpenItemId(null);
+                            router.push(`/staff/fees/fee-group/${item.id}/edit`);
+                          }}
+                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                        >
+                          <Edit className="size-4" fill="var(--color-icon-default-subtle)" /> Edit fee group
+                        </div>
+                        <div
+                          onClick={() => {
+                            setOpenItemId(null);
+                            setDeleteItemId(item.id);
+                          }}
+                          className="hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600"
+                        >
+                          <Trash2 className="size-4" /> Delete
+                        </div>
+                      </div>
                     </div>
-                    <div
-                      onClick={() => { setOpenItemId(null); router.push(`/staff/fees/fee-group/${item.id}/edit`); }}
-                      className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                    >
-                      <Edit className="size-4" fill="var(--color-icon-default-subtle)" /> Edit fee group
-                    </div>
-                    <div
-                      onClick={() => { setOpenItemId(null); setDeleteItemId(item.id); }}
-                      className="hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600"
-                    >
-                      <Trash2 className="size-4" /> Delete
+                  </MobileDrawer>
+                </div>
+
+                <div className="border-border-default border-t">
+                  <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
+                    <span className="text-text-muted font-medium">Items</span>
+                    <div className="flex items-center gap-2">
+                      <Badge className="text-text-default bg-bg-badge-default border-border-default rounded-md border text-sm font-medium">
+                        {item.feeNames.length} items
+                      </Badge>
                     </div>
                   </div>
                 </div>
-              </MobileDrawer>
-            </div>
-
-            <div className="border-border-default border-t">
-              <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
-                <span className="text-text-muted font-medium">Items</span>
-                <div className="flex items-center gap-2">
-                  <Badge className="text-text-default bg-bg-badge-default border-border-default rounded-md border text-sm font-medium">
-                    {item.applyTo.count} items
-                  </Badge>
+                <div className="border-border-default flex justify-between px-3 py-2 text-sm">
+                  <span className="text-text-muted font-medium">Total Amount</span>
+                  <span className="text-text-default text-sm font-medium">₦{item.totalAmount.toLocaleString()}</span>
                 </div>
               </div>
-            </div>
-            <div className="border-border-default flex justify-between px-3 py-2 text-sm">
-              <span className="text-text-muted font-medium">Total Amount</span>
-              <span className="text-text-default text-sm font-medium">₦{item.totalAmount.toLocaleString()}</span>
-            </div>
-          </div>
-        ))}
+            ))}
 
-        {visibleCount < feeGroups.length && (
-          <Button
-            onClick={() => setVisibleCount(feeGroups.length)}
-            className="bg-bg-state-soft! text-text-subtle! mx-auto my-2 flex w-39 items-center justify-center rounded-md"
-          >
-            Load More
-          </Button>
-        )}
-      </div>
+            {visibleCount < feeGroups.length && (
+              <Button
+                onClick={() => setVisibleCount(feeGroups.length)}
+                className="bg-bg-state-soft! text-text-subtle! mx-auto my-2 flex w-39 items-center justify-center rounded-md"
+              >
+                Load More
+              </Button>
+            )}
+          </div>
+        </>
+      )}
 
       <Modal
         open={deleteItemId !== null}
-        setOpen={v => { if (!v) setDeleteItemId(null); }}
+        setOpen={v => {
+          if (!v) setDeleteItemId(null);
+        }}
         title="Delete Fee Group?"
         ActionButton={
           <Button
             onClick={() => {
               if (!deleteItemId) return;
               deleteFeeGroup(deleteItemId, {
-                onSuccess: () => { toast.success("Fee group deleted"); setDeleteItemId(null); },
-                onError: (err: unknown) => { toast.error((err as { message?: string })?.message ?? "Failed to delete"); setDeleteItemId(null); },
+                onSuccess: () => {
+                  toast.success("Fee group deleted");
+                  setDeleteItemId(null);
+                },
+                onError: (err: unknown) => {
+                  toast.error((err as { message?: string })?.message ?? "Failed to delete");
+                  setDeleteItemId(null);
+                },
               });
             }}
             disabled={isDeleting}
@@ -232,7 +253,7 @@ export const FeesGroup = () => {
           </Button>
         }
       >
-        <div className="px-6 py-4 text-text-subtle text-sm font-medium">
+        <div className="text-text-subtle px-6 py-4 text-sm font-medium">
           Are you sure you want to permanently delete this fee group? This action cannot be undone.
         </div>
       </Modal>

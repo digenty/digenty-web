@@ -28,7 +28,7 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { FeeTermType } from "@/api/fee";
+import { FeeGroupByIdData, FeeTermType } from "@/api/fee";
 import { Branch, BranchWithClassLevels } from "@/api/types";
 import React, { useEffect, useState } from "react";
 import { addFeesToGroupSchema } from "@/schema/fees";
@@ -151,21 +151,25 @@ export const EditAddGroup = () => {
   useEffect(() => {
     if (!groupData || itemsReady) return;
 
-    const raw = (groupData as Record<string, unknown>)?.data ?? groupData;
-    const g = raw as Record<string, unknown>;
+    const g = ((groupData as { data?: FeeGroupByIdData })?.data ?? groupData) as FeeGroupByIdData;
+    if (!g?.feeGroupId) return;
+
+    // wait for rawTerms if we need to resolve a termId
+    if (g.termId && rawTerms.length === 0) return;
+
+    const matchedTerm = rawTerms.find(t => t.termId === g.termId)?.term ?? ("" as FeeTermType | "");
 
     formik.setValues({
-      name: (g?.name as string) ?? "",
-      description: (g?.description as string) ?? "",
-      branchId: (g?.branchId as number) ?? "",
-      session: ((g?.session ?? g?.sessionId) as number) ?? "",
-      term: (g?.term as FeeTermType) ?? "",
+      name: g.name ?? "",
+      description: g.description ?? "",
+      branchId: g.branchId ?? "",
+      session: sessionId || "",
+      term: matchedTerm,
     });
 
-    type RawItem = { id?: number; itemName?: string; name?: string; quantity?: number; unitPrice?: number; optional?: boolean };
-    const rawItems: ItemRow[] = ((g?.items as RawItem[]) ?? []).map(item => ({
+    const rawItems: ItemRow[] = (g.items ?? []).map(item => ({
       id: String(item.id ?? crypto.randomUUID()),
-      name: item.itemName ?? item.name ?? "",
+      name: item.itemName ?? "",
       qty: item.quantity ?? 1,
       price: item.unitPrice ?? 0,
       required: !item.optional,
@@ -174,7 +178,7 @@ export const EditAddGroup = () => {
     setItems(rawItems.length > 0 ? rawItems : [{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }]);
     setItemsReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupData]);
+  }, [groupData, rawTerms, sessionId]);
 
   const { values, errors, touched, handleChange, handleBlur, setFieldValue, handleSubmit } = formik;
 

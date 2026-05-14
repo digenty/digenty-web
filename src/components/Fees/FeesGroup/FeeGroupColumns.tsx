@@ -119,21 +119,20 @@ export const FeeGroupColumn: ColumnDef<FeeGroupProp>[] = [
   {
     accessorKey: "feeGroupName",
     header: () => <div className="text-text-muted text-sm font-medium">Fee Group Name</div>,
-    cell: ({ row }) => <span className="text-text-default text-sm font-medium">{row.original.classname}</span>,
+    cell: ({ row }) => <span className="text-text-default text-sm font-medium">{row.original.name}</span>,
     size: 100,
   },
 
   {
-    accessorKey: "applyTo",
+    accessorKey: "feeNames",
     header: () => <div className="text-text-muted text-sm font-medium">Fee</div>,
     cell: ({ row }) => {
-      const item = row.original.applyTo;
-      if (!item) return null;
+      const names = row.original.feeNames ?? [];
       return (
         <div className="flex flex-wrap gap-2">
-          {item.item1 && <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">{item.item1}</Badge>}
-          {item.item2 && <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">{item.item2}</Badge>}
-          {item.count > 2 && <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">+{item.count - 2}</Badge>}
+          {names[0] && <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">{names[0]}</Badge>}
+          {names[1] && <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">{names[1]}</Badge>}
+          {names.length > 2 && <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">+{names.length - 2}</Badge>}
         </div>
       );
     },

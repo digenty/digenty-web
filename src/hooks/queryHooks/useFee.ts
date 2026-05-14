@@ -1,11 +1,16 @@
 import {
   createFeeGroup,
   createFeeItem,
+  createFeeItemForArm,
   deleteFee,
   deleteFeeGroup,
   deleteFeeItem,
+  exportClassFees,
+  exportFeeGroups,
+  exportFeeItems,
   FeeGroupDto,
   FeeItemDto,
+  FeeItemForArmDto,
   FeeTermType,
   getFeeClassOverview,
   getFeeGroupById,
@@ -32,8 +37,6 @@ export const useGetFeeClassOverview = (sessionId?: number, term?: FeeTermType, b
     enabled: !!sessionId && !!term,
   });
 };
-
-// ── Class Fees ──────────────────────────────────────────────────────────────
 
 export const useGetFees = (termId?: number) => {
   return useQuery({
@@ -78,6 +81,9 @@ export const useGetFeeItems = (branchId?: number, termId?: number) => {
   return useQuery({
     queryKey: feeKeys.feeItems(branchId, termId),
     queryFn: () => getFeeItems(branchId, termId),
+    enabled: termId !== undefined,
+    retry: false,
+    staleTime: 60_000,
   });
 };
 
@@ -94,6 +100,17 @@ export const useCreateFeeItem = () => {
   return useMutation({
     mutationKey: feeKeys.createFeeItem,
     mutationFn: (payload: FeeItemDto) => createFeeItem(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feeItems"] });
+      queryClient.invalidateQueries({ queryKey: ["feeClassOverview"] });
+    },
+  });
+};
+
+export const useCreateFeeItemForArm = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ armId, payload }: { armId: number; payload: FeeItemForArmDto }) => createFeeItemForArm(armId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["feeItems"] });
       queryClient.invalidateQueries({ queryKey: ["feeClassOverview"] });
@@ -136,6 +153,7 @@ export const useCreateFeeGroup = () => {
     mutationFn: (payload: FeeGroupDto) => createFeeGroup(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["feeGroups"] });
+      queryClient.invalidateQueries({ queryKey: ["feeGroupsForPicker"] });
     },
   });
 };
@@ -187,5 +205,28 @@ export const useGetFeeRoutes = () => {
   return useQuery({
     queryKey: feeKeys.feeRoutes,
     queryFn: getFeeRoutes,
+  });
+};
+
+// ── Exports ─────────────────────────────────────────────────────────────────
+
+export const useExportFeeItems = () => {
+  return useMutation({
+    mutationKey: feeKeys.exportFeeItems,
+    mutationFn: (params: { branchId?: number; termId?: number }) => exportFeeItems(params),
+  });
+};
+
+export const useExportFeeGroups = () => {
+  return useMutation({
+    mutationKey: feeKeys.exportFeeGroups,
+    mutationFn: (params: { branchId?: number }) => exportFeeGroups(params),
+  });
+};
+
+export const useExportClassFees = () => {
+  return useMutation({
+    mutationKey: feeKeys.exportClassFees,
+    mutationFn: (params: { sessionId?: number; term?: FeeTermType; branchId?: number; classId?: number; armId?: number }) => exportClassFees(params),
   });
 };

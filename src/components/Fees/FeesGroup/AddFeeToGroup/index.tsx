@@ -26,9 +26,9 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { FeeTermType } from "@/api/fee";
+import { addFeesToGroupSchema } from "@/schema/fees";
 import { Branch, BranchWithClassLevels } from "@/api/types";
 import { useState } from "react";
-import { addFeesToGroupSchema } from "@/schema/fees";
 
 function toBranches(list: unknown[]): Branch[] {
   return list
@@ -175,7 +175,6 @@ export const AddFeeToGroup = () => {
             {touched.name && errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
           </div>
 
-          {/* Description */}
           <div className="flex flex-col gap-2">
             <Label className="text-text-default text-sm font-medium">Description</Label>
             <Input

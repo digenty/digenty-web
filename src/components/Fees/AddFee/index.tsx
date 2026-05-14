@@ -21,7 +21,7 @@ import { FeeFormValues } from "@/api/types";
 export const AddFee = () => {
   const router = useRouter();
   const { step, goToStep } = useFeesStep();
-  const { mutate: createFeeItem, isPending } = useCreateFeeItem();
+  const { mutateAsync: createFeeItem, isPending } = useCreateFeeItem();
 
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
@@ -54,35 +54,57 @@ export const AddFee = () => {
     validationSchema: feeSchema,
     validateOnChange: false,
     validateOnBlur: true,
-    onSubmit: values => {
-      createFeeItem(
-        {
-          name: values.name,
-          session: values.session as number,
-          term: values.term as FeeTermType,
-          quantity: values.quantity,
-          required: values.required,
-          branchIds: values.branchIds.length ? values.branchIds : undefined,
-          armIds: values.armIds,
-          amount: values.amount === "" ? undefined : (values.amount as number),
-          setDifferentPricesPerBranch: values.setDifferentPricesPerBranch || undefined,
-          setDifferentPricesPerClass: values.setDifferentPricesPerClass || undefined,
-          branchAmounts: values.setDifferentPricesPerBranch && values.branchAmounts.length ? values.branchAmounts : undefined,
-          classArmAmounts: values.setDifferentPricesPerClass && values.classArmAmounts.length ? values.classArmAmounts : undefined,
-          allowPartPayment: values.allowPartPayment,
-          minimumPartPayment: values.minimumPartPayment === "" ? undefined : (values.minimumPartPayment as number),
-        },
-        {
-          onSuccess: () => {
-            toast.success("Fee added successfully");
-            router.push("/staff/fees");
-          },
-          onError: (err: unknown) => {
-            const msg = (err as { message?: string })?.message ?? "Failed to add fee";
-            toast.error(msg);
-          },
-        },
-      );
+    onSubmit: async values => {
+      const unitPrice = values.amount === "" ? 0 : (values.amount as number);
+
+      // Group selected arms by branch — backend requires all armIds in one
+      // call to belong to the same branch.
+      const byBranch = new Map<number, number[]>();
+      for (const arm of values.selectedArmsInfo) {
+        if (!byBranch.has(arm.branchId)) byBranch.set(arm.branchId, []);
+        byBranch.get(arm.branchId)!.push(arm.armId);
+      }
+
+      const buildPayload = (branchIds: number[], armIds: number[]) => ({
+        name: values.name,
+        session: values.session as number,
+        term: values.term as FeeTermType,
+        quantity: values.quantity,
+        required: values.required,
+        amount: unitPrice,
+        branchIds,
+        armIds,
+        setDifferentPricesPerBranch: values.setDifferentPricesPerBranch,
+        setDifferentPricesPerClass: values.setDifferentPricesPerClass,
+        branchAmounts: values.branchAmounts,
+        classArmAmounts: values.classArmAmounts,
+        allowPartPayment: values.allowPartPayment,
+        minimumPartPayment: values.minimumPartPayment === "" ? 0 : (values.minimumPartPayment as number),
+      });
+
+      try {
+        if (byBranch.size <= 1) {
+          await createFeeItem(buildPayload(values.branchIds, values.armIds));
+        } else {
+          // Arms from multiple branches — one call per branch
+          await Promise.all(
+            Array.from(byBranch.entries()).map(([branchId, armIds]) =>
+              createFeeItem(
+                buildPayload(
+                  [branchId],
+                  armIds,
+                ),
+              ),
+            ),
+          );
+        }
+
+        toast.success("Fee added successfully");
+        router.push("/staff/fees");
+      } catch (err: unknown) {
+        const msg = (err as { message?: string })?.message ?? "Failed to add fee";
+        toast.error(msg);
+      }
     },
   });
 

@@ -14,7 +14,7 @@ import { useParams } from "next/navigation";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { toast } from "sonner";
-import { useCreateFeeItem } from "@/hooks/queryHooks/useFee";
+import { useCreateFeeItemForArm } from "@/hooks/queryHooks/useFee";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
@@ -34,7 +34,7 @@ const AddFeeToClass = () => {
   const params = useParams();
   const classId = params?.id ? Number(params.id) : undefined;
   const { schoolId } = useLoggedInUser();
-  const { mutate: createFeeItem, isPending } = useCreateFeeItem();
+  const { mutateAsync: createFeeItemForArm, isPending } = useCreateFeeItemForArm();
 
   const { data: termsData } = useGetTerms(schoolId);
   const { data: activeSessionData } = useGetActiveSession();
@@ -66,34 +66,32 @@ const AddFeeToClass = () => {
       amount: "" as number | "",
       required: false,
       allowPartPayment: false,
+      minimumPartPayment: "" as number | "",
     },
     validationSchema: addFeeToClassSchema,
     validateOnBlur: true,
     validateOnChange: false,
-    onSubmit: values => {
-      const armIds = arms.map(a => a.id);
-      createFeeItem(
-        {
-          name: values.name,
-          session: values.session as number,
-          term: values.term as FeeTermType,
-          quantity: values.quantity,
-          required: values.required,
-          armIds,
-          amount: values.amount as number,
-          allowPartPayment: values.allowPartPayment,
-        },
-        {
-          onSuccess: () => {
-            toast.success("Fee added to class successfully");
-            router.back();
-          },
-          onError: (err: unknown) => {
-            const msg = (err as { message?: string })?.message ?? "Failed to add fee";
-            toast.error(msg);
-          },
-        },
-      );
+    onSubmit: async values => {
+      const payload = {
+        name: values.name,
+        session: values.session as number,
+        term: values.term as FeeTermType,
+        quantity: values.quantity,
+        amount: values.amount as number,
+        required: values.required,
+        allowPartPayment: values.allowPartPayment,
+        minimumPartPayment: values.minimumPartPayment === "" ? 0 : (values.minimumPartPayment as number),
+      };
+
+      try {
+        // POST /fee/items/arms/{armId} — one call per arm in this class
+        await Promise.all(arms.map(arm => createFeeItemForArm({ armId: arm.id, payload })));
+        toast.success("Fee added to class successfully");
+        router.back();
+      } catch (err: unknown) {
+        const msg = (err as { message?: string })?.message ?? "Failed to add fee";
+        toast.error(msg);
+      }
     },
   });
 
@@ -225,6 +223,26 @@ const AddFeeToClass = () => {
                 </div>
                 <Checkbox checked={values.allowPartPayment} onCheckedChange={(v: boolean) => setFieldValue("allowPartPayment", v)} />
               </div>
+
+              {/* Minimum part payment — shown only when allowPartPayment is on */}
+              {values.allowPartPayment && (
+                <div className="flex flex-col gap-2">
+                  <Label className="text-text-default text-sm font-medium">Minimum Initial Payment</Label>
+                  <Input
+                    type="number"
+                    value={values.minimumPartPayment === "" ? "" : String(values.minimumPartPayment)}
+                    onChange={e => setFieldValue("minimumPartPayment", e.target.value === "" ? "" : Number(e.target.value))}
+                    className={cn(
+                      "bg-bg-input-soft! text-text-muted rounded-md border-none text-sm",
+                      errors.minimumPartPayment && touched.minimumPartPayment && "border border-red-500",
+                    )}
+                    placeholder="₦ 0.00"
+                  />
+                  {touched.minimumPartPayment && errors.minimumPartPayment && (
+                    <p className="text-xs text-red-500">{String(errors.minimumPartPayment)}</p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="border-border-default bg-bg-default fixed bottom-0 w-full max-w-150 border-t py-3 pr-8 pl-4 md:px-0">
