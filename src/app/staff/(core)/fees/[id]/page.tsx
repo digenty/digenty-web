@@ -1,5 +1,4 @@
-import { ClassFeeDetail } from "@/components/Fees/ClassFees/ClassFeeDetail";
-import React from "react";
+import { ClassFeeDetail } from "@/components/Fees/classFees/ClassFeeDetail";
 
 const ClassfeeDetailPage = () => {
   return (

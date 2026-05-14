@@ -18,6 +18,13 @@ import { Modal } from "../Modal";
 import { Badge } from "../ui/badge";
 import { PlusIcon } from "lucide-react";
 
+export type ExportConfirmParams = {
+  branchName: string;
+  termLabel: string;
+  className?: string;
+  armName?: string;
+};
+
 type FeesHeaderProps = {
   title?: string;
 
@@ -28,7 +35,10 @@ type FeesHeaderProps = {
   termsOptions: string[];
   termSelected: string;
   setTermSelected: (value: string) => void;
-  // onExportConfirm?: () => void;
+  onExportConfirm?: (params: ExportConfirmParams) => void;
+  isExporting?: boolean;
+  exportResultCount?: number;
+  exportResultLabel?: string;
   exportTitle?: string;
   exportActionButton?: string;
   addButttonText?: string;
@@ -50,9 +60,6 @@ type FeesHeaderProps = {
   onAddClick?: () => void;
 };
 
-const exprtBranches = ["All Branches", "Lawanson", "Ilasamaja"];
-const exportTermsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
-
 export const FeesHeader = ({
   title = "Class Fees Overview",
 
@@ -62,6 +69,10 @@ export const FeesHeader = ({
   exportTitle,
   addButttonText = "Add Fee",
   exportActionButton,
+  onExportConfirm,
+  isExporting = false,
+  exportResultCount,
+  exportResultLabel = "Items Found",
   termsOptions,
   termSelected,
   setTermSelected,
@@ -82,8 +93,10 @@ export const FeesHeader = ({
 }: FeesHeaderProps) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [exportBranchSelected, setExportBranchSelected] = useState(exprtBranches[0]);
-  const [exportTermSelected, setExportTermSelected] = useState(exportTermsOptions[0]);
+  const [exportBranchSelected, setExportBranchSelected] = useState(branches[0] ?? "All Branches");
+  const [exportTermSelected, setExportTermSelected] = useState(termsOptions[0] ?? "");
+  const [exportClassSelected, setExportClassSelected] = useState(classes?.[0] ?? "");
+  const [exportArmSelected, setExportArmSelected] = useState(arms?.[0] ?? "");
 
   useBreadcrumb([{ label: "Fees", url: "/staff/fees" }]);
 
@@ -99,8 +112,21 @@ export const FeesHeader = ({
           </div>
         }
         ActionButton={
-          <Button className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-brand-hover! h-7!">
-            <ShareBox fill="var(--color-icon-white-default)" className="" /> {exportActionButton ?? "Export"}
+          <Button
+            disabled={isExporting}
+            onClick={() => {
+              onExportConfirm?.({
+                branchName: exportBranchSelected,
+                termLabel: exportTermSelected,
+                className: exportClassSelected || undefined,
+                armName: exportArmSelected || undefined,
+              });
+              setIsOpen(false);
+            }}
+            className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-brand-hover! h-7!"
+          >
+            <ShareBox fill="var(--color-icon-white-default)" className="" />
+            {isExporting ? "Exporting..." : (exportActionButton ?? "Export")}
           </Button>
         }
       >
@@ -116,7 +142,7 @@ export const FeesHeader = ({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
-                  {exprtBranches.map(branch => (
+                  {branches.map(branch => (
                     <SelectItem key={branch} value={branch} className="text-text-default text-sm font-medium">
                       {branch}
                     </SelectItem>
@@ -129,11 +155,10 @@ export const FeesHeader = ({
           {classes && classes.length > 0 && (
             <div className="space-y-2">
               <Label className="text-text-default text-sm font-medium">Class</Label>
-
-              <Select value={selectedClass} onValueChange={setSelectedClass}>
+              <Select value={exportClassSelected} onValueChange={setExportClassSelected}>
                 <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
                   <SelectValue>
-                    <span className="text-text-default text-sm">{selectedClass}</span>
+                    <span className="text-text-default text-sm">{exportClassSelected || "All Classes"}</span>
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
@@ -150,11 +175,10 @@ export const FeesHeader = ({
           {arms && arms.length > 0 && (
             <div className="space-y-2">
               <Label className="text-text-default text-sm font-medium">Arm</Label>
-
-              <Select value={selectedArm} onValueChange={setSelectedArm}>
+              <Select value={exportArmSelected} onValueChange={setExportArmSelected}>
                 <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue placeholder="Select Arm">
-                    <span className="text-text-default text-sm">{selectedArm}</span>
+                  <SelectValue placeholder="All Arms">
+                    <span className="text-text-default text-sm">{exportArmSelected || "All Arms"}</span>
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
@@ -178,7 +202,7 @@ export const FeesHeader = ({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
-                  {exportTermsOptions.map(status => (
+                  {termsOptions.map(status => (
                     <SelectItem key={status} value={status} className="text-text-default text-sm font-medium">
                       {status}
                     </SelectItem>
@@ -188,7 +212,11 @@ export const FeesHeader = ({
             )}
           </div>
 
-          <Badge className="bg-bg-badge-green text-bg-basic-green-strong rounded-md">14 Fee Items Found</Badge>
+          {exportResultCount !== undefined && (
+            <Badge className="bg-bg-badge-green text-bg-basic-green-strong rounded-md">
+              {exportResultCount} {exportResultLabel}
+            </Badge>
+          )}
         </div>
       </Modal>
       <MobileDrawer
@@ -213,7 +241,7 @@ export const FeesHeader = ({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
-                  {exprtBranches.map(branch => (
+                  {branches.map(branch => (
                     <SelectItem key={branch} value={branch} className="text-text-default text-sm font-medium">
                       {branch}
                     </SelectItem>
@@ -226,11 +254,10 @@ export const FeesHeader = ({
           {classes && classes.length > 0 && (
             <div className="space-y-2">
               <Label className="text-text-default text-sm font-medium">Class</Label>
-
-              <Select value={selectedClass} onValueChange={setSelectedClass}>
+              <Select value={exportClassSelected} onValueChange={setExportClassSelected}>
                 <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
                   <SelectValue>
-                    <span className="text-text-default text-sm">{selectedClass}</span>
+                    <span className="text-text-default text-sm">{exportClassSelected || "All Classes"}</span>
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
@@ -247,11 +274,10 @@ export const FeesHeader = ({
           {arms && arms.length > 0 && (
             <div className="space-y-2">
               <Label className="text-text-default text-sm font-medium">Arm</Label>
-
-              <Select value={selectedArm} onValueChange={setSelectedArm}>
+              <Select value={exportArmSelected} onValueChange={setExportArmSelected}>
                 <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue placeholder="Select Arm">
-                    <span className="text-text-default text-sm">{selectedArm}</span>
+                  <SelectValue placeholder="All Arms">
+                    <span className="text-text-default text-sm">{exportArmSelected || "All Arms"}</span>
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
@@ -275,7 +301,7 @@ export const FeesHeader = ({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-border-default">
-                  {exportTermsOptions.map(status => (
+                  {termsOptions.map(status => (
                     <SelectItem key={status} value={status} className="text-text-default text-sm font-medium">
                       {status}
                     </SelectItem>
@@ -285,15 +311,32 @@ export const FeesHeader = ({
             )}
           </div>
 
-          <Badge className="bg-bg-badge-green text-bg-basic-green-strong rounded-md">14 Fee Items Found</Badge>
+          {exportResultCount !== undefined && (
+            <Badge className="bg-bg-badge-green text-bg-basic-green-strong rounded-md">
+              {exportResultCount} {exportResultLabel}
+            </Badge>
+          )}
         </div>
         <DrawerFooter className="border-border-default border-t">
           <div className="flex justify-between">
             <DrawerClose asChild>
               <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
             </DrawerClose>
-            <Button className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-brand-hover! h-7!">
-              <ShareBox fill="var(--color-icon-white-default)" className="" /> {exportActionButton ?? "Export"}
+            <Button
+              disabled={isExporting}
+              onClick={() => {
+                onExportConfirm?.({
+                  branchName: exportBranchSelected,
+                  termLabel: exportTermSelected,
+                  className: exportClassSelected || undefined,
+                  armName: exportArmSelected || undefined,
+                });
+                setIsOpen(false);
+              }}
+              className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-brand-hover! h-7!"
+            >
+              <ShareBox fill="var(--color-icon-white-default)" className="" />
+              {isExporting ? "Exporting..." : (exportActionButton ?? "Export")}
             </Button>
           </div>
         </DrawerFooter>
@@ -316,8 +359,8 @@ export const FeesHeader = ({
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
-                    {branches.map(branch => (
-                      <SelectItem key={branch} value={branch} className="text-text-default text-sm font-medium">
+                    {branches.map((branch, i) => (
+                      <SelectItem key={`${branch}-${i}`} value={branch} className="text-text-default text-sm font-medium">
                         {branch}
                       </SelectItem>
                     ))}
@@ -330,12 +373,14 @@ export const FeesHeader = ({
                   <SelectTrigger className="border-border-darker h-8! w-auto border">
                     <SelectValue>
                       <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
-                      <span className="text-text-default text-sm font-medium">{termSelected}</span>
+                      <span className="text-text-default text-sm font-medium">
+                        {termSelected || "Select Term"}
+                      </span>
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
-                    {termsOptions.map(status => (
-                      <SelectItem key={status} value={status} className="text-text-default text-sm font-medium">
+                    {termsOptions.map((status, i) => (
+                      <SelectItem key={`${status}-${i}`} value={status} className="text-text-default text-sm font-medium">
                         {status}
                       </SelectItem>
                     ))}
@@ -364,8 +409,8 @@ export const FeesHeader = ({
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-bg-default border-border-default">
-                      {branches.map(branch => (
-                        <SelectItem key={branch} value={branch} className="text-text-default text-sm">
+                      {branches.map((branch, i) => (
+                        <SelectItem key={`${branch}-${i}`} value={branch} className="text-text-default text-sm">
                           {branch}
                         </SelectItem>
                       ))}
@@ -383,12 +428,12 @@ export const FeesHeader = ({
                   <Select value={termSelected} onValueChange={setTermSelected}>
                     <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
                       <SelectValue>
-                        <span className="text-text-default text-sm">{termSelected}</span>
+                        <span className="text-text-default text-sm">{termSelected || "Select Term"}</span>
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent className="bg-bg-default border-border-default">
-                      {termsOptions.map(status => (
-                        <SelectItem key={status} value={status} className="text-text-default text-sm">
+                      {termsOptions.map((status, i) => (
+                        <SelectItem key={`${status}-${i}`} value={status} className="text-text-default text-sm">
                           {status}
                         </SelectItem>
                       ))}

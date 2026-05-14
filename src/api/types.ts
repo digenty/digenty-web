@@ -1,5 +1,6 @@
 import { AdmissionStatus, BoardingStatus, Gender, Relationship } from "@/types";
 import { DateRange } from "react-day-picker";
+import { FeeTermType } from "./fee";
 
 export interface Branch {
   id: number;
@@ -886,3 +887,33 @@ export interface UpdatePrincipaleCommentPayload {
     comment: string;
   }[];
 }
+
+export interface SelectedArmInfo {
+  armId: number;
+  armName: string;
+  classId: number;
+  className: string;
+  branchId: number;
+  branchName: string;
+}
+
+export type FeeFormValues = {
+  name: string;
+  session: number | "";
+  term: FeeTermType | "";
+  quantity: number;
+  required: boolean;
+  /** selected branch IDs from FeeBranch step */
+  branchIds: number[];
+  /** selected arm IDs from FeesClassApplyTo step */
+  armIds: number[];
+  /** arm metadata for the amount configuration table */
+  selectedArmsInfo: SelectedArmInfo[];
+  amount: number | "";
+  setDifferentPricesPerBranch: boolean;
+  setDifferentPricesPerClass: boolean;
+  branchAmounts: { branchId: number; amount: number }[];
+  classArmAmounts: { armId: number; amount: number }[];
+  allowPartPayment: boolean;
+  minimumPartPayment: number | "";
+};

@@ -171,6 +171,30 @@ export const extractUniqueLevelsByType = (branches: BranchLevels[]) => {
     });
 };
 
+/** Safely extract an array from any common API response shape. */
+export const unwrapArray = <T = unknown>(data: unknown): T[] => {
+  if (Array.isArray(data)) return data as T[];
+  if (data && typeof data === "object") {
+    const d = data as Record<string, unknown>;
+    if (Array.isArray(d.data)) return d.data as T[];
+    if (d.data && typeof d.data === "object") {
+      const nested = d.data as Record<string, unknown>;
+      if (Array.isArray(nested.content)) return nested.content as T[];
+      if (Array.isArray(nested.terms)) return nested.terms as T[];
+    }
+    if (Array.isArray(d.content)) return d.content as T[];
+  }
+  return [];
+};
+
+/** Extract the session ID from any common academic session response shape. */
+export const extractSessionId = (data: unknown): number | undefined => {
+  if (!data || typeof data !== "object") return undefined;
+  const d = data as Record<string, unknown>;
+  const inner = (d.data ?? d) as Record<string, unknown>;
+  return (inner.id ?? inner.sessionId) as number | undefined;
+};
+
 export const formatToDynamicRegex = (format: string, padding: number) => {
   if (format.length <= padding) return null;
 

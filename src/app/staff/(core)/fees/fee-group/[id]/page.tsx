@@ -1,5 +1,4 @@
-import { FeeGroup } from "@/components/Fees/FeesGroup/FeeGroup";
-import React from "react";
+import { FeeGroup } from "@/components/Fees/feesGroup/FeeGroup";
 
 const AddNewStudentFeePage = () => {
   return (
