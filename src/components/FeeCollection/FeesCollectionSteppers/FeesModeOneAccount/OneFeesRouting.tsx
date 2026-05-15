@@ -11,32 +11,21 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import React, { useState } from "react";
 
-import { useGetFeeRoutes, useUpdateFeeRoute } from "@/hooks/queryHooks/useFee";
+import { useGetFeeItems, useGetFeeRoutes, useUpdateFeeRoute, useCreateFeeRoute } from "@/hooks/queryHooks/useFee";
 import { useGetFeeCollectionBankAccounts } from "@/hooks/queryHooks/useFeeCollection";
 import { BankAccountInfo } from "@/api/fee-collection";
-import { FeeRouteResponseDto } from "@/api/fee";
+import { FeeItemDetail, FeeRouteResponseDto } from "@/api/fee";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { toast } from "sonner";
 
-// ─── Mock data (commented out — replaced by GET /fee/route) ──────────────────
-// const routesFees = [
-//   { id: 1, feeName: "Tuition Fee", accNumber: 23234343334, accName: "Damilare John", accLogo: <Gtbank /> },
-//   ...
-// ];
-
-// ─── Mock data (commented out — replaced by GET /api/fee-collection/accounts) ─
-// const routeFee = [
-//   { id: 1, bankName: "GTBank", accNumber: 23234343334, accName: "Damilare John", type: "Default", accLogo: <Gtbank /> },
-//   ...
-// ];
-
 export const OneFeesRouting = () => {
   const [query, setQuery] = useState("");
-  const { data: routes = [], isLoading, isError } = useGetFeeRoutes();
+  const { data: feeItems = [], isLoading, isError } = useGetFeeItems();
+  const { data: routes = [] } = useGetFeeRoutes();
 
-  const filtered = routes.filter(r =>
-    `${r.feeClassName} ${r.bankAccountName} ${r.bankAccountNumber}`.toLowerCase().includes(query.toLowerCase()),
-  );
+  const getRoute = (feeClassId: number) => routes.find(r => r.feeClassId === feeClassId);
+
+  const filtered = feeItems.filter(item => item.feeName.toLowerCase().includes(query.toLowerCase()));
 
   if (isLoading) {
     return (
@@ -50,8 +39,8 @@ export const OneFeesRouting = () => {
     return (
       <div className="flex h-60 items-center justify-center">
         <PageEmptyState
-          title="Could not load fee routes"
-          description="There was a problem fetching your fee routes. Please try again."
+          title="Could not load fees"
+          description="There was a problem fetching your fees. Please try again."
           buttonText="Retry"
           url="/staff/fee-collection/fees-setup"
         />
@@ -78,81 +67,92 @@ export const OneFeesRouting = () => {
       {filtered.length === 0 ? (
         <div className="flex h-60 items-center justify-center">
           <PageEmptyState
-            title={routes.length === 0 ? "No Fee Routes" : "No Results"}
+            title={feeItems.length === 0 ? "No Fees Found" : "No Results"}
             description={
-              routes.length === 0
-                ? "No fee routes have been set up yet. You can configure them here or skip and do it later."
-                : "No fee routes match your search."
+              feeItems.length === 0
+                ? "No fees have been created yet. Create fees first before setting up routing."
+                : "No fees match your search."
             }
-            buttonText={routes.length === 0 ? "Set Up Fees" : "Clear Search"}
-            url={routes.length === 0 ? "/staff/fees" : undefined}
+            buttonText={feeItems.length === 0 ? "Create Fees" : "Clear Search"}
+            url={feeItems.length === 0 ? "/staff/fees" : undefined}
           />
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {filtered.map(route => (
-            <div
-              className="border-border-default flex items-center justify-between rounded-sm border px-6 py-3"
-              key={route.id}
-            >
-              <div className="flex flex-col gap-1">
-                <div className="text-text-default text-md font-medium">{route.feeClassName}</div>
-                <div className="text-text-muted flex items-center gap-1 text-xs">
-                  {route.bankAccountNumber} — {route.bankAccountName}
+          {filtered.map(item => {
+            const route = getRoute(item.feeClassId);
+            return (
+              <div className="border-border-default flex items-center justify-between rounded-sm border px-6 py-3" key={item.feeItemId}>
+                <div className="flex flex-col gap-1">
+                  <div className="text-text-default text-md font-medium">{item.feeName}</div>
+                  <div className="text-text-muted flex items-center gap-1 text-xs">
+                    {route ? `${route.bankAccountNumber} — ${route.bankAccountName}` : "Default account"}
+                  </div>
                 </div>
+                <RoutingSheet feeItem={item} existingRoute={route} />
               </div>
-              <RountingSheet route={route} />
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
   );
 };
 
-interface RountingSheetProps {
-  route: FeeRouteResponseDto;
+interface RoutingSheetProps {
+  feeItem: FeeItemDetail;
+  existingRoute?: FeeRouteResponseDto;
 }
 
-export const RountingSheet = ({ route }: RountingSheetProps) => {
+export const RoutingSheet = ({ feeItem, existingRoute }: RoutingSheetProps) => {
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(existingRoute ? null : null);
   const isMobile = useIsMobile();
 
   const { data: accounts = [], isLoading: loadingAccounts } = useGetFeeCollectionBankAccounts();
-  const { mutate: updateRoute, isPending } = useUpdateFeeRoute();
+  const { mutate: updateRoute, isPending: updating } = useUpdateFeeRoute();
+  const { mutate: createRoute, isPending: creating } = useCreateFeeRoute();
+  const isPending = updating || creating;
 
   const handleSave = () => {
     if (!selectedAccountId) return;
-    updateRoute(
-      { id: route.id, payload: { branchId: 0, bankAccountId: selectedAccountId, feeClassId: route.feeClassId, isDefault: route.isDefault } },
-      {
+    const payload = { branchId: 0, bankAccountId: selectedAccountId, feeClassId: feeItem.feeClassId, isDefault: true };
+    if (existingRoute) {
+      updateRoute(
+        { id: existingRoute.id, payload },
+        {
+          onSuccess: () => {
+            toast.success("Fee route updated");
+            setSheetOpen(false);
+          },
+          onError: (err: unknown) => {
+            toast.error((err as { message?: string })?.message ?? "Failed to update route");
+          },
+        },
+      );
+    } else {
+      createRoute(payload, {
         onSuccess: () => {
-          toast.success("Fee route updated");
+          toast.success("Fee route created");
           setSheetOpen(false);
         },
         onError: (err: unknown) => {
-          toast.error((err as { message?: string })?.message ?? "Failed to update route");
+          toast.error((err as { message?: string })?.message ?? "Failed to create route");
         },
-      },
-    );
+      });
+    }
   };
 
   const accountList = (
     <div className="flex flex-col gap-4 p-6">
-      <div className="text-text-default text-md font-semibold">{route.feeClassName}</div>
+      <div className="text-text-default text-md font-semibold">{feeItem.feeName}</div>
 
       {loadingAccounts ? (
         <div className="flex justify-center py-4">
           <Spinner className="size-6" />
         </div>
       ) : accounts.length === 0 ? (
-        <div className="text-text-muted py-4 text-center text-sm">
-          {/* ❌ BACKEND NEEDED: No endpoint to list available bank accounts for routing assignment in initial setup.
-              POST /api/fee-collection/setup creates accounts but doesn't return their IDs.
-              Need: GET /api/fee-collection/accounts to return accounts after setup completes. */}
-          No collection accounts found. Complete fee collection setup first.
-        </div>
+        <div className="text-text-muted py-4 text-center text-sm">No collection accounts found. Complete fee collection setup first.</div>
       ) : (
         accounts.map((acc: BankAccountInfo) => (
           <div
@@ -212,9 +212,7 @@ export const RountingSheet = ({ route }: RountingSheetProps) => {
               <div className="text-text-default text-md font-semibold">Assign account</div>
             </SheetHeader>
             {accountList}
-            <SheetFooter className="border-border-default bg-bg-card absolute bottom-0 w-full border-t px-6 pb-8 pt-4">
-              {footer}
-            </SheetFooter>
+            <SheetFooter className="border-border-default bg-bg-card absolute bottom-0 w-full border-t px-6 pb-8 pt-4">{footer}</SheetFooter>
           </SheetContent>
         </Sheet>
       )}
@@ -228,11 +226,3 @@ export const RountingSheet = ({ route }: RountingSheetProps) => {
     </div>
   );
 };
-
-// ─── MISSING BACKEND ENDPOINT ──────────────────────────────────────────────
-// AddFill "New Account" button previously allowed creating routes for fee classes
-// that don't have a route yet. This requires:
-//   GET /fee/class/routing-list?branchId=X
-//   → returns { id: number; name: string }[] of fee class items available for routing
-// Without this, we can only edit EXISTING routes (via GET /fee/route → PUT /fee/route/{id}).
-// ─────────────────────────────────────────────────────────────────────────────

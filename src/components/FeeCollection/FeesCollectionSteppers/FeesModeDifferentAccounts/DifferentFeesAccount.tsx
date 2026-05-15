@@ -13,18 +13,11 @@ import { Label } from "@/components/ui/label";
 import React, { useState } from "react";
 import { useFormikContext } from "formik";
 
-import { BranchAccountDto } from "@/api/fee-collection";
+import { BankOption, BranchAccountDto } from "@/api/fee-collection";
 import { BranchWithClassLevels } from "@/api/types";
 import { FeesSetupFormValues } from "../index";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
-
-export const BANK_OPTIONS: { name: string; code: string }[] = [
-  { name: "GTBank", code: "058" },
-  { name: "Access Bank", code: "044" },
-  { name: "First Bank", code: "011" },
-  { name: "UBA", code: "033" },
-  { name: "Zenith Bank", code: "057" },
-];
+import { useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
 
 type PoolAccount = {
   bankCode: string;
@@ -42,6 +35,7 @@ export const DifferentFeesAccount = ({ branches }: Props) => {
   const [openFilter, setOpenFilter] = useState<Record<number, boolean>>({});
   const [query, setQuery] = useState("");
   const isMobile = useIsMobile();
+  const { data: bankOptions = [] } = useGetAllBanks();
 
   const filteredPool = accountPool.filter(a => `${a.bankName} ${a.accountNumber}`.toLowerCase().includes(query.toLowerCase()));
 
@@ -131,7 +125,7 @@ export const DifferentFeesAccount = ({ branches }: Props) => {
                       </SelectItem>
                     )}
 
-                    <AddAccountSheet onAdd={handleAddToPool} />
+                    <AddAccountSheet bankOptions={bankOptions} onAdd={handleAddToPool} />
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -194,7 +188,7 @@ export const DifferentFeesAccount = ({ branches }: Props) => {
                         </div>
                       )}
 
-                      <AddAccountSheet onAdd={handleAddToPool} />
+                      <AddAccountSheet bankOptions={bankOptions} onAdd={handleAddToPool} />
                     </div>
                   </div>
                 </MobileDrawer>
@@ -208,22 +202,26 @@ export const DifferentFeesAccount = ({ branches }: Props) => {
 };
 
 interface AddAccountSheetProps {
+  bankOptions: BankOption[];
   onAdd: (acc: PoolAccount) => void;
 }
 
-export const AddAccountSheet = ({ onAdd }: AddAccountSheetProps) => {
+export const AddAccountSheet = ({ bankOptions, onAdd }: AddAccountSheetProps) => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [bankCode, setBankCode] = useState("");
+  const [bankSearch, setBankSearch] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const isMobile = useIsMobile();
 
-  const bankName = BANK_OPTIONS.find(b => b.code === bankCode)?.name ?? "";
+  const filteredBanks = bankOptions.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()));
+  const bankName = bankOptions.find(b => b.code === bankCode)?.name ?? "";
   const canSave = !!bankCode && accountNumber.length === 10;
 
   const handleSave = () => {
     if (!canSave) return;
     onAdd({ bankCode, bankName, accountNumber });
     setBankCode("");
+    setBankSearch("");
     setAccountNumber("");
     setSheetOpen(false);
   };
@@ -232,14 +230,23 @@ export const AddAccountSheet = ({ onAdd }: AddAccountSheetProps) => {
     <div className="flex flex-col gap-6 p-6">
       <div>
         <Label className="text-text-default mb-2 block text-sm font-medium">Bank Name</Label>
-        <Select value={bankCode} onValueChange={setBankCode}>
+        <Select
+          value={bankCode}
+          onValueChange={val => {
+            setBankCode(val);
+            setBankSearch("");
+          }}
+        >
           <SelectTrigger className="bg-bg-input-soft! hover:bg-bg-input-soft! text-text-default w-full rounded-md border-none">
             <SelectValue placeholder="Select Bank" />
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default text-text-default border">
+            <div className="border-border-default border-b">
+              <SearchInput className="w-full rounded-md border-none" value={bankSearch} onChange={e => setBankSearch(e.target.value)} />
+            </div>
             <SelectGroup>
-              {BANK_OPTIONS.map(b => (
-                <SelectItem key={b.code} value={b.code}>
+              {filteredBanks.map(b => (
+                <SelectItem key={b.slug} value={b.code}>
                   {b.name}
                 </SelectItem>
               ))}

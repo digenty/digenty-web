@@ -10,16 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Modal } from "@/components/Modal";
 import { BankAccountInfo, BranchAccountInfo, FeeCollectionConfigResponse, FeeCollectionMode, UpdateBankAccountDto } from "@/api/fee-collection";
-import { useGetFeeCollectionBankAccounts, useUpdateFeeCollectionBankAccount, useUpdateFeeCollectionMode } from "@/hooks/queryHooks/useFeeCollection";
+import { useGetAllBanks, useGetFeeCollectionBankAccounts, useUpdateFeeCollectionBankAccount, useUpdateFeeCollectionMode } from "@/hooks/queryHooks/useFeeCollection";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-
-const BANK_OPTIONS: { name: string; code: string }[] = [
-  { name: "GTBank", code: "058" },
-  { name: "Access Bank", code: "044" },
-  { name: "First Bank", code: "011" },
-  { name: "UBA", code: "033" },
-  { name: "Zenith Bank", code: "057" },
-];
+import { SearchInput } from "@/components/SearchInput";
 
 const MODE_LABELS: Record<FeeCollectionMode, string> = {
   SINGLE_ACCOUNT: "Single account for all branches",
@@ -150,7 +143,11 @@ const ChangeModeModal = ({ open, setOpen, currentMode }: { open: boolean; setOpe
 };
 
 const EditAccountModal = ({ account, onClose }: { account: BankAccountInfo; onClose: () => void }) => {
-  const initialBank = BANK_OPTIONS.find(b => b.name === account.bankName);
+  const { data: bankOptions = [] } = useGetAllBanks();
+  const [bankSearch, setBankSearch] = useState("");
+  const filteredBanks = bankOptions.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()));
+
+  const initialBank = bankOptions.find(b => b.name === account.bankName);
   const [form, setForm] = useState<UpdateBankAccountDto>({
     bankName: account.bankName,
     bankCode: initialBank?.code ?? "",
@@ -175,8 +172,9 @@ const EditAccountModal = ({ account, onClose }: { account: BankAccountInfo; onCl
   };
 
   const handleBankChange = (bankCode: string) => {
-    const bank = BANK_OPTIONS.find(b => b.code === bankCode);
+    const bank = bankOptions.find(b => b.code === bankCode);
     setForm(f => ({ ...f, bankCode, bankName: bank?.name ?? f.bankName }));
+    setBankSearch("");
   };
 
   return (
@@ -197,14 +195,20 @@ const EditAccountModal = ({ account, onClose }: { account: BankAccountInfo; onCl
       <div className="flex flex-col gap-4 p-6">
         <div>
           <Label className="text-text-default mb-2 text-sm font-medium">Bank Name</Label>
-          <Select value={form.bankCode} onValueChange={handleBankChange}>
+          <Select
+            value={form.bankCode}
+            onValueChange={handleBankChange}
+          >
             <SelectTrigger className="bg-bg-input-soft! text-text-default w-full rounded-md border-none">
               <SelectValue placeholder="Select Bank" />
             </SelectTrigger>
             <SelectContent>
+              <div className="border-border-default border-b">
+                <SearchInput className="w-full rounded-md border-none" value={bankSearch} onChange={e => setBankSearch(e.target.value)} />
+              </div>
               <SelectGroup>
-                {BANK_OPTIONS.map(b => (
-                  <SelectItem key={b.code} value={b.code}>
+                {filteredBanks.map(b => (
+                  <SelectItem key={b.slug} value={b.code}>
                     {b.name}
                   </SelectItem>
                 ))}

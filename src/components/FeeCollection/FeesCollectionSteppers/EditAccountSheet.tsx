@@ -3,13 +3,14 @@
 import React, { useEffect, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { BANK_OPTIONS } from "./FeesModeDifferentAccounts/DifferentFeesAccount";
+import { useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
 
 interface AccountDraft {
   bankCode: string;
@@ -28,17 +29,22 @@ interface Props {
 export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit Account" }: Props) => {
   const isMobile = useIsMobile();
   const [bankCode, setBankCode] = useState(initial.bankCode);
+  const [bankSearch, setBankSearch] = useState("");
   const [accountNumber, setAccountNumber] = useState(initial.accountNumber);
+  const { data: bankOptions = [] } = useGetAllBanks();
+
+  const filteredBanks = bankOptions.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()));
 
   // Sync when the sheet is opened for a different account
   useEffect(() => {
     if (open) {
       setBankCode(initial.bankCode);
+      setBankSearch("");
       setAccountNumber(initial.accountNumber);
     }
   }, [open, initial.bankCode, initial.accountNumber]);
 
-  const bankName = BANK_OPTIONS.find(b => b.code === bankCode)?.name ?? initial.bankName;
+  const bankName = bankOptions.find(b => b.code === bankCode)?.name ?? initial.bankName;
   const canSave = !!bankCode && accountNumber.length === 10;
 
   const handleSave = () => {
@@ -51,14 +57,23 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
     <div className="flex flex-col gap-6 p-6">
       <div>
         <Label className="text-text-default mb-2 block text-sm font-medium">Bank Name</Label>
-        <Select value={bankCode} onValueChange={setBankCode}>
+        <Select
+          value={bankCode}
+          onValueChange={val => {
+            setBankCode(val);
+            setBankSearch("");
+          }}
+        >
           <SelectTrigger className="bg-bg-input-soft! hover:bg-bg-input-soft! text-text-default w-full rounded-md border-none">
             <SelectValue placeholder="Select Bank" />
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default text-text-default border">
+            <div className="border-border-default border-b">
+              <SearchInput className="w-full rounded-md border-none" value={bankSearch} onChange={e => setBankSearch(e.target.value)} />
+            </div>
             <SelectGroup>
-              {BANK_OPTIONS.map(b => (
-                <SelectItem key={b.code} value={b.code}>
+              {filteredBanks.map(b => (
+                <SelectItem key={b.slug} value={b.code}>
                   {b.name}
                 </SelectItem>
               ))}

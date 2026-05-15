@@ -132,14 +132,25 @@ export const publishFee = async (id: number) => {
   }
 };
 
-export const getFeeItems = async (branchId?: number, termId?: number) => {
+export interface FeeItemDetail {
+  feeItemId: number;
+  feeClassId: number;
+  feeName: string;
+  amount: number;
+  quantity: number;
+  required: boolean;
+  allowPartPayment: boolean;
+  minimumPartPayment: number;
+}
+
+export const getFeeItems = async (branchId?: number, termId?: number): Promise<FeeItemDetail[]> => {
   try {
     const params = new URLSearchParams();
     if (branchId) params.append("branchId", String(branchId));
     if (termId) params.append("termId", String(termId));
     const qs = params.toString() ? `?${params}` : "";
     const { data } = await api.get(`/fee/items${qs}`);
-    return data;
+    return toArray<FeeItemDetail>(data);
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

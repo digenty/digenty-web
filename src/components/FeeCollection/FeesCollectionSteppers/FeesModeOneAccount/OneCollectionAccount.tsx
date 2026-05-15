@@ -1,19 +1,22 @@
 import { useFormikContext } from "formik";
-import React from "react";
+import React, { useState } from "react";
 
 import { Avatar } from "@/components/Avatar";
+import { SearchInput } from "@/components/SearchInput";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BranchAccountDto } from "@/api/fee-collection";
 import { FeesSetupFormValues } from "../index";
-
-// Centralised in DifferentFeesAccount and re-used here to keep the list in sync
-import { BANK_OPTIONS } from "../FeesModeDifferentAccounts/DifferentFeesAccount";
+import { useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
 
 export const OneCollectionAccount = () => {
   const { values, setFieldValue, errors, touched } = useFormikContext<FeesSetupFormValues>();
   const account: BranchAccountDto = values.branchAccounts[0] ?? { bankName: "", bankCode: "", accountNumber: "", isDefault: true };
+  const { data: bankOptions = [] } = useGetAllBanks();
+  const [bankSearch, setBankSearch] = useState("");
+
+  const filteredBanks = bankOptions.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()));
 
   const updateAccount = (patch: Partial<BranchAccountDto>) => {
     const next = [{ ...account, ...patch, isDefault: true }];
@@ -21,8 +24,9 @@ export const OneCollectionAccount = () => {
   };
 
   const handleBankChange = (bankCode: string) => {
-    const bank = BANK_OPTIONS.find(b => b.code === bankCode);
+    const bank = bankOptions.find(b => b.code === bankCode);
     updateAccount({ bankCode, bankName: bank?.name ?? "" });
+    setBankSearch("");
   };
 
   const accountErrors = (touched.branchAccounts && (errors.branchAccounts as unknown as { bankName?: string; accountNumber?: string }[])?.[0]) || {};
@@ -40,9 +44,12 @@ export const OneCollectionAccount = () => {
             <SelectValue placeholder="Select Bank" />
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default text-text-default border">
+            <div className="border-border-default border-b">
+              <SearchInput className="w-full rounded-md border-none" value={bankSearch} onChange={e => setBankSearch(e.target.value)} />
+            </div>
             <SelectGroup>
-              {BANK_OPTIONS.map(bank => (
-                <SelectItem key={bank.code} value={bank.code}>
+              {filteredBanks.map(bank => (
+                <SelectItem key={bank.slug} value={bank.code}>
                   <span>{bank.name}</span>
                 </SelectItem>
               ))}

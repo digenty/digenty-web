@@ -1,4 +1,5 @@
 import {
+  getAllBanks,
   getBankAccounts,
   getSetupStatus,
   setupFeeCollection,
@@ -8,6 +9,15 @@ import {
 } from "@/api/fee-collection";
 import { feeCollectionKeys } from "@/queries/fee-collection";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+export const useGetAllBanks = () => {
+  return useQuery({
+    queryKey: feeCollectionKeys.allBanks,
+    queryFn: getAllBanks,
+    staleTime: 24 * 60 * 60 * 1000,
+    retry: false,
+  });
+};
 
 export const useGetFeeCollectionSetupStatus = () => {
   return useQuery({

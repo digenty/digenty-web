@@ -10,15 +10,7 @@ export const FEE_COLLECTION_STEPS = [
   { key: "review", label: "Review" },
 ] as const;
 
-// Intermediate steps that sit between Account Setup and Routing
-// but share the Routing indicator slot
-export const ALL_STEP_KEYS = [
-  "choose-mode",
-  "account-setup",
-  "routing-decision",
-  "fee-routing",
-  "review",
-] as const;
+export const ALL_STEP_KEYS = ["choose-mode", "account-setup", "routing-decision", "fee-routing", "review"] as const;
 
 export type FeeCollectionStepKey = (typeof ALL_STEP_KEYS)[number];
 

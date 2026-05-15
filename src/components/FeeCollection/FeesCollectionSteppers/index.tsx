@@ -88,12 +88,7 @@ export const FeesSetup = () => {
         return isAccountFilled(formik.values.branchAccounts[0]);
       }
       if (flow === "differentAccounts") {
-        return (
-          branches.length > 0 &&
-          branches.every(({ branch }) =>
-            isAccountFilled(formik.values.branchAccounts.find(a => a.branchId === branch.id)),
-          )
-        );
+        return branches.length > 0 && formik.values.branchAccounts.some(isAccountFilled);
       }
       return false;
     }
