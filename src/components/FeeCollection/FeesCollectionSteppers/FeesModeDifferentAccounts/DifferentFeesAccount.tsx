@@ -10,19 +10,20 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Label } from "@/components/ui/label";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormikContext } from "formik";
 
 import { BankOption, BranchAccountDto } from "@/api/fee-collection";
 import { BranchWithClassLevels } from "@/api/types";
 import { FeesSetupFormValues } from "../index";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
-import { useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
+import { useGetAccountDetails, useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
 
 type PoolAccount = {
   bankCode: string;
   bankName: string;
   accountNumber: string;
+  accountName: string;
 };
 
 interface Props {
@@ -110,7 +111,10 @@ export const DifferentFeesAccount = ({ branches }: Props) => {
                           <div className="flex w-full items-center gap-2">
                             <Avatar className="size-4" />
                             <div className="w-full text-xs">
-                              {item.bankName} — {item.accountNumber}
+                              <div className="font-medium">{item.accountName}</div>
+                              <div className="text-text-muted">
+                                {item.bankName} — {item.accountNumber}
+                              </div>
                             </div>
                           </div>
                         </SelectItem>
@@ -140,7 +144,7 @@ export const DifferentFeesAccount = ({ branches }: Props) => {
                     {getSelectedKey(branch.id)
                       ? (() => {
                           const found = accountPool.find(a => a.accountNumber === getSelectedKey(branch.id));
-                          return found ? `${found.bankName} — ${found.accountNumber}` : getSelectedKey(branch.id);
+                          return found ? `${found.accountName} — ${found.bankName}` : getSelectedKey(branch.id);
                         })()
                       : "Select account"}
                   </span>
@@ -175,7 +179,10 @@ export const DifferentFeesAccount = ({ branches }: Props) => {
                             <div className="flex items-center gap-2">
                               <Avatar className="size-4" />
                               <div className="text-text-default w-full text-xs">
-                                {item.bankName} — {item.accountNumber}
+                                <div className="font-medium">{item.accountName}</div>
+                                <div className="text-text-muted">
+                                  {item.bankName} — {item.accountNumber}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -212,17 +219,27 @@ export const AddAccountSheet = ({ bankOptions, onAdd }: AddAccountSheetProps) =>
   const [bankSearch, setBankSearch] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const isMobile = useIsMobile();
+  const { mutate: lookupAccount, data: accountNameData, isPending: isLoadingName, reset: resetLookup } = useGetAccountDetails();
 
   const filteredBanks = bankOptions.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()));
   const bankName = bankOptions.find(b => b.code === bankCode)?.name ?? "";
-  const canSave = !!bankCode && accountNumber.length === 10;
+  const canSave = !!bankCode && accountNumber.length === 10 && !!accountNameData?.accountName;
+
+  useEffect(() => {
+    if (bankCode && accountNumber.length === 10) {
+      lookupAccount({ accountNumber, bankCode });
+    } else {
+      resetLookup();
+    }
+  }, [bankCode, accountNumber, lookupAccount, resetLookup]);
 
   const handleSave = () => {
     if (!canSave) return;
-    onAdd({ bankCode, bankName, accountNumber });
+    onAdd({ bankCode, bankName, accountNumber, accountName: accountNameData!.accountName });
     setBankCode("");
     setBankSearch("");
     setAccountNumber("");
+    resetLookup();
     setSheetOpen(false);
   };
 
@@ -264,10 +281,18 @@ export const AddAccountSheet = ({ bankOptions, onAdd }: AddAccountSheetProps) =>
           className="bg-bg-input-soft! text-text-muted w-full rounded-md border-none"
           placeholder="Enter 10-digit account number"
         />
-        {accountNumber.length === 10 && (
+        {bankCode && accountNumber.length === 10 && (
           <div className="bg-bg-input-soft mt-2 flex w-full items-center gap-2 rounded-md p-2">
-            <Avatar className="size-4" />
-            <span className="text-text-default text-sm font-medium">Account holder name</span>
+            {isLoadingName ? (
+              <span className="text-text-muted text-xs">Verifying account…</span>
+            ) : accountNameData?.accountName ? (
+              <>
+                <Avatar className="size-4" />
+                <span className="text-text-default text-xs font-medium">{accountNameData.accountName}</span>
+              </>
+            ) : (
+              <span className="text-text-destructive text-xs">Account not found</span>
+            )}
           </div>
         )}
       </div>

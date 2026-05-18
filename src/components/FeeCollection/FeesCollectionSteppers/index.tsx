@@ -21,6 +21,7 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { BranchAccountDto, FeeCollectionMode, FeeRouteDto } from "@/api/fee-collection";
 import { BranchWithClassLevels } from "@/api/types";
 import { FEE_COLLECTION_STEPS, useFeeCollectionStep } from "./FeesCollectionSteps";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export type FeesSetupFormValues = {
   mode: FeeCollectionMode | "";
@@ -117,10 +118,7 @@ export const FeesSetup = () => {
 
   return (
     <FormikProvider value={formik}>
-      <form
-        onSubmit={e => e.preventDefault()}
-        className="mx-auto flex items-center justify-center p-3"
-      >
+      <form onSubmit={e => e.preventDefault()} className="mx-auto flex items-center justify-center p-3">
         <div className="flex w-full max-w-175 flex-col gap-8">
           {/* Step indicator */}
           <div className="bg-bg-card border-border-default relative flex w-full items-center rounded-md border p-4">
@@ -152,8 +150,7 @@ export const FeesSetup = () => {
                   <div>
                     <div className="text-text-default text-lg font-semibold">Do any fees need a different account?</div>
                     <div className="text-text-muted text-sm font-normal">
-                      By default, all fees go to the school&apos;s collection account. Only choose a fee if it should be collected
-                      separately.
+                      By default, all fees go to the school&apos;s collection account. Only choose a fee if it should be collected separately.
                     </div>
                   </div>
                   <div className="flex flex-col gap-4 md:flex-row">
@@ -217,8 +214,8 @@ export const FeesSetup = () => {
                 </Button>
 
                 {/* Routing-decision step has its own inline buttons; hide the bottom nav Continue */}
-                {activeStep !== 1 && (
-                  isFinal ? (
+                {activeStep !== 1 &&
+                  (isFinal ? (
                     <Button
                       type="button"
                       disabled={isPending}
@@ -236,8 +233,7 @@ export const FeesSetup = () => {
                     >
                       Continue
                     </Button>
-                  )
-                )}
+                  ))}
               </div>
             </div>
           </div>

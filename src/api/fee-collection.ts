@@ -70,6 +70,10 @@ export interface FeeCollectionConfigResponse {
   totalFees?: number;
 }
 
+export interface AccountDetailsResponse {
+  accountName: string;
+}
+
 export const setupFeeCollection = async (payload: FeeCollectionSetupDto) => {
   try {
     const { data } = await api.post<Record<string, string>>(`/api/fee-collection/setup`, payload);
@@ -135,6 +139,16 @@ export const getAllBanks = async (): Promise<BankOption[]> => {
   try {
     const { data } = await api.get<{ data: BankOption[] }>(`/banks/all`);
     return data.data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const getAccountDetails = async (payload: { accountNumber: string; bankCode: string }): Promise<AccountDetailsResponse> => {
+  try {
+    const { data } = await api.post<AccountDetailsResponse>(`/banks/account/details`, payload);
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

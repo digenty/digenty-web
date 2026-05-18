@@ -1,5 +1,5 @@
 import { useFormikContext } from "formik";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Avatar } from "@/components/Avatar";
 import { SearchInput } from "@/components/SearchInput";
@@ -8,15 +8,24 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BranchAccountDto } from "@/api/fee-collection";
 import { FeesSetupFormValues } from "../index";
-import { useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
+import { useGetAccountDetails, useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
 
 export const OneCollectionAccount = () => {
   const { values, setFieldValue, errors, touched } = useFormikContext<FeesSetupFormValues>();
   const account: BranchAccountDto = values.branchAccounts[0] ?? { bankName: "", bankCode: "", accountNumber: "", isDefault: true };
   const { data: bankOptions = [] } = useGetAllBanks();
   const [bankSearch, setBankSearch] = useState("");
+  const { mutate: lookupAccount, data: accountNameData, isPending: isLoadingName, reset: resetLookup } = useGetAccountDetails();
 
   const filteredBanks = bankOptions.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()));
+
+  useEffect(() => {
+    if (account.bankCode && account.accountNumber.length === 10) {
+      lookupAccount({ accountNumber: account.accountNumber, bankCode: account.bankCode });
+    } else {
+      resetLookup();
+    }
+  }, [account.bankCode, account.accountNumber, lookupAccount, resetLookup]);
 
   const updateAccount = (patch: Partial<BranchAccountDto>) => {
     const next = [{ ...account, ...patch, isDefault: true }];
@@ -68,9 +77,18 @@ export const OneCollectionAccount = () => {
           placeholder="Enter 10-digits account number"
         />
         {accountErrors?.accountNumber && <p className="text-xs text-red-500">{accountErrors.accountNumber}</p>}
-        {account.accountNumber.length === 10 && (
+        {account.bankCode && account.accountNumber.length === 10 && (
           <div className="bg-bg-input-soft mt-2 flex w-full items-center gap-2 rounded-md p-2">
-            <Avatar className="size-4" /> <span className="text-text-default text-sm font-medium">Account holder name</span>
+            {isLoadingName ? (
+              <span className="text-text-muted text-xs">Verifying account…</span>
+            ) : accountNameData?.accountName ? (
+              <>
+                <Avatar className="size-4" />
+                <span className="text-text-default text-xs font-medium">{accountNameData.accountName}</span>
+              </>
+            ) : (
+              <span className="text-text-destructive text-xs">Account not found</span>
+            )}
           </div>
         )}
       </div>

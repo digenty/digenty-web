@@ -1,5 +1,6 @@
 import {
   getAllBanks,
+  getAccountDetails,
   getBankAccounts,
   getSetupStatus,
   setupFeeCollection,
@@ -56,6 +57,12 @@ export const useUpdateFeeCollectionBankAccount = () => {
       queryClient.invalidateQueries({ queryKey: feeCollectionKeys.bankAccounts });
       queryClient.invalidateQueries({ queryKey: feeCollectionKeys.setupStatus });
     },
+  });
+};
+
+export const useGetAccountDetails = () => {
+  return useMutation({
+    mutationFn: getAccountDetails,
   });
 };
 

@@ -3,18 +3,14 @@
 import { EmptyFeesCollectionState } from "@/components/FeeCollection/EmptyState";
 import { ConfiguredView } from "@/components/FeeCollection/ConfiguredView";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
-import { Spinner } from "@/components/ui/spinner";
 import { useGetFeeCollectionSetupStatus } from "@/hooks/queryHooks/useFeeCollection";
+import { Skeleton } from "../ui/skeleton";
 
 export const FeeCollectionContent = () => {
   const { data, isLoading, isError } = useGetFeeCollectionSetupStatus();
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Spinner className="size-16" />
-      </div>
-    );
+    return <Skeleton className="bg-bg-input-soft h-50 w-full" />;
   }
 
   if (isError) {

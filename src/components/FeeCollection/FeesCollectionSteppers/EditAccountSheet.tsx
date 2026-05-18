@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
+import { useGetAccountDetails, useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
 
 interface AccountDraft {
   bankCode: string;
@@ -32,6 +32,8 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
   const [bankSearch, setBankSearch] = useState("");
   const [accountNumber, setAccountNumber] = useState(initial.accountNumber);
   const { data: bankOptions = [] } = useGetAllBanks();
+  const { mutate: lookupAccount, data: accountNameData, isPending: isLoadingName, reset: resetLookup } = useGetAccountDetails();
+  const isFirstOpen = useRef(true);
 
   const filteredBanks = bankOptions.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()));
 
@@ -41,11 +43,24 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
       setBankCode(initial.bankCode);
       setBankSearch("");
       setAccountNumber(initial.accountNumber);
+      isFirstOpen.current = true;
     }
   }, [open, initial.bankCode, initial.accountNumber]);
 
+  useEffect(() => {
+    if (isFirstOpen.current) {
+      isFirstOpen.current = false;
+      return;
+    }
+    if (bankCode && accountNumber.length === 10) {
+      lookupAccount({ accountNumber, bankCode });
+    } else {
+      resetLookup();
+    }
+  }, [bankCode, accountNumber, lookupAccount, resetLookup]);
+
   const bankName = bankOptions.find(b => b.code === bankCode)?.name ?? initial.bankName;
-  const canSave = !!bankCode && accountNumber.length === 10;
+  const canSave = !!bankCode && accountNumber.length === 10 && !!accountNameData?.accountName;
 
   const handleSave = () => {
     if (!canSave) return;
@@ -92,10 +107,18 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
           className="bg-bg-input-soft! text-text-muted w-full rounded-md border-none"
           placeholder="Enter 10-digit account number"
         />
-        {accountNumber.length === 10 && (
+        {bankCode && accountNumber.length === 10 && (
           <div className="bg-bg-input-soft flex w-full items-center gap-2 rounded-md p-2">
-            <Avatar className="size-4" />
-            <span className="text-text-default text-sm font-medium">Account holder name</span>
+            {isLoadingName ? (
+              <span className="text-text-muted text-sm">Verifying account…</span>
+            ) : accountNameData?.accountName ? (
+              <>
+                <Avatar className="size-4" />
+                <span className="text-text-default text-sm font-medium">{accountNameData.accountName}</span>
+              </>
+            ) : (
+              <span className="text-red-500 text-sm">Account not found</span>
+            )}
           </div>
         )}
       </div>
