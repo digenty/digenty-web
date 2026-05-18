@@ -20,6 +20,7 @@ import { updateAssignSubjectTeacher } from "@/api/subject";
 import { branchKeys } from "@/queries/branch";
 
 import { classKeys } from "@/queries/class";
+import { staffKeys } from "@/queries/staff";
 import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -35,8 +36,8 @@ export const useAssignClassTeacher = () => {
   return useMutation({
     mutationKey: [classKeys.assignClassTeacher],
     mutationFn: assignClassTeacher,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [branchKeys.branchDetail] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: staffKeys.staffDetails(variables.teacherId) });
     },
   });
 };
@@ -178,8 +179,8 @@ export const useUpdateTeacherAssignment = () => {
   return useMutation({
     mutationKey: classKeys.updateTeacherAssignment,
     mutationFn: (payload: { teacherId: number; armDtos: { armId: number }[] }) => updateAssignClassTeacher(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [classKeys.updateTeacherAssignment] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: staffKeys.staffDetails(variables.teacherId) });
     },
   });
 };
