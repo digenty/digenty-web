@@ -157,13 +157,13 @@ const DepartmentSubjectsSection = ({
             <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
             <button
               type="button"
-              className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"
+              className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
               onClick={e => {
                 e.preventDefault();
                 removeSubject(subject);
               }}
             >
-              <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
+              {/* <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" /> */}
             </button>
           </Badge>
         ))}
