@@ -400,6 +400,7 @@ export const EditStaff = () => {
                             <TeacherAssignments
                               teacherName={`${formik.values.firstName} ${formik.values.lastName}`.trim()}
                               staffId={Number(staffId)}
+                              branchId={assignments.find(a => a.branchId !== null)?.branchId ?? undefined}
                             />
                           </div>
                         </div>

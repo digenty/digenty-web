@@ -124,6 +124,18 @@ export const assignArmToDepartment = async (payload: { departmentId: number; arm
   }
 };
 
+export const toggleDepartmentForLevel = async (levelId: number, enable: boolean) => {
+  try {
+    const { data } = await api.put(`/class-levels/${levelId}/department?enable=${enable}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getAssignedDepartments = async (levelId?: number, departmentId?: number, branchId?: number) => {
   try {
     const { data } = await api.get(

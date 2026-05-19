@@ -29,10 +29,12 @@ interface SelectedArm {
 export const TeacherAssignments = ({
   teacherName,
   staffId,
+  branchId,
   setIsEditing,
 }: {
   teacherName: string;
   staffId: number;
+  branchId?: number;
   setIsEditing?: (show: boolean) => void;
 }) => {
   const [isClassTeacher, setIsClassTeacher] = useState(false);
@@ -50,7 +52,7 @@ export const TeacherAssignments = ({
   const [classSubjectMap, setClassSubjectMap] = useState<{ classData: ClassType; arms: SelectedArm[]; subjects: Levelsubject[] }[]>([]);
 
   const { data: staffData } = useGetStaffDetails(staffId);
-  const { data: classesData, isPending: loadingClasses } = useGetClasses();
+  const { data: classesData, isPending: loadingClasses } = useGetClasses(branchId);
 
   const { mutate: assignClassTeacher, isPending: isAssigningClass } = useAssignClassTeacher();
   const { mutate: assignSubjectTeacher, isPending: isAssigningSubject } = useAssignSubjectTeacher();
