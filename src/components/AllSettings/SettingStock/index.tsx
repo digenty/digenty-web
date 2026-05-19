@@ -1,4 +1,5 @@
-import Edit from "@/components/Icons/Edit";
+import { Edit } from "@digenty/icons";
+
 import { Toggle } from "@/components/Toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

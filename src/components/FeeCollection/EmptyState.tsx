@@ -1,8 +1,9 @@
 "use client";
 
+import { GroupWorkT } from "@digenty/icons";
 import React from "react";
 import { Button } from "../ui/button";
-import { GroupWorkT } from "../Icons/GroupWorkT";
+
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
 

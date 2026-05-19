@@ -1,8 +1,7 @@
+import { Eye, EyeClose, SendPlane } from "@digenty/icons";
 import React from "react";
 import { Button } from "@/components/ui/button";
-import Eye from "@/components/Icons/Eye";
-import { SendPlane } from "@/components/Icons/SendPlane";
-import { EyeClose } from "@/components/Icons/EyeClose";
+
 import { X } from "lucide-react";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 

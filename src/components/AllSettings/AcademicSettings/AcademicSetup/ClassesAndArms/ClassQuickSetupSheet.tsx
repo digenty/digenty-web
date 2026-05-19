@@ -1,5 +1,6 @@
+import { CloseFill } from "@digenty/icons";
 import { ArmDetails, ClassLevel, Department, DepartmentResponse, DepartmentWithSubjects } from "@/api/types";
-import { CloseFill } from "@/components/Icons/CloseFill";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
@@ -156,13 +157,13 @@ const DepartmentSubjectsSection = ({
             <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
             <button
               type="button"
-              className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"
+              className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
               onClick={e => {
                 e.preventDefault();
                 removeSubject(subject);
               }}
             >
-              <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
+              {/* <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" /> */}
             </button>
           </Badge>
         ))}

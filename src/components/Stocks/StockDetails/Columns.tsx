@@ -1,9 +1,9 @@
+import { ArrowRightUpFill, ArrowUpDown } from "@digenty/icons";
 import { ColumnDef } from "@tanstack/react-table";
 import { StockHistoryProps, StockQuantityManagementProps } from "./type";
 import { stockStatus } from "@/components/Status";
-import { ArrowUpDown } from "@/components/Icons/ArrowUpDown";
+
 import { Avatar } from "@/components/Avatar";
-import { ArrowRightUpFill } from "@/components/Icons/ArrowRightUpFill";
 
 export const StocksQuantityManagementColumns: ColumnDef<StockQuantityManagementProps>[] = [
   {

@@ -1,14 +1,13 @@
 "use client";
 
+import { CheckboxCircleFill, Information, Loader2Fill } from "@digenty/icons";
 import React, { useState } from "react";
 import { FeesMode } from "./FeesMode";
 import { OneCollectionAccount } from "./FeesModeOneAccount/OneCollectionAccount";
 import { OneFeesRouting } from "./FeesModeOneAccount/OneFeesRouting";
 
-import Loader2Fill from "@/components/Icons/Loader2Fill";
-import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
 import { Button } from "@/components/ui/button";
-import Information from "@/components/Icons/Information";
+
 import { OneAccountReview } from "./FeesModeOneAccount/OneAccountReview";
 import { DifferentFeesAccount } from "./FeesModeDifferentAccounts/DifferentFeesAccount";
 import { DifferentFeesRounting } from "./FeesModeDifferentAccounts/DifferentFeesRounting";

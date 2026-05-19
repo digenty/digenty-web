@@ -1,13 +1,13 @@
 "use client";
 
+import { Calendar, School } from "@digenty/icons";
 import { Branch, BranchWithClassLevels, Term } from "@/api/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import Calendar from "../Icons/Calendar";
-import School from "../Icons/School";
+
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { DrawerClose, DrawerFooter } from "../ui/drawer";

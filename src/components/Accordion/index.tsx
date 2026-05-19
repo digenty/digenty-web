@@ -1,8 +1,8 @@
 "use client";
 
+import { ArrowDownS, ArrowRightS } from "@digenty/icons";
 import React, { useState, useRef, useEffect, ReactNode } from "react";
-import { ArrowRightS } from "../Icons/ArrowRightS";
-import { ArrowDownS } from "../Icons/ArrowDownS";
+
 import { cn } from "@/lib/utils";
 
 interface AccordionProps {

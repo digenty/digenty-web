@@ -1,7 +1,6 @@
+import { DeleteBin, Edit } from "@digenty/icons";
 import { Parent } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";

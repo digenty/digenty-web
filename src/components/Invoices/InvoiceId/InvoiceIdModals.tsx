@@ -1,11 +1,12 @@
+import { AlertFill, Bank } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import { Bank } from "@/components/Icons/Bank";
+
 import { Modal } from "@/components/Modal";
 import { getBadge } from "@/components/StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import { Button } from "@/components/ui/button";
 import { useClassesStore } from "@/store/classes";
 import { Checkbox } from "@/components/ui/checkbox";
-import AlertFill from "@/components/Icons/AlertFill";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/useIsMobile";

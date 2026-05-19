@@ -1,9 +1,9 @@
+import { ArrowDown, ArrowUp, ShareBox } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import ArrowDown from "@/components/Icons/ArrowDown";
-import ArrowUp from "@/components/Icons/ArrowUp";
+
 import React from "react";
 import { Button } from "@/components/ui/button";
-import ShareBox from "@/components/Icons/ShareBox";
+
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { StudentRow } from "./students";
 

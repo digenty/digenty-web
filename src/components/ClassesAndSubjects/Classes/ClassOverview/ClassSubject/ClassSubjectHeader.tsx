@@ -1,6 +1,6 @@
 "use client";
 
-import ShareBox from "@/components/Icons/ShareBox";
+import { ShareBox } from "@digenty/icons";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 

@@ -1,9 +1,8 @@
+import { AlertFill, IndeterminateCircleFill, Store3 } from "@digenty/icons";
 import React from "react";
 import { StocksSearchAndFilter } from "./StocksSearchAndFilter";
 import { OverviewCard } from "../OverviewCard";
-import Store3 from "../Icons/Store3";
-import AlertFill from "../Icons/AlertFill";
-import IndeterminateCircleFill from "../Icons/IndeterminateCircleFill";
+
 import { StockHeader } from "./StockHeader";
 import { StockOverviewTable } from "./StockOverviewTable";
 

@@ -1,30 +1,27 @@
 "use client";
 
+import { AddFill, DeleteBin, Edit, Eye, Printer, ShareBox, UserForbid } from "@digenty/icons";
 import React, { useState } from "react";
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
 import { Ellipsis, PlusIcon } from "lucide-react";
 import { MobileDrawer } from "@/components/MobileDrawer";
-import Eye from "@/components/Icons/Eye";
-import Printer from "@/components/Icons/Printer";
+
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
 import { getStatusBadge, staffStatusBadge } from "@/components/Status";
-import ShareBox from "@/components/Icons/ShareBox";
+
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import Image from "next/image";
-import { AddFill } from "@/components/Icons/AddFill";
+
 import { StaffProps } from "../Staffs";
 import { SettingPermissionModalExport } from "../SettingPermissionModalExport";
 import { StaffColumns } from "../StaffTableColumns";
 // import { StaffList } from "..";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
-import { UserForbid } from "@/components/Icons/UserForbid";
 
 export const SubjectTeachers = () => {
   const [page, setPage] = useState(1);

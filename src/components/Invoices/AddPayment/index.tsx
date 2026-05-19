@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRightS, Bank, BankCard, CalendarEventFill, Cash, Folder3, QuickReferenceAll, ResetLeft } from "@digenty/icons";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
@@ -9,14 +10,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar } from "@/components/Avatar";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet";
-import { CalendarEventFill } from "@/components/Icons/CalendarEventFill";
-import { ArrowRightS } from "@/components/Icons/ArrowRightS";
-import { QuickReferenceAll } from "@/components/Icons/QuickReferenceAll";
-import { ResetLeft } from "@/components/Icons/ResetLeft";
-import { Bank } from "@/components/Icons/Bank";
-import { Cash } from "@/components/Icons/Cash";
-import BankCard from "@/components/Icons/BankCard";
-import { Folder3 } from "@/components/Icons/Folder3";
+
 import { useRouter } from "next/navigation";
 
 const payMethod = [

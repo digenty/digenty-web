@@ -1,6 +1,5 @@
-import Bill from "../Icons/Bill";
-import CalendarCheck from "../Icons/CalendarCheck";
-import FileList3 from "../Icons/FileList3";
+import { Bill, CalendarCheck, FileList3 } from "@digenty/icons";
+
 import { Button } from "../ui/button";
 import { ActiveAlert } from "./type";
 

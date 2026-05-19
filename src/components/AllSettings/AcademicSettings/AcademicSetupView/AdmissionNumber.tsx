@@ -1,7 +1,8 @@
 "use client";
 
+import { Edit } from "@digenty/icons";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import Edit from "@/components/Icons/Edit";
+
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

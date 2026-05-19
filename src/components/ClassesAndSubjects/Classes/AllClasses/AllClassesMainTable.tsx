@@ -1,12 +1,9 @@
 "use client";
 
+import { CheckboxCircle, Eye, Filter, Key, Notification } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
 import { DataTable } from "@/components/DataTable";
-import { CheckboxCircle } from "@/components/Icons/CheckboxCircle";
-import Eye from "@/components/Icons/Eye";
-import { Filter } from "@/components/Icons/Filter";
-import { Key } from "@/components/Icons/Key";
-import { Notification } from "@/components/Icons/Notification";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";

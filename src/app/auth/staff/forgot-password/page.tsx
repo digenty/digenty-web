@@ -1,5 +1,6 @@
+import { LogoMark } from "@digenty/icons";
 import { ForgotPassword } from "@/components/Auth/ForgotPassword";
-import { LogoMark } from "@/components/Icons/LogoMark";
+
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 

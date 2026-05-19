@@ -1,8 +1,8 @@
 "use client";
 
+import { AlertFill, GraduationCapFill } from "@digenty/icons";
 import { BranchArmReport, BranchWithClassLevels, ClassLevel, Term } from "@/api/types";
-import AlertFill from "@/components/Icons/AlertFill";
-import GraduationCapFill from "@/components/Icons/GraduationCapFill";
+
 import { OverviewCard } from "@/components/OverviewCard";
 import { useGetBranchDetails, useGetBranches } from "@/hooks/queryHooks/useBranch";
 import useDebounce from "@/hooks/useDebounce";

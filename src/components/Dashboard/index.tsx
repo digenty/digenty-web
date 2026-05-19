@@ -1,12 +1,10 @@
 "use client";
+import { AlertFill, CashFill, IndeterminateCircleFill, UserFill } from "@digenty/icons";
 import { Branch, Term } from "@/api/types";
 import { useGetDashboard } from "@/hooks/queryHooks/useDashboard";
 import { useState } from "react";
 import { Alerts } from "../Alert";
-import AlertFill from "../Icons/AlertFill";
-import CashFill from "../Icons/CashFill";
-import IndeterminateCircleFill from "../Icons/IndeterminateCircleFill";
-import UserFill from "../Icons/UserFill";
+
 import { OverviewCard } from "../OverviewCard";
 import { Chart } from "./Chart";
 import DashboardHeader from "./DashboardHeader";

@@ -1,8 +1,8 @@
 "use client";
 
+import { ArrowDown, ArrowUp } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import ArrowDown from "@/components/Icons/ArrowDown";
-import ArrowUp from "@/components/Icons/ArrowUp";
+
 import { Badge } from "@/components/ui/badge";
 import { StudentResult } from ".";
 

@@ -1,4 +1,26 @@
 "use client";
+import {
+  BankCard,
+  Bill,
+  CalendarCheck,
+  ColorFilter,
+  FileList3,
+  Global,
+  GraduationCap,
+  Group,
+  Home2,
+  LeadIcon,
+  Line,
+  LineChart,
+  ListCheck3,
+  Logout,
+  Macbook,
+  Megaphone,
+  Settings4,
+  Store3,
+  User,
+  Wallet,
+} from "@digenty/icons";
 import { deleteSession } from "@/app/actions/auth";
 import { Sheet, SheetContent, SheetHeader, SheetOverlay, SheetTitle } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -11,25 +33,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import BankCard from "../Icons/BankCard";
-import Bill from "../Icons/Bill";
-import CalendarCheck from "../Icons/CalendarCheck";
-import ColorFilter from "../Icons/ColorFilter";
-import FileList3 from "../Icons/FileList3";
-import Global from "../Icons/Global";
-import GraduationCap from "../Icons/GraduationCap";
-import Group from "../Icons/Group";
-import Home2 from "../Icons/Home2";
-import LeadIcon from "../Icons/LeadIcon";
-import Line from "../Icons/Line";
-import LineChart from "../Icons/LineChart";
-import Logout from "../Icons/Logout";
-import Macbook from "../Icons/Macbook";
-import Megaphone from "../Icons/Megaphone";
-import Settings4 from "../Icons/Settings4";
-import Store3 from "../Icons/Store3";
-import User from "../Icons/User";
-import Wallet from "../Icons/Wallet";
+
 import { Tooltip } from "../Tooltip";
 import { Button } from "../ui/button";
 import { NavigationType } from "./types";
@@ -50,7 +54,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SetupGuideProgress } from "./SetupGuideProgress";
 import { canViewCBT } from "@/lib/permissions/cbt";
 import { getSessionToken } from "@/app/actions/auth";
-import { ListCheck3 } from "../Icons/ListCheck3";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();

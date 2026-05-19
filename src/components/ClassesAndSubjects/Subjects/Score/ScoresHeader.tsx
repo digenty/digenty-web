@@ -1,11 +1,10 @@
-import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
-import Save from "@/components/Icons/Save";
-import ShareBox from "@/components/Icons/ShareBox";
+import { CheckboxCircleFill, Question, Save, ShareBox } from "@digenty/icons";
+
 import { Button } from "@/components/ui/button";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import SubmitScoreModal from "./SubmitScoreModal";
-import Question from "@/components/Icons/Question";
+
 import RequestEdit from "../../RequestEditAccess";
 import { Spinner } from "@/components/ui/spinner";
 

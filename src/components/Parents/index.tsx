@@ -3,6 +3,7 @@ import { useGetParent } from "@/hooks/queryHooks/useParent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Skeleton } from "../ui/skeleton";
 
 export const Parents = () => {
   const { id } = useLoggedInUser();
@@ -19,5 +20,9 @@ export const Parents = () => {
     }
   }, [data, isLoading, router, id]);
 
-  return <div>parents</div>;
+  return (
+    <div className="flex items-center justify-center p-4 md:p-8">
+      <Skeleton className="bg-bg-input-soft! h-200 w-full" />
+    </div>
+  );
 };

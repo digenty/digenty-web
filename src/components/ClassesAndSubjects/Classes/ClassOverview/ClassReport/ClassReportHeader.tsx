@@ -1,8 +1,6 @@
+import { Calendar, CheckboxCircleFill, Question, ShareBox } from "@digenty/icons";
 import { Term } from "@/api/types";
-import Calendar from "@/components/Icons/Calendar";
-import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
-import Question from "@/components/Icons/Question";
-import ShareBox from "@/components/Icons/ShareBox";
+
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";

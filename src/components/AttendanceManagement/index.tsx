@@ -1,14 +1,12 @@
 "use client";
-import Approve from "../Icons/Approve";
-import BarChartIcon from "../Icons/BarChartIcon";
 
+import { Approve, BarChartIcon, GraduationCapFill, NumStudentIcon } from "@digenty/icons";
 import { Branch, Term } from "@/api/types";
 import { useGetAllAttendance } from "@/hooks/queryHooks/useAttendance";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useState } from "react";
 import { ErrorComponent } from "../Error/ErrorComponent";
-import GraduationCapFill from "../Icons/GraduationCapFill";
-import NumStudentIcon from "../Icons/NumStudentIcon";
+
 import { OverviewCard } from "../OverviewCard";
 import { SearchInput } from "../SearchInput";
 import { Skeleton } from "../ui/skeleton";

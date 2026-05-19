@@ -1,4 +1,5 @@
-import School from "@/components/Icons/School";
+import { School } from "@digenty/icons";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import React from "react";
 

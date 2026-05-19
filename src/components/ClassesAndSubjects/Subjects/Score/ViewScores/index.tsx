@@ -1,11 +1,10 @@
 "use client";
 
+import { Calendar, Question, ShareBox } from "@digenty/icons";
 import { Assessment, Term } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import Calendar from "@/components/Icons/Calendar";
-import Question from "@/components/Icons/Question";
-import ShareBox from "@/components/Icons/ShareBox";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { ScoreType } from "@/components/ScoreViewBySubject/types";
 import { Button } from "@/components/ui/button";

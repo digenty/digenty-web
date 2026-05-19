@@ -1,8 +1,6 @@
+import { AddFill, ArrowDownS, Gtbank, QuickReferenceAll } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import { AddFill } from "@/components/Icons/AddFill";
-import { ArrowDownS } from "@/components/Icons/ArrowDownS";
-import { Gtbank } from "@/components/Icons/Gtbank";
-import { QuickReferenceAll } from "@/components/Icons/QuickReferenceAll";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";

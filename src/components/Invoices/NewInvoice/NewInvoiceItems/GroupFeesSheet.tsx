@@ -1,4 +1,5 @@
-import { ArrowDownS } from "@/components/Icons/ArrowDownS";
+import { ArrowDownS } from "@digenty/icons";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";

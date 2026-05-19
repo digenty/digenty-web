@@ -1,7 +1,6 @@
 "use client";
 
-import DeleteBin from "@/components/Icons/DeleteBin";
-import { Draggable } from "@/components/Icons/Draggable";
+import { DeleteBin, Draggable } from "@digenty/icons";
 import { FeesSheet } from "@/components/Invoices/NewInvoice/NewInvoiceItems/FeesSheet";
 import { GroupFeesSheet } from "@/components/Invoices/NewInvoice/NewInvoiceItems/GroupFeesSheet";
 import { NewInvoiceItemMobile } from "@/components/Invoices/NewInvoice/NewInvoiceItems/NewInvoiceMobileItem";

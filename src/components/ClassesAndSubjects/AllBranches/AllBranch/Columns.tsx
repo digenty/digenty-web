@@ -1,11 +1,11 @@
 "use client";
+import { Key, Notification2 } from "@digenty/icons";
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { AllBranchesTableProps } from "./types";
-import Notification2 from "@/components/Icons/Notification2";
-import { Key } from "@/components/Icons/Key";
+
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
 import StatusBadge from "@/components/StatusBadge";

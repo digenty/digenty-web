@@ -1,249 +1,67 @@
-export interface SubscriptionPlanProps {
+import { BillingStatus, PlanType, SubscriptionStatus } from "@/api/subscription";
+
+export type BillingCycle = "Termly" | "Yearly";
+
+export type StudentTier = "1-200" | "201-400" | "401+";
+
+export interface PlanFeatureRow {
   feature: string;
-  freemium: boolean | string;
-  standard: boolean | string;
-  advanced: boolean | string;
-  premium: boolean | string;
+  standard: boolean;
+  advanced: boolean;
 }
 
-export interface SubscriptionHistoryProps {
+export interface BillingHistoryRow {
   period: string;
   plan: string;
   status: string;
   amount: number;
 }
 
-export const subscriptionHistoryTableData: SubscriptionHistoryProps[] = [
-  {
-    period: "Jan 1, 2025 – Jan 31, 2025",
-    plan: "Premium",
+export const BILLING_CYCLE_TO_PLAN_TYPE: Record<BillingCycle, PlanType> = {
+  Termly: "TERMLY",
+  Yearly: "YEARLY",
+};
 
-    status: "Paid",
-    amount: 50000,
-  },
-  {
-    period: "Jan 1, 2025 – Jan 31, 2025",
-    plan: "Premium",
+export const STUDENT_TIER_RANGES: Record<StudentTier, { min: number; max: number }> = {
+  "1-200": { min: 1, max: 200 },
+  "201-400": { min: 201, max: 400 },
+  "401+": { min: 401, max: Number.MAX_SAFE_INTEGER },
+};
 
-    status: "Paid",
-    amount: 50000,
-  },
-  {
-    period: "Jan 1, 2025 – Jan 31, 2025",
-    plan: "Premium",
+export const subscriptionStatusLabel: Record<SubscriptionStatus, string> = {
+  ACTIVE: "Active",
+  EXPIRED: "Expired",
+  CANCELLED: "Cancelled",
+  PENDING: "Pending",
+};
 
-    status: "Paid",
-    amount: 50000,
-  },
-  {
-    period: "Jan 1, 2025 – Jan 31, 2025",
-    plan: "Premium",
+export const billingStatusLabel: Record<BillingStatus, "Paid" | "Failed" | "Pending"> = {
+  SUCCESS: "Paid",
+  FAILED: "Failed",
+  PENDING: "Pending",
+};
 
-    status: "Failed",
-    amount: 50000,
-  },
-];
-
-export const subscriptionTableData: SubscriptionPlanProps[] = [
-  {
-    feature: "Number of users",
-    freemium: "Unlimited",
-    standard: "Unlimited",
-    advanced: "Unlimited",
-    premium: "Unlimited",
-  },
-
-  {
-    feature: "Administrator Tools",
-    freemium: true,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "User Information Systems",
-    freemium: true,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Students Attendance Management",
-    freemium: true,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Academics / Exams Management",
-    freemium: true,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Result Processing, Publishing & Remote Access",
-    freemium: true,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Students Class Promotion / Transfer Management",
-    freemium: true,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Communications (Bulk SMS)",
-    freemium: true,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-
-  {
-    feature: "Online Assignments / Home Works & Lesson/Lecture Notes",
-    freemium: true,
-    standard: false,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Parents E-Portal",
-    freemium: true,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Online Admission",
-    freemium: false,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Financial summary and Analytics",
-    freemium: false,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Online Fees Payment",
-    freemium: false,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Fees & Bursary Management",
-    freemium: false,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Financial summary and Analytics",
-    freemium: false,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-
-  {
-    feature: "Online Fees Payment",
-    freemium: false,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Stock keeping and Management (School uniform, textbooks, notebooks etc.)",
-    freemium: false,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Expense Management",
-    freemium: false,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "School Website",
-    freemium: false,
-    standard: true,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "Computer-based Testing / Examination (CBT/CBE)",
-    freemium: false,
-    standard: false,
-    advanced: true,
-    premium: true,
-  },
-
-  {
-    feature: "Financial Bookkeeping & Reports",
-    freemium: false,
-    standard: false,
-    advanced: true,
-    premium: true,
-  },
-  {
-    feature: "HR / Payroll Management",
-    freemium: false,
-    standard: false,
-    advanced: false,
-    premium: true,
-  },
-  {
-    feature: "Hostel Management",
-    freemium: false,
-    standard: false,
-    advanced: false,
-    premium: true,
-  },
-  {
-    feature: "Transport Management",
-    freemium: false,
-    standard: false,
-    advanced: false,
-    premium: true,
-  },
-  {
-    feature: "LMS (Live class sessions online,online courses etc.)",
-    freemium: false,
-    standard: false,
-    advanced: false,
-    premium: true,
-  },
-
-  {
-    feature: "Students E-Portal",
-    freemium: false,
-    standard: false,
-    advanced: false,
-    premium: true,
-  },
-  {
-    feature: "Library Management",
-    freemium: false,
-    standard: false,
-    advanced: false,
-    premium: true,
-  },
-  {
-    feature: "Students Graduation, Transcripts & Alumni",
-    freemium: false,
-    standard: false,
-    advanced: false,
-    premium: true,
-  },
+export const planFeaturesData: PlanFeatureRow[] = [
+  { feature: "Administrator Tools", standard: true, advanced: true },
+  { feature: "User Information Systems", standard: true, advanced: true },
+  { feature: "Students Attendance Management", standard: true, advanced: true },
+  { feature: "Result Processing, Publishing & Remote Access", standard: true, advanced: true },
+  { feature: "Students Class Promotion / Transfer Management", standard: true, advanced: true },
+  { feature: "Communications (Bulk SMS)", standard: true, advanced: true },
+  { feature: "Online Assignments / Home Works & Lesson/Lecture Notes", standard: true, advanced: true },
+  { feature: "Online Admission Management", standard: true, advanced: true },
+  { feature: "Fees & Bursary Management", standard: true, advanced: true },
+  { feature: "Financial summary and Analytics", standard: true, advanced: true },
+  { feature: "Online Fees Payment", standard: true, advanced: true },
+  { feature: "Stock keeping and Management (School uniform, textbooks, notebooks etc.)", standard: true, advanced: true },
+  { feature: "Expense Management", standard: true, advanced: true },
+  { feature: "School Website", standard: true, advanced: true },
+  { feature: "Computer-based Testing / Examination (CBT/CBE)", standard: true, advanced: true },
+  { feature: "HR / Payroll Management", standard: true, advanced: true },
+  { feature: "Hostel Management", standard: false, advanced: true },
+  { feature: "Transport Management", standard: false, advanced: true },
+  { feature: "LMS (Live class sessions online,online courses etc.)", standard: false, advanced: true },
+  { feature: "Students E-Portal", standard: false, advanced: true },
+  { feature: "Library Management", standard: false, advanced: true },
+  { feature: "Students Graduation, Transcripts & Alumni", standard: false, advanced: true },
 ];

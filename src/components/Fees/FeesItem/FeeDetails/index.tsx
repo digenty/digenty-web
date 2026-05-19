@@ -1,8 +1,5 @@
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
-import { FileCopy } from "@/components/Icons/FileCopy";
-import GraduationCap from "@/components/Icons/GraduationCap";
-import School from "@/components/Icons/School";
+import { DeleteBin, Edit, FileCopy, GraduationCap, School } from "@digenty/icons";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import React from "react";

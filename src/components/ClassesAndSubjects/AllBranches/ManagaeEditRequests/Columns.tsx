@@ -1,9 +1,9 @@
+import { GraduationCap, Message3 } from "@digenty/icons";
 import { ColumnDef, Row } from "@tanstack/react-table";
 
 import { EditRequestResponseTypes } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import GraduationCap from "@/components/Icons/GraduationCap";
-import { Message3 } from "@/components/Icons/Message3";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatRelativeDate } from "@/lib/utils";

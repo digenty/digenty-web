@@ -1,7 +1,6 @@
 "use client";
 
-import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
-import { CircleFill } from "@/components/Icons/CircleFill";
+import { CheckboxCircleFill, CircleFill } from "@digenty/icons";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

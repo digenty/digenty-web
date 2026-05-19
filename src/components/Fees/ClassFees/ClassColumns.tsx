@@ -1,4 +1,5 @@
 "use client";
+import { DeleteBin } from "@digenty/icons";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -6,7 +7,6 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { ClassFeeTypes } from "./classTypes";
 import { Badge } from "@/components/ui/badge";
-import DeleteBin from "@/components/Icons/DeleteBin";
 
 const RenderOptions = ({ row }: { row: Row<ClassFeeTypes> }) => {
   const [open, setOpen] = useState(false);

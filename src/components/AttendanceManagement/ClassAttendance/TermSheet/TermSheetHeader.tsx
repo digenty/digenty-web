@@ -1,8 +1,8 @@
 "use client";
 
+import { Calendar, ListCheck } from "@digenty/icons";
 import { Term } from "@/api/types";
-import Calendar from "@/components/Icons/Calendar";
-import ListCheck from "@/components/Icons/ListCheck";
+
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";

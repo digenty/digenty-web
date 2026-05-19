@@ -1,9 +1,8 @@
 "use client";
 
+import { FileList2, Key, Notification } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
-import FileList2 from "@/components/Icons/FileList2";
-import { Key } from "@/components/Icons/Key";
-import { Notification } from "@/components/Icons/Notification";
+
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";

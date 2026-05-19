@@ -1,6 +1,5 @@
-import Edit from "@/components/Icons/Edit";
-import { Gtbank } from "@/components/Icons/Gtbank";
-import Information from "@/components/Icons/Information";
+import { Edit, Gtbank, Information } from "@digenty/icons";
+
 import { Button } from "@/components/ui/button";
 import React from "react";
 

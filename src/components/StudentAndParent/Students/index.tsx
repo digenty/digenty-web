@@ -1,13 +1,9 @@
 "use client";
+import { GraduationCap, Import, ShareBox, UserFill, UserMinus, WarningIcon } from "@digenty/icons";
 import { Arm, Branch, ClassType, Student } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import GraduationCap from "@/components/Icons/GraduationCap";
-import Import from "@/components/Icons/Import";
-import ShareBox from "@/components/Icons/ShareBox";
-import UserFill from "@/components/Icons/UserFill";
-import UserMinus from "@/components/Icons/UserMinus";
-import WarningIcon from "@/components/Icons/WarningIcon";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";

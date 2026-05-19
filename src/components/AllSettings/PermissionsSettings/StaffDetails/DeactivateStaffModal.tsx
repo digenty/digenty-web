@@ -1,4 +1,5 @@
-import AlertFill from "@/components/Icons/AlertFill";
+import { AlertFill } from "@digenty/icons";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";

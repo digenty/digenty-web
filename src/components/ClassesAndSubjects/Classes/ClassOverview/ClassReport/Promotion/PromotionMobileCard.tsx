@@ -1,12 +1,11 @@
+import { ArrowDown, ArrowUp, ShareBox } from "@digenty/icons";
 import { ResultSettings, StudentCumulative } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import ArrowDown from "@/components/Icons/ArrowDown";
-import ArrowUp from "@/components/Icons/ArrowUp";
+
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import React, { Dispatch, SetStateAction, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import ShareBox from "@/components/Icons/ShareBox";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";

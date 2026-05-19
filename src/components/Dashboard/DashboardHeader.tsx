@@ -1,12 +1,12 @@
 "use client";
 
+import { Calendar, School } from "@digenty/icons";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Calendar from "../Icons/Calendar";
-import School from "../Icons/School";
+
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";

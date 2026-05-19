@@ -1,16 +1,6 @@
 "use client";
 
-import { Cash } from "@/components/Icons/Cash";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
-import Flag from "@/components/Icons/Flag";
-import { LightBulb } from "@/components/Icons/LightBulb";
-import Mail from "@/components/Icons/Mail";
-import Map from "@/components/Icons/Map";
-import { Phone } from "@/components/Icons/Phone";
-import School from "@/components/Icons/School";
-import { Timee } from "@/components/Icons/Timee";
-import User from "@/components/Icons/User";
+import { Cash, DeleteBin, Edit, Flag, LightBulb, Mail, Map, Phone, School, Timee, User } from "@digenty/icons";
 import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

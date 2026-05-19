@@ -1,5 +1,6 @@
 "use client";
 
+import { DeleteBin, Edit, WarningIcon } from "@digenty/icons";
 import { useState } from "react";
 import { Avatar } from "../../../Avatar";
 import { Button } from "../../../ui/button";
@@ -12,9 +13,7 @@ import { queryClient } from "@/lib/tanstack";
 import { studentKeys } from "@/queries/student";
 import { useParentStore } from "@/store/useParentStore";
 import { usePathname, useRouter } from "next/navigation";
-import DeleteBin from "../../../Icons/DeleteBin";
-import Edit from "../../../Icons/Edit";
-import WarningIcon from "../../../Icons/WarningIcon";
+
 import { Modal } from "../../../Modal";
 import { toast } from "../../../Toast";
 import { Checkbox } from "../../../ui/checkbox";

@@ -1,9 +1,6 @@
 "use client";
 
-import Eye from "@/components/Icons/Eye";
-import Question from "@/components/Icons/Question";
-
-import RequestLoader from "@/components/Icons/RequestLoader";
+import { Eye, Question, RequestLoader } from "@digenty/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { REPORT_STATUS_CONFIG } from "@/queries/subject";

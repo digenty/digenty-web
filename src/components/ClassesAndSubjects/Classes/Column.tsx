@@ -1,10 +1,8 @@
-"use client ";
+import { CheckboxCircle, Eye, Key, Notification } from "@digenty/icons";
+("use client ");
 
 import { Avatar } from "@/components/Avatar";
-import { CheckboxCircle } from "@/components/Icons/CheckboxCircle";
-import Eye from "@/components/Icons/Eye";
-import { Key } from "@/components/Icons/Key";
-import { Notification } from "@/components/Icons/Notification";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -12,10 +10,10 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
 import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
 import { AllClassesMainTableProps, ClassProps } from "./types";
+import { toast } from "@/components/Toast";
 
 const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => {
   const router = useRouter();
@@ -32,11 +30,19 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
       { classArmReportId: row.original.classArmReportId, status: "APPROVED" },
       {
         onSuccess: () => {
-          toast.success("Submission approved successfully");
+          toast({
+            title: "Submission approved successfully",
+            description: "You have successfully approved the submission",
+            type: "success",
+          });
           setOpenApproveModal(false);
         },
         onError: error => {
-          toast.error(error?.message || "Failed to approve submission");
+          toast({
+            title: "Failed to approve submission",
+            description: error?.message || "Failed to approve submission",
+            type: "error",
+          });
         },
       },
     );

@@ -1,12 +1,12 @@
 "use client";
 
+import { AddFill, DownloadT } from "@digenty/icons";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AddFill } from "@/components/Icons/AddFill";
-import { DownloadT } from "@/components/Icons/DownloadT";
+
 import { Minus } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 

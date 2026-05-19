@@ -1,6 +1,6 @@
+import { Draft } from "@digenty/icons";
 import { Check, CheckCheck, TriangleAlert, X } from "lucide-react";
 import { Badge } from "../ui/badge";
-import { Draft } from "../Icons/Draft";
 
 export const stockStatus = (status: string) => {
   switch (status) {
@@ -140,6 +140,13 @@ export const paymentStatus = (status: string) => {
       return (
         <Badge className="bg-bg-badge-red text-bg-basic-red-strong border-border-default h-5 rounded-md text-xs font-medium">
           <span>Failed</span>
+        </Badge>
+      );
+
+    case "Pending":
+      return (
+        <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Pending</span>
         </Badge>
       );
 

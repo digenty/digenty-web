@@ -1,11 +1,12 @@
 "use client";
 
+import { ArrowUpDown } from "@digenty/icons";
 import { DataTable } from "@/components/DataTable";
 import React, { useState } from "react";
 import { StockQuantityManagementItems, StockQuantityManagementProps } from "./type";
 import { StocksQuantityManagementColumns } from "./Columns";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "@/components/Icons/ArrowUpDown";
+
 import { StockDetailsAdjustQtyModal } from "./StockDetailsAdjustQtyModal";
 
 export const StockDetailsManagement = () => {

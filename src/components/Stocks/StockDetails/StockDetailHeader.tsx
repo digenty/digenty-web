@@ -1,5 +1,5 @@
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
+import { DeleteBin, Edit } from "@digenty/icons";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";

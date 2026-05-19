@@ -1,10 +1,10 @@
 "use client";
 
+import { AddFill, Map } from "@digenty/icons";
 import { BranchWithClassLevels, NewBranchForm, SchoolStructurePayload, Term, Terms } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { AddFill } from "@/components/Icons/AddFill";
-import Map from "@/components/Icons/Map";
+
 import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDownS } from "@/components/Icons/ArrowDownS";
+import { ArrowDownS } from "@digenty/icons";
 import { SearchInput } from "@/components/SearchInput";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";

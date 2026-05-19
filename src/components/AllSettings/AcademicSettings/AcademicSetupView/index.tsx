@@ -1,9 +1,8 @@
 "use client";
 
+import { AddFill, ArrowRightCircleFill, ViewTimelineT } from "@digenty/icons";
 import { AcademicSession } from "@/api/types";
-import { AddFill } from "@/components/Icons/AddFill";
-import { ArrowRightCircleFill } from "@/components/Icons/ArrowRightCircleFill";
-import { ViewTimelineT } from "@/components/Icons/ViewTimelineT";
+
 import { Button } from "@/components/ui/button";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";

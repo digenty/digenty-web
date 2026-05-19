@@ -1,10 +1,6 @@
 "use client";
 
-import { AddFill } from "@/components/Icons/AddFill";
-import BookOpen from "@/components/Icons/BookOpen";
-import { DeleteBin2 } from "@/components/Icons/DeleteBin2";
-import Loader2Fill from "@/components/Icons/Loader2Fill";
-import School from "@/components/Icons/School";
+import { AddFill, BookOpen, DeleteBin2, Loader2Fill, School } from "@digenty/icons";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
 import { Button } from "@/components/ui/button";

@@ -1,7 +1,8 @@
 "use client";
 
+import { ShareBox } from "@digenty/icons";
 import { Branch, BranchWithClassLevels } from "@/api/types";
-import ShareBox from "@/components/Icons/ShareBox";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { Badge } from "@/components/ui/badge";

@@ -1,7 +1,7 @@
+import { Edit, UserForbid } from "@digenty/icons";
 import { Staff } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import Edit from "@/components/Icons/Edit";
-import { UserForbid } from "@/components/Icons/UserForbid";
+
 import { getStatusBadge, staffStatusBadge } from "@/components/Status";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

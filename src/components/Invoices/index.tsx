@@ -1,9 +1,7 @@
+import { AlertFill, Approve, FileList3Fill } from "@digenty/icons";
 import React from "react";
 import { OverviewCard } from "../OverviewCard";
-import Approve from "../Icons/Approve";
-import AlertFill from "../Icons/AlertFill";
 
-import FileList3Fill from "../Icons/FileList3Fill";
 import { InvoiceOverviewTable } from "./InvoiceOverviewTable";
 import { InvoicesHeader } from "./InvoicesHeader";
 import { InvoiceSearchAndExport } from "./InvoiceSearchAndExport";

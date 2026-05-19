@@ -1,5 +1,5 @@
-import CheckboxCircleFill from "@/components/Icons/CheckboxCircleFill";
-import Loader2Fill from "@/components/Icons/Loader2Fill";
+import { CheckboxCircleFill, Loader2Fill } from "@digenty/icons";
+
 import { cn } from "@/lib/utils";
 
 export type Step = {

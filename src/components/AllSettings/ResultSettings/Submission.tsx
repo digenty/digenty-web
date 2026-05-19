@@ -1,6 +1,7 @@
+import { Edit } from "@digenty/icons";
 import { Term } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
-import Edit from "@/components/Icons/Edit";
+
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -201,7 +202,7 @@ export const Submission = () => {
         )}
 
         {!isLoading && !hasExistingDeadlines && !hasOpenedForm && (
-          <div className="flex h-screen items-center justify-center">
+          <div className="flex items-center justify-center">
             <div className="flex flex-col items-center justify-center gap-3 py-20">
               <div className="text-text-muted text-sm">No submission deadlines have been set yet.</div>
               <Button

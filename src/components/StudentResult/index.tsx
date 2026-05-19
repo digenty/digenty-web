@@ -1,10 +1,11 @@
+import { Edit } from "@digenty/icons";
 import { StudentReport, SubjectReport, Term } from "@/api/types";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useState } from "react";
 import { DataTable } from "../DataTable";
 import { ErrorComponent } from "../Error/ErrorComponent";
-import Edit from "../Icons/Edit";
+
 import { Button } from "../ui/button";
 import { EditTeacherInputModal } from "./EditTeacherInputModal";
 

@@ -1,8 +1,7 @@
+import { Calendar, GraduationCap, StickyNote } from "@digenty/icons";
 import { EditRequestResponseTypes } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
-import Calendar from "@/components/Icons/Calendar";
-import GraduationCap from "@/components/Icons/GraduationCap";
-import { StickyNote } from "@/components/Icons/StickyNote";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";

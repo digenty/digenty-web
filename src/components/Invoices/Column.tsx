@@ -1,3 +1,4 @@
+import { BallPen, DeleteBin, Edit, Notification2 } from "@digenty/icons";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { Checkbox } from "../ui/checkbox";
 import { InvoicesOverviewTableProps } from "./types";
@@ -5,11 +6,9 @@ import { Avatar } from "../Avatar";
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
-import Edit from "../Icons/Edit";
-import DeleteBin from "../Icons/DeleteBin";
+
 import { getBadge } from "../StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
-import Notification2 from "../Icons/Notification2";
-import { BallPen } from "../Icons/BallPen";
+
 import { useRouter } from "next/navigation";
 
 const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {

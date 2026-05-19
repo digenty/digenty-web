@@ -1,5 +1,6 @@
+import { Edit } from "@digenty/icons";
 import { LevelType, SchoolGrading } from "@/api/types";
-import Edit from "@/components/Icons/Edit";
+
 import { RoundedCheckbox } from "@/components/RoundedCheckbox";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";

@@ -1,13 +1,6 @@
+import { Building, Calendar, FirstAidKit, Flag, Mail, Map, PhoneFill, RedPacket, User } from "@digenty/icons";
 import { Student } from "@/api/types";
-import Building from "@/components/Icons/Building";
-import Calendar from "@/components/Icons/Calendar";
-import FirstAidKit from "@/components/Icons/FirstAidKit";
-import Flag from "@/components/Icons/Flag";
-import Mail from "@/components/Icons/Mail";
-import Map from "@/components/Icons/Map";
-import PhoneFill from "@/components/Icons/PhoneFill";
-import RedPacket from "@/components/Icons/RedPacket";
-import User from "@/components/Icons/User";
+
 import { getYearDifference } from "@/lib/utils";
 import { Phone } from "lucide-react";
 

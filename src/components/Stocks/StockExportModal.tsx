@@ -1,5 +1,6 @@
 "use client";
 
+import { ShareBox } from "@digenty/icons";
 import React, { useState } from "react";
 import { Modal } from "../Modal";
 import { Button } from "../ui/button";
@@ -8,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { DrawerClose, DrawerFooter } from "../ui/drawer";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MobileDrawer } from "../MobileDrawer";
-import ShareBox from "../Icons/ShareBox";
+
 import { Badge } from "../ui/badge";
 
 type InvoiceModalProps = {

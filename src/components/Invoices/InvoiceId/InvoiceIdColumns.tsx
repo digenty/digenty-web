@@ -1,13 +1,9 @@
+import { Bank, BankCard, Cash, DeleteBin, Edit, Folder3 } from "@digenty/icons";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 import { Avatar } from "@/components/Avatar";
-import { Bank } from "@/components/Icons/Bank";
-import BankCard from "@/components/Icons/BankCard";
-import { Cash } from "@/components/Icons/Cash";
-import DeleteBin from "@/components/Icons/DeleteBin";
-import Edit from "@/components/Icons/Edit";
-import { Folder3 } from "@/components/Icons/Folder3";
+
 import { getBadge } from "@/components/StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { invoiceBreakdownType, paymentHistoryType } from "./invoiceIdTypes";

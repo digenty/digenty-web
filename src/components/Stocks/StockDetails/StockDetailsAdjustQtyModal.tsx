@@ -1,9 +1,6 @@
 "use client";
 
-import { ArrowDownS } from "@/components/Icons/ArrowDownS";
-import { ArrowUpS } from "@/components/Icons/ArrowUpS";
-import Information from "@/components/Icons/Information";
-import { Subtract } from "@/components/Icons/Subtract";
+import { ArrowDownS, ArrowUpS, Information, Subtract } from "@digenty/icons";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { Badge } from "@/components/ui/badge";

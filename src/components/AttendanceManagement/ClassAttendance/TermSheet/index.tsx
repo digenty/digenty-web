@@ -61,7 +61,8 @@ export const TermSheet = () => {
       )}
       {isPending && !isError && <Skeleton className="bg-bg-input-soft mx-4 mt-8 hidden h-100 w-full md:mx-8 md:block" />}
 
-      <div className="space-y-6">
+      {/* <div className="space-y-6"> */}
+      <div className="pr-30">
         {!isError && data && (
           <TermSheetHeader
             classname={classGroup.replaceAll("-", " ")}
@@ -74,53 +75,55 @@ export const TermSheet = () => {
             setTermSelected={setTermSelected}
           />
         )}
+      </div>
 
-        {!isPending && !isError && data.data.length === 0 && (
-          <div className="flex h-80 items-center justify-center">
-            <ErrorComponent
-              title="No Attendance record"
-              description="No term sheet to display. Mark attendance to generate a term sheet"
-              buttonText="Mark Attendance"
-              onClick={() => router.back()}
+      {!isPending && !isError && data.data.length === 0 && (
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent
+            title="No Attendance record"
+            description="No term sheet to display. Mark attendance to generate a term sheet"
+            buttonText="Mark Attendance"
+            onClick={() => router.back()}
+          />
+        </div>
+      )}
+
+      {!isPending && !isError && data.data.length > 0 && (
+        <div className="mt-6 overflow-x-clip">
+          <div className="hidden px-4 md:block md:px-8">
+            <DataTable
+              columns={generateColumns({ weeks: data.data[0].weeks, totalStudents: data.data.length })}
+              data={data.data}
+              totalCount={data.data.length}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={pageSize}
+              showPagination={false}
+              fullBorder
+              classNames={{
+                table: "table-fixed w-max",
+                tableWrapper: "w-screen pr-30",
+              }}
             />
           </div>
-        )}
 
-        {!isPending && !isError && data.data.length > 0 && (
-          <>
-            <div className="hidden px-4 md:block md:px-8">
-              <DataTable
-                columns={generateColumns({ weeks: data.data[0].weeks, totalStudents: data.data.length })}
-                data={data.data}
-                totalCount={data.data.length}
-                page={page}
-                setCurrentPage={setPage}
-                pageSize={pageSize}
-                showPagination={false}
-                fullBorder
-                classNames={{
-                  tableWrapper: "overflow-auto",
-                }}
-              />
-            </div>
-
-            <div className="block space-y-3 px-4 md:hidden">
-              {data.data.map((student: StudentAttendance) => {
-                const days = student.weeks.find(wk => wk.week === activeWeek)?.days;
-                return (
-                  <TermSheetCard
-                    key={student.studentId}
-                    student={student}
-                    days={days}
-                    activeStudent={activeStudent}
-                    setActiveStudent={setActiveStudent}
-                  />
-                );
-              })}
-            </div>
-          </>
-        )}
-      </div>
+          <div className="block space-y-3 px-4 md:hidden">
+            {data.data.map((student: StudentAttendance) => {
+              const days = student.weeks.find(wk => wk.week === activeWeek)?.days;
+              return (
+                <TermSheetCard
+                  key={student.studentId}
+                  student={student}
+                  days={days}
+                  activeStudent={activeStudent}
+                  setActiveStudent={setActiveStudent}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {/* </div> */}
     </ClassAttendanceWrapper>
   );
 };

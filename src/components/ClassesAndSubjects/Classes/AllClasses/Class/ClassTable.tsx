@@ -1,13 +1,12 @@
 "use client";
 
+import { Eye, Key, Notification } from "@digenty/icons";
 import { useState } from "react";
 
 import { Avatar } from "@/components/Avatar";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import Eye from "@/components/Icons/Eye";
-import { Key } from "@/components/Icons/Key";
-import { Notification } from "@/components/Icons/Notification";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

@@ -1,15 +1,14 @@
 "use client";
+import { DeleteBin, Edit, FileCopy } from "@digenty/icons";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import DeleteBin from "@/components/Icons/DeleteBin";
+
 import { getStatusBadge } from "@/components/Status";
 import { FeeGroupProp } from "./feeGroupType";
-import Edit from "@/components/Icons/Edit";
-import { FileCopy } from "@/components/Icons/FileCopy";
 
 const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
   const [open, setOpen] = useState(false);

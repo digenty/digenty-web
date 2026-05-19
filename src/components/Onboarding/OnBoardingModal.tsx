@@ -1,5 +1,6 @@
 "use client";
 
+import { LogoMark } from "@digenty/icons";
 import { createSession, deleteSession } from "@/app/actions/auth";
 import { useReAutheticateUser } from "@/hooks/queryHooks/useAuth";
 import { useAddBranch } from "@/hooks/queryHooks/useBranch";
@@ -9,7 +10,7 @@ import { schoolSchema } from "@/schema/school";
 import { useFormik } from "formik";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LogoMark } from "../Icons/LogoMark";
+
 import { MobileDrawer } from "../MobileDrawer";
 import { Modal } from "../Modal";
 import { toast } from "../Toast";

@@ -1,7 +1,8 @@
 "use client";
 
+import { Calendar } from "@digenty/icons";
 import { Term } from "@/api/types";
-import Calendar from "@/components/Icons/Calendar";
+
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Toggle } from "@/components/Toggle";
 import { Button } from "@/components/ui/button";
