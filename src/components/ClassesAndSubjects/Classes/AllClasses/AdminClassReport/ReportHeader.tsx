@@ -128,7 +128,7 @@ export const ReportHeader = ({
     }
   }, [setActiveSession, setTermSelected, terms]);
   return (
-    <div className="w-screen pr-12">
+    <div className="w-min-full w-screen pr-12">
       {openApprove && (
         <ApproveModal
           openApproveModal={openApprove}
