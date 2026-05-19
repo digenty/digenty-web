@@ -171,12 +171,11 @@ export const TeacherAssignments = ({
   };
 
   const toggleArmSelection = (arm: Arm, className: string) => {
-    const isSelected = selectedArms.find(a => a.id === arm.id);
-    if (isSelected) {
-      setSelectedArms(selectedArms.filter(a => a.id !== arm.id));
-    } else {
-      setSelectedArms([...selectedArms, { id: arm.id, name: arm.name, className }]);
-    }
+    setSelectedArms(prev => {
+      const isSelected = prev.find(a => a.id === arm.id);
+      if (isSelected) return prev.filter(a => a.id !== arm.id);
+      return [...prev, { id: arm.id, name: arm.name, className }];
+    });
   };
 
   const removeArm = (id: number) => {
@@ -650,15 +649,14 @@ const ClassArmList = ({
         )}
         onClick={onToggleExpand}
       >
-        <div className="flex items-center gap-2" onClick={onToggleExpand}>
+        <div className="flex items-center gap-2">
           <Checkbox
             checked={isClassChecked || (isClassPartial ? "indeterminate" : false)}
             className="border-border-darker data-[state=checked]:bg-bg-state-primary data-[state=checked]:text-text-white-default size-4"
+            onClick={e => e.stopPropagation()}
             onCheckedChange={() => {
               if (isClassChecked) {
-                arms.forEach((arm: Arm) => {
-                  if (selectedArms.find(a => a.id === arm.id)) onToggleArm(arm, schoolClass.name);
-                });
+                arms.forEach((arm: Arm) => onToggleArm(arm, schoolClass.name));
               } else {
                 arms.forEach((arm: Arm) => {
                   if (!selectedArms.find(a => a.id === arm.id)) onToggleArm(arm, schoolClass.name);
@@ -687,6 +685,7 @@ const ClassArmList = ({
                 <Checkbox
                   checked={!!selectedArms.find(a => a.id === arm.id)}
                   className="border-border-darker data-[state=checked]:bg-bg-state-primary data-[state=checked]:text-text-white-default size-4"
+                  onClick={e => e.stopPropagation()}
                   onCheckedChange={() => onToggleArm(arm, schoolClass.name)}
                 />
                 <span className="text-text-default text-xs">{arm.name}</span>
@@ -756,6 +755,7 @@ const SubjectClassArmList = ({
                 <Checkbox
                   checked={!!selectedArms.find(a => a.id === arm.id)}
                   className="border-border-darker data-[state=checked]:bg-bg-state-primary data-[state=checked]:text-text-white-default size-4"
+                  onClick={e => e.stopPropagation()}
                   onCheckedChange={() => onToggleArm(arm)}
                 />
                 <span className="text-text-default text-xs capitalize">{arm.name.toLowerCase()}</span>

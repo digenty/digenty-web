@@ -108,6 +108,7 @@ export const StaffDetails = () => {
     (branch: StaffBranch) => branch.subjectTeachings.length > 0 || branch.classTeacherArms.length > 0,
   );
 
+  console.log("Staff Details Data:", data);
   return (
     <>
       {openDeactivation && (
