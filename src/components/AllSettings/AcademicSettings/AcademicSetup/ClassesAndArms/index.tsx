@@ -16,7 +16,7 @@ import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ClassEditSheet } from "./ClassEditSheet";
 import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
@@ -426,12 +426,10 @@ export const ClassesAndArms = ({
   ]);
 
   const { data: branchLevels } = useGetLevels(activeBranch?.id);
-  const levels = extractUniqueLevelsByType(branchLevels?.data || []);
+  const levels = useMemo(() => extractUniqueLevelsByType(branchLevels?.data || []), [branchLevels?.data]);
 
   useEffect(() => {
-    if (!activeLevel) {
-      setActiveLevel(levels[0]);
-    }
+    setActiveLevel(levels[0] ?? null);
   }, [levels]);
 
   return (
@@ -495,7 +493,7 @@ export const ClassesAndArms = ({
         </div>
       </div>
 
-      <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+      <div className="border-border-default bg-bg-default mx-auto flex w-full items-center justify-between border-t px-4 py-3 lg:px-40">
         <Button
           className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
           onClick={() => {
@@ -515,6 +513,29 @@ export const ClassesAndArms = ({
           Save Changes
         </Button>
       </div>
+
+      {/* <div className="border-border-default bg-bg-default  border-t right-0 -z-1 left-0 fixed bottom-0 flex justify-center  ">
+        <div className="w-3/4 justify-between  items-center flex  px-4 py-3 lg:px-40 mx-auto">
+          <Button
+            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+            onClick={() => {
+              setIsEditing?.(false);
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => {
+              setIsEditing?.(false);
+            }}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+          >
+            Save Changes
+          </Button>
+        </div>
+      </div> */}
 
       {completedSteps && setCompletedSteps && (
         <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">

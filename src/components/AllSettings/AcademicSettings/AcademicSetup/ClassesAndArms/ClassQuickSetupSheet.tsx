@@ -17,6 +17,7 @@ import {
   useAddDepartmentsToLevel,
   useCreateDepartmentSubjects,
   useDeleteDepartmentFromLevel,
+  useDeleteDepartmentSubjects,
   useGetDepartmentSubjectsByLevel,
   useGetDepartmentsByLevel,
 } from "@/hooks/queryHooks/useDepartment";
@@ -48,6 +49,7 @@ const DepartmentSubjectsSection = ({
   const [subjectInput, setSubjectInput] = useState("");
   const { data: deptSubjectsData, isLoading } = useGetDepartmentSubjectsByLevel(dept.departmentId, levelId);
   const { mutate: mutateCreateDeptSubjects, isPending: isSaving } = useCreateDepartmentSubjects();
+  const { mutate: mutateDeleteDeptSubject, isPending: isDeleting } = useDeleteDepartmentSubjects();
 
   useEffect(() => {
     if (deptSubjectsData?.data) {
@@ -94,32 +96,31 @@ const DepartmentSubjectsSection = ({
   };
 
   const removeSubject = (subjectToRemove: string) => {
-    const subjectList = deptSubjectsData?.data || [];
+    const subjectData = (deptSubjectsData?.data as { subjectId: number; subjectName: string }[] | undefined)?.find(
+      s => s.subjectName === subjectToRemove,
+    );
+    if (!subjectData) return;
 
-    // mutateCreateDeptSubjects(
-    //   {
-    //     departmentName: dept.name,
-    //     subjectNames: updatedSubjectNames,
-    //     branchId: branchId || 0,
-    //     branchSpecific,
-    //   },
-    //   {
-    //     onSuccess: () => {
-    //       toast({
-    //         title: "Subject removed",
-    //         description: `"${subjectToRemove}" has been removed from ${dept.name}`,
-    //         type: "success",
-    //       });
-    //     },
-    //     onError: error => {
-    //       toast({
-    //         title: "Failed to remove subject",
-    //         description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`,
-    //         type: "error",
-    //       });
-    //     },
-    //   },
-    // );
+    mutateDeleteDeptSubject(
+      { departmentId: dept.departmentId, subjectId: subjectData.subjectId },
+      {
+        onSuccess: () => {
+          setSubjects(prev => prev.filter(s => s !== subjectToRemove));
+          toast({
+            title: "Subject removed",
+            description: `"${subjectToRemove}" has been removed from ${dept.name}`,
+            type: "success",
+          });
+        },
+        onError: error => {
+          toast({
+            title: "Failed to remove subject",
+            description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`,
+            type: "error",
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -142,7 +143,7 @@ const DepartmentSubjectsSection = ({
         <Button
           className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
           onClick={() => addSubject(subjectInput)}
-          disabled={isSaving || isLoading}
+          disabled={isSaving || isLoading || isDeleting}
         >
           {(isSaving || isLoading) && <Spinner className="text-text-white-default size-3" />}
           Add
@@ -157,13 +158,14 @@ const DepartmentSubjectsSection = ({
             <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
             <button
               type="button"
+              disabled={isDeleting}
               className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
               onClick={e => {
                 e.preventDefault();
                 removeSubject(subject);
               }}
             >
-              {/* <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" /> */}
+              <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
             </button>
           </Badge>
         ))}
@@ -908,7 +910,7 @@ export const ClassQuickSetupSheet = ({
         </div>
 
         {/* {departmentsEnabled && <AssignArmsToDepartments arms={arms} departments={departments} />} */}
-        {armsDetails.length > 0 && departmentsDetails.length > 0 && (
+        {departmentsEnabled && armsDetails.length > 0 && departmentsDetails.length > 0 && (
           <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} levelId={level.id} branchId={branchId} />
         )}
       </div>
