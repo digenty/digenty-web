@@ -22,11 +22,13 @@ type DateRangePickerProps = {
 };
 
 export function DateRangePicker({ label, className, disabled, date, setDate }: DateRangePickerProps) {
+  const [open, setOpen] = React.useState(false);
+
   return (
     <div className="flex w-full flex-col gap-1">
       {label && <label className="text-text-default text-sm font-normal">{label}</label>}
 
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant={"outline"}
@@ -48,6 +50,7 @@ export function DateRangePicker({ label, className, disabled, date, setDate }: D
             selected={date}
             onSelect={date => {
               setDate(date);
+              setOpen(false);
               // formik.setFieldValue("dateOfBirth", date);
             }}
             captionLayout="dropdown"

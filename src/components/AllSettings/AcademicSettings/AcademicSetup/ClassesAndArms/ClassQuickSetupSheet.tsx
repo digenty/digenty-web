@@ -20,6 +20,7 @@ import {
   useDeleteDepartmentSubjects,
   useGetDepartmentSubjectsByLevel,
   useGetDepartmentsByLevel,
+  useToggleDepartmentForLevel,
 } from "@/hooks/queryHooks/useDepartment";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubject, useDeleteSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
@@ -214,6 +215,7 @@ export const ClassQuickSetupSheet = ({
 
   const { mutate: deleteDepartment } = useDeleteDepartmentFromLevel();
   const { mutate: mutateDepartment, isPending: isAddingDepartment } = useAddDepartmentsToLevel();
+  const { mutate: toggleDepartment } = useToggleDepartmentForLevel();
 
   const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.levelType, branchId);
   const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.levelType, branchId);
@@ -633,7 +635,27 @@ export const ClassQuickSetupSheet = ({
                   can offer different sets of subjects or focus areas.
                 </div>
               </div>
-              <Toggle withBorder={false} checked={departmentsEnabled} onChange={e => setDepartmentsEnabled((e.target as HTMLInputElement).checked)} />
+              <Toggle
+                withBorder={false}
+                checked={departmentsEnabled}
+                onChange={e => {
+                  const enable = (e.target as HTMLInputElement).checked;
+                  setDepartmentsEnabled(enable);
+                  toggleDepartment(
+                    { levelId: level.id, enable },
+                    {
+                      onError: error => {
+                        setDepartmentsEnabled(!enable);
+                        toast({
+                          title: "Failed to update departments",
+                          description: (error as { message?: string })?.message || "Could not update department setting",
+                          type: "error",
+                        });
+                      },
+                    },
+                  );
+                }}
+              />
             </div>
             {departmentsEnabled && (
               <>

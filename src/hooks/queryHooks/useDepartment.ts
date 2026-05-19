@@ -10,6 +10,7 @@ import {
   getDepartmentsByLevel,
   getDepartmentsForASchool,
   getAssignedDepartments,
+  toggleDepartmentForLevel,
 } from "@/api/department";
 import { classKeys } from "@/queries/class";
 import { departmentKeys } from "@/queries/department";
@@ -117,6 +118,19 @@ export const useAssignArmToDepartment = () => {
       // queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
       queryClient.invalidateQueries({ queryKey: ["armsByClass"] });
       queryClient.invalidateQueries({ queryKey: ["assignedDepartments"] });
+    },
+  });
+};
+
+export const useToggleDepartmentForLevel = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: departmentKeys.toggleDepartment,
+    mutationFn: ({ levelId, enable }: { levelId: number; enable: boolean }) => toggleDepartmentForLevel(levelId, enable),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: departmentKeys.departments });
+      queryClient.invalidateQueries({ queryKey: ["departmentsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
   });
 };
