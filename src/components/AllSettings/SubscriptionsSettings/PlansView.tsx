@@ -100,6 +100,7 @@ export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
     if (!plans) return [];
     const planType = BILLING_CYCLE_TO_PLAN_TYPE[billingCycle];
     const matched = plans?.data?.filter((plan: PlanResponseDto) => plan.planType === planType && tierMatchesPlan(studentTier, plan));
+    console.log(plans);
 
     const byName = new Map<string, PlanResponseDto>();
     for (const plan of matched) {
@@ -129,64 +130,7 @@ export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
           <p className="text-text-default text-sm font-medium">Select Student Count</p>
           <StudentTierTabs value={studentTier} onChange={setStudentTier} />
         </div>
-
-        <BillingCycleTabs value={billingCycle} onChange={setBillingCycle} />
-
-        <div className="mt-4 grid w-full max-w-4xl grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-          {isLoading ? (
-            <>
-              <PlanCardSkeleton />
-              <PlanCardSkeleton />
-            </>
-          ) : filteredPlans.length === 0 ? (
-            <p className="text-text-muted col-span-full text-center text-sm">No plans available for this selection.</p>
-          ) : (
-            filteredPlans.map(plan => {
-              const isCurrent = currentSubscription?.data?.planName === plan.name;
-              return (
-                <div key={plan.id} className="bg-bg-default border-border-default flex flex-col gap-4 rounded-xl border p-4 sm:p-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-text-default text-sm font-medium">{plan.name}</h3>
-                    {isCurrent && (
-                      <Badge className="bg-bg-badge-blue text-bg-basic-blue-strong border-border-default h-5 rounded-md px-1.5 text-xs font-medium">
-                        Current Plan
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-text-default text-lg font-medium">₦{plan.pricePerStudent.toLocaleString()}</span>
-                    <span className="text-text-muted text-xs">per student</span>
-                  </div>
-                  <Button
-                    onClick={() => goToSubscribe(plan.name)}
-                    className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 w-full rounded-md text-sm font-medium"
-                  >
-                    Subscribe
-                  </Button>
-                  <ul className="mt-2 flex flex-col gap-3">
-                    {plan.features?.map(feature => (
-                      <li key={feature} className="text-text-subtle flex items-center gap-2 text-xs">
-                        <CheckDouble fill="var(--color-icon-default)" className="h-3.5 w-3.5" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <button type="button" className="text-text-default text-left text-xs font-medium underline-offset-2 hover:underline">
-                    See all available features
-                  </button>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </div>
-
-      <div className="flex flex-col items-center gap-6">
-        <div className="flex w-full flex-col items-center gap-3">
-          <p className="text-text-default text-sm font-medium">Select Student Count</p>
-          <StudentTierTabs value={studentTier} onChange={setStudentTier} />
-        </div>
-        <div className="self-start">
+        <div className="self-center">
           <BillingCycleTabs value={billingCycle} onChange={setBillingCycle} />
         </div>
         <ComparisonTable standardPrice={standardPrice} advancedPrice={advancedPrice} onSubscribe={() => goToSubscribe("Standard")} />
