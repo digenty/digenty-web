@@ -27,6 +27,16 @@ export const getArmsByClass = async (classId: number | null) => {
   }
 };
 
+export const getAllArms = async (branchId?: number) => {
+  try {
+    const { data } = await api.get(`/arms${branchId ? `?branchId=${branchId}` : ""}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
 export const getArmsByLevel = async (levelType?: LevelType, branchId?: number) => {
   try {
     const { data } = await api.get(`/arms/level?levelType=${levelType}${branchId ? `&branchId=${branchId}` : ""}`);

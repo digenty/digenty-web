@@ -38,6 +38,26 @@ export const getDepartmentsByLevel = async (levelType?: string, branchId?: numbe
   }
 };
 
+export const addDepartmentToClass = async (payload: { names: string[]; className: string; levelType: string; branchId?: number; branchSpecific: boolean }) => {
+  try {
+    const { data } = await api.post("/departments/class", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const deleteDepartmentFromClass = async (departmentId: number, classId: number) => {
+  try {
+    const { data } = await api.delete(`/departments/class?departmentId=${departmentId}&classId=${classId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
 export const deleteDepartmentFromLevel = async (departmentId: number, levelId: number) => {
   try {
     const { data } = await api.delete(`/departments/level?departmentId=${departmentId}&levelId=${levelId}`);
