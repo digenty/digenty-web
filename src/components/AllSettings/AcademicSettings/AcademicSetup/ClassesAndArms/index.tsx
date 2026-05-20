@@ -17,6 +17,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
+import { AddClassModal } from "./AddClassModal";
 import { ClassEditSheet } from "./ClassEditSheet";
 import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
@@ -116,18 +117,6 @@ function ClassesResponsiveTabs({
   const Classes = () => {
     return (
       <>
-        {openDelete && <DeleteClass setOpenDeleteModal={setOpenDelete} open={openDelete} classId={classId} />}
-        {sheetOpen && (
-          <ClassEditSheet
-            sheetOpen={sheetOpen}
-            setSheetOpen={setSheetOpen}
-            level={activeLevel}
-            branchId={branchId}
-            classId={classId}
-            branchSpecific={branchSpecific}
-          />
-        )}
-
         {isPending && !classesByLevelData && <Skeleton className="bg-bg-state-soft h-80 w-full" />}
         {!isPending && classesByLevelData && classesByLevelData?.data?.content?.length === 0 && (
           <div className="flex w-full items-center justify-center pt-15">
@@ -333,9 +322,26 @@ function ClassesResponsiveTabs({
     );
   };
 
+  const modals = (
+    <>
+      {openDelete && <DeleteClass setOpenDeleteModal={setOpenDelete} open={openDelete} classId={classId} />}
+      {sheetOpen && (
+        <ClassEditSheet
+          sheetOpen={sheetOpen}
+          setSheetOpen={setSheetOpen}
+          level={activeLevel}
+          branchId={branchId}
+          classId={classId}
+          branchSpecific={branchSpecific}
+        />
+      )}
+    </>
+  );
+
   if (isMobile) {
     return (
       <div className="w-full">
+        {modals}
         <Label className="text-text-default mb-2 text-sm font-medium">
           <BookOpen fill="var(--color-icon-default-muted)" /> Select Level
         </Label>
@@ -366,6 +372,7 @@ function ClassesResponsiveTabs({
 
   return (
     <div className="w-full overflow-hidden">
+      {modals}
       <div className="h-9 w-full">
         <div
           className="bg-bg-state-soft hide-scrollbar flex max-w-150 items-center gap-2.5 overflow-x-auto rounded-full p-0.5 lg:max-w-160 xl:max-w-216"
@@ -419,6 +426,7 @@ export const ClassesAndArms = ({
   const [branchSpecific, setBranchSpecific] = useState(false);
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [addClassOpen, setAddClassOpen] = useState(false);
 
   useBreadcrumb([
     { label: "Academic Settings", url: "/staff/settings/academic" },
@@ -428,8 +436,21 @@ export const ClassesAndArms = ({
   const { data: branchLevels } = useGetLevels(activeBranch?.id);
   const levels = useMemo(() => extractUniqueLevelsByType(branchLevels?.data || []), [branchLevels?.data]);
 
+  const { data: classesByLevelData, isPending: isLoadingClasses } = useGetClassesByLevel(activeLevel?.id);
+  const hasClasses = !isLoadingClasses && (classesByLevelData?.data?.content?.length ?? 0) > 0;
+
   useEffect(() => {
-    setActiveLevel(levels[0] ?? null);
+    if (levels.length === 0) {
+      setActiveLevel(null);
+      return;
+    }
+    setActiveLevel(prev => {
+      if (prev) {
+        const updated = levels.find(l => l.id === prev.id);
+        if (updated) return updated;
+      }
+      return levels[0];
+    });
   }, [levels]);
 
   return (
@@ -478,15 +499,24 @@ export const ClassesAndArms = ({
                     setSheetOpen={setSheetOpen}
                   />
                 )}
-                <Button
-                  onClick={() => {
-                    // setDepartmentsEnabled(false);
-                    setSheetOpen(true);
-                  }}
-                  className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
-                >
-                  <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
-                </Button>
+                {addClassOpen && (
+                  <AddClassModal open={addClassOpen} setOpen={setAddClassOpen} level={activeLevel} />
+                )}
+                {hasClasses ? (
+                  <Button
+                    onClick={() => setAddClassOpen(true)}
+                    className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
+                  >
+                    + Add Class
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => setSheetOpen(true)}
+                    className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
+                  >
+                    <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
+                  </Button>
+                )}
               </>
             )}
           </div>

@@ -121,9 +121,8 @@ export const useDeleteSubject = () => {
     mutationKey: subjectKeys.deleteSubject,
     mutationFn: ({ subjectId, levelId }: { subjectId: number; levelId: number }) => deleteSubjectByLevel(subjectId, levelId),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [classKeys.classesByLevel],
-      });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+      queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
     },
   });
 };
@@ -134,6 +133,7 @@ export const useDeleteSubjectFromClass = () => {
     mutationFn: ({ subjectId, classId }: { subjectId: number; classId: number }) => deleteSubjectFromClass(subjectId, classId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
   });
 };
