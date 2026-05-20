@@ -104,6 +104,9 @@ export const useDeleteClass = () => {
     mutationFn: (classroomId: number) => deleteClass(classroomId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+      queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: ["armsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: ["departmentsByLevel"] });
     },
   });
 };
