@@ -1,4 +1,4 @@
-import { addArm, addArmToClass, deleteArmByLevel, deleteArmFromClass, getArmsByClass, getArmsByLevel } from "@/api/arm";
+import { addArm, addArmToClass, deleteArmByLevel, deleteArmFromClass, getAllArms, getArmsByClass, getArmsByLevel } from "@/api/arm";
 import { LevelType } from "@/api/types";
 import { armKeys } from "@/queries/arm";
 import { classKeys } from "@/queries/class";
@@ -9,6 +9,14 @@ export const useGetArmsByClass = (classId: number | null) => {
     queryKey: armKeys.armsByClass(classId),
     queryFn: () => getArmsByClass(classId),
     enabled: !!classId,
+  });
+};
+
+export const useGetAllArms = (branchId?: number) => {
+  return useQuery({
+    queryKey: ["allArms", branchId],
+    queryFn: () => getAllArms(branchId),
+    retry: false,
   });
 };
 
