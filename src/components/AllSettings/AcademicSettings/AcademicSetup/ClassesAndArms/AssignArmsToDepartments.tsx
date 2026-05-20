@@ -121,7 +121,7 @@ const ArmDepartmentSelect = ({
     <div className="flex flex-col gap-2">
       <div className="text-text-default text-sm font-medium capitalize">{arm.name}</div>
       <Select value={selectedDept?.toString()} onValueChange={handleAssign} disabled={isPending || isLoadingInitial}>
-        <SelectTrigger className="h-11 w-full border-none">
+        <SelectTrigger className="bg-bg-input-soft! hover:bg-bg-input-soft! text-text-default h-11 w-full rounded-md border-none">
           <SelectValue placeholder="Assign to a department" className="capitalize">
             <span className="text-text-default capitalize">
               {selectedDept ? departments.find(dept => dept.departmentId === selectedDept)?.name.toLowerCase() : "Assign to a department"}

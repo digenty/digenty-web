@@ -439,6 +439,15 @@ export const ClassesAndArms = ({
   const { data: classesByLevelData, isPending: isLoadingClasses } = useGetClassesByLevel(activeLevel?.id);
   const hasClasses = !isLoadingClasses && (classesByLevelData?.data?.content?.length ?? 0) > 0;
 
+  const nextClassNumber = useMemo(() => {
+    const classes: ClassInLevelDetails[] = classesByLevelData?.data?.content ?? [];
+    const max = classes.reduce((m, cls) => {
+      const num = parseInt(cls.className?.split(" ").pop() ?? "0", 10);
+      return isNaN(num) ? m : Math.max(m, num);
+    }, activeLevel?.classEnd ?? 0);
+    return max + 1;
+  }, [classesByLevelData, activeLevel?.classEnd]);
+
   useEffect(() => {
     if (levels.length === 0) {
       setActiveLevel(null);
@@ -500,7 +509,7 @@ export const ClassesAndArms = ({
                   />
                 )}
                 {addClassOpen && (
-                  <AddClassModal open={addClassOpen} setOpen={setAddClassOpen} level={activeLevel} />
+                  <AddClassModal open={addClassOpen} setOpen={setAddClassOpen} level={activeLevel} nextClassNumber={nextClassNumber} />
                 )}
                 {hasClasses ? (
                   <Button

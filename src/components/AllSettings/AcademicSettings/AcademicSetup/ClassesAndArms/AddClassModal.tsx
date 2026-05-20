@@ -7,11 +7,21 @@ import { Spinner } from "@/components/ui/spinner";
 import { useCreateClass } from "@/hooks/queryHooks/useClass";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
-export const AddClassModal = ({ open, setOpen, level }: { open: boolean; setOpen: (open: boolean) => void; level: ClassLevel }) => {
+export const AddClassModal = ({
+  open,
+  setOpen,
+  level,
+  nextClassNumber,
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  level: ClassLevel;
+  nextClassNumber: number;
+}) => {
   const isMobile = useIsMobile();
   const { mutate: createClass, isPending } = useCreateClass();
 
-  const nextClassName = `${level.classNamePrefix} ${(level.classEnd ?? 0) + 1}`;
+  const nextClassName = `${level.classNamePrefix} ${nextClassNumber}`;
 
   const handleCreate = () => {
     createClass(
