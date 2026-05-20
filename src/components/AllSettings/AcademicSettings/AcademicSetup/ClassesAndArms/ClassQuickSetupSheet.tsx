@@ -1,5 +1,5 @@
 import { CloseFill } from "@digenty/icons";
-import { ArmDetails, ClassLevel, Department, DepartmentResponse, DepartmentWithSubjects } from "@/api/types";
+import { ArmDetails, ClassLevel, DepartmentResponse, DepartmentWithSubjects } from "@/api/types";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
@@ -235,7 +235,9 @@ export const ClassQuickSetupSheet = ({
       const armsWithDetails = Array.isArray(armsData?.data[0]?.arms) ? armsData?.data[0]?.arms : (armsData?.data ?? []);
       setArms(armsWithDetails.map((arm: ArmDetails) => arm.name));
       setArmsDetails(armsWithDetails);
-      setArmsEnabled(true);
+      if (armsWithDetails.length > 0) {
+        setArmsEnabled(true);
+      }
     }
   }, [armsData]);
 
@@ -411,37 +413,30 @@ export const ClassQuickSetupSheet = ({
   };
 
   const removeArm = (armToRemove: string) => {
-    const armsList = armsData?.data[0]?.arms || [];
-
-    const armObj = armsList.find((a: { id: number; name: string }) => a.name === armToRemove);
-
-    if (armObj && level?.id) {
-      setDeletingArmName(armToRemove);
-      deleteArm(
-        { armId: armObj.id, levelId: level.id },
-        {
-          onSuccess: () => {
-            setArms(arms.filter(arm => arm !== armToRemove));
-            setDeletingArmName(null);
-            toast({
-              title: "Arm deleted",
-              description: `"${armToRemove}" has been deleted successfully`,
-              type: "success",
-            });
-          },
-          onError: error => {
-            setDeletingArmName(null);
-            toast({
-              title: "Failed to delete arm",
-              description: (error as { message?: string })?.message || `Could not delete "${armToRemove}"`,
-              type: "error",
-            });
-          },
+    if (!level?.id) return;
+    setDeletingArmName(armToRemove);
+    deleteArm(
+      { armName: armToRemove, levelId: level.id },
+      {
+        onSuccess: () => {
+          setArms(arms.filter(arm => arm !== armToRemove));
+          setDeletingArmName(null);
+          toast({
+            title: "Arm deleted",
+            description: `"${armToRemove}" has been deleted successfully`,
+            type: "success",
+          });
         },
-      );
-    } else {
-      setArms(arms.filter(arm => arm !== armToRemove));
-    }
+        onError: error => {
+          setDeletingArmName(null);
+          toast({
+            title: "Failed to delete arm",
+            description: (error as { message?: string })?.message || `Could not delete "${armToRemove}"`,
+            type: "error",
+          });
+        },
+      },
+    );
   };
 
   const addDepartment = (departmentString: string) => {
@@ -570,15 +565,16 @@ export const ClassQuickSetupSheet = ({
       <div className="border-border-default flex flex-col gap-6 border-b pb-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex w-full flex-col gap-2">
-            <Select value={`${values.startClass}`} onValueChange={startClass => formik.setFieldValue("startClass", startClass)}>
-              <div className="flex flex-col gap-2">
-                <Label className="text-text-default text-sm font-medium">Start level</Label>
-                <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
-                  <SelectValue>
-                    <span className="text-text-muted text-sm font-normal">{values.startClass ? values.startClass : "Select start level"}</span>
-                  </SelectValue>
-                </SelectTrigger>
-              </div>
+            <Label className="text-text-default text-sm font-medium">Start level</Label>
+            <Select
+              value={values.startClass != null ? `${values.startClass}` : undefined}
+              onValueChange={startClass => formik.setFieldValue("startClass", startClass)}
+            >
+              <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
+                <SelectValue>
+                  <span className="text-text-muted text-sm font-normal">{values.startClass ? values.startClass : "Select start level"}</span>
+                </SelectValue>
+              </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 {startclasses.map(str => (
                   <SelectItem key={str} value={str} className="text-text-default text-sm font-medium">
@@ -590,15 +586,16 @@ export const ClassQuickSetupSheet = ({
             <span className="text-text-muted text-xs">The first class number in this level</span>
           </div>
           <div className="flex w-full flex-col gap-2">
-            <Select value={`${values.endClass}`} onValueChange={endClass => formik.setFieldValue("endClass", endClass)}>
-              <div className="flex flex-col gap-2">
-                <Label className="text-text-default text-sm font-medium">End level</Label>
-                <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
-                  <SelectValue>
-                    <span className="text-text-muted text-sm font-normal">{values.endClass ? values.endClass : "Select end level"}</span>
-                  </SelectValue>
-                </SelectTrigger>
-              </div>
+            <Label className="text-text-default text-sm font-medium">End level</Label>
+            <Select
+              value={values.endClass != null ? `${values.endClass}` : undefined}
+              onValueChange={endClass => formik.setFieldValue("endClass", endClass)}
+            >
+              <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
+                <SelectValue>
+                  <span className="text-text-muted text-sm font-normal">{values.endClass ? values.endClass : "Select end level"}</span>
+                </SelectValue>
+              </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 {endClasses.map(str => (
                   <SelectItem key={str} value={str} className="text-text-default text-sm font-medium">
@@ -612,7 +609,7 @@ export const ClassQuickSetupSheet = ({
         </div>
 
         <Button
-          disabled={!!(level?.classNamePrefix && level?.classNamePrefix === values.classNamePrefix)}
+          disabled={!formik.dirty || isPending}
           type="button"
           onClick={() => formik.handleSubmit()}
           className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 self-end rounded-sm px-2 py-1"
@@ -644,7 +641,7 @@ export const ClassQuickSetupSheet = ({
                   toggleDepartment(
                     { levelId: level.id, enable },
                     {
-                      onError: error => {
+                      onError: (error: unknown) => {
                         setDepartmentsEnabled(!enable);
                         toast({
                           title: "Failed to update departments",
@@ -735,10 +732,10 @@ export const ClassQuickSetupSheet = ({
                   </small>
                 </div>
 
-                {departments.length > 0 && (
+                {departmentsDetails.length > 0 && (
                   <>
                     <div className="text-text-default text-xl font-semibold">Department Subjects</div>
-                    {departmentsData?.data?.[0]?.departments.map((dept: Department, index: number) => (
+                    {departmentsDetails.map((dept, index) => (
                       <DepartmentSubjectsSection
                         key={`${dept.departmentId}-${index}`}
                         dept={dept}
