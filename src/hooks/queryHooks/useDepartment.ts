@@ -1,7 +1,9 @@
 import {
+  addDepartmentToClass,
   addDepartmentsToLevel,
   assignArmToDepartment,
   createDepartmentSubjects,
+  deleteDepartmentFromClass,
   deleteDepartmentFromLevel,
   deleteDepartmentSubjects,
   getDepartmentSubjectsByClass,
@@ -51,6 +53,28 @@ export const useDeleteDepartmentFromLevel = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: departmentKeys.departments });
       queryClient.invalidateQueries({ queryKey: ["departmentsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+    },
+  });
+};
+
+export const useAddDepartmentToClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: addDepartmentToClass,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["departmentsByClass"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+    },
+  });
+};
+
+export const useDeleteDepartmentFromClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ departmentId, classId }: { departmentId: number; classId: number }) => deleteDepartmentFromClass(departmentId, classId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["departmentsByClass"] });
       queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
   });
