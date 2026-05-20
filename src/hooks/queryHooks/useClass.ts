@@ -1,5 +1,6 @@
 import {
   assignClassTeacher,
+  createClass,
   deleteClass,
   getClassCumulativeReport,
   getClasses,
@@ -170,6 +171,17 @@ export const useUpdateClass = () => {
       queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
       queryClient.invalidateQueries({ queryKey: [classKeys.classes] });
       queryClient.invalidateQueries({ queryKey: [classKeys.class] });
+    },
+  });
+};
+
+export const useCreateClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: [classKeys.classesByLevel, "create"],
+    mutationFn: (payload: { levelId: number; name: string }) => createClass(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
   });
 };
