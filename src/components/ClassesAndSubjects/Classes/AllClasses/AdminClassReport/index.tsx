@@ -263,7 +263,7 @@ const ClassReport = () => {
                         tableBodyCell: "text-center pr-2 w-34",
                         tableRow: "h-14",
                         table: "table-fixed w-max",
-                        tableWrapper: "w-screen pr-30",
+                        tableWrapper: "overflow-x-auto w-screen pr-30",
                       }}
                     />
                   )}

@@ -449,8 +449,17 @@ export const Sidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          // onClick={() => router.push(`/staff/${menu.url}`)}
-                          onClick={menu.url === "cbt" ? handleCBTClick : () => router.push(`/staff/${menu.url}`)}
+                          onClick={
+                            menu.url === "cbt"
+                              ? e => {
+                                  handleCBTClick(e);
+                                  setIsSidebarOpen(false);
+                                }
+                              : () => {
+                                  router.push(`/staff/${menu.url}`);
+                                  setIsSidebarOpen(false);
+                                }
+                          }
                         >
                           <menu.icon fill="var(--color-icon-default-subtle)" />
                           <p className="text-sm leading-5 font-medium">{menu.title}</p>
@@ -476,7 +485,10 @@ export const Sidebar = () => {
                     !isSidebarOpen && "justify-center px-0",
                     activeNav === "profile" && "bg-bg-state-soft rounded-md",
                   )}
-                  onClick={() => router.push("/staff/profile")}
+                  onClick={() => {
+                    router.push("/staff/profile");
+                    setIsSidebarOpen(false);
+                  }}
                 >
                   <User fill="var(--color-icon-default-subtle)" />
                   <p className="text-sm leading-5 font-medium">Profile</p>
@@ -489,7 +501,10 @@ export const Sidebar = () => {
                       !isSidebarOpen && "justify-center px-0",
                       activeNav === "settings" && "bg-bg-state-soft rounded-md",
                     )}
-                    onClick={() => router.push("/staff/settings")}
+                    onClick={() => {
+                      router.push("/staff/settings");
+                      setIsSidebarOpen(false);
+                    }}
                   >
                     <Settings4 fill="var(--color-icon-default-subtle)" />
                     <p className="text-sm leading-5 font-medium">Settings</p>

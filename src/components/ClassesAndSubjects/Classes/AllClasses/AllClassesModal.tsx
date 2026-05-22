@@ -11,12 +11,16 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useApproveEditRequest, useGetEditRequestBySubjectAndArm } from "@/hooks/queryHooks/useRequests";
+import { useNotifyBranchHead } from "@/hooks/queryHooks/useNotification";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { formatRelativeDate } from "@/lib/utils";
+import { notifyBranchHeadSchema } from "@/schema/notification";
+import { useFormik } from "formik";
 
 type NotifyModalProps = {
   openNotifyModal: boolean;
   setOpenNotifyModal: (openModal: boolean) => void;
+  classTeacherId?: number | null;
 };
 type ApproveModalProps = {
   openApproveModal: boolean;
@@ -33,69 +37,100 @@ type EditRequestProps = {
   armId: number;
 };
 
-export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal }: NotifyModalProps) => {
+export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal, classTeacherId }: NotifyModalProps) => {
+  const isMobile = useIsMobile();
+  const { mutate, isPending } = useNotifyBranchHead();
+
+  const formik = useFormik<{ message: string }>({
+    initialValues: { message: "" },
+    validationSchema: notifyBranchHeadSchema,
+    onSubmit: (values, { resetForm }) => {
+      if (!classTeacherId) return;
+      mutate(
+        { receiverId: classTeacherId, message: values.message },
+        {
+          onSuccess: () => {
+            toast({ title: "Notification sent", description: "Class teacher has been notified.", type: "success" });
+            resetForm();
+            setOpenNotifyModal(false);
+          },
+          onError: error => {
+            toast({ title: error.message ?? "Something went wrong", description: "Could not send notification.", type: "error" });
+          },
+        },
+      );
+    },
+  });
+
+  const handleClose = (value: boolean) => {
+    if (!value) formik.resetForm();
+    setOpenNotifyModal(value);
+  };
+
+  const messageField = (
+    <div className="mt-3 flex flex-col gap-2">
+      <Label className="text-text-default text-sm font-medium">Message</Label>
+      <Textarea
+        id="message"
+        name="message"
+        value={formik.values.message}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        className="bg-bg-input-soft! text-text-muted flex h-30.25 w-full items-start rounded-md border-none p-2 text-sm font-normal"
+        placeholder="Add message"
+      />
+      {formik.touched.message && formik.errors.message && (
+        <p className="text-text-destructive text-xs font-light">{formik.errors.message}</p>
+      )}
+    </div>
+  );
+
   return (
     <>
-      {/* Mobile view */}
-      <div className="md:hidden">
-        <MobileDrawer open={openNotifyModal} title="Send Notification" setIsOpen={setOpenNotifyModal}>
+      {isMobile ? (
+        <MobileDrawer open={openNotifyModal} title="Send Notification" setIsOpen={handleClose}>
           <div className="flex flex-col gap-5 px-6 py-4">
             <DialogDescription className="text-text-subtle text-sm font-normal">Add a short message</DialogDescription>
-
-            <div className="mt-3 flex flex-col gap-2">
-              <Label className="text-text-default text-sm font-medium">Message</Label>
-
-              <Textarea
-                className="bg-bg-input-soft! text-text-muted flex h-30.25 w-full items-start rounded-md border-none p-2 text-sm font-normal"
-                placeholder="Add message"
-              />
-            </div>
+            {messageField}
           </div>
           <DrawerFooter className="border-border-default border-t">
             <div className="flex justify-between">
-              {" "}
               <DrawerClose asChild>
                 <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
               </DrawerClose>
               <Button
-                onClick={() => setOpenNotifyModal(false)}
+                onClick={() => formik.handleSubmit()}
+                disabled={isPending || !formik.isValid || !formik.dirty}
                 className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
               >
+                {isPending && <Spinner className="text-text-white-default" />}
                 Notify
               </Button>
             </div>
           </DrawerFooter>
         </MobileDrawer>
-      </div>
-      {/* Tab view */}
-      <div className="hidden md:block">
+      ) : (
         <Modal
           open={openNotifyModal}
-          setOpen={setOpenNotifyModal}
+          setOpen={handleClose}
           title="Send Notification"
           ActionButton={
             <Button
-              onClick={() => setOpenNotifyModal(false)}
+              onClick={() => formik.handleSubmit()}
+              disabled={isPending || !formik.isValid || !formik.dirty}
               className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
             >
+              {isPending && <Spinner className="text-text-white-default" />}
               Notify
             </Button>
           }
         >
           <div className="flex flex-col gap-5 px-6 py-4">
             <DialogDescription className="text-text-subtle text-sm font-normal">Add a short message</DialogDescription>
-
-            <div className="mt-3 flex flex-col gap-2">
-              <Label className="text-text-default text-sm font-medium">Message</Label>
-
-              <Textarea
-                className="bg-bg-input-soft! text-text-muted flex h-30.25 w-full items-start rounded-md border-none p-2 text-sm font-normal"
-                placeholder="Add message"
-              />
-            </div>
+            {messageField}
           </div>
         </Modal>
-      </div>
+      )}
     </>
   );
 };
