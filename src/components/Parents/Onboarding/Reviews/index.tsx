@@ -31,7 +31,7 @@ export const Review = () => {
       setShowSuccess(true);
       setOpen(true);
       setTimeout(() => {
-        router.push(`/parent-dashboard`);
+        router.push(`/parents`);
       }, 1000);
     }, 2000);
   };
