@@ -279,6 +279,7 @@ export interface BranchArmReport {
   armId: number;
   classArmName: string;
   classTeacherName: string;
+  classTeacherId: number | null;
   numberOfSubjects: number;
   numberOfSubmittedSubjects: number;
   status: string;

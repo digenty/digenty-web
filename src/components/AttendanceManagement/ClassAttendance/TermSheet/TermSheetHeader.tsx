@@ -50,12 +50,12 @@ export const TermSheetHeader = ({
   }, [terms, termSelected, setTermSelected, setActiveSession]);
 
   return (
-    <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle md:flex-row md:items-center md:py-3">
-      <div className="border-border-default w-full border-b px-4 pb-2 md:border-none md:px-8 md:pb-0">
+    <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle lg:flex-row lg:items-center lg:py-3">
+      <div className="border-border-default w-full border-b px-4 pb-2 lg:border-none lg:px-8 lg:pb-0">
         <h2 className="text-text-default text-lg font-semibold md:text-xl">{classname.split("-").join(" ").toUpperCase()}</h2>
       </div>
 
-      <div className="hide-scrollbar w-screen overflow-x-auto px-4 py-2 md:w-auto md:overflow-visible md:px-8 md:py-0">
+      <div className="hide-scrollbar w-screen overflow-x-auto px-4 py-2 lg:w-auto lg:overflow-visible lg:px-8 lg:py-0">
         <div className="flex w-max items-center gap-2 md:w-auto">
           <Button disabled className="border-border-darker bg-bg-state-secondary-press flex h-8! shrink-0 items-center gap-2 border">
             <ListCheck fill="var(--color-icon-default-disabled)" className="size-3" />
@@ -96,7 +96,7 @@ export const TermSheetHeader = ({
       </div>
 
       {termWeeks && termWeeks.length > 0 && (
-        <div className="border-border-default hide-scrollbar flex w-full gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
+        <div className="border-border-default hide-scrollbar flex w-full gap-2 overflow-x-auto border-t px-4 pt-2 lg:hidden lg:px-8">
           {termWeeks?.map(week => (
             <span
               key={week.week}

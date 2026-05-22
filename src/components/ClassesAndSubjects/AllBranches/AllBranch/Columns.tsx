@@ -9,38 +9,51 @@ import { AllBranchesTableProps } from "./types";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
 import StatusBadge from "@/components/StatusBadge";
+import { NotifyBranchHead } from "./NotifyBranchHead";
 
 const RenderOptions = ({ row }: { row: Row<AllBranchesTableProps> }) => {
   const [open, setOpen] = useState(false);
+  const [notifyOpen, setNotifyOpen] = useState(false);
   const router = useRouter();
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger onClick={evt => evt.stopPropagation()} className="focus-visible:ring-0 focus-visible:outline-none">
-        <MoreHorizontalIcon className="text-icon-default-muted size-4" />
-      </DropdownMenuTrigger>
+    <>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger onClick={evt => evt.stopPropagation()} className="focus-visible:ring-0 focus-visible:outline-none">
+          <MoreHorizontalIcon className="text-icon-default-muted size-4" />
+        </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
-        <DropdownMenuItem
-          onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${row.original.branchId}/all-classes`)}
-          className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
-        >
-          <EyeIcon className="text-icon-default-subtle size-4" />
-          <span>View branch</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3">
-          <Notification2 fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Notify branch head</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
-          onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${row.original.branchId}/manage-edits`)}
-        >
-          <Key fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Manage edit requests</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
+          <DropdownMenuItem
+            onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${row.original.branchId}/all-classes`)}
+            className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
+          >
+            <EyeIcon className="text-icon-default-subtle size-4" />
+            <span>View branch</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={e => {
+              e.preventDefault();
+              setOpen(false);
+              setNotifyOpen(true);
+            }}
+            className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
+          >
+            <Notification2 fill="var(--color-icon-default-subtle)" className="size-4" />
+            <span>Notify branch head</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
+            onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${row.original.branchId}/manage-edits`)}
+          >
+            <Key fill="var(--color-icon-default-subtle)" className="size-4" />
+            <span>Manage edit requests</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <NotifyBranchHead open={notifyOpen} setOpen={setNotifyOpen} branchHeadId={row.original.branchHeadId} />
+    </>
   );
 };
 
