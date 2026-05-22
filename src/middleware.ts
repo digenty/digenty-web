@@ -13,9 +13,9 @@ export default async function middleware(req: NextRequest) {
     "/auth/staff",
     "/auth/staff?step=login",
     "/auth/staff?step=signup",
-    "/auth/parent/login",
-    "/auth/parent/signup",
-    "/auth/parent/forgot-password",
+    "/auth/parents/login",
+    "/auth/parents/signup",
+    "/auth/parents/forgot-password",
   ];
 
   const isAuthRoute = authRoutes.includes(path);
@@ -36,7 +36,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (path.startsWith("/parent")) {
-      return NextResponse.redirect(new URL("/auth/parent/login", req.url));
+      return NextResponse.redirect(new URL("/auth/parents/login", req.url));
     }
   }
 

@@ -54,7 +54,7 @@ export const SignupPasswordForm = () => {
               description: data.message,
               type: "success",
             });
-            router.push(`/auth/parent/login`);
+            router.push(`/auth/parents/login`);
           },
           onError: error => {
             toast({
@@ -164,7 +164,7 @@ export const SignupPasswordForm = () => {
           </div>
           <div className="flex items-center justify-center gap-2 text-sm">
             <p className="text-text-muted">Already have an account?</p>
-            <Link href={`/auth/parent/login`} className="text-text-informative text-sm font-medium">
+            <Link href={`/auth/parents/login`} className="text-text-informative text-sm font-medium">
               Log In
             </Link>
           </div>
