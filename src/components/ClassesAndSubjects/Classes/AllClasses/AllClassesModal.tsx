@@ -9,6 +9,7 @@ import { DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useApproveEditRequest, useGetEditRequestBySubjectAndArm } from "@/hooks/queryHooks/useRequests";
 import { useNotifyBranchHead } from "@/hooks/queryHooks/useNotification";
@@ -41,13 +42,13 @@ export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal, classT
   const isMobile = useIsMobile();
   const { mutate, isPending } = useNotifyBranchHead();
 
-  const formik = useFormik<{ message: string }>({
-    initialValues: { message: "" },
+  const formik = useFormik<{ title: string; message: string }>({
+    initialValues: { title: "", message: "" },
     validationSchema: notifyBranchHeadSchema,
     onSubmit: (values, { resetForm }) => {
       if (!classTeacherId) return;
       mutate(
-        { receiverId: classTeacherId, message: values.message },
+        { receiverId: classTeacherId, title: values.title, type: "DIRECT_MESSAGE", message: values.message },
         {
           onSuccess: () => {
             toast({ title: "Notification sent", description: "Class teacher has been notified.", type: "success" });
@@ -67,21 +68,41 @@ export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal, classT
     setOpenNotifyModal(value);
   };
 
-  const messageField = (
-    <div className="mt-3 flex flex-col gap-2">
-      <Label className="text-text-default text-sm font-medium">Message</Label>
-      <Textarea
-        id="message"
-        name="message"
-        value={formik.values.message}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
-        className="bg-bg-input-soft! text-text-muted flex h-30.25 w-full items-start rounded-md border-none p-2 text-sm font-normal"
-        placeholder="Add message"
-      />
-      {formik.touched.message && formik.errors.message && (
-        <p className="text-text-destructive text-xs font-light">{formik.errors.message}</p>
-      )}
+  const formFields = (
+    <div className="mt-3 flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <Label className="text-text-default text-sm font-medium">
+          Title <small className="text-text-destructive text-xs">*</small>
+        </Label>
+        <Input
+          id="title"
+          name="title"
+          value={formik.values.title}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          className="bg-bg-input-soft! border-none text-sm font-normal text-text-muted"
+          placeholder="Add title"
+        />
+        {formik.touched.title && formik.errors.title && (
+          <p className="text-text-destructive text-xs font-light">{formik.errors.title}</p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label className="text-text-default text-sm font-medium">Message</Label>
+        <Textarea
+          id="message"
+          name="message"
+          value={formik.values.message}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          className="bg-bg-input-soft! text-text-muted flex h-30.25 w-full items-start rounded-md border-none p-2 text-sm font-normal"
+          placeholder="Add message"
+        />
+        {formik.touched.message && formik.errors.message && (
+          <p className="text-text-destructive text-xs font-light">{formik.errors.message}</p>
+        )}
+      </div>
     </div>
   );
 
@@ -91,7 +112,7 @@ export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal, classT
         <MobileDrawer open={openNotifyModal} title="Send Notification" setIsOpen={handleClose}>
           <div className="flex flex-col gap-5 px-6 py-4">
             <DialogDescription className="text-text-subtle text-sm font-normal">Add a short message</DialogDescription>
-            {messageField}
+            {formFields}
           </div>
           <DrawerFooter className="border-border-default border-t">
             <div className="flex justify-between">
@@ -127,7 +148,7 @@ export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal, classT
         >
           <div className="flex flex-col gap-5 px-6 py-4">
             <DialogDescription className="text-text-subtle text-sm font-normal">Add a short message</DialogDescription>
-            {messageField}
+            {formFields}
           </div>
         </Modal>
       )}

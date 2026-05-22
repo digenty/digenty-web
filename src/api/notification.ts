@@ -3,6 +3,8 @@ import { isAxiosError } from "axios";
 
 export type NotifyBranchHeadPayload = {
   receiverId: number;
+  title: string;
+  type: NotificationType;
   message: string;
 };
 
@@ -19,14 +21,6 @@ export type Notification = {
   message: string;
   read: boolean;
   createdAt: string;
-  metadata?: {
-    armId?: number;
-    classId?: number;
-    classArmReportId?: number;
-    subjectId?: number;
-    senderId?: number;
-    senderName?: string;
-  } | null;
 };
 
 export type GetNotificationsParams = {
