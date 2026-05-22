@@ -46,7 +46,7 @@ export const FeesIndex = () => {
           );
         })}
       </div>
-
+      {/*  */}
       {activeTab === "Class Fees" && <ClassFees />}
       {activeTab === "Fee Items" && <FeesItem />}
       {activeTab === "Fee Groups" && <FeesGroup />}
