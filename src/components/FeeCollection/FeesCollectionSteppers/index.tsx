@@ -22,6 +22,7 @@ import { BranchAccountDto, FeeCollectionMode, FeeRouteDto } from "@/api/fee-coll
 import { BranchWithClassLevels } from "@/api/types";
 import { FEE_COLLECTION_STEPS, useFeeCollectionStep } from "./FeesCollectionSteps";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { Spinner } from "@/components/ui/spinner";
 
 export type FeesSetupFormValues = {
   mode: FeeCollectionMode | "";
@@ -201,6 +202,7 @@ export const FeesSetup = () => {
               )}
             </div>
 
+            {/* add impor */}
             {/* Nav buttons */}
             <div className="border-border-default border-t">
               <div className="flex justify-between p-6">
@@ -222,7 +224,7 @@ export const FeesSetup = () => {
                       onClick={() => formik.submitForm()}
                       className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-9! rounded-md text-sm"
                     >
-                      {isPending ? "Saving..." : "Finish"}
+                      {isPending ? <Spinner className="text-text-white-default" /> : "Finish Setup"}
                     </Button>
                   ) : (
                     <Button
