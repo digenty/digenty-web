@@ -1,5 +1,6 @@
 "use client";
 import { createSession } from "@/app/actions/auth";
+import { setSchoolFromHost } from "@/app/actions/school";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -43,12 +44,17 @@ export const LoginPasswordForm = () => {
           userType: "PARENT",
         },
         {
-          onSuccess: data => {
+          onSuccess: async data => {
             toast({
               title: "Successfully logged in",
               description: data.message,
               type: "success",
             });
+            try {
+              await setSchoolFromHost(window.location.host);
+            } catch (e) {
+              console.error("School lookup failed", e);
+            }
             createSession(data.data.token, "PARENT");
           },
           onError: error => {
@@ -158,7 +164,7 @@ export const LoginPasswordForm = () => {
 
             <div className="flex items-center justify-center gap-2 text-sm">
               <p className="text-text-muted">Don&apos;t have an account?</p>
-              <Link href={`/auth/parent/signup`} className="text-text-informative text-sm font-medium">
+              <Link href={`/auth/parents/signup`} className="text-text-informative text-sm font-medium">
                 Sign Up
               </Link>
             </div>

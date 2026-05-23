@@ -6,34 +6,33 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetBranchesBySchool } from "@/hooks/queryHooks/useBranch";
 import { useAddParent, useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
 import { cn } from "@/lib/utils";
 import { parentSchema } from "@/schema/parent";
 import { Gender, genders, Relationship, relationships } from "@/types";
 import { Branch } from "@/api/types";
 import { useFormik } from "formik";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Country, ParentInputValues, State } from "@/components/StudentAndParent/types";
 import { toast } from "@/components/Toast";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 
-export const YourDetails = () => {
+export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useParams();
-  const schoolSlug = params.schoolSlug as string;
 
   const [countries, setCountries] = useState<Country[]>([]);
   const [availableStates, setAvailableStates] = useState<string[]>([]);
   const [avatar, setAvatar] = useState<string | undefined>();
-  const { data: branches, isPending: loadingBranches } = useGetBranches();
+  const { data: branches, isPending: loadingBranches } = useGetBranchesBySchool(schoolId);
   const { mutate: createParent, isPending: creating } = useAddParent();
   const { data: parentData, isLoading: loadingParent } = useGetParent();
   const { mutate: editParent, isPending: updating } = useEditParent();
 
+  console.log(branches, "branches", schoolId);
   useEffect(() => {
     const fetchData = async () => {
       const countryList = await getCountries();
