@@ -5,8 +5,9 @@ import { cookies } from "next/headers";
 const SCHOOL_COOKIE = "school";
 
 export const setSchoolFromHost = async (host: string) => {
-  const response = await lookupSchoolByDomain(host);
+  const response = await lookupSchoolByDomain("tommy");
   const school = response?.data ?? response;
+  console.log(school, "@@@@@@@@@");
   const cookieStore = await cookies();
   cookieStore.set(SCHOOL_COOKIE, JSON.stringify(school), {
     httpOnly: false,

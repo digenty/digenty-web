@@ -69,6 +69,18 @@ export const getBranchDetails = async (branchId: number, termId?: number, search
   }
 };
 
+export const getBranchesBySchool = async (schoolId: number) => {
+  try {
+    const { data } = await api.get(`/parent/portal/lookup/schools/${schoolId}/branches`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const deleteBranch = async (branchId: number) => {
   try {
     const { data } = await api.delete(`/branches/${branchId}`);
