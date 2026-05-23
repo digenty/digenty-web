@@ -38,7 +38,13 @@ export const getDepartmentsByLevel = async (levelType?: string, branchId?: numbe
   }
 };
 
-export const addDepartmentToClass = async (payload: { names: string[]; className: string; levelType: string; branchId?: number; branchSpecific: boolean }) => {
+export const addDepartmentToClass = async (payload: {
+  names: string[];
+  className: string;
+  levelType: string;
+  branchId?: number;
+  branchSpecific: boolean;
+}) => {
   try {
     const { data } = await api.post("/departments/class", payload);
     return data;

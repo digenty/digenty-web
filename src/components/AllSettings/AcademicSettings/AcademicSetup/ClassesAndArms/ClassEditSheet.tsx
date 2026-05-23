@@ -74,7 +74,11 @@ const DepartmentSubjectsSection = ({
           toast({ title: "Subjects added", description: `Subjects for ${dept.name} updated successfully`, type: "success" });
         },
         onError: error => {
-          toast({ title: "Failed to add subjects", description: (error as { message?: string })?.message || `Could not add subjects to ${dept.name}`, type: "error" });
+          toast({
+            title: "Failed to add subjects",
+            description: (error as { message?: string })?.message || `Could not add subjects to ${dept.name}`,
+            type: "error",
+          });
         },
       },
     );
@@ -96,7 +100,11 @@ const DepartmentSubjectsSection = ({
         },
         onError: error => {
           setDeletingSubject(null);
-          toast({ title: "Failed to remove subject", description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`, type: "error" });
+          toast({
+            title: "Failed to remove subject",
+            description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`,
+            type: "error",
+          });
         },
       },
     );
@@ -131,13 +139,19 @@ const DepartmentSubjectsSection = ({
       </div>
       <div className="flex flex-wrap items-center gap-1">
         {subjects.map(subject => (
-          <Badge key={subject} className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1">
+          <Badge
+            key={subject}
+            className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
+          >
             <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>
             <button
               type="button"
               disabled={deletingSubject === subject || isDeleting}
               className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-              onClick={e => { e.preventDefault(); removeSubject(subject); }}
+              onClick={e => {
+                e.preventDefault();
+                removeSubject(subject);
+              }}
             >
               {deletingSubject === subject ? (
                 <Spinner className="text-text-subtle size-2" />
@@ -293,7 +307,11 @@ export const ClassEditSheet = ({
           toast({ title: "Subjects added", description: `Subject(s) have been added successfully`, type: "success" });
         },
         onError: error => {
-          toast({ title: "Failed to add subjects", description: (error as { message?: string })?.message || `Could not add subjects`, type: "error" });
+          toast({
+            title: "Failed to add subjects",
+            description: (error as { message?: string })?.message || `Could not add subjects`,
+            type: "error",
+          });
         },
       },
     );
@@ -318,7 +336,11 @@ export const ClassEditSheet = ({
         },
         onError: error => {
           setDeletingSubjectName(null);
-          toast({ title: "Failed to delete subject", description: (error as { message?: string })?.message || `Could not delete "${subjectToRemove}"`, type: "error" });
+          toast({
+            title: "Failed to delete subject",
+            description: (error as { message?: string })?.message || `Could not delete "${subjectToRemove}"`,
+            type: "error",
+          });
         },
       },
     );
@@ -399,7 +421,11 @@ export const ClassEditSheet = ({
           toast({ title: "Department(s) added", description: "Departments have been updated successfully", type: "success" });
         },
         onError: error => {
-          toast({ title: "Failed to add department", description: (error as { message?: string })?.message || "Could not add departments", type: "error" });
+          toast({
+            title: "Failed to add department",
+            description: (error as { message?: string })?.message || "Could not add departments",
+            type: "error",
+          });
         },
       },
     );
@@ -420,7 +446,11 @@ export const ClassEditSheet = ({
         },
         onError: error => {
           setDeletingDepartmentName(null);
-          toast({ title: "Failed to delete department", description: (error as { message?: string })?.message || `Could not delete "${departmentToRemove}"`, type: "error" });
+          toast({
+            title: "Failed to delete department",
+            description: (error as { message?: string })?.message || `Could not delete "${departmentToRemove}"`,
+            type: "error",
+          });
         },
       },
     );

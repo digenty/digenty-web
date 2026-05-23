@@ -68,14 +68,16 @@ const LevelItemsSection = ({
       .split(",")
       .map(s => s.trim())
       .filter(s => s !== "" && !existingItems.includes(s) && !typedItems.includes(s) && !globalOptions.includes(s));
-    if (!names.length) { setInputValue(""); return; }
+    if (!names.length) {
+      setInputValue("");
+      return;
+    }
     setTypedItems(prev => [...prev, ...names]);
     setChecked(prev => [...prev, ...names]);
     setInputValue("");
   };
 
-  const toggle = (name: string) =>
-    setChecked(prev => (prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]));
+  const toggle = (name: string) => setChecked(prev => (prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]));
 
   const allOptions = [...new Set([...existingItems, ...globalOptions, ...typedItems])];
 
@@ -95,7 +97,12 @@ const LevelItemsSection = ({
           type="text"
           value={inputValue}
           onChange={e => setInputValue(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addFromInput(); } }}
+          onKeyDown={e => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addFromInput();
+            }
+          }}
           placeholder={placeholder}
           className="text-text-default h-7! w-full rounded-md border-none text-sm font-normal"
         />
@@ -175,8 +182,7 @@ const DepartmentSubjectsSection = ({
   }, [deptSubjectsData]);
 
   const allSubjectNames: string[] = (
-    Array.isArray(allSubjectsData) ? allSubjectsData :
-    Array.isArray(allSubjectsData?.data) ? allSubjectsData.data : []
+    Array.isArray(allSubjectsData) ? allSubjectsData : Array.isArray(allSubjectsData?.data) ? allSubjectsData.data : []
   ).map((s: { name: string }) => s.name);
 
   const availableSubjects = allSubjectNames.filter(n => !sessionSubjects.includes(n));
@@ -211,7 +217,11 @@ const DepartmentSubjectsSection = ({
           },
           onError: error => {
             setIsSyncing(false);
-            toast({ title: "Failed to update subjects", description: (error as { message?: string })?.message || `Could not update subjects`, type: "error" });
+            toast({
+              title: "Failed to update subjects",
+              description: (error as { message?: string })?.message || `Could not update subjects`,
+              type: "error",
+            });
           },
         },
       );
@@ -321,18 +331,19 @@ export const ClassQuickSetupSheet = ({
   const { data: allDepartmentsData, isFetching: isLoadingAllDepts } = useGetDepartments();
 
   const allSubjectNames: string[] = (
-    Array.isArray(allSubjectsData) ? allSubjectsData :
-    Array.isArray(allSubjectsData?.data) ? allSubjectsData.data : []
+    Array.isArray(allSubjectsData) ? allSubjectsData : Array.isArray(allSubjectsData?.data) ? allSubjectsData.data : []
   ).map((s: { name: string }) => s.name);
 
-  const allArmNames: string[] = [...new Set<string>((
-    Array.isArray(allArmsData) ? allArmsData :
-    Array.isArray(allArmsData?.data) ? allArmsData.data : []
-  ).map((a: { armName: string }) => a.armName))];
+  const allArmNames: string[] = [
+    ...new Set<string>(
+      (Array.isArray(allArmsData) ? allArmsData : Array.isArray(allArmsData?.data) ? allArmsData.data : []).map(
+        (a: { armName: string }) => a.armName,
+      ),
+    ),
+  ];
 
   const allDeptNames: string[] = (
-    Array.isArray(allDepartmentsData) ? allDepartmentsData :
-    Array.isArray(allDepartmentsData?.data) ? allDepartmentsData.data : []
+    Array.isArray(allDepartmentsData) ? allDepartmentsData : Array.isArray(allDepartmentsData?.data) ? allDepartmentsData.data : []
   ).map((d: { name: string }) => d.name);
 
   const availableSubjects = allSubjectNames.filter(n => !subjects.includes(n));
@@ -403,7 +414,11 @@ export const ClassQuickSetupSheet = ({
           toast({ title: "Subject(s) added", description: "Subjects have been updated successfully", type: "success" });
         },
         onError: error => {
-          toast({ title: "Failed to add subjects", description: (error as { message?: string })?.message || "Could not add subjects", type: "error" });
+          toast({
+            title: "Failed to add subjects",
+            description: (error as { message?: string })?.message || "Could not add subjects",
+            type: "error",
+          });
         },
       },
     );
@@ -439,7 +454,11 @@ export const ClassQuickSetupSheet = ({
           toast({ title: "Department(s) added", description: "Departments have been updated successfully", type: "success" });
         },
         onError: error => {
-          toast({ title: "Failed to add departments", description: (error as { message?: string })?.message || "Could not add departments", type: "error" });
+          toast({
+            title: "Failed to add departments",
+            description: (error as { message?: string })?.message || "Could not add departments",
+            type: "error",
+          });
         },
       },
     );
