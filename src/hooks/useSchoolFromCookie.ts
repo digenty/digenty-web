@@ -1,24 +1,23 @@
 "use client";
+import { getSchoolFromCookie } from "@/app/actions/school";
 import { useEffect, useState } from "react";
 
 type School = {
   id: number;
   name: string;
-  logo?: string;
-  [key: string]: unknown;
+  logo: string;
+  motto: string;
+  country: string;
+  currency: string;
+  timezone: string;
+  subdomain: string;
+  customDomain: string;
 };
 
-export const useSchoolFromCookie = (): School | null => {
+export const useSchoolFromCookie = () => {
   const [school, setSchool] = useState<School | null>(null);
-
   useEffect(() => {
-    const match = document.cookie.split("; ").find(c => c.startsWith("school="));
-    if (!match) return;
-    try {
-      setSchool(JSON.parse(decodeURIComponent(match.split("=")[1])));
-    } catch {
-      // ignore malformed cookie
-    }
+    getSchoolFromCookie().then(setSchool);
   }, []);
 
   return school;
