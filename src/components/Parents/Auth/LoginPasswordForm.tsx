@@ -49,7 +49,7 @@ export const LoginPasswordForm = () => {
               description: data.message,
               type: "success",
             });
-            createSession(data.data.token, "PARENT");
+            createSession(data.data.token, "PARENT", `${window.location.origin}/parents`);
           },
           onError: error => {
             toast({
@@ -160,7 +160,7 @@ export const LoginPasswordForm = () => {
 
             <div className="flex items-center justify-center gap-2 text-sm">
               <p className="text-text-muted">Don&apos;t have an account?</p>
-              <Link href={`/auth/parent/signup`} className="text-text-informative text-sm font-medium">
+              <Link href={`/auth/parents/signup`} className="text-text-informative text-sm font-medium">
                 Sign Up
               </Link>
             </div>

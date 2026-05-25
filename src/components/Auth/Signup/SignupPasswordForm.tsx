@@ -81,7 +81,7 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
                 description: data.message,
                 type: "success",
               });
-              router.push(`/auth/parent?step=login`);
+              router.push(`/auth/parents?step=login`);
             },
             onError: error => {
               toast({
