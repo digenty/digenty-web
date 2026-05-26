@@ -532,26 +532,28 @@ export const ClassesAndArms = ({
         </div>
       </div>
 
-      <div className="border-border-default bg-bg-default mx-auto flex w-full items-center justify-between border-t px-4 py-3 lg:px-40">
-        <Button
-          className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
-          onClick={() => {
-            setIsEditing?.(false);
-          }}
-        >
-          Cancel
-        </Button>
+      {/* {hasClasses && (
+        <div className="border-border-default bg-bg-default mx-auto flex w-full items-center justify-between border-t px-4 py-3 lg:px-40">
+          <Button
+            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+            onClick={() => {
+              setIsEditing?.(false);
+            }}
+          >
+            Cancel
+          </Button>
 
-        <Button
-          type="button"
-          onClick={() => {
-            setIsEditing?.(false);
-          }}
-          className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-        >
-          Save Changes
-        </Button>
-      </div>
+          <Button
+            type="button"
+            onClick={() => {
+              setIsEditing?.(false);
+            }}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+          >
+            Save Changes
+          </Button>
+        </div>
+      )} */}
 
       {/* <div className="border-border-default bg-bg-default  border-t right-0 -z-1 left-0 fixed bottom-0 flex justify-center  ">
         <div className="w-3/4 justify-between  items-center flex  px-4 py-3 lg:px-40 mx-auto">
