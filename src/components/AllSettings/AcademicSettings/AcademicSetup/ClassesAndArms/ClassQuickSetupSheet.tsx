@@ -281,7 +281,7 @@ export const ClassQuickSetupSheet = ({
 
   // Level data only fetched after the user makes a POST (to get IDs for sub-sections)
   const [levelDataEnabled, setLevelDataEnabled] = useState(false);
-  const { data: subjectsData } = useGetSubjectsByLevel(undefined, branchId);
+  const { data: subjectsData } = useGetSubjectsByLevel(level?.levelType, branchId);
   const { data: armsData } = useGetArmsByLevel(levelDataEnabled ? level?.levelType : undefined, branchId);
   const { data: departmentsData } = useGetDepartmentsByLevel(level?.levelType, branchId);
 
@@ -405,9 +405,10 @@ export const ClassQuickSetupSheet = ({
   const { values, errors, touched, handleChange, handleBlur } = formik;
 
   const handleSaveSubjects = (names: string[]) => {
-    if (!names.length) return;
+    const newNames = names.filter(n => !subjects.includes(n));
+    if (!newNames.length) return;
     mutateSubject(
-      { names, levelType: level.levelType, branchId, branchSpecific },
+      { names: newNames, levelType: level.levelType, branchId, branchSpecific },
       {
         onSuccess: () => {
           setSubjectResetSignal(s => s + 1);
@@ -425,9 +426,10 @@ export const ClassQuickSetupSheet = ({
   };
 
   const handleSaveArms = (names: string[]) => {
-    if (!names.length) return;
+    const newNames = names.filter(n => !arms.includes(n));
+    if (!newNames.length) return;
     mutateArm(
-      { names, levelType: level.levelType, branchId, branchSpecific },
+      { names: newNames, levelType: level.levelType, branchId, branchSpecific },
       {
         onSuccess: () => {
           setLevelDataEnabled(true);
@@ -442,9 +444,10 @@ export const ClassQuickSetupSheet = ({
   };
 
   const handleSaveDepartments = (names: string[]) => {
-    if (!names.length) return;
+    const newNames = names.filter(n => !departments.includes(n));
+    if (!newNames.length) return;
     mutateDepartment(
-      { names, levelType: level.levelType, branchId, branchSpecific },
+      { names: newNames, levelType: level.levelType, branchId, branchSpecific },
       {
         onSuccess: () => {
           setLevelDataEnabled(true);
