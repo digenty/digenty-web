@@ -184,54 +184,27 @@ export const Sidebar = () => {
     //     ]
     //   : []),
 
-    // ...(canViewCommunication(user?.permissions) ||
-    // canViewPortalCustomization(user?.permissions) ||
-    // canViewPortalOverview(user?.permissions) ||
-    // canViewDomain(user?.permissions)
+    ...(canViewCommunication(user?.permissions)
+      ? [
+          {
+            title: "Communication & Portal",
+            menu: [
+              {
+                title: "Communications",
+                url: "communications",
+                icon: Megaphone,
+              },
+            ],
+          },
+        ]
+      : []),
+
+    // ...(canViewPortalCustomization(user?.permissions)
     //   ? [
     //       {
-    //         title: "Communication & Portal",
-    //         menu: [
-    //           ...(canViewCommunication(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Communications",
-    //                   url: "communications",
-    //                   icon: Megaphone,
-    //                 },
-    //               ]
-    //             : []),
-
-    //           ...(canViewPortalOverview(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Portal Overview",
-    //                   url: "portal-overview",
-    //                   icon: Macbook,
-    //                 },
-    //               ]
-    //             : []),
-
-    //           ...(canViewPortalCustomization(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Portal Customization",
-    //                   url: "portal-customization",
-    //                   icon: ColorFilter,
-    //                 },
-    //               ]
-    //             : []),
-
-    //           ...(canViewDomain(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Domain",
-    //                   url: "domain",
-    //                   icon: Global,
-    //                 },
-    //               ]
-    //             : []),
-    //         ],
+    //         title: "Portal Customization",
+    //         url: "portal-customization",
+    //         icon: ColorFilter,
     //       },
     //     ]
     //   : []),
