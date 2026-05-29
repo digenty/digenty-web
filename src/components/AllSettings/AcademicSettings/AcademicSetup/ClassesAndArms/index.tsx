@@ -462,8 +462,9 @@ export const ClassesAndArms = ({
     });
   }, [levels]);
 
-  return (
-    <section className="">
+  return <>
+  
+  <section className="">
       <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 pb-12 lg:px-36">
         <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
           <div className="">
@@ -600,7 +601,7 @@ export const ClassesAndArms = ({
         </div>
       )}
     </section>
-  );
+  </> 
 };
 
 export const ClassesSetup = ({
