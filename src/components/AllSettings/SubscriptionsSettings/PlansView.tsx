@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckDouble, BankCard } from "@digenty/icons";
 import { cn } from "@/lib/utils";
 import { ComparisonTable } from "./ComparisonTable";
-import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, STUDENT_TIER_RANGES, StudentTier } from "./type";
+import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, PLAN_PRICES, STUDENT_TIER_RANGES, StudentTier } from "./type";
 import { useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
 import { PlanResponseDto } from "@/api/subscription";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
@@ -112,8 +112,9 @@ export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
     return Array.from(byName.values());
   }, [plans, billingCycle, studentTier]);
 
-  const standardPrice = filteredPlans.find(p => p.name.toLowerCase().includes("standard"))?.pricePerStudent;
-  const advancedPrice = filteredPlans.find(p => p.name.toLowerCase().includes("advanced"))?.pricePerStudent;
+  const staticPrices = PLAN_PRICES[studentTier][billingCycle];
+  const standardPrice = filteredPlans.find(p => p.name.toLowerCase().includes("standard"))?.pricePerStudent ?? staticPrices.standard;
+  const advancedPrice = filteredPlans.find(p => p.name.toLowerCase().includes("advanced"))?.pricePerStudent ?? staticPrices.advanced;
 
   const goToSubscribe = (planName: string) => router.push(buildSubscribeHref(planName, billingCycle));
 
