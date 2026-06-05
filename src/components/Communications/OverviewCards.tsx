@@ -1,9 +1,15 @@
+"use client";
+
 import { Mail, Megaphone, Message3, PhoneFill } from "@digenty/icons";
 
 import { OverviewCard } from "../OverviewCard";
-import { mockOverviewStats } from "./mockData";
+import { Skeleton } from "../ui/skeleton";
+import { useGetCampaignOverview } from "@/hooks/queryHooks/useCampaign";
+import { Badge } from "../ui/badge";
 
 export const OverviewCards = () => {
+  const { data, isLoading, isError, refetch } = useGetCampaignOverview();
+
   return (
     <div className="grid w-full grid-cols-2 gap-3 lg:grid-cols-4">
       <OverviewCard
@@ -13,7 +19,7 @@ export const OverviewCards = () => {
             <Megaphone fill="var(--color-icon-default)" />
           </div>
         )}
-        value={mockOverviewStats.totalCampaigns}
+        value={isLoading ? <Skeleton className="bg-bg-input-soft">0</Skeleton> : (data?.totalCampaignsSent ?? 0)}
       />
 
       <OverviewCard
@@ -23,7 +29,7 @@ export const OverviewCards = () => {
             <Message3 fill="var(--color-icon-default)" />
           </div>
         )}
-        value={mockOverviewStats.smsCampaigns}
+        value={isLoading ? <Skeleton className="bg-bg-input-soft">0</Skeleton> : (data?.smsCampaigns ?? 0)}
       />
 
       <OverviewCard
@@ -33,7 +39,7 @@ export const OverviewCards = () => {
             <Mail fill="var(--color-icon-default)" />
           </div>
         )}
-        value={mockOverviewStats.emailCampaigns}
+        value={isLoading ? <Skeleton className="bg-bg-input-soft">0</Skeleton> : (data?.emailCampaigns ?? 0)}
       />
 
       <OverviewCard
@@ -43,7 +49,7 @@ export const OverviewCards = () => {
             <PhoneFill fill="var(--color-icon-default)" />
           </div>
         )}
-        value={mockOverviewStats.whatsappCampaigns}
+        value={<Badge className="border-border-default text-text-warning rounded-md border">Coming Soon</Badge>}
       />
     </div>
   );

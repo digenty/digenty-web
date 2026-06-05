@@ -14,12 +14,11 @@ import { RecipientsSelect } from "./RecipientsSelect";
 
 type CampaignFormFieldsProps = {
   formik: FormikProps<CampaignFormValues>;
-  selectedRecipientsSummary: string;
   onEditSchedule: () => void;
   onCancelSchedule: () => void;
 };
 
-export const CampaignFormFields = ({ formik, selectedRecipientsSummary, onEditSchedule, onCancelSchedule }: CampaignFormFieldsProps) => {
+export const CampaignFormFields = ({ formik, onEditSchedule, onCancelSchedule }: CampaignFormFieldsProps) => {
   const scheduled = Boolean(formik.values.scheduledDate && formik.values.scheduledTime);
 
   return (
@@ -53,11 +52,21 @@ export const CampaignFormFields = ({ formik, selectedRecipientsSummary, onEditSc
             <SelectValue placeholder="Select Channel" />
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default">
-            {channelOptions.map(opt => (
-              <SelectItem key={opt.value} value={opt.value} className="text-text-default text-sm">
-                {opt.label}
-              </SelectItem>
-            ))}
+            {channelOptions.map(opt => {
+              const isComingSoon = opt.value === "WHATSAPP";
+              return (
+                <SelectItem key={opt.value} value={opt.value} disabled={isComingSoon} className="text-text-default text-sm">
+                  <span className="flex items-center gap-2">
+                    {opt.label}
+                    {isComingSoon && (
+                      <span className="bg-bg-badge-orange text-bg-basic-orange-strong rounded px-1.5 py-0.5 text-xs font-medium">
+                        Coming soon
+                      </span>
+                    )}
+                  </span>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
         {formik.touched.channel && formik.errors.channel && <p className="text-text-destructive text-xs">{formik.errors.channel}</p>}
@@ -67,13 +76,13 @@ export const CampaignFormFields = ({ formik, selectedRecipientsSummary, onEditSc
         value={formik.values.message}
         onChange={value => formik.setFieldValue("message", value)}
         error={formik.touched.message ? (formik.errors.message as string | undefined) : undefined}
+        channel={formik.values.channel}
       />
 
       <RecipientsSelect
         value={formik.values.recipients}
         onChange={value => formik.setFieldValue("recipients", value)}
         error={formik.touched.recipients ? (formik.errors.recipients as string | undefined) : undefined}
-        summary={selectedRecipientsSummary}
       />
     </div>
   );

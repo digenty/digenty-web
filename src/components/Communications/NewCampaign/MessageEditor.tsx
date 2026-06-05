@@ -11,13 +11,23 @@ import { useEffect, useRef, useState } from "react";
 import { Attachment2, Bold, ImageCircleFill, Italic, Link as LinkIcon, ListCheck, ListOrdered2, Underline } from "@digenty/icons";
 
 import { cn } from "@/lib/utils";
+import { useSmsCount } from "@/hooks/queryHooks/useCampaign";
+import { CampaignChannel } from "../types";
 import { Label } from "../../ui/label";
 
 type MessageEditorProps = {
   value: string;
   onChange: (value: string) => void;
   error?: string;
+  channel?: CampaignChannel | "";
 };
+
+const htmlToText = (html: string) =>
+  html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 type ToolbarBtnProps = {
   onClick: () => void;
@@ -39,10 +49,24 @@ const ToolbarBtn = ({ onClick, active, label, children }: ToolbarBtnProps) => (
 
 const iconFill = (active: boolean) => (active ? "var(--color-icon-default)" : "var(--color-icon-default-muted)");
 
-export const MessageEditor = ({ value, onChange, error }: MessageEditorProps) => {
+export const MessageEditor = ({ value, onChange, error, channel }: MessageEditorProps) => {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const attachmentInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+
+  const { mutate: countSms, data: smsCount, reset: resetSmsCount } = useSmsCount();
+  const plainText = htmlToText(value);
+  const showSmsCount = channel === "SMS";
+
+  // Live SMS segment count from /campaigns/sms/count (debounced) for SMS campaigns.
+  useEffect(() => {
+    if (!showSmsCount || !plainText) {
+      resetSmsCount();
+      return;
+    }
+    const timeout = setTimeout(() => countSms({ message: plainText }), 500);
+    return () => clearTimeout(timeout);
+  }, [plainText, showSmsCount, countSms, resetSmsCount]);
 
   const editor = useEditor({
     extensions: [
@@ -112,11 +136,7 @@ export const MessageEditor = ({ value, onChange, error }: MessageEditorProps) =>
     setUploading(true);
     try {
       const url = await uploadFile(file);
-      editor
-        ?.chain()
-        .focus()
-        .insertContent(`<a href="${url}" target="_blank" rel="noopener noreferrer">${file.name}</a> `)
-        .run();
+      editor?.chain().focus().insertContent(`<a href="${url}" target="_blank" rel="noopener noreferrer">${file.name}</a> `).run();
     } catch {
       // silent
     } finally {
@@ -139,8 +159,7 @@ export const MessageEditor = ({ value, onChange, error }: MessageEditorProps) =>
         <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
         <input ref={attachmentInputRef} type="file" className="hidden" onChange={handleAttachmentChange} />
 
-        {/* Rich text content area */}
-        <EditorContent editor={editor} className="tiptap-editor bg-bg-input-soft text-text-default min-h-[120px] px-3 py-2 text-sm" />
+        <EditorContent editor={editor} className="tiptap-editor bg-bg-input-soft text-text-default min-h-30 px-3 py-2 text-sm" />
 
         {/* Toolbar */}
         <div className="bg-bg-input-soft border-border-default flex items-center gap-3 border-t px-3 py-2">
@@ -188,7 +207,14 @@ export const MessageEditor = ({ value, onChange, error }: MessageEditorProps) =>
         </div>
       </div>
 
-      <span className="text-text-muted text-xs">Supports bold, italic, lists, links, images and attachments.</span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-text-muted text-xs">Supports bold, italic, lists, links, images and attachments.</span>
+        {showSmsCount && smsCount && (
+          <span className="text-text-muted shrink-0 text-xs">
+            {smsCount.characterCount} chars · {smsCount.segmentCount} segment{smsCount.segmentCount === 1 ? "" : "s"}
+          </span>
+        )}
+      </div>
 
       {error && <p className="text-text-destructive text-xs">{error}</p>}
     </div>

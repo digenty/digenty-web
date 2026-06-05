@@ -1,8 +1,10 @@
 import { ReactNode } from "react";
 
+import { CampaignDetailDto } from "@/api/campaign";
+
 import { Avatar } from "../../Avatar";
 import { getCampaignStatusBadge } from "../StatusBadge";
-import { Campaign } from "../types";
+import { formatCampaignDate, formatCampaignDateTime } from "../types";
 
 type StatCell = {
   label: string;
@@ -12,22 +14,24 @@ type StatCell = {
 const PersonCell = ({ name }: { name: string }) => (
   <div className="flex items-center gap-2">
     <Avatar className="size-5" url="" />
-    <span className="text-text-default text-sm font-medium">{name}</span>
+    <span className="text-text-default text-sm font-medium">{name || "—"}</span>
   </div>
 );
 
-export const CampaignDetailStats = ({ campaign }: { campaign: Campaign }) => {
+const textValue = (value: ReactNode) => <span className="text-text-default text-sm font-medium">{value}</span>;
+
+export const CampaignDetailStats = ({ campaign }: { campaign: CampaignDetailDto }) => {
   const cells: StatCell[] = [
     { label: "Status", value: getCampaignStatusBadge(campaign.status) },
-    { label: "Intended Recipients", value: <span className="text-text-default text-sm font-medium">{campaign.intendedRecipients}</span> },
-    { label: "Delivered", value: <span className="text-text-default text-sm font-medium">{campaign.delivered}</span> },
-    { label: "Failed", value: <span className="text-text-default text-sm font-medium">{campaign.failed}</span> },
-    { label: "Created Date", value: <span className="text-text-default text-sm font-medium">{campaign.createdDate}</span> },
-    { label: "Delivery Date", value: <span className="text-text-default text-sm font-medium">{campaign.deliveryDate}</span> },
-    { label: "Created By", value: <PersonCell name={campaign.createdBy} /> },
-    { label: "Last Updated By", value: <PersonCell name={campaign.lastUpdatedBy} /> },
-    { label: "Term & Session", value: <span className="text-text-default text-sm font-medium">{campaign.termAndSession}</span> },
-    { label: "Last Updated", value: <span className="text-text-default text-sm font-medium">{campaign.lastUpdated}</span> },
+    { label: "Intended Recipients", value: textValue(campaign.intendedRecipientCount) },
+    { label: "Delivered", value: textValue(campaign.deliveredCount) },
+    { label: "Failed", value: textValue(campaign.failedCount) },
+    { label: "Created Date", value: textValue(formatCampaignDate(campaign.createdAt)) },
+    { label: "Delivery Date", value: textValue(formatCampaignDate(campaign.sentAt ?? campaign.scheduledAt)) },
+    { label: "Created By", value: <PersonCell name={campaign.createdByName} /> },
+    { label: "Last Updated By", value: <PersonCell name={campaign.lastUpdatedByName} /> },
+    { label: "Term & Session", value: textValue(campaign.termAndSession || "—") },
+    { label: "Last Updated", value: textValue(formatCampaignDateTime(campaign.updatedAt)) },
   ];
 
   return (

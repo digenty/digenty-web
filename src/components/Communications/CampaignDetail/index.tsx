@@ -1,6 +1,9 @@
 "use client";
 
-import { getCampaignById } from "../mockData";
+import { Spinner } from "@/components/ui/spinner";
+import { useGetCampaign } from "@/hooks/queryHooks/useCampaign";
+
+import { ErrorComponent } from "../../Error/ErrorComponent";
 import { CampaignDetailHeader } from "./CampaignDetailHeader";
 import { CampaignDetailStats } from "./CampaignDetailStats";
 
@@ -9,28 +12,41 @@ type CampaignDetailProps = {
 };
 
 export const CampaignDetail = ({ id }: CampaignDetailProps) => {
-  const campaign = getCampaignById(id);
+  const numericId = Number(id);
+  const { data: campaign, isLoading, isError, refetch } = useGetCampaign(Number.isNaN(numericId) ? undefined : numericId);
 
-  if (!campaign) {
+  if (isLoading) {
     return (
-      <div className="px-4 py-6 md:px-8">
-        <p className="text-text-muted text-sm">Campaign not found.</p>
+      <div className="flex h-[60vh] items-center justify-center">
+        <Spinner className="size-12" />
       </div>
     );
   }
 
-  const title = campaign.title || "PTA Reminder";
+  if (isError || !campaign) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center px-4">
+        <ErrorComponent
+          title="Campaign not found"
+          description="We couldn't load this campaign. It may have been deleted or the link is invalid."
+          buttonText="Back to Communications"
+          url="/staff/communications"
+          onClick={() => refetch()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 px-4 pt-4 pb-10 md:space-y-6 md:px-8 md:pt-6">
-      <CampaignDetailHeader id={campaign.id} title={title} />
+      <CampaignDetailHeader campaign={campaign} />
 
       <CampaignDetailStats campaign={campaign} />
 
       <div className="flex flex-col gap-2">
         <h2 className="text-text-default text-sm font-semibold">Message Content</h2>
         <div className="border-border-default bg-bg-basic-blue-subtle rounded-md border p-4">
-          <p className="text-text-default text-sm leading-relaxed">{campaign.messageContent}</p>
+          <p className="text-text-default text-sm leading-relaxed">{campaign.message}</p>
         </div>
       </div>
     </div>
