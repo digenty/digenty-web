@@ -680,6 +680,8 @@
   --color-bg-checkbox-active-hover: var(--blue-400);
   --color-bg-checkbox-disabled: var(--transparent-dark-6);
 
+  --max-w-9xl: 90rem;
+
   --breakpoint-xs: 480px;
   --breakpoint-base: 920px;
   --shadow-sm: 0 12px 12px -6px rgba(0, 0, 0, 0.04);
@@ -1049,4 +1051,8 @@ input:-moz-autofill {
 text tspan {
   font-size: 14px !important;
   font-weight: 400 !important;
+}
+
+html {
+  scroll-behavior: smooth;
 }
