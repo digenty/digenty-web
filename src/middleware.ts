@@ -1,7 +1,6 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export default async function middleware(req: NextRequest) {
+export default function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const host = req.headers.get("host");
   const path = url.pathname;
@@ -10,7 +9,7 @@ export default async function middleware(req: NextRequest) {
   // Subdomain handling
   // For local testing: greenwood.localhost:3000
   // For production: school.axis.com
-  const mainDomains = ["axis.com", "localhost:3000", "app.axis.com"];
+  const mainDomains = ["axis.com", "localhost:3000", "localhost:8000", "app.axis.com"];
 
   if (host && !mainDomains.includes(host)) {
     const parts = host.split(".");
@@ -28,8 +27,7 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = req.cookies.get("token")?.value;
 
   //include all routes that you want to be accessed without auth
   const authRoutes = [
