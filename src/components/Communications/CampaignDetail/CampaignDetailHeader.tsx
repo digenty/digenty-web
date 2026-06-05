@@ -11,6 +11,7 @@ import {
   useCancelCampaignSchedule,
   useDeleteCampaign,
   useDuplicateCampaign,
+  useGetCampaign,
   usePayForCampaign,
   useResendCampaign,
 } from "@/hooks/queryHooks/useCampaign";
@@ -31,6 +32,7 @@ export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) =>
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const { email: userEmail, isUserLoading } = useLoggedInUser();
+  const { refetch: refetchCampaign } = useGetCampaign(campaign.id);
   const deleteMutation = useDeleteCampaign();
   const duplicateMutation = useDuplicateCampaign();
   const resendMutation = useResendCampaign();
@@ -68,6 +70,7 @@ if (!userEmail) {
             return;
           }
           toast({ title: "Payment initiated", description: campaign.title, type: "success" });
+          refetchCampaign();
         },
         onError: (error: unknown) => toast({ title: "Payment failed", description: getErrorMessage(error), type: "error" }),
       },

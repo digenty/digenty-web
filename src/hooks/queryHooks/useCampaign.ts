@@ -126,11 +126,11 @@ export const useResendCampaign = () => {
 };
 
 export const usePayForCampaign = () => {
-  const invalidate = useInvalidateCampaigns();
   return useMutation({
     mutationKey: campaignKeys.pay,
     mutationFn: ({ id, payload }: { id: number; payload?: CampaignPayRequest }) => payForCampaign(id, payload),
-    onSuccess: (_, { id }) => invalidate(id),
+    // No onSuccess invalidation — pay redirects to Paystack and campaign status only
+    // changes after the webhook fires. Cache is refreshed on return via paymentReference effect.
   });
 };
 

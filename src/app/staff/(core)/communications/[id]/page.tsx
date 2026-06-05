@@ -2,8 +2,15 @@ import { CampaignDetail } from "@/components/Communications/CampaignDetail";
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 
-export default async function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function CampaignDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const [{ id }, sp] = await Promise.all([params, searchParams]);
+  const paymentReference = sp.reference ?? sp.trxref ?? null;
 
   return (
     <Suspense
@@ -13,7 +20,7 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
         </div>
       }
     >
-      <CampaignDetail id={id} />
+      <CampaignDetail id={id} paymentReference={paymentReference} />
     </Suspense>
   );
 }

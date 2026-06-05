@@ -269,7 +269,7 @@ export const getSmsCount = async (payload: SmsCountRequest): Promise<SmsCountRes
 export const estimateCampaign = async (payload: CampaignEstimateRequest): Promise<CampaignEstimateResponse> => {
   try {
     const { data } = await api.post("/campaigns/estimate", payload);
-    return data;
+    return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
