@@ -44,7 +44,8 @@ export default async function middleware(req: NextRequest) {
   const isAuthRoute = authRoutes.includes(path);
 
   if (path === "/") {
-    return NextResponse.redirect(new URL("/auth/staff", req.nextUrl));
+    if (token) return NextResponse.redirect(new URL("/staff/", req.nextUrl));
+    return NextResponse.next();
   }
 
   //   If user is logged in and tries to visit auth routes
