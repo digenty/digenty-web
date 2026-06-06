@@ -20,7 +20,7 @@ export interface CreateStockDto {
   quantity: number;
   price: number;
   costPrice: number;
-  branchId: number;
+  branchIds: number[];
 }
 
 export interface EditStockDto {

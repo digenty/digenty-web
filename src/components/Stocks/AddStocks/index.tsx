@@ -17,15 +17,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { useCreateStock, useEditStock, useGetStockById, useGetStockCategories, useGetStockUnits } from "@/hooks/queryHooks/useStock";
+import { useCreateStock, useEditStock, useGetStockById, useGetStockCategories } from "@/hooks/queryHooks/useStock";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { editStockSchema, stockSchema } from "@/schema/stock";
 import { toast } from "@/components/Toast";
 
-type StockUnit = { id: number; name: string; description?: string };
+const STOCK_UNITS = [
+  { id: 1, label: "Pieces (pcs)" },
+  { id: 2, label: "Pack / Packet" },
+  { id: 3, label: "Box / Carton" },
+  { id: 4, label: "Dozen" },
+  { id: 5, label: "Ream (for paper)" },
+  { id: 6, label: "Bottle" },
+  { id: 7, label: "Roll" },
+];
+
 type StockCategory = { id: number; name: string };
-type FormValues = CreateStockDto & { stockId?: number };
+type FormValues = Omit<CreateStockDto, "branchIds"> & { stockId?: number; branchId: number };
 
 export const AddStock = () => {
   const router = useRouter();
@@ -48,9 +57,6 @@ export const AddStock = () => {
   const { data: categoriesResp } = useGetStockCategories(0, 100);
   const categories: StockCategory[] = categoriesResp?.content ?? categoriesResp?.data?.content ?? categoriesResp?.data ?? [];
 
-  const { data: unitsResp } = useGetStockUnits(0, 100);
-  const units: StockUnit[] = unitsResp?.content ?? unitsResp?.data?.content ?? unitsResp?.data ?? [];
-
   const { mutateAsync: createStock, isPending: creating } = useCreateStock();
   const { mutateAsync: editStock, isPending: editing } = useEditStock();
   const isPending = creating || editing;
@@ -63,13 +69,13 @@ export const AddStock = () => {
       stockId: isEdit ? stockId : undefined,
       name: (existing?.name ?? existing?.itemName ?? "") as string,
       description: (existing?.description ?? "") as string,
-      categoryId: ((existing?.categoryId ?? (existing?.category as { id?: number } | null)?.id ?? 0) as number),
+      categoryId: (existing?.categoryId ?? (existing?.category as { id?: number } | null)?.id ?? 0) as number,
       imagePath: (existing?.imagePath ?? existing?.image ?? "") as string,
-      stockUnitId: ((existing?.stockUnitId ?? (existing?.unit as { id?: number } | null)?.id ?? 0) as number),
-      quantity: ((existing?.quantity ?? (isEdit ? 0 : 1)) as number),
-      price: ((existing?.price ?? 0) as number),
-      costPrice: ((existing?.costPrice ?? 0) as number),
-      branchId: ((existing?.branchId ?? user.branchIds?.[0] ?? 0) as number),
+      stockUnitId: (existing?.stockUnitId ?? (existing?.unit as { id?: number } | null)?.id ?? 0) as number,
+      quantity: (existing?.quantity ?? (isEdit ? 0 : 1)) as number,
+      price: (existing?.price ?? 0) as number,
+      costPrice: (existing?.costPrice ?? 0) as number,
+      branchId: (existing?.branchId ?? user.branchIds?.[0] ?? 0) as number,
     },
     validationSchema: isEdit ? editStockSchema : stockSchema,
     onSubmit: async values => {
@@ -81,9 +87,9 @@ export const AddStock = () => {
           toast({ title: "Stock updated successfully", type: "success" });
           router.push(`/staff/stock/${stockId}`);
         } else {
-          const { stockId: _id, ...rest } = values;
+          const { stockId: _id, branchId, ...rest } = values;
           void _id;
-          await createStock(rest as CreateStockDto);
+          await createStock({ ...rest, branchIds: [branchId] } as CreateStockDto);
           toast({ title: "Stock created successfully", type: "success" });
           router.push("/staff/stock");
         }
@@ -102,9 +108,9 @@ export const AddStock = () => {
       return;
     }
     try {
-      const { stockId: _id, ...rest } = formik.values;
+      const { stockId: _id, branchId, ...rest } = formik.values;
       void _id;
-      await createStock(rest as CreateStockDto);
+      await createStock({ ...rest, branchIds: [branchId] } as CreateStockDto);
       toast({ title: "Stock created successfully", type: "success" });
       formik.resetForm();
     } catch (error) {
@@ -138,12 +144,10 @@ export const AddStock = () => {
 
   const selectedCategory = categories.find(c => c.id === formik.values.categoryId);
   const selectedBranch = branches.find(b => b.id === formik.values.branchId);
-  const selectedUnit = units.find(u => u.id === formik.values.stockUnitId);
+  const selectedUnit = STOCK_UNITS.find(u => u.id === formik.values.stockUnitId);
 
   const fieldError = (field: keyof FormValues) =>
-    formik.touched[field] && formik.errors[field] ? (
-      <p className="text-text-destructive text-xs font-light">{String(formik.errors[field])}</p>
-    ) : null;
+    formik.touched[field] && formik.errors[field] ? <p className="text-text-destructive text-xs font-light">{String(formik.errors[field])}</p> : null;
 
   const inputCls = (field: keyof FormValues) =>
     cn(
@@ -315,13 +319,13 @@ export const AddStock = () => {
                   )}
                 >
                   <SelectValue placeholder="Select unit">
-                    <span className="text-text-default text-sm">{selectedUnit?.name ?? "Select unit"}</span>
+                    <span className="text-text-default text-sm">{selectedUnit?.label ?? "Select unit"}</span>
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
-                  {units.map(unt => (
+                  {STOCK_UNITS.map(unt => (
                     <SelectItem key={unt.id} value={String(unt.id)} className="text-text-default text-sm">
-                      {unt.name}
+                      {unt.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
