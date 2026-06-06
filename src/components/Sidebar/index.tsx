@@ -361,7 +361,7 @@ export const Sidebar = () => {
         </div>
 
         <div className={cn("absolute right-4 bottom-4 left-4")}>
-          <div className="right-10">{isSidebarOpen && user?.isMain && <SetupGuideProgress />}</div>
+          <div className="right-10">{user?.isMain && <SetupGuideProgress isCollapsed={!isSidebarOpen} />}</div>
 
           <div>
             <Tooltip
@@ -449,7 +449,8 @@ export const Sidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          onClick={() => router.push(`/staff/${menu.url}`)}
+                          // onClick={() => router.push(`/staff/${menu.url}`)}
+                          onClick={menu.url === "cbt" ? handleCBTClick : () => router.push(`/staff/${menu.url}`)}
                         >
                           <menu.icon fill="var(--color-icon-default-subtle)" />
                           <p className="text-sm leading-5 font-medium">{menu.title}</p>

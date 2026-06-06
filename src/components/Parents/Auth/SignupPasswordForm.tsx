@@ -54,7 +54,7 @@ export const SignupPasswordForm = () => {
               description: data.message,
               type: "success",
             });
-            router.push(`/auth/parent?step=login`);
+            router.push(`/auth/parent/login`);
           },
           onError: error => {
             toast({
@@ -74,13 +74,6 @@ export const SignupPasswordForm = () => {
         <h4 className="text-text-default text-center text-lg font-semibold">Create your account</h4>
         <p className="text-text-muted text-sm">Set your password to continue</p>
       </div>
-
-      {/* {!step && (
-              <div className="mt-7 w-full space-y-3">
-                <GoogleAuth /> */}
-      {/* <AppleAuth /> */}
-      {/* </div>
-            )} */}
 
       <div className="mt-7 w-full">
         <form noValidate onSubmit={formik.handleSubmit} className="w-full space-y-6">

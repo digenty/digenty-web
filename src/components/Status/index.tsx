@@ -143,6 +143,13 @@ export const paymentStatus = (status: string) => {
         </Badge>
       );
 
+    case "Pending":
+      return (
+        <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <span>Pending</span>
+        </Badge>
+      );
+
     default:
       return <div className=""></div>;
   }

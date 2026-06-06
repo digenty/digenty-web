@@ -53,6 +53,10 @@ export type UpdateInvoicePayload = {
 };
 
 export type InvoiceSettingsResponse = {
+export type ResetRule = "NEVER" | "YEARLY" | "MONTHLY" | "TERMLY" | "SESSION";
+
+export type InvoiceSettingsResponse = {
+  id?: number;
   schoolLogoUrl?: string;
   invoicePrefix?: string;
   numberFormat?: string;
@@ -61,10 +65,25 @@ export type InvoiceSettingsResponse = {
   nextInvoiceNumber?: string;
   defaultDueDate?: string;
   defaultNote?: string;
+  resetRule?: ResetRule;
   remindBeforeDays?: number;
   remindAfterDays?: number;
   repeatReminders?: boolean;
   repeatEveryDays?: number;
+};
+
+export type CreateInvoiceSettingsPayload = {
+  image?: string;
+  invoicePrefix?: string;
+  numberFormat?: string;
+  startNumber?: number;
+  numberPadding: string | number;
+  defaultDueDate?: string;
+  defaultInvoiceNote?: string;
+  resetRule?: ResetRule;
+  noOfDaysBeforeDueDate?: number;
+  noOfDaysAfterDueDate?: number;
+  repeatFrequency?: number;
 };
 
 export type UpdateInvoiceSettingsPayload = {
@@ -75,6 +94,10 @@ export type UpdateInvoiceSettingsPayload = {
   padding?: number;
   defaultDueDate?: string;
   defaultNote?: string;
+  padding: number;
+  defaultDueDate?: string;
+  defaultNote?: string;
+  resetRule?: ResetRule;
   remindBeforeDays?: number;
   remindAfterDays?: number;
   repeatReminders?: boolean;
@@ -173,6 +196,12 @@ export const getInvoiceSettings = async (branchId: number) => {
   try {
     const { data } = await api.get(`/invoice-settings?branchId=${branchId}`);
     return data as InvoiceSettingsResponse;
+  } catch (error: unknown) {
+
+export const getInvoiceSettings = async () => {
+  try {
+    const { data } = await api.get(`/invoice-settings`);
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
@@ -386,6 +415,9 @@ export type InvoicePreviewResponse = {
 export const getInvoicePreview = async (invoiceId: string) => {
   try {
     const { data } = await api.get(`/invoices/${invoiceId}/preview`);
+export const updateInvoiceSettings = async (invoiceId: number, payload: UpdateInvoiceSettingsPayload) => {
+  try {
+    const { data } = await api.put(`/invoice-settings/${invoiceId}`, payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;

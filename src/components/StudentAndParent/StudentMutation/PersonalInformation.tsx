@@ -28,6 +28,7 @@ export const PersonalInformation = ({
   const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
   const [countries, setCountries] = useState<Country[]>([]);
   const [availableStates, setAvailableStates] = useState<string[]>([]);
+  const [dobOpen, setDobOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -139,7 +140,7 @@ export const PersonalInformation = ({
           <Label htmlFor="dob" className="text-text-default text-sm font-medium">
             Date of Birth <small className="text-text-destructive text-xs">*</small>
           </Label>
-          <Popover>
+          <Popover open={dobOpen} onOpenChange={setDobOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant={"outline"}
@@ -162,6 +163,7 @@ export const PersonalInformation = ({
                 onSelect={date => {
                   setDate(date);
                   formik.setFieldValue("dateOfBirth", date);
+                  setDobOpen(false);
                 }}
                 captionLayout="dropdown"
                 className="bg-bg-card w-full border-none"

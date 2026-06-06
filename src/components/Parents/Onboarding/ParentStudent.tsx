@@ -36,6 +36,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
   const [countries, setCountries] = useState<Country[]>([]);
   const [availableStates, setAvailableStates] = useState<string[]>([]);
   const [date, setDate] = useState<Date | undefined>();
+  const [dobOpen, setDobOpen] = useState(false);
   const [branchId, setBranchId] = useState<number | undefined>();
   const [classId, setClassId] = useState<number | null>(null);
 
@@ -280,7 +281,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
             <Label className="text-text-default text-sm font-medium">
               Date of Birth <span className="text-text-destructive text-xs">*</span>
             </Label>
-            <Popover>
+            <Popover open={dobOpen} onOpenChange={setDobOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -299,6 +300,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
                   onSelect={d => {
                     setDate(d);
                     setFieldValue("dateOfBirth", d);
+                    setDobOpen(false);
                   }}
                   captionLayout="dropdown"
                   className="bg-bg-card text-text-default w-full border-none"

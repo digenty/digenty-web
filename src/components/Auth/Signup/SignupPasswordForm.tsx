@@ -11,20 +11,16 @@ import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { PasswordChecklist } from "../PasswordCheckList";
-import { Checkbox } from "@/components/ui/checkbox";
+import Link from "next/link";
 import { LegalModal } from "../LegalModal";
 import { PRIVACY_POLICY, TERMS_AND_CONDITIONS } from "@/constants/legal";
-import Link from "next/link";
 
 export const SignupPasswordForm = ({ email, userType }: { email: string; userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [passwordIsFulfilled, setPasswordIsFulfilled] = useState(false);
 
   const { mutate, isPending } = useSignup();
   const { mutate: parentMutate, isPending: parentIsPending } = useParentSignup();
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const [legalModal, setLegalModal] = useState<{ open: boolean; title: string; content: string }>({
     open: false,
     title: "",
@@ -34,8 +30,6 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
   };
-
-  console.log(userType, "3333");
 
   const formik = useFormik({
     initialValues: {
@@ -147,33 +141,20 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
         {formik.touched.password && formik.errors.password && <p className="text-text-destructive text-xs font-light">{formik.errors.password}</p>}
       </div>
 
-      {formik.values.password && <PasswordChecklist password={formik.values.password} setIsfulfilled={setPasswordIsFulfilled} />}
-
-      <div className="flex items-start gap-2">
-        <Checkbox id="accept-terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked === true)} className="mt-0.5" />
-        <label htmlFor="accept-terms" className="text-text-muted text-xs leading-normal">
-          I agree to the{" "}
-          <button
-            type="button"
-            onClick={() => setLegalModal({ open: true, title: "Terms and Conditions", content: TERMS_AND_CONDITIONS })}
-            className="text-text-informative hover:underline"
-          >
-            Terms of Use
-          </button>{" "}
-          and{" "}
-          <button
-            type="button"
-            onClick={() => setLegalModal({ open: true, title: "Privacy Policy", content: PRIVACY_POLICY })}
-            className="text-text-informative hover:underline"
-          >
-            Privacy Policy
-          </button>
-        </label>
-      </div>
+      <p className="text-text-muted text-xs leading-normal">
+        By clicking the Signup button, you agree to the{" "}
+        <button type="button" onClick={() => setLegalModal({ open: true, title: "Terms and Conditions", content: TERMS_AND_CONDITIONS })} className="text-text-informative hover:underline">
+          Terms of Use
+        </button>{" "}
+        and{" "}
+        <button type="button" onClick={() => setLegalModal({ open: true, title: "Privacy Policy", content: PRIVACY_POLICY })} className="text-text-informative hover:underline">
+          Privacy Policy
+        </button>
+      </p>
 
       <div className="mt-8 space-y-8">
         <Button
-          disabled={!formik.values.email || !formik.values.password || !passwordIsFulfilled || !acceptTerms}
+          disabled={!formik.values.email || !formik.values.password}
           type="submit"
           className="bg-bg-state-primary disabled:bg-bg-state-primary-hover disabled:text-text-white-default hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full"
         >

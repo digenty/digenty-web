@@ -1,7 +1,9 @@
 import {
+  addDepartmentToClass,
   addDepartmentsToLevel,
   assignArmToDepartment,
   createDepartmentSubjects,
+  deleteDepartmentFromClass,
   deleteDepartmentFromLevel,
   deleteDepartmentSubjects,
   getDepartmentSubjectsByClass,
@@ -10,6 +12,7 @@ import {
   getDepartmentsByLevel,
   getDepartmentsForASchool,
   getAssignedDepartments,
+  toggleDepartmentForLevel,
 } from "@/api/department";
 import { classKeys } from "@/queries/class";
 import { departmentKeys } from "@/queries/department";
@@ -55,6 +58,28 @@ export const useDeleteDepartmentFromLevel = () => {
   });
 };
 
+export const useAddDepartmentToClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: addDepartmentToClass,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["departmentsByClass"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+    },
+  });
+};
+
+export const useDeleteDepartmentFromClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ departmentId, classId }: { departmentId: number; classId: number }) => deleteDepartmentFromClass(departmentId, classId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["departmentsByClass"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+    },
+  });
+};
+
 export const useCreateDepartmentSubjects = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -77,6 +102,8 @@ export const useDeleteDepartmentSubjects = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: departmentKeys.departments });
       queryClient.invalidateQueries({ queryKey: [departmentKeys.departmentSubjectsByClass] });
+      queryClient.invalidateQueries({ queryKey: [departmentKeys.departmentSubjectsByLevel] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
   });
 };
@@ -115,6 +142,19 @@ export const useAssignArmToDepartment = () => {
       // queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
       queryClient.invalidateQueries({ queryKey: ["armsByClass"] });
       queryClient.invalidateQueries({ queryKey: ["assignedDepartments"] });
+    },
+  });
+};
+
+export const useToggleDepartmentForLevel = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: departmentKeys.toggleDepartment,
+    mutationFn: ({ levelId, enable }: { levelId: number; enable: boolean }) => toggleDepartmentForLevel(levelId, enable),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: departmentKeys.departments });
+      queryClient.invalidateQueries({ queryKey: ["departmentsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },
   });
 };
