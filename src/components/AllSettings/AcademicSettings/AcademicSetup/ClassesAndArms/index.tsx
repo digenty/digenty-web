@@ -444,9 +444,9 @@ export const ClassesAndArms = ({
     const max = classes.reduce((m, cls) => {
       const num = parseInt(cls.className?.split(" ").pop() ?? "0", 10);
       return isNaN(num) ? m : Math.max(m, num);
-    }, activeLevel?.classEnd ?? 0);
+    }, 0);
     return max + 1;
-  }, [classesByLevelData, activeLevel?.classEnd]);
+  }, [classesByLevelData]);
 
   useEffect(() => {
     if (levels.length === 0) {
