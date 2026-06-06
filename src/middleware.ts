@@ -1,6 +1,7 @@
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export default function middleware(req: NextRequest) {
+export default async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const host = req.headers.get("host");
   const path = url.pathname;
@@ -27,7 +28,8 @@ export default function middleware(req: NextRequest) {
     }
   }
 
-  const token = req.cookies.get("token")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
 
   //include all routes that you want to be accessed without auth
   const authRoutes = [
@@ -42,8 +44,7 @@ export default function middleware(req: NextRequest) {
   const isAuthRoute = authRoutes.includes(path);
 
   if (path === "/") {
-    if (token) return NextResponse.redirect(new URL("/staff/", req.nextUrl));
-    return NextResponse.next();
+    return NextResponse.redirect(new URL("/auth/staff", req.nextUrl));
   }
 
   //   If user is logged in and tries to visit auth routes
