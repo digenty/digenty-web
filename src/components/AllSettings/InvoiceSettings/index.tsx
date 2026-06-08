@@ -1,28 +1,9 @@
 "use client";
 
-import { Edit } from "@digenty/icons";
-import { Avatar } from "@/components/Avatar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { useGetInvoiceSettings } from "@/hooks/queryHooks/useInvoice";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { useRouter } from "next/navigation";
-
-const Row = ({ label, value }: { label: string; value?: string | number | boolean }) => (
-  <div className="border-border-default flex items-center justify-between border-b py-3">
-    <span className="text-text-subtle text-sm">{label}</span>
-    <span className="text-text-default text-sm font-medium">{String(value ?? "—")}</span>
-  </div>
-);
-
-export const InvoiceSetting = () => {
-  const router = useRouter();
-  const { branchIds } = useLoggedInUser();
-  const branchId = branchIds?.[0];
-  const { data: settings, isPending } = useGetInvoiceSettings(branchId);
 import Image from "next/image";
 import { useFormik } from "formik";
 import React, { useRef, useState } from "react";
+import { Edit } from "@digenty/icons";
 
 import { uploadImage } from "@/app/actions/upload-image";
 import { Avatar } from "@/components/Avatar";
@@ -125,7 +106,7 @@ export const InvoiceSetting = () => {
         toast({ title: message, type: "error" });
       };
 
-      if (hasSettings) {
+      if (hasSettings && settings?.id) {
         const updatePayload: UpdateInvoiceSettingsPayload = {
           schoolLogoUrl: values.schoolLogoUrl || undefined,
           invoicePrefix: values.invoicePrefix || undefined,
@@ -205,67 +186,37 @@ export const InvoiceSetting = () => {
   return (
     <div className="mx-auto my-6 flex w-full max-w-171 items-center justify-center px-4">
       <div className="flex w-full flex-col gap-6">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between">
           <div className="text-text-default text-lg font-semibold">Invoice Settings</div>
-          <Button
-            onClick={() => router.push("/staff/settings/invoice/edit")}
-            className="bg-bg-state-secondary! border-border-darker text-text-default rounded-md border"
-          >
-            <Edit fill="var(--color-icon-default-muted)" /> Edit
-          </Button>
+          {!isEditing && (
+            <Button onClick={() => setIsEditing(true)} className="bg-bg-state-secondary! border-border-darker text-text-default rounded-md border">
+              <Edit fill="var(--color-icon-default-muted)" /> Edit
+            </Button>
+          )}
         </div>
 
-        {isPending ? (
-          <Skeleton className="bg-bg-input-soft h-96 w-full" />
-        ) : (
-          <>
-            {/* School Logo */}
-            <div>
-              <div className="text-text-default mb-3 text-sm font-medium">School Logo</div>
-              <div className="border-border-default border-b pb-4">
-                <Avatar className="size-10" url={settings?.schoolLogoUrl ?? undefined} />
-              </div>
-            </div>
-        <div>
-          <div className="mb-8 flex items-center justify-between">
-            <div className="text-text-default text-lg font-semibold">Invoice Settings</div>
-            {!isEditing && (
-              <Button onClick={() => setIsEditing(true)} className="bg-bg-state-secondary! border-border-darker text-text-default rounded-md border">
-                <Edit fill="var(--color-icon-default-muted)" /> Edit
+        <div className="text-text-default mb-4 text-sm font-medium">School Logo</div>
+        <div className="flex flex-col gap-4">
+          <div className="border-border-default flex items-center gap-4 border-b pb-4">
+            <input ref={fileInputRef} type="file" accept="image/png,image/jpeg" className="hidden" aria-label="Upload school logo" onChange={handleFileChange} />
+
+            {logo ? (
+              <Image src={logo} alt="School logo" width={40} height={40} className="size-10 rounded-full object-cover" />
+            ) : (
+              <Avatar className="size-10" />
+            )}
+
+            {isEditing && (
+              <Button
+                onClick={handleUploadClick}
+                disabled={isUploading}
+                className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
+              >
+                {isUploading && <Spinner className="mr-1 size-4" />}
+                {isUploading ? "Uploading..." : "Upload"}
               </Button>
             )}
-          </div>
-
-          <div className="text-text-default mb-4 text-sm font-medium">School Logo</div>
-          <div className="flex flex-col gap-4">
-            <div className="border-border-default flex items-center gap-4 border-b pb-4">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png,image/jpeg"
-                className="hidden"
-                aria-label="Upload school logo"
-                onChange={handleFileChange}
-              />
-
-              {logo ? (
-                <Image src={logo} alt="School logo" width={40} height={40} className="size-10 rounded-full object-cover" />
-              ) : (
-                <Avatar className="size-10" />
-              )}
-
-              {isEditing && (
-                <Button
-                  onClick={handleUploadClick}
-                  disabled={isUploading}
-                  className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
-                >
-                  {isUploading && <Spinner className="mr-1 size-4" />}
-                  {isUploading ? "Uploading..." : "Upload"}
-                </Button>
-              )}
-              <div className="text-text-muted text-xs">JPG or PNG. 1MB Max.</div>
-            </div>
+            <div className="text-text-muted text-xs">JPG or PNG. 1MB Max.</div>
           </div>
         </div>
 
@@ -344,6 +295,7 @@ export const InvoiceSetting = () => {
             {formik.touched.padding && formik.errors.padding && <p className="text-text-destructive text-xs font-light">{formik.errors.padding}</p>}
           </div>
         </div>
+
         <div className="flex flex-col gap-2">
           <Label className="text-text-default text-sm font-medium">Reset Rule</Label>
           <Select value={formik.values.resetRule} onValueChange={v => formik.setFieldValue("resetRule", v)} disabled={disabled}>
@@ -415,44 +367,12 @@ export const InvoiceSetting = () => {
             {formik.touched.defaultNote && formik.errors.defaultNote && (
               <p className="text-text-destructive text-xs font-light">{formik.errors.defaultNote}</p>
             )}
-            <div className="text-text-muted text-xs">
-              This note will appear on all new invoices. You can edit it for individual invoices if needed.
-            </div>
+            <div className="text-text-muted text-xs">This note will appear on all new invoices. You can edit it for individual invoices if needed.</div>
           </div>
         </div>
 
-            {/* Invoice Numbering */}
-            <div className="text-text-default text-lg font-semibold">Invoice Numbering</div>
-            <div className="border-border-default rounded-md border px-4">
-              <Row label="Invoice Prefix" value={settings?.invoicePrefix} />
-              <Row label="Number Format" value={settings?.numberFormat} />
-              <Row label="Starting Number" value={settings?.startingNumber} />
-              <Row label="Padding" value={settings?.padding ? `${settings.padding} Digits` : undefined} />
-            </div>
+        <div className="text-text-default text-lg font-semibold">Invoice Reminders</div>
 
-            {settings?.nextInvoiceNumber && (
-              <div className="border-border-default bg-bg-basic-blue-subtle flex w-full items-center gap-2 rounded-md border px-3 py-2.5">
-                <div className="bg-bg-basic-blue-accent border-border-default h-6 w-1 border-2" />
-                <div className="text-text-subtle text-sm">Next Invoice Number: {settings.nextInvoiceNumber}</div>
-              </div>
-            )}
-
-            {/* Basic Settings */}
-            <div className="text-text-default text-lg font-semibold">Basic Settings</div>
-            <div className="border-border-default rounded-md border px-4">
-              <Row label="Default Due Date" value={settings?.defaultDueDate} />
-              <Row label="Default Invoice Note" value={settings?.defaultNote} />
-            </div>
-
-            {/* Reminders */}
-            <div className="text-text-default text-lg font-semibold">Invoice Reminders</div>
-            <div className="border-border-default rounded-md border px-4">
-              <Row label="Remind Before Due Date" value={settings?.remindBeforeDays !== undefined ? `${settings.remindBeforeDays} Days` : undefined} />
-              <Row label="Remind After Due Date" value={settings?.remindAfterDays !== undefined ? `${settings.remindAfterDays} Days` : undefined} />
-              <Row label="Repeat Reminders" value={settings?.repeatReminders ? "Yes" : "No"} />
-              {settings?.repeatReminders && <Row label="Repeat Every" value={settings?.repeatEveryDays !== undefined ? `${settings.repeatEveryDays} Days` : undefined} />}
-            </div>
-          </>
         <div className="grid-col-1 grid w-full gap-6 md:grid-cols-2">
           <div className="flex flex-col gap-2">
             <Label className="text-text-default text-sm font-medium">Before Due Date</Label>

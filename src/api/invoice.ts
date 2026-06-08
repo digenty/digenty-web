@@ -52,7 +52,6 @@ export type UpdateInvoicePayload = {
   paymentStatus: "UNPAID" | "PAID" | "PARTIALLY_PAID";
 };
 
-export type InvoiceSettingsResponse = {
 export type ResetRule = "NEVER" | "YEARLY" | "MONTHLY" | "TERMLY" | "SESSION";
 
 export type InvoiceSettingsResponse = {
@@ -91,12 +90,9 @@ export type UpdateInvoiceSettingsPayload = {
   invoicePrefix?: string;
   numberFormat?: string;
   startingNumber?: number;
-  padding?: number;
   defaultDueDate?: string;
   defaultNote?: string;
-  padding: number;
-  defaultDueDate?: string;
-  defaultNote?: string;
+  padding: number | string;
   resetRule?: ResetRule;
   remindBeforeDays?: number;
   remindAfterDays?: number;
@@ -188,15 +184,9 @@ export const getNextInvoiceNumber = async (branchId: number) => {
   }
 };
 
-export type CreateInvoiceSettingsPayload = UpdateInvoiceSettingsPayload & {
-  branchId: number;
-};
-
-export const getInvoiceSettings = async (branchId: number) => {
-  try {
-    const { data } = await api.get(`/invoice-settings?branchId=${branchId}`);
-    return data as InvoiceSettingsResponse;
-  } catch (error: unknown) {
+// export type CreateInvoiceSettingsPayload = UpdateInvoiceSettingsPayload & {
+//   branchId: number;
+// };
 
 export const getInvoiceSettings = async () => {
   try {
@@ -218,15 +208,15 @@ export const createInvoiceSettings = async (payload: CreateInvoiceSettingsPayloa
   }
 };
 
-export const updateInvoiceSettings = async (branchId: number, payload: UpdateInvoiceSettingsPayload) => {
-  try {
-    const { data } = await api.put(`/invoice-settings?branchId=${branchId}`, payload);
-    return data as InvoiceSettingsResponse;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) throw error.response?.data;
-    throw error;
-  }
-};
+// export const updateInvoiceSettings = async (branchId: number, payload: UpdateInvoiceSettingsPayload) => {
+//   try {
+//     const { data } = await api.put(`/invoice-settings?branchId=${branchId}`, payload);
+//     return data as InvoiceSettingsResponse;
+//   } catch (error: unknown) {
+//     if (isAxiosError(error)) throw error.response?.data;
+//     throw error;
+//   }
+// };
 
 export const getPaymentHistory = async (invoiceId: string, page = 0, size = 10) => {
   try {
@@ -412,9 +402,10 @@ export type InvoicePreviewResponse = {
   note: string;
 };
 
-export const getInvoicePreview = async (invoiceId: string) => {
-  try {
-    const { data } = await api.get(`/invoices/${invoiceId}/preview`);
+// export const getInvoicePreview = async (invoiceId: string) => {
+//   try {
+//     const { data } = await api.get(`/invoices/${invoiceId}/preview`);
+
 export const updateInvoiceSettings = async (invoiceId: number, payload: UpdateInvoiceSettingsPayload) => {
   try {
     const { data } = await api.put(`/invoice-settings/${invoiceId}`, payload);

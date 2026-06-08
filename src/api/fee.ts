@@ -46,6 +46,14 @@ export const getFeesForInvoice = async ({
     const { data } = await api.get(
       `/fees?branchId=${branchId}${classId ? `&classId=${classId}` : ""}${termId ? `&termId=${termId}` : ""}${search ? `&search=${search}` : ""}`,
     );
+
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
 export type FeeTermType = "FIRST" | "SECOND" | "THIRD";
 
 export interface ClassArmAmount {
@@ -369,6 +377,12 @@ export const updateFeeRoute = async (id: number, payload: FeeRouteRequestDto) =>
 export const getFeeGroupsForInvoice = async ({ branchId, search = "" }: { branchId: number; search?: string }) => {
   try {
     const { data } = await api.get(`/fee-groups?branchId=${branchId}${search ? `&search=${search}` : ""}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
 export const deleteFeeRoute = async (id: number) => {
   try {
     const { data } = await api.delete(`/fee/route/${id}`);

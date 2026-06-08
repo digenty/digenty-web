@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Toggle } from "@/components/Toggle";
 import { useGetInvoiceSettings, useCreateInvoiceSettings, useUpdateInvoiceSettings } from "@/hooks/queryHooks/useInvoice";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+
 import { invoiceSettingsSchema } from "@/schema/invoice";
 import { cn } from "@/lib/utils";
 import { useFormik } from "formik";
@@ -21,12 +21,10 @@ const DIGITS = [3, 4, 5, 6, 7, 8, 9];
 
 export const EditInvoiceSetting = () => {
   const router = useRouter();
-  const { branchIds } = useLoggedInUser();
-  const branchId = branchIds?.[0];
 
-  const { data: settings, isPending: loadingSettings } = useGetInvoiceSettings(branchId);
+  const { data: settings, isPending: loadingSettings } = useGetInvoiceSettings();
   const { mutate: create, isPending: creating } = useCreateInvoiceSettings();
-  const { mutate: update, isPending: updating } = useUpdateInvoiceSettings(branchId);
+  const { mutate: update, isPending: updating } = useUpdateInvoiceSettings();
   const isPending = creating || updating;
 
   const formik = useFormik({
@@ -45,19 +43,6 @@ export const EditInvoiceSetting = () => {
     validationSchema: invoiceSettingsSchema,
     enableReinitialize: true,
     onSubmit: values => {
-      const payload = {
-        invoicePrefix: values.invoicePrefix,
-        numberFormat: values.numberFormat,
-        startingNumber: Number(values.startingNumber),
-        padding: Number(values.padding),
-        defaultDueDate: values.defaultDueDate,
-        defaultNote: values.defaultNote,
-        remindBeforeDays: Number(values.remindBeforeDays),
-        remindAfterDays: Number(values.remindAfterDays),
-        repeatReminders: values.repeatReminders,
-        repeatEveryDays: Number(values.repeatEveryDays),
-      };
-
       const onSuccess = () => {
         toast({ title: "Invoice settings saved", type: "success" });
         router.push("/staff/settings/invoice");
@@ -67,10 +52,40 @@ export const EditInvoiceSetting = () => {
         toast({ title: msg, type: "error" });
       };
 
-      if (!settings) {
-        create({ ...payload, branchId: branchId! }, { onSuccess, onError });
+      if (!settings?.id) {
+        create(
+          {
+            invoicePrefix: values.invoicePrefix,
+            numberFormat: values.numberFormat,
+            startNumber: Number(values.startingNumber),
+            numberPadding: Number(values.padding),
+            defaultDueDate: values.defaultDueDate,
+            defaultInvoiceNote: values.defaultNote,
+            noOfDaysBeforeDueDate: Number(values.remindBeforeDays),
+            noOfDaysAfterDueDate: Number(values.remindAfterDays),
+            repeatFrequency: Number(values.repeatEveryDays),
+          },
+          { onSuccess, onError },
+        );
       } else {
-        update(payload, { onSuccess, onError });
+        update(
+          {
+            invoiceId: settings.id,
+            payload: {
+              invoicePrefix: values.invoicePrefix,
+              numberFormat: values.numberFormat,
+              startingNumber: Number(values.startingNumber),
+              padding: Number(values.padding),
+              defaultDueDate: values.defaultDueDate,
+              defaultNote: values.defaultNote,
+              remindBeforeDays: Number(values.remindBeforeDays),
+              remindAfterDays: Number(values.remindAfterDays),
+              repeatReminders: values.repeatReminders,
+              repeatEveryDays: Number(values.repeatEveryDays),
+            },
+          },
+          { onSuccess, onError },
+        );
       }
     },
   });
@@ -125,21 +140,30 @@ export const EditInvoiceSetting = () => {
         <div className="text-text-default text-lg font-semibold">Invoice Numbering</div>
         <div className="border-border-default grid grid-cols-1 gap-6 border-b pb-6 md:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="invoicePrefix" className="text-text-default text-sm font-medium">Invoice Prefix</Label>
+            <Label htmlFor="invoicePrefix" className="text-text-default text-sm font-medium">
+              Invoice Prefix
+            </Label>
             <Input
               id="invoicePrefix"
               value={formik.values.invoicePrefix}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={cn("bg-bg-input-soft! text-text-default w-full border-none", formik.touched.invoicePrefix && formik.errors.invoicePrefix && "border-border-destructive border")}
+              className={cn(
+                "bg-bg-input-soft! text-text-default w-full border-none",
+                formik.touched.invoicePrefix && formik.errors.invoicePrefix && "border-border-destructive border",
+              )}
               placeholder="INV-"
             />
             <div className="text-text-muted text-xs">Common formats: INV-, FEE-, BILL-</div>
-            {formik.touched.invoicePrefix && formik.errors.invoicePrefix && <p className="text-text-destructive text-xs font-light">{formik.errors.invoicePrefix}</p>}
+            {formik.touched.invoicePrefix && formik.errors.invoicePrefix && (
+              <p className="text-text-destructive text-xs font-light">{formik.errors.invoicePrefix}</p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="numberFormat" className="text-text-default text-sm font-medium">Number Format</Label>
+            <Label htmlFor="numberFormat" className="text-text-default text-sm font-medium">
+              Number Format
+            </Label>
             <Input
               id="numberFormat"
               value={formik.values.numberFormat}
@@ -152,32 +176,46 @@ export const EditInvoiceSetting = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="startingNumber" className="text-text-default text-sm font-medium">Starting Number</Label>
+            <Label htmlFor="startingNumber" className="text-text-default text-sm font-medium">
+              Starting Number
+            </Label>
             <Input
               id="startingNumber"
               type="number"
               value={formik.values.startingNumber}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={cn("bg-bg-input-soft! text-text-default w-full border-none", formik.touched.startingNumber && formik.errors.startingNumber && "border-border-destructive border")}
+              className={cn(
+                "bg-bg-input-soft! text-text-default w-full border-none",
+                formik.touched.startingNumber && formik.errors.startingNumber && "border-border-destructive border",
+              )}
               placeholder="1"
             />
             <div className="text-text-muted text-xs">The first invoice number to use</div>
-            {formik.touched.startingNumber && formik.errors.startingNumber && <p className="text-text-destructive text-xs font-light">{formik.errors.startingNumber as string}</p>}
+            {formik.touched.startingNumber && formik.errors.startingNumber && (
+              <p className="text-text-destructive text-xs font-light">{formik.errors.startingNumber as string}</p>
+            )}
           </div>
 
           <div className="flex flex-col gap-2">
             <Label className="text-text-default text-sm font-medium">Padding</Label>
             <Select
               value={String(formik.values.padding)}
-              onValueChange={v => { formik.setFieldValue("padding", Number(v)); formik.setFieldTouched("padding", true); }}
+              onValueChange={v => {
+                formik.setFieldValue("padding", Number(v));
+                formik.setFieldTouched("padding", true);
+              }}
             >
               <SelectTrigger className="bg-bg-input-soft! h-9! w-full rounded-md border-none">
-                <SelectValue><span className="text-text-default text-sm">{formik.values.padding} Digits</span></SelectValue>
+                <SelectValue>
+                  <span className="text-text-default text-sm">{formik.values.padding} Digits</span>
+                </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 {DIGITS.map(d => (
-                  <SelectItem key={d} value={String(d)} className="text-text-default text-sm font-medium">{d} Digits</SelectItem>
+                  <SelectItem key={d} value={String(d)} className="text-text-default text-sm font-medium">
+                    {d} Digits
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -195,7 +233,9 @@ export const EditInvoiceSetting = () => {
         <div className="text-text-default text-lg font-semibold">Basic Settings</div>
         <div className="border-border-default flex w-full flex-col border-b pb-6 md:flex-row md:items-start md:justify-between md:gap-6">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="defaultDueDate" className="text-text-default w-full text-sm font-medium">Default Due Date</Label>
+            <Label htmlFor="defaultDueDate" className="text-text-default w-full text-sm font-medium">
+              Default Due Date
+            </Label>
             <Input
               id="defaultDueDate"
               value={formik.values.defaultDueDate}
@@ -206,7 +246,9 @@ export const EditInvoiceSetting = () => {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="defaultNote" className="text-text-default text-sm font-medium">Default Invoice Note</Label>
+            <Label htmlFor="defaultNote" className="text-text-default text-sm font-medium">
+              Default Invoice Note
+            </Label>
             <Input
               id="defaultNote"
               value={formik.values.defaultNote}
@@ -223,28 +265,40 @@ export const EditInvoiceSetting = () => {
         <div className="text-text-default text-lg font-semibold">Invoice Reminders</div>
         <div className="grid-col-1 grid w-full gap-6 md:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="remindBeforeDays" className="text-text-default text-sm font-medium">Before Due Date</Label>
+            <Label htmlFor="remindBeforeDays" className="text-text-default text-sm font-medium">
+              Before Due Date
+            </Label>
             <Input
               id="remindBeforeDays"
               type="number"
               value={formik.values.remindBeforeDays}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={cn("bg-bg-input-soft! w-full rounded-md border-none", formik.touched.remindBeforeDays && formik.errors.remindBeforeDays && "border-border-destructive border")}
+              className={cn(
+                "bg-bg-input-soft! w-full rounded-md border-none",
+                formik.touched.remindBeforeDays && formik.errors.remindBeforeDays && "border-border-destructive border",
+              )}
               placeholder="1"
             />
             <div className="text-text-default text-sm font-medium">Days</div>
-            {formik.touched.remindBeforeDays && formik.errors.remindBeforeDays && <p className="text-text-destructive text-xs font-light">{formik.errors.remindBeforeDays as string}</p>}
+            {formik.touched.remindBeforeDays && formik.errors.remindBeforeDays && (
+              <p className="text-text-destructive text-xs font-light">{formik.errors.remindBeforeDays as string}</p>
+            )}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="remindAfterDays" className="text-text-default text-sm font-medium">After Due Date</Label>
+            <Label htmlFor="remindAfterDays" className="text-text-default text-sm font-medium">
+              After Due Date
+            </Label>
             <Input
               id="remindAfterDays"
               type="number"
               value={formik.values.remindAfterDays}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={cn("bg-bg-input-soft! w-full rounded-md border-none", formik.touched.remindAfterDays && formik.errors.remindAfterDays && "border-border-destructive border")}
+              className={cn(
+                "bg-bg-input-soft! w-full rounded-md border-none",
+                formik.touched.remindAfterDays && formik.errors.remindAfterDays && "border-border-destructive border",
+              )}
               placeholder="2"
             />
             <div className="text-text-default text-sm font-medium">Days</div>
@@ -264,7 +318,9 @@ export const EditInvoiceSetting = () => {
 
         {formik.values.repeatReminders && (
           <div className="flex flex-col gap-2">
-            <Label htmlFor="repeatEveryDays" className="text-text-default text-sm font-medium">Repeat Every</Label>
+            <Label htmlFor="repeatEveryDays" className="text-text-default text-sm font-medium">
+              Repeat Every
+            </Label>
             <Input
               id="repeatEveryDays"
               type="number"
@@ -280,11 +336,7 @@ export const EditInvoiceSetting = () => {
 
         {/* Footer */}
         <div className="border-border-default mt-5 flex items-center justify-between border-t py-4">
-          <Button
-            type="button"
-            onClick={() => router.back()}
-            className="bg-bg-state-soft! text-text-subtle rounded-md"
-          >
+          <Button type="button" onClick={() => router.back()} className="bg-bg-state-soft! text-text-subtle rounded-md">
             Cancel
           </Button>
           <Button

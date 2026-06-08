@@ -46,13 +46,13 @@ export const AddPAyment = () => {
 
   const { data: studentData } = useGetStudent(issuedTo?.id);
   const student = (studentData as { data: Student } | undefined)?.data;
-  const linkedParentIds = student?.linkedParents ?? [];
+  const studentLinkedParents = student?.linkedParents ?? [];
 
   const parentQueries = useQueries({
-    queries: linkedParentIds.map(id => ({
-      queryKey: [parentKeys.getParent, id],
-      queryFn: () => getParent(id),
-      enabled: !!id,
+    queries: studentLinkedParents.map(p => ({
+      queryKey: [parentKeys.getParent, p.id],
+      queryFn: () => getParent(p.id),
+      enabled: !!p.id,
     })),
   });
   const linkedParents = parentQueries.map(q => (q.data as { data: Parent } | undefined)?.data).filter(Boolean) as Parent[];

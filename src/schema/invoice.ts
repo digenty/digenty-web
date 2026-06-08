@@ -40,15 +40,17 @@ export const addPaymentSchema = yup.object().shape({
   note: yup.string(),
 });
 
-export const invoiceSettingsSchema = yup.object({
-  invoicePrefix: yup.string(),
-  numberFormat: yup.string(),
-  startingNumber: yup.number().min(1).typeError("Must be a number"),
-  padding: yup.number().min(3).max(9).typeError("Must be a number"),
-  defaultDueDate: yup.string(),
-  defaultNote: yup.string(),
-  remindBeforeDays: yup.number().min(0).typeError("Must be a number"),
-  remindAfterDays: yup.number().min(0).typeError("Must be a number"),
+// export const invoiceSettingsSchema = yup.object({
+//   invoicePrefix: yup.string(),
+//   numberFormat: yup.string(),
+//   startingNumber: yup.number().min(1).typeError("Must be a number"),
+//   padding: yup.number().min(3).max(9).typeError("Must be a number"),
+//   defaultDueDate: yup.string(),
+//   defaultNote: yup.string(),
+//   remindBeforeDays: yup.number().min(0).typeError("Must be a number"),
+//   remindAfterDays: yup.number().min(0).typeError("Must be a number"),
+// });
+
 export const invoiceSettingsSchema = yup.object({
   invoicePrefix: yup.string().trim().required("Invoice prefix is required"),
   numberFormat: yup.string().trim().required("Number format is required"),
