@@ -1,17 +1,12 @@
 "use client";
 
-import ImageExtension from "@tiptap/extension-image";
-import LinkExtension from "@tiptap/extension-link";
-import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import UnderlineExtension from "@tiptap/extension-underline";
 import { useEffect, useRef, useState } from "react";
 
 import { Attachment2, Bold, ImageCircleFill, Italic, Link as LinkIcon, ListCheck, ListOrdered2, Underline } from "@digenty/icons";
 
 import { cn } from "@/lib/utils";
 import { useSmsCount } from "@/hooks/queryHooks/useCampaign";
+import { RichEditorContent, useRichEditor } from "@/components/ui/rich-text-editor";
 import { CampaignChannel } from "../types";
 import { Label } from "../../ui/label";
 
@@ -58,6 +53,19 @@ export const MessageEditor = ({ value, onChange, error, channel }: MessageEditor
   const plainText = htmlToText(value);
   const showSmsCount = channel === "SMS";
 
+  const editor = useRichEditor({
+    onUpdate: onChange,
+    placeholder: "Your message",
+  });
+
+  // Sync external value resets (e.g. enableReinitialize in EditCampaign)
+  useEffect(() => {
+    if (editor.getHTML() !== value) {
+      editor.setContent(value || "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
   // Live SMS segment count from /campaigns/sms/count (debounced) for SMS campaigns.
   useEffect(() => {
     if (!showSmsCount || !plainText) {
@@ -68,41 +76,17 @@ export const MessageEditor = ({ value, onChange, error, channel }: MessageEditor
     return () => clearTimeout(timeout);
   }, [plainText, showSmsCount, countSms, resetSmsCount]);
 
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      UnderlineExtension,
-      LinkExtension.configure({
-        openOnClick: false,
-        HTMLAttributes: { class: "tiptap-link" },
-      }),
-      ImageExtension.configure({
-        HTMLAttributes: { class: "tiptap-image" },
-      }),
-      Placeholder.configure({ placeholder: "Your message" }),
-    ],
-    content: value || "",
-    onUpdate: ({ editor: e }) => onChange(e.getHTML()),
-  });
-
-  // Sync external value resets (e.g. enableReinitialize in EditCampaign)
-  useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value || "", { emitUpdate: false });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
-
-  const isActive = (name: string) => editor?.isActive(name) ?? false;
+  const isActive = (name: string) => editor.isActive(name);
 
   const handleLink = () => {
-    const existing = editor?.getAttributes("link").href ?? "";
+    editor.saveSelection();
+    const existing = editor.getLinkHref();
     const url = window.prompt("Enter URL", existing);
     if (url === null) return;
     if (url === "") {
-      editor?.chain().focus().extendMarkRange("link").unsetLink().run();
+      editor.removeLink();
     } else {
-      editor?.chain().focus().extendMarkRange("link").setLink({ href: url, target: "_blank" }).run();
+      editor.insertLink(url);
     }
   };
 
@@ -121,7 +105,7 @@ export const MessageEditor = ({ value, onChange, error, channel }: MessageEditor
     setUploading(true);
     try {
       const url = await uploadFile(file);
-      editor?.chain().focus().setImage({ src: url, alt: file.name }).run();
+      editor.insertImage(url, file.name);
     } catch {
       // silent — production would show a toast here
     } finally {
@@ -136,7 +120,7 @@ export const MessageEditor = ({ value, onChange, error, channel }: MessageEditor
     setUploading(true);
     try {
       const url = await uploadFile(file);
-      editor?.chain().focus().insertContent(`<a href="${url}" target="_blank" rel="noopener noreferrer">${file.name}</a> `).run();
+      editor.insertHTML(`<a href="${url}" target="_blank" rel="noopener noreferrer">${file.name}</a> `);
     } catch {
       // silent
     } finally {
@@ -159,19 +143,19 @@ export const MessageEditor = ({ value, onChange, error, channel }: MessageEditor
         <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
         <input ref={attachmentInputRef} type="file" className="hidden" onChange={handleAttachmentChange} />
 
-        <EditorContent editor={editor} className="tiptap-editor bg-bg-input-soft text-text-default min-h-30 px-3 py-2 text-sm" />
+        <RichEditorContent editor={editor} initialContent={value} className="tiptap-editor bg-bg-input-soft text-text-default min-h-30 px-3 py-2 text-sm" />
 
         {/* Toolbar */}
         <div className="bg-bg-input-soft border-border-default flex items-center gap-3 border-t px-3 py-2">
           {/* Format */}
           <div className="flex items-center gap-2">
-            <ToolbarBtn onClick={() => editor?.chain().focus().toggleBold().run()} active={isActive("bold")} label="Bold">
+            <ToolbarBtn onClick={editor.toggleBold} active={isActive("bold")} label="Bold">
               <Bold fill={iconFill(isActive("bold"))} className="size-4" />
             </ToolbarBtn>
-            <ToolbarBtn onClick={() => editor?.chain().focus().toggleItalic().run()} active={isActive("italic")} label="Italic">
+            <ToolbarBtn onClick={editor.toggleItalic} active={isActive("italic")} label="Italic">
               <Italic fill={iconFill(isActive("italic"))} className="size-4" />
             </ToolbarBtn>
-            <ToolbarBtn onClick={() => editor?.chain().focus().toggleUnderline().run()} active={isActive("underline")} label="Underline">
+            <ToolbarBtn onClick={editor.toggleUnderline} active={isActive("underline")} label="Underline">
               <Underline fill={iconFill(isActive("underline"))} className="size-4" />
             </ToolbarBtn>
           </div>
@@ -180,10 +164,10 @@ export const MessageEditor = ({ value, onChange, error, channel }: MessageEditor
 
           {/* Lists */}
           <div className="flex items-center gap-2">
-            <ToolbarBtn onClick={() => editor?.chain().focus().toggleOrderedList().run()} active={isActive("orderedList")} label="Numbered list">
+            <ToolbarBtn onClick={editor.toggleOrderedList} active={isActive("orderedList")} label="Numbered list">
               <ListOrdered2 fill={iconFill(isActive("orderedList"))} className="size-4" />
             </ToolbarBtn>
-            <ToolbarBtn onClick={() => editor?.chain().focus().toggleBulletList().run()} active={isActive("bulletList")} label="Bulleted list">
+            <ToolbarBtn onClick={editor.toggleBulletList} active={isActive("bulletList")} label="Bulleted list">
               <ListCheck fill={iconFill(isActive("bulletList"))} className="size-4" />
             </ToolbarBtn>
           </div>
