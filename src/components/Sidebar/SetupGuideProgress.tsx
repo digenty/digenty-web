@@ -1,7 +1,11 @@
 import { useGetOnboardingProgress } from "@/hooks/queryHooks/useSchool";
 import { useOnboardingStore } from "@/store";
+import { Tooltip } from "../Tooltip";
 
-export const SetupGuideProgress = () => {
+const RADIUS = 15;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+export const SetupGuideProgress = ({ isCollapsed = false }: { isCollapsed?: boolean }) => {
   const { steps, setShowSetupSteps } = useOnboardingStore();
   const { data: progressResp, isLoading } = useGetOnboardingProgress();
 
@@ -20,8 +24,38 @@ export const SetupGuideProgress = () => {
   const completedStepsCount = mergedSteps.filter(s => s.isCompleted).length;
   const progressPercentage = mergedSteps.length > 0 ? (completedStepsCount / mergedSteps.length) * 100 : 0;
 
-  // If the progress is 100%, don't show the setup guide on the sidebar
   if (progressPercentage === 100) return null;
+
+  if (isCollapsed) {
+    return (
+      <Tooltip
+        description="Setup progress"
+        Trigger={
+          <div onClick={() => setShowSetupSteps(true)} role="button" tabIndex={0} className="my-4 flex cursor-pointer items-center justify-center">
+            <div className="relative flex h-10 w-10 items-center justify-center">
+              <svg className="absolute -inset-[1px] -rotate-90" viewBox="0 0 40 40" width="36" height="36">
+                <circle cx="18" cy="18" r={RADIUS} fill="none" stroke="var(--color-border-default)" strokeWidth="3" />
+                <circle
+                  cx="18"
+                  cy="18"
+                  r={RADIUS}
+                  fill="none"
+                  stroke="var(--color-bg-basic-green-accent)"
+                  strokeWidth="3"
+                  strokeDasharray={CIRCUMFERENCE}
+                  strokeDashoffset={CIRCUMFERENCE * (1 - progressPercentage / 100)}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="text-text-default absolute flex items-center justify-center text-[9px] font-semibold">
+                {Math.round(progressPercentage)}%
+              </div>
+            </div>
+          </div>
+        }
+      />
+    );
+  }
 
   return (
     <div

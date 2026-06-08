@@ -102,11 +102,11 @@ export const ClassAttendanceHeader = ({
   };
 
   return (
-    <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle md:flex-row md:items-center md:py-3">
-      <div className="border-border-default flex w-full items-center gap-2 border-b px-4 md:border-none md:px-8">
+    <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle lg:flex-row lg:items-center lg:py-3">
+      <div className="border-border-default flex w-full items-center gap-2 border-b px-4 lg:border-none lg:px-8">
         <h2 className="text-text-default line-clamp-1 text-lg font-semibold md:text-xl">{classArmName.toUpperCase()}</h2>
 
-        <div className="hidden gap-1 md:flex">
+        <div className="hidden gap-1 lg:flex">
           <Button
             disabled={markingAll}
             onClick={() => handleMarkAllAttendance(true)}
@@ -127,7 +127,7 @@ export const ClassAttendanceHeader = ({
         </div>
       </div>
 
-      <div className="hide-scrollbar w-screen overflow-x-auto px-4 py-2 md:w-auto md:overflow-x-visible md:px-8 md:py-0">
+      <div className="hide-scrollbar w-screen overflow-x-auto px-4 py-2 lg:w-auto lg:overflow-x-visible lg:px-8 lg:py-0">
         <div className="flex w-max items-center gap-2 md:w-auto">
           <Button
             onClick={() => router.push(`/staff/attendance/${classArmName.split(" ").join("-")}/${armId}/term-sheet`)}
@@ -193,7 +193,7 @@ export const ClassAttendanceHeader = ({
         </div>
       </div>
 
-      <div className="border-border-default hide-scrollbar flex w-screen gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
+      <div className="border-border-default hide-scrollbar flex w-screen gap-2 overflow-x-auto border-t px-4 pt-2 lg:hidden lg:px-8">
         <Button disabled={markingAll} onClick={() => handleMarkAllAttendance(true)} className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
           {markingAll && isAllPresent ? <Spinner /> : <CheckIcon className="text-icon-default-muted size-4" />}
           <span className="text-text-subtle text-sm font-medium">Mark All Present</span>

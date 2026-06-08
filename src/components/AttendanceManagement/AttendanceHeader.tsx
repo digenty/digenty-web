@@ -51,7 +51,7 @@ export const AttendanceHeader = ({
       <h2 className="text-text-default text-lg font-semibold md:text-xl">Attendance Management</h2>
 
       {isAdmin && (
-        <div className="hidden gap-2 align-middle md:flex">
+        <div className="hidden gap-2 align-middle lg:flex">
           {!branches || loadingBranches ? (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (
@@ -106,7 +106,7 @@ export const AttendanceHeader = ({
       )}
 
       {isAdmin && (
-        <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
+        <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 lg:hidden" onClick={() => setIsFilterOpen(true)}>
           <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
         </Button>
       )}

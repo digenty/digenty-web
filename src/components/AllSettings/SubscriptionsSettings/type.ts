@@ -22,6 +22,21 @@ export const BILLING_CYCLE_TO_PLAN_TYPE: Record<BillingCycle, PlanType> = {
   Yearly: "YEARLY",
 };
 
+export const PLAN_PRICES: Record<StudentTier, Record<BillingCycle, { standard: number; advanced: number }>> = {
+  "1-200": {
+    Yearly: { standard: 3000, advanced: 4500 },
+    Termly: { standard: 1200, advanced: 1500 },
+  },
+  "201-400": {
+    Yearly: { standard: 2750, advanced: 4250 },
+    Termly: { standard: 1100, advanced: 1425 },
+  },
+  "401+": {
+    Yearly: { standard: 2500, advanced: 4000 },
+    Termly: { standard: 1000, advanced: 1350 },
+  },
+};
+
 export const STUDENT_TIER_RANGES: Record<StudentTier, { min: number; max: number }> = {
   "1-200": { min: 1, max: 200 },
   "201-400": { min: 201, max: 400 },
@@ -64,4 +79,16 @@ export const planFeaturesData: PlanFeatureRow[] = [
   { feature: "Students E-Portal", standard: false, advanced: true },
   { feature: "Library Management", standard: false, advanced: true },
   { feature: "Students Graduation, Transcripts & Alumni", standard: false, advanced: true },
+  { feature: "AI powered WhatsApp Bot as parent portal", standard: true, advanced: true },
+  {
+    feature: "AI powered National Exams Mock Testing (using past questions) and preparation advisory/learning path",
+    standard: true,
+    advanced: true,
+  },
+  {
+    feature: "AI assistant for staff (assessment creation from question bank, business growth metrics, debt and expense management recommendations, etc.)",
+    standard: true,
+    advanced: true,
+  },
+  { feature: "AI question bank auto create from lesson notes, textbooks and curriculum", standard: true, advanced: true },
 ];

@@ -166,7 +166,7 @@ export const EditStaff = () => {
         </div>
       </div>
 
-      <div className="mx-auto mb-20 flex w-full items-center justify-center md:max-w-225">
+      <div className="mx-auto flex w-full items-center justify-center md:max-w-225">
         <div className="flex w-full flex-col gap-6 px-3">
           {loadingStaffDetails || loadingRoles || loadingBranches ? (
             <div className="flex flex-col gap-6">
@@ -400,6 +400,7 @@ export const EditStaff = () => {
                             <TeacherAssignments
                               teacherName={`${formik.values.firstName} ${formik.values.lastName}`.trim()}
                               staffId={Number(staffId)}
+                              branchId={assignments.find(a => a.branchId !== null)?.branchId ?? undefined}
                             />
                           </div>
                         </div>
@@ -413,7 +414,7 @@ export const EditStaff = () => {
         </div>
       </div>
 
-      <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
+      <div className="border-border-default bg-bg-default sticky bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 md:px-36">
         <Button onClick={() => router.back()} disabled={isPending} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
           Cancel
         </Button>

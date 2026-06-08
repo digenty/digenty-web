@@ -56,7 +56,7 @@ export const AdmissionNumberField = ({ formik }: { formik: FormikProps<StudentIn
   return (
     <div className="space-y-2">
       <Label htmlFor="admissionNumber" className="text-text-default text-sm font-medium">
-        Admission Number
+        Admission Number<small className="text-text-destructive text-xs">*</small>
       </Label>
       <div className="flex w-full items-center gap-2">
         <Input

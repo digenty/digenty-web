@@ -231,3 +231,15 @@ export const updateAssignClassTeacher = async (payload: { armDtos: { armId: numb
     throw error;
   }
 };
+
+export const createClass = async (payload: { levelId: number; name: string }) => {
+  try {
+    const { data } = await api.post("/classes", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

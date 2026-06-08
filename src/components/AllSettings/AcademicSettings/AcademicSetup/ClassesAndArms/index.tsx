@@ -16,7 +16,8 @@ import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { AddClassModal } from "./AddClassModal";
 import { ClassEditSheet } from "./ClassEditSheet";
 import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
@@ -116,18 +117,6 @@ function ClassesResponsiveTabs({
   const Classes = () => {
     return (
       <>
-        {openDelete && <DeleteClass setOpenDeleteModal={setOpenDelete} open={openDelete} classId={classId} />}
-        {sheetOpen && (
-          <ClassEditSheet
-            sheetOpen={sheetOpen}
-            setSheetOpen={setSheetOpen}
-            level={activeLevel}
-            branchId={branchId}
-            classId={classId}
-            branchSpecific={branchSpecific}
-          />
-        )}
-
         {isPending && !classesByLevelData && <Skeleton className="bg-bg-state-soft h-80 w-full" />}
         {!isPending && classesByLevelData && classesByLevelData?.data?.content?.length === 0 && (
           <div className="flex w-full items-center justify-center pt-15">
@@ -333,9 +322,26 @@ function ClassesResponsiveTabs({
     );
   };
 
+  const modals = (
+    <>
+      {openDelete && <DeleteClass setOpenDeleteModal={setOpenDelete} open={openDelete} classId={classId} />}
+      {sheetOpen && (
+        <ClassEditSheet
+          sheetOpen={sheetOpen}
+          setSheetOpen={setSheetOpen}
+          level={activeLevel}
+          branchId={branchId}
+          classId={classId}
+          branchSpecific={branchSpecific}
+        />
+      )}
+    </>
+  );
+
   if (isMobile) {
     return (
       <div className="w-full">
+        {modals}
         <Label className="text-text-default mb-2 text-sm font-medium">
           <BookOpen fill="var(--color-icon-default-muted)" /> Select Level
         </Label>
@@ -366,6 +372,7 @@ function ClassesResponsiveTabs({
 
   return (
     <div className="w-full overflow-hidden">
+      {modals}
       <div className="h-9 w-full">
         <div
           className="bg-bg-state-soft hide-scrollbar flex max-w-150 items-center gap-2.5 overflow-x-auto rounded-full p-0.5 lg:max-w-160 xl:max-w-216"
@@ -419,6 +426,7 @@ export const ClassesAndArms = ({
   const [branchSpecific, setBranchSpecific] = useState(false);
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [addClassOpen, setAddClassOpen] = useState(false);
 
   useBreadcrumb([
     { label: "Academic Settings", url: "/staff/settings/academic" },
@@ -426,16 +434,37 @@ export const ClassesAndArms = ({
   ]);
 
   const { data: branchLevels } = useGetLevels(activeBranch?.id);
-  const levels = extractUniqueLevelsByType(branchLevels?.data || []);
+  const levels = useMemo(() => extractUniqueLevelsByType(branchLevels?.data || []), [branchLevels?.data]);
+
+  const { data: classesByLevelData, isPending: isLoadingClasses } = useGetClassesByLevel(activeLevel?.id);
+  const hasClasses = !isLoadingClasses && (classesByLevelData?.data?.content?.length ?? 0) > 0;
+
+  const nextClassNumber = useMemo(() => {
+    const classes: ClassInLevelDetails[] = classesByLevelData?.data?.content ?? [];
+    const max = classes.reduce((m, cls) => {
+      const num = parseInt(cls.className?.split(" ").pop() ?? "0", 10);
+      return isNaN(num) ? m : Math.max(m, num);
+    }, 0);
+    return max + 1;
+  }, [classesByLevelData]);
 
   useEffect(() => {
-    if (!activeLevel) {
-      setActiveLevel(levels[0]);
+    if (levels.length === 0) {
+      setActiveLevel(null);
+      return;
     }
+    setActiveLevel(prev => {
+      if (prev) {
+        const updated = levels.find(l => l.id === prev.id);
+        if (updated) return updated;
+      }
+      return levels[0];
+    });
   }, [levels]);
 
-  return (
-    <section className="">
+  return <>
+  
+  <section className="">
       <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 pb-12 lg:px-36">
         <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
           <div className="">
@@ -480,41 +509,75 @@ export const ClassesAndArms = ({
                     setSheetOpen={setSheetOpen}
                   />
                 )}
-                <Button
-                  onClick={() => {
-                    // setDepartmentsEnabled(false);
-                    setSheetOpen(true);
-                  }}
-                  className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
-                >
-                  <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
-                </Button>
+                {addClassOpen && (
+                  <AddClassModal open={addClassOpen} setOpen={setAddClassOpen} level={activeLevel} nextClassNumber={nextClassNumber} />
+                )}
+                {hasClasses ? (
+                  <Button
+                    onClick={() => setAddClassOpen(true)}
+                    className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
+                  >
+                    + Add Class
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => setSheetOpen(true)}
+                    className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
+                  >
+                    <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
+                  </Button>
+                )}
               </>
             )}
           </div>
         </div>
       </div>
 
-      <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
-        <Button
-          className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
-          onClick={() => {
-            setIsEditing?.(false);
-          }}
-        >
-          Cancel
-        </Button>
+      {/* {hasClasses && (
+        <div className="border-border-default bg-bg-default mx-auto flex w-full items-center justify-between border-t px-4 py-3 lg:px-40">
+          <Button
+            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+            onClick={() => {
+              setIsEditing?.(false);
+            }}
+          >
+            Cancel
+          </Button>
 
-        <Button
-          type="button"
-          onClick={() => {
-            setIsEditing?.(false);
-          }}
-          className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-        >
-          Save Changes
-        </Button>
-      </div>
+          <Button
+            type="button"
+            onClick={() => {
+              setIsEditing?.(false);
+            }}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+          >
+            Save Changes
+          </Button>
+        </div>
+      )} */}
+
+      {/* <div className="border-border-default bg-bg-default  border-t right-0 -z-1 left-0 fixed bottom-0 flex justify-center  ">
+        <div className="w-3/4 justify-between  items-center flex  px-4 py-3 lg:px-40 mx-auto">
+          <Button
+            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+            onClick={() => {
+              setIsEditing?.(false);
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="button"
+            onClick={() => {
+              setIsEditing?.(false);
+            }}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+          >
+            Save Changes
+          </Button>
+        </div>
+      </div> */}
 
       {completedSteps && setCompletedSteps && (
         <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
@@ -540,7 +603,7 @@ export const ClassesAndArms = ({
         </div>
       )}
     </section>
-  );
+  </> 
 };
 
 export const ClassesSetup = ({
