@@ -1,4 +1,74 @@
-import { ReactNode } from "react";
+import { StockAdjustReason, StockStatus } from "@/api/stock";
+
+export interface StockDetailResponse {
+  id: number;
+  name?: string;
+  itemName?: string;
+  description?: string;
+  imagePath?: string;
+  image?: string;
+  category?: { id?: number; name?: string } | null;
+  categoryName?: string;
+  categoryId?: number;
+  unit?: { id?: number; name?: string } | null;
+  unitName?: string;
+  stockUnitId?: number;
+  quantity?: number;
+  totalQuantity?: number;
+  price?: number;
+  costPrice?: number;
+  branchId?: number;
+  branchName?: string;
+  branch?: { id?: number; name?: string } | null;
+  totalSold?: number;
+  totalRemoved?: number;
+  totalReturned?: number;
+  status?: StockStatus;
+  stockStatus?: StockStatus;
+  branchStocks?: StockBranchEntry[];
+  branches?: StockBranchEntry[];
+  createdAt?: string;
+  updatedAt?: string;
+  lastModified?: string;
+  dateAdded?: string;
+}
+
+export interface StockBranchEntry {
+  id?: number;
+  branchId?: number;
+  branchName?: string;
+  branch?: { id?: number; name?: string } | null;
+  location?: string;
+  quantity?: number;
+  amount?: number;
+  price?: number;
+  status?: string;
+  stockStatus?: StockStatus;
+  lastModified?: string;
+  dateAdded?: string;
+}
+
+export interface StockTransactionRecord {
+  id: number;
+  date?: string;
+  createdAt?: string;
+  changedBy?: string;
+  userName?: string;
+  user?: { name?: string; id?: number } | null;
+  reason?: StockAdjustReason | string;
+  before?: number;
+  quantityBefore?: number;
+  after?: number;
+  quantityAfter?: number;
+  change?: number;
+  quantityAdjustment?: number;
+  branch?: string;
+  branchName?: string;
+  summary?: string;
+  type?: "INCREASE" | "DECREASE";
+  itemName?: string;
+  imagePath?: string;
+}
 
 export interface StockQuantityManagementProps {
   location: string;
@@ -6,70 +76,14 @@ export interface StockQuantityManagementProps {
   amount: number;
   status: string;
 }
+
 export interface StockHistoryProps {
   date: string | number;
   changedBy: string;
   reason: string;
   before: number;
   after: number;
-  change: number | ReactNode;
+  change: number;
   branch: string;
   summary: string;
 }
-export const StockQuantityManagementItems = [
-  {
-    location: "Lawanson",
-    quantity: 20,
-    amount: 150000,
-    status: "In Stock",
-  },
-  {
-    location: "Lawanson",
-    quantity: 20,
-    amount: 150000,
-    status: "In Stock",
-  },
-];
-
-export const StockHistoryList = [
-  {
-    date: "June 20, 2025",
-    changedBy: "Damilare John",
-    reason: "Sold",
-    before: 20,
-    after: 20,
-    change: 20,
-    branch: "Lawanson",
-    summary: "Sold to: Adebayo Sarah (SS1 A)",
-  },
-  {
-    date: "June 20, 2025",
-    changedBy: "Damilare John",
-    reason: "Sold",
-    before: 20,
-    after: 20,
-    change: 20,
-    branch: "Lawanson",
-    summary: "Sold to: Adebayo Sarah (SS1 A)",
-  },
-  {
-    date: "June 20, 2025",
-    changedBy: "Damilare John",
-    reason: "Sold",
-    before: 20,
-    after: 20,
-    change: 20,
-    branch: "Lawanson",
-    summary: "Sold to: Adebayo Sarah (SS1 A)",
-  },
-  {
-    date: "June 20, 2025",
-    changedBy: "Damilare John",
-    reason: "Sold",
-    before: 20,
-    after: 20,
-    change: 20,
-    branch: "Lawanson",
-    summary: "Sold to: Adebayo Sarah (SS1 A)",
-  },
-];
