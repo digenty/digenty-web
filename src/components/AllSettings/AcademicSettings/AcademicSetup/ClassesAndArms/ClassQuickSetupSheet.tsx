@@ -1,37 +1,151 @@
-import { CloseFill } from "@digenty/icons";
-import { ArmDetails, ClassLevel, Department, DepartmentResponse, DepartmentWithSubjects } from "@/api/types";
+import { ArmDetails, ClassLevel, DepartmentWithSubjects } from "@/api/types";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
-import { Tooltip } from "@/components/Tooltip";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import { useAddArm, useDeleteArm, useGetArmsByLevel } from "@/hooks/queryHooks/useArm";
+import { useAddArm, useDeleteArm, useGetAllArms, useGetArmsByLevel } from "@/hooks/queryHooks/useArm";
 import {
   useAddDepartmentsToLevel,
   useCreateDepartmentSubjects,
   useDeleteDepartmentFromLevel,
+  useDeleteDepartmentSubjects,
   useGetDepartmentSubjectsByLevel,
   useGetDepartmentsByLevel,
+  useGetDepartments,
+  useToggleDepartmentForLevel,
 } from "@/hooks/queryHooks/useDepartment";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
-import { useAddSubject, useDeleteSubject, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
+import { useAddSubject, useDeleteSubject, useGetAllSubjects, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
+import { armKeys } from "@/queries/arm";
+import { departmentKeys } from "@/queries/department";
+import { subjectKeys } from "@/queries/subject";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import * as yup from "yup";
 import { AssignArmsToDepartments } from "./AssignArmsToDepartments";
 
 const startclasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 const endClasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+
+const LevelItemsSection = ({
+  existingItems,
+  globalOptions,
+  isLoadingOptions,
+  onAdd,
+  onDelete,
+  isAdding,
+  deletingName,
+  placeholder,
+}: {
+  existingItems: string[];
+  globalOptions: string[];
+  isLoadingOptions: boolean;
+  onAdd: (names: string[]) => void;
+  onDelete: (name: string) => void;
+  isAdding: boolean;
+  deletingName: string | null;
+  placeholder: string;
+}) => {
+  const [inputValue, setInputValue] = useState("");
+
+  const handleAdd = () => {
+    const names = inputValue
+      .split(",")
+      .map(s => s.trim())
+      .filter(s => s !== "" && !existingItems.includes(s));
+    if (!names.length) {
+      setInputValue("");
+      return;
+    }
+    onAdd(names);
+    setInputValue("");
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
+        <Input
+          type="text"
+          value={inputValue}
+          onChange={e => setInputValue(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleAdd();
+            }
+          }}
+          placeholder={placeholder}
+          className="text-text-default h-7! w-full rounded-md border-none text-sm font-normal"
+        />
+        {inputValue.trim() && (
+          <Button
+            type="button"
+            onClick={handleAdd}
+            disabled={isAdding}
+            className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! shrink-0 rounded-md px-2 text-xs"
+          >
+            {isAdding ? <Spinner className="text-text-white-default size-3" /> : "Add"}
+          </Button>
+        )}
+      </div>
+
+      {existingItems.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {existingItems.map(name => (
+            <div key={name} className="bg-bg-state-primary/10 border-border-default flex items-center gap-3 rounded-md border px-1.5 py-0.5">
+              <button
+                type="button"
+                onClick={() => onDelete(name)}
+                disabled={deletingName === name}
+                className="text-text-destructive shrink-0 cursor-pointer transition-colors disabled:opacity-50"
+              >
+                {deletingName === name ? <Spinner className="text-text-muted size-3" /> : <X size={11} />}
+              </button>
+              <span className="text-text-default text-xs capitalize">{name.toLowerCase()}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {isLoadingOptions ? (
+        <div className="flex items-center gap-2">
+          <Spinner className="text-text-muted size-3" />
+          <span className="text-text-muted text-xs">Loading suggestions...</span>
+        </div>
+      ) : globalOptions.length > 0 ? (
+        <div className="flex flex-col gap-2">
+          <span className="text-text-muted text-xs">Suggestions — click to add</span>
+          <div className="flex flex-wrap gap-2">
+            {globalOptions.map(name => (
+              <button
+                key={name}
+                type="button"
+                onClick={() => onAdd([name])}
+                disabled={isAdding || !!deletingName}
+                className="border-border-default text-text-default hover:bg-bg-state-soft cursor-pointer rounded-md border px-1.5 py-0.5 text-xs capitalize transition-colors disabled:opacity-50"
+              >
+                {name.toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="text-text-muted text-xs">Click a suggestion to add, or type above. Comma-separate multiple entries.</div>
+    </div>
+  );
+};
 
 const DepartmentSubjectsSection = ({
   dept,
@@ -44,133 +158,68 @@ const DepartmentSubjectsSection = ({
   branchId?: number;
   branchSpecific: boolean;
 }) => {
-  const [subjects, setSubjects] = useState<string[]>([]);
-  const [subjectInput, setSubjectInput] = useState("");
-  const { data: deptSubjectsData, isLoading } = useGetDepartmentSubjectsByLevel(dept.departmentId, levelId);
-  const { mutate: mutateCreateDeptSubjects, isPending: isSaving } = useCreateDepartmentSubjects();
+  const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (deptSubjectsData?.data) {
-      setSubjects(deptSubjectsData?.data.map((s: { subjectName: string }) => s.subjectName));
-    }
-  }, [deptSubjectsData]);
+  const { data: deptSubjectsData } = useGetDepartmentSubjectsByLevel(dept.departmentId, levelId);
+  const { data: allSubjectsData, isFetching: isLoadingAllSubjects } = useGetAllSubjects();
+  const { mutate: mutateCreateDeptSubjects, isPending: isAddingSubject } = useCreateDepartmentSubjects();
+  const { mutate: mutateDeleteDeptSubject } = useDeleteDepartmentSubjects();
 
-  const addSubject = (subjectString: string) => {
-    if (!subjectString.trim()) return;
-    // const currentSubjectNames = subjects.map((s: { name: string }) => s.name);
-    const newSubjectNames = subjectString
-      .split(",")
-      .map(str => str.trim())
-      .filter(str => str !== "" && !subjects.includes(str));
+  const existingSubjects = (deptSubjectsData?.data as { subjectId: number; subjectName: string }[] | undefined) ?? [];
+  const existingSubjectNames = existingSubjects.map(s => s.subjectName);
 
-    if (newSubjectNames.length === 0) return;
+  const allSubjectNames: string[] = (
+    Array.isArray(allSubjectsData) ? allSubjectsData : Array.isArray(allSubjectsData?.data) ? allSubjectsData.data : []
+  ).map((s: { name: string }) => s.name);
 
+  const availableSubjects = allSubjectNames.filter(n => !existingSubjectNames.includes(n));
+
+  const handleAdd = (names: string[]) => {
     mutateCreateDeptSubjects(
-      {
-        departmentName: dept.name,
-        subjectNames: newSubjectNames,
-        branchId: branchId,
-        branchSpecific,
-      },
+      { departmentName: dept.name, subjectNames: names, branchId, branchSpecific },
       {
         onSuccess: () => {
-          setSubjects(prev => [...prev, ...newSubjectNames]);
-          setSubjectInput("");
-          toast({
-            title: "Subjects added",
-            description: `Subjects for ${dept.name} have been updated successfully`,
-            type: "success",
-          });
+          toast({ title: "Subject(s) added", description: `Subjects added to ${dept.name} successfully`, type: "success" });
         },
         onError: error => {
-          toast({
-            title: "Failed to add subjects",
-            description: (error as { message?: string })?.message || `Could not add subjects to ${dept.name}`,
-            type: "error",
-          });
+          toast({ title: "Failed to add subjects", description: (error as { message?: string })?.message || "Could not add subjects", type: "error" });
         },
       },
     );
   };
 
-  const removeSubject = (subjectToRemove: string) => {
-    const subjectList = deptSubjectsData?.data || [];
-
-    // mutateCreateDeptSubjects(
-    //   {
-    //     departmentName: dept.name,
-    //     subjectNames: updatedSubjectNames,
-    //     branchId: branchId || 0,
-    //     branchSpecific,
-    //   },
-    //   {
-    //     onSuccess: () => {
-    //       toast({
-    //         title: "Subject removed",
-    //         description: `"${subjectToRemove}" has been removed from ${dept.name}`,
-    //         type: "success",
-    //       });
-    //     },
-    //     onError: error => {
-    //       toast({
-    //         title: "Failed to remove subject",
-    //         description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`,
-    //         type: "error",
-    //       });
-    //     },
-    //   },
-    // );
+  const handleDelete = (name: string) => {
+    const subject = existingSubjects.find(s => s.subjectName === name);
+    if (!subject) return;
+    setDeletingSubjectName(name);
+    mutateDeleteDeptSubject(
+      { departmentId: dept.departmentId, subjectId: subject.subjectId },
+      {
+        onSuccess: () => {
+          setDeletingSubjectName(null);
+          toast({ title: "Subject removed", description: `"${name}" removed from ${dept.name}`, type: "success" });
+        },
+        onError: error => {
+          setDeletingSubjectName(null);
+          toast({ title: "Failed to remove subject", description: (error as { message?: string })?.message || "Could not remove subject", type: "error" });
+        },
+      },
+    );
   };
 
   return (
     <div className="flex flex-col gap-3">
       <Label className="text-text-default text-sm font-medium capitalize">{dept.name.toLowerCase()} Subjects</Label>
-      <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-        <Input
-          type="text"
-          value={subjectInput}
-          onChange={evt => setSubjectInput(evt.target.value)}
-          onKeyDown={e => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              addSubject(subjectInput);
-            }
-          }}
-          className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
-          placeholder={`Add Subjects to ${dept.name.toLowerCase()}`}
-        />
-        <Button
-          className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-          onClick={() => addSubject(subjectInput)}
-          disabled={isSaving || isLoading}
-        >
-          {(isSaving || isLoading) && <Spinner className="text-text-white-default size-3" />}
-          Add
-        </Button>
-      </div>
-      <div className="flex flex-wrap items-center gap-1">
-        {subjects.map(subject => (
-          <Badge
-            key={subject}
-            className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-          >
-            <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
-            <button
-              type="button"
-              className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"
-              onClick={e => {
-                e.preventDefault();
-                removeSubject(subject);
-              }}
-            >
-              <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
-            </button>
-          </Badge>
-        ))}
-      </div>
-      <div className="text-text-muted text-xs">
-        You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.{" "}
-      </div>
+      <LevelItemsSection
+        existingItems={existingSubjectNames}
+        globalOptions={availableSubjects}
+        isLoadingOptions={isLoadingAllSubjects}
+        onAdd={handleAdd}
+        onDelete={handleDelete}
+        isAdding={isAddingSubject}
+        deletingName={deletingSubjectName}
+        placeholder={`Search or add subjects to ${dept.name.toLowerCase()}`}
+      />
     </div>
   );
 };
@@ -191,38 +240,42 @@ export const ClassQuickSetupSheet = ({
   setSheetOpen: (open: boolean) => void;
 }) => {
   const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjectsDetails, setSubjectsDetails] = useState<{ id: number; name: string }[]>([]);
   const [departments, setDepartments] = useState<string[]>([]);
   const [arms, setArms] = useState<string[]>([]);
   const [armsDetails, setArmsDetails] = useState<ArmDetails[]>([]);
   const [departmentsDetails, setDepartmentsDetails] = useState<DepartmentWithSubjects[]>([]);
-
   const [departmentsEnabled, setDepartmentsEnabled] = useState(false);
   const [armsEnabled, setArmsEnabled] = useState(false);
   const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
   const [deletingArmName, setDeletingArmName] = useState<string | null>(null);
   const [deletingDepartmentName, setDeletingDepartmentName] = useState<string | null>(null);
+
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
 
   const { mutate, isPending } = useUpdateLevel();
   const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubject();
   const { mutate: deleteSubject } = useDeleteSubject();
-
-  const { mutate: deleteArm } = useDeleteArm();
   const { mutate: mutateArm, isPending: isAddingArm } = useAddArm();
-
-  const { mutate: deleteDepartment } = useDeleteDepartmentFromLevel();
+  const { mutate: deleteArm } = useDeleteArm();
   const { mutate: mutateDepartment, isPending: isAddingDepartment } = useAddDepartmentsToLevel();
+  const { mutate: deleteDepartment } = useDeleteDepartmentFromLevel();
+  const { mutate: toggleDepartment } = useToggleDepartmentForLevel();
 
-  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByLevel(level?.levelType, branchId);
-  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByLevel(level?.levelType, branchId);
-  const { data: departmentsData, isFetching: isLoadingDepartments } = useGetDepartmentsByLevel(level?.levelType, branchId);
+  const { data: subjectsData } = useGetSubjectsByLevel(level?.levelType, branchId);
+  // Bug 1 fix: always fetch arms — previously gated behind levelDataEnabled which meant
+  // existing arms were invisible when reopening the sheet for an already-configured level.
+  const { data: armsData } = useGetArmsByLevel(level?.levelType, branchId);
+  const { data: departmentsData } = useGetDepartmentsByLevel(level?.levelType, branchId);
 
   useEffect(() => {
     if (subjectsData) {
-      const names: string[] = Array.isArray(subjectsData?.data[0]?.subjects)
-        ? subjectsData?.data[0]?.subjects.map((s: { name: string }) => s.name)
-        : (subjectsData?.content ?? subjectsData?.data ?? []).map((s: { name: string }) => s.name);
-      setSubjects(names);
+      const list: { id: number; name: string }[] = Array.isArray(subjectsData?.data[0]?.subjects)
+        ? subjectsData?.data[0]?.subjects
+        : (subjectsData?.content ?? subjectsData?.data ?? []);
+      setSubjectsDetails(list);
+      setSubjects(list.map(s => s.name));
     }
   }, [subjectsData]);
 
@@ -231,25 +284,49 @@ export const ClassQuickSetupSheet = ({
       const armsWithDetails = Array.isArray(armsData?.data[0]?.arms) ? armsData?.data[0]?.arms : (armsData?.data ?? []);
       setArms(armsWithDetails.map((arm: ArmDetails) => arm.name));
       setArmsDetails(armsWithDetails);
-      setArmsEnabled(true);
+      if (armsWithDetails.length > 0) {
+        setArmsEnabled(true);
+      }
     }
   }, [armsData]);
 
   useEffect(() => {
     if (departmentsData) {
-      const departmentsDetails = Array.isArray(departmentsData?.data[0]?.departments)
+      const deptList = Array.isArray(departmentsData?.data[0]?.departments)
         ? departmentsData?.data[0]?.departments
         : (departmentsData?.data ?? []);
-
-      const names: string[] = departmentsDetails.map((dept: DepartmentWithSubjects) => dept.name);
+      const names: string[] = deptList.map((dept: DepartmentWithSubjects) => dept.name);
       setDepartments(names);
-      setDepartmentsDetails(departmentsDetails);
-
+      setDepartmentsDetails(deptList);
       if (names.length > 0) {
         setDepartmentsEnabled(true);
       }
     }
   }, [departmentsData]);
+
+  const { data: allSubjectsData, isFetching: isLoadingAllSubjects } = useGetAllSubjects();
+  const { data: allArmsData, isFetching: isLoadingAllArms } = useGetAllArms(branchId);
+  const { data: allDepartmentsData, isFetching: isLoadingAllDepts } = useGetDepartments();
+
+  const allSubjectNames: string[] = (
+    Array.isArray(allSubjectsData) ? allSubjectsData : Array.isArray(allSubjectsData?.data) ? allSubjectsData.data : []
+  ).map((s: { name: string }) => s.name);
+
+  const allArmNames: string[] = [
+    ...new Set<string>(
+      (Array.isArray(allArmsData) ? allArmsData : Array.isArray(allArmsData?.data) ? allArmsData.data : []).map(
+        (a: { armName: string }) => a.armName,
+      ),
+    ),
+  ];
+
+  const allDeptNames: string[] = (
+    Array.isArray(allDepartmentsData) ? allDepartmentsData : Array.isArray(allDepartmentsData?.data) ? allDepartmentsData.data : []
+  ).map((d: { name: string }) => d.name);
+
+  const availableSubjects = allSubjectNames.filter(n => !subjects.includes(n));
+  const availableArms = allArmNames.filter(n => !arms.includes(n));
+  const availableDepts = allDeptNames.filter(n => !departments.includes(n));
 
   const formik = useFormik({
     initialValues: {
@@ -257,9 +334,6 @@ export const ClassQuickSetupSheet = ({
       classNamePrefix: level?.classNamePrefix || "",
       startClass: level?.classStart,
       endClass: level?.classEnd,
-      subject: "",
-      arm: "",
-      department: "",
     },
     enableReinitialize: true,
     validationSchema: yup.object({
@@ -288,18 +362,10 @@ export const ClassQuickSetupSheet = ({
               classStart: values.startClass,
               classEnd: values.endClass,
             });
-            toast({
-              title: "Level updated successfully",
-              description: "The level has been updated",
-              type: "success",
-            });
+            toast({ title: "Level updated successfully", description: "The level has been updated", type: "success" });
           },
           onError: error => {
-            toast({
-              title: "Failed to update level",
-              description: error?.message || "Could not update level",
-              type: "error",
-            });
+            toast({ title: "Failed to update level", description: error?.message || "Could not update level", type: "error" });
           },
         },
       );
@@ -308,204 +374,114 @@ export const ClassQuickSetupSheet = ({
 
   const { values, errors, touched, handleChange, handleBlur } = formik;
 
-  const addSubject = (subjectString: string) => {
-    if (!subjectString.trim()) return;
-    const newSubjects = subjectString
-      .split(",")
-      .map(str => str.trim().replace(/^,+|,+$/g, ""))
-      .filter(str => str !== "" && !subjects.includes(str));
-
+  const handleAddSubject = (names: string[]) => {
+    const newNames = names.filter(n => !subjects.includes(n));
+    if (!newNames.length) return;
     mutateSubject(
-      { names: newSubjects, levelType: level.levelType, branchId, branchSpecific },
+      { names: newNames, levelType: level.levelType, branchId, branchSpecific },
       {
         onSuccess: () => {
-          setSubjects(prev => [...prev, ...newSubjects]);
-          toast({
-            title: "Subject(s) added",
-            description: `Subjects have been updated successfully`,
-            type: "success",
-          });
+          queryClient.refetchQueries({ queryKey: subjectKeys.subjectsByLevel(level.levelType, branchId) });
+          toast({ title: "Subject(s) added", description: "Subjects have been updated successfully", type: "success" });
         },
         onError: error => {
-          toast({
-            title: "Failed to add subject",
-            description: (error as { message?: string })?.message || `Could not add "${name}"`,
-            type: "error",
-          });
+          toast({ title: "Failed to add subjects", description: (error as { message?: string })?.message || "Could not add subjects", type: "error" });
         },
       },
     );
-
-    formik.setFieldValue("subject", "");
   };
 
-  const removeSubject = (subjectToRemove: string) => {
-    const subjectsList = subjectsData?.data[0]?.subjects || [];
-
-    const subjectObj = subjectsList.find((s: { id: number; name: string }) => s.name === subjectToRemove);
-
-    if (subjectObj && level?.id) {
-      setDeletingSubjectName(subjectToRemove);
-      deleteSubject(
-        { subjectId: subjectObj.id, levelId: level.id },
-        {
-          onSuccess: () => {
-            setSubjects(subjects.filter(subject => subject !== subjectToRemove));
-            setDeletingSubjectName(null);
-            toast({
-              title: "Subject deleted",
-              description: `"${subjectToRemove}" has been deleted successfully`,
-              type: "success",
-            });
-          },
-          onError: error => {
-            setDeletingSubjectName(null);
-            toast({
-              title: "Failed to delete subject",
-              description: (error as { message?: string })?.message || `Could not delete "${subjectToRemove}"`,
-              type: "error",
-            });
-          },
+  const handleDeleteSubject = (name: string) => {
+    const subject = subjectsDetails.find(s => s.name === name);
+    if (!subject) return;
+    setDeletingSubjectName(name);
+    deleteSubject(
+      { subjectId: subject.id, levelId: level.id },
+      {
+        onSuccess: () => {
+          setDeletingSubjectName(null);
+          queryClient.refetchQueries({ queryKey: subjectKeys.subjectsByLevel(level.levelType, branchId) });
+          toast({ title: "Subject removed", description: `"${name}" removed successfully`, type: "success" });
         },
-      );
-    } else {
-      setSubjects(subjects.filter(subject => subject !== subjectToRemove));
-    }
+        onError: error => {
+          setDeletingSubjectName(null);
+          toast({ title: "Failed to remove subject", description: (error as { message?: string })?.message || "Could not remove subject", type: "error" });
+        },
+      },
+    );
   };
 
-  const addArm = (armString: string) => {
-    if (!armString.trim()) return;
-    const newArms = armString
-      .split(",")
-      .map(str => str.trim().replace(/^,+|,+$/g, ""))
-      .filter(str => str !== "" && !arms.includes(str));
-
-    if (!newArms.length) return;
-
+  const handleAddArm = (names: string[]) => {
+    const newNames = names.filter(n => !arms.includes(n));
+    if (!newNames.length) return;
     mutateArm(
-      { names: newArms, levelType: level.levelType, branchId, branchSpecific },
+      { names: newNames, levelType: level.levelType, branchId, branchSpecific },
       {
         onSuccess: () => {
-          setArms(prev => [...prev, ...newArms]);
-          toast({
-            title: "Arm(s) added",
-            description: `Arms have been updated successfully`,
-            type: "success",
-          });
+          queryClient.refetchQueries({ queryKey: armKeys.armsByLevel(level.levelType, branchId) });
+          toast({ title: "Arm(s) added", description: "Arms have been updated successfully", type: "success" });
         },
         onError: error => {
-          toast({
-            title: "Failed to add arm",
-            description: (error as { message?: string })?.message || `Could not add "${name}"`,
-            type: "error",
-          });
+          toast({ title: "Failed to add arms", description: (error as { message?: string })?.message || "Could not add arms", type: "error" });
         },
       },
     );
-
-    formik.setFieldValue("arm", "");
   };
 
-  const removeArm = (armToRemove: string) => {
-    const armsList = armsData?.data[0]?.arms || [];
-
-    const armObj = armsList.find((a: { id: number; name: string }) => a.name === armToRemove);
-
-    if (armObj && level?.id) {
-      setDeletingArmName(armToRemove);
-      deleteArm(
-        { armId: armObj.id, levelId: level.id },
-        {
-          onSuccess: () => {
-            setArms(arms.filter(arm => arm !== armToRemove));
-            setDeletingArmName(null);
-            toast({
-              title: "Arm deleted",
-              description: `"${armToRemove}" has been deleted successfully`,
-              type: "success",
-            });
-          },
-          onError: error => {
-            setDeletingArmName(null);
-            toast({
-              title: "Failed to delete arm",
-              description: (error as { message?: string })?.message || `Could not delete "${armToRemove}"`,
-              type: "error",
-            });
-          },
+  const handleDeleteArm = (name: string) => {
+    setDeletingArmName(name);
+    deleteArm(
+      { armName: name, levelId: level.id },
+      {
+        onSuccess: () => {
+          setDeletingArmName(null);
+          queryClient.refetchQueries({ queryKey: armKeys.armsByLevel(level.levelType, branchId) });
+          toast({ title: "Arm removed", description: `"${name}" removed successfully`, type: "success" });
         },
-      );
-    } else {
-      setArms(arms.filter(arm => arm !== armToRemove));
-    }
+        onError: error => {
+          setDeletingArmName(null);
+          toast({ title: "Failed to remove arm", description: (error as { message?: string })?.message || "Could not remove arm", type: "error" });
+        },
+      },
+    );
   };
 
-  const addDepartment = (departmentString: string) => {
-    if (!departmentString.trim()) return;
-    const newDepartments = departmentString
-      .split(",")
-      .map(str => str.trim().replace(/^,+|,+$/g, ""))
-      .filter(str => str !== "" && !departments.includes(str));
-
+  const handleAddDepartment = (names: string[]) => {
+    const newNames = names.filter(n => !departments.includes(n));
+    if (!newNames.length) return;
     mutateDepartment(
-      { names: newDepartments, levelType: level.levelType, branchId, branchSpecific },
+      { names: newNames, levelType: level.levelType, branchId, branchSpecific },
       {
         onSuccess: () => {
-          setDepartments([...departments, ...newDepartments]);
-          toast({
-            title: "Department(s) added",
-            description: `Departments have been updated successfully`,
-            type: "success",
-          });
+          setDepartmentsEnabled(true);
+          queryClient.refetchQueries({ queryKey: departmentKeys.departmentsByLevel(level.levelType, branchId) });
+          toast({ title: "Department(s) added", description: "Departments have been updated successfully", type: "success" });
         },
         onError: error => {
-          toast({
-            title: "Failed to add department",
-            description: (error as { message?: string })?.message || `Could not add "${name}"`,
-            type: "error",
-          });
+          toast({ title: "Failed to add departments", description: (error as { message?: string })?.message || "Could not add departments", type: "error" });
         },
       },
     );
-    formik.setFieldValue("department", "");
   };
 
-  const removeDepartment = (departmentToRemove: string) => {
-    let departmentsList = [];
-    if (branchId) {
-      departmentsList = departmentsData?.data.find((dept: DepartmentResponse) => dept.branchId === branchId)?.departments || [];
-    } else {
-      departmentsList = departmentsData?.data[0]?.departments || [];
-    }
-
-    const departmentObj = departmentsList.find((d: { id: number; name: string }) => d.name === departmentToRemove);
-    if (departmentObj && level?.id) {
-      setDeletingDepartmentName(departmentToRemove);
-      deleteDepartment(
-        { departmentId: departmentObj.departmentId, levelId: level.id },
-        {
-          onSuccess: () => {
-            setDepartments(departments.filter(department => department !== departmentToRemove));
-            setDeletingDepartmentName(null);
-            toast({
-              title: "Department deleted",
-              description: `"${departmentToRemove}" has been deleted successfully`,
-              type: "success",
-            });
-          },
-          onError: error => {
-            setDeletingDepartmentName(null);
-            toast({
-              title: "Failed to delete department",
-              description: (error as { message?: string })?.message || `Could not delete "${departmentToRemove}"`,
-              type: "error",
-            });
-          },
+  const handleDeleteDepartment = (name: string) => {
+    const dept = departmentsDetails.find(d => d.name === name);
+    if (!dept) return;
+    setDeletingDepartmentName(name);
+    deleteDepartment(
+      { departmentId: dept.departmentId, levelId: level.id },
+      {
+        onSuccess: () => {
+          setDeletingDepartmentName(null);
+          queryClient.refetchQueries({ queryKey: departmentKeys.departmentsByLevel(level.levelType, branchId) });
+          toast({ title: "Department removed", description: `"${name}" removed successfully`, type: "success" });
         },
-      );
-    } else {
-      setDepartments(departments.filter(department => department !== departmentToRemove));
-    }
+        onError: error => {
+          setDeletingDepartmentName(null);
+          toast({ title: "Failed to remove department", description: (error as { message?: string })?.message || "Could not remove department", type: "error" });
+        },
+      },
+    );
   };
 
   const contentNode = (
@@ -557,7 +533,6 @@ export const ClassQuickSetupSheet = ({
         {touched.classNamePrefix && errors.classNamePrefix && typeof errors.classNamePrefix === "string" && (
           <p className="text-text-destructive text-xs font-light">{errors.classNamePrefix}</p>
         )}
-        {/* <small className="text-text-muted text-xs">Select the label that appears before the class number or type a custom one</small> */}
         <small className="text-text-muted text-xs">Enter the label that appears before the class number</small>
         <br />
         <small className="text-text-muted text-xs">(eg: Creche, Nursery, Grade, Primary, Form, JSS, SSS etc.)</small>
@@ -566,15 +541,16 @@ export const ClassQuickSetupSheet = ({
       <div className="border-border-default flex flex-col gap-6 border-b pb-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex w-full flex-col gap-2">
-            <Select value={`${values.startClass}`} onValueChange={startClass => formik.setFieldValue("startClass", startClass)}>
-              <div className="flex flex-col gap-2">
-                <Label className="text-text-default text-sm font-medium">Start level</Label>
-                <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
-                  <SelectValue>
-                    <span className="text-text-muted text-sm font-normal">{values.startClass ? values.startClass : "Select start level"}</span>
-                  </SelectValue>
-                </SelectTrigger>
-              </div>
+            <Label className="text-text-default text-sm font-medium">Start level</Label>
+            <Select
+              value={values.startClass != null ? `${values.startClass}` : undefined}
+              onValueChange={startClass => formik.setFieldValue("startClass", startClass)}
+            >
+              <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
+                <SelectValue>
+                  <span className="text-text-muted text-sm font-normal">{values.startClass ? values.startClass : "Select start level"}</span>
+                </SelectValue>
+              </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 {startclasses.map(str => (
                   <SelectItem key={str} value={str} className="text-text-default text-sm font-medium">
@@ -586,15 +562,16 @@ export const ClassQuickSetupSheet = ({
             <span className="text-text-muted text-xs">The first class number in this level</span>
           </div>
           <div className="flex w-full flex-col gap-2">
-            <Select value={`${values.endClass}`} onValueChange={endClass => formik.setFieldValue("endClass", endClass)}>
-              <div className="flex flex-col gap-2">
-                <Label className="text-text-default text-sm font-medium">End level</Label>
-                <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
-                  <SelectValue>
-                    <span className="text-text-muted text-sm font-normal">{values.endClass ? values.endClass : "Select end level"}</span>
-                  </SelectValue>
-                </SelectTrigger>
-              </div>
+            <Label className="text-text-default text-sm font-medium">End level</Label>
+            <Select
+              value={values.endClass != null ? `${values.endClass}` : undefined}
+              onValueChange={endClass => formik.setFieldValue("endClass", endClass)}
+            >
+              <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
+                <SelectValue>
+                  <span className="text-text-muted text-sm font-normal">{values.endClass ? values.endClass : "Select end level"}</span>
+                </SelectValue>
+              </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 {endClasses.map(str => (
                   <SelectItem key={str} value={str} className="text-text-default text-sm font-medium">
@@ -608,7 +585,7 @@ export const ClassQuickSetupSheet = ({
         </div>
 
         <Button
-          disabled={!!(level?.classNamePrefix && level?.classNamePrefix === values.classNamePrefix)}
+          disabled={!formik.dirty || isPending}
           type="button"
           onClick={() => formik.handleSubmit()}
           className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 self-end rounded-sm px-2 py-1"
@@ -631,90 +608,48 @@ export const ClassQuickSetupSheet = ({
                   can offer different sets of subjects or focus areas.
                 </div>
               </div>
-              <Toggle withBorder={false} checked={departmentsEnabled} onChange={e => setDepartmentsEnabled((e.target as HTMLInputElement).checked)} />
+              <Toggle
+                withBorder={false}
+                checked={departmentsEnabled}
+                onChange={e => {
+                  const enable = (e.target as HTMLInputElement).checked;
+                  setDepartmentsEnabled(enable);
+                  toggleDepartment(
+                    { levelId: level.id, enable },
+                    {
+                      onError: (error: unknown) => {
+                        setDepartmentsEnabled(!enable);
+                        toast({
+                          title: "Failed to update departments",
+                          description: (error as { message?: string })?.message || "Could not update department setting",
+                          type: "error",
+                        });
+                      },
+                    },
+                  );
+                }}
+              />
             </div>
             {departmentsEnabled && (
               <>
-                <div className="border-border-default flex flex-col gap-3 border-b pb-6">
+                <div className="border-border-default flex flex-col gap-4 border-b pb-6">
                   <div className="text-text-default text-sm font-medium">Departments</div>
-                  <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-                    <Input
-                      id="department"
-                      onChange={formik.handleChange}
-                      placeholder="Enter Departments"
-                      value={formik.values.department}
-                      type="text"
-                      onKeyDown={e => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          addDepartment(formik.values.department);
-                        }
-                      }}
-                      className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
-                    />
-
-                    {!level?.classNamePrefix ? (
-                      <Tooltip
-                        description="Setup the classes in the level first"
-                        side="top"
-                        Trigger={
-                          <div tabIndex={0} className="flex h-fit w-fit cursor-not-allowed">
-                            <Button
-                              type="button"
-                              disabled
-                              className="text-text-white-default! disabled:bg-bg-state-primary-hover! bg-bg-state-primary! pointer-events-none h-6! rounded-md px-2 text-xs"
-                            >
-                              Add
-                            </Button>
-                          </div>
-                        }
-                      />
-                    ) : (
-                      <Button
-                        type="button"
-                        onClick={() => addDepartment(formik.values.department)}
-                        className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                      >
-                        {isAddingDepartment && <Spinner className="text-text-white-default size-3" />}
-                        Add
-                      </Button>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-1">
-                    {" "}
-                    {departments.map((department, index) => (
-                      <Badge
-                        key={`${department}-${index}`}
-                        className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                      >
-                        <span className="text-text-subtle text-xs capitalize">{department.toLowerCase()}</span>{" "}
-                        <button
-                          type="button"
-                          className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-                          disabled={deletingDepartmentName === department}
-                          onClick={e => {
-                            e.preventDefault();
-                            removeDepartment(department);
-                          }}
-                        >
-                          {deletingDepartmentName === department ? (
-                            <Spinner className="text-text-subtle size-2" />
-                          ) : (
-                            <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
-                          )}
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                  <small className="text-text-muted text-xs">
-                    You can add multiple departments at once by separating with a comma e.g Art, Commercial, Science
-                  </small>
+                  <LevelItemsSection
+                    existingItems={departments}
+                    globalOptions={availableDepts}
+                    isLoadingOptions={isLoadingAllDepts}
+                    onAdd={handleAddDepartment}
+                    onDelete={handleDeleteDepartment}
+                    isAdding={isAddingDepartment}
+                    deletingName={deletingDepartmentName}
+                    placeholder="Search or type new departments e.g Science, Arts"
+                  />
                 </div>
 
-                {departments.length > 0 && (
+                {departmentsDetails.length > 0 && (
                   <>
                     <div className="text-text-default text-xl font-semibold">Department Subjects</div>
-                    {departmentsData?.data?.[0]?.departments.map((dept: Department, index: number) => (
+                    {departmentsDetails.map((dept, index) => (
                       <DepartmentSubjectsSection
                         key={`${dept.departmentId}-${index}`}
                         dept={dept}
@@ -732,83 +667,18 @@ export const ClassQuickSetupSheet = ({
 
         {/* Subjects */}
         {!departmentsEnabled && (
-          <div className="">
-            <div className="text-text-default mb-6 text-xl font-semibold">Subjects</div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-text-default text-sm font-medium">Subjects</Label>
-              <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-                <Input
-                  id="subject"
-                  onChange={formik.handleChange}
-                  placeholder="Enter Subjects"
-                  value={formik.values.subject}
-                  type="text"
-                  onKeyDown={e => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addSubject(formik.values.subject);
-                    }
-                  }}
-                  className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
-                />
-
-                {!level?.classNamePrefix ? (
-                  <Tooltip
-                    description="Setup the classes in the level first"
-                    side="top"
-                    Trigger={
-                      <div tabIndex={0} className="flex h-fit w-fit cursor-not-allowed">
-                        <Button
-                          type="button"
-                          disabled
-                          className="text-text-white-default! disabled:bg-bg-state-primary-hover! bg-bg-state-primary! pointer-events-none h-6! rounded-md px-2 text-xs"
-                        >
-                          Add
-                        </Button>
-                      </div>
-                    }
-                  />
-                ) : (
-                  <Button
-                    type="button"
-                    onClick={() => addSubject(formik.values.subject)}
-                    className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                  >
-                    {isAddingSubject && <Spinner className="text-text-white-default size-3" />}
-                    Add
-                  </Button>
-                )}
-              </div>
-
-              <div className="flex flex-wrap gap-1">
-                {subjects.map(subject => (
-                  <Badge
-                    key={subject}
-                    className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                  >
-                    <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
-                    <button
-                      type="button"
-                      className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-                      disabled={deletingSubjectName === subject}
-                      onClick={e => {
-                        e.preventDefault();
-                        removeSubject(subject);
-                      }}
-                    >
-                      {deletingSubjectName === subject ? (
-                        <Spinner className="text-text-subtle size-2" />
-                      ) : (
-                        <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
-                      )}
-                    </button>
-                  </Badge>
-                ))}
-                <div className="text-text-muted mt-1 text-xs">
-                  You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-col gap-4">
+            <div className="text-text-default text-xl font-semibold">Subjects</div>
+            <LevelItemsSection
+              existingItems={subjects}
+              globalOptions={availableSubjects}
+              isLoadingOptions={isLoadingAllSubjects}
+              onAdd={handleAddSubject}
+              onDelete={handleDeleteSubject}
+              isAdding={isAddingSubject}
+              deletingName={deletingSubjectName}
+              placeholder="Search or type new subjects e.g Mathematics, English"
+            />
           </div>
         )}
 
@@ -821,7 +691,7 @@ export const ClassQuickSetupSheet = ({
                 <div>
                   <Label className="text-text-default text-sm font-medium">Enable Arms</Label>
                   <span className="text-text-subtle text-sm">
-                    Arms let you split a class or department into smaller groups while still keeping them under the same level. They’re simply
+                    Arms let you split a class or department into smaller groups while still keeping them under the same level. They&apos;re simply
                     parallel divisions of the same class (e.g., Class A, Class B).
                   </span>
                 </div>
@@ -829,86 +699,21 @@ export const ClassQuickSetupSheet = ({
               </div>
             </div>
             {armsEnabled && (
-              <div className="flex flex-col gap-2">
-                <Label className="text-text-default text-sm font-medium">Arms</Label>
-                <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-                  <Input
-                    id="arm"
-                    onChange={formik.handleChange}
-                    placeholder="Enter Arms"
-                    value={formik.values.arm}
-                    type="text"
-                    onKeyDown={e => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addArm(formik.values.arm);
-                      }
-                    }}
-                    className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
-                  />
-
-                  {!level?.classNamePrefix ? (
-                    <Tooltip
-                      description="Setup the classes in the level first"
-                      side="top"
-                      Trigger={
-                        <div tabIndex={0} className="flex h-fit w-fit cursor-not-allowed">
-                          <Button
-                            type="button"
-                            disabled
-                            className="text-text-white-default! disabled:bg-bg-state-primary-hover! bg-bg-state-primary! pointer-events-none h-6! rounded-md px-2 text-xs"
-                          >
-                            Add
-                          </Button>
-                        </div>
-                      }
-                    />
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={() => addArm(formik.values.arm)}
-                      className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                    >
-                      {isAddingArm && <Spinner className="text-text-white-default size-3" />}
-                      Add
-                    </Button>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap gap-1">
-                  {" "}
-                  {arms.map((arm, index) => (
-                    <Badge
-                      key={`${arm}-${index}`}
-                      className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                    >
-                      <span className="text-text-subtle text-xs capitalize">{arm.toLowerCase()}</span>{" "}
-                      <button
-                        type="button"
-                        className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-                        disabled={deletingArmName === arm}
-                        onClick={e => {
-                          e.preventDefault();
-                          removeArm(arm);
-                        }}
-                      >
-                        {deletingArmName === arm ? (
-                          <Spinner className="text-text-subtle size-2" />
-                        ) : (
-                          <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
-                        )}
-                      </button>
-                    </Badge>
-                  ))}
-                  <div className="text-text-muted mt-1 text-xs">You can add multiple arms at once by separating with a comma e.g A, B, C etc.</div>
-                </div>
-              </div>
+              <LevelItemsSection
+                existingItems={arms}
+                globalOptions={availableArms}
+                isLoadingOptions={isLoadingAllArms}
+                onAdd={handleAddArm}
+                onDelete={handleDeleteArm}
+                isAdding={isAddingArm}
+                deletingName={deletingArmName}
+                placeholder="Search or type new arms e.g A, B, C"
+              />
             )}
           </div>
         </div>
 
-        {/* {departmentsEnabled && <AssignArmsToDepartments arms={arms} departments={departments} />} */}
-        {armsDetails.length > 0 && departmentsDetails.length > 0 && (
+        {departmentsEnabled && armsDetails.length > 0 && departmentsDetails.length > 0 && (
           <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} levelId={level.id} branchId={branchId} />
         )}
       </div>

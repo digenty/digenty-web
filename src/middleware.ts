@@ -10,7 +10,7 @@ export default async function middleware(req: NextRequest) {
   // Subdomain handling
   // For local testing: greenwood.localhost:3000
   // For production: school.axis.com
-  const mainDomains = ["axis.com", "localhost:3000", "app.axis.com"];
+  const mainDomains = ["axis.com", "localhost:3000", "localhost:8000", "app.axis.com"];
 
   if (host && !mainDomains.includes(host)) {
     const parts = host.split(".");
@@ -60,7 +60,7 @@ export default async function middleware(req: NextRequest) {
     if (path.startsWith("/parent")) {
       // Don't redirect if it's already a rewritten path or subdomain specific
       if (!path.includes(`/${host?.split(".")[0]}/`)) {
-        return NextResponse.redirect(new URL("/auth/parent", req.url));
+        return NextResponse.redirect(new URL("/auth/parent/login", req.url));
       }
     }
   }

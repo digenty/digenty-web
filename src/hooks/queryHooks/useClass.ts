@@ -1,5 +1,6 @@
 import {
   assignClassTeacher,
+  createClass,
   deleteClass,
   getClassCumulativeReport,
   getClasses,
@@ -20,6 +21,7 @@ import { updateAssignSubjectTeacher } from "@/api/subject";
 import { branchKeys } from "@/queries/branch";
 
 import { classKeys } from "@/queries/class";
+import { staffKeys } from "@/queries/staff";
 import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -35,8 +37,8 @@ export const useAssignClassTeacher = () => {
   return useMutation({
     mutationKey: [classKeys.assignClassTeacher],
     mutationFn: assignClassTeacher,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [branchKeys.branchDetail] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: staffKeys.staffDetails(variables.teacherId) });
     },
   });
 };
@@ -102,6 +104,9 @@ export const useDeleteClass = () => {
     mutationFn: (classroomId: number) => deleteClass(classroomId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+      queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: ["armsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: ["departmentsByLevel"] });
     },
   });
 };
@@ -173,13 +178,24 @@ export const useUpdateClass = () => {
   });
 };
 
+export const useCreateClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: [classKeys.classesByLevel, "create"],
+    mutationFn: (payload: { levelId: number; name: string }) => createClass(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+    },
+  });
+};
+
 export const useUpdateTeacherAssignment = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: classKeys.updateTeacherAssignment,
     mutationFn: (payload: { teacherId: number; armDtos: { armId: number }[] }) => updateAssignClassTeacher(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [classKeys.updateTeacherAssignment] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: staffKeys.staffDetails(variables.teacherId) });
     },
   });
 };

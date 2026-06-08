@@ -14,7 +14,7 @@ import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ClassesAndArms } from "../AcademicSetup/ClassesAndArms";
 
 function LevelTabSwitch({
@@ -105,19 +105,15 @@ function ClassesResponsiveTabs({ levels, activeLevel, branchId }: { levels: Clas
 
   if (isMobile) {
     return (
-      <div className="w-full">
-        <div className="mt-4">
-          <Content />
-        </div>
+      <div className="mt-4 w-full">
+        <Content />
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      <div className="mt-4 w-full">
-        <Content />
-      </div>
+    <div className="mt-4">
+      <Content />
     </div>
   );
 }
@@ -130,7 +126,7 @@ export const AcademicDoneClassAndArms = () => {
   const { data: branchesData, isFetching: isLoadingBranches } = useGetBranches();
   const { data: branchLevelsData } = useGetLevels(activeBranch?.id);
 
-  const levels = extractUniqueLevelsByType(branchLevelsData?.data || []);
+  const levels = useMemo(() => extractUniqueLevelsByType(branchLevelsData?.data || []), [branchLevelsData?.data]);
 
   useEffect(() => {
     if (branchesData?.data?.length > 0 && !activeBranch) {
@@ -139,9 +135,7 @@ export const AcademicDoneClassAndArms = () => {
   }, [branchesData]);
 
   useEffect(() => {
-    if (levels.length > 0 && !activeLevel) {
-      setActiveLevel(levels[0]);
-    }
+    setActiveLevel(levels[0] ?? null);
   }, [levels]);
 
   const isMobile = useIsMobile();
@@ -149,7 +143,7 @@ export const AcademicDoneClassAndArms = () => {
   return (
     <div>
       {isEditing ? (
-        <div className="pb-12">
+        <div className="">
           <ClassesAndArms isEditing={isEditing} setIsEditing={setIsEditing} />
         </div>
       ) : (
@@ -201,13 +195,7 @@ export const AcademicDoneClassAndArms = () => {
 };
 
 export const ClassesSetup = ({ levels, activeLevel, branchId }: { levels: ClassLevel[]; activeLevel: ClassLevel | null; branchId?: number }) => {
-  return (
-    <div>
-      <div className="w-full">
-        <ClassesResponsiveTabs levels={levels} activeLevel={activeLevel} branchId={branchId} />
-      </div>
-    </div>
-  );
+  return <ClassesResponsiveTabs levels={levels} activeLevel={activeLevel} branchId={branchId} />;
 };
 
 export const OtherClassesSetup = ({ data, isLoading }: { data?: ClassInLevelDetails[]; isLoading: boolean }) => {
@@ -220,9 +208,9 @@ export const OtherClassesSetup = ({ data, isLoading }: { data?: ClassInLevelDeta
     );
 
   return (
-    <div className="mt-8 flex w-full flex-col gap-6">
+    <div className="mt-8 flex flex-col gap-6">
       {data.map(clss => (
-        <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
+        <div key={clss.classId} className="bg-bg-state-soft w-full rounded-md p-1">
           <div className="flex items-center justify-between px-5 py-2">
             <div className="text-text-default text-sm font-medium capitalize">{clss.className} </div>
           </div>
@@ -291,7 +279,7 @@ export const SeniorSecondarySetup = ({ data, isLoading }: { data?: ClassInLevelD
     );
 
   return (
-    <div className="mt-8 flex w-full flex-col gap-6">
+    <div className="mt-8 flex flex-col gap-6">
       {data.map(clss => (
         <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
           <div className="flex items-center justify-between px-5 py-2">

@@ -92,6 +92,16 @@ export const useGetFeeItemById = (id?: number) => {
     queryKey: feeKeys.feeItemById(id),
     queryFn: () => getFeeItemById(id!),
     enabled: !!id,
+    retry: false,
+  });
+};
+
+export const useGetFeeItemById = (id: number) => {
+  return useQuery({
+    queryKey: feeKeys.feeItemById(id),
+    queryFn: () => getFeeById(id),
+    enabled: !!id,
+    retry: false,
   });
 };
 
@@ -114,6 +124,20 @@ export const useCreateFeeItemForArm = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["feeItems"] });
       queryClient.invalidateQueries({ queryKey: ["feeClassOverview"] });
+    mutationFn: (payload: FeeItemDto) => createFeeItem(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feeKeys.fees });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeItems() });
+    },
+  });
+};
+
+export const useDeleteFee = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteFee(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feeKeys.fees });
     },
   });
 };

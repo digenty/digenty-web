@@ -111,7 +111,7 @@ export interface Student {
   arm: string;
   image: string | null;
   tags: string[];
-  linkedParents: number[];
+  linkedParents: { id: number; image: string | null; fullName: string; relationship: string | null }[];
 }
 
 export interface Parent {
@@ -280,6 +280,7 @@ export interface BranchArmReport {
   armId: number;
   classArmName: string;
   classTeacherName: string;
+  classTeacherId: number | null;
   numberOfSubjects: number;
   numberOfSubmittedSubjects: number;
   status: string;

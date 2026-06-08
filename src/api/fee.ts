@@ -20,7 +20,7 @@ export interface FeeItemDto {
   quantity?: number;
   branchIds?: number[];
   armIds: number[];
-  amount: number;
+  amount?: number;
   setDifferentPricesPerBranch?: boolean;
   setDifferentPricesPerClass?: boolean;
   branchAmounts?: BranchAmount[];
@@ -99,6 +99,17 @@ export interface FeeRouteRequestDto {
   isDefault: boolean;
 }
 
+// Response shape from GET /fee/route and GET /fee/route/branch/{branchId}
+export interface FeeRouteResponseDto {
+  id: number;
+  branchName: string;
+  bankAccountName: string;
+  bankAccountNumber: string;
+  feeClassName: string;
+  feeClassId: number;
+  isDefault: boolean;
+}
+
 export const getFeeClassOverview = async (sessionId: number, term: FeeTermType, branchId?: number) => {
   try {
     const params = new URLSearchParams({ sessionId: String(sessionId), term });
@@ -152,12 +163,12 @@ export const publishFee = async (id: number) => {
   }
 };
 
-export interface FeeItemForArmDto {
-  name: string;
-  session: number;
-  term: FeeTermType;
-  quantity: number;
+export interface FeeItemDetail {
+  feeItemId: number;
+  feeClassId: number;
+  feeName: string;
   amount: number;
+  quantity: number;
   required: boolean;
   allowPartPayment: boolean;
   minimumPartPayment: number;
@@ -308,6 +319,25 @@ export const createFeeRoute = async (payload: FeeRouteRequestDto) => {
   try {
     const { data } = await api.post(`/fee/route`, payload);
     return data;
+// Normalise whatever the server returns to a plain array.
+// Swagger says array, but the runtime response may be a paginated wrapper
+// ({ content, data, items, … }) depending on the backend version.
+function toArray<T>(raw: unknown): T[] {
+  if (Array.isArray(raw)) return raw as T[];
+  if (raw && typeof raw === "object") {
+    const obj = raw as Record<string, unknown>;
+    for (const key of ["content", "data", "items", "results"]) {
+      if (Array.isArray(obj[key])) return obj[key] as T[];
+    }
+  }
+  return [];
+}
+
+// GET /fee/route — all school fee routes
+export const getFeeRoutes = async (): Promise<FeeRouteResponseDto[]> => {
+  try {
+    const { data } = await api.get(`/fee/route`);
+    return toArray<FeeRouteResponseDto>(data);
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
@@ -318,6 +348,11 @@ export const deleteFeeRoute = async (id: number) => {
   try {
     const { data } = await api.delete(`/fee/route/${id}`);
     return data;
+// GET /fee/route/branch/{branchId} — routes for a specific branch
+export const getFeeRoutesByBranch = async (branchId: number): Promise<FeeRouteResponseDto[]> => {
+  try {
+    const { data } = await api.get(`/fee/route/branch/${branchId}`);
+    return toArray<FeeRouteResponseDto>(data);
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
@@ -347,6 +382,10 @@ export const exportFeeItems = async ({ branchId, termId }: { branchId?: number; 
       "fee-items.xlsx",
       res.headers["content-disposition"],
     );
+export const createFeeRoute = async (payload: FeeRouteRequestDto) => {
+  try {
+    const { data } = await api.post(`/fee/route`, payload);
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
@@ -363,6 +402,11 @@ export const exportFeeGroups = async ({ branchId }: { branchId?: number }) => {
       "fee-groups.xlsx",
       res.headers["content-disposition"],
     );
+// PUT /fee/route/{id} — update an existing fee route
+export const updateFeeRoute = async (id: number, payload: FeeRouteRequestDto) => {
+  try {
+    const { data } = await api.put(`/fee/route/${id}`, payload);
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
@@ -395,6 +439,10 @@ export const exportClassFees = async ({
       "class-fees.xlsx",
       res.headers["content-disposition"],
     );
+export const deleteFeeRoute = async (id: number) => {
+  try {
+    const { data } = await api.delete(`/fee/route/${id}`);
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

@@ -2,6 +2,7 @@
 
 import { CalendarEventFill } from "@digenty/icons";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -24,6 +25,9 @@ function formatDate(date?: Date) {
 }
 
 export function DateRangePicker({ from, to, onChange, className }: DateRangePickerProps) {
+  const [openFrom, setOpenFrom] = useState(false);
+  const [openTo, setOpenTo] = useState(false);
+
   return (
     <div className={cn("flex flex-col items-center gap-3 md:flex-row md:justify-between", className)}>
       {/* From */}
@@ -31,14 +35,21 @@ export function DateRangePicker({ from, to, onChange, className }: DateRangePick
         <Label className="text-text-default text-sm font-medium">
           Issued Date <span className="text-text-destructive">*</span>{" "}
         </Label>
-        <Popover>
+        <Popover open={openFrom} onOpenChange={setOpenFrom}>
           <PopoverTrigger asChild className="bg-bg-input-soft! max-w-full">
             <Button variant="outline" className="h-9 justify-between gap-2 border-none px-3 text-sm font-medium">
               <span> {formatDate(from)}</span> <CalendarEventFill fill="var(--color-icon-default-muted)" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="bg-bg-card text-text-default border-border-default w-auto p-0">
-            <Calendar mode="single" selected={from} onSelect={date => onChange({ from: date, to })} />
+            <Calendar
+              mode="single"
+              selected={from}
+              onSelect={date => {
+                onChange({ from: date, to });
+                setOpenFrom(false);
+              }}
+            />
           </PopoverContent>
         </Popover>
       </div>
@@ -46,7 +57,7 @@ export function DateRangePicker({ from, to, onChange, className }: DateRangePick
       {/* TO */}
       <div className="flex w-full flex-col gap-1">
         <Label className="text-text-default text-sm font-medium">Due Date</Label>
-        <Popover>
+        <Popover open={openTo} onOpenChange={setOpenTo}>
           <PopoverTrigger asChild className="bg-bg-input-soft! max-w-full">
             <Button variant="outline" className="h-9 justify-between gap-2 border-none px-3 text-sm font-medium">
               <span> {formatDate(to)}</span>
@@ -54,7 +65,15 @@ export function DateRangePicker({ from, to, onChange, className }: DateRangePick
             </Button>
           </PopoverTrigger>
           <PopoverContent className="bg-bg-card text-text-default border-border-default w-auto p-0">
-            <Calendar mode="single" selected={to} disabled={date => (from ? date < from : false)} onSelect={date => onChange({ from, to: date })} />
+            <Calendar
+              mode="single"
+              selected={to}
+              disabled={date => (from ? date < from : false)}
+              onSelect={date => {
+                onChange({ from, to: date });
+                setOpenTo(false);
+              }}
+            />
           </PopoverContent>
         </Popover>
       </div>

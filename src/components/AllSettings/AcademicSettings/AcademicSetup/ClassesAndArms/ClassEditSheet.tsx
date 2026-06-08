@@ -13,18 +13,24 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAddArmToClass, useDeleteArmFromClass, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useGetClassDetails, useUpdateClass } from "@/hooks/queryHooks/useClass";
 import {
+  useAddDepartmentToClass,
   useCreateDepartmentSubjects,
+  useDeleteDepartmentFromClass,
   useDeleteDepartmentSubjects,
   useGetDepartmentsByClass,
   useGetDepartmentSubjectsByClass,
 } from "@/hooks/queryHooks/useDepartment";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubjectToClass, useDeleteSubjectFromClass, useGetSubjectsByClass } from "@/hooks/queryHooks/useSubject";
+import { armKeys } from "@/queries/arm";
+import { departmentKeys } from "@/queries/department";
+import { subjectKeys } from "@/queries/subject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import * as yup from "yup";
 import { AssignArmsToDepartments } from "./AssignArmsToDepartments";
 
@@ -41,42 +47,31 @@ const DepartmentSubjectsSection = ({
 }) => {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [subjectInput, setSubjectInput] = useState("");
+  const [deletingSubject, setDeletingSubject] = useState<string | null>(null);
   const { data: deptSubjectsData, isLoading } = useGetDepartmentSubjectsByClass(dept.departmentId, levelId);
   const { mutate: mutateCreateDeptSubjects, isPending: isSaving } = useCreateDepartmentSubjects();
-  const { mutate: mutateDeleteDeptSubjects, isPending: isDeleting } = useDeleteDepartmentSubjects();
+  const { mutate: mutateDeleteDeptSubject, isPending: isDeleting } = useDeleteDepartmentSubjects();
 
   useEffect(() => {
     if (deptSubjectsData?.data) {
-      setSubjects(deptSubjectsData?.data.map((s: { subjectName: string }) => s.subjectName));
+      setSubjects(deptSubjectsData.data.map((s: { subjectName: string }) => s.subjectName));
     }
   }, [deptSubjectsData]);
 
   const addSubject = (subjectString: string) => {
     if (!subjectString.trim()) return;
-    // const currentSubjectNames = subjects.map((s: { name: string }) => s.name);
     const newSubjectNames = subjectString
       .split(",")
       .map(str => str.trim())
       .filter(str => str !== "" && !subjects.includes(str));
-
     if (newSubjectNames.length === 0) return;
-
+    setSubjectInput("");
     mutateCreateDeptSubjects(
-      {
-        departmentName: dept.name,
-        subjectNames: newSubjectNames,
-        branchId: branchId,
-        branchSpecific,
-      },
+      { departmentName: dept.name, subjectNames: newSubjectNames, branchId, branchSpecific },
       {
         onSuccess: () => {
           setSubjects(prev => [...prev, ...newSubjectNames]);
-          setSubjectInput("");
-          toast({
-            title: "Subjects added",
-            description: `Subjects for ${dept.name} have been updated successfully`,
-            type: "success",
-          });
+          toast({ title: "Subjects added", description: `Subjects for ${dept.name} updated successfully`, type: "success" });
         },
         onError: error => {
           toast({
@@ -90,23 +85,21 @@ const DepartmentSubjectsSection = ({
   };
 
   const removeSubject = (subjectToRemove: string) => {
-    const subjectList = deptSubjectsData?.data || [];
-    const subjectId = subjectList.find((subject: { subjectName: string }) => subject.subjectName === subjectToRemove)?.subjectId;
-
-    mutateDeleteDeptSubjects(
-      {
-        departmentId: dept.departmentId,
-        subjectId,
-      },
+    const subjectData = (deptSubjectsData?.data as { subjectId: number; subjectName: string }[] | undefined)?.find(
+      s => s.subjectName === subjectToRemove,
+    );
+    if (!subjectData) return;
+    setDeletingSubject(subjectToRemove);
+    mutateDeleteDeptSubject(
+      { departmentId: dept.departmentId, subjectId: subjectData.subjectId },
       {
         onSuccess: () => {
-          toast({
-            title: "Subject removed",
-            description: `"${subjectToRemove}" has been removed from ${dept.name}`,
-            type: "success",
-          });
+          setSubjects(prev => prev.filter(s => s !== subjectToRemove));
+          setDeletingSubject(null);
+          toast({ title: "Subject removed", description: `"${subjectToRemove}" removed from ${dept.name}`, type: "success" });
         },
         onError: error => {
+          setDeletingSubject(null);
           toast({
             title: "Failed to remove subject",
             description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`,
@@ -132,12 +125,13 @@ const DepartmentSubjectsSection = ({
             }
           }}
           className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
-          placeholder={`Add Subjects to ${dept.name.toLowerCase()}`}
+          placeholder={`Add subjects to ${dept.name.toLowerCase()}`}
         />
         <Button
+          type="button"
           className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
           onClick={() => addSubject(subjectInput)}
-          disabled={isSaving || isLoading}
+          disabled={isSaving || isLoading || isDeleting}
         >
           {(isSaving || isLoading) && <Spinner className="text-text-white-default size-3" />}
           Add
@@ -149,22 +143,27 @@ const DepartmentSubjectsSection = ({
             key={subject}
             className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
           >
-            <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
+            <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>
             <button
               type="button"
-              className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0"
+              disabled={deletingSubject === subject || isDeleting}
+              className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
               onClick={e => {
                 e.preventDefault();
                 removeSubject(subject);
               }}
             >
-              <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
+              {deletingSubject === subject ? (
+                <Spinner className="text-text-subtle size-2" />
+              ) : (
+                <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
+              )}
             </button>
           </Badge>
         ))}
       </div>
       <div className="text-text-muted text-xs">
-        You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.{" "}
+        You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.
       </div>
     </div>
   );
@@ -194,7 +193,9 @@ export const ClassEditSheet = ({
   const [armsEnabled, setArmsEnabled] = useState(false);
   const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
   const [deletingArmName, setDeletingArmName] = useState<string | null>(null);
+  const [deletingDepartmentName, setDeletingDepartmentName] = useState<string | null>(null);
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
 
   const { mutate, isPending } = useUpdateLevel();
   const { mutate: updateClass, isPending: isUpdatingClass } = useUpdateClass();
@@ -202,6 +203,8 @@ export const ClassEditSheet = ({
   const { mutate: deleteSubject } = useDeleteSubjectFromClass();
   const { mutate: deleteArm } = useDeleteArmFromClass();
   const { mutate: mutateArm, isPending: isAddingArm } = useAddArmToClass();
+  const { mutate: mutateDepartment, isPending: isAddingDepartment } = useAddDepartmentToClass();
+  const { mutate: deleteDepartment } = useDeleteDepartmentFromClass();
   const { data: classData, isLoading: isLoadingClass } = useGetClassDetails(classId);
   const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByClass(classData?.data?.name, level?.levelType, branchId);
   const { data: armsData, isFetching: isLoadingArms } = useGetArmsByClass(classId);
@@ -223,7 +226,9 @@ export const ClassEditSheet = ({
       const names: string[] = armsWithDetails.map((s: { name: string }) => s.name);
       setArms(names);
       setArmsDetails(armsWithDetails);
-      setArmsEnabled(true);
+      if (armsWithDetails.length > 0) {
+        setArmsEnabled(true);
+      }
     }
   }, [armsData]);
 
@@ -291,16 +296,15 @@ export const ClassEditSheet = ({
       .map(str => str.trim().replace(/^,+|,+$/g, ""))
       .filter(str => str !== "" && !subjects.includes(str));
 
+    if (!newSubjects.length) return;
+    formik.setFieldValue("subject", "");
+
     mutateSubject(
       { names: newSubjects, className: classData?.data?.name, levelType: level?.levelType || "" },
       {
         onSuccess: () => {
-          setSubjects(prev => [...prev, ...newSubjects]);
-          toast({
-            title: "Subjects added",
-            description: `Subject(s) have been added successfully`,
-            type: "success",
-          });
+          queryClient.refetchQueries({ queryKey: subjectKeys.subjectsByClass(classData?.data?.name, level?.levelType, branchId) });
+          toast({ title: "Subjects added", description: `Subject(s) have been added successfully`, type: "success" });
         },
         onError: error => {
           toast({
@@ -311,42 +315,35 @@ export const ClassEditSheet = ({
         },
       },
     );
-
-    formik.setFieldValue("subject", "");
   };
 
   const removeSubject = (subjectToRemove: string) => {
-    const subjectsList = subjectsData?.data[0]?.subjects || [];
+    const subjectsList: { id: number; name: string }[] = Array.isArray(subjectsData?.data[0]?.subjects)
+      ? subjectsData.data[0].subjects
+      : (subjectsData?.content ?? subjectsData?.data ?? []);
 
-    const subjectObj = subjectsList.find((s: { id: number; name: string }) => s.name === subjectToRemove);
+    const subjectObj = subjectsList.find(s => s.name === subjectToRemove);
+    if (!subjectObj || !classId) return;
 
-    if (subjectObj && classId) {
-      setDeletingSubjectName(subjectToRemove);
-      deleteSubject(
-        { subjectId: subjectObj.id, classId: classId },
-        {
-          onSuccess: () => {
-            setSubjects(subjects.filter(subject => subject !== subjectToRemove));
-            setDeletingSubjectName(null);
-            toast({
-              title: "Subject deleted",
-              description: `"${subjectToRemove}" has been deleted successfully`,
-              type: "success",
-            });
-          },
-          onError: error => {
-            setDeletingSubjectName(null);
-            toast({
-              title: "Failed to delete subject",
-              description: (error as { message?: string })?.message || `Could not delete "${subjectToRemove}"`,
-              type: "error",
-            });
-          },
+    setDeletingSubjectName(subjectToRemove);
+    deleteSubject(
+      { subjectId: subjectObj.id, classId },
+      {
+        onSuccess: () => {
+          setDeletingSubjectName(null);
+          queryClient.refetchQueries({ queryKey: subjectKeys.subjectsByClass(classData?.data?.name, level?.levelType, branchId) });
+          toast({ title: "Subject deleted", description: `"${subjectToRemove}" has been deleted successfully`, type: "success" });
         },
-      );
-    } else {
-      setSubjects(subjects.filter(subject => subject !== subjectToRemove));
-    }
+        onError: error => {
+          setDeletingSubjectName(null);
+          toast({
+            title: "Failed to delete subject",
+            description: (error as { message?: string })?.message || `Could not delete "${subjectToRemove}"`,
+            type: "error",
+          });
+        },
+      },
+    );
   };
 
   const addArm = (armString: string) => {
@@ -357,29 +354,20 @@ export const ClassEditSheet = ({
       .filter(str => str !== "" && !arms.includes(str));
 
     if (!newArms.length) return;
+    formik.setFieldValue("arm", "");
 
     mutateArm(
       { names: newArms, className: classData?.data?.name, levelType: level?.levelType || "" },
       {
         onSuccess: () => {
-          setArms(prev => [...prev, ...newArms]);
-          toast({
-            title: "Arms added",
-            description: `Arm(s) have been added successfully`,
-            type: "success",
-          });
+          queryClient.refetchQueries({ queryKey: armKeys.armsByClass(classId) });
+          toast({ title: "Arms added", description: `Arm(s) have been added successfully`, type: "success" });
         },
         onError: error => {
-          toast({
-            title: "Failed to add arms",
-            description: (error as { message?: string })?.message || `Could not add arms`,
-            type: "error",
-          });
+          toast({ title: "Failed to add arms", description: (error as { message?: string })?.message || `Could not add arms`, type: "error" });
         },
       },
     );
-
-    formik.setFieldValue("arm", "");
   };
 
   const removeArm = (armToRemove: string) => {
@@ -392,8 +380,8 @@ export const ClassEditSheet = ({
         { armId: armObj.id, classId: classId },
         {
           onSuccess: () => {
-            setArms(arms.filter(arm => arm !== armToRemove));
             setDeletingArmName(null);
+            queryClient.refetchQueries({ queryKey: armKeys.armsByClass(classId) });
             toast({
               title: "Arm deleted",
               description: `"${armToRemove}" has been deleted successfully`,
@@ -416,18 +404,56 @@ export const ClassEditSheet = ({
   };
 
   const addDepartment = (departmentString: string) => {
-    if (!departmentString.trim()) return;
+    if (!departmentString.trim() || !level?.levelType || !classData?.data?.name) return;
     const newDepartments = departmentString
       .split(",")
       .map(str => str.trim().replace(/^,+|,+$/g, ""))
       .filter(str => str !== "" && !departments.includes(str));
 
-    setDepartments([...departments, ...newDepartments]);
+    if (!newDepartments.length) return;
     formik.setFieldValue("department", "");
+
+    mutateDepartment(
+      { names: newDepartments, className: classData.data.name, levelType: level.levelType, branchId, branchSpecific },
+      {
+        onSuccess: () => {
+          queryClient.refetchQueries({ queryKey: departmentKeys.departmentsByClass(classData?.data?.name, level?.levelType, branchId) });
+          toast({ title: "Department(s) added", description: "Departments have been updated successfully", type: "success" });
+        },
+        onError: error => {
+          toast({
+            title: "Failed to add department",
+            description: (error as { message?: string })?.message || "Could not add departments",
+            type: "error",
+          });
+        },
+      },
+    );
   };
 
   const removeDepartment = (departmentToRemove: string) => {
-    setDepartments(departments.filter(department => department !== departmentToRemove));
+    const departmentObj = departmentsDetails.find(d => d.name === departmentToRemove);
+    if (!departmentObj || !classId) return;
+
+    setDeletingDepartmentName(departmentToRemove);
+    deleteDepartment(
+      { departmentId: departmentObj.departmentId, classId },
+      {
+        onSuccess: () => {
+          setDeletingDepartmentName(null);
+          queryClient.refetchQueries({ queryKey: departmentKeys.departmentsByClass(classData?.data?.name, level?.levelType, branchId) });
+          toast({ title: "Department deleted", description: `"${departmentToRemove}" has been deleted successfully`, type: "success" });
+        },
+        onError: error => {
+          setDeletingDepartmentName(null);
+          toast({
+            title: "Failed to delete department",
+            description: (error as { message?: string })?.message || `Could not delete "${departmentToRemove}"`,
+            type: "error",
+          });
+        },
+      },
+    );
   };
 
   const contentNode = (
@@ -493,23 +519,37 @@ export const ClassEditSheet = ({
                       }}
                       className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
                     />
-                    <Button className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs">
+                    <Button
+                      type="button"
+                      onClick={() => addDepartment(formik.values.department)}
+                      className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+                    >
+                      {isAddingDepartment && <Spinner className="text-text-white-default size-3" />}
                       Add
                     </Button>
                   </div>
-                  <div className="flex items-center gap-1">
-                    {" "}
+                  <div className="flex flex-wrap items-center gap-1">
                     {departments.map(department => (
                       <Badge
                         key={department}
                         className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                       >
-                        <span className="text-text-subtle text-xs capitalize">{department?.toLowerCase()}</span>{" "}
-                        <CloseFill
-                          onClick={() => removeDepartment(department)}
-                          fill="var(--color-icon-default-muted)"
-                          className="size-2! cursor-pointer"
-                        />
+                        <span className="text-text-subtle text-xs capitalize">{department?.toLowerCase()}</span>
+                        <button
+                          type="button"
+                          disabled={deletingDepartmentName === department}
+                          className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
+                          onClick={e => {
+                            e.preventDefault();
+                            removeDepartment(department);
+                          }}
+                        >
+                          {deletingDepartmentName === department ? (
+                            <Spinner className="text-text-subtle size-2" />
+                          ) : (
+                            <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
+                          )}
+                        </button>
                       </Badge>
                     ))}
                   </div>
@@ -518,10 +558,10 @@ export const ClassEditSheet = ({
                   </small>
                 </div>
 
-                {departments.length > 0 && (
+                {departmentsDetails.length > 0 && (
                   <>
                     <div className="text-text-default text-xl font-semibold">Department Subjects</div>
-                    {departmentsData?.data?.[0]?.departments.map((dept: DepartmentWithSubjects, index: number) => (
+                    {departmentsDetails.map((dept, index) => (
                       <DepartmentSubjectsSection
                         key={`${dept.departmentId}-${index}`}
                         dept={dept}
@@ -679,7 +719,9 @@ export const ClassEditSheet = ({
           </div>
         </div>
 
-        {/* <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} /> */}
+        {departmentsEnabled && armsDetails.length > 0 && departmentsDetails.length > 0 && (
+          <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} levelId={level!.id} branchId={branchId} />
+        )}
       </div>
     </div>
   );
@@ -691,10 +733,10 @@ export const ClassEditSheet = ({
             <SheetContent className="bg-bg-card border-border-default mt-4 mr-4 hidden overflow-y-auto rounded-md border md:block md:min-w-130">
               <SheetHeader className="border-border-darker bg-bg-card-subtle rounded-t-md border-b px-4 py-3">
                 <VisuallyHidden>
-                  <SheetTitle>Quick Setup</SheetTitle>
+                  <SheetTitle>Edit {classData?.data?.name}</SheetTitle>
                 </VisuallyHidden>
                 <div className="flex items-center justify-between">
-                  <div className="text-text-default text-md font-semibold">Quick Setup</div>
+                  <div className="text-text-default text-md font-semibold capitalize">Edit {classData?.data?.name?.toLowerCase()}</div>
                 </div>
               </SheetHeader>
 
@@ -727,7 +769,7 @@ export const ClassEditSheet = ({
 
       {/* Mobile */}
       {isMobile && (
-        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Quick Setup">
+        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title={`Edit ${classData?.data?.name ?? ""}`}>
           {contentNode}
           <SheetFooter className="border-border-default border-t">
             <div className="flex items-center justify-between">

@@ -27,6 +27,16 @@ export const getArmsByClass = async (classId: number | null) => {
   }
 };
 
+export const getAllArms = async (branchId?: number) => {
+  try {
+    const { data } = await api.get(`/arms${branchId ? `?branchId=${branchId}` : ""}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
 export const getArmsByLevel = async (levelType?: LevelType, branchId?: number) => {
   try {
     const { data } = await api.get(`/arms/level?levelType=${levelType}${branchId ? `&branchId=${branchId}` : ""}`);
@@ -39,9 +49,9 @@ export const getArmsByLevel = async (levelType?: LevelType, branchId?: number) =
   }
 };
 
-export const deleteArmByLevel = async (armId: number, levelId: number) => {
+export const deleteArmByLevel = async (armName: string, levelId: number) => {
   try {
-    const { data } = await api.delete(`/arms/level?armId=${armId}&levelId=${levelId}`);
+    const { data } = await api.delete(`/arms/level?armName=${encodeURIComponent(armName)}&levelId=${levelId}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

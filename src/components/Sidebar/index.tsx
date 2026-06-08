@@ -184,54 +184,27 @@ export const Sidebar = () => {
     //     ]
     //   : []),
 
-    // ...(canViewCommunication(user?.permissions) ||
-    // canViewPortalCustomization(user?.permissions) ||
-    // canViewPortalOverview(user?.permissions) ||
-    // canViewDomain(user?.permissions)
+    ...(canViewCommunication(user?.permissions)
+      ? [
+          {
+            title: "Communication & Portal",
+            menu: [
+              {
+                title: "Communications",
+                url: "communications",
+                icon: Megaphone,
+              },
+            ],
+          },
+        ]
+      : []),
+
+    // ...(canViewPortalCustomization(user?.permissions)
     //   ? [
     //       {
-    //         title: "Communication & Portal",
-    //         menu: [
-    //           ...(canViewCommunication(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Communications",
-    //                   url: "communications",
-    //                   icon: Megaphone,
-    //                 },
-    //               ]
-    //             : []),
-
-    //           ...(canViewPortalOverview(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Portal Overview",
-    //                   url: "portal-overview",
-    //                   icon: Macbook,
-    //                 },
-    //               ]
-    //             : []),
-
-    //           ...(canViewPortalCustomization(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Portal Customization",
-    //                   url: "portal-customization",
-    //                   icon: ColorFilter,
-    //                 },
-    //               ]
-    //             : []),
-
-    //           ...(canViewDomain(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Domain",
-    //                   url: "domain",
-    //                   icon: Global,
-    //                 },
-    //               ]
-    //             : []),
-    //         ],
+    //         title: "Portal Customization",
+    //         url: "portal-customization",
+    //         icon: ColorFilter,
     //       },
     //     ]
     //   : []),
@@ -361,7 +334,7 @@ export const Sidebar = () => {
         </div>
 
         <div className={cn("absolute right-4 bottom-4 left-4")}>
-          <div className="right-10">{isSidebarOpen && user?.isMain && <SetupGuideProgress />}</div>
+          <div className="right-10">{user?.isMain && <SetupGuideProgress isCollapsed={!isSidebarOpen} />}</div>
 
           <div>
             <Tooltip
@@ -449,7 +422,17 @@ export const Sidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          onClick={() => router.push(`/staff/${menu.url}`)}
+                          onClick={
+                            menu.url === "cbt"
+                              ? e => {
+                                  handleCBTClick(e);
+                                  setIsSidebarOpen(false);
+                                }
+                              : () => {
+                                  router.push(`/staff/${menu.url}`);
+                                  setIsSidebarOpen(false);
+                                }
+                          }
                         >
                           <menu.icon fill="var(--color-icon-default-subtle)" />
                           <p className="text-sm leading-5 font-medium">{menu.title}</p>
@@ -475,7 +458,10 @@ export const Sidebar = () => {
                     !isSidebarOpen && "justify-center px-0",
                     activeNav === "profile" && "bg-bg-state-soft rounded-md",
                   )}
-                  onClick={() => router.push("/staff/profile")}
+                  onClick={() => {
+                    router.push("/staff/profile");
+                    setIsSidebarOpen(false);
+                  }}
                 >
                   <User fill="var(--color-icon-default-subtle)" />
                   <p className="text-sm leading-5 font-medium">Profile</p>
@@ -488,7 +474,10 @@ export const Sidebar = () => {
                       !isSidebarOpen && "justify-center px-0",
                       activeNav === "settings" && "bg-bg-state-soft rounded-md",
                     )}
-                    onClick={() => router.push("/staff/settings")}
+                    onClick={() => {
+                      router.push("/staff/settings");
+                      setIsSidebarOpen(false);
+                    }}
                   >
                     <Settings4 fill="var(--color-icon-default-subtle)" />
                     <p className="text-sm leading-5 font-medium">Settings</p>

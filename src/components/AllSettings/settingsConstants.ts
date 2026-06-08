@@ -1,4 +1,4 @@
-import { Award, BankCard, Box3, FileList3, GraduationCap, Group, IdCard, School, Shield, User } from "@digenty/icons";
+import { Award, BankCard, Box3, FileList3, GraduationCap, Group, IdCard, School, User } from "@digenty/icons";
 
 export const SETTINGS_NAV = [
   { label: "General Settings", url: "/staff/settings/general", icon: School },
@@ -9,5 +9,5 @@ export const SETTINGS_NAV = [
   { label: "Permissions", url: "/staff/settings/permissions", icon: Group },
   // { label: "Stock", url: "/staff/settings/stock", icon: Box3 },
   // { label: "KYC", url: "/staff/settings/kyc", icon: IdCard },
-  { label: "Security", url: "/staff/settings/security", icon: Shield },
+  // { label: "Security", url: "/staff/settings/security", icon: Shield },
 ];

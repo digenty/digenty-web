@@ -3,7 +3,7 @@
 import { Calendar, ListCheck } from "@digenty/icons";
 import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
-import { useMarkAllAttendance, useMarkAttendance } from "@/hooks/queryHooks/useAttendance";
+import { useCreateAttendanceSheet, useMarkAllAttendance, useMarkAttendance } from "@/hooks/queryHooks/useAttendance";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { format } from "date-fns";
 import { CheckIcon, XIcon } from "lucide-react";
@@ -40,6 +40,7 @@ export const ClassAttendanceHeader = ({
 
   const { mutate: saveAttendance, isPending: saving } = useMarkAttendance();
   const { mutate: markAllAttendance, isPending: markingAll } = useMarkAllAttendance();
+  const { mutate: createSheet } = useCreateAttendanceSheet();
 
   useBreadcrumb([
     { label: "Attendance Management", url: "/staff/attendance" },
@@ -79,7 +80,7 @@ export const ClassAttendanceHeader = ({
     markAllAttendance(
       {
         armId: Number(armId),
-        date: date.toISOString(),
+        date: format(date, "yyyy-MM-dd"),
         isPresent,
       },
       {
@@ -101,11 +102,11 @@ export const ClassAttendanceHeader = ({
   };
 
   return (
-    <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle md:flex-row md:items-center md:py-3">
-      <div className="border-border-default flex w-full items-center gap-2 border-b px-4 md:border-none md:px-8">
+    <div className="border-border-default flex w-full flex-col items-start justify-between border-b py-2 align-middle lg:flex-row lg:items-center lg:py-3">
+      <div className="border-border-default flex w-full items-center gap-2 border-b px-4 lg:border-none lg:px-8">
         <h2 className="text-text-default line-clamp-1 text-lg font-semibold md:text-xl">{classArmName.toUpperCase()}</h2>
 
-        <div className="hidden gap-1 md:flex">
+        <div className="hidden gap-1 lg:flex">
           <Button
             disabled={markingAll}
             onClick={() => handleMarkAllAttendance(true)}
@@ -126,7 +127,7 @@ export const ClassAttendanceHeader = ({
         </div>
       </div>
 
-      <div className="hide-scrollbar w-screen overflow-x-auto px-4 py-2 md:w-auto md:overflow-x-visible md:px-8 md:py-0">
+      <div className="hide-scrollbar w-screen overflow-x-auto px-4 py-2 lg:w-auto lg:overflow-x-visible lg:px-8 lg:py-0">
         <div className="flex w-max items-center gap-2 md:w-auto">
           <Button
             onClick={() => router.push(`/staff/attendance/${classArmName.split(" ").join("-")}/${armId}/term-sheet`)}
@@ -150,9 +151,28 @@ export const ClassAttendanceHeader = ({
                 className="text-text-default"
                 mode="single"
                 selected={date}
-                onSelect={date => {
-                  setDate(date as Date);
+                onSelect={selected => {
+                  const newDate = selected as Date;
+                  setDate(newDate);
                   setOpen(false);
+                  createSheet(
+                    { armId: Number(armId), date: format(newDate, "yyyy-MM-dd") },
+                    {
+                      onSuccess: data => {
+                        toast({
+                          title: "Attendance sheet ready",
+                          description: data.message,
+                          type: "success",
+                        });
+                      },
+                      onError: error => {
+                        toast({
+                          title: error?.message ?? "Could not create attendance sheet",
+                          type: "error",
+                        });
+                      },
+                    },
+                  );
                 }}
                 disabled={[
                   { dayOfWeek: [0, 6] },
@@ -173,7 +193,7 @@ export const ClassAttendanceHeader = ({
         </div>
       </div>
 
-      <div className="border-border-default hide-scrollbar flex w-screen gap-2 overflow-x-auto border-t px-4 pt-2 md:hidden md:px-8">
+      <div className="border-border-default hide-scrollbar flex w-screen gap-2 overflow-x-auto border-t px-4 pt-2 lg:hidden lg:px-8">
         <Button disabled={markingAll} onClick={() => handleMarkAllAttendance(true)} className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
           {markingAll && isAllPresent ? <Spinner /> : <CheckIcon className="text-icon-default-muted size-4" />}
           <span className="text-text-subtle text-sm font-medium">Mark All Present</span>

@@ -10,10 +10,10 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
 import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
 import { AllClassesMainTableProps, ClassProps } from "./types";
+import { toast } from "@/components/Toast";
 
 const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => {
   const router = useRouter();
@@ -30,11 +30,19 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
       { classArmReportId: row.original.classArmReportId, status: "APPROVED" },
       {
         onSuccess: () => {
-          toast.success("Submission approved successfully");
+          toast({
+            title: "Submission approved successfully",
+            description: "You have successfully approved the submission",
+            type: "success",
+          });
           setOpenApproveModal(false);
         },
         onError: error => {
-          toast.error(error?.message || "Failed to approve submission");
+          toast({
+            title: "Failed to approve submission",
+            description: error?.message || "Failed to approve submission",
+            type: "error",
+          });
         },
       },
     );
@@ -42,7 +50,9 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
 
   return (
     <>
-      {openNotifyModal && <NotifyTeacherModal openNotifyModal={openNotifyModal} setOpenNotifyModal={setOpenNotifyModal} />}
+      {openNotifyModal && (
+        <NotifyTeacherModal openNotifyModal={openNotifyModal} setOpenNotifyModal={setOpenNotifyModal} classTeacherId={row.original.classTeacherId} />
+      )}
       {openApproveModal && (
         <ApproveModal
           openApproveModal={openApproveModal}
@@ -76,7 +86,14 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
             <CheckboxCircle fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Approve submission</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3" onClick={() => setOpenNotifyModal(true)}>
+          <DropdownMenuItem
+            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+            onSelect={e => {
+              e.preventDefault();
+              setOpen(false);
+              setOpenNotifyModal(true);
+            }}
+          >
             <Notification fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Notify class teacher</span>
           </DropdownMenuItem>

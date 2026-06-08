@@ -97,6 +97,7 @@ These Terms shall be governed by the laws of the Federal Republic of Nigeria.
 
 export const PRIVACY_POLICY = `
 Privacy Notice
+
 We value your privacy and protect the personal information of schools, parents, students, and staff. We collect information such as names, contact details, student records, and academic data solely to help schools manage administration, communicate with parents, and track student progress.
 
 We do not sell or share personal data with unauthorised third parties. Access is limited to authorised school staff, parents/guardians, and platform personnel who need it to provide the service.

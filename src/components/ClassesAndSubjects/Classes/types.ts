@@ -3,6 +3,7 @@ export type AllClassesMainTableProps = {
   classId: number;
   classArmName: string;
   classTeacherName: string;
+  classTeacherId: number | null;
   numberOfSubjects: number;
   numberOfSubmittedSubjects: number;
   numberOfEditRequest: 0;

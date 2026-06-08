@@ -11,4 +11,5 @@ export const departmentKeys = {
   deleteDepartmentSubjects: ["deleteDepartmentSubjects"] as const,
   assignedDepartments: (levelId?: number, departmentId?: number, branchId?: number) =>
     ["assignedDepartments", levelId, departmentId, branchId] as const,
+  toggleDepartment: ["toggleDepartment"] as const,
 };
