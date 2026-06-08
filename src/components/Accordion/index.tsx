@@ -30,6 +30,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, children, defaultOpen = fa
   return (
     <div className={` ${className ?? ""}`}>
       <button
+        type="button"
         className={cn(
           "bg-bg-subtle border-border-default flex w-full cursor-pointer items-center justify-between p-2 py-4 md:px-4",
           isOpen ? "border-b" : "",
