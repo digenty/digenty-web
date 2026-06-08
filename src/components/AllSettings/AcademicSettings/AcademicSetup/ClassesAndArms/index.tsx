@@ -441,8 +441,6 @@ export const ClassesAndArms = ({
 
   const nextClassNumber = useMemo(() => {
     const classes: ClassInLevelDetails[] = classesByLevelData?.data?.content ?? [];
-    return classes.length + (activeLevel?.classStart ?? 1);
-  }, [classesByLevelData, activeLevel?.classStart]);
     const max = classes.reduce((m, cls) => {
       const num = parseInt(cls.className?.split(" ").pop() ?? "0", 10);
       return isNaN(num) ? m : Math.max(m, num);
