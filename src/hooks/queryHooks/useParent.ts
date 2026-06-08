@@ -13,15 +13,16 @@ export const useAddParent = () => {
   });
 };
 
-export const useGetParents = ({ limit, branchId, search }: { limit: number; branchId?: number; search?: string }) => {
+export const useGetParents = ({ limit, branchId, search, enabled }: { limit: number; branchId?: number; search?: string; enabled?: boolean }) => {
   return useInfiniteQuery({
     queryKey: [parentKeys.all, branchId, search],
     queryFn: ({ pageParam }) => getParents({ pageParam, limit, branchId, search }),
     initialPageParam: 0,
     getNextPageParam: lastPage => {
       if (lastPage.last) return undefined;
-      return lastPage.number + 1; // next page index
+      return lastPage.number + 1;
     },
+    enabled: enabled !== false,
   });
 };
 

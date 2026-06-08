@@ -12,6 +12,7 @@ export const createSession = async (token: string, userType: "SCHOOL_STAFF" | "P
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
+    maxAge: 60 * 60 * 24 * 7, // 7 days — prevents session-cookie loss on cross-origin redirects (e.g. Paystack callback)
   });
 
   redirect(`/${userType === "SCHOOL_STAFF" ? "staff" : "parents"}`);

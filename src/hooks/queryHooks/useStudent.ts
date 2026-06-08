@@ -37,6 +37,7 @@ export const useGetStudents = ({
   armId,
   status,
   search,
+  enabled = true,
 }: {
   limit: number;
   branchId?: number;
@@ -44,14 +45,16 @@ export const useGetStudents = ({
   armId?: number;
   status?: StudentsStatus;
   search?: string;
+  enabled?: boolean;
 }) => {
   return useInfiniteQuery({
     queryKey: [studentKeys.all, branchId, classId, armId, status, search],
     queryFn: ({ pageParam }) => getStudents({ pageParam, limit, branchId, classId, armId, status, search }),
     initialPageParam: 0,
+    enabled,
     getNextPageParam: lastPage => {
       if (lastPage.last) return undefined;
-      return lastPage.number + 1; // next page index
+      return lastPage.number + 1;
     },
   });
 };
