@@ -1,45 +1,63 @@
 "use client";
 
 import { FolderReduce, School } from "@digenty/icons";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Image from "next/image";
-import { useState } from "react";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { BranchWithClassLevels } from "@/api/types";
 
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
-const branches = ["All Branches", "Lawanson", "Ilasamaja"];
+type Props = {
+  branchId?: number;
+  setBranchId: (id: number | undefined) => void;
+};
 
-export const StockHeader = () => {
-  const [branchSelected, setBranchSelected] = useState(branches[0]);
+export const StockHeader = ({ branchId, setBranchId }: Props) => {
+  const router = useRouter();
+  const { data: branchesResp } = useGetBranches();
+  const branches = ((branchesResp?.data ?? []) as BranchWithClassLevels[]).map(b => b.branch);
+
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useBreadcrumb([{ label: "Stock", url: "/staff/stock" }]);
+
+  const handleBranchChange = (value: string) => {
+    setBranchId(value ? Number(value) : undefined);
+  };
+
+  const selectedBranch = branches.find(b => b.id === branchId);
 
   return (
     <div>
       <div className="flex w-full justify-between align-middle">
         <h2 className="text-text-default text-xl font-semibold">Overview</h2>
         <div className="flex items-center gap-2">
-          <Button className="border-border-darker text-text-default h-8! w-auto border text-sm font-medium">
-            {" "}
+          <Button
+            onClick={() => router.push("/staff/stock/stock-categories")}
+            className="border-border-darker text-text-default h-8! w-auto border text-sm font-medium"
+          >
             <FolderReduce fill="var(--color-icon-black-muted)" className="size-4" /> Stock Categories
           </Button>
           <div className="hidden gap-2 align-middle md:flex">
-            <Select value={branchSelected} onValueChange={setBranchSelected}>
-              <SelectTrigger className="border-border-darker h-8! w-auto border">
-                <SelectValue>
+            <Select value={branchId ? String(branchId) : ""} onValueChange={handleBranchChange}>
+              <SelectTrigger className="border-border-darker placeholder:text-text-default! text-text-default bg-bg-default! h-8! w-auto border font-medium">
+                <SelectValue placeholder="Select Branch">
                   <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
-                  <span className="text-text-default text-sm font-medium">{branchSelected}</span>
+                  <span className="">{selectedBranch?.name ?? "Select Branch"}</span>
                 </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 {branches.map(branch => (
-                  <SelectItem key={branch} value={branch} className="text-text-default text-sm font-medium">
-                    {branch}
+                  <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm font-medium">
+                    {branch.name ?? `Branch ${branch.id}`}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -57,16 +75,16 @@ export const StockHeader = () => {
                 <School fill="var(--color-icon-black-muted)" className="size-4" />
                 <Label className="text-text-default text-sm font-medium">Branch</Label>
               </div>
-              <Select value={branchSelected} onValueChange={setBranchSelected}>
+              <Select value={branchId ? String(branchId) : ""} onValueChange={handleBranchChange}>
                 <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
                   <SelectValue>
-                    <span className="text-text-default text-sm">{branchSelected}</span>
+                    <span className="text-text-default text-sm">{selectedBranch?.name ?? "Select Branch"}</span>
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
                   {branches.map(branch => (
-                    <SelectItem key={branch} value={branch} className="text-text-default text-sm">
-                      {branch}
+                    <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm">
+                      {branch.name ?? `Branch ${branch.id}`}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -81,7 +99,6 @@ export const StockHeader = () => {
 
               <Button className="bg-bg-state-primary text-text-white-default rounded-md! px-4 py-2 text-sm tracking-[0.1rem]">
                 <span>Apply Filter</span>
-                <span className="bg-bg-badge-white border-border-white rounded-sm px-1.5 py-0.5 text-xs">2</span>
               </Button>
             </div>
           </DrawerFooter>
