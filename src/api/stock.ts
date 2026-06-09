@@ -80,15 +80,6 @@ export interface StockInvoiceSearchResult {
   totalElements: number;
 }
 
-export const searchStocks = async (branchId: number, search = "", page = 0, size = 20): Promise<StockInvoiceSearchResult> => {
-  try {
-    const params = new URLSearchParams({
-      branchId: String(branchId),
-      search,
-      page: String(page),
-      size: String(size),
-    });
-    const { data } = await api.get(`/stocks?${params}`);
 export interface SearchStocksParams {
   branchId: number;
   search?: string;

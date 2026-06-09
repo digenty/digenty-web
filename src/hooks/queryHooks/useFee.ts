@@ -22,13 +22,16 @@ import {
   getFeesForPicker,
   getFeeById,
   getFeeRoutes,
+  getFeeRoutesByBranch,
+  createFeeRoute,
+  updateFeeRoute,
+  deleteFeeRoute,
+  FeeRouteRequestDto,
   publishFee,
   updateFeeGroup,
 } from "@/api/fee";
 import { feeKeys } from "@/queries/fee";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-// ── Class Fee Overview ──────────────────────────────────────────────────────
 
 export const useGetFeeClassOverview = (sessionId?: number, term?: FeeTermType, branchId?: number) => {
   return useQuery({
@@ -59,8 +62,8 @@ export const useDeleteFee = () => {
     mutationKey: feeKeys.deleteFee,
     mutationFn: (id: number) => deleteFee(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["fees"] });
-      queryClient.invalidateQueries({ queryKey: ["feeClassOverview"] });
+      queryClient.invalidateQueries({ queryKey: feeKeys.fees() });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeClassOverview() });
     },
   });
 };
@@ -70,7 +73,7 @@ export const usePublishFee = () => {
   return useMutation({
     mutationFn: (id: number) => publishFee(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["fees"] });
+      queryClient.invalidateQueries({ queryKey: feeKeys.fees() });
     },
   });
 };
@@ -96,23 +99,14 @@ export const useGetFeeItemById = (id?: number) => {
   });
 };
 
-export const useGetFeeItemById = (id: number) => {
-  return useQuery({
-    queryKey: feeKeys.feeItemById(id),
-    queryFn: () => getFeeById(id),
-    enabled: !!id,
-    retry: false,
-  });
-};
-
 export const useCreateFeeItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: feeKeys.createFeeItem,
     mutationFn: (payload: FeeItemDto) => createFeeItem(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["feeItems"] });
-      queryClient.invalidateQueries({ queryKey: ["feeClassOverview"] });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeItems() });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeClassOverview() });
     },
   });
 };
@@ -122,22 +116,8 @@ export const useCreateFeeItemForArm = () => {
   return useMutation({
     mutationFn: ({ armId, payload }: { armId: number; payload: FeeItemForArmDto }) => createFeeItemForArm(armId, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["feeItems"] });
-      queryClient.invalidateQueries({ queryKey: ["feeClassOverview"] });
-    mutationFn: (payload: FeeItemDto) => createFeeItem(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: feeKeys.fees });
       queryClient.invalidateQueries({ queryKey: feeKeys.feeItems() });
-    },
-  });
-};
-
-export const useDeleteFee = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (id: number) => deleteFee(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: feeKeys.fees });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeClassOverview() });
     },
   });
 };
@@ -148,7 +128,7 @@ export const useDeleteFeeItem = () => {
     mutationKey: feeKeys.deleteFeeItem,
     mutationFn: (id: number) => deleteFeeItem(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["feeItems"] });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeItems() });
     },
   });
 };
@@ -176,8 +156,8 @@ export const useCreateFeeGroup = () => {
     mutationKey: feeKeys.createFeeGroup,
     mutationFn: (payload: FeeGroupDto) => createFeeGroup(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["feeGroups"] });
-      queryClient.invalidateQueries({ queryKey: ["feeGroupsForPicker"] });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeGroups() });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeGroupsForPicker() });
     },
   });
 };
@@ -189,7 +169,7 @@ export const useUpdateFeeGroup = () => {
     mutationFn: ({ id, payload }: { id: number; payload: FeeGroupDto }) => updateFeeGroup(id, payload),
     onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: feeKeys.feeGroupById(id) });
-      queryClient.invalidateQueries({ queryKey: ["feeGroups"] });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeGroups() });
     },
   });
 };
@@ -200,7 +180,7 @@ export const useDeleteFeeGroup = () => {
     mutationKey: feeKeys.deleteFeeGroup,
     mutationFn: (id: number) => deleteFeeGroup(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["feeGroups"] });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeGroups() });
     },
   });
 };
@@ -229,6 +209,47 @@ export const useGetFeeRoutes = () => {
   return useQuery({
     queryKey: feeKeys.feeRoutes,
     queryFn: getFeeRoutes,
+  });
+};
+
+export const useGetFeeRoutesByBranch = (branchId?: number) => {
+  return useQuery({
+    queryKey: feeKeys.feeRoutesByBranch(branchId),
+    queryFn: () => getFeeRoutesByBranch(branchId!),
+    enabled: !!branchId,
+  });
+};
+
+export const useCreateFeeRoute = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: FeeRouteRequestDto) => createFeeRoute(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeRoutes });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeRoutesByBranch() });
+    },
+  });
+};
+
+export const useUpdateFeeRoute = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: FeeRouteRequestDto }) => updateFeeRoute(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeRoutes });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeRoutesByBranch() });
+    },
+  });
+};
+
+export const useDeleteFeeRoute = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteFeeRoute(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeRoutes });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeRoutesByBranch() });
+    },
   });
 };
 

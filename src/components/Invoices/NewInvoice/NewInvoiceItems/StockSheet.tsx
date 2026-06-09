@@ -135,7 +135,7 @@ export const StockSheet = ({ branchId: propBranchId }: Props = {}) => {
   const branches: Branch[] = unwrapArray<Branch>(branchesData);
   const activeBranchId = propBranchId ?? branches[0]?.id;
 
-  const { data: stockData, isLoading } = useSearchStocks(activeBranchId, search, page);
+  const { data: stockData, isLoading } = useSearchStocks({ branchId: activeBranchId, search, page });
 
   const stocks: StockInvoiceItem[] = stockData?.content ?? [];
 

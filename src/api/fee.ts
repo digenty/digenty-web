@@ -99,7 +99,6 @@ export interface FeeRouteRequestDto {
   isDefault: boolean;
 }
 
-// Response shape from GET /fee/route and GET /fee/route/branch/{branchId}
 export interface FeeRouteResponseDto {
   id: number;
   branchName: string;
@@ -108,6 +107,28 @@ export interface FeeRouteResponseDto {
   feeClassName: string;
   feeClassId: number;
   isDefault: boolean;
+}
+
+export interface FeeItemDetail {
+  feeItemId: number;
+  feeClassId: number;
+  feeName: string;
+  amount: number;
+  quantity: number;
+  required: boolean;
+  allowPartPayment: boolean;
+  minimumPartPayment: number;
+}
+
+export interface FeeItemForArmDto {
+  name: string;
+  session: number;
+  term: string;
+  quantity: number;
+  amount: number;
+  required: boolean;
+  allowPartPayment: boolean;
+  minimumPartPayment: number;
 }
 
 export const getFeeClassOverview = async (sessionId: number, term: FeeTermType, branchId?: number) => {
@@ -163,17 +184,6 @@ export const publishFee = async (id: number) => {
   }
 };
 
-export interface FeeItemDetail {
-  feeItemId: number;
-  feeClassId: number;
-  feeName: string;
-  amount: number;
-  quantity: number;
-  required: boolean;
-  allowPartPayment: boolean;
-  minimumPartPayment: number;
-}
-
 export const createFeeItemForArm = async (armId: number, payload: FeeItemForArmDto) => {
   try {
     const { data } = await api.post(`/fee/items/arms/${armId}`, payload);
@@ -184,13 +194,13 @@ export const createFeeItemForArm = async (armId: number, payload: FeeItemForArmD
   }
 };
 
-export const getFeeItems = async (branchId?: number, termId?: number) => {
+export const getFeeItems = async (branchId?: number, termId?: number): Promise<FeeItemDetail[]> => {
   try {
     const params = new URLSearchParams();
     if (branchId) params.append("branchId", String(branchId));
     if (termId) params.append("termId", String(termId));
     const qs = params.toString() ? `?${params}` : "";
-    const { data } = await api.get(`/fee/items${qs}`);
+    const { data } = await api.get<FeeItemDetail[]>(`/fee/items${qs}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -305,9 +315,19 @@ export const getFeeGroupsForPicker = async (branchId: number, search?: string) =
   }
 };
 
-export const getFeeRoutes = async () => {
+// export const getFeeRoutes = async () => {
+//   try {
+//     const { data } = await api.get(`/fee/route`);
+//     return data;
+//   } catch (error: unknown) {
+//     if (isAxiosError(error)) throw error.response?.data;
+//     throw error;
+//   }
+// };
+
+export const createFeeRoute = async (payload: FeeRouteRequestDto) => {
   try {
-    const { data } = await api.get(`/fee/route`);
+    const { data } = await api.post(`/fee/route`, payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -315,13 +335,6 @@ export const getFeeRoutes = async () => {
   }
 };
 
-export const createFeeRoute = async (payload: FeeRouteRequestDto) => {
-  try {
-    const { data } = await api.post(`/fee/route`, payload);
-    return data;
-// Normalise whatever the server returns to a plain array.
-// Swagger says array, but the runtime response may be a paginated wrapper
-// ({ content, data, items, … }) depending on the backend version.
 function toArray<T>(raw: unknown): T[] {
   if (Array.isArray(raw)) return raw as T[];
   if (raw && typeof raw === "object") {
@@ -348,7 +361,12 @@ export const deleteFeeRoute = async (id: number) => {
   try {
     const { data } = await api.delete(`/fee/route/${id}`);
     return data;
-// GET /fee/route/branch/{branchId} — routes for a specific branch
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
 export const getFeeRoutesByBranch = async (branchId: number): Promise<FeeRouteResponseDto[]> => {
   try {
     const { data } = await api.get(`/fee/route/branch/${branchId}`);
@@ -382,10 +400,6 @@ export const exportFeeItems = async ({ branchId, termId }: { branchId?: number; 
       "fee-items.xlsx",
       res.headers["content-disposition"],
     );
-export const createFeeRoute = async (payload: FeeRouteRequestDto) => {
-  try {
-    const { data } = await api.post(`/fee/route`, payload);
-    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
@@ -402,7 +416,12 @@ export const exportFeeGroups = async ({ branchId }: { branchId?: number }) => {
       "fee-groups.xlsx",
       res.headers["content-disposition"],
     );
-// PUT /fee/route/{id} — update an existing fee route
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
 export const updateFeeRoute = async (id: number, payload: FeeRouteRequestDto) => {
   try {
     const { data } = await api.put(`/fee/route/${id}`, payload);
@@ -439,13 +458,10 @@ export const exportClassFees = async ({
       "class-fees.xlsx",
       res.headers["content-disposition"],
     );
-export const deleteFeeRoute = async (id: number) => {
-  try {
-    const { data } = await api.delete(`/fee/route/${id}`);
-    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
   }
 };
+
 // comment

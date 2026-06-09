@@ -19,6 +19,7 @@ export const feeKeys = {
     ["feeGroupsForPicker", branchId, search] as const,
 
   feeRoutes: ["feeRoutes"] as const,
+  feeRoutesByBranch: (branchId?: number) => ["feeRoutes", "branch", branchId] as const,
 
   createFeeItem: ["createFeeItem"] as const,
   createFeeGroup: ["createFeeGroup"] as const,

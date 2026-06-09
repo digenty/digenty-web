@@ -69,9 +69,7 @@ export const OneFeesRouting = () => {
           <PageEmptyState
             title={feeItems.length === 0 ? "No Fees Found" : "No Results"}
             description={
-              feeItems.length === 0
-                ? "No fees have been created yet. Create fees first before setting up routing."
-                : "No fees match your search."
+              feeItems.length === 0 ? "No fees have been created yet. Create fees first before setting up routing." : "No fees match your search."
             }
             buttonText={feeItems.length === 0 ? "Create Fees" : "Clear Search"}
             url={feeItems.length === 0 ? "/staff/fees" : undefined}
@@ -212,7 +210,7 @@ export const RoutingSheet = ({ feeItem, existingRoute }: RoutingSheetProps) => {
               <div className="text-text-default text-md font-semibold">Assign account</div>
             </SheetHeader>
             {accountList}
-            <SheetFooter className="border-border-default bg-bg-card absolute bottom-0 w-full border-t px-6 pb-8 pt-4">{footer}</SheetFooter>
+            <SheetFooter className="border-border-default bg-bg-card absolute bottom-0 w-full border-t px-6 pt-4 pb-8">{footer}</SheetFooter>
           </SheetContent>
         </Sheet>
       )}
