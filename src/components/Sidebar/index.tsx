@@ -110,79 +110,79 @@ export const Sidebar = () => {
       ],
     },
 
-    // ...(canViewFinanceReport(user?.permissions) ||
-    // canViewFeeCollection(user?.permissions) ||
+    ...(canViewFeeCollection(user?.permissions) ||
+    // canViewFinanceReport(user?.permissions) ||
     // canViewExpenses(user?.permissions) ||
     // canViewFees(user?.permissions) ||
-    // canViewInvoices(user?.permissions) ||
-    // canViewStock(user?.permissions)
-    //   ? [
-    //       {
-    //         title: "Finance",
-    //         menu: [
-    //           ...(canViewInvoices(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Invoices",
-    //                   url: "invoices",
-    //                   icon: FileList3,
-    //                 },
-    //               ]
-    //             : []),
+    canViewInvoices(user?.permissions) ||
+    canViewStock(user?.permissions)
+      ? [
+          {
+            title: "Finance",
+            menu: [
+              ...(canViewInvoices(user?.permissions)
+                ? [
+                    {
+                      title: "Invoices",
+                      url: "invoices",
+                      icon: FileList3,
+                    },
+                  ]
+                : []),
 
-    //           ...(canViewFees(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Fees",
-    //                   url: "fees",
-    //                   icon: Bill,
-    //                 },
-    //               ]
-    //             : []),
+              // ...(canViewFees(user?.permissions)
+              //   ? [
+              //       {
+              //         title: "Fees",
+              //         url: "fees",
+              //         icon: Bill,
+              //       },
+              //     ]
+              //   : []),
 
-    //           ...(canViewExpenses(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Expenses",
-    //                   url: "expense",
-    //                   icon: BankCard,
-    //                 },
-    //               ]
-    //             : []),
+              // ...(canViewExpenses(user?.permissions)
+              //   ? [
+              //       {
+              //         title: "Expenses",
+              //         url: "expense",
+              //         icon: BankCard,
+              //       },
+              //     ]
+              //   : []),
 
-    //           ...(canViewStock(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Stock",
-    //                   url: "stock",
-    //                   icon: Store3,
-    //                 },
-    //               ]
-    //             : []),
+              ...(canViewStock(user?.permissions)
+                ? [
+                    {
+                      title: "Stock",
+                      url: "stock",
+                      icon: Store3,
+                    },
+                  ]
+                : []),
 
-    //           ...(canViewFeeCollection(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Fee Collection",
-    //                   url: "fee-collection",
-    //                   icon: Wallet,
-    //                 },
-    //               ]
-    //             : []),
+              ...(canViewFeeCollection(user?.permissions)
+                ? [
+                    {
+                      title: "Fee Collection",
+                      url: "fee-collection",
+                      icon: Wallet,
+                    },
+                  ]
+                : []),
 
-    //           ...(canViewFinanceReport(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Finance Report",
-    //                   url: "finance-report",
-    //                   icon: LineChart,
-    //                 },
-    //               ]
-    //             : []),
-    //         ],
-    //       },
-    //     ]
-    //   : []),
+              // ...(canViewFinanceReport(user?.permissions)
+              //   ? [
+              //       {
+              //         title: "Finance Report",
+              //         url: "finance-report",
+              //         icon: LineChart,
+              //       },
+              //     ]
+              //   : []),
+            ],
+          },
+        ]
+      : []),
 
     ...(canViewCommunication(user?.permissions)
       ? [

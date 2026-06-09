@@ -32,6 +32,7 @@ const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term
 export const getBadge = (status: string) => {
   switch (status) {
     case "Paid":
+    case "PAID":
       return (
         <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md text-xs font-medium">
           <Check className="size-3" />
@@ -39,6 +40,7 @@ export const getBadge = (status: string) => {
         </Badge>
       );
     case "Successful":
+    case "SUCCESSFUL":
       return (
         <Badge className="bg-bg-badge-green text-bg-basic-green-strong border-border-default h-5 rounded-md text-xs font-medium">
           <Check className="size-3" />
@@ -46,13 +48,31 @@ export const getBadge = (status: string) => {
         </Badge>
       );
     case "Unpaid":
+    case "UNPAID":
       return (
         <Badge className="bg-bg-badge-red text-bg-basic-red-strong border-border-default h-5 rounded-md text-xs font-medium">
           <X className="size-3" />
           <span>Unpaid</span>
         </Badge>
       );
+    case "Pending":
+    case "PENDING":
+      return (
+        <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <TriangleAlert className="size-3" />
+          <span>Pending</span>
+        </Badge>
+      );
+    case "Failed":
+    case "FAILED":
+      return (
+        <Badge className="bg-bg-badge-red text-bg-basic-red-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <X className="size-3" />
+          <span>Failed</span>
+        </Badge>
+      );
     case "Outstanding":
+    case "OUTSTANDING":
       return (
         <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
           <TriangleAlert className="size-3" />
@@ -60,13 +80,23 @@ export const getBadge = (status: string) => {
         </Badge>
       );
     case "Fully Paid":
+    case "FULLY_PAID":
       return (
         <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default h-5 rounded-md text-xs font-medium">
           <CheckCheck className="size-3" />
           <span>Fully Paid</span>
         </Badge>
       );
+    case "Partially Paid":
+    case "PARTIALLY_PAID":
+      return (
+        <Badge className="bg-bg-badge-yellow text-bg-basic-yellow-strong border-border-default h-5 rounded-md text-xs font-medium">
+          <TriangleAlert className="size-3" />
+          <span>Partially Paid</span>
+        </Badge>
+      );
     case "Draft":
+    case "DRAFT":
       return (
         <Badge className="border-border-default bg-bg-badge-default text-text-subtle h-5 rounded-md text-xs font-medium">
           <Draft className="size-3" fill="var(--color-icon-default-muted)" />
@@ -81,9 +111,8 @@ export const getBadge = (status: string) => {
       );
     default:
       return (
-        <Badge className="bg-bg-red-green text-bg-basic-red-strong border-border-default h-5 rounded-md text-xs font-medium">
-          <X className="size-3" />
-          <span>Unpaid</span>
+        <Badge className="bg-bg-badge-default text-text-subtle border-border-default h-5 rounded-md text-xs font-medium">
+          <span>{status}</span>
         </Badge>
       );
   }
