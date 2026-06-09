@@ -1,7 +1,7 @@
 import { Eye, EyeClose, Save, SendPlane } from "@digenty/icons";
 import React from "react";
 import { Button } from "../../ui/button";
-
+import { Spinner } from "@/components/ui/spinner";
 import { INVOICE_STEPS, useInvoiceStep } from "./step";
 import { Badge } from "../../ui/badge";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
@@ -9,9 +9,13 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 type PreviewProps = {
   openPreview: boolean;
   onPreviewToggle: (open: boolean) => void;
+  onSendInvoice: () => void;
+  isPending: boolean;
+  onSaveDraft: () => void;
+  isDraftPending: boolean;
 };
 
-export const NewInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps) => {
+export const NewInvoiceHeader = ({ openPreview, onPreviewToggle, onSendInvoice, isPending, onSaveDraft, isDraftPending }: PreviewProps) => {
   const { step } = useInvoiceStep();
   const stepIndex = INVOICE_STEPS.findIndex(s => s.key === step);
 
@@ -22,6 +26,17 @@ export const NewInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps)
     { label: "Invoices", url: "/staff/invoices" },
     { label: "New Invoice", url: "" },
   ]);
+
+  const draftButton = (
+    <Button
+      onClick={onSaveDraft}
+      disabled={isDraftPending}
+      className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-1/2 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium md:w-34"
+    >
+      {isDraftPending ? <Spinner className="size-4" /> : <Save fill="var(--color-icon-default-muted)" />}
+      Save as Draft
+    </Button>
+  );
 
   return (
     <div className="mb-3">
@@ -46,18 +61,19 @@ export const NewInvoiceHeader = ({ openPreview, onPreviewToggle }: PreviewProps)
               </div>
             )}
           </Button>
-          <Button className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-1/2 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium md:w-34">
-            <Save fill="var(--color-icon-default-muted)" /> Save as Draft
-          </Button>
-          <Button className="bg-bg-state-primary hover:bg-bg-state-primary/90! border-border-darker text-text-white-default hidden h-8 items-center gap-1 px-2.5 py-1.5 text-sm font-medium md:flex">
-            <SendPlane fill="var(--color-icon-white-default)" /> Send Invoice
+          {draftButton}
+          <Button
+            onClick={onSendInvoice}
+            disabled={isPending}
+            className="bg-bg-state-primary hover:bg-bg-state-primary/90! border-border-darker text-text-white-default hidden h-8 items-center gap-1 px-2.5 py-1.5 text-sm font-medium md:flex"
+          >
+            {isPending ? <Spinner className="text-text-white-default size-4" /> : <SendPlane fill="var(--color-icon-white-default)" />}
+            Send Invoice
           </Button>
         </div>
       </div>
       <div className="border-border-default flex gap-2.5 border-b px-4 py-2 md:hidden">
-        <Button className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-1/2 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium md:w-34">
-          <Save fill="var(--color-icon-default-muted)" /> Save as Draft
-        </Button>
+        {draftButton}
         <Button
           onClick={() => onPreviewToggle(!openPreview)}
           className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 w-1/2 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium md:w-fit"

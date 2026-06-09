@@ -1,19 +1,36 @@
 import { BallPen, DeleteBin, Edit, Notification2 } from "@digenty/icons";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { Checkbox } from "../ui/checkbox";
-import { InvoicesOverviewTableProps } from "./types";
+import { formatInvoiceStatus, InvoicesOverviewTableProps } from "./types";
 import { Avatar } from "../Avatar";
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
-
 import { getBadge } from "../StudentAndParent/Students/StudentProfile/StudentInvoiceTable";
-
+import { toast } from "@/components/Toast";
+import { useSendInvoiceReminder, useDeleteInvoice } from "@/hooks/queryHooks/useInvoice";
 import { useRouter } from "next/navigation";
 
 const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const { mutate: sendReminder, isPending: sendingReminder } = useSendInvoiceReminder();
+  const { mutate: deleteInvoice, isPending: deletingInvoice } = useDeleteInvoice();
+
+  const handleSendReminder = (id: string) => {
+    sendReminder(id, {
+      onSuccess: () => toast({ title: "Reminder sent successfully", type: "success" }),
+      onError: () => toast({ title: "Failed to send reminder", type: "error" }),
+    });
+  };
+
+  const handleDelete = (id: string) => {
+    deleteInvoice(id, {
+      onSuccess: () => toast({ title: "Invoice deleted", type: "success" }),
+      onError: () => toast({ title: "Failed to delete invoice", type: "error" }),
+    });
+  };
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger onClick={evt => evt.stopPropagation()} className="focus-visible:ring-0 focus-visible:outline-none">
@@ -23,33 +40,57 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
         <DropdownMenuItem
           onClick={evt => {
             evt.stopPropagation();
-            router.push(`/staff/invoices/${row.original.id}`);
+            router.push(`/staff/invoices/${row.original.invoiceId}`);
           }}
           className="hover:bg-bg-state-ghost-hover cursor-pointer gap-2.5 px-3"
         >
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View invoice</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/staff/invoices/edit-invoice")} className="hover:bg-bg-state-ghost-hover gap-2.5 px-3">
+
+        <DropdownMenuItem
+          onClick={evt => {
+            evt.stopPropagation();
+            router.push(`/staff/invoices/edit-invoice?id=${row.original.invoiceId}`);
+          }}
+          className="hover:bg-bg-state-ghost-hover gap-2.5 px-3"
+        >
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit invoice</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem className="hover:bg-bg-state-ghost-hover gap-2.5 px-3">
+        <DropdownMenuItem
+          onClick={evt => {
+            evt.stopPropagation();
+            router.push(`/staff/invoices/add-payment?invoiceId=${row.original.invoiceId}`);
+          }}
+          className="hover:bg-bg-state-ghost-hover gap-2.5 px-3"
+        >
           <BallPen fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Record payment</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem className="hover:bg-bg-state-ghost-hover gap-2.5 px-3">
+        <DropdownMenuItem
+          disabled={sendingReminder}
+          onClick={() => handleSendReminder(row.original.invoiceId)}
+          className="hover:bg-bg-state-ghost-hover gap-2.5 px-3"
+        >
           <Notification2 fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Send reminder</span>
+          <span>{sendingReminder ? "Sending..." : "Send reminder"}</span>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem
+          disabled={deletingInvoice}
+          onClick={evt => {
+            evt.stopPropagation();
+            handleDelete(row.original.invoiceId);
+          }}
+          className="gap-2.5 px-3"
+        >
           <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-          <span className="text-icon-destructive">Delete invoice</span>
+          <span className="text-icon-destructive">{deletingInvoice ? "Deleting..." : "Delete invoice"}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -79,9 +120,9 @@ export const InvoiceOverviewTableColumns: ColumnDef<InvoicesOverviewTableProps>[
   },
   {
     id: "invoiceId",
-    accessorKey: "id",
+    accessorKey: "invoiceId",
     header: () => <div className="text-text-muted text-sm font-medium">Invoice ID</div>,
-    cell: ({ row }) => <div className="text-text-default text-sm font-medium">{row.original.id}</div>,
+    cell: ({ row }) => <div className="text-text-default text-sm font-medium">{row.original.invoiceNumber}</div>,
     size: 55,
   },
   {
@@ -105,16 +146,21 @@ export const InvoiceOverviewTableColumns: ColumnDef<InvoicesOverviewTableProps>[
   {
     accessorKey: "status",
     header: () => <div className="text-text-muted text-sm font-medium">Status</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{getBadge(row.original.status)}</span>,
+    cell: ({ row }) => (
+      <span className="text-text-muted cursor-pointer text-sm font-normal">{getBadge(formatInvoiceStatus(row.original.status))}</span>
+    ),
     size: 32,
   },
   {
     accessorKey: "lastActivity",
     header: () => <div className="text-text-muted text-sm font-medium">Last Activity</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.lastActivity}</span>,
+    cell: ({ row }) => (
+      <span className="text-text-muted cursor-pointer text-sm font-normal">
+        {row.original.lastActivity ? new Date(row.original.lastActivity).toLocaleDateString() : "-"}
+      </span>
+    ),
     size: 32,
   },
-
   {
     id: "actions",
     header: () => <div className="text-text-muted cursor-pointer text-sm font-medium"></div>,

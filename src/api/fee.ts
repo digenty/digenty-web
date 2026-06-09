@@ -238,6 +238,36 @@ export const deleteFeeGroup = async (id: number) => {
   }
 };
 
+export interface FeeInvoiceItem {
+  id: number;
+  name: string;
+  amount: number;
+  required: boolean;
+}
+
+export interface FeeInvoiceResponse {
+  id: number;
+  classStudent: string;
+  termId: number;
+  termLabel: string;
+  totalAmount: number;
+  items: FeeInvoiceItem[];
+}
+
+export interface FeeGroupInvoiceItem {
+  id: number;
+  name: string;
+  amount: number;
+  required: boolean;
+}
+
+export interface FeeGroupInvoiceResponse {
+  id: number;
+  name: string;
+  totalAmount: number;
+  items: FeeGroupInvoiceItem[];
+}
+
 export const getFeesForPicker = async (branchId: number, classId?: number, termId?: number, search?: string) => {
   try {
     const params = new URLSearchParams({ branchId: String(branchId) });

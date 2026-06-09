@@ -1,35 +1,208 @@
 import {
+  addPayment,
+  AddPaymentPayload,
+  createInvoice,
+  createInvoiceDraft,
+  CreateInvoicePayload,
   createInvoiceSettings,
   CreateInvoiceSettingsPayload,
+  deleteInvoice,
+  downloadInvoicePdf,
+  getInvoiceDetail,
+  getInvoicesByBranch,
+  getInvoicesByStudent,
   getInvoiceSettings,
+  getNextInvoiceNumber,
+  getPaymentById,
+  getPaymentHistory,
+  sendInvoiceReminder,
+  updateInvoice,
+  UpdateInvoicePayload,
   updateInvoiceSettings,
   UpdateInvoiceSettingsPayload,
+  updatePayment,
 } from "@/api/invoice";
 import { invoiceKeys } from "@/queries/invoice";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetInvoiceSettings = () =>
-  useQuery({
+export const useGetInvoices = ({
+  branchId,
+  page,
+  size,
+  classId,
+  termId,
+  search,
+  status,
+  startDate,
+  endDate,
+}: {
+  branchId?: number;
+  page: number;
+  size: number;
+  classId?: number;
+  termId?: number;
+  search?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+}) => {
+  return useQuery({
+    queryKey: invoiceKeys.byBranch(branchId, page, size, classId, termId, search, status, startDate, endDate),
+    queryFn: () => getInvoicesByBranch({ branchId: branchId as number, page, size, classId, termId, search, status, startDate, endDate }),
+    enabled: !!branchId,
+    placeholderData: keepPreviousData,
+  });
+};
+
+export const useGetInvoiceDetail = (invoiceId?: string) => {
+  return useQuery({
+    queryKey: invoiceKeys.detail(invoiceId),
+    queryFn: () => getInvoiceDetail(invoiceId as string),
+    enabled: !!invoiceId,
+  });
+};
+
+export const useAddPayment = (invoiceId?: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: invoiceKeys.addPayment(invoiceId),
+    mutationFn: (payload: AddPaymentPayload) => addPayment(invoiceId as string, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) });
+    },
+  });
+};
+
+export const useCreateInvoice = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: invoiceKeys.create,
+    mutationFn: (payload: CreateInvoicePayload) => createInvoice(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
+    },
+  });
+};
+
+export const useCreateInvoiceDraft = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: invoiceKeys.draft,
+    mutationFn: (payload: CreateInvoicePayload) => createInvoiceDraft(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
+    },
+  });
+};
+
+export const useUpdateInvoice = (invoiceId?: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: invoiceKeys.update(invoiceId),
+    mutationFn: (payload: UpdateInvoicePayload) => updateInvoice(invoiceId as string, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) });
+    },
+  });
+};
+
+export const useGetNextInvoiceNumber = (branchId?: number) => {
+  return useQuery({
+    queryKey: invoiceKeys.nextNumber(branchId),
+    queryFn: () => getNextInvoiceNumber(branchId!),
+    enabled: !!branchId,
+  });
+};
+
+export const useGetInvoiceSettings = () => {
+  return useQuery({
     queryKey: invoiceKeys.settings(),
     queryFn: () => getInvoiceSettings(),
     retry: false,
   });
+};
 
 export const useCreateInvoiceSettings = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateInvoiceSettingsPayload) => createInvoiceSettings(payload),
-    onSuccess: () => {
+    onSuccess: (_, v) => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.settings() });
     },
   });
 };
 
+export const useGetPaymentHistory = (invoiceId?: string, page = 0, size = 10) =>
+  useQuery({
+    queryKey: [...invoiceKeys.paymentHistory(invoiceId), page, size],
+    queryFn: () => getPaymentHistory(invoiceId!, page, size),
+    enabled: !!invoiceId,
+    placeholderData: keepPreviousData,
+  });
+
+export const useSendInvoiceReminder = () => {
+  return useMutation({
+    mutationFn: (invoiceId: string) => sendInvoiceReminder(invoiceId),
+  });
+};
+
+export const useDeleteInvoice = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (invoiceId: string) => deleteInvoice(invoiceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
+    },
+  });
+};
+
+export const useGetInvoicesByStudent = (studentId?: number, page = 0, size = 50) =>
+  useQuery({
+    queryKey: invoiceKeys.byStudent(studentId, page, size),
+    queryFn: () => getInvoicesByStudent(studentId!, page, size),
+    enabled: !!studentId,
+  });
+
+export const useGetPaymentById = (invoiceId?: string, paymentId?: string) =>
+  useQuery({
+    queryKey: invoiceKeys.paymentById(invoiceId, paymentId),
+    queryFn: () => getPaymentById(invoiceId!, paymentId!),
+    enabled: !!invoiceId && !!paymentId,
+  });
+
+export const useDownloadInvoicePdf = () =>
+  useMutation({
+    mutationFn: (invoiceId: string) => downloadInvoicePdf(invoiceId),
+  });
+
+export const useUpdatePayment = (invoiceId?: string, paymentId?: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: invoiceKeys.updatePayment(invoiceId, paymentId),
+    mutationFn: (payload: AddPaymentPayload) => updatePayment(invoiceId as string, paymentId as string, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) });
+    },
+  });
+};
+
+// export const useGetInvoicePreview = (invoiceId?: string) =>
+//   useQuery({
+//     queryKey: invoiceKeys.preview(invoiceId),
+//     queryFn: () => getInvoicePreview(invoiceId!),
+//     enabled: !!invoiceId,
+//   });
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: invoiceKeys.settings() });
+//     },
+//   });
+// };
+
 export const useUpdateInvoiceSettings = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ invoiceId, payload }: { invoiceId: number; payload: UpdateInvoiceSettingsPayload }) =>
-      updateInvoiceSettings(invoiceId, payload),
+    mutationFn: ({ invoiceId, payload }: { invoiceId: number; payload: UpdateInvoiceSettingsPayload }) => updateInvoiceSettings(invoiceId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.settings() });
     },

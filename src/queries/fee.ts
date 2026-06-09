@@ -5,6 +5,8 @@ export const feeKeys = {
   feeItemById: (id: number) => ["feeItem", id] as const,
   feeGroups: (branchId?: number) => ["feeGroups", branchId] as const,
   feeGroupById: (id: number) => ["feeGroup", id] as const,
+  feesForInvoice: (branchId: number, classId?: number, termId?: number, search?: string) =>
+    ["feesForInvoice", branchId, classId, termId, search] as const,
   feeRoutes: ["feeRoutes"] as const,
   feeRoutesByBranch: (branchId: number) => ["feeRoutes", "branch", branchId] as const,
 };
