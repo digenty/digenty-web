@@ -12,16 +12,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Formik, Form } from "formik";
 import { toast } from "sonner";
 import { addFeesToGroupSchema } from "@/schema/fees";
-import { useCreateFeeGroup } from "@/hooks/queryHooks/useFee";
+import { useGetFeeGroupById, useUpdateFeeGroup } from "@/hooks/queryHooks/useFee";
 import { useFeeFormData } from "@/components/Fees/AddFee/useFeeForm";
 import type { FeeGroupDto, FeeTermType } from "@/api/fee";
 
@@ -42,29 +43,63 @@ interface FeeGroupFormValues {
   items: ItemRow[];
 }
 
-export const AddFeeToGroup = () => {
+export const EditFeeGroup = () => {
   const router = useRouter();
+  const params = useParams();
+  const id = Number(params?.id);
   const [openMobileDrawer, setOpenMobileDrawer] = useState(false);
+
+  const { data: group, isPending: loadingGroup } = useGetFeeGroupById(id);
   const { branchList, termList, sessionName, sessionId } = useFeeFormData();
-  const { mutate: createFeeGroup, isPending } = useCreateFeeGroup();
+  const { mutate: updateFeeGroup, isPending } = useUpdateFeeGroup();
 
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
     { label: "Fee Groups", url: "/staff/fees?tab=Fee Groups" },
-    { label: "Add Fee Group", url: "/staff/fees/add-fee-to-group" },
+    { label: group?.name ?? "Fee Group", url: `/staff/fees/fee-group/${id}` },
+    { label: "Edit", url: `/staff/fees/fee-group/${id}/edit` },
   ]);
 
-  const initialValues: FeeGroupFormValues = useMemo(
-    () => ({
-      name: "",
-      description: "",
-      branchId: "",
+  const initialValues: FeeGroupFormValues = useMemo(() => {
+    if (!group) {
+      return {
+        name: "",
+        description: "",
+        branchId: "",
+        sessionId: sessionId ?? "",
+        term: "",
+        items: [{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }],
+      };
+    }
+    return {
+      name: group.name,
+      description: group.description ?? "",
+      branchId: group.branchId,
       sessionId: sessionId ?? "",
-      term: "",
-      items: [{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }],
-    }),
-    [sessionId],
-  );
+      term: (termList.find(t => t.termId === group.termId)?.term as FeeTermType | undefined) ?? "",
+      items:
+        group.items.length > 0
+          ? group.items.map(itm => ({
+              id: String(itm.id),
+              name: itm.itemName,
+              qty: itm.quantity,
+              price: itm.unitPrice,
+              required: !itm.optional,
+            }))
+          : [{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }],
+    };
+  }, [group, sessionId, termList]);
+
+  if (loadingGroup) {
+    return (
+      <div className="mx-auto flex w-full max-w-250 flex-col gap-4 px-4 py-4 md:px-8">
+        <Skeleton className="bg-bg-input-soft h-8 w-56" />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="bg-bg-input-soft h-12 w-full rounded-md" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <Formik
@@ -88,30 +123,33 @@ export const AddFeeToGroup = () => {
           })),
         };
 
-        createFeeGroup(payload, {
-          onSuccess: () => {
-            toast.success("Fee group created successfully");
-            router.push("/staff/fees?tab=Fee Groups");
+        updateFeeGroup(
+          { id, payload },
+          {
+            onSuccess: () => {
+              toast.success("Fee group updated successfully");
+              router.push(`/staff/fees/fee-group/${id}`);
+            },
+            onError: (error: unknown) => {
+              toast.error((error as { message?: string })?.message ?? "Failed to update fee group");
+            },
           },
-          onError: (error: unknown) => {
-            toast.error((error as { message?: string })?.message ?? "Failed to create fee group");
-          },
-        });
+        );
       }}
     >
       {({ values, errors, touched, setFieldValue, handleChange, handleBlur }) => {
         const subtotal = values.items.reduce((acc, item) => acc + item.qty * item.price, 0);
 
-        const updateItem = (id: string, data: Partial<ItemRow>) =>
+        const updateItem = (itemId: string, data: Partial<ItemRow>) =>
           setFieldValue(
             "items",
-            values.items.map(i => (i.id === id ? { ...i, ...data } : i)),
+            values.items.map(i => (i.id === itemId ? { ...i, ...data } : i)),
           );
         const addItem = () => setFieldValue("items", [...values.items, { id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }]);
-        const removeItem = (id: string) =>
+        const removeItem = (itemId: string) =>
           setFieldValue(
             "items",
-            values.items.filter(i => i.id !== id),
+            values.items.filter(i => i.id !== itemId),
           );
         const addItems = (incoming: InvoiceItem[]) =>
           setFieldValue("items", [
@@ -126,7 +164,7 @@ export const AddFeeToGroup = () => {
           <Form className="flex items-center justify-center p-3">
             <div>
               <div>
-                <div className="text-text-default text-normal mb-4 text-lg font-semibold">Add Fee Group</div>
+                <div className="text-text-default text-normal mb-4 text-lg font-semibold">Edit Fee Group</div>
 
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2">
@@ -342,7 +380,7 @@ export const AddFeeToGroup = () => {
 
                     <div className="flex items-center justify-end gap-4 py-3 pr-8 pl-4 text-sm">
                       <span className="text-text-subtle text-sm font-normal">Subtotal</span>
-                      <div className="text-text-default text-sm font-medium"> ₦{subtotal.toLocaleString()}</div>
+                      <div className="text-text-default text-sm font-medium">₦{subtotal.toLocaleString()}</div>
                     </div>
                   </div>
                 </div>
@@ -360,7 +398,7 @@ export const AddFeeToGroup = () => {
                 <div className="bg-bg-default flex items-center justify-between px-4 py-3">
                   <Button
                     type="button"
-                    onClick={() => router.push("/staff/fees?tab=Fee Groups")}
+                    onClick={() => router.push(`/staff/fees/fee-group/${id}`)}
                     className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7! rounded-md"
                   >
                     Cancel
@@ -371,7 +409,7 @@ export const AddFeeToGroup = () => {
                     disabled={isPending}
                     className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7! rounded-md"
                   >
-                    {isPending ? "Saving..." : "Add Fee Group"}
+                    {isPending ? "Saving..." : "Save Changes"}
                   </Button>
                 </div>
               </div>

@@ -130,15 +130,15 @@ export const Sidebar = () => {
                   ]
                 : []),
 
-              // ...(canViewFees(user?.permissions)
-              //   ? [
-              //       {
-              //         title: "Fees",
-              //         url: "fees",
-              //         icon: Bill,
-              //       },
-              //     ]
-              //   : []),
+              ...(canViewFees(user?.permissions)
+                ? [
+                    {
+                      title: "Fees",
+                      url: "fees",
+                      icon: Bill,
+                    },
+                  ]
+                : []),
 
               // ...(canViewExpenses(user?.permissions)
               //   ? [

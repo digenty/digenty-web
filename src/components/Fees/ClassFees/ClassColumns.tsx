@@ -68,19 +68,26 @@ export const columnsClassFees: ColumnDef<ClassFeeTypes>[] = [
   },
 
   {
-    accessorKey: "fee",
+    accessorKey: "feeNames",
     header: () => <div className="text-text-muted text-sm font-medium">Fees</div>,
     cell: ({ row }) => {
-      const fee = row.original.fee;
+      const feeNames = row.original.feeNames ?? [];
 
-      if (!fee) return null;
+      if (feeNames.length === 0) return null;
+
+      const visible = feeNames.slice(0, 3);
+      const extra = feeNames.length - visible.length;
 
       return (
         <div className="flex flex-wrap gap-2">
-          <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">{fee.tution}</Badge>
-          <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">{fee.item}</Badge>
-          <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">{fee.item}</Badge>
-          <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">+{fee.count}</Badge>
+          {visible.map((name, i) => (
+            <Badge key={`${name}-${i}`} className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">
+              {name}
+            </Badge>
+          ))}
+          {extra > 0 && (
+            <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">+{extra}</Badge>
+          )}
         </div>
       );
     },
@@ -90,7 +97,7 @@ export const columnsClassFees: ColumnDef<ClassFeeTypes>[] = [
   {
     accessorKey: "totalAmount",
     header: () => <div className="text-text-muted text-sm font-medium">TotalAmount</div>,
-    cell: ({ row }) => <div className="text-text-default text-sm font-medium">{row.original.totalAmount}</div>,
+    cell: ({ row }) => <div className="text-text-default text-sm font-medium">₦{row.original.totalAmount.toLocaleString()}</div>,
     size: 140,
   },
 
