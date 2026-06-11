@@ -11,7 +11,7 @@ import { uid } from "../defaults";
 import { KeyStat } from "../types";
 
 export const AboutSection = () => {
-  const { config, patchSection, setSection } = useWebsiteCustomization();
+  const { config, patchSection, setSection, disabled } = useWebsiteCustomization();
   const { about } = config;
 
   const updateStats = (stats: KeyStat[]) => setSection("about", { ...about, stats });
@@ -23,6 +23,7 @@ export const AboutSection = () => {
       title="About Us"
       visible={about.visible}
       onVisibleChange={value => patchSection("about", { visible: value })}
+      disabled={disabled}
     >
       <Field label="Section Title">
         <Input
@@ -30,6 +31,7 @@ export const AboutSection = () => {
           value={about.title}
           onChange={e => patchSection("about", { title: e.target.value })}
           placeholder="e.g About Us"
+          disabled={disabled}
         />
       </Field>
 
@@ -39,6 +41,7 @@ export const AboutSection = () => {
           value={about.text}
           onChange={e => patchSection("about", { text: e.target.value })}
           placeholder="Talk about your school"
+          disabled={disabled}
         />
       </Field>
 
@@ -51,19 +54,23 @@ export const AboutSection = () => {
                 value={stat.value}
                 onChange={e => updateStat(stat.id, { value: e.target.value })}
                 placeholder="e.g 25+"
+                disabled={disabled}
               />
               <Input
                 className={cn(INPUT_CLASS, "flex-1")}
                 value={stat.label}
                 onChange={e => updateStat(stat.id, { label: e.target.value })}
                 placeholder="e.g Years of Excellence"
+                disabled={disabled}
               />
-              <SquareIconButton onClick={() => updateStats(about.stats.filter(s => s.id !== stat.id))} aria-label="Remove stat">
-                <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" />
-              </SquareIconButton>
+              {!disabled && (
+                <SquareIconButton onClick={() => updateStats(about.stats.filter(s => s.id !== stat.id))} aria-label="Remove stat">
+                  <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" />
+                </SquareIconButton>
+              )}
             </div>
           ))}
-          <AddButton label="Add Stats" onClick={() => updateStats([...about.stats, { id: uid("stat"), value: "", label: "" }])} />
+          {!disabled && <AddButton label="Add Stats" onClick={() => updateStats([...about.stats, { id: uid("stat"), value: "", label: "" }])} />}
         </div>
       </Field>
     </SectionCard>

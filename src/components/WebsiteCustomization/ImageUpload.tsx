@@ -2,14 +2,22 @@
 
 import { useRef, useState } from "react";
 import { DeleteBin, ImageCircleFill } from "@digenty/icons";
-import { uploadImage } from "@/app/actions/upload-image";
+import { uploadWebsiteImage } from "@/api/website";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { SquareIconButton } from "./common";
 
-const useUploader = (onChange: (url: string) => void) => {
+const getUploadErrorMessage = (error: unknown) => {
+  if (error && typeof error === "object") {
+    const e = error as { message?: string; error?: string };
+    return e.message || e.error || "Could not upload image. Please try again.";
+  }
+  return "Could not upload image. Please try again.";
+};
+
+const useUploader = (onChange: (url: string) => void, type?: string) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -20,16 +28,12 @@ const useUploader = (onChange: (url: string) => void) => {
     if (!file) return;
 
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const result = await uploadImage(formData);
+      const result = await uploadWebsiteImage(file, type);
       if (result?.url) onChange(result.url);
       else toast({ title: "Upload failed", description: "Could not upload image.", type: "error" });
     } catch (error) {
-      console.error("Failed to upload image:", error);
-      toast({ title: "Upload failed", description: "Could not upload image.", type: "error" });
+      toast({ title: "Upload failed", description: getUploadErrorMessage(error), type: "error" });
     } finally {
       setIsUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -40,8 +44,20 @@ const useUploader = (onChange: (url: string) => void) => {
 };
 
 /** Inline upload row: preview square + Upload button + delete + hint. */
-export const ImageUploadRow = ({ value, onChange, hint }: { value: string; onChange: (url: string) => void; hint: string }) => {
-  const { inputRef, isUploading, open, handleChange } = useUploader(onChange);
+export const ImageUploadRow = ({
+  value,
+  onChange,
+  hint,
+  type,
+  disabled,
+}: {
+  value: string;
+  onChange: (url: string) => void;
+  hint: string;
+  type?: string;
+  disabled?: boolean;
+}) => {
+  const { inputRef, isUploading, open, handleChange } = useUploader(onChange, type);
 
   return (
     <div className="flex items-center gap-3">
@@ -56,18 +72,22 @@ export const ImageUploadRow = ({ value, onChange, hint }: { value: string; onCha
         )}
       </div>
 
-      <Button
-        onClick={open}
-        disabled={isUploading}
-        className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-9! rounded-md border text-sm font-medium shadow-xs"
-      >
-        {isUploading && <Spinner className="size-3" />}
-        Upload
-      </Button>
+      {!disabled && (
+        <>
+          <Button
+            onClick={open}
+            disabled={isUploading}
+            className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-9! rounded-md border text-sm font-medium shadow-xs"
+          >
+            {isUploading && <Spinner className="size-3" />}
+            Upload
+          </Button>
 
-      <SquareIconButton onClick={() => onChange("")} aria-label="Remove image">
-        <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" />
-      </SquareIconButton>
+          <SquareIconButton onClick={() => onChange("")} aria-label="Remove image">
+            <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" />
+          </SquareIconButton>
+        </>
+      )}
 
       <span className="text-text-muted text-xs">{hint}</span>
     </div>
@@ -75,15 +95,29 @@ export const ImageUploadRow = ({ value, onChange, hint }: { value: string; onCha
 };
 
 /** Square drop box used for gallery / news thumbnails. */
-export const ImageDropBox = ({ value, onChange, className }: { value: string; onChange: (url: string) => void; className?: string }) => {
-  const { inputRef, isUploading, open, handleChange } = useUploader(onChange);
+export const ImageDropBox = ({
+  value,
+  onChange,
+  className,
+  type,
+  disabled,
+}: {
+  value: string;
+  onChange: (url: string) => void;
+  className?: string;
+  type?: string;
+  disabled?: boolean;
+}) => {
+  const { inputRef, isUploading, open, handleChange } = useUploader(onChange, type);
 
   return (
     <button
       type="button"
-      onClick={open}
+      onClick={disabled ? undefined : open}
+      disabled={disabled}
       className={cn(
-        "bg-bg-input-soft border-border-default hover:bg-bg-state-soft-hover group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-md border transition-colors",
+        "bg-bg-input-soft border-border-default group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-md border transition-colors",
+        !disabled && "hover:bg-bg-state-soft-hover",
         className,
       )}
     >
@@ -93,15 +127,17 @@ export const ImageDropBox = ({ value, onChange, className }: { value: string; on
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={value} alt="Gallery item" className="absolute inset-0 size-full object-cover" />
-          <span
-            onClick={e => {
-              e.stopPropagation();
-              onChange("");
-            }}
-            className="bg-bg-overlay absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-md opacity-0 transition-opacity group-hover:opacity-100"
-          >
-            <DeleteBin fill="var(--color-icon-white-default)" className="size-3.5" />
-          </span>
+          {!disabled && (
+            <span
+              onClick={e => {
+                e.stopPropagation();
+                onChange("");
+              }}
+              className="bg-bg-overlay absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-md opacity-0 transition-opacity group-hover:opacity-100"
+            >
+              <DeleteBin fill="var(--color-icon-white-default)" className="size-3.5" />
+            </span>
+          )}
         </>
       ) : isUploading ? (
         <Spinner className="size-5" />

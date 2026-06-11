@@ -13,7 +13,17 @@ import { SectionCard } from "../SectionCard";
 import { uid } from "../defaults";
 import { NewsItem } from "../types";
 
-const NewsItemRow = ({ item, onChange, onRemove }: { item: NewsItem; onChange: (patch: Partial<NewsItem>) => void; onRemove: () => void }) => {
+const NewsItemRow = ({
+  item,
+  onChange,
+  onRemove,
+  disabled,
+}: {
+  item: NewsItem;
+  onChange: (patch: Partial<NewsItem>) => void;
+  onRemove: () => void;
+  disabled?: boolean;
+}) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,9 +31,11 @@ const NewsItemRow = ({ item, onChange, onRemove }: { item: NewsItem; onChange: (
       <div className="flex items-center justify-between gap-2 px-3 py-2.5">
         <span className="text-text-default truncate text-sm font-medium">{item.title || "News Item Name"}</span>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={onRemove} aria-label="Remove news item" className="cursor-pointer">
-            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-          </button>
+          {!disabled && (
+            <button type="button" onClick={onRemove} aria-label="Remove news item" className="cursor-pointer">
+              <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+            </button>
+          )}
           <button type="button" onClick={() => setOpen(prev => !prev)} aria-label="Toggle news item" className="cursor-pointer">
             <ChevronDownIcon className={cn("text-icon-default-muted size-4 transition-transform", open && "rotate-180")} />
           </button>
@@ -33,10 +45,22 @@ const NewsItemRow = ({ item, onChange, onRemove }: { item: NewsItem; onChange: (
       {open && (
         <div className="border-border-default flex flex-col gap-4 border-t px-3 py-4">
           <Field label="Title">
-            <Input className={INPUT_CLASS} value={item.title} onChange={e => onChange({ title: e.target.value })} placeholder="e.g Resumption Date" />
+            <Input
+              className={INPUT_CLASS}
+              value={item.title}
+              onChange={e => onChange({ title: e.target.value })}
+              placeholder="e.g Resumption Date"
+              disabled={disabled}
+            />
           </Field>
           <Field label="Date" hint="Optional">
-            <Input className={INPUT_CLASS} value={item.date} onChange={e => onChange({ date: e.target.value })} placeholder="e.g 12 September 2025" />
+            <Input
+              className={INPUT_CLASS}
+              value={item.date}
+              onChange={e => onChange({ date: e.target.value })}
+              placeholder="e.g 12 September 2025"
+              disabled={disabled}
+            />
           </Field>
           <Field label="Body">
             <Textarea
@@ -44,10 +68,17 @@ const NewsItemRow = ({ item, onChange, onRemove }: { item: NewsItem; onChange: (
               value={item.body}
               onChange={e => onChange({ body: e.target.value })}
               placeholder="Write the news details"
+              disabled={disabled}
             />
           </Field>
           <Field label="Image" hint="Optional">
-            <ImageUploadRow value={item.imageUrl} onChange={url => onChange({ imageUrl: url })} hint="Landscape Image Recommended" />
+            <ImageUploadRow
+              value={item.imageUrl}
+              onChange={url => onChange({ imageUrl: url })}
+              hint="Landscape Image Recommended"
+              type="news"
+              disabled={disabled}
+            />
           </Field>
         </div>
       )}
@@ -56,7 +87,7 @@ const NewsItemRow = ({ item, onChange, onRemove }: { item: NewsItem; onChange: (
 };
 
 export const NewsSection = () => {
-  const { config, patchSection, setSection } = useWebsiteCustomization();
+  const { config, patchSection, setSection, disabled } = useWebsiteCustomization();
   const { news } = config;
 
   const updateItems = (items: NewsItem[]) => setSection("news", { ...news, items });
@@ -67,6 +98,7 @@ export const NewsSection = () => {
       title="News & Updates"
       visible={news.visible}
       onVisibleChange={value => patchSection("news", { visible: value })}
+      disabled={disabled}
     >
       <Field label="Section Title">
         <Input
@@ -74,6 +106,7 @@ export const NewsSection = () => {
           value={news.title}
           onChange={e => patchSection("news", { title: e.target.value })}
           placeholder="e.g Latest News & Updates"
+          disabled={disabled}
         />
       </Field>
 
@@ -83,16 +116,19 @@ export const NewsSection = () => {
           value={news.subtitle}
           onChange={e => patchSection("news", { subtitle: e.target.value })}
           placeholder="e.g Stay informed with the latest happenings at our school"
+          disabled={disabled}
         />
       </Field>
 
       <Field
         label={`News Items (${news.items.length})`}
         hint={
-          <AddButton
-            label="Add News Item"
-            onClick={() => updateItems([...news.items, { id: uid("news"), title: "", date: "", body: "", imageUrl: "" }])}
-          />
+          !disabled ? (
+            <AddButton
+              label="Add News Item"
+              onClick={() => updateItems([...news.items, { id: uid("news"), title: "", date: "", body: "", imageUrl: "" }])}
+            />
+          ) : undefined
         }
       >
         <div className="flex flex-col gap-2">
@@ -102,6 +138,7 @@ export const NewsSection = () => {
               item={item}
               onChange={patch => updateItems(news.items.map(i => (i.id === item.id ? { ...i, ...patch } : i)))}
               onRemove={() => updateItems(news.items.filter(i => i.id !== item.id))}
+              disabled={disabled}
             />
           ))}
         </div>

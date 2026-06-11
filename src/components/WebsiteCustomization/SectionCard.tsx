@@ -12,10 +12,11 @@ interface SectionCardProps {
   visible?: boolean;
   onVisibleChange?: (value: boolean) => void;
   defaultOpen?: boolean;
+  disabled?: boolean;
   children: React.ReactNode;
 }
 
-export const SectionCard = ({ icon, title, visible, onVisibleChange, defaultOpen = false, children }: SectionCardProps) => {
+export const SectionCard = ({ icon, title, visible, onVisibleChange, defaultOpen = false, disabled = false, children }: SectionCardProps) => {
   const [open, setOpen] = useState(defaultOpen);
   const hasToggle = typeof visible === "boolean";
 
@@ -42,7 +43,7 @@ export const SectionCard = ({ icon, title, visible, onVisibleChange, defaultOpen
           {hasToggle && (
             <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
               <span className="text-text-muted text-sm">Visible</span>
-              <Switch checked={visible} onCheckedChange={onVisibleChange} />
+              <Switch checked={visible} onCheckedChange={onVisibleChange} disabled={disabled} />
             </div>
           )}
           <ChevronDownIcon className={cn("text-icon-default-muted size-4 transition-transform", open && "rotate-180")} />
