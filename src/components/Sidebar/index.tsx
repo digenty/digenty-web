@@ -184,30 +184,34 @@ export const Sidebar = () => {
         ]
       : []),
 
-    ...(canViewCommunication(user?.permissions)
+    ...(canViewCommunication(user?.permissions) || canViewPortalCustomization(user?.permissions)
       ? [
           {
             title: "Communication & Portal",
             menu: [
-              {
-                title: "Communications",
-                url: "communications",
-                icon: Megaphone,
-              },
+              ...(canViewCommunication(user?.permissions)
+                ? [
+                    {
+                      title: "Communications",
+                      url: "communications",
+                      icon: Megaphone,
+                    },
+                  ]
+                : []),
+
+              ...(canViewPortalCustomization(user?.permissions)
+                ? [
+                    {
+                      title: "Website Customization",
+                      url: "website-customization",
+                      icon: ColorFilter,
+                    },
+                  ]
+                : []),
             ],
           },
         ]
       : []),
-
-    // ...(canViewPortalCustomization(user?.permissions)
-    //   ? [
-    //       {
-    //         title: "Portal Customization",
-    //         url: "portal-customization",
-    //         icon: ColorFilter,
-    //       },
-    //     ]
-    //   : []),
 
     // ...(canViewSettings(user?.permissions)
     //   ? [
