@@ -10,11 +10,13 @@ export const INPUT_CLASS = "bg-bg-input-soft! text-text-default placeholder:text
 export const Field = ({
   label,
   hint,
+  error,
   children,
   className,
 }: {
   label: string;
   hint?: React.ReactNode;
+  error?: string;
   children: React.ReactNode;
   className?: string;
 }) => (
@@ -24,6 +26,7 @@ export const Field = ({
       {typeof hint === "string" ? <span className="text-text-muted text-sm">{hint}</span> : hint}
     </div>
     {children}
+    {error && <span className="text-text-destructive text-xs">{error}</span>}
   </div>
 );
 

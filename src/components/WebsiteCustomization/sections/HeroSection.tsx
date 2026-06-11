@@ -11,13 +11,27 @@ import { ImageUploadRow } from "../ImageUpload";
 import { SectionCard } from "../SectionCard";
 import { HeroLayout, ROUTING_OPTIONS } from "../types";
 
-const LayoutOption = ({ active, onClick, label, preview }: { active: boolean; onClick: () => void; label: string; preview: React.ReactNode }) => (
+const LayoutOption = ({
+  active,
+  onClick,
+  label,
+  preview,
+  disabled,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  preview: React.ReactNode;
+  disabled?: boolean;
+}) => (
   <button
     type="button"
-    onClick={onClick}
+    onClick={disabled ? undefined : onClick}
+    disabled={disabled}
     className={cn(
       "flex flex-1 flex-col gap-2 rounded-lg border p-2 text-left transition-colors",
-      active ? "border-bg-state-primary ring-bg-state-primary/30 ring-1" : "border-border-default hover:border-border-darker",
+      active ? "border-bg-state-primary ring-bg-state-primary/30 ring-1" : "border-border-default",
+      !disabled && !active && "hover:border-border-darker",
     )}
   >
     <div className="bg-bg-muted h-24 overflow-hidden rounded-md">{preview}</div>
@@ -31,7 +45,7 @@ const LayoutOption = ({ active, onClick, label, preview }: { active: boolean; on
 const MiniButton = () => <span className="bg-bg-state-primary inline-block h-3 w-8 rounded-sm" />;
 
 export const HeroSection = () => {
-  const { config, patchSection } = useWebsiteCustomization();
+  const { config, patchSection, fieldError, disabled } = useWebsiteCustomization();
   const { hero } = config;
 
   const setLayout = (layout: HeroLayout) => patchSection("hero", { layout });
@@ -42,12 +56,14 @@ export const HeroSection = () => {
       title="Hero Section"
       visible={hero.visible}
       onVisibleChange={value => patchSection("hero", { visible: value })}
+      disabled={disabled}
     >
       <div className="flex gap-3">
         <LayoutOption
           active={hero.layout === "full-image"}
           onClick={() => setLayout("full-image")}
           label="Full Image Background"
+          disabled={disabled}
           preview={
             <div className="bg-bg-inverted flex size-full flex-col items-center justify-center gap-1">
               <span className="text-text-white-default text-[0.5rem] font-semibold">School Title</span>
@@ -60,6 +76,7 @@ export const HeroSection = () => {
           active={hero.layout === "text-side-image"}
           onClick={() => setLayout("text-side-image")}
           label="Text + Side Image"
+          disabled={disabled}
           preview={
             <div className="bg-bg-card flex size-full items-center gap-1.5 p-2">
               <div className="flex flex-1 flex-col gap-1">
@@ -78,15 +95,18 @@ export const HeroSection = () => {
           value={hero.backgroundImageUrl}
           onChange={url => patchSection("hero", { backgroundImageUrl: url })}
           hint="Landscape Image Recommended"
+          type="hero"
+          disabled={disabled}
         />
       </Field>
 
-      <Field label="Headline Text">
+      <Field label="Headline Text" error={fieldError("hero.headline")}>
         <Input
           className={INPUT_CLASS}
           value={hero.headline}
           onChange={e => patchSection("hero", { headline: e.target.value })}
           placeholder="e.g Welcome to garfield"
+          disabled={disabled}
         />
       </Field>
 
@@ -96,6 +116,7 @@ export const HeroSection = () => {
           value={hero.subtitle}
           onChange={e => patchSection("hero", { subtitle: e.target.value })}
           placeholder="A short description about your school"
+          disabled={disabled}
         />
       </Field>
 
@@ -106,11 +127,12 @@ export const HeroSection = () => {
             value={hero.buttonText}
             onChange={e => patchSection("hero", { buttonText: e.target.value })}
             placeholder="e.g Apply for Admission"
+            disabled={disabled}
           />
         </Field>
 
         <Field label="Button Link" hint="Optional" className="flex-1">
-          <Select value={hero.buttonLink} onValueChange={value => patchSection("hero", { buttonLink: value })}>
+          <Select value={hero.buttonLink} onValueChange={value => patchSection("hero", { buttonLink: value })} disabled={disabled}>
             <SelectTrigger className={cn(INPUT_CLASS, "w-full")}>
               <SelectValue placeholder="Select Routing" />
             </SelectTrigger>

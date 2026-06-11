@@ -7,7 +7,7 @@ import { useWebsiteCustomization } from "../context";
 import { SectionCard } from "../SectionCard";
 
 export const FooterSection = () => {
-  const { config, patchSection } = useWebsiteCustomization();
+  const { config, patchSection, disabled } = useWebsiteCustomization();
   const { footer } = config;
 
   return (
@@ -16,6 +16,7 @@ export const FooterSection = () => {
       title="Footer"
       visible={footer.visible}
       onVisibleChange={value => patchSection("footer", { visible: value })}
+      disabled={disabled}
     >
       <Field label="Footer Text">
         <Input
@@ -23,6 +24,7 @@ export const FooterSection = () => {
           value={footer.text}
           onChange={e => patchSection("footer", { text: e.target.value })}
           placeholder="e.g Digenty Academy"
+          disabled={disabled}
         />
       </Field>
     </SectionCard>
