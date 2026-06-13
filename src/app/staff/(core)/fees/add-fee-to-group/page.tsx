@@ -1,9 +1,10 @@
-import { AddFeeToGroup } from "@/components/Fees/FeesGroup/AddFeeToGroup";
+import { AddFeeToGroup } from "@/components/Fees/FeesGroup/addFeeToGroup";
 import React from "react";
 
 const AddFeeToGroupPage = () => {
   return (
     <div>
+      {/*  */}
       <AddFeeToGroup />
     </div>
   );

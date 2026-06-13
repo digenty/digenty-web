@@ -1,75 +1,54 @@
 "use client";
 
-import { AddFill, AlertFill, DeleteBin, Edit } from "@digenty/icons";
-import { MobileDrawer } from "@/components/MobileDrawer";
-import { Modal } from "@/components/Modal";
+import { AddFill, DeleteBin } from "@digenty/icons";
 import { getStatusBadge } from "@/components/Status";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useDeleteFeeItem, useGetFeeItems } from "@/hooks/queryHooks/useFee";
+import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-
-const ClassItems = [
-  {
-    id: 1,
-    title: "Tution",
-    qty: 2,
-    status: "Required",
-    amount: 200280,
-  },
-  {
-    id: 2,
-    title: "Tution",
-    qty: 2,
-    status: "Optional",
-    amount: 200280,
-  },
-  {
-    id: 3,
-    title: "Tution",
-    qty: 2,
-    status: "Required",
-    amount: 200280,
-  },
-  {
-    id: 4,
-    title: "Tution",
-    qty: 2,
-    status: "Optional",
-    amount: 200280,
-  },
-];
+import { useParams, useRouter } from "next/navigation";
+import React from "react";
+import { toast } from "sonner";
+import type { ClassType } from "@/api/types";
 
 export const ClassFeeDetail = () => {
-  const route = useRouter();
-  const [items, setItems] = useState(ClassItems);
-  const [openDeleteModal, setOpeDeleteModal] = useState(false);
+  const router = useRouter();
+  const params = useParams();
+  const classId = Number(params?.id);
+
+  const { data: classesResp } = useGetClasses();
+  const className = (classesResp?.data?.content as ClassType[] | undefined)?.find(c => c.id === classId)?.name ?? "Class Fees";
+
+  const { data: items = [], isPending, isError } = useGetFeeItems({ classId });
+  const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
 
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
     { label: "Class Fees", url: "/staff/fees" },
-    { label: "JSS 1", url: "/staff/fees/class-fees/jss-1" },
+    { label: className, url: `/staff/fees/${classId}` },
   ]);
-  const remove = (id: number) => {
-    setItems(prev => prev.filter(item => item.id !== id));
-  };
 
-  const subtotal = items.reduce((acc, item) => acc + item.qty * item.amount, 0);
+  const subtotal = items.reduce((acc, item) => acc + item.amount * item.quantity, 0);
+
+  const handleDelete = (feeItemId: number) => {
+    deleteFeeItem(feeItemId, {
+      onSuccess: () => toast.success("Fee removed from class"),
+      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to remove fee"),
+    });
+  };
 
   return (
     <div className="flex items-center justify-center px-4 md:px-30 lg:px-70.5">
       <div className="w-full py-4">
         <div className="mb-4 flex flex-col justify-between gap-4 md:mb-9 md:flex-row">
-          <div className="text-text-default text-xl font-semibold">JSS 1</div>
+          <div className="text-text-default text-xl font-semibold">{className}</div>
           <div className="flex gap-2">
-            <Button className="bg-bg-state-secondary! border-border-darker hover:bg-bg-state-secondary-hover! h-8! w-8! border shadow-sm!">
-              <DeleteBin fill="var(--color-bg-state-destructive)" className="size-4" />
-            </Button>
             <Button
-              onClick={() => route.push("/staff/fees/add-fee-to-class")}
+              onClick={() =>
+                router.push(`/staff/fees/add-fee-to-class?classId=${classId}&className=${encodeURIComponent(className)}`)
+              }
               className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! h-8! border font-medium shadow-sm!"
             >
               <AddFill fill="var(--color-icon-default-muted)" />
@@ -77,104 +56,45 @@ export const ClassFeeDetail = () => {
             </Button>
           </div>
         </div>
-        <div>
+
+        {isPending ? (
+          <div className="flex flex-col gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="bg-bg-input-soft h-16 w-full rounded-md" />
+            ))}
+          </div>
+        ) : isError ? (
+          <div className="text-text-muted flex items-center justify-center py-20 text-sm">Could not load fees for this class.</div>
+        ) : items.length === 0 ? (
+          <div className="text-text-muted flex items-center justify-center py-20 text-sm">No fees attached to this class yet.</div>
+        ) : (
           <div className="flex flex-col gap-6">
             {items.map(itm => (
-              <div className="" key={itm.id}>
-                <div className="">
-                  {openDeleteModal && (
-                    <div className="">
-                      <Modal
-                        open={openDeleteModal}
-                        setOpen={setOpeDeleteModal}
-                        title="Delete Fee from Class?"
-                        ActionButton={
-                          <Button className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!">
-                            Delete
-                          </Button>
-                        }
-                      >
-                        <div className="flex flex-col gap-4 px-6 py-4">
-                          <div className="text-text-subtle text-sm font-medium">
-                            Are you sure you want to permanently delete this fee from JSS 1 ? This action cannot be undone.{" "}
-                          </div>
-                          <div className="bg-bg-basic-orange-subtle border-border-default flex items-center gap-3 rounded-md border px-3 py-2">
-                            <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-12" />
-
-                            <div className="text-text-subtle text-sm">
-                              Deleting this fee will remove it from the class’s fee setup and it will no longer appear in new invoices for this class.
-                              Once removed, this action cannot be reversed automatically.
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <Checkbox />
-                            <div className="text-text-subtle text-sm">
-                              I understand that deleting this fee from the class is permanent and cannot be undone.
-                            </div>
-                          </div>
-                        </div>
-                      </Modal>
-
-                      <MobileDrawer title="Delete Fee from Class?" open={openDeleteModal} setIsOpen={setOpeDeleteModal}>
-                        <div className="flex flex-col gap-4 px-3 py-4">
-                          <div className="text-text-subtle text-sm font-medium">
-                            Are you sure you want to permanently delete this fee from JSS 1 ? This action cannot be undone.{" "}
-                          </div>
-                          <div className="bg-bg-basic-orange-subtle border-border-default flex items-center gap-3 rounded-md border px-3 py-2">
-                            <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-24" />
-
-                            <div className="text-text-subtle text-sm">
-                              Deleting this fee will remove it from the class’s fee setup and it will no longer appear in new invoices for this class.
-                              Once removed, this action cannot be reversed automatically.
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <Checkbox />
-                            <div className="text-text-subtle text-sm">
-                              I understand that deleting this fee from the class is permanent and cannot be undone.
-                            </div>
-                          </div>
-                        </div>
-                        <DrawerFooter className="border-border-default border-t">
-                          <div className="flex justify-between">
-                            <DrawerClose asChild>
-                              <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
-                            </DrawerClose>
-
-                            <Button className="hover:bg-bg-state-destructive! bg-bg-state-disabled! text-text-hint! hover:text-text-white-default! h-7!">
-                              Delete
-                            </Button>
-                          </div>
-                        </DrawerFooter>
-                      </MobileDrawer>
-                    </div>
-                  )}
+              <div className="border-border-default flex items-center justify-between rounded-md border px-6 py-4" key={itm.feeItemId}>
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <div className="text-text-default text-base font-medium">{itm.feeName}</div>
+                    <Badge className="bg-bg-state-secondary! border-border-default text-text-default rounded-md border">{itm.quantity}</Badge>
+                  </div>
+                  <div className="font-medium">{getStatusBadge(itm.required ? "Required" : "Optional")}</div>
                 </div>
-
-                <div className="border-border-default flex items-center justify-between rounded-md border px-6 py-4" key={itm.id}>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex gap-2">
-                      <div className="text-text-default text-base font-medium">{itm.title}</div>
-                      <Badge className="bg-bg-state-secondary! border-border-default text-text-default rounded-md border">{itm.qty}</Badge>
-                    </div>
-                    <div className="font-medium">{getStatusBadge(itm.status)}</div>
-                  </div>
-                  <div className="flex gap-7">
-                    <div className="text-text-default text-base font-semibold">₦{itm.amount.toLocaleString()}</div>
-                    <div className="flex gap-3">
-                      <DeleteBin onClick={() => setOpeDeleteModal(true)} fill="var(--color-icon-default-subtle)" className="cursor-pointer" />
-                      <Edit fill="var(--color-icon-default-subtle)" className="cursor-pointer" />
-                    </div>
-                  </div>
+                <div className="flex items-center gap-7">
+                  <div className="text-text-default text-base font-semibold">₦{itm.amount.toLocaleString()}</div>
+                  <DeleteBin
+                    onClick={() => !deleting && handleDelete(itm.feeItemId)}
+                    fill="var(--color-icon-default-subtle)"
+                    className="cursor-pointer"
+                  />
                 </div>
               </div>
             ))}
+
+            <div className="border-border-default flex items-center justify-between rounded-md border px-6 py-4">
+              <div className="text-text-muted text-base font-semibold">Total</div>
+              <div className="text-text-default text-base font-bold"> ₦{subtotal.toLocaleString()}</div>
+            </div>
           </div>
-          <div className="border-border-default mt-6 flex items-center justify-between rounded-md border px-6 py-4">
-            <div className="text-text-muted text-base font-semibold">Total</div>
-            <div className="text-text-default text-base font-bold"> ₦{subtotal.toLocaleString()}</div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

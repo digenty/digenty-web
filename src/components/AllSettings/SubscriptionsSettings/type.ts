@@ -79,16 +79,16 @@ export const planFeaturesData: PlanFeatureRow[] = [
   { feature: "Students E-Portal", standard: false, advanced: true },
   { feature: "Library Management", standard: false, advanced: true },
   { feature: "Students Graduation, Transcripts & Alumni", standard: false, advanced: true },
-  { feature: "AI powered WhatsApp Bot as parent portal", standard: true, advanced: true },
-  {
-    feature: "AI powered National Exams Mock Testing (using past questions) and preparation advisory/learning path",
-    standard: true,
-    advanced: true,
-  },
-  {
-    feature: "AI assistant for staff (assessment creation from question bank, business growth metrics, debt and expense management recommendations, etc.)",
-    standard: true,
-    advanced: true,
-  },
-  { feature: "AI question bank auto create from lesson notes, textbooks and curriculum", standard: true, advanced: true },
+  // { feature: "AI powered WhatsApp Bot as parent portal", standard: true, advanced: true },
+  // {
+  //   feature: "AI powered National Exams Mock Testing (using past questions) and preparation advisory/learning path",
+  //   standard: true,
+  //   advanced: true,
+  // },
+  // {
+  //   feature: "AI assistant for staff (assessment creation from question bank, business growth metrics, debt and expense management recommendations, etc.)",
+  //   standard: true,
+  //   advanced: true,
+  // },
+  // { feature: "AI question bank auto create from lesson notes, textbooks and curriculum", standard: true, advanced: true },
 ];

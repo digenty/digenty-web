@@ -1,7 +1,11 @@
+// Mirrors FeeItemDetail from GET /fee/items
 export interface FeeItemProp {
-  id: number;
+  feeItemId: number;
+  feeClassId: number;
   feeName: string;
-  status: string;
-  applyTo: { school: string; count: number };
-  totalAmount: number;
+  amount: number;
+  quantity: number;
+  required: boolean;
+  allowPartPayment: boolean;
+  minimumPartPayment: number;
 }

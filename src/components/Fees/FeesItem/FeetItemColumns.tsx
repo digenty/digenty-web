@@ -21,20 +21,20 @@ const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem className="hover:bg-bg-state-soft-hover! gap-2.5 px-3">
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View fee item</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem className="hover:bg-bg-state-soft-hover! gap-2.5 px-3">
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit fee item</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem className="hover:bg-bg-state-soft-hover! gap-2.5 px-3">
           <FileCopy fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Duplicate fee item</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
-        <DropdownMenuItem className="gap-2.5 px-3">
+        <DropdownMenuItem className="hover:bg-bg-state-destructive-hover! gap-2.5 px-3">
           <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
           <span className="text-icon-destructive">Delete fee item</span>
         </DropdownMenuItem>
@@ -65,11 +65,11 @@ export const FeeItemsColumns: ColumnDef<FeeItemProp>[] = [
     size: 30,
   },
 
-  {
-    accessorKey: "id",
-    header: () => <div className="text-text-muted text-sm font-medium"></div>,
-    cell: ({ row }) => <span className="text-text-default text-sm">{row.original.id}</span>,
-  },
+  // {
+  //   accessorKey: "feeItemId",
+  //   header: () => <div className="text-text-muted text-sm font-medium"></div>,
+  //   cell: ({ row }) => <span className="text-text-default text-sm">{row.original.feeItemId}</span>,
+  // },
 
   {
     accessorKey: "feeName",
@@ -78,34 +78,26 @@ export const FeeItemsColumns: ColumnDef<FeeItemProp>[] = [
     size: 100,
   },
   {
-    accessorKey: "status",
+    accessorKey: "required",
     header: () => <div className="text-text-muted text-sm font-medium"></div>,
-    cell: ({ row }) => <span className="">{getStatusBadge(row.original.status)}</span>,
+    cell: ({ row }) => <span className="">{getStatusBadge(row.original.required ? "Required" : "Optional")}</span>,
   },
 
   {
-    accessorKey: "applyTo",
-    header: () => <div className="text-text-muted text-sm font-medium">Apply To</div>,
-    cell: ({ row }) => {
-      const item = row.original.applyTo;
-
-      if (!item) return null;
-
-      return (
-        <div className="flex flex-wrap gap-2">
-          <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">{item.school}</Badge>
-          <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">{item.school}</Badge>
-          <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">+{item.count}</Badge>
-        </div>
-      );
-    },
-    size: 300,
+    accessorKey: "quantity",
+    header: () => <div className="text-text-muted text-sm font-medium">Quantity</div>,
+    cell: ({ row }) => (
+      <Badge className="bg-bg-badge-default! border-border-default text-text-subtle rounded-md border text-xs font-medium">
+        {row.original.quantity}
+      </Badge>
+    ),
+    size: 120,
   },
 
   {
-    accessorKey: "totalAmount",
-    header: () => <div className="text-text-muted text-sm font-medium">TotalAmount</div>,
-    cell: ({ row }) => <div className="text-text-default text-sm font-medium">₦{row.original.totalAmount.toLocaleString()}</div>,
+    accessorKey: "amount",
+    header: () => <div className="text-text-muted text-sm font-medium">Amount</div>,
+    cell: ({ row }) => <div className="text-text-default text-sm font-medium">₦{row.original.amount.toLocaleString()}</div>,
     size: 140,
   },
 

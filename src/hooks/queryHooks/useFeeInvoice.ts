@@ -27,7 +27,7 @@ interface GetFeeGroupsForInvoiceParams {
 
 export const useGetFeeGroupsForInvoice = ({ branchId, search }: GetFeeGroupsForInvoiceParams) => {
   return useQuery<FeeGroupInvoiceResponse[]>({
-    queryKey: feeKeys.feesForInvoice(branchId ?? 0, undefined, undefined, search),
+    queryKey: feeKeys.feeGroupsForInvoice(branchId ?? 0, search),
     queryFn: () => getFeeGroupsForPicker(branchId!, search),
     enabled: !!branchId,
     retry: false,
