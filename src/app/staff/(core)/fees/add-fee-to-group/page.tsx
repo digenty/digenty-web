@@ -4,6 +4,7 @@ import React from "react";
 const AddFeeToGroupPage = () => {
   return (
     <div>
+      {/*  */}
       <AddFeeToGroup />
     </div>
   );
