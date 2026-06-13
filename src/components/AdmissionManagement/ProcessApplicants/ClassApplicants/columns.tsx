@@ -7,8 +7,9 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { MoreHorizontalIcon, X } from "lucide-react";
 import { useState } from "react";
 import { Applicant, AdmissionStatus } from "./types";
-import { Check } from "@/components/Icons/Check";
+
 import { Progress4 } from "@/components/Icons/Progress4";
+import { Check } from "@digenty/icons";
 
 const statusStyles: Record<AdmissionStatus, { bg: string; text: string; icon?: React.ReactNode }> = {
   Pending: {

@@ -1,71 +1,28 @@
 "use client";
 
+import { AdmissionFeeType } from "@/api/admission";
 import { DataTable } from "@/components/DataTable";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { Progress4 } from "@/components/Icons/Progress4";
 import { OverviewCard } from "@/components/OverviewCard";
 import { SearchInput } from "@/components/SearchInput";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import CashFill from "@/components/Icons/CashFill";
-import FileList3Fill from "@/components/Icons/FileList3Fill";
-import School from "@/components/Icons/School";
-import { Progress4 } from "@/components/Icons/Progress4";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useGetApplicantsByClass, useGetCyclePayments, useGetPaymentsSummary } from "@/hooks/queryHooks/useAdmission";
+import useDebounce from "@/hooks/useDebounce";
+import { CashFill, FileList3Fill, School } from "@digenty/icons";
 import { ListFilterIcon } from "lucide-react";
 import { useMemo, useState } from "react";
-import { paymentColumns } from "./columns";
+import { useActiveAdmissionCycle, useAdmissionBranchOptions } from "../hooks";
+import { FEE_LABEL, paymentColumns } from "./columns";
 import { PaymentMobileCard } from "./MobileCard";
-import { FeeType, PaymentRecord } from "./types";
 
-const BRANCHES = ["All Branches", "Lawanson", "Ilasamaja"];
-
-const FEE_TYPES: Array<{ label: string; value: FeeType | "All" }> = [
+const FEE_TYPES: Array<{ label: string; value: AdmissionFeeType | "All" }> = [
   { label: "All Fees", value: "All" },
-  { label: "Examination Fee", value: "Examination Fee" },
-  { label: "Entrance Fee", value: "Entrance Fee" },
-  { label: "Application Fee", value: "Application Fee" },
+  { label: "Examination Fee", value: "EXAMINATION_FEE" },
+  { label: "Entrance Fee", value: "ENTRANCE_FEE" },
+  { label: "Application Fee", value: "APPLICATION_FEE" },
 ];
-
-const CLASSES = [
-  "All Classes",
-  "JSS 1",
-  "JSS 2",
-  "JSS 3",
-  "SS 1 Art",
-  "SS 1 Commercial",
-  "SS 1 Science",
-  "SS 2 Art",
-  "SS 2 Commercial",
-  "SS 2 Science",
-  "SS 3 Art",
-  "SS 3 Commercial",
-  "SS 3 Science",
-];
-
-const NAMES = [
-  "Damilare John",
-  "Chidi Okafor",
-  "Amara Nwosu",
-  "Babajide Adeyemi",
-  "Chiamaka Okonkwo",
-  "Emeka Eze",
-  "Fatima Sule",
-  "Gbenga Adeleke",
-  "Halima Musa",
-  "Ifeoma Anyanwu",
-  "Jide Olusegun",
-  "Kemi Adesola",
-];
-
-const MOCK_PAYMENTS: PaymentRecord[] = NAMES.flatMap((name, i) =>
-  (["Examination Fee", "Application Fee", "Entrance Fee"] as FeeType[]).map((fee, j) => ({
-    id: `${i}-${j}`,
-    studentName: name,
-    applicantId: `APP-2025-${String(i + 1).padStart(3, "0")}`,
-    className: "SS 1 Science",
-    fee,
-    amount: 50000,
-    status: j === 0 ? "Paid" : j === 1 ? "Pending" : "Overdue",
-    date: "June 20, 2024",
-  })),
-);
 
 const PAGE_SIZE = 10;
 
@@ -88,37 +45,89 @@ const ExamFeeIcon = () => (
 );
 
 export const AdmissionPayments = () => {
-  const [branch, setBranch] = useState("All Branches");
-  const [feeFilter, setFeeFilter] = useState<FeeType | "All">("All");
-  const [classFilter, setClassFilter] = useState("All Classes");
+  const { cycle, isPending: cyclePending, isError: cycleError, refetch: refetchCycle } = useActiveAdmissionCycle();
+  const { options: branchOptions } = useAdmissionBranchOptions();
+
+  const [branchName, setBranchName] = useState("All Branches");
+  const [feeFilter, setFeeFilter] = useState<AdmissionFeeType | "All">("All");
+  const [classFilter, setClassFilter] = useState<string>("All Classes");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const debouncedSearch = useDebounce(search, 400);
 
-  const filtered = useMemo(() => {
-    return MOCK_PAYMENTS.filter(r => feeFilter === "All" || r.fee === feeFilter)
-      .filter(r => classFilter === "All Classes" || r.className === classFilter)
-      .filter(r => r.studentName.toLowerCase().includes(search.toLowerCase()) || r.applicantId.toLowerCase().includes(search.toLowerCase()));
-  }, [feeFilter, classFilter, search]);
+  const branchId = branchOptions.find(b => b.name === branchName)?.id;
+  const cycleId = cycle?.id;
 
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  // Class filter options for this cycle (deduped by classId).
+  const { data: classSummaries } = useGetApplicantsByClass(cycleId, branchId);
+  const classOptions = useMemo(() => {
+    const map = new Map<number, string>();
+    (classSummaries ?? []).forEach(c => map.set(c.classId, c.className));
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+  }, [classSummaries]);
 
-  const totalRevenue = MOCK_PAYMENTS.filter(r => r.status === "Paid").reduce((s, r) => s + r.amount, 0);
-  const appFeeTotal = MOCK_PAYMENTS.filter(r => r.fee === "Application Fee" && r.status === "Paid").reduce((s, r) => s + r.amount, 0);
-  const examFeeTotal = MOCK_PAYMENTS.filter(r => r.fee === "Examination Fee" && r.status === "Paid").reduce((s, r) => s + r.amount, 0);
+  const classId = classFilter === "All Classes" ? undefined : Number(classFilter);
+
+  const filters = {
+    page: page - 1,
+    size: PAGE_SIZE,
+    fee: feeFilter === "All" ? undefined : feeFilter,
+    classId,
+    branchId,
+    q: debouncedSearch || undefined,
+  };
+
+  const { data: paymentsPage, isPending, isError, refetch } = useGetCyclePayments(cycleId, filters);
+  const { data: summary } = useGetPaymentsSummary(cycleId, branchId);
+
+  const records = paymentsPage?.content ?? [];
+  const totalCount = paymentsPage?.totalElements ?? 0;
+  const totalPages = paymentsPage?.totalPages ?? 1;
+
+  if (cyclePending) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Skeleton className="h-8 w-40" />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+          ))}
+        </div>
+        <Skeleton className="h-80 w-full rounded-xl" />
+      </div>
+    );
+  }
+
+  if (cycleError) {
+    return (
+      <div className="flex justify-center py-16">
+        <ErrorComponent title="Couldn't load payments" description="Something went wrong while loading the active cycle. Please try again." buttonText="Retry" onClick={() => refetchCycle()} />
+      </div>
+    );
+  }
+
+  if (!cycle) {
+    return (
+      <div className="border-border-default mx-auto mt-10 flex max-w-md flex-col items-center gap-2 rounded-xl border border-dashed py-16">
+        <p className="text-text-default text-sm font-medium">No active admission cycle</p>
+        <p className="text-text-muted text-center text-xs">Activate an admission cycle to view payment records.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h2 className="text-text-default text-xl font-semibold">Overview</h2>
-        <Select value={branch} onValueChange={setBranch}>
+        <Select value={branchName} onValueChange={val => { setBranchName(val); setPage(1); }}>
           <SelectTrigger className="border-border-darker bg-bg-state-secondary! h-8 w-auto gap-1.5 border text-sm font-medium focus-visible:ring-0">
             <School fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
-            <span className="text-text-default">{branch}</span>
+            <span className="text-text-default">{branchName}</span>
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default">
-            {BRANCHES.map(b => (
-              <SelectItem key={b} value={b} className="text-text-default text-sm font-medium">
-                {b}
+            {branchOptions.map(b => (
+              <SelectItem key={b.name} value={b.name} className="text-text-default text-sm font-medium">
+                {b.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -126,15 +135,18 @@ export const AdmissionPayments = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <OverviewCard title="Total Revenue" value={`₦${totalRevenue.toLocaleString()}`} Icon={TotalRevenueIcon} />
-        <OverviewCard title="Application Fee" value={`₦${appFeeTotal.toLocaleString()}`} Icon={AppFeeIcon} />
-        <OverviewCard title="Examination Fee" value={`₦${examFeeTotal.toLocaleString()}`} Icon={ExamFeeIcon} />
+        <OverviewCard title="Total Revenue" value={`₦${(summary?.totalRevenue ?? 0).toLocaleString()}`} Icon={TotalRevenueIcon} />
+        <OverviewCard title="Application Fee" value={`₦${(summary?.applicationFeeTotal ?? 0).toLocaleString()}`} Icon={AppFeeIcon} />
+        <OverviewCard title="Examination Fee" value={`₦${(summary?.examinationFeeTotal ?? 0).toLocaleString()}`} Icon={ExamFeeIcon} />
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <SearchInput
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           placeholder="Search"
           className="border-border-default bg-bg-input-soft w-full max-w-71 rounded-md border"
         />
@@ -142,13 +154,13 @@ export const AdmissionPayments = () => {
         <Select
           value={feeFilter}
           onValueChange={val => {
-            setFeeFilter(val as FeeType | "All");
+            setFeeFilter(val as AdmissionFeeType | "All");
             setPage(1);
           }}
         >
           <SelectTrigger className="border-border-default h-8 w-auto gap-2 rounded-full border text-sm font-medium focus-visible:ring-0">
             <ListFilterIcon className="text-icon-default-subtle size-4 shrink-0" />
-            <span className="text-text-default">{feeFilter === "All" ? "Fee" : feeFilter}</span>
+            <span className="text-text-default">{feeFilter === "All" ? "Fee" : FEE_LABEL[feeFilter]}</span>
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default">
             {FEE_TYPES.map(f => (
@@ -168,54 +180,65 @@ export const AdmissionPayments = () => {
         >
           <SelectTrigger className="border-border-default h-8 w-auto gap-2 rounded-full border text-sm font-medium focus-visible:ring-0">
             <ListFilterIcon className="text-icon-default-subtle size-4 shrink-0" />
-            <span className="text-text-default">{classFilter === "All Classes" ? "Class" : classFilter}</span>
+            <span className="text-text-default">
+              {classFilter === "All Classes" ? "Class" : classOptions.find(c => String(c.id) === classFilter)?.name ?? "Class"}
+            </span>
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default">
-            {CLASSES.map(c => (
-              <SelectItem key={c} value={c} className="text-text-default text-sm font-medium">
-                {c}
+            <SelectItem value="All Classes" className="text-text-default text-sm font-medium">
+              All Classes
+            </SelectItem>
+            {classOptions.map(c => (
+              <SelectItem key={c.id} value={String(c.id)} className="text-text-default text-sm font-medium">
+                {c.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      <div className="hidden md:block">
-        <DataTable
-          columns={paymentColumns}
-          data={paginated}
-          totalCount={filtered.length}
-          page={page}
-          setCurrentPage={p => setPage(p)}
-          pageSize={PAGE_SIZE}
-        />
-      </div>
-
-      <div className="flex flex-col gap-3 md:hidden">
-        {paginated.length === 0 ? (
-          <p className="text-text-muted py-8 text-center text-sm">No payment records found.</p>
-        ) : (
-          paginated.map(record => <PaymentMobileCard key={record.id} record={record} />)
-        )}
-
-        {filtered.length > PAGE_SIZE && (
-          <div className="flex items-center justify-between pt-2">
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="text-text-subtle text-sm disabled:opacity-40">
-              Previous
-            </button>
-            <span className="text-text-muted text-xs">
-              Page {page} of {Math.ceil(filtered.length / PAGE_SIZE)}
-            </span>
-            <button
-              onClick={() => setPage(p => Math.min(Math.ceil(filtered.length / PAGE_SIZE), p + 1))}
-              disabled={page >= Math.ceil(filtered.length / PAGE_SIZE)}
-              className="text-text-subtle text-sm disabled:opacity-40"
-            >
-              Next
-            </button>
+      {isError ? (
+        <div className="flex justify-center py-12">
+          <ErrorComponent title="Couldn't load payments" description="Something went wrong while fetching payment records. Please try again." buttonText="Retry" onClick={() => refetch()} />
+        </div>
+      ) : isPending ? (
+        <Skeleton className="h-80 w-full rounded-xl" />
+      ) : records.length === 0 ? (
+        <div className="border-border-default flex flex-col items-center gap-2 rounded-xl border border-dashed py-16">
+          <p className="text-text-default text-sm font-medium">No payment records found</p>
+          <p className="text-text-muted text-xs">Try adjusting your filters or search.</p>
+        </div>
+      ) : (
+        <>
+          <div className="hidden md:block">
+            <DataTable columns={paymentColumns} data={records} totalCount={totalCount} page={page} setCurrentPage={p => setPage(p)} pageSize={PAGE_SIZE} />
           </div>
-        )}
-      </div>
+
+          <div className="flex flex-col gap-3 md:hidden">
+            {records.map(record => (
+              <PaymentMobileCard key={record.id} record={record} />
+            ))}
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-2">
+                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="text-text-subtle text-sm disabled:opacity-40">
+                  Previous
+                </button>
+                <span className="text-text-muted text-xs">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="text-text-subtle text-sm disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };
