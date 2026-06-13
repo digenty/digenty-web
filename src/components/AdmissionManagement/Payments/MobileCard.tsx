@@ -1,16 +1,16 @@
 "use client";
 
+import { PaymentListItemDto } from "@/api/admission";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
-import Download2 from "@/components/Icons/Download2";
-import { PaymentStatusBadge } from "./columns";
-import { PaymentRecord } from "./types";
+import { FEE_LABEL, PaymentStatusBadge } from "./columns";
+import { Download2 } from "@digenty/icons";
 
-export const PaymentMobileCard = ({ record }: { record: PaymentRecord }) => (
+export const PaymentMobileCard = ({ record }: { record: PaymentListItemDto }) => (
   <div className="bg-bg-subtle border-border-default rounded-sm border text-sm font-medium">
     <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
       <div className="flex items-center gap-2">
-        <Avatar className="size-5 shrink-0" url={record.image} />
+        <Avatar className="size-5 shrink-0" />
         <p className="text-text-default font-medium">{record.studentName}</p>
       </div>
       <Button variant="ghost" className="size-7 p-0">
@@ -20,17 +20,12 @@ export const PaymentMobileCard = ({ record }: { record: PaymentRecord }) => (
 
     <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
       <p className="text-text-muted">Applicant ID</p>
-      <p className="text-text-default">{record.applicantId}</p>
-    </div>
-
-    <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
-      <p className="text-text-muted">Class</p>
-      <p className="text-text-default">{record.className}</p>
+      <p className="text-text-default">{record.applicantNumber}</p>
     </div>
 
     <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
       <p className="text-text-muted">Fee</p>
-      <p className="text-text-default">{record.fee}</p>
+      <p className="text-text-default">{FEE_LABEL[record.feeType]}</p>
     </div>
 
     <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
@@ -40,7 +35,7 @@ export const PaymentMobileCard = ({ record }: { record: PaymentRecord }) => (
 
     <div className="border-border-default flex h-9.5 items-center justify-between border-b px-3">
       <p className="text-text-muted">Payment Status</p>
-      <PaymentStatusBadge status={record.status} />
+      <PaymentStatusBadge status={record.paymentStatus} />
     </div>
 
     <div className="flex h-9.5 items-center justify-between px-3">

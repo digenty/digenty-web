@@ -4,6 +4,7 @@ import {
   Bill,
   CalendarCheck,
   ColorFilter,
+  DoorOpen,
   FileList3,
   Global,
   GraduationCap,
@@ -54,6 +55,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SetupGuideProgress } from "./SetupGuideProgress";
 import { canViewCBT } from "@/lib/permissions/cbt";
 import { getSessionToken } from "@/app/actions/auth";
+import { canViewAdmissionManagement } from "@/lib/permissions/admission-management";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -104,6 +106,16 @@ export const Sidebar = () => {
                 title: "Attendance",
                 url: "attendance",
                 icon: CalendarCheck,
+              },
+            ]
+          : []),
+
+        ...(canViewAdmissionManagement(user?.permissions)
+          ? [
+              {
+                title: "Admission Management",
+                url: "admission-management",
+                icon: DoorOpen,
               },
             ]
           : []),

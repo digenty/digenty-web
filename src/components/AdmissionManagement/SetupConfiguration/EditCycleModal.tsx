@@ -1,25 +1,24 @@
 "use client";
 
+import { CycleResponse } from "@/api/admission";
 import { DateRangePicker } from "@/components/DatePicker";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useUpdateAdmissionCycle } from "@/hooks/queryHooks/useAdmission";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { useCreateAdmissionCycle } from "@/hooks/queryHooks/useAdmission";
 import { AdmissonNewCycleSchema } from "@/schema/admission";
 import { useFormik } from "formik";
 import { toast } from "sonner";
-import { CycleResponse } from "@/api/admission";
 
 interface Props {
   open: boolean;
   setOpen: (val: boolean) => void;
-  onSuccess?: (cycle: CycleResponse) => void;
+  cycle: CycleResponse;
 }
 
-/** Formats a Date to the backend's expected `yyyy-MM-dd` ISO date (no time component). */
 const toIsoDate = (date: Date) => {
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -27,29 +26,37 @@ const toIsoDate = (date: Date) => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-export const CreateCycleModal = ({ open, setOpen, onSuccess }: Props) => {
+const parseDate = (iso: string) => new Date(`${iso}T00:00:00`);
+
+export const EditCycleModal = ({ open, setOpen, cycle }: Props) => {
   const isMobile = useIsMobile();
-  const { mutate, isPending } = useCreateAdmissionCycle();
+  const { mutate, isPending } = useUpdateAdmissionCycle();
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      name: "",
-      startDate: undefined as Date | undefined,
-      endDate: undefined as Date | undefined,
+      name: cycle.name,
+      startDate: parseDate(cycle.startDate) as Date | undefined,
+      endDate: parseDate(cycle.endDate) as Date | undefined,
     },
     validationSchema: AdmissonNewCycleSchema,
-    onSubmit: (values, { resetForm }) => {
+    onSubmit: values => {
       if (!values.startDate || !values.endDate) return;
       mutate(
-        { name: values.name.trim(), startDate: toIsoDate(values.startDate), endDate: toIsoDate(values.endDate) },
         {
-          onSuccess: cycle => {
-            toast.success("Admission cycle created");
-            onSuccess?.(cycle);
-            resetForm();
+          cycleId: cycle.id,
+          payload: {
+            name: values.name.trim(),
+            startDate: toIsoDate(values.startDate),
+            endDate: toIsoDate(values.endDate),
+          },
+        },
+        {
+          onSuccess: () => {
+            toast.success("Admission cycle updated");
             setOpen(false);
           },
-          onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to create admission cycle"),
+          onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to update admission cycle"),
         },
       );
     },
@@ -116,7 +123,7 @@ export const CreateCycleModal = ({ open, setOpen, onSuccess }: Props) => {
       disabled={isPending}
       className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
     >
-      {isPending ? "Adding..." : "Add Admission Cycle"}
+      {isPending ? "Saving..." : "Save Changes"}
     </Button>
   );
 
@@ -132,7 +139,7 @@ export const CreateCycleModal = ({ open, setOpen, onSuccess }: Props) => {
 
   if (isMobile) {
     return (
-      <MobileDrawer open={open} setIsOpen={handleOpenChange} title="New Cycle Details">
+      <MobileDrawer open={open} setIsOpen={handleOpenChange} title="Edit Cycle Details">
         {formFields}
         <div className="border-border-default flex items-center justify-between border-t p-4">
           {cancelButton}
@@ -143,7 +150,7 @@ export const CreateCycleModal = ({ open, setOpen, onSuccess }: Props) => {
   }
 
   return (
-    <Modal open={open} setOpen={handleOpenChange} title="New Cycle Details" ActionButton={submitButton} cancelButton={cancelButton}>
+    <Modal open={open} setOpen={handleOpenChange} title="Edit Cycle Details" ActionButton={submitButton} cancelButton={cancelButton}>
       {formFields}
     </Modal>
   );

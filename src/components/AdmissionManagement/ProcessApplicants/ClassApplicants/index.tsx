@@ -1,76 +1,22 @@
 "use client";
 
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { DataTable } from "@/components/DataTable";
 import { SearchInput } from "@/components/SearchInput";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { useParams, useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useBulkUpdateApplicantStatus, useGetApplicantsByClass, useGetCycleApplicants } from "@/hooks/queryHooks/useAdmission";
+import useDebounce from "@/hooks/useDebounce";
+import { CheckIcon, ListFilterIcon, XIcon } from "lucide-react";
+import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { ListFilterIcon } from "lucide-react";
+import { toast } from "sonner";
+import { useActiveAdmissionCycle } from "../../hooks";
+import { ApplicantSheet } from "./ApplicantSheet";
 import { createApplicantColumns } from "./columns";
 import { MobileCard } from "./MobileCard";
-import { ApplicantSheet } from "./ApplicantSheet";
-import { Applicant, AdmissionStatus } from "./types";
-
-const CLASS_NAME_MAP: Record<string, string> = {
-  "1": "JSS 1",
-  "2": "JSS 2",
-  "3": "JSS 3",
-  "4": "SS 1 Art",
-  "5": "SS 1 Commercial",
-  "6": "SS 1 Science",
-  "7": "SS 2 Art",
-  "8": "SS 2 Commercial",
-  "9": "SS 2 Science",
-};
-
-const NAMES = [
-  "Damilare John",
-  "Chidi Okafor",
-  "Amara Nwosu",
-  "Babajide Adeyemi",
-  "Chiamaka Okonkwo",
-  "Emeka Eze",
-  "Fatima Sule",
-  "Gbenga Adeleke",
-  "Halima Musa",
-  "Ifeoma Anyanwu",
-  "Jide Olusegun",
-  "Kemi Adesola",
-  "Ladi Ibrahim",
-  "Mustapha Bello",
-  "Ngozi Obi",
-];
-
-const STATUSES: AdmissionStatus[] = [
-  "Pending",
-  "Pending",
-  "Pending",
-  "Admitted",
-  "Admitted",
-  "Rejected",
-  "Pending",
-  "Pending",
-  "Admitted",
-  "Pending",
-  "Rejected",
-  "Pending",
-  "Admitted",
-  "Pending",
-  "Pending",
-];
-const SCORES: (number | null)[] = [null, 230, 230, 230, 230, 230, 230, 195, 245, 210, 230, 185, 270, 230, 220];
-
-const MOCK_APPLICANTS: Applicant[] = Object.keys(CLASS_NAME_MAP).flatMap(classId =>
-  NAMES.map((name, i) => ({
-    id: `${classId}-${i + 1}`,
-    name,
-    applicantId: `APP-2025-${String(i + 1).padStart(3, "0")}`,
-    classId,
-    status: STATUSES[i],
-    totalScore: SCORES[i],
-    dateApplied: "June 20, 2024",
-  })),
-);
+import { AdmissionStatus, Applicant, DISPLAY_TO_API_STATUS, mapApplicant } from "./types";
 
 const STATUS_FILTERS: Array<{ label: string; value: AdmissionStatus | "All" }> = [
   { label: "All Statuses", value: "All" },
@@ -83,9 +29,10 @@ const PAGE_SIZE = 10;
 
 export const ClassApplicants = () => {
   const params = useParams();
-  const router = useRouter();
-  const classId = params.classId as string;
-  const className = CLASS_NAME_MAP[classId] ?? `Class ${classId}`;
+  const classId = Number(params.classId);
+
+  const { cycle, isPending: cyclePending, isError: cycleError, refetch: refetchCycle } = useActiveAdmissionCycle();
+  const cycleId = cycle?.id;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<AdmissionStatus | "All">("All");
@@ -94,6 +41,30 @@ export const ClassApplicants = () => {
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
+  const debouncedSearch = useDebounce(search, 400);
+
+  // Resolve the class name for the title from the cycle's by-class summary.
+  const { data: classSummaries } = useGetApplicantsByClass(cycleId);
+  const className = useMemo(
+    () => classSummaries?.find(c => c.classId === classId)?.className ?? `Class ${classId}`,
+    [classSummaries, classId],
+  );
+
+  const filters = {
+    page: page - 1,
+    size: PAGE_SIZE,
+    classId,
+    status: statusFilter === "All" ? undefined : DISPLAY_TO_API_STATUS[statusFilter],
+    q: debouncedSearch || undefined,
+  };
+
+  const { data: applicantsPage, isPending, isError, refetch } = useGetCycleApplicants(cycleId, filters);
+  const { mutate: bulkUpdate, isPending: bulkUpdating } = useBulkUpdateApplicantStatus();
+
+  const records = useMemo(() => (applicantsPage?.content ?? []).map(mapApplicant), [applicantsPage]);
+  const totalCount = applicantsPage?.totalElements ?? 0;
+  const totalPages = applicantsPage?.totalPages ?? 1;
+
   const openSheet = (applicant: Applicant) => {
     setSelectedApplicant(applicant);
     setIsSheetOpen(true);
@@ -101,13 +72,50 @@ export const ClassApplicants = () => {
 
   const columns = createApplicantColumns(openSheet);
 
-  const filtered = useMemo(() => {
-    return MOCK_APPLICANTS.filter(a => a.classId === classId)
-      .filter(a => statusFilter === "All" || a.status === statusFilter)
-      .filter(a => a.name.toLowerCase().includes(search.toLowerCase()) || a.applicantId.toLowerCase().includes(search.toLowerCase()));
-  }, [classId, statusFilter, search]);
+  const selectedIds = Object.keys(rowSelection)
+    .filter(key => rowSelection[key])
+    .map(index => records[Number(index)]?.id)
+    .filter((id): id is number => typeof id === "number");
 
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const handleBulk = (status: AdmissionStatus) => {
+    if (!cycleId || selectedIds.length === 0) return;
+    bulkUpdate(
+      { cycleId, payload: { applicantIds: selectedIds, status: DISPLAY_TO_API_STATUS[status] } },
+      {
+        onSuccess: () => {
+          toast.success(`${selectedIds.length} applicant(s) ${status.toLowerCase()}`);
+          setRowSelection({});
+        },
+        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to update applicants"),
+      },
+    );
+  };
+
+  if (cyclePending) {
+    return (
+      <div className="flex flex-col gap-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-80 w-full rounded-xl" />
+      </div>
+    );
+  }
+
+  if (cycleError) {
+    return (
+      <div className="flex justify-center py-16">
+        <ErrorComponent title="Couldn't load applicants" description="Something went wrong while loading the active cycle. Please try again." buttonText="Retry" onClick={() => refetchCycle()} />
+      </div>
+    );
+  }
+
+  if (!cycle) {
+    return (
+      <div className="border-border-default mx-auto mt-10 flex max-w-md flex-col items-center gap-2 rounded-xl border border-dashed py-16">
+        <p className="text-text-default text-sm font-medium">No active admission cycle</p>
+        <p className="text-text-muted text-center text-xs">Activate an admission cycle to process applicants.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -116,7 +124,10 @@ export const ClassApplicants = () => {
       <div className="flex flex-wrap items-center gap-3">
         <SearchInput
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
           placeholder="Search"
           className="border-border-default bg-bg-input-soft w-full max-w-71 rounded-md border"
         />
@@ -139,56 +150,82 @@ export const ClassApplicants = () => {
             ))}
           </SelectContent>
         </Select>
-      </div>
 
-      <div className="hidden md:block">
-        <DataTable
-          columns={columns}
-          data={paginated}
-          totalCount={filtered.length}
-          page={page}
-          setCurrentPage={p => {
-            setPage(p);
-            setRowSelection({});
-          }}
-          pageSize={PAGE_SIZE}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-        />
-      </div>
-
-      <div className="flex flex-col gap-3 md:hidden">
-        {paginated.length === 0 ? (
-          <p className="text-text-muted py-8 text-center text-sm">No applicants found.</p>
-        ) : (
-          paginated.map(applicant => <MobileCard key={applicant.id} applicant={applicant} onView={openSheet} />)
-        )}
-
-        {filtered.length > PAGE_SIZE && (
-          <div className="flex items-center justify-between pt-2">
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="text-text-subtle text-sm disabled:opacity-40">
-              Previous
-            </button>
-            <span className="text-text-muted text-xs">
-              Page {page} of {Math.ceil(filtered.length / PAGE_SIZE)}
-            </span>
-            <button
-              onClick={() => setPage(p => Math.min(Math.ceil(filtered.length / PAGE_SIZE), p + 1))}
-              disabled={page >= Math.ceil(filtered.length / PAGE_SIZE)}
-              className="text-text-subtle text-sm disabled:opacity-40"
+        {selectedIds.length > 0 && (
+          <div className="ml-auto flex items-center gap-2">
+            <span className="text-text-muted text-xs">{selectedIds.length} selected</span>
+            <Button
+              onClick={() => handleBulk("Admitted")}
+              disabled={bulkUpdating}
+              className="bg-bg-badge-green text-bg-basic-green-strong flex h-8 items-center gap-1.5 rounded-md border border-green-200 px-3 text-sm font-medium disabled:opacity-50"
             >
-              Next
-            </button>
+              <CheckIcon className="size-3.5" />
+              Admit
+            </Button>
+            <Button
+              onClick={() => handleBulk("Rejected")}
+              disabled={bulkUpdating}
+              className="bg-bg-badge-red text-bg-basic-red-strong flex h-8 items-center gap-1.5 rounded-md border border-red-200 px-3 text-sm font-medium disabled:opacity-50"
+            >
+              <XIcon className="size-3.5" />
+              Reject
+            </Button>
           </div>
         )}
       </div>
 
-      <ApplicantSheet
-        key={selectedApplicant?.id}
-        applicant={selectedApplicant}
-        open={isSheetOpen}
-        onClose={() => setIsSheetOpen(false)}
-      />
+      {isError ? (
+        <div className="flex justify-center py-12">
+          <ErrorComponent title="Couldn't load applicants" description="Something went wrong while fetching applicants. Please try again." buttonText="Retry" onClick={() => refetch()} />
+        </div>
+      ) : isPending ? (
+        <Skeleton className="h-80 w-full rounded-xl" />
+      ) : records.length === 0 ? (
+        <div className="border-border-default flex flex-col items-center gap-2 rounded-xl border border-dashed py-16">
+          <p className="text-text-default text-sm font-medium">No applicants found</p>
+          <p className="text-text-muted text-xs">Try adjusting your search or status filter.</p>
+        </div>
+      ) : (
+        <>
+          <div className="hidden md:block">
+            <DataTable
+              columns={columns}
+              data={records}
+              totalCount={totalCount}
+              page={page}
+              setCurrentPage={p => {
+                setPage(p);
+                setRowSelection({});
+              }}
+              pageSize={PAGE_SIZE}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+            />
+          </div>
+
+          <div className="flex flex-col gap-3 md:hidden">
+            {records.map(applicant => (
+              <MobileCard key={applicant.id} applicant={applicant} onView={openSheet} />
+            ))}
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-2">
+                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="text-text-subtle text-sm disabled:opacity-40">
+                  Previous
+                </button>
+                <span className="text-text-muted text-xs">
+                  Page {page} of {totalPages}
+                </span>
+                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="text-text-subtle text-sm disabled:opacity-40">
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      <ApplicantSheet key={selectedApplicant?.id} cycleId={cycle.id} applicant={selectedApplicant} open={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
     </div>
   );
 };

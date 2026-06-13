@@ -1,7 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useBreadcrumbStore } from "@/store/breadcrumb";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { AdmissionCyclesManagement } from "./SetupConfiguration/AdmissionCyclesManagement";
 import { AdmissionDashboard } from "./Dashboard";
 import { ProcessApplicants } from "./ProcessApplicants";
@@ -16,9 +18,19 @@ const tabs = [
 ];
 
 export const AdmissionManagement = () => {
+  const { setBreadcrumbs } = useBreadcrumbStore();
   const router = useRouter();
   const params = useSearchParams();
   const activeTab = params.get("tab") ?? "setup";
+  const activeTabLabel = tabs.find(t => t.value === activeTab)?.label ?? "";
+
+  useEffect(() => {
+    if (activeTab === "setup") return;
+    setBreadcrumbs([
+      { label: "Admission Management", url: "/staff/admission-management" },
+      { label: activeTabLabel },
+    ]);
+  }, [activeTab, activeTabLabel, setBreadcrumbs]);
 
   return (
     <div>
@@ -33,7 +45,7 @@ export const AdmissionManagement = () => {
           </Button>
         )}
 
-        <div className="w-0 flex-1 overflow-x-auto">
+        <div className="w-0 flex-1 overflow-x-auto md:overflow-x-hidden">
           <div className="flex items-center">
             {tabs.map(tab => (
               <button
@@ -51,7 +63,7 @@ export const AdmissionManagement = () => {
         </div>
       </div>
 
-      <div className="w-screen p-3 md:p-6">
+      <div className="p-3 md:p-6">
         {activeTab === "dashboard" && <AdmissionDashboard />}
         {activeTab === "process-applicants" && <ProcessApplicants />}
         {activeTab === "setup" && <AdmissionCyclesManagement />}
