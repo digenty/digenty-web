@@ -157,10 +157,11 @@ export interface ClassFeeDetailResponse {
   totalAmount: number;
 }
 
-export const getFeeClassOverview = async (sessionId: number, term: FeeTermType, branchId?: number): Promise<FeeClassOverviewResponse> => {
+export const getFeeClassOverview = async (sessionId: number, term: FeeTermType, branchId?: number, search?: string): Promise<FeeClassOverviewResponse> => {
   try {
     const params = new URLSearchParams({ sessionId: String(sessionId), term });
     if (branchId) params.append("branchId", String(branchId));
+    if (search) params.append("search", search);
     const { data } = await api.get(`/fee/class/overview?${params}`);
     return data?.data ?? data;
   } catch (error: unknown) {
@@ -348,17 +349,19 @@ export interface FeeItemsFilter {
   classId?: number;
   armId?: number;
   feeId?: number;
+  search?: string;
 }
 
 export const getFeeItems = async (filter: FeeItemsFilter = {}): Promise<FeeItemDetail[]> => {
   try {
-    const { branchId, termId, classId, armId, feeId } = filter;
+    const { branchId, termId, classId, armId, feeId, search } = filter;
     const params = new URLSearchParams();
     if (branchId) params.append("branchId", String(branchId));
     if (termId) params.append("termId", String(termId));
     if (classId) params.append("classId", String(classId));
     if (armId) params.append("armId", String(armId));
     if (feeId) params.append("feeId", String(feeId));
+    if (search) params.append("search", search);
     const qs = params.toString() ? `?${params}` : "";
     const { data } = await api.get(`/fee/items${qs}`);
     return toArray<FeeItemDetail>(data);
@@ -507,11 +510,12 @@ export interface FeeGroupDetailResponse {
   minimumPartPayment: number;
 }
 
-export const getFeeGroups = async (branchId?: number, termId?: number): Promise<FeeGroupSummary[]> => {
+export const getFeeGroups = async (branchId?: number, termId?: number, search?: string): Promise<FeeGroupSummary[]> => {
   try {
     const params = new URLSearchParams();
     if (branchId) params.append("branchId", String(branchId));
     if (termId) params.append("termId", String(termId));
+    if (search) params.append("search", search);
     const qs = params.toString() ? `?${params}` : "";
     const { data } = await api.get(`/fee/group${qs}`);
     return toArray<FeeGroupSummary>(data);
@@ -579,6 +583,16 @@ export const deleteFeeGroup = async (id: number) => {
   try {
     const { data } = await api.delete(`/fee/group/${id}`);
     return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const duplicateFeeGroup = async (id: number): Promise<{ feeGroupId: number }> => {
+  try {
+    const { data } = await api.post(`/fee/group/${id}/duplicate`);
+    return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

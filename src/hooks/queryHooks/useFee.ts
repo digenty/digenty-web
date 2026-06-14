@@ -9,6 +9,7 @@ import {
   deleteFeeGroup,
   deleteFeeItem,
   deleteFeeRoute,
+  duplicateFeeGroup,
   duplicateFeeItem,
   getFeeArms,
   getFeeById,
@@ -43,10 +44,10 @@ import { feeCollectionKeys } from "@/queries/fee-collection";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // ---- Fee class ----
-export const useGetFeeClassOverview = (sessionId: number, term: FeeTermType, branchId?: number) => {
+export const useGetFeeClassOverview = (sessionId: number, term: FeeTermType, branchId?: number, search?: string) => {
   return useQuery({
-    queryKey: feeKeys.feeClassOverview(sessionId, term, branchId),
-    queryFn: () => getFeeClassOverview(sessionId, term, branchId),
+    queryKey: feeKeys.feeClassOverview(sessionId, term, branchId, search),
+    queryFn: () => getFeeClassOverview(sessionId, term, branchId, search),
     enabled: !!sessionId && !!term,
     retry: false,
   });
@@ -209,10 +210,10 @@ export const useDuplicateFeeItem = () => {
 };
 
 // ---- Fee groups ----
-export const useGetFeeGroups = (branchId?: number, termId?: number) => {
+export const useGetFeeGroups = (branchId?: number, termId?: number, search?: string) => {
   return useQuery({
-    queryKey: feeKeys.feeGroups(branchId, termId),
-    queryFn: () => getFeeGroups(branchId, termId),
+    queryKey: feeKeys.feeGroups(branchId, termId, search),
+    queryFn: () => getFeeGroups(branchId, termId, search),
     retry: false,
   });
 };
@@ -274,6 +275,17 @@ export const useDeleteFeeGroup = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteFeeGroup(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feeGroups"] });
+      queryClient.invalidateQueries({ queryKey: ["feeGroupOverview"] });
+    },
+  });
+};
+
+export const useDuplicateFeeGroup = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => duplicateFeeGroup(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["feeGroups"] });
       queryClient.invalidateQueries({ queryKey: ["feeGroupOverview"] });

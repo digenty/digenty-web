@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/Modal";
 import { toast } from "sonner";
 
-import { useDeleteFeeGroup } from "@/hooks/queryHooks/useFee";
+import { useDeleteFeeGroup, useDuplicateFeeGroup } from "@/hooks/queryHooks/useFee";
 import { FeeGroupProp } from "./feeGroupType";
 
 const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
@@ -20,6 +20,7 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
   const [understood, setUnderstood] = useState(false);
   const router = useRouter();
   const { mutate: deleteFeeGroup, isPending: deleting } = useDeleteFeeGroup();
+  const { mutate: duplicateFeeGroup, isPending: duplicating } = useDuplicateFeeGroup();
 
   const { feeGroupId, name } = row.original;
 
@@ -99,9 +100,22 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
             <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Edit fee group</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="gap-2.5 px-3">
+          <DropdownMenuItem
+            className="gap-2.5 px-3"
+            disabled={duplicating}
+            onClick={() => {
+              setOpen(false);
+              duplicateFeeGroup(feeGroupId, {
+                onSuccess: result => {
+                  toast.success("Fee group duplicated");
+                  router.push(`/staff/fees/fee-group/${result.feeGroupId}`);
+                },
+                onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to duplicate fee group"),
+              });
+            }}
+          >
             <FileCopy fill="var(--color-icon-default-subtle)" className="size-4" />
-            <span>Duplicate fee group</span>
+            <span>{duplicating ? "Duplicating..." : "Duplicate fee group"}</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator className="border-border-default bg-border-default" />
           <DropdownMenuItem

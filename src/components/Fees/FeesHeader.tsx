@@ -84,6 +84,9 @@ type FeesHeaderProps = {
   showExport?: boolean;
   showToggle?: boolean;
 
+  search?: string;
+  onSearchChange?: (value: string) => void;
+
   onAddClick?: () => void;
 };
 
@@ -113,6 +116,9 @@ export const FeesHeader = ({
   showSearch = true,
   showExport = true,
   showToggle = true,
+
+  search = "",
+  onSearchChange,
 
   onAddClick,
 }: FeesHeaderProps) => {
@@ -305,7 +311,13 @@ export const FeesHeader = ({
       </div>
 
       <div className="mt-4 flex flex-col gap-3 md:mt-6 md:flex-row md:justify-between md:gap-2">
-        {showSearch && <SearchInput className="bg-bg-input-soft! w-full rounded-md border-none md:w-71" />}
+        {showSearch && (
+          <SearchInput
+            className="bg-bg-input-soft! w-full rounded-md border-none md:w-71"
+            value={search}
+            onChange={e => onSearchChange?.(e.target.value)}
+          />
+        )}
 
         <div className="flex gap-2">
           {showExport && (
