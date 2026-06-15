@@ -606,6 +606,17 @@ export interface FeeInvoiceItem {
   required: boolean;
 }
 
+export interface FeePickerItem {
+  feeItemId: number;
+  feeClassId: number;
+  feeName: string;
+  amount: number;
+  quantity: number;
+  required: boolean;
+  allowPartPayment: boolean;
+  minimumPartPayment: number | null;
+}
+
 export interface FeeInvoiceResponse {
   id: number;
   classStudent: string;
@@ -629,13 +640,24 @@ export interface FeeGroupInvoiceResponse {
   items: FeeGroupInvoiceItem[];
 }
 
-export const getFeesForPicker = async (branchId: number, classId?: number, termId?: number, search?: string): Promise<FeeInvoiceResponse[]> => {
+export interface FeeGroupPickerItem {
+  feeGroupId: number;
+  name: string;
+  description: string | null;
+  feeNames: string[];
+  totalAmount: number;
+  appliedToArmsCount: number;
+}
+
+export const getFeesForPicker = async (branchId?: number, classId?: number, termId?: number, search?: string) => {
   try {
-    const params = new URLSearchParams({ branchId: String(branchId) });
+    const params = new URLSearchParams();
+    if (branchId) params.append("branchId", String(branchId));
     if (classId) params.append("classId", String(classId));
     if (termId) params.append("termId", String(termId));
     if (search) params.append("search", search);
-    const { data } = await api.get(`/fees?${params}`);
+    const qs = params.toString();
+    const { data } = await api.get(`/fee/items${qs ? `?${qs}` : ""}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -643,11 +665,13 @@ export const getFeesForPicker = async (branchId: number, classId?: number, termI
   }
 };
 
-export const getFeeGroupsForPicker = async (branchId: number, search?: string): Promise<FeeGroupInvoiceResponse[]> => {
+export const getFeeGroupsForPicker = async (branchId?: number, search?: string) => {
   try {
-    const params = new URLSearchParams({ branchId: String(branchId) });
+    const params = new URLSearchParams();
+    if (branchId) params.append("branchId", String(branchId));
     if (search) params.append("search", search);
-    const { data } = await api.get(`/fee-groups?${params}`);
+    const qs = params.toString();
+    const { data } = await api.get(`/fee/group${qs ? `?${qs}` : ""}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;

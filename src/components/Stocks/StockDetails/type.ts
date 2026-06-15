@@ -53,6 +53,7 @@ export interface StockTransactionRecord {
   date?: string;
   createdAt?: string;
   changedBy?: string;
+  changedByName?: string;
   userName?: string;
   user?: { name?: string; id?: number } | null;
   reason?: StockAdjustReason | string;
@@ -62,12 +63,19 @@ export interface StockTransactionRecord {
   quantityAfter?: number;
   change?: number;
   quantityAdjustment?: number;
+  quantityChange?: number;
   branch?: string;
   branchName?: string;
   summary?: string;
   type?: "INCREASE" | "DECREASE";
   itemName?: string;
   imagePath?: string;
+  studentId?: number;
+  studentName?: string;
+  teacherId?: number;
+  teacherName?: string;
+  targetBranchId?: number;
+  targetBranchName?: string;
 }
 
 export interface StockQuantityManagementProps {

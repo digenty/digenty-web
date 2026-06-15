@@ -25,9 +25,20 @@ export const StockMain = () => {
   const { data: lowStockData } = useGetStockByStatus("LOW_STOCK");
   const { data: outOfStockData } = useGetStockByStatus("OUT_OF_STOCK");
 
-  const inStockCount = Array.isArray(inStockData?.content) ? inStockData.content.length : (inStockData?.totalElements ?? 0);
-  const lowStockCount = Array.isArray(lowStockData?.content) ? lowStockData.content.length : (lowStockData?.totalElements ?? 0);
-  const outOfStockCount = Array.isArray(outOfStockData?.content) ? outOfStockData.content.length : (outOfStockData?.totalElements ?? 0);
+  const extractCount = (resp: unknown): number => {
+    if (!resp || typeof resp !== "object") return 0;
+    const r = resp as Record<string, unknown>;
+    if (typeof r.totalElements === "number") return r.totalElements;
+    const d = r.data as Record<string, unknown> | undefined;
+    if (typeof d?.totalElements === "number") return d.totalElements as number;
+    if (Array.isArray(d?.content)) return (d.content as unknown[]).length;
+    if (Array.isArray(r.content)) return (r.content as unknown[]).length;
+    return 0;
+  };
+
+  const inStockCount = extractCount(inStockData);
+  const lowStockCount = extractCount(lowStockData);
+  const outOfStockCount = extractCount(outOfStockData);
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-8">

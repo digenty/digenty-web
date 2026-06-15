@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowDownS } from "@digenty/icons";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +13,7 @@ import useDebounce from "@/hooks/useDebounce";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import type { FeeInvoiceItem } from "@/api/fee";
+import type { FeePickerItem } from "@/api/fee";
 import type { InvoiceItem } from "./NewInvoiceMobileItem";
 
 type Props = {
@@ -26,19 +25,18 @@ type Props = {
 export const FeesSheet = ({ branchId, termId, onAddItems }: Props) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [openFeeId, setOpenFeeId] = useState<number | null>(null);
-  const [selectedItems, setSelectedItems] = useState<Map<number, FeeInvoiceItem>>(new Map());
+  const [selectedItems, setSelectedItems] = useState<Map<number, FeePickerItem>>(new Map());
   const isMobile = useIsMobile();
 
   const debouncedSearch = useDebounce(search, 400);
-  const { data: fees, isPending } = useGetFeesForInvoice({ branchId, termId, search: debouncedSearch });
-  const feeList = Array.isArray(fees) ? fees : [];
+  const { data: fees, isLoading } = useGetFeesForInvoice({ branchId, termId, search: debouncedSearch });
+  const feeList: FeePickerItem[] = (fees as unknown as { data?: FeePickerItem[] })?.data ?? [];
 
-  const toggleFeeItem = (item: FeeInvoiceItem, checked: boolean) => {
+  const toggleFeeItem = (item: FeePickerItem, checked: boolean) => {
     setSelectedItems(prev => {
       const next = new Map(prev);
-      if (checked) next.set(item.id, item);
-      else next.delete(item.id);
+      if (checked) next.set(item.feeItemId, item);
+      else next.delete(item.feeItemId);
       return next;
     });
   };
@@ -46,8 +44,8 @@ export const FeesSheet = ({ branchId, termId, onAddItems }: Props) => {
   const handleDone = () => {
     const newItems: InvoiceItem[] = Array.from(selectedItems.values()).map(item => ({
       id: crypto.randomUUID(),
-      name: item.name,
-      qty: 1,
+      name: item.feeName,
+      qty: item.quantity,
       price: item.amount,
       required: item.required,
     }));
@@ -66,57 +64,46 @@ export const FeesSheet = ({ branchId, termId, onAddItems }: Props) => {
           onChange={e => setSearch(e.target.value)}
         />
         <div className="flex max-h-96 flex-col gap-3 overflow-y-auto">
-          {isPending ? (
-            Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="bg-bg-input-soft h-20 w-full rounded-md" />)
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="bg-bg-input-soft h-16 w-full rounded-md" />)
           ) : feeList.length === 0 ? (
             <p className="text-text-muted py-4 text-center text-sm">No fees found</p>
           ) : (
             feeList.map(fee => (
-              <div key={fee.id} className="border-border-darker bg-bg-card rounded-md border p-4">
-                <div className="flex w-full items-start gap-2.5">
-                  <div
-                    className="bg-bg-state-soft flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-sm p-1"
-                    onClick={() => setOpenFeeId(prev => (prev === fee.id ? null : fee.id))}
-                  >
-                    <ArrowDownS
-                      fill="var(--color-icon-default-muted)"
-                      className={`transition-transform ${openFeeId === fee.id ? "" : "rotate-270"}`}
-                    />
-                  </div>
-                  <div className="w-full">
-                    <div className="border-border-default flex w-full flex-col gap-1 border-b pb-3">
-                      <div className="flex w-full items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <span className="text-text-default text-sm font-medium">{fee.classStudent}</span>
-                          <span className="text-text-muted text-sm">{fee.termLabel ? `· ${fee.termLabel}` : ""}</span>
-                        </div>
-                        <Badge className="text-text-subtle border-border-default h-5 w-14 rounded-md border p-1 text-xs font-medium">
-                          {fee.items?.length ?? 0} items
-                        </Badge>
-                      </div>
-                      <div className="text-text-informative text-sm font-medium">₦{fee.totalAmount?.toLocaleString()}</div>
+              <div
+                key={fee.feeItemId}
+                role="button"
+                onClick={() => toggleFeeItem(fee, !selectedItems.has(fee.feeItemId))}
+                className="border-border-darker bg-bg-card cursor-pointer rounded-md border p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    checked={selectedItems.has(fee.feeItemId)}
+                    onCheckedChange={checked => toggleFeeItem(fee, !!checked)}
+                    onClick={e => e.stopPropagation()}
+                    className="mt-0.5 shrink-0"
+                  />
+                  <div className="flex w-full flex-col gap-1">
+                    <div className="flex w-full items-center justify-between">
+                      <span className="text-text-default text-sm font-medium">{fee.feeName}</span>
+                      <span className="text-text-default text-sm font-semibold">₦{fee.amount.toLocaleString()}</span>
                     </div>
-
-                    {openFeeId === fee.id && (
-                      <div className="mt-2 flex flex-col gap-2">
-                        {fee.items?.map((item: FeeInvoiceItem) => (
-                          <div key={item.id} className="border-border-default flex items-start gap-2.5 border-b py-2">
-                            <Checkbox
-                              checked={selectedItems.has(item.id)}
-                              onCheckedChange={checked => toggleFeeItem(item, !!checked)}
-                              className="mt-0.5 shrink-0"
-                            />
-                            <div className="flex flex-col gap-1">
-                              <div className="text-text-default text-sm font-medium">{item.name}</div>
-                              <Badge className="text-text-subtle border-border-default h-5 w-fit rounded-md border p-1 text-xs font-medium">
-                                {item.required ? "Required" : "Optional"}
-                              </Badge>
-                              <div className="text-text-muted text-sm">₦{item.amount?.toLocaleString()}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Badge
+                        className={
+                          fee.required
+                            ? "bg-bg-badge-red text-bg-basic-red-strong border-border-default h-5 rounded-md border p-1 text-xs font-medium"
+                            : "bg-bg-badge-lime text-bg-basic-lime-strong border-border-default h-5 rounded-md border p-1 text-xs font-medium"
+                        }
+                      >
+                        {fee.required ? "Required" : "Optional"}
+                      </Badge>
+                      {fee.allowPartPayment && fee.minimumPartPayment != null && (
+                        <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md border p-1 text-xs font-medium">
+                          Part pay min ₦{fee.minimumPartPayment.toLocaleString()}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

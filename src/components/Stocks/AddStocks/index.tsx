@@ -17,23 +17,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { useCreateStock, useEditStock, useGetStockById, useGetStockCategories } from "@/hooks/queryHooks/useStock";
+import { useCreateStock, useEditStock, useGetStockById, useGetStockCategories, useGetStockUnits } from "@/hooks/queryHooks/useStock";
+import { AddNewUnitModal } from "@/components/Stocks/StockUnits/StockUnitModals";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { editStockSchema, stockSchema } from "@/schema/stock";
 import { toast } from "@/components/Toast";
 
-const STOCK_UNITS = [
-  { id: 1, label: "Pieces (pcs)" },
-  { id: 2, label: "Pack / Packet" },
-  { id: 3, label: "Box / Carton" },
-  { id: 4, label: "Dozen" },
-  { id: 5, label: "Ream (for paper)" },
-  { id: 6, label: "Bottle" },
-  { id: 7, label: "Roll" },
-];
-
 type StockCategory = { id: number; name: string };
+type StockUnit = { id: number; name: string };
 type FormValues = Omit<CreateStockDto, "branchIds"> & { stockId?: number; branchId: number };
 
 export const AddStock = () => {
@@ -56,6 +48,11 @@ export const AddStock = () => {
 
   const { data: categoriesResp } = useGetStockCategories(0, 100);
   const categories: StockCategory[] = categoriesResp?.content ?? categoriesResp?.data?.content ?? categoriesResp?.data ?? [];
+
+  const { data: unitsResp } = useGetStockUnits(0, 100);
+  const units: StockUnit[] = unitsResp?.content ?? unitsResp?.data?.content ?? unitsResp?.data ?? [];
+
+  const [openAddUnit, setOpenAddUnit] = useState(false);
 
   const { mutateAsync: createStock, isPending: creating } = useCreateStock();
   const { mutateAsync: editStock, isPending: editing } = useEditStock();
@@ -144,7 +141,7 @@ export const AddStock = () => {
 
   const selectedCategory = categories.find(c => c.id === formik.values.categoryId);
   const selectedBranch = branches.find(b => b.id === formik.values.branchId);
-  const selectedUnit = STOCK_UNITS.find(u => u.id === formik.values.stockUnitId);
+  const selectedUnit = units.find(u => u.id === formik.values.stockUnitId);
 
   const fieldError = (field: keyof FormValues) =>
     formik.touched[field] && formik.errors[field] ? <p className="text-text-destructive text-xs font-light">{String(formik.errors[field])}</p> : null;
@@ -319,15 +316,25 @@ export const AddStock = () => {
                   )}
                 >
                   <SelectValue placeholder="Select unit">
-                    <span className="text-text-default text-sm">{selectedUnit?.label ?? "Select unit"}</span>
+                    <span className="text-text-default text-sm">{selectedUnit?.name ?? "Select unit"}</span>
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
-                  {STOCK_UNITS.map(unt => (
-                    <SelectItem key={unt.id} value={String(unt.id)} className="text-text-default text-sm">
-                      {unt.label}
+                  {units.map(unit => (
+                    <SelectItem key={unit.id} value={String(unit.id)} className="text-text-default text-sm">
+                      {unit.name}
                     </SelectItem>
                   ))}
+                  <div className="border-border-default h-9 border-t">
+                    <Button
+                      type="button"
+                      onMouseDown={e => e.preventDefault()}
+                      onClick={() => setOpenAddUnit(true)}
+                      className="text-text-default hover:bg-bg-none! w-full bg-none text-sm font-medium"
+                    >
+                      <AddFill fill="var(--color-icon-default-muted)" /> Add unit
+                    </Button>
+                  </div>
                 </SelectContent>
               </Select>
               {fieldError("stockUnitId")}
@@ -366,6 +373,7 @@ export const AddStock = () => {
                 className={inputCls("price")}
                 type="number"
                 placeholder="₦0.00"
+                defaultValue={1}
               />
               {fieldError("price")}
             </div>
@@ -382,6 +390,7 @@ export const AddStock = () => {
                 className={inputCls("costPrice")}
                 type="number"
                 placeholder="₦0.00"
+                defaultValue={1}
               />
               {fieldError("costPrice")}
             </div>
@@ -409,6 +418,8 @@ export const AddStock = () => {
           </div>
         </div>
       </div>
+
+      <AddNewUnitModal openAdd={openAddUnit} setOpenAdd={setOpenAddUnit} />
     </form>
   );
 };

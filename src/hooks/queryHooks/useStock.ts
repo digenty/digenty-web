@@ -31,8 +31,7 @@ export const useSearchStocks = (params: { branchId?: number; search?: string; pa
   const { branchId, search = "", page = 0, size = 20 } = params;
   return useQuery({
     queryKey: stockKeys.search(branchId ?? 0, search, page, size),
-    queryFn: () => searchStocks({ branchId: branchId as number, search, page, size }),
-    enabled: !!branchId,
+    queryFn: () => searchStocks({ branchId, search, page, size }),
     placeholderData: keepPreviousData,
     retry: false,
   });

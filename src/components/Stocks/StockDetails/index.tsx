@@ -17,7 +17,8 @@ import { StockDetailHeader } from "./StockDetailHeader";
 import { StockDetailsAdjustQtyModal } from "./StockDetailsAdjustQtyModal";
 import { StockDetailsManagement } from "./StockDetailsManagement";
 import { StockHistories } from "./StockHistories";
-import { StockDetailResponse } from "./type";
+import { StockHistoryDetailsModal } from "./StockHistoryDetailsModal";
+import { StockDetailResponse, StockTransactionRecord } from "./type";
 
 const extractStock = (resp: unknown): StockDetailResponse | null => {
   if (!resp || typeof resp !== "object") return null;
@@ -46,6 +47,8 @@ export const StockDetails = () => {
   ]);
 
   const [adjustQty, setAdjustQty] = useState(false);
+  const [postAdjustTx, setPostAdjustTx] = useState<StockTransactionRecord | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   if (isLoading) {
     return (
@@ -57,6 +60,11 @@ export const StockDetails = () => {
 
   const currentQty = stock?.totalQuantity ?? stock?.quantity ?? 0;
   const branchName = stock?.branchName ?? stock?.branch?.name;
+  const branchId =
+    stock?.branchId ??
+    stock?.branch?.id ??
+    stock?.branchStocks?.[0]?.branchId ??
+    stock?.branches?.[0]?.branchId;
   const unitName = stock?.unit?.name ?? stock?.unitName;
 
   const branchEntries = stock?.branchStocks ?? stock?.branches ?? [];
@@ -72,13 +80,24 @@ export const StockDetails = () => {
           open={adjustQty}
           setOpen={setAdjustQty}
           stockId={stock.id}
+          branchId={branchId}
           stockName={stock.name ?? stock.itemName}
           stockImage={stock.imagePath ?? stock.image}
           branchName={branchName}
           unitName={unitName}
           currentQuantity={currentQty}
+          onAdjusted={tx => { setPostAdjustTx(tx); setShowDetails(true); }}
         />
       )}
+
+      <StockHistoryDetailsModal
+        open={showDetails}
+        setOpen={setShowDetails}
+        transaction={postAdjustTx}
+        stockName={stock?.name ?? stock?.itemName}
+        stockImage={stock?.imagePath ?? stock?.image}
+        onEdit={() => { setShowDetails(false); setAdjustQty(true); }}
+      />
 
       <div className="hidden flex-col gap-6 md:flex">
         <StockDetailHeader stock={stock} />
