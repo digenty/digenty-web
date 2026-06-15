@@ -38,7 +38,7 @@ export const StockHistoryDetailsModal = ({ open, setOpen, transaction, stockName
   const after = transaction.after ?? transaction.quantityAfter ?? 0;
   const isIncrease = transaction.type ? transaction.type === "INCREASE" : change >= 0;
   const branchName = transaction.branchName ?? transaction.branch ?? "-";
-  const changedByName = transaction.changedBy ?? transaction.userName ?? transaction.user?.name ?? "-";
+  const changedByName = transaction.changedByName ?? transaction.changedBy ?? transaction.userName ?? transaction.user?.name ?? "-";
   const itemName = transaction.itemName ?? stockName ?? "-";
   const itemImage = transaction.imagePath ?? stockImage ?? "/staff/images/image.png";
 
@@ -86,6 +86,15 @@ export const StockHistoryDetailsModal = ({ open, setOpen, transaction, stockName
           <span className="text-text-muted text-sm">Reason</span>
           <span className="text-text-default text-sm font-medium">{formatReason(transaction.reason)}</span>
         </div>
+        {transaction.studentName && (
+          <div className="flex items-center justify-between">
+            <span className="text-text-muted text-sm">Sold To</span>
+            <div className="flex items-center gap-2">
+              <Avatar className="size-5" />
+              <span className="text-text-default text-sm font-medium">{transaction.studentName}</span>
+            </div>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <span className="text-text-muted text-sm">Changed By</span>
           <div className="flex items-center gap-2">

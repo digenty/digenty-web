@@ -14,8 +14,7 @@ interface GetFeesForInvoiceParams {
 export const useGetFeesForInvoice = ({ branchId, classId, termId, search }: GetFeesForInvoiceParams) => {
   return useQuery<FeeInvoiceResponse[]>({
     queryKey: feeKeys.feesForInvoice(branchId ?? 0, classId, termId, search),
-    queryFn: () => getFeesForPicker(branchId!, classId, termId, search),
-    enabled: !!branchId,
+    queryFn: () => getFeesForPicker(branchId, classId, termId, search),
     retry: false,
   });
 };
@@ -27,9 +26,8 @@ interface GetFeeGroupsForInvoiceParams {
 
 export const useGetFeeGroupsForInvoice = ({ branchId, search }: GetFeeGroupsForInvoiceParams) => {
   return useQuery<FeeGroupInvoiceResponse[]>({
-    queryKey: feeKeys.feeGroupsForInvoice(branchId ?? 0, search),
-    queryFn: () => getFeeGroupsForPicker(branchId!, search),
-    enabled: !!branchId,
+    queryKey: feeKeys.feesForInvoice(branchId ?? 0, undefined, undefined, search),
+    queryFn: () => getFeeGroupsForPicker(branchId, search),
     retry: false,
   });
 };
@@ -44,8 +42,7 @@ interface GetStocksForInvoiceParams {
 export const useGetStocksForInvoice = ({ branchId, search, page, size }: GetStocksForInvoiceParams) => {
   return useQuery<StockInvoiceSearchResult>({
     queryKey: stockKeys.search(branchId ?? 0, search, page, size),
-    queryFn: () => searchStocks({ branchId: branchId!, search, page, size }),
-    enabled: !!branchId,
+    queryFn: () => searchStocks({ branchId, search, page, size }),
     retry: false,
   });
 };

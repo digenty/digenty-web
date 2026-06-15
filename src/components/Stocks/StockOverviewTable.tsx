@@ -105,7 +105,7 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
         >
           <div className="px-4 py-4">
             <p className="text-text-subtle text-sm">
-              Are you sure you want to permanently delete <span className="text-text-default font-medium">{stockToDelete.itemName}</span>? This action
+              Are you sure you want to permanently delete <span className="text-text-default font-medium">{stockToDelete.name}</span>? This action
               cannot be undone.
             </p>
           </div>
@@ -174,8 +174,8 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
               <div>
                 <div className="border-border-default flex justify-between border-b px-3 py-1 text-sm">
                   <div className="flex items-center gap-2">
-                    <Image src={stock.image || "/staff/images/image.png"} alt={stock.itemName} width={20} height={20} />
-                    <span className="text-text-default text-sm font-medium">{stock.itemName}</span>
+                    <Image src={stock.imagePath || "/staff/images/image.png"} alt={stock.name} width={20} height={20} />
+                    <span className="text-text-default text-sm font-medium">{stock.name}</span>
                   </div>
                   <Button onClick={() => setDrawerStock(stock)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
                     <Ellipsis className="size-5" />
@@ -192,14 +192,14 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
 
               <div>
                 <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
-                  <span className="text-text-muted font-medium">Amount</span>
-                  <span className="text-text-default text-sm font-medium">₦ {Number(stock.amount ?? 0).toLocaleString()}</span>
+                  <span className="text-text-muted font-medium">Price</span>
+                  <span className="text-text-default text-sm font-medium">₦ {Number(stock.price ?? 0).toLocaleString()}</span>
                 </div>
               </div>
 
               <div className="flex justify-between px-3 py-2 text-sm">
                 <span className="text-text-muted font-medium">Status</span>
-                {stockStatus(STATUS_DISPLAY[stock.stockStatus] ?? stock.stockStatus)}
+                {stockStatus(STATUS_DISPLAY[stock.status] ?? stock.status)}
               </div>
             </div>
           );

@@ -102,13 +102,13 @@ export const buildStocksOverviewTableColumns = ({
   },
 
   {
-    accessorKey: "itemName",
+    accessorKey: "name",
     header: () => <div className="text-text-muted text-sm font-medium">Item Name</div>,
     cell: ({ row }) => (
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
           <Avatar className="size-5" />
-          <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.itemName}</span>
+          <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.name}</span>
         </div>
       </div>
     ),
@@ -122,24 +122,24 @@ export const buildStocksOverviewTableColumns = ({
   },
 
   {
-    accessorKey: "amount",
+    accessorKey: "price",
     header: () => (
       <div className="text-text-muted flex items-center gap-2 text-sm font-medium">
-        Amount <ExpandUpAndDown fill="var(--color-icon-default-muted)" />
+        Price <ExpandUpAndDown fill="var(--color-icon-default-muted)" />
       </div>
     ),
     cell: ({ row }) => (
-      <span className="text-text-default cursor-pointer text-sm font-medium">₦ {Number(row.original.amount ?? 0).toLocaleString()}</span>
+      <span className="text-text-default cursor-pointer text-sm font-medium">₦ {Number(row.original.price ?? 0).toLocaleString()}</span>
     ),
   },
   {
-    accessorKey: "stockStatus",
+    accessorKey: "status",
     header: () => (
       <div className="text-text-muted flex items-center gap-2 text-sm font-medium">
         Status <ExpandUpAndDown fill="var(--color-icon-default-muted)" />
       </div>
     ),
-    cell: ({ row }) => <span>{stockStatus(STATUS_LABELS[row.original.stockStatus] ?? row.original.stockStatus)}</span>,
+    cell: ({ row }) => <span>{stockStatus(STATUS_LABELS[row.original.status] ?? row.original.status)}</span>,
     size: 32,
   },
 

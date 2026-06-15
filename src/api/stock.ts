@@ -37,8 +37,12 @@ export interface EditStockDto {
 
 export interface AdjustQuantityDto {
   stockId: number;
-  quantityAdjustment?: number;
-  reason?: StockAdjustReason;
+  branchId?: number;
+  quantityAdjustment: number;
+  reason: string;
+  studentId?: number;
+  teacherId?: number;
+  targetBranchId?: number;
 }
 
 export interface CreateStockUnitDto {
@@ -68,20 +72,26 @@ export interface StockSettingsRequestDto {
 
 export interface StockInvoiceItem {
   id: number;
-  itemName: string;
-  amount: number;
+  name: string;
+  imagePath: string;
+  status: StockStatus;
   quantity: number;
-  stockStatus: StockStatus;
-  image: string;
+  price: number;
+  categoryName: string;
+  unitName: string;
+  updatedAt: string;
 }
 
 export interface StockInvoiceSearchResult {
   content: StockInvoiceItem[];
   totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
 }
 
 export interface SearchStocksParams {
-  branchId: number;
+  branchId?: number;
   search?: string;
   page?: number;
   size?: number;

@@ -1,12 +1,19 @@
 import { StockAdjustReason } from "@/api/stock";
 
-export const ADJUST_REASON_LABELS: Record<StockAdjustReason, string> = {
+export const ADJUST_REASON_LABELS: Record<string, string> = {
   RESTOCK: "Restock",
   DONATION: "Donation",
   RETURNED: "Returned",
   CORRECTION_OF_PREVIOUS_ERROR: "Correction of Previous Error",
   TRANSFER_FROM_ANOTHER_BRANCH: "Transfer From Another Branch",
   RECOVERED_ITEMS: "Recovered Items",
+  SOLD: "Sold",
+  DAMAGED: "Damaged",
+  ISSUED_TO_TEACHER: "Issued to Teacher",
+  EXPIRED: "Expired",
+  LOST: "Lost",
+  TRANSFERRED_TO_ANOTHER_BRANCH: "Transferred to Another Branch",
+  DISPOSED: "Disposed",
 };
 
 export const INCREASE_REASONS: { value: StockAdjustReason; label: string }[] = [

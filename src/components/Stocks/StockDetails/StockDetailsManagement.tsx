@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 
 import { StocksQuantityManagementColumns } from "./Columns";
 import { StockDetailsAdjustQtyModal } from "./StockDetailsAdjustQtyModal";
-import { StockBranchEntry, StockDetailResponse } from "./type";
+import { StockHistoryDetailsModal } from "./StockHistoryDetailsModal";
+import { StockBranchEntry, StockDetailResponse, StockTransactionRecord } from "./type";
 
 type Props = {
   stock?: StockDetailResponse | null;
@@ -26,6 +27,8 @@ export const StockDetailsManagement = ({ stock }: Props) => {
   const [rowSelection, setRowSelection] = useState({});
   const [, setSelectedRows] = useState<StockBranchEntry[]>([]);
   const [adjustQty, setAdjustQty] = useState(false);
+  const [postAdjustTx, setPostAdjustTx] = useState<StockTransactionRecord | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
   const pageSize = 8;
 
   const branchEntries: StockBranchEntry[] = useMemo(() => {
@@ -48,7 +51,18 @@ export const StockDetailsManagement = ({ stock }: Props) => {
 
   const currentQty = stock?.totalQuantity ?? stock?.quantity ?? 0;
   const branchName = stock?.branchName ?? stock?.branch?.name;
+  const branchId =
+    stock?.branchId ??
+    stock?.branch?.id ??
+    stock?.branchStocks?.[0]?.branchId ??
+    stock?.branches?.[0]?.branchId ??
+    branchEntries[0]?.branchId;
   const unitName = stock?.unit?.name ?? stock?.unitName;
+
+  const handleAdjusted = (tx: StockTransactionRecord) => {
+    setPostAdjustTx(tx);
+    setShowDetails(true);
+  };
 
   return (
     <>
@@ -57,13 +71,27 @@ export const StockDetailsManagement = ({ stock }: Props) => {
           open={adjustQty}
           setOpen={setAdjustQty}
           stockId={stock.id}
+          branchId={branchId}
           stockName={stock.name ?? stock.itemName}
           stockImage={stock.imagePath ?? stock.image}
           branchName={branchName}
           unitName={unitName}
           currentQuantity={currentQty}
+          onAdjusted={handleAdjusted}
         />
       )}
+
+      <StockHistoryDetailsModal
+        open={showDetails}
+        setOpen={setShowDetails}
+        transaction={postAdjustTx}
+        stockName={stock?.name ?? stock?.itemName}
+        stockImage={stock?.imagePath ?? stock?.image}
+        onEdit={() => {
+          setShowDetails(false);
+          setAdjustQty(true);
+        }}
+      />
 
       <div className="flex flex-col gap-3 md:h-full md:flex-row">
         <div className="border-border-default flex w-full flex-1 flex-col gap-6 rounded-sm border p-4">

@@ -86,7 +86,7 @@ export const StockExportModal = ({ open, setOpen }: InvoiceModalProps) => {
     else if (status) rows = extractList(statusQ.data);
     else rows = extractList(searchQ.data);
 
-    if (status && categoryId) rows = rows.filter(r => r.stockStatus === status);
+    if (status && categoryId) rows = rows.filter(r => r.status === status);
     return rows;
   }, [categoryId, status, categoryQ.data, statusQ.data, searchQ.data]);
 
@@ -100,13 +100,13 @@ export const StockExportModal = ({ open, setOpen }: InvoiceModalProps) => {
       toast({ title: "No stocks to export", type: "warning" });
       return;
     }
-    const headers = ["S/N", "Item Name", "Quantity", "Amount (₦)", "Status"];
+    const headers = ["S/N", "Item Name", "Quantity", "Price (₦)", "Status"];
     const rows = stocks.map((s, i) => [
       i + 1,
-      s.itemName ?? "-",
+      s.name ?? "-",
       s.quantity ?? 0,
-      Number(s.amount ?? 0).toLocaleString(),
-      STATUS_LABELS[s.stockStatus] ?? s.stockStatus ?? "-",
+      Number(s.price ?? 0).toLocaleString(),
+      STATUS_LABELS[s.status] ?? s.status ?? "-",
     ]);
     const branchSlug = selectedBranch?.name?.replaceAll(" ", "_") ?? "All_Branches";
     const filename = `Stocks_${branchSlug}_${new Date().toISOString().slice(0, 10)}.csv`;
