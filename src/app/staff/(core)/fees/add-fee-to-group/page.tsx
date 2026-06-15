@@ -4,7 +4,7 @@ const AddFeeToGroupPage = () => {
   return (
     <div>
       <AddFeeToGroup />
-      {/*  */}
+      {/*add  */}
     </div>
   );
 };
