@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StockInvoiceItem } from "@/api/stock";
 import { useGetStocksForInvoice } from "@/hooks/queryHooks/useFeeInvoice";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import useDebounce from "@/hooks/useDebounce";
@@ -28,13 +29,16 @@ export const StockSheet = ({ branchId, onAddItems }: Props) => {
 
   const debouncedSearch = useDebounce(search, 400);
 
-  const { data, isPending } = useGetStocksForInvoice({ branchId, search: debouncedSearch });
-  const stocks = data?.content ?? [];
+  const { data, isLoading } = useGetStocksForInvoice({ branchId, search: debouncedSearch });
 
+  const stocks: StockInvoiceItem[] =
+    (data as unknown as { data?: { content?: StockInvoiceItem[] } })?.data?.content ??
+    (data as unknown as { content?: StockInvoiceItem[] })?.content ??
+    [];
   const handleAdd = (stockId: number) => {
     const item = stocks.find(s => s.id === stockId);
     if (!item) return;
-    onAddItems?.([{ id: crypto.randomUUID(), name: item.itemName, qty: 1, price: item.amount, required: false }]);
+    onAddItems?.([{ id: crypto.randomUUID(), name: item.name, qty: 1, price: item.price, required: false }]);
     setOpen(false);
   };
 
@@ -68,17 +72,16 @@ export const StockSheet = ({ branchId, onAddItems }: Props) => {
           onChange={e => setSearch(e.target.value)}
         />
         <div className="flex max-h-96 flex-col gap-3 overflow-y-auto">
-          {isPending ? (
-            Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="bg-bg-input-soft h-20 w-full rounded-md" />)
-          ) : stocks.length === 0 ? (
-            <p className="text-text-muted py-4 text-center text-sm">No stock items found</p>
-          ) : (
+          {isLoading && Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="bg-bg-input-soft h-20 w-full rounded-md" />)}
+          {!isLoading && stocks.length === 0 && <p className="text-text-muted py-4 text-center text-sm">No stock items found</p>}
+          {!isLoading &&
+            stocks.length > 0 &&
             stocks.map(sf => (
               <div key={sf.id} className="border-border-darker bg-bg-card rounded-md border p-4">
                 <div className="flex w-full items-start gap-2.5">
                   <Image
-                    src={sf.image || "/staff/images/noImage.png"}
-                    alt={sf.itemName}
+                    src={sf.imagePath || "/staff/images/noImage.png"}
+                    alt={sf.name}
                     width={32}
                     height={32}
                     className="border-border-default rounded-full border"
@@ -86,19 +89,19 @@ export const StockSheet = ({ branchId, onAddItems }: Props) => {
                   <div className="w-full">
                     <div className="border-border-default flex w-full flex-col gap-2 border-b pb-3">
                       <div className="flex w-full items-center justify-between">
-                        <div className="text-text-default text-sm font-medium">{sf.itemName}</div>
+                        <div className="text-text-default text-sm font-medium">{sf.name}</div>
                         <Badge className="text-bg-basic-lime-strong border-border-default bg-bg-badge-lime h-5 rounded-md border p-1 text-xs font-medium">
                           {sf.quantity} items
                         </Badge>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="text-text-muted text-sm font-medium">₦{sf.amount.toLocaleString()}</div>
-                        {stockStatusBadge(sf.stockStatus)}
+                        <div className="text-text-muted text-sm font-medium">₦{sf.price.toLocaleString()}</div>
+                        {stockStatusBadge(sf.status)}
                       </div>
                     </div>
                     <Button
                       onClick={() => handleAdd(sf.id)}
-                      disabled={sf.stockStatus === "OUT_OF_STOCK"}
+                      disabled={sf.status === "OUT_OF_STOCK"}
                       className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! mt-3 flex h-8 w-30 items-center gap-1 rounded-sm"
                     >
                       Add to Invoice
@@ -106,8 +109,7 @@ export const StockSheet = ({ branchId, onAddItems }: Props) => {
                   </div>
                 </div>
               </div>
-            ))
-          )}
+            ))}
         </div>
       </div>
       <SheetFooter className="border-border-default border-t">
