@@ -1,10 +1,12 @@
 "use client";
 
-import { AddFill, ArrowDownS, ArrowUpS, Information, Subtract } from "@digenty/icons";
+import { AddFill, ArrowDownS, ArrowUpS, Information, Subtract, UserFill } from "@digenty/icons";
 import { useFormik } from "formik";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 import { AdjustQuantityDto, StockAdjustReason } from "@/api/stock";
+import { Student } from "@/api/types";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { toast } from "@/components/Toast";
@@ -15,48 +17,64 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { useGetStudents } from "@/hooks/queryHooks/useStudent";
 import { useAdjustStockQuantity } from "@/hooks/queryHooks/useStock";
+import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 import { DECREASE_REASONS, INCREASE_REASONS } from "./constants";
+import { StockTransactionRecord } from "./type";
 
 type Qtyprops = {
   open: boolean;
   setOpen: (open: boolean) => void;
   stockId: number;
+  branchId?: number;
   stockName?: string;
   stockImage?: string;
   branchName?: string;
   unitName?: string;
   currentQuantity: number;
+  onAdjusted?: (transaction: StockTransactionRecord) => void;
 };
 
 type AdjustValues = {
   amount: number;
   direction: "increase" | "decrease" | null;
   reason: string;
+  studentId?: number;
+  studentName?: string;
 };
 
 export const StockDetailsAdjustQtyModal = ({
   open,
   setOpen,
   stockId,
+  branchId,
   stockName,
   stockImage,
   branchName,
   unitName,
   currentQuantity,
+  onAdjusted,
 }: Qtyprops) => {
   const isMobile = useIsMobile();
   const { mutateAsync: adjustQuantity, isPending } = useAdjustStockQuantity();
 
+  const [studentSearch, setStudentSearch] = useState("");
+  const [showStudentDropdown, setShowStudentDropdown] = useState(false);
+  const debouncedStudentSearch = useDebounce(studentSearch, 400);
+
   const formik = useFormik<AdjustValues>({
-    initialValues: { amount: 0, direction: null, reason: "" },
+    initialValues: { amount: 0, direction: null, reason: "", studentId: undefined, studentName: "" },
     validate: values => {
       const errors: Partial<Record<keyof AdjustValues, string>> = {};
       if (!values.direction) errors.direction = "Choose increase or decrease";
       if (!values.amount || values.amount <= 0) errors.amount = "Enter an amount";
       if (values.direction && !values.reason) errors.reason = "Reason is required";
+      if (values.direction === "decrease" && values.reason === "SOLD" && !values.studentId) {
+        errors.studentId = "Please select a student";
+      }
       return errors;
     },
     onSubmit: async values => {
@@ -64,13 +82,33 @@ export const StockDetailsAdjustQtyModal = ({
       try {
         const payload: AdjustQuantityDto = {
           stockId,
+          branchId,
           quantityAdjustment: signed,
           reason: values.reason as StockAdjustReason,
+          studentId: values.studentId,
         };
-        await adjustQuantity(payload);
+        const result = await adjustQuantity(payload);
+
+        const raw = result as Record<string, unknown> | null;
+        const tx: StockTransactionRecord = {
+          id: (raw?.id as number) ?? (raw?.data as Record<string, unknown>)?.id as number ?? 0,
+          reason: values.reason,
+          before: (raw?.quantityBefore as number) ?? currentQuantity,
+          after: (raw?.quantityAfter as number) ?? currentQuantity + signed,
+          change: (raw?.quantityChange as number) ?? signed,
+          branchName: (raw?.branchName as string) ?? branchName,
+          changedByName: (raw?.changedByName as string) ?? undefined,
+          studentName: (raw?.studentName as string) ?? values.studentName,
+          type: values.direction === "decrease" ? "DECREASE" : "INCREASE",
+          itemName: stockName,
+          imagePath: stockImage,
+        };
+
         toast({ title: "Quantity adjusted", type: "success" });
         formik.resetForm();
+        setStudentSearch("");
         setOpen(false);
+        onAdjusted?.(tx);
       } catch (error) {
         const message = (error as { message?: string } | null)?.message ?? "Could not adjust quantity";
         toast({ title: message, type: "error" });
@@ -78,9 +116,36 @@ export const StockDetailsAdjustQtyModal = ({
     },
   });
 
+  useEffect(() => {
+    if (!open) {
+      setStudentSearch("");
+      setShowStudentDropdown(false);
+    }
+  }, [open]);
+
+  const isSold = formik.values.direction === "decrease" && formik.values.reason === "SOLD";
+
+  const { data: studentData, isLoading: studentsLoading } = useGetStudents({
+    limit: 15,
+    search: debouncedStudentSearch,
+    enabled: isSold,
+  });
+  const students: Student[] = studentData?.pages?.[0]?.content ?? [];
+
+  const selectStudent = (student: Student) => {
+    const name = `${student.firstName} ${student.lastName}`;
+    formik.setFieldValue("studentId", student.id);
+    formik.setFieldValue("studentName", name);
+    setStudentSearch(name);
+    setShowStudentDropdown(false);
+  };
+
   const setDirection = (direction: "increase" | "decrease") => {
     formik.setFieldValue("direction", direction);
     formik.setFieldValue("reason", "");
+    formik.setFieldValue("studentId", undefined);
+    formik.setFieldValue("studentName", "");
+    setStudentSearch("");
   };
 
   const handleAmountChange = (value: string) => {
@@ -98,7 +163,11 @@ export const StockDetailsAdjustQtyModal = ({
   const newTotal = currentQuantity + signedAmount;
   const reasons = isDecrease ? DECREASE_REASONS : INCREASE_REASONS;
   const selectedReasonLabel = reasons.find(r => r.value === formik.values.reason)?.label;
-  const summaryWord = isDecrease ? "Removing" : "Increasing";
+
+  const summaryText =
+    isDecrease && formik.values.reason === "SOLD" && formik.values.studentName
+      ? `Removing ${formik.values.amount} ${unitName ?? "Pcs"} - sold to ${formik.values.studentName}`
+      : `${isDecrease ? "Removing" : "Increasing"} ${formik.values.amount} ${unitName ?? "Pcs"} - ${selectedReasonLabel}`;
 
   const stockImg = stockImage || "/staff/images/image.png";
 
@@ -176,7 +245,17 @@ export const StockDetailsAdjustQtyModal = ({
 
           <div className="flex flex-col gap-2">
             <Label className="text-text-default text-sm font-medium">{isIncrease ? "Reason for Increase" : "Reason for Decrease"}</Label>
-            <Select value={formik.values.reason} onValueChange={value => formik.setFieldValue("reason", value)}>
+            <Select
+              value={formik.values.reason}
+              onValueChange={value => {
+                formik.setFieldValue("reason", value);
+                if (value !== "SOLD") {
+                  formik.setFieldValue("studentId", undefined);
+                  formik.setFieldValue("studentName", "");
+                  setStudentSearch("");
+                }
+              }}
+            >
               <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
                 <SelectValue placeholder={isIncrease ? "Select reason for increase" : "Select reason for decrease"}>
                   {selectedReasonLabel ? <span className="text-text-default text-sm">{selectedReasonLabel}</span> : null}
@@ -193,14 +272,60 @@ export const StockDetailsAdjustQtyModal = ({
             {formik.touched.reason && formik.errors.reason && <p className="text-text-destructive text-xs font-light">{formik.errors.reason}</p>}
           </div>
 
+          {isSold && (
+            <div className="flex flex-col gap-2">
+              <Label className="text-text-default flex items-center gap-1.5 text-sm font-medium">
+                <UserFill fill="var(--color-icon-default-muted)" className="size-4" /> Sold to
+              </Label>
+              <div className="relative">
+                <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md px-3">
+                  <UserFill fill="var(--color-icon-default-muted)" className="size-4 shrink-0" />
+                  <input
+                    className="text-text-default placeholder:text-text-muted h-full w-full bg-transparent text-sm outline-none"
+                    placeholder="Select student sold to"
+                    value={studentSearch}
+                    onChange={e => {
+                      setStudentSearch(e.target.value);
+                      formik.setFieldValue("studentId", undefined);
+                      formik.setFieldValue("studentName", "");
+                      setShowStudentDropdown(true);
+                    }}
+                    onFocus={() => setShowStudentDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowStudentDropdown(false), 150)}
+                  />
+                </div>
+                {showStudentDropdown && (
+                  <div className="bg-bg-card border-border-default absolute top-full z-50 mt-1 max-h-40 w-full overflow-y-auto rounded-md border shadow-md">
+                    {studentsLoading ? (
+                      <div className="text-text-muted p-3 text-center text-sm">Loading...</div>
+                    ) : students.length === 0 ? (
+                      <div className="text-text-muted p-3 text-center text-sm">No students found</div>
+                    ) : (
+                      students.map(s => (
+                        <div
+                          key={s.id}
+                          className="hover:bg-bg-card-subtle text-text-default cursor-pointer px-3 py-2 text-sm"
+                          onMouseDown={() => selectStudent(s)}
+                        >
+                          {s.firstName} {s.lastName}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+              {formik.touched.studentId && formik.errors.studentId && (
+                <p className="text-text-destructive text-xs font-light">{formik.errors.studentId}</p>
+              )}
+            </div>
+          )}
+
           {formik.values.amount > 0 && formik.values.reason && (
             <div className="bg-bg-badge-blue border-border-default flex items-start gap-2 rounded-md border px-3 py-2">
               <Information fill="var(--color-bg-basic-blue-accent)" />
               <div className="flex flex-col gap-1">
                 <div className="text-text-default text-sm font-medium">Adjustment Summary</div>
-                <div className="text-text-muted text-sm">
-                  {summaryWord} {formik.values.amount} {unitName ?? "Pcs"} - {selectedReasonLabel}
-                </div>
+                <div className="text-text-muted text-sm">{summaryText}</div>
               </div>
             </div>
           )}

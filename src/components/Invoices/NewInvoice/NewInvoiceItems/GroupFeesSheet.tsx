@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowDownS } from "@digenty/icons";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +13,7 @@ import useDebounce from "@/hooks/useDebounce";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import type { FeeGroupInvoiceItem } from "@/api/fee";
+import type { FeeGroupPickerItem } from "@/api/fee";
 import type { InvoiceItem } from "./NewInvoiceMobileItem";
 
 type Props = {
@@ -26,33 +25,32 @@ type Props = {
 export const GroupFeesSheet = ({ branchId, onAddItems }: Props) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [openGroupId, setOpenGroupId] = useState<number | null>(null);
-  const [selectedItems, setSelectedItems] = useState<Map<number, FeeGroupInvoiceItem>>(new Map());
+  const [selectedGroups, setSelectedGroups] = useState<Map<number, FeeGroupPickerItem>>(new Map());
   const isMobile = useIsMobile();
 
   const debouncedSearch = useDebounce(search, 400);
-  const { data: groups, isPending } = useGetFeeGroupsForInvoice({ branchId, search: debouncedSearch });
-  const groupList = Array.isArray(groups) ? groups : [];
+  const { data: groups, isLoading } = useGetFeeGroupsForInvoice({ branchId, search: debouncedSearch });
+  const groupList: FeeGroupPickerItem[] = (groups as unknown as { data?: FeeGroupPickerItem[] })?.data ?? [];
 
-  const toggleItem = (item: FeeGroupInvoiceItem, checked: boolean) => {
-    setSelectedItems(prev => {
+  const toggleGroup = (group: FeeGroupPickerItem, checked: boolean) => {
+    setSelectedGroups(prev => {
       const next = new Map(prev);
-      if (checked) next.set(item.id, item);
-      else next.delete(item.id);
+      if (checked) next.set(group.feeGroupId, group);
+      else next.delete(group.feeGroupId);
       return next;
     });
   };
 
   const handleDone = () => {
-    const newItems: InvoiceItem[] = Array.from(selectedItems.values()).map(item => ({
+    const newItems: InvoiceItem[] = Array.from(selectedGroups.values()).map(group => ({
       id: crypto.randomUUID(),
-      name: item.name,
+      name: group.name,
       qty: 1,
-      price: item.amount,
-      required: item.required,
+      price: group.totalAmount ?? 0,
+      required: false,
     }));
     onAddItems?.(newItems);
-    setSelectedItems(new Map());
+    setSelectedGroups(new Map());
     setOpen(false);
   };
 
@@ -66,51 +64,39 @@ export const GroupFeesSheet = ({ branchId, onAddItems }: Props) => {
           onChange={e => setSearch(e.target.value)}
         />
         <div className="flex max-h-96 flex-col gap-3 overflow-y-auto">
-          {isPending ? (
+          {isLoading ? (
             Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="bg-bg-input-soft h-20 w-full rounded-md" />)
           ) : groupList.length === 0 ? (
             <p className="text-text-muted py-4 text-center text-sm">No fee groups found</p>
           ) : (
             groupList.map(group => (
-              <div key={group.id} className="border-border-darker bg-bg-card rounded-md border p-4">
-                <div className="flex w-full items-start gap-2.5">
-                  <div
-                    className="bg-bg-state-soft flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-sm p-1"
-                    onClick={() => setOpenGroupId(prev => (prev === group.id ? null : group.id))}
-                  >
-                    <ArrowDownS
-                      fill="var(--color-icon-default-muted)"
-                      className={`transition-transform ${openGroupId === group.id ? "" : "rotate-270"}`}
-                    />
-                  </div>
-                  <div className="w-full">
-                    <div className="border-border-default flex w-full flex-col gap-1 border-b pb-3">
-                      <div className="flex w-full items-center justify-between">
-                        <span className="text-text-default text-sm font-medium">{group.name}</span>
-                        <Badge className="text-text-subtle border-border-default h-5 w-14 rounded-md border p-1 text-xs font-medium">
-                          {group.items?.length ?? 0} items
-                        </Badge>
-                      </div>
-                      <div className="text-text-informative text-sm font-medium">₦{group.totalAmount?.toLocaleString()}</div>
+              <div
+                key={group.feeGroupId}
+                role="button"
+                onClick={() => toggleGroup(group, !selectedGroups.has(group.feeGroupId))}
+                className="border-border-darker bg-bg-card cursor-pointer rounded-md border p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    checked={selectedGroups.has(group.feeGroupId)}
+                    onCheckedChange={checked => toggleGroup(group, !!checked)}
+                    onClick={e => e.stopPropagation()}
+                    className="mt-0.5 shrink-0"
+                  />
+                  <div className="flex w-full flex-col gap-1.5">
+                    <div className="flex w-full items-center justify-between">
+                      <span className="text-text-default text-sm font-medium">{group.name}</span>
+                      <span className="text-text-default text-sm font-semibold">₦{(group.totalAmount ?? 0).toLocaleString()}</span>
                     </div>
-
-                    {openGroupId === group.id && (
-                      <div className="mt-2 flex flex-col gap-2">
-                        {group.items?.map((item: FeeGroupInvoiceItem) => (
-                          <div key={item.id} className="border-border-default flex items-start gap-2.5 border-b py-2">
-                            <Checkbox
-                              checked={selectedItems.has(item.id)}
-                              onCheckedChange={checked => toggleItem(item, !!checked)}
-                              className="mt-0.5 shrink-0"
-                            />
-                            <div className="flex flex-col gap-1">
-                              <div className="text-text-default text-sm font-medium">{item.name}</div>
-                              <Badge className="text-text-subtle border-border-default h-5 w-fit rounded-md border p-1 text-xs font-medium">
-                                {item.required ? "Required" : "Optional"}
-                              </Badge>
-                              <div className="text-text-muted text-sm">₦{item.amount?.toLocaleString()}</div>
-                            </div>
-                          </div>
+                    {(group.feeNames?.length ?? 0) > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {group.feeNames.map(name => (
+                          <Badge
+                            key={name}
+                            className="border-border-default bg-bg-badge-default text-text-subtle h-5 rounded-md border p-1 text-xs font-medium"
+                          >
+                            {name}
+                          </Badge>
                         ))}
                       </div>
                     )}
@@ -130,10 +116,10 @@ export const GroupFeesSheet = ({ branchId, onAddItems }: Props) => {
           </SheetClose>
           <Button
             onClick={handleDone}
-            disabled={selectedItems.size === 0}
+            disabled={selectedGroups.size === 0}
             className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 items-center gap-1 rounded-sm px-2 py-1"
           >
-            Add {selectedItems.size > 0 ? `(${selectedItems.size})` : ""} to Invoice
+            Add {selectedGroups.size > 0 ? `(${selectedGroups.size})` : ""} to Invoice
           </Button>
         </div>
       </SheetFooter>
