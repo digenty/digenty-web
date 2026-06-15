@@ -138,8 +138,8 @@ const AddFeeToClass = () => {
                       onValueChange={stockId => {
                         const item = stockItems.find(s => s.id === Number(stockId));
                         if (item) {
-                          setFieldValue("name", item.itemName);
-                          setFieldValue("amount", item.amount);
+                          setFieldValue("name", item.name);
+                          setFieldValue("amount", item.price);
                         }
                       }}
                     >
@@ -149,7 +149,7 @@ const AddFeeToClass = () => {
                       <SelectContent className="bg-bg-card border-border-default max-h-72">
                         {stockItems.map(item => (
                           <SelectItem key={item.id} value={String(item.id)} className="text-text-default text-sm font-normal">
-                            {item.itemName}
+                            {item.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
