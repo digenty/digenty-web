@@ -5,7 +5,7 @@ export const SETTINGS_NAV = [
   { label: "Academic Setup", url: "/staff/settings/academic", icon: GraduationCap },
   { label: "Result", url: "/staff/settings/result", icon: Award },
   { label: "Subscription", url: "/staff/settings/subscription", icon: BankCard },
-  // { label: "Invoice", url: "/staff/settings/invoice", icon: FileList3 },
+  { label: "Invoice", url: "/staff/settings/invoice", icon: FileList3 },
   { label: "Permissions", url: "/staff/settings/permissions", icon: Group },
   // { label: "Stock", url: "/staff/settings/stock", icon: Box3 },
   // { label: "KYC", url: "/staff/settings/kyc", icon: IdCard },

@@ -62,7 +62,7 @@ interface BranchFeeRoutingProps {
 
 export const BranchFeeRouting = ({ branchId }: BranchFeeRoutingProps) => {
   const [query, setQuery] = useState("");
-  const { data: feeItems = [], isLoading } = useGetFeeItems(branchId);
+  const { data: feeItems = [], isLoading } = useGetFeeItems({ branchId });
   const { data: routes = [] } = useGetFeeRoutesByBranch(branchId);
 
   const getRoute = (feeClassId: number): FeeRouteResponseDto | undefined => routes.find(r => r.feeClassId === feeClassId);
