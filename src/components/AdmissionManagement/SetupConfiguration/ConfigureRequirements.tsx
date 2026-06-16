@@ -6,7 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { useGetClassConfig, useGetLevelConfig, useUpdateClassConfig, useUpdateLevelConfig } from "@/hooks/queryHooks/useAdmission";
+import {
+  useCreateClassConfig,
+  useCreateLevelConfig,
+  useGetClassConfig,
+  useGetLevelConfig,
+  useUpdateClassConfig,
+  useUpdateLevelConfig,
+} from "@/hooks/queryHooks/useAdmission";
 import { AddFill, ArrowLeft, Bill, BookOpen, DeleteBin, FileList3, Settings4 } from "@digenty/icons";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
@@ -65,7 +72,8 @@ export const ConfigureRequirements = ({ scope, name, cycleId, levelId, classId, 
   const { data: classConfig, isPending: classPending, isError: classError, refetch: refetchClass } = classQuery;
 
   const isPending = isLevel ? levelPending : classPending;
-  const isError = isLevel ? levelError : classError;
+  // A fetch error means no config exists yet (first-time) — show the form with defaults instead of an error screen
+  const isError = false;
   const refetch = isLevel ? refetchLevel : refetchClass;
 
   const preservedSubjects: SubjectEntry[] = (levelConfig?.entranceExam?.subjects ?? []).map(s => ({
@@ -74,9 +82,15 @@ export const ConfigureRequirements = ({ scope, name, cycleId, levelId, classId, 
     maxScore: s.maxScore,
   }));
 
+  const { mutate: createLevel, isPending: creatingLevel } = useCreateLevelConfig();
   const { mutate: updateLevel, isPending: savingLevel } = useUpdateLevelConfig();
+  const { mutate: createClass, isPending: creatingClass } = useCreateClassConfig();
   const { mutate: updateClass, isPending: savingClass } = useUpdateClassConfig();
-  const saving = savingLevel || savingClass;
+  const saving = creatingLevel || savingLevel || creatingClass || savingClass;
+
+  const isFirstTimeConfig = isLevel
+    ? levelConfig?.status === "NOT_CONFIGURED" || (levelError && !levelPending)
+    : classError && !classPending;
 
   const [newDocument, setNewDocument] = useState("");
   const [isAddingDocument, setIsAddingDocument] = useState(false);
@@ -106,11 +120,12 @@ export const ConfigureRequirements = ({ scope, name, cycleId, levelId, classId, 
 
       if (isLevel) {
         const payload: LevelConfigRequest = shared;
-        updateLevel(
+        const action = isFirstTimeConfig ? createLevel : updateLevel;
+        action(
           { cycleId, levelId, payload, branchId },
           {
             onSuccess: () => {
-              toast.success("Level requirements saved");
+              toast.success(isFirstTimeConfig ? "Level requirements configured" : "Level requirements saved");
               router.back();
             },
             onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to save requirements"),
@@ -118,11 +133,12 @@ export const ConfigureRequirements = ({ scope, name, cycleId, levelId, classId, 
         );
       } else {
         const payload: ClassConfigRequest = { ...shared, usesLevelSettings: false };
-        updateClass(
+        const action = isFirstTimeConfig ? createClass : updateClass;
+        action(
           { cycleId, levelId, classId: classId!, payload, branchId },
           {
             onSuccess: () => {
-              toast.success("Class requirements saved");
+              toast.success(isFirstTimeConfig ? "Class requirements configured" : "Class requirements saved");
               router.back();
             },
             onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to save requirements"),
@@ -172,7 +188,7 @@ export const ConfigureRequirements = ({ scope, name, cycleId, levelId, classId, 
             disabled={saving}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
           >
-            {saving ? "Saving..." : "Save Requirements"}
+            {saving ? "Saving..." : isFirstTimeConfig ? "Configure Requirements" : "Save Requirements"}
           </Button>
         )}
       </div>

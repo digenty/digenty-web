@@ -11,6 +11,8 @@ import {
   bulkUpdateApplicantStatus,
   ClassConfigRequest,
   createAdmissionCycle,
+  createClassConfig,
+  createLevelConfig,
   CreateCycleDto,
   deleteLevelDocument,
   deleteLevelSubject,
@@ -166,6 +168,17 @@ export const useGetLevelConfig = (cycleId?: number, levelId?: number, branchId?:
   });
 };
 
+export const useCreateLevelConfig = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ cycleId, levelId, payload, branchId }: { cycleId: number; levelId: number; payload: LevelConfigRequest; branchId?: number }) =>
+      createLevelConfig(cycleId, levelId, payload, branchId),
+    onSuccess: (_data, { cycleId }) => {
+      queryClient.invalidateQueries({ queryKey: admissionCycleKeys.levels(cycleId) });
+    },
+  });
+};
+
 export const useUpdateLevelConfig = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -251,6 +264,28 @@ export const useGetClassConfig = (cycleId?: number, levelId?: number, classId?: 
     queryFn: () => getClassConfig(cycleId!, levelId!, classId!, branchId),
     enabled: !!cycleId && !!levelId && !!classId,
     retry: false,
+  });
+};
+
+export const useCreateClassConfig = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      cycleId,
+      levelId,
+      classId,
+      payload,
+      branchId,
+    }: {
+      cycleId: number;
+      levelId: number;
+      classId: number;
+      payload: ClassConfigRequest;
+      branchId?: number;
+    }) => createClassConfig(cycleId, levelId, classId, payload, branchId),
+    onSuccess: (_data, { cycleId, levelId }) => {
+      queryClient.invalidateQueries({ queryKey: admissionCycleKeys.classes(cycleId, levelId) });
+    },
   });
 };
 

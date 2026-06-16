@@ -20,8 +20,12 @@ const buildQuery = (branchId?: number) => (branchId ? `?branchId=${branchId}` : 
 
 export const LevelClasses = ({ cycleId, level, branchId }: Props) => {
   const router = useRouter();
-  const { data: classes = [], isPending, isError, refetch } = useGetLevelClasses(cycleId, level.classLevelId, branchId);
   const configured = level.status === "CONFIGURED";
+  const { data: classes = [], isPending, isError, refetch } = useGetLevelClasses(
+    cycleId,
+    configured ? level.classLevelId : undefined,
+    branchId,
+  );
 
   const baseUrl = `/staff/admission-management/setup/${cycleId}/levels/${level.classLevelId}`;
 
@@ -54,14 +58,25 @@ export const LevelClasses = ({ cycleId, level, branchId }: Props) => {
           className="border-border-darker text-text-default hover:bg-bg-state-secondary-hover! bg-bg-state-secondary! flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
         >
           <Edit fill="var(--color-icon-default-subtle)" className="size-4 shrink-0" />
-          Edit Level Settings
+          {configured ? "Edit Level Settings" : "Configure Level"}
         </Button>
       </div>
 
       <div className="flex flex-col gap-4">
         <h3 className="text-text-default text-sm font-semibold">Classes in {level.levelName}</h3>
 
-        {isPending ? (
+        {!configured ? (
+          <div className="border-border-default flex flex-col items-center gap-3 rounded-xl border border-dashed py-12">
+            <p className="text-text-default text-sm font-medium">This level hasn&apos;t been configured yet</p>
+            <p className="text-text-muted text-xs">Configure the level requirements before managing its classes.</p>
+            <Button
+              onClick={() => router.push(`${baseUrl}${buildQuery(branchId)}`)}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default mt-1 rounded-md px-4 py-2 text-sm font-medium"
+            >
+              Configure Level
+            </Button>
+          </div>
+        ) : isPending ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-32 w-full rounded-xl" />

@@ -508,6 +508,21 @@ export const getLevelConfig = async (cycleId: number, levelId: number, branchId?
   }
 };
 
+export const createLevelConfig = async (
+  cycleId: number,
+  levelId: number,
+  payload: LevelConfigRequest,
+  branchId?: number,
+): Promise<LevelConfigResponse> => {
+  try {
+    const { data } = await api.post(`/admissions/cycles/${cycleId}/levels/${levelId}`, payload, { params: { branchId } });
+    return data.data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
 export const updateLevelConfig = async (
   cycleId: number,
   levelId: number,
@@ -590,6 +605,22 @@ export const getLevelClasses = async (cycleId: number, levelId: number, branchId
 export const getClassConfig = async (cycleId: number, levelId: number, classId: number, branchId?: number): Promise<AdmissionClassConfig> => {
   try {
     const { data } = await api.get(`/admissions/cycles/${cycleId}/levels/${levelId}/classes/${classId}`, { params: { branchId } });
+    return data.data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const createClassConfig = async (
+  cycleId: number,
+  levelId: number,
+  classId: number,
+  payload: ClassConfigRequest,
+  branchId?: number,
+): Promise<AdmissionClassConfig> => {
+  try {
+    const { data } = await api.post(`/admissions/cycles/${cycleId}/levels/${levelId}/classes/${classId}`, payload, { params: { branchId } });
     return data.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
