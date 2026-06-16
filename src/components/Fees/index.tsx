@@ -3,10 +3,11 @@
 import { cn } from "@/lib/utils";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 import { FeesItem } from "./FeesItem";
 import { FeesGroup } from "./FeesGroup";
 import { ClassFees } from "./ClassFees";
+import { useFeesFilters } from "./useFeesFilters";
+import { useGetFeeClassOverview } from "@/hooks/queryHooks/useFee";
 
 const tabs = ["Class Fees", "Fee Items", "Fee Groups"];
 
@@ -20,9 +21,10 @@ export const FeesIndex = () => {
     { label: activeTab, url: `/staff/fees?tab=${activeTab}` },
   ]);
 
-  useEffect(() => {
-    router.push(`/staff/fees?tab=${activeTab}`);
-  }, [activeTab, router]);
+  // Keep the slow class-overview query alive at the parent level so it
+  // survives tab switches — TQ deduplicates with the identical call in ClassFees.
+  const { sessionId, term, branchId } = useFeesFilters();
+  useGetFeeClassOverview(sessionId ?? 0, term ?? "FIRST", branchId, undefined);
 
   return (
     <div className="space-y-4 px-4 md:space-y-6 md:px-8">
@@ -47,7 +49,11 @@ export const FeesIndex = () => {
         })}
       </div>
 
-      {activeTab === "Class Fees" && <ClassFees />}
+      {/* ClassFees stays mounted (CSS-hidden when inactive) so the in-flight
+          overview request is not cancelled on tab switch */}
+      <div className={activeTab !== "Class Fees" ? "hidden" : undefined}>
+        <ClassFees />
+      </div>
       {activeTab === "Fee Items" && <FeesItem />}
       {activeTab === "Fee Groups" && <FeesGroup />}
     </div>
