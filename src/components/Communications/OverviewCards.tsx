@@ -11,7 +11,7 @@ export const OverviewCards = () => {
   const { data, isLoading, isError, refetch } = useGetCampaignOverview();
 
   return (
-    <div className="grid w-full grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid w-full grid-cols-2 gap-3 lg:grid-cols-3">
       <OverviewCard
         title="Total Campaign Sent"
         Icon={() => (
@@ -32,7 +32,7 @@ export const OverviewCards = () => {
         value={isLoading ? <Skeleton className="bg-bg-input-soft">0</Skeleton> : (data?.smsCampaigns ?? 0)}
       />
 
-      <OverviewCard
+      {/* <OverviewCard
         title="Email Campaigns"
         Icon={() => (
           <div className="bg-bg-basic-violet-subtle border-bg-basic-violet-accent flex h-5 w-5 items-center justify-center rounded-xs border p-1">
@@ -40,17 +40,19 @@ export const OverviewCards = () => {
           </div>
         )}
         value={isLoading ? <Skeleton className="bg-bg-input-soft">0</Skeleton> : (data?.emailCampaigns ?? 0)}
-      />
+      /> */}
 
-      <OverviewCard
-        title="Whatsapp Campaigns"
-        Icon={() => (
-          <div className="bg-bg-basic-green-subtle border-bg-basic-green-accent flex h-5 w-5 items-center justify-center rounded-xs border p-1">
-            <PhoneFill fill="var(--color-icon-default)" />
-          </div>
-        )}
-        value={<Badge className="border-border-default text-text-warning rounded-md border">Coming Soon</Badge>}
-      />
+      <div className="col-span-2 lg:col-span-1">
+        <OverviewCard
+          title="Whatsapp Campaigns"
+          Icon={() => (
+            <div className="bg-bg-basic-green-subtle border-bg-basic-green-accent flex h-5 w-5 items-center justify-center rounded-xs border p-1">
+              <PhoneFill fill="var(--color-icon-default)" />
+            </div>
+          )}
+          value={<Badge className="border-border-default text-text-warning rounded-md border">Coming Soon</Badge>}
+        />
+      </div>
     </div>
   );
 };

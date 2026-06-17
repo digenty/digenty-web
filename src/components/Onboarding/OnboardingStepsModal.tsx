@@ -4,7 +4,7 @@ import { useGetOnboardingProgress, useGetSchoolDetails } from "@/hooks/queryHook
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { useOnboardingStore } from "@/store";
-import { CheckCircle2, ChevronRight } from "lucide-react";
+import { CheckCircle2, ChevronRight, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { MobileDrawer } from "../MobileDrawer";
 import { Modal } from "../Modal";
@@ -46,7 +46,10 @@ export const OnboardingStepsModal = ({ open, setOpen, apiSteps }: OnboardingStep
 
   const content = (
     <div className="flex flex-col gap-6 px-4 py-6 md:px-6">
-      <div>{title}</div>
+      <div className="flex items-center justify-between">
+        <div>{title}</div>
+        <X className="text-icon-default-muted size-5 cursor-pointer" onClick={() => setOpen(false)} />
+      </div>
       {/* Progress Bar */}
       <div className="bg-bg-muted relative h-1 w-full overflow-hidden rounded-full">
         <div className="bg-bg-basic-green-accent h-full transition-all duration-500 ease-in-out" style={{ width: `${progressPercentage}%` }} />
