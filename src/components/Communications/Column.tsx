@@ -80,7 +80,7 @@ const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
               evt.stopPropagation();
               router.push(`/staff/communications/${id}`);
             }}
-            className="hover:bg-bg-state-ghost-hover cursor-pointer gap-2.5 px-3"
+            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
           >
             <EyeIcon className="text-icon-default-subtle size-4" />
             <span>View campaign</span>
@@ -91,7 +91,7 @@ const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
               evt.stopPropagation();
               router.push(`/staff/communications/${id}/edit`);
             }}
-            className="hover:bg-bg-state-ghost-hover cursor-pointer gap-2.5 px-3"
+            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
           >
             <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Edit campaign</span>
@@ -103,7 +103,7 @@ const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
               setOpen(false);
               handleDuplicate();
             }}
-            className="hover:bg-bg-state-ghost-hover cursor-pointer gap-2.5 px-3"
+            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
           >
             <FileCopy fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Duplicate</span>
@@ -115,7 +115,7 @@ const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
               setOpen(false);
               handleResend();
             }}
-            className="hover:bg-bg-state-ghost-hover cursor-pointer gap-2.5 px-3"
+            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
           >
             <ArrowGoBack fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Resend</span>
