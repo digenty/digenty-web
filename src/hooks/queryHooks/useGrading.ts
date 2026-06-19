@@ -27,16 +27,24 @@ export const useGetGradingsByLevel = (levelId?: number) => {
 };
 
 export const useAddGradingDefault = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: gradingKeys.addGradingDefault,
     mutationFn: addGradingDefault,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: gradingKeys.getGradingsByLevel });
+    },
   });
 };
 
 export const useAddGrading = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: gradingKeys.addGrading,
     mutationFn: addGrading,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: gradingKeys.getGradingsByLevel });
+    },
   });
 };
 

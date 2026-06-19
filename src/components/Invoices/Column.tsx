@@ -42,7 +42,7 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
             evt.stopPropagation();
             router.push(`/staff/invoices/${row.original.invoiceId}`);
           }}
-          className="hover:bg-bg-state-ghost-hover cursor-pointer gap-2.5 px-3"
+          className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
         >
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View invoice</span>
@@ -53,7 +53,7 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
             evt.stopPropagation();
             router.push(`/staff/invoices/edit-invoice?id=${row.original.invoiceId}`);
           }}
-          className="hover:bg-bg-state-ghost-hover gap-2.5 px-3"
+          className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3"
         >
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit invoice</span>
@@ -64,7 +64,7 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
             evt.stopPropagation();
             router.push(`/staff/invoices/add-payment?invoiceId=${row.original.invoiceId}`);
           }}
-          className="hover:bg-bg-state-ghost-hover gap-2.5 px-3"
+          className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
         >
           <BallPen fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Record payment</span>
@@ -73,7 +73,7 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
         <DropdownMenuItem
           disabled={sendingReminder}
           onClick={() => handleSendReminder(row.original.invoiceId)}
-          className="hover:bg-bg-state-ghost-hover gap-2.5 px-3"
+          className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
         >
           <Notification2 fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>{sendingReminder ? "Sending..." : "Send reminder"}</span>
@@ -87,7 +87,7 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
             evt.stopPropagation();
             handleDelete(row.original.invoiceId);
           }}
-          className="gap-2.5 px-3"
+          className="cursor-pointer gap-2.5 px-3"
         >
           <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
           <span className="text-icon-destructive">{deletingInvoice ? "Deleting..." : "Delete invoice"}</span>

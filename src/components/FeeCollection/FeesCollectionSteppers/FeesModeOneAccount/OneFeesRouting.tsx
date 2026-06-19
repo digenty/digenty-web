@@ -102,9 +102,10 @@ export const OneFeesRouting = () => {
 interface RoutingSheetProps {
   feeItem: FeeItemDetail;
   existingRoute?: FeeRouteResponseDto;
+  branchId?: number;
 }
 
-export const RoutingSheet = ({ feeItem, existingRoute }: RoutingSheetProps) => {
+export const RoutingSheet = ({ feeItem, existingRoute, branchId = 0 }: RoutingSheetProps) => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [selectedAccountId, setSelectedAccountId] = useState<number | null>(existingRoute ? null : null);
   const isMobile = useIsMobile();
@@ -116,7 +117,7 @@ export const RoutingSheet = ({ feeItem, existingRoute }: RoutingSheetProps) => {
 
   const handleSave = () => {
     if (!selectedAccountId) return;
-    const payload = { branchId: 0, bankAccountId: selectedAccountId, feeClassId: feeItem.feeClassId, isDefault: true };
+    const payload = { branchId, bankAccountId: selectedAccountId, feeClassId: feeItem.feeClassId, isDefault: true };
     if (existingRoute) {
       updateRoute(
         { id: existingRoute.id, payload },

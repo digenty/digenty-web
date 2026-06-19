@@ -56,14 +56,13 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
         }
       >
         <div className="flex flex-col gap-4 px-4 py-4">
-          <p className="text-text-subtle text-sm">
-            Are you sure you want to permanently delete this fee group? This action cannot be undone.
-          </p>
+          <p className="text-text-subtle text-sm">Are you sure you want to permanently delete this fee group? This action cannot be undone.</p>
 
           <div className="bg-bg-badge-warning border-border-warning flex items-start gap-3 rounded-md border p-3">
             <TriangleAlertIcon className="text-icon-warning mt-0.5 size-4 shrink-0" />
             <p className="text-text-default text-sm">
-              Deleting this fee group will remove it from your available groups. It won&apos;t be available for future invoices but won&apos;t affect issued invoices.
+              Deleting this fee group will remove it from your available groups. It won&apos;t be available for future invoices but won&apos;t affect
+              issued invoices.
             </p>
           </div>
 
@@ -81,7 +80,7 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
 
         <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
           <DropdownMenuItem
-            className="gap-2.5 px-3"
+            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
             onClick={() => {
               setOpen(false);
               router.push(`/staff/fees/fee-group/${feeGroupId}`);
@@ -91,17 +90,17 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
             <span>View fee group</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="gap-2.5 px-3"
+            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
             onClick={() => {
               setOpen(false);
-              router.push(`/staff/fees/add-fee-to-group?id=${feeGroupId}`);
+              router.push(`/staff/fees/fee-group/${feeGroupId}/edit`);
             }}
           >
             <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Edit fee group</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="gap-2.5 px-3"
+            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
             disabled={duplicating}
             onClick={() => {
               setOpen(false);

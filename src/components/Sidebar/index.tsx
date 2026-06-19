@@ -257,6 +257,10 @@ export const Sidebar = () => {
     }
   }, [pathname, setActiveNav]);
 
+  useEffect(() => {
+    document.documentElement.style.setProperty("--sidebar-w", isSidebarOpen ? "17.25rem" : "4rem");
+  }, [isSidebarOpen]);
+
   const logout = () => {
     queryClient.clear();
     deleteSession();
