@@ -89,10 +89,17 @@ export const buildClassesWithArms = (classList: ClassType[], armList: FeeArmOpti
 /** Converts the validated form values into the POST /fee/items payload. */
 export const buildFeeItemPayload = (values: FeeItemFormValues): FeeItemDto => {
   const { setDifferentPricesPerBranch, setDifferentPricesPerClass } = values;
+  const singleAmount = Number(values.amount) || 0;
 
-  const branchAmounts: BranchAmount[] | undefined = setDifferentPricesPerBranch
-    ? values.branchAmounts.map(b => ({ branchId: b.branchId, amount: Number(b.amount) || 0 }))
-    : undefined;
+  // Always include branchAmounts for every selected branch so the backend
+  // applies the fee to all of them, not just those explicitly entered.
+  const branchAmounts: BranchAmount[] = values.branchIds.map(branchId => {
+    if (setDifferentPricesPerBranch) {
+      const entered = values.branchAmounts.find(b => b.branchId === branchId);
+      return { branchId, amount: Number(entered?.amount) || 0 };
+    }
+    return { branchId, amount: singleAmount };
+  });
 
   const classArmAmounts: ClassArmAmount[] | undefined = setDifferentPricesPerClass
     ? values.classArmAmounts.map(c => ({ armId: c.armId, amount: Number(c.amount) || 0 }))
@@ -106,7 +113,7 @@ export const buildFeeItemPayload = (values: FeeItemFormValues): FeeItemDto => {
     required: values.required,
     branchIds: values.branchIds,
     armIds: values.armIds,
-    amount: setDifferentPricesPerBranch || setDifferentPricesPerClass ? undefined : Number(values.amount) || 0,
+    amount: setDifferentPricesPerBranch || setDifferentPricesPerClass ? undefined : singleAmount,
     setDifferentPricesPerBranch,
     setDifferentPricesPerClass,
     branchAmounts,

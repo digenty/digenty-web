@@ -72,6 +72,8 @@ export interface FeeCollectionConfigResponse {
 
 export interface AccountDetailsResponse {
   accountName: string;
+  accountNumber: string;
+  bankId: number;
 }
 
 export const setupFeeCollection = async (payload: FeeCollectionSetupDto) => {
@@ -86,8 +88,8 @@ export const setupFeeCollection = async (payload: FeeCollectionSetupDto) => {
 
 export const getSetupStatus = async (): Promise<FeeCollectionConfigResponse> => {
   try {
-    const { data } = await api.get<FeeCollectionConfigResponse>(`/api/fee-collection/setup/status`);
-    return data;
+    const { data } = await api.get<{ data: FeeCollectionConfigResponse }>(`/api/fee-collection/setup/status`);
+    return data.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
@@ -147,8 +149,12 @@ export const getAllBanks = async (): Promise<BankOption[]> => {
 
 export const getAccountDetails = async (payload: { accountNumber: string; bankCode: string }): Promise<AccountDetailsResponse> => {
   try {
-    const { data } = await api.post<AccountDetailsResponse>(`/banks/account/details`, payload);
-    return data;
+    const { data } = await api.post<{ data: { account_name: string; account_number: string; bank_id: number } }>(`/banks/account/details`, payload);
+    return {
+      accountName: data.data.account_name,
+      accountNumber: data.data.account_number,
+      bankId: data.data.bank_id,
+    };
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

@@ -44,9 +44,13 @@ export const useGetGradingsByLevel = (levelId?: number) => {
 };
 
 export const useAddLevel = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: levelKeys.addLevel,
     mutationFn: addLevel,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [levelKeys.levels] });
+    },
   });
 };
 

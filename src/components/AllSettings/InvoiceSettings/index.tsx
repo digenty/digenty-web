@@ -359,6 +359,10 @@ export const InvoiceSetting = () => {
                 />
               </PopoverContent>
             </Popover>
+            {formik.touched.defaultDueDate && formik.errors.defaultDueDate && (
+              <p className="text-text-destructive text-xs font-light">{formik.errors.defaultDueDate}</p>
+            )}
+
             <div className="text-text-muted invisible text-xs">spacer</div>
           </div>
           <div className="flex flex-col gap-2">

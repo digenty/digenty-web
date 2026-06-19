@@ -580,7 +580,7 @@ export const ClassesAndArms = ({
       </div> */}
 
       {completedSteps && setCompletedSteps && (
-        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+        <div className="border-border-default bg-bg-default fixed bottom-0 left-(--sidebar-w) right-0 z-10 flex justify-between border-t px-4 py-3 lg:px-40">
           <Button
             className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
             onClick={() => {

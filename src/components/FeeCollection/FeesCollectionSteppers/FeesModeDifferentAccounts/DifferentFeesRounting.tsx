@@ -94,7 +94,7 @@ export const BranchFeeRouting = ({ branchId }: BranchFeeRoutingProps) => {
                         {route ? `${route.bankAccountNumber} — ${route.bankAccountName}` : "Default account"}
                       </div>
                     </div>
-                    <RoutingSheet feeItem={item} existingRoute={route} />
+                    <RoutingSheet feeItem={item} existingRoute={route} branchId={branchId} />
                   </div>
                 );
               })}
