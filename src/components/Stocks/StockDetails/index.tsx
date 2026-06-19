@@ -60,11 +60,7 @@ export const StockDetails = () => {
 
   const currentQty = stock?.totalQuantity ?? stock?.quantity ?? 0;
   const branchName = stock?.branchName ?? stock?.branch?.name;
-  const branchId =
-    stock?.branchId ??
-    stock?.branch?.id ??
-    stock?.branchStocks?.[0]?.branchId ??
-    stock?.branches?.[0]?.branchId;
+  const branchId = stock?.branchId ?? stock?.branch?.id ?? stock?.branchStocks?.[0]?.branchId ?? stock?.branches?.[0]?.branchId;
   const unitName = stock?.unit?.name ?? stock?.unitName;
 
   const branchEntries = stock?.branchStocks ?? stock?.branches ?? [];
@@ -88,7 +84,10 @@ export const StockDetails = () => {
           branchName={branchName}
           unitName={unitName}
           currentQuantity={currentQty}
-          onAdjusted={tx => { setPostAdjustTx(tx); setShowDetails(true); }}
+          onAdjusted={tx => {
+            setPostAdjustTx(tx);
+            setShowDetails(true);
+          }}
         />
       )}
 
@@ -98,7 +97,10 @@ export const StockDetails = () => {
         transaction={postAdjustTx}
         stockName={stock?.name ?? stock?.itemName}
         stockImage={stock?.imagePath ?? stock?.image}
-        onEdit={() => { setShowDetails(false); setAdjustQty(true); }}
+        onEdit={() => {
+          setShowDetails(false);
+          setAdjustQty(true);
+        }}
       />
 
       <div className="hidden flex-col gap-6 md:flex">

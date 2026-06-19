@@ -228,7 +228,7 @@ export const Sidebar = () => {
                       url: "domain",
                       icon: Global,
                     },
-                  ] 
+                  ]
                 : []),
             ],
           },

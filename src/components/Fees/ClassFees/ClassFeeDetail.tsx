@@ -46,9 +46,7 @@ export const ClassFeeDetail = () => {
           <div className="text-text-default text-xl font-semibold">{className}</div>
           <div className="flex gap-2">
             <Button
-              onClick={() =>
-                router.push(`/staff/fees/add-fee-to-class?classId=${classId}&className=${encodeURIComponent(className)}`)
-              }
+              onClick={() => router.push(`/staff/fees/add-fee-to-class?classId=${classId}&className=${encodeURIComponent(className)}`)}
               className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! h-8! border font-medium shadow-sm!"
             >
               <AddFill fill="var(--color-icon-default-muted)" />

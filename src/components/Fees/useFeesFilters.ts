@@ -27,15 +27,9 @@ export const useFeesFilters = () => {
   const branchList: BranchWithClassLevels[] = useMemo(() => branchesResp?.data ?? [], [branchesResp]);
   const termList: Term[] = useMemo(() => termsResp?.data?.terms ?? [], [termsResp]);
   const sessionName: string = termsResp?.data?.academicSessionName ?? "";
-  const sessionId: number | undefined = useMemo(
-    () => (Array.isArray(sessions) ? sessions.find(s => s.isActive)?.id : undefined),
-    [sessions],
-  );
+  const sessionId: number | undefined = useMemo(() => (Array.isArray(sessions) ? sessions.find(s => s.isActive)?.id : undefined), [sessions]);
 
-  const termLabel = useCallback(
-    (t: Term) => `${sessionName} ${t.term.toLowerCase()}`.trim(),
-    [sessionName],
-  );
+  const termLabel = useCallback((t: Term) => `${sessionName} ${t.term.toLowerCase()}`.trim(), [sessionName]);
 
   const branchOptions = useMemo(() => [ALL_BRANCHES, ...branchList.map(branchLabel)], [branchList]);
   const termOptions = useMemo(() => [ALL_TERMS, ...termList.map(termLabel)], [termList, termLabel]);
@@ -77,10 +71,7 @@ export const useFeesFilters = () => {
     return branchList.find(b => branchLabel(b) === branchSelected)?.branch.id;
   }, [branchSelected, branchList]);
 
-  const selectedTerm = useMemo(
-    () => termList.find(t => t.termId === selectedTermId),
-    [termList, selectedTermId],
-  );
+  const selectedTerm = useMemo(() => termList.find(t => t.termId === selectedTermId), [termList, selectedTermId]);
   const termId = selectedTerm?.termId;
   const term = selectedTerm?.term as FeeTermType | undefined;
 

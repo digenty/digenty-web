@@ -49,24 +49,26 @@ const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
 
       <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
         <DropdownMenuItem
-          onClick={evt => { evt.stopPropagation(); router.push(`/staff/fees/fee-item/${id}`); }}
+          onClick={evt => {
+            evt.stopPropagation();
+            router.push(`/staff/fees/fee-item/${id}`);
+          }}
           className="hover:bg-bg-state-soft-hover! gap-2.5 px-3"
         >
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View fee item</span>
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={evt => { evt.stopPropagation(); router.push(`/staff/fees/fee-item/${id}/edit`); }}
+          onClick={evt => {
+            evt.stopPropagation();
+            router.push(`/staff/fees/fee-item/${id}/edit`);
+          }}
           className="hover:bg-bg-state-soft-hover! gap-2.5 px-3"
         >
           <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>Edit fee item</span>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={handleDuplicate}
-          disabled={duplicating}
-          className="hover:bg-bg-state-soft-hover! gap-2.5 px-3"
-        >
+        <DropdownMenuItem onClick={handleDuplicate} disabled={duplicating} className="hover:bg-bg-state-soft-hover! gap-2.5 px-3">
           <FileCopy fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>{duplicating ? "Duplicating..." : "Duplicate fee item"}</span>
         </DropdownMenuItem>

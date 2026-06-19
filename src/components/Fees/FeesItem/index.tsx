@@ -123,10 +123,7 @@ export const FeesItem = () => {
                 <div key={item.feeItemId} className="border-border-default bg-bg-subtle rounded-md border">
                   <div className="flex h-[38px] items-center justify-between px-3 py-1.5">
                     <span className="text-text-default text-sm font-medium">{item.feeName}</span>
-                    <Button
-                      onClick={() => setActiveItemId(item.feeItemId)}
-                      className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!"
-                    >
+                    <Button onClick={() => setActiveItemId(item.feeItemId)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
                       <Ellipsis className="size-5" />
                     </Button>
                   </div>
@@ -166,17 +163,29 @@ export const FeesItem = () => {
           </div>
 
           {/* Single shared mobile drawer, bound to activeItem */}
-          <MobileDrawer open={activeItemId !== null} setIsOpen={open => { if (!open) setActiveItemId(null); }} title="Actions">
+          <MobileDrawer
+            open={activeItemId !== null}
+            setIsOpen={open => {
+              if (!open) setActiveItemId(null);
+            }}
+            title="Actions"
+          >
             <div className="flex w-full flex-col gap-4 px-3 py-4">
               <div className="flex flex-col items-center gap-2">
                 <button
-                  onClick={() => { setActiveItemId(null); router.push(`/staff/fees/fee-item/${activeItemId}`); }}
+                  onClick={() => {
+                    setActiveItemId(null);
+                    router.push(`/staff/fees/fee-item/${activeItemId}`);
+                  }}
                   className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                 >
                   <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View fee item
                 </button>
                 <button
-                  onClick={() => { setActiveItemId(null); router.push(`/staff/fees/fee-item/${activeItemId}/edit`); }}
+                  onClick={() => {
+                    setActiveItemId(null);
+                    router.push(`/staff/fees/fee-item/${activeItemId}/edit`);
+                  }}
                   className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                 >
                   <Edit className="size-4" fill="var(--color-icon-default-subtle)" /> Edit fee item
@@ -204,7 +213,10 @@ export const FeesItem = () => {
                   onClick={() => {
                     if (!activeItemId) return;
                     deleteFeeItem(activeItemId, {
-                      onSuccess: () => { setActiveItemId(null); toast.success("Fee item deleted"); },
+                      onSuccess: () => {
+                        setActiveItemId(null);
+                        toast.success("Fee item deleted");
+                      },
                       onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to delete fee item"),
                     });
                   }}

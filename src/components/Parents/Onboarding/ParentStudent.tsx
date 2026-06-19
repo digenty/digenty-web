@@ -24,7 +24,7 @@ import { studentSchema } from "@/schema/student";
 import { admissions, AdmissionStatus, boardings, BoardingStatus, Gender, genders, terms } from "@/types";
 import { format, formatDate } from "date-fns";
 import { useFormik } from "formik";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useGetParent } from "@/hooks/queryHooks/useParent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -60,6 +60,7 @@ const StudentForm = ({
   const { mutate: updateStudentData, isPending: isUpdatingStudentData } = useEditStudent();
   const { id: parentId } = useLoggedInUser();
   const student = studentData?.data;
+  console.log(student, "@@@")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -147,6 +148,7 @@ const StudentForm = ({
     if (student) {
       setBranchId(student.branchId);
       setClassId(student.classId);
+      if (student.dateOfBirth) setDate(new Date(student.dateOfBirth));
     }
   }, [student]);
 
@@ -207,7 +209,7 @@ const StudentForm = ({
     <form onSubmit={handleSubmit} className="p-3 md:px-6 md:py-4">
       <div className="border-border-default flex flex-col gap-6 border-b pb-6">
         {/* <div className="text-text-default text-lg font-semibold">Profile Picture</div> */}
-        <ProfilePicture setAvatar={setAvatar} />
+        <ProfilePicture setAvatar={setAvatar} defaultImageUrl={student?.image} />
       </div>
 
       <div className="flex flex-col gap-8 pt-8">
@@ -765,7 +767,11 @@ const StudentForm = ({
 export const ParentStudent = ({ schoolId }: { schoolId?: number }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const parentId = Number(pathname.split("/")[3]);
+
+  const editingStudentId = searchParams.get("id") ? Number(searchParams.get("id")) : undefined;
+  const isEditing = editingStudentId != null;
 
   const [items, setItems] = useState<AccordionItem[]>([{ id: 1, title: "Student" }]);
   const [openId, setOpenId] = useState<number | null>(1);
@@ -799,6 +805,21 @@ export const ParentStudent = ({ schoolId }: { schoolId?: number }) => {
       );
     }
   }, [parentData]);
+
+  if (isEditing) {
+    return (
+      <div className="border-border-default flex flex-col gap-6 rounded-md border p-4">
+        <div className="border-border-default border-b">
+          <div className="flex flex-col gap-1 pb-4">
+            <div className="text-text-default text-md font-semibold">Edit Student Information</div>
+            <div className="text-text-muted text-xs">Update the details for this student</div>
+          </div>
+        </div>
+
+        <StudentForm index={0} onSaveSuccess={() => router.push(`${pathname}?step=review`)} studentId={editingStudentId} schoolId={schoolId} />
+      </div>
+    );
+  }
 
   return (
     <div className="border-border-default flex flex-col gap-6 rounded-md border p-4">

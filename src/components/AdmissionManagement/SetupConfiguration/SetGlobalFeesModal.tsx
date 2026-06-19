@@ -91,7 +91,7 @@ export const SetGlobalFeesModal = ({ open, setOpen, cycleId, branchId }: Props) 
                 placeholder="0.00"
                 value={applicationFeeAmount}
                 onChange={e => setApplicationFeeAmount(e.target.value)}
-                className="bg-transparent text-text-default placeholder:text-text-muted w-full text-sm outline-none"
+                className="text-text-default placeholder:text-text-muted w-full bg-transparent text-sm outline-none"
               />
             </div>
           </div>

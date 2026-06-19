@@ -32,10 +32,7 @@ export const AdmissionCyclesManagement = () => {
   const { data: cycles = [], isPending, isError, refetch } = useGetAdmissionCycles();
 
   useEffect(() => {
-    setBreadcrumbs([
-      { label: "Admission Management", url: "/staff/admission-management" },
-      { label: "Set Up & Configuration" },
-    ]);
+    setBreadcrumbs([{ label: "Admission Management", url: "/staff/admission-management" }, { label: "Set Up & Configuration" }]);
   }, [setBreadcrumbs]);
 
   return (

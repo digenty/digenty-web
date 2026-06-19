@@ -16,7 +16,8 @@ export const admissionCycleKeys = {
   levels: (cycleId: number, branchId?: number) => ["admissionCycles", cycleId, "levels", branchId ?? "all"] as const,
   levelConfig: (cycleId: number, levelId: number, branchId?: number) => ["admissionCycles", cycleId, "levels", levelId, branchId ?? "all"] as const,
 
-  classes: (cycleId: number, levelId: number, branchId?: number) => ["admissionCycles", cycleId, "levels", levelId, "classes", branchId ?? "all"] as const,
+  classes: (cycleId: number, levelId: number, branchId?: number) =>
+    ["admissionCycles", cycleId, "levels", levelId, "classes", branchId ?? "all"] as const,
   classConfig: (cycleId: number, levelId: number, classId: number, branchId?: number) =>
     ["admissionCycles", cycleId, "levels", levelId, "classes", classId, branchId ?? "all"] as const,
 

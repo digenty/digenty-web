@@ -56,8 +56,7 @@ export const ConfiguredView = ({ config }: Props) => {
 
   // Real branch ID to use in fee route payloads — never send 0
   const firstBranchId = branches[0]?.branch?.id ?? 0;
-  const routingBranchId =
-    config.mode === "BRANCH_ACCOUNTS" ? (selectedBranchId ?? firstBranchId) : firstBranchId;
+  const routingBranchId = config.mode === "BRANCH_ACCOUNTS" ? (selectedBranchId ?? firstBranchId) : firstBranchId;
 
   const allRoutes: FeeRouteInfo[] = config.feeRoutes ?? [];
   const filteredRoutes = allRoutes.filter(r => r.feeName.toLowerCase().includes(routeSearch.toLowerCase()));

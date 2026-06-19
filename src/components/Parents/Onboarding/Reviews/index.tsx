@@ -11,6 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 const tabs = ["Your Details", "Student Details"];
 
@@ -20,8 +21,10 @@ export const Review = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [open, setOpen] = useState<boolean>(false);
+  const { id: parentId } = useLoggedInUser();
 
-  const { data, isLoading } = useGetParent();
+  const { data, isLoading } = useGetParent(parentId);
+  console.log("data", data);
   const isMobile = useIsMobile();
 
   const handleSubmit = () => {
@@ -58,8 +61,8 @@ export const Review = () => {
       </div>
 
       <div className="pt-4">
-        {activeTab === "Your Details" && <ParentReview data={data} isLoading={isLoading} />}
-        {activeTab === "Student Details" && <StudentReview />}
+        {activeTab === "Your Details" && <ParentReview data={data?.data} isLoading={isLoading} />}
+        {activeTab === "Student Details" && <StudentReview data={data?.data} />}
       </div>
 
       {showSuccess && (
@@ -100,7 +103,7 @@ export const Review = () => {
         </>
       )}
 
-      <div className="border-border-default flex w-full justify-between border-t pt-4">
+      <div className="border-border-default flex w-full justify-between border-t py-4">
         <Button onClick={() => router.back()} className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-8">
           Back
         </Button>

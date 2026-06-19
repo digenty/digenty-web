@@ -141,7 +141,12 @@ export const ProcessApplicants = () => {
             </div>
           ) : classes.length === 0 ? (
             <div className="flex justify-center py-12">
-              <PageEmptyState title="No applicants found" description="There are no applicants for the selected branch yet." buttonText="Go to Setup" url="/staff/admission-management?tab=setup" />
+              <PageEmptyState
+                title="No applicants found"
+                description="There are no applicants for the selected branch yet."
+                buttonText="Go to Setup"
+                url="/staff/admission-management?tab=setup"
+              />
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
