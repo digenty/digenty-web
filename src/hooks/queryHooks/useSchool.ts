@@ -1,4 +1,4 @@
-import { addSchool, getSchoolDetails, getSchools, updateSchool, getOnboardingProgress } from "@/api/school";
+import { addSchool, createSubdomain, getSchoolDetails, getSchools, updateSchool, getOnboardingProgress } from "@/api/school";
 import { schoolsKey } from "@/queries/school";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -36,5 +36,12 @@ export const useGetOnboardingProgress = () => {
     queryFn: getOnboardingProgress,
     staleTime: 0,
     refetchOnWindowFocus: true,
+  });
+};
+
+export const useCreateSubdomain = () => {
+  return useMutation({
+    mutationKey: schoolsKey.createSubdomain,
+    mutationFn: createSubdomain,
   });
 };

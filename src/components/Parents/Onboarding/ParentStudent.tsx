@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowUpS, CalendarIcon } from "@digenty/icons";
-import { Arm, BranchWithClassLevels, ClassType, Parent } from "@/api/types";
+import { Arm, Branch, ClassType, Parent } from "@/api/types";
 import { getCountries } from "@/app/actions/country";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Country, State, StudentInputValues } from "@/components/StudentAndParent/types";
@@ -16,9 +16,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
-import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetBranchesBySchool } from "@/hooks/queryHooks/useBranch";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
-import { useAddStudent, useEditStudent, useGetStudent } from "@/hooks/queryHooks/useStudent";
+import { useAddStudent, useAddStudentByParent, useEditStudent, useGetStudent } from "@/hooks/queryHooks/useStudent";
 import { cn, getAcademicYears } from "@/lib/utils";
 import { studentSchema } from "@/schema/student";
 import { admissions, AdmissionStatus, boardings, BoardingStatus, Gender, genders, terms } from "@/types";
@@ -27,11 +27,23 @@ import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useGetParent } from "@/hooks/queryHooks/useParent";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
+import { PlusIcon } from "lucide-react";
 
 type AccordionItem = { id: number; title: string; studentId?: number };
 
-const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSaveSuccess: (id: number) => void; studentId?: number }) => {
+const StudentForm = ({
+  index,
+  onSaveSuccess,
+  studentId,
+  schoolId,
+}: {
+  index: number;
+  onSaveSuccess: (id: number) => void;
+  studentId?: number;
+  schoolId?: number;
+}) => {
   const [avatar, setAvatar] = useState<string | undefined>();
   const [countries, setCountries] = useState<Country[]>([]);
   const [availableStates, setAvailableStates] = useState<string[]>([]);
@@ -40,12 +52,13 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
   const [branchId, setBranchId] = useState<number | undefined>();
   const [classId, setClassId] = useState<number | null>(null);
 
-  const { data: branches, isPending: loadingBranches } = useGetBranches();
+  const { data: branches, isPending: loadingBranches } = useGetBranchesBySchool(schoolId);
   const { data: classes, isPending: loadingClasses } = useGetClasses(branchId);
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
   const { data: studentData } = useGetStudent(studentId);
-  const { mutate: addStudent, isPending: isAddingStudent } = useAddStudent();
+  const { mutate: addStudent, isPending: isAddingStudent } = useAddStudentByParent();
   const { mutate: updateStudentData, isPending: isUpdatingStudentData } = useEditStudent();
+  const { id: parentId } = useLoggedInUser();
   const student = studentData?.data;
 
   useEffect(() => {
@@ -56,19 +69,6 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (countries.length > 0 && values.nationality) {
-      const selectedCountry = countries.find(c => c.name === values.nationality);
-      if (selectedCountry) {
-        setAvailableStates(selectedCountry.states || []);
-      } else {
-        setAvailableStates([]);
-      }
-    } else {
-      setAvailableStates([]);
-    }
-  }, [countries]);
-
   const formik = useFormik<StudentInputValues>({
     enableReinitialize: true,
     initialValues: {
@@ -78,7 +78,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
       email: student?.email ?? "",
       gender: (student?.gender as Gender) ?? Gender.Female,
       boardingStatus: (student?.boardingStatus as BoardingStatus) ?? BoardingStatus.Day,
-      dateOfBirth: student?.dateOfBirth ?? `${new Date()}`,
+      dateOfBirth: student?.dateOfBirth ?? "",
       address: student?.address ?? "",
       emergencyContactName: student?.emergencyContactName ?? "",
       emergencyContact: student?.emergencyContact ?? "",
@@ -104,7 +104,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
             studentId,
             dateOfBirth: formatDate(new Date(values.dateOfBirth), "yyyy-MM-dd"),
             image: avatar,
-            linkedParents: [],
+            linkedParents: parentId ? [parentId] : [],
             tags: [],
           },
           {
@@ -123,7 +123,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
             ...values,
             dateOfBirth: formatDate(new Date(values.dateOfBirth), "yyyy-MM-dd"),
             tags: [],
-            linkedParents: [],
+            linkedParents: parentId ? [parentId] : [],
             image: avatar,
           },
           {
@@ -181,6 +181,19 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
 
   const { values, errors, touched, handleChange, handleBlur, setFieldValue, setFieldTouched, handleSubmit } = formik;
 
+  useEffect(() => {
+    if (countries.length > 0 && values.nationality) {
+      const selectedCountry = countries.find(c => c.name === values.nationality);
+      if (selectedCountry) {
+        setAvailableStates(selectedCountry.states || []);
+      } else {
+        setAvailableStates([]);
+      }
+    } else {
+      setAvailableStates([]);
+    }
+  }, [countries, values.nationality]);
+
   // const handleCountryChange = (countryName: string) => {
   //   const selected = countries.find(c => c.name === countryName);
   //   setActiveCountryCode(selected?.iso2 || "");
@@ -193,7 +206,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
   return (
     <form onSubmit={handleSubmit} className="p-3 md:px-6 md:py-4">
       <div className="border-border-default flex flex-col gap-6 border-b pb-6">
-        <div className="text-text-default text-lg font-semibold">Profile Picture</div>
+        {/* <div className="text-text-default text-lg font-semibold">Profile Picture</div> */}
         <ProfilePicture setAvatar={setAvatar} />
       </div>
 
@@ -590,9 +603,9 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
               <Select
                 value={values.branchId ? String(values.branchId) : ""}
                 onValueChange={value => {
-                  const branch = branches.data?.find((br: BranchWithClassLevels) => br.branch.uuid === value);
-                  setBranchId(branch?.branch.id);
-                  setFieldValue("branchId", branch?.branch.id ?? null);
+                  const branch = branches.data?.find((br: Branch) => br.id === Number(value));
+                  setBranchId(branch?.id);
+                  setFieldValue("branchId", branch?.id ?? null);
                   setFieldValue("classId", null);
                   setFieldValue("armId", null);
                   setClassId(null);
@@ -605,9 +618,9 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
                   <SelectValue placeholder="Select Branch" />
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-none">
-                  {branches.data?.map((br: BranchWithClassLevels) => (
-                    <SelectItem key={br.branch.id} value={br.branch.uuid} className="text-text-default">
-                      {br.branch.name}
+                  {branches.data?.map((br: Branch) => (
+                    <SelectItem key={br.id} value={`${br.id}`} className="text-text-default">
+                      {br.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -619,6 +632,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
           <div className="space-y-2">
             <Label className="text-text-default text-sm font-medium">
               Class <small className="text-text-destructive text-xs">*</small>
+              {!classId && <span className="text-text-default text-xs font-light">(Select a branch first)</span>}
             </Label>
             {!classes || loadingClasses ? (
               <Skeleton className="bg-bg-input-soft h-9 w-full" />
@@ -627,9 +641,8 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
                 disabled={!branchId}
                 value={values.classId ? String(values.classId) : ""}
                 onValueChange={value => {
-                  const classObj = classes.data.content?.find((cls: ClassType) => cls.uuid === value);
-                  setClassId(classObj?.id);
-                  setFieldValue("classId", classObj?.id ?? null);
+                  setClassId(Number(value));
+                  setFieldValue("classId", Number(value));
                   setFieldValue("armId", null);
                 }}
               >
@@ -641,7 +654,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-none">
                   {classes.data.content.map((cls: ClassType) => (
-                    <SelectItem key={cls.id} value={cls.uuid} className="text-text-default">
+                    <SelectItem key={cls.id} value={`${cls.id}`} className="text-text-default">
                       {cls.name}
                     </SelectItem>
                   ))}
@@ -663,8 +676,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
                 disabled={!classId}
                 value={values.armId ? String(values.armId) : ""}
                 onValueChange={value => {
-                  const arm = arms.data?.content?.find((a: Arm) => a.uuid === value);
-                  setFieldValue("armId", arm?.id ?? null);
+                  setFieldValue("armId", Number(value));
                 }}
               >
                 <SelectTrigger
@@ -674,13 +686,13 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
                   <SelectValue placeholder={!classId ? "Select a class first" : "Select Arm"} />
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-none">
-                  {arms.data.content.length === 0 ? (
+                  {arms.data.length === 0 ? (
                     <SelectItem disabled value="none" className="text-text-default">
                       No Arms Found
                     </SelectItem>
                   ) : (
-                    arms.data.content.map((arm: Arm) => (
-                      <SelectItem key={arm.id} value={arm.uuid} className="text-text-default">
+                    arms.data.map((arm: Arm) => (
+                      <SelectItem key={arm.id} value={`${arm.id}`} className="text-text-default">
                         {arm.name}
                       </SelectItem>
                     ))
@@ -750,7 +762,7 @@ const StudentForm = ({ index, onSaveSuccess, studentId }: { index: number; onSav
   );
 };
 
-export const ParentStudent = () => {
+export const ParentStudent = ({ schoolId }: { schoolId?: number }) => {
   const router = useRouter();
   const pathname = usePathname();
   const parentId = Number(pathname.split("/")[3]);
@@ -816,12 +828,15 @@ export const ParentStudent = () => {
               <ArrowUpS fill="var(--color-icon-default-muted)" className={`transition-transform ${openId === item.id ? "rotate-180" : ""}`} />
             </div>
 
-            {openId === item.id && <StudentForm index={index} onSaveSuccess={() => handleSaveSuccess(item.id)} studentId={item.studentId} />}
+            {openId === item.id && (
+              <StudentForm index={index} onSaveSuccess={() => handleSaveSuccess(item.id)} studentId={item.studentId} schoolId={schoolId} />
+            )}
           </div>
         ))}
 
         <Button onClick={addItem} className="text-text-default border-border-default w-full border border-dashed text-center">
-          + Add item
+          <PlusIcon className="text-text-default size-4" />
+          Add Student
         </Button>
       </div>
 

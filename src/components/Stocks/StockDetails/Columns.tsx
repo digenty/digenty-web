@@ -49,7 +49,12 @@ export const StocksQuantityManagementColumns: ColumnDef<StockBranchEntry>[] = [
     header: () => <div className="text-text-muted text-sm font-medium">Status</div>,
     cell: ({ row }) => {
       const s = row.original.status ?? row.original.stockStatus;
-      const label = s ? s.toString().replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "-";
+      const label = s
+        ? s
+            .toString()
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, c => c.toUpperCase())
+        : "-";
       return <span className="text-text-muted cursor-pointer text-sm font-normal">{stockStatus(label)}</span>;
     },
     size: 32,
@@ -109,11 +114,7 @@ export const StocksHistoryColumns: ColumnDef<StockTransactionRecord>[] = [
       const isIncrease = row.original.type ? row.original.type === "INCREASE" : change >= 0;
       return (
         <div className="flex items-center gap-3">
-          {isIncrease ? (
-            <ArrowRightUpFill fill="var(--color-icon-success)" />
-          ) : (
-            <Subtract fill="var(--color-icon-destructive)" />
-          )}
+          {isIncrease ? <ArrowRightUpFill fill="var(--color-icon-success)" /> : <Subtract fill="var(--color-icon-destructive)" />}
           <span className={`cursor-pointer text-sm font-normal ${isIncrease ? "text-text-success" : "text-text-destructive"}`}>
             {isIncrease ? "+" : ""}
             {change}
@@ -126,7 +127,9 @@ export const StocksHistoryColumns: ColumnDef<StockTransactionRecord>[] = [
   {
     id: "branch",
     header: () => <div className="text-text-muted text-sm font-medium">Branch</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.branchName ?? row.original.branch ?? "-"}</span>,
+    cell: ({ row }) => (
+      <span className="text-text-default cursor-pointer text-sm font-medium">{row.original.branchName ?? row.original.branch ?? "-"}</span>
+    ),
   },
   {
     id: "summary",

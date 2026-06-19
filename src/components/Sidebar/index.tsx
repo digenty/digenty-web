@@ -196,7 +196,7 @@ export const Sidebar = () => {
         ]
       : []),
 
-    ...(canViewCommunication(user?.permissions) || canViewPortalCustomization(user?.permissions)
+    ...(canViewCommunication(user?.permissions) || canViewPortalCustomization(user?.permissions) || canViewDomain(user?.permissions)
       ? [
           {
             title: "Communication & Portal",
@@ -219,6 +219,16 @@ export const Sidebar = () => {
                       icon: ColorFilter,
                     },
                   ]
+                : []),
+
+              ...(canViewDomain(user?.permissions)
+                ? [
+                    {
+                      title: "Domain",
+                      url: "domain",
+                      icon: Global,
+                    },
+                  ] 
                 : []),
             ],
           },

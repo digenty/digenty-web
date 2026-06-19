@@ -15,6 +15,18 @@ export const addParent = async (payload: ParentInputType) => {
   }
 };
 
+export const addParentOnParentPortal = async (payload: ParentInputType) => {
+  try {
+    const { data } = await api.post("/parents/onboarding", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getParents = async ({
   limit,
   pageParam,

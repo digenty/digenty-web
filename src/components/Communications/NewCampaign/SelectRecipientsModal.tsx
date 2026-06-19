@@ -108,7 +108,6 @@ const TagRow = ({ tag, count, checked, onCheck }: { tag: string; count: number; 
   </div>
 );
 
-
 const SelectedChip = ({ recipient, onRemove }: { recipient: SelectedRecipient; onRemove: (id: string) => void }) => {
   const isIndividual = recipient.type === "student" || recipient.type === "parent";
   return (

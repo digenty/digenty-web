@@ -143,11 +143,19 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
 
       <p className="text-text-muted text-xs leading-normal">
         By clicking the Signup button, you agree to the{" "}
-        <button type="button" onClick={() => setLegalModal({ open: true, title: "Terms and Conditions", content: TERMS_AND_CONDITIONS })} className="text-text-informative hover:underline">
+        <button
+          type="button"
+          onClick={() => setLegalModal({ open: true, title: "Terms and Conditions", content: TERMS_AND_CONDITIONS })}
+          className="text-text-informative hover:underline"
+        >
           Terms of Use
         </button>{" "}
         and{" "}
-        <button type="button" onClick={() => setLegalModal({ open: true, title: "Privacy Policy", content: PRIVACY_POLICY })} className="text-text-informative hover:underline">
+        <button
+          type="button"
+          onClick={() => setLegalModal({ open: true, title: "Privacy Policy", content: PRIVACY_POLICY })}
+          className="text-text-informative hover:underline"
+        >
           Privacy Policy
         </button>
       </p>

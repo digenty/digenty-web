@@ -15,6 +15,18 @@ export const addStudent = async (payload: StudentInputType) => {
   }
 };
 
+export const addStudentByParent = async (payload: StudentInputType) => {
+  try {
+    const { data } = await api.post("/students/onboarding", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getStudents = async ({
   limit,
   pageParam,

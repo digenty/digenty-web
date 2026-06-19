@@ -64,6 +64,18 @@ export const getOnboardingProgress = async () => {
   }
 };
 
+export const createSubdomain = async (payload: { subdomain: string }) => {
+  try {
+    const { data } = await api.post("/schools/subdomain", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const lookupSchoolByDomain = async (host: string) => {
   try {
     const { data } = await apiPublic.get("/parent/portal/lookup/schools/by-domain", { params: { host } });

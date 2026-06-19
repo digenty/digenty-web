@@ -20,7 +20,6 @@ export const ParentOnboarding = () => {
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const school = useSchoolFromCookie();
 
-  console.log(school);
   const steps = parentOnboardingSteps.map(({ id, label }) => ({
     id,
     label,
@@ -32,7 +31,7 @@ export const ParentOnboarding = () => {
       <ProgressIndicator currentStep={step} steps={steps} completedSteps={completedSteps} className="flex h-24 w-full" />
 
       {step === "your-details" && <YourDetails schoolId={school?.id} />}
-      {step === "student" && <ParentStudent />}
+      {step === "student" && <ParentStudent schoolId={school?.id} />}
       {step === "review" && <Review />}
     </div>
   );

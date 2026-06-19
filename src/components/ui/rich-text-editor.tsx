@@ -239,11 +239,7 @@ export function RichEditorContent({ editor, initialContent, className }: RichEdi
         onMouseUp={editor._handleSelectionChange}
         className={cn("outline-none", className)}
       />
-      {isEmpty && (
-        <span className="text-text-muted pointer-events-none absolute inset-0 select-none px-3 py-2 text-sm">
-          {editor._placeholder}
-        </span>
-      )}
+      {isEmpty && <span className="text-text-muted pointer-events-none absolute inset-0 px-3 py-2 text-sm select-none">{editor._placeholder}</span>}
     </div>
   );
 }

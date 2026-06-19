@@ -64,12 +64,10 @@ export const NotifyBranchHead = ({ open, setOpen, branchHeadId }: NotifyBranchHe
           value={formik.values.title}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          className="bg-bg-input-soft! border-none text-sm font-normal text-text-muted"
+          className="bg-bg-input-soft! text-text-muted border-none text-sm font-normal"
           placeholder="Add title"
         />
-        {formik.touched.title && formik.errors.title && (
-          <p className="text-text-destructive text-xs font-light">{formik.errors.title}</p>
-        )}
+        {formik.touched.title && formik.errors.title && <p className="text-text-destructive text-xs font-light">{formik.errors.title}</p>}
       </div>
 
       <div className="space-y-2">
@@ -83,9 +81,7 @@ export const NotifyBranchHead = ({ open, setOpen, branchHeadId }: NotifyBranchHe
           className="bg-bg-input-soft! focus-visible:border-ring focus-visible:ring-border-highlight text-text-muted flex h-18 w-full items-start rounded-md p-2 text-sm font-normal focus-visible:border-none! focus-visible:ring-2 focus-visible:ring-offset-2"
           placeholder="Add message"
         />
-        {formik.touched.message && formik.errors.message && (
-          <p className="text-text-destructive text-xs font-light">{formik.errors.message}</p>
-        )}
+        {formik.touched.message && formik.errors.message && <p className="text-text-destructive text-xs font-light">{formik.errors.message}</p>}
       </div>
     </div>
   );

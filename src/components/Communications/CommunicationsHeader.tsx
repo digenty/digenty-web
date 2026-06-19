@@ -39,10 +39,7 @@ export const CommunicationsHeader = ({ termId, onTermChange }: Props) => {
       {loadingTerms ? (
         <Skeleton className="bg-bg-input-soft h-8 w-36" />
       ) : (
-        <Select
-          value={termId ? String(termId) : undefined}
-          onValueChange={value => onTermChange(Number(value))}
-        >
+        <Select value={termId ? String(termId) : undefined} onValueChange={value => onTermChange(Number(value))}>
           <SelectTrigger className="border-border-darker h-8! w-auto border focus-visible:ring-0">
             <div className="flex items-center gap-2">
               <Calendar fill="var(--color-icon-black-muted)" className="size-4" />

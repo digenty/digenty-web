@@ -67,7 +67,7 @@ const NotificationItem = ({ notification, onMarkRead }: { notification: Notifica
       role="button"
       onClick={() => !notification.read && onMarkRead(notification.id)}
       className={cn(
-        "flex cursor-pointer items-start gap-3 px-4 py-3 transition-colors hover:bg-bg-state-ghost-hover",
+        "hover:bg-bg-state-ghost-hover flex cursor-pointer items-start gap-3 px-4 py-3 transition-colors",
         !notification.read && "bg-bg-state-soft",
       )}
     >

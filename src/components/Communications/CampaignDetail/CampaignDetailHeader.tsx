@@ -56,7 +56,7 @@ export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) =>
   };
 
   const handlePay = () => {
-if (!userEmail) {
+    if (!userEmail) {
       toast({ title: "Unable to process payment", description: "User email not available. Please try again.", type: "error" });
       return;
     }
@@ -129,7 +129,7 @@ if (!userEmail) {
             <Button
               onClick={handlePay}
               disabled={payMutation.isPending || isUserLoading || !userEmail}
-              className="flex h-8 items-center gap-1 bg-primary px-2.5 py-1.5 text-sm font-medium text-white"
+              className="bg-primary flex h-8 items-center gap-1 px-2.5 py-1.5 text-sm font-medium text-white"
             >
               {payMutation.isPending ? "Processing…" : `Pay ₦${campaign.totalCost.toLocaleString()}`}
             </Button>

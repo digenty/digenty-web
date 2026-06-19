@@ -31,8 +31,7 @@ const extractTransactions = (resp: unknown): StockTransactionRecord[] => {
   if (!resp || typeof resp !== "object") return [];
   const r = resp as { content?: StockTransactionRecord[]; data?: { content?: StockTransactionRecord[] } | StockTransactionRecord[] };
   if (Array.isArray(r.content)) return r.content;
-  if (Array.isArray((r.data as { content?: StockTransactionRecord[] })?.content))
-    return (r.data as { content: StockTransactionRecord[] }).content;
+  if (Array.isArray((r.data as { content?: StockTransactionRecord[] })?.content)) return (r.data as { content: StockTransactionRecord[] }).content;
   if (Array.isArray(r.data)) return r.data as StockTransactionRecord[];
   return [];
 };
@@ -53,8 +52,7 @@ export const StockHistories = ({ stockId, stock }: Props) => {
     return r.totalElements ?? transactions.length;
   }, [data, transactions.length]);
 
-  const formatReason = (reason?: string) =>
-    ADJUST_REASON_LABELS[reason as keyof typeof ADJUST_REASON_LABELS] ?? reason ?? "-";
+  const formatReason = (reason?: string) => ADJUST_REASON_LABELS[reason as keyof typeof ADJUST_REASON_LABELS] ?? reason ?? "-";
 
   return (
     <>
@@ -110,9 +108,7 @@ export const StockHistories = ({ stockId, stock }: Props) => {
                       <span className="text-text-muted font-medium">Change By</span>
                       <div className="flex items-center gap-2">
                         <Avatar className="size-4" />
-                        <div className="text-text-default text-sm font-medium">
-                          {tx.changedBy ?? tx.userName ?? tx.user?.name ?? "-"}
-                        </div>
+                        <div className="text-text-default text-sm font-medium">{tx.changedBy ?? tx.userName ?? tx.user?.name ?? "-"}</div>
                       </div>
                     </div>
 

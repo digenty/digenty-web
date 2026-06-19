@@ -80,12 +80,10 @@ export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal, classT
           value={formik.values.title}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          className="bg-bg-input-soft! border-none text-sm font-normal text-text-muted"
+          className="bg-bg-input-soft! text-text-muted border-none text-sm font-normal"
           placeholder="Add title"
         />
-        {formik.touched.title && formik.errors.title && (
-          <p className="text-text-destructive text-xs font-light">{formik.errors.title}</p>
-        )}
+        {formik.touched.title && formik.errors.title && <p className="text-text-destructive text-xs font-light">{formik.errors.title}</p>}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -99,9 +97,7 @@ export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal, classT
           className="bg-bg-input-soft! text-text-muted flex h-30.25 w-full items-start rounded-md border-none p-2 text-sm font-normal"
           placeholder="Add message"
         />
-        {formik.touched.message && formik.errors.message && (
-          <p className="text-text-destructive text-xs font-light">{formik.errors.message}</p>
-        )}
+        {formik.touched.message && formik.errors.message && <p className="text-text-destructive text-xs font-light">{formik.errors.message}</p>}
       </div>
     </div>
   );

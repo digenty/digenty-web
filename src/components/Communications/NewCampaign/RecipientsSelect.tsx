@@ -43,7 +43,9 @@ export const RecipientsSelect = ({ value, onChange, error }: RecipientsSelectPro
           <span className="flex items-center gap-2">
             <Group fill="var(--color-icon-default-muted)" className="size-4" />
             {hasSelections ? (
-              <span className="text-text-default">{value.length} group{value.length !== 1 ? "s" : ""} selected</span>
+              <span className="text-text-default">
+                {value.length} group{value.length !== 1 ? "s" : ""} selected
+              </span>
             ) : (
               <span className="text-text-muted">Select recipients</span>
             )}
@@ -85,9 +87,7 @@ export const RecipientsSelect = ({ value, onChange, error }: RecipientsSelectPro
         <div className="flex flex-col">
           <span className="text-text-default text-sm font-semibold">Selected Recipients</span>
           <span className="text-text-muted text-xs">
-            {hasSelections
-              ? `${value.length} group${value.length !== 1 ? "s" : ""}, ${totalCount} recipients`
-              : "Select recipients to see breakdown"}
+            {hasSelections ? `${value.length} group${value.length !== 1 ? "s" : ""}, ${totalCount} recipients` : "Select recipients to see breakdown"}
           </span>
         </div>
         <div className="bg-bg-state-strong text-text-white-default flex h-6 min-w-6 items-center justify-center rounded-md px-1.5 text-xs font-medium">
@@ -95,12 +95,7 @@ export const RecipientsSelect = ({ value, onChange, error }: RecipientsSelectPro
         </div>
       </div>
 
-      <SelectRecipientsModal
-        open={modalOpen}
-        setOpen={setModalOpen}
-        selected={value}
-        onConfirm={handleConfirm}
-      />
+      <SelectRecipientsModal open={modalOpen} setOpen={setModalOpen} selected={value} onConfirm={handleConfirm} />
     </div>
   );
 };

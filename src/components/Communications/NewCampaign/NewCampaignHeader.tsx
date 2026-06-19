@@ -28,7 +28,7 @@ export const NewCampaignHeader = ({ totalCost, scheduled, onSaveDraft, onSchedul
   const ctaLabel = scheduled ? `Pay ${formattedCost} & Schedule` : `Pay ${formattedCost} & Continue`;
 
   return (
-    <div className="border-border-default border-b bg-bg-card-subtle px-4 py-3 md:px-8">
+    <div className="border-border-default bg-bg-card-subtle border-b px-4 py-3 md:px-8">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h1 className="text-text-default text-xl font-semibold">New Campaign</h1>
 

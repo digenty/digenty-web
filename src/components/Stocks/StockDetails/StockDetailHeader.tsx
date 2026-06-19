@@ -74,7 +74,9 @@ export const StockDetailHeader = ({ stock }: Props) => {
             <div className="flex items-center gap-1">
               <div className="text-text-default text-lg font-semibold">{name}</div>
               {categoryName && (
-                <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default rounded-md border font-medium">{categoryName}</Badge>
+                <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default rounded-md border font-medium">
+                  {categoryName}
+                </Badge>
               )}
             </div>
             {description && <div className="text-text-subtle text-sm">{description}</div>}
