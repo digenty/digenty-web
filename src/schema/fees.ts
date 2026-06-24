@@ -1,6 +1,23 @@
 import * as yup from "yup";
 
+// Used when adding a fee to a specific arm (armId comes from URL — no arm selection in form)
 export const addFeeToClassSchema = yup.object({
+  name: yup.string().trim().required("Fee name is required"),
+  sessionId: yup.number().required("Session is required"),
+  term: yup.string().required("Term is required"),
+  quantity: yup.number().min(1, "Quantity must be at least 1").required("Quantity is required"),
+  amount: yup.number().min(0, "Amount must be positive").required("Amount is required"),
+  required: yup.boolean(),
+  allowPartPayment: yup.boolean(),
+  minimumPartPayment: yup.number().when("allowPartPayment", {
+    is: true,
+    then: schema => schema.min(0).required("Minimum initial payment is required"),
+    otherwise: schema => schema.notRequired(),
+  }),
+});
+
+// Used when adding a fee to all arms of a class (arm selection shown in form)
+export const addFeeToClassWithArmsSchema = yup.object({
   armIds: yup.array().of(yup.number()).min(1, "Select at least one arm"),
   name: yup.string().trim().required("Fee name is required"),
   sessionId: yup.number().required("Session is required"),
