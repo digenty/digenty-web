@@ -1,6 +1,7 @@
 import {
   addStudent,
   addTeacherInput,
+  commitStudentsUpload,
   deleteStudents,
   editStudent,
   exportStudents,
@@ -9,6 +10,7 @@ import {
   getStudents,
   getStudentsDistribution,
   uploadStudents,
+  validateStudentsUpload,
   withdrawStudents,
 } from "@/api/student";
 import { updateAssignSubjectTeacher } from "@/api/subject";
@@ -64,6 +66,25 @@ export const useUploadStudents = ({ branchId }: { branchId?: number }) => {
   return useMutation({
     mutationKey: studentKeys.studentsUpload,
     mutationFn: ({ file }: { file: File | null }) => uploadStudents({ file, branchId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
+      queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
+    },
+  });
+};
+
+export const useValidateStudentsUpload = ({ branchId }: { branchId?: number }) => {
+  return useMutation({
+    mutationKey: studentKeys.studentsValidateUpload,
+    mutationFn: ({ file }: { file: File }) => validateStudentsUpload({ file, branchId: branchId! }),
+  });
+};
+
+export const useCommitStudentsUpload = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: studentKeys.studentsCommitUpload,
+    mutationFn: ({ batchId }: { batchId: string }) => commitStudentsUpload({ batchId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
       queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });

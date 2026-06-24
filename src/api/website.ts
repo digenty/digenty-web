@@ -162,7 +162,7 @@ export const uploadWebsiteImage = async (file: File, type?: string): Promise<Ima
     const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/website/images${type ? `?type=${type}` : ""}`, formData, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    return data;
+    return data.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

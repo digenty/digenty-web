@@ -65,13 +65,13 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
               <Select value={String(activeIndex)} onValueChange={value => setActiveIndex(Number(value))}>
                 <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
                   <SelectValue>
-                    <span className="text-text-default text-sm capitalize">{levels[activeIndex].label.replaceAll("_", " ").toLowerCase()}</span>
+                    <span className="text-text-default text-sm">{levels[activeIndex].label}</span>
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="bg-bg-default border-border-default">
                   {levels.map((level, idx) => (
-                    <SelectItem key={level.label} value={String(idx)} className="text-text-default text-sm capitalize">
-                      {level.label.replaceAll("_", " ")}
+                    <SelectItem key={level.label} value={String(idx)} className="text-text-default text-sm">
+                      {level.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -103,7 +103,7 @@ function ClassesResponsiveTabs({ levels, isLoading }: { isLoading: boolean; leve
                       : "text-text-muted flex h-8 items-center gap-1",
                   )}
                 >
-                  <span>{level.label.replace("_", " ")}</span>
+                  <span>{level.label}</span>
                 </button>
               );
             })}
@@ -225,7 +225,7 @@ const LevelForm = ({
   }
 
   return (
-    <div>
+    <div className="relative">
       <div className="mx-auto flex w-full max-w-171 items-center justify-center px-4 pb-20">
         <div className="flex w-full flex-col gap-6">
           <div className="flex justify-between">
@@ -701,7 +701,10 @@ export const ResultCalculations = () => {
           const existingRecord = existingRecordsMap[id];
           const isEditing = editingLevels[levelName] ?? false;
           return {
-            label: levelName.charAt(0) + levelName.slice(1).toLowerCase(),
+            label: levelName
+            .split("_")
+            .map(w => w.charAt(0) + w.slice(1).toLowerCase())
+            .join(" "),
             content: (
               <LevelForm
                 key={existingRecord ? `existing-${id}` : `new-${id}`}
