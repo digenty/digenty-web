@@ -8,12 +8,11 @@ import { Skeleton } from "../ui/skeleton";
 
 export const FeeCollectionContent = () => {
   const { data, isLoading, isError } = useGetFeeCollectionSetupStatus();
-
   if (isLoading) {
-    return <Skeleton className="bg-bg-input-soft h-50 w-full" />;
+    return <Skeleton className="bg-bg-input-soft m-2 h-100 w-full" />;
   }
 
-  if (isError) {
+  if (!isLoading && isError) {
     return (
       <PageEmptyState
         title="Something went wrong"
@@ -28,5 +27,5 @@ export const FeeCollectionContent = () => {
     return <ConfiguredView config={data} />;
   }
 
-  return <EmptyFeesCollectionState />;
+  return <>{!isLoading && !isError && !data?.mode && <EmptyFeesCollectionState />}</>;
 };

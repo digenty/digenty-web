@@ -53,7 +53,7 @@ export const useOnboardingStore = create<OnboardingState>()(set => ({
       title: "Add Parent Records",
       description: "Import parents first so students can be linked correctly.",
       isCompleted: false,
-      link: "/staff/student-and-parent-record/upload-parent",
+      link: "/staff/student-and-parent-record/upload-parents",
     },
     {
       id: 7,
@@ -74,7 +74,7 @@ export const useOnboardingStore = create<OnboardingState>()(set => ({
       title: "Set Up School Fees",
       description: "Define fee items and set prices per level or branch.",
       isCompleted: false,
-      link: "/staff/settings/fees",
+      link: "/staff/fees",
     },
     {
       id: 10,
