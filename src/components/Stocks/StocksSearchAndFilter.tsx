@@ -1,73 +1,122 @@
 "use client";
 
 import { ShareBox } from "@digenty/icons";
+import { Ellipsis, Plus } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useGetStockCategories } from "@/hooks/queryHooks/useStock";
+import { StockStatus } from "@/api/stock";
+
+import { MobileDrawer } from "../MobileDrawer";
 import { SearchInput } from "../SearchInput";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-
-import { Ellipsis, Plus } from "lucide-react";
-
-import { MobileDrawer } from "../MobileDrawer";
 import { DrawerClose, DrawerFooter } from "../ui/drawer";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { useRouter } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { StockExportModal } from "./StockExportModal";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Label } from "../ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { StockExportModal } from "./StockExportModal";
 
-const categories = ["All Categories", "Power", "Logistics"];
-const filterItemsSatus = ["All Stock", "In stock", "Low stock", "Out of stock"];
-export const StocksSearchAndFilter = () => {
+const statusOptions: { label: string; value: StockStatus | "" }[] = [
+  { label: "All Stock", value: "" },
+  { label: "In Stock", value: "IN_STOCK" },
+  { label: "Low Stock", value: "LOW_STOCK" },
+  { label: "Out of Stock", value: "OUT_OF_STOCK" },
+];
+
+type Props = {
+  search: string;
+  setSearch: (s: string) => void;
+  statusFilter?: StockStatus;
+  setStatusFilter: (s: StockStatus | undefined) => void;
+  categoryFilter?: number;
+  setCategoryFilter: (c: number | undefined) => void;
+};
+
+type StockCategoryOption = { id: number; name: string };
+
+export const StocksSearchAndFilter = ({ search, setSearch, statusFilter, setStatusFilter, categoryFilter, setCategoryFilter }: Props) => {
   const isMobile = useIsMobile();
   const router = useRouter();
+  const { data: categoriesResp } = useGetStockCategories(0, 100);
+  const categories: StockCategoryOption[] = categoriesResp?.content ?? categoriesResp?.data?.content ?? categoriesResp?.data ?? [];
+
   const [openExport, setOpenExport] = useState(false);
-  const [isOpen, setIsOpen] = useState(false); // action drawer
+  const [isOpen, setIsOpen] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
   const [openCategory, setOpenCategory] = useState(false);
-  const [categorySelected, setCategorySelected] = useState(categories[0]);
-  const [statusSelected, setStatusSelected] = useState(filterItemsSatus[0]);
+
   return (
     <>
       {openExport && <StockExportModal open={openExport} setOpen={setOpenExport} />}
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
         <div className="flex items-center gap-1">
-          <SearchInput className="border-border-default border text-sm" />
+          <SearchInput
+            value={search}
+            onChange={evt => setSearch(evt.target.value)}
+            className="border-border-default border text-sm"
+            placeholder="Search stocks"
+          />
 
           <DropdownMenu open={openFilter} onOpenChange={setOpenFilter}>
             <DropdownMenuTrigger asChild>
               <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex">
                 <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
-                Status
+                {statusOptions.find(opt => opt.value === (statusFilter ?? ""))?.label ?? "Status"}
               </Badge>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent className="bg-bg-card border-border-default text-text-default hidden w-48 py-2.5 shadow-sm md:block">
               <div className="flex flex-col gap-1 px-1 py-2">
-                {filterItemsSatus.map((item, i) => (
-                  <div key={i} className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm">
-                    <span className="text-text-default font-normal">{item}</span>
+                {statusOptions.map(item => (
+                  <div
+                    key={item.label}
+                    onClick={() => {
+                      setStatusFilter(item.value || undefined);
+                      setOpenFilter(false);
+                    }}
+                    className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm"
+                  >
+                    <span className="text-text-default font-normal">{item.label}</span>
                   </div>
                 ))}
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
+
           <DropdownMenu open={openCategory} onOpenChange={setOpenCategory}>
             <DropdownMenuTrigger asChild>
               <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex">
                 <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
-                Category
+                {categories.find(c => c.id === categoryFilter)?.name ?? "Category"}
               </Badge>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent className="bg-bg-card border-border-default text-text-default hidden w-48 py-2.5 shadow-sm md:block">
               <div className="flex flex-col gap-1 px-1 py-2">
-                {categories.map((cat, i) => (
-                  <div key={i} className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm">
-                    <span className="text-text-default font-normal">{cat}</span>
+                <div
+                  onClick={() => {
+                    setCategoryFilter(undefined);
+                    setOpenCategory(false);
+                  }}
+                  className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm"
+                >
+                  <span className="text-text-default font-normal">All Categories</span>
+                </div>
+                {categories.map(cat => (
+                  <div
+                    key={cat.id}
+                    onClick={() => {
+                      setCategoryFilter(cat.id);
+                      setOpenCategory(false);
+                    }}
+                    className="hover:bg-bg-state-ghost-hover flex w-full cursor-pointer items-center gap-2 rounded-md p-2 text-sm"
+                  >
+                    <span className="text-text-default font-normal">{cat.name}</span>
                   </div>
                 ))}
               </div>
@@ -124,16 +173,14 @@ export const StocksSearchAndFilter = () => {
               <div className="space-y-2">
                 <Label className="text-text-default text-sm font-medium">Status</Label>
 
-                <Select value={statusSelected} onValueChange={setStatusSelected}>
+                <Select value={statusFilter ?? ""} onValueChange={value => setStatusFilter((value as StockStatus) || undefined)}>
                   <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                    <SelectValue>
-                      <span className="text-text-default text-sm">{statusSelected}</span>
-                    </SelectValue>
+                    <SelectValue placeholder="All Stock" />
                   </SelectTrigger>
                   <SelectContent className="bg-bg-default border-border-default">
-                    {filterItemsSatus.map(status => (
-                      <SelectItem key={status} value={status} className="text-text-default text-sm">
-                        {status}
+                    {statusOptions.map(opt => (
+                      <SelectItem key={opt.label} value={opt.value} className="text-text-default text-sm">
+                        {opt.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -143,16 +190,17 @@ export const StocksSearchAndFilter = () => {
               <div className="space-y-2">
                 <Label className="text-text-default text-sm font-medium">Category</Label>
 
-                <Select value={categorySelected} onValueChange={setCategorySelected}>
+                <Select
+                  value={categoryFilter ? String(categoryFilter) : ""}
+                  onValueChange={value => setCategoryFilter(value ? Number(value) : undefined)}
+                >
                   <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                    <SelectValue>
-                      <span className="text-text-default text-sm">{categorySelected}</span>
-                    </SelectValue>
+                    <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent className="bg-bg-default border-border-default">
-                    {categories.map(value => (
-                      <SelectItem key={value} value={value} className="text-text-default text-sm">
-                        {value}
+                    {categories.map(cat => (
+                      <SelectItem key={cat.id} value={String(cat.id)} className="text-text-default text-sm">
+                        {cat.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

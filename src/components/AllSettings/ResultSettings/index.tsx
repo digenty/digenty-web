@@ -16,7 +16,7 @@ export const SettingsResult = () => {
   ]);
   return (
     <div className="md:py-8">
-      <div className="border-border-default flex w-auto max-w-120 items-center gap-3 border-b px-4">
+      <div className="border-border-default flex w-full items-center border-b px-4">
         {tabs.map(tab => {
           const isActive = activeTab === tab;
           return (
@@ -27,7 +27,7 @@ export const SettingsResult = () => {
               }}
               key={tab}
               className={cn(
-                "w-1/2 cursor-pointer py-2.5 text-center transition-all duration-150",
+                "cursor-pointer px-3 py-2.5 text-center whitespace-nowrap transition-all duration-150",
                 isActive && "border-border-informative border-b-[1.5px]",
               )}
             >

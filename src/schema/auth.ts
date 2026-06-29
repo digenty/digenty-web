@@ -6,7 +6,7 @@ export const emailSchema = yup.object().shape({
 
 export const authSchema = yup.object().shape({
   email: yup.string().max(254, "Email should not exceed 254 characters").trim().email("Invalid email").required("Email is required!"),
-  password: yup.string().trim().min(8, "Password must be at least 8 characters").required("Password is required!"),
+  password: yup.string().trim().min(5, "Password must be at least 5 characters").required("Password is required!"),
 });
 
 export const resetPasswordSchema = yup.object().shape({

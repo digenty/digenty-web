@@ -1,31 +1,45 @@
 "use client";
 
-import { BookOpen, Calendar, GraduationCap, Group, School } from "@digenty/icons";
+import { BookOpen, Calendar, GraduationCap, School } from "@digenty/icons";
+import { Branch, BranchWithClassLevels, ClassType, Term, Terms } from "@/api/types";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import Image from "next/image";
 import { useState } from "react";
 
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { Skeleton } from "../ui/skeleton";
 
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+type InvoicesHeaderProps = {
+  filter: {
+    branchSelected?: Branch;
+    classSelected?: ClassType;
+    termSelected?: Term;
+  };
+  onFilterChange: (key: "branchSelected" | "classSelected" | "termSelected", value: Branch | ClassType | Term | undefined) => void;
+  branches?: { data: BranchWithClassLevels[] };
+  loadingBranches: boolean;
+  classes?: { data: { content: ClassType[] } };
+  loadingClasses: boolean;
+  terms?: { data: Terms };
+  loadingTerms: boolean;
+};
 
-const branches = ["All Branches", "Lawanson", "Ilasamaja"];
-const classes = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
-const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
-
-const departments = ["All Departments", "Art", "Commercial", "Science"];
-const arms = ["All Arms", "A", "B", "C"];
-
-export const InvoicesHeader = () => {
-  const [branchSelected, setBranchSelected] = useState(branches[0]);
-  const [classSelected, setClassSelected] = useState(classes[0]);
-  const [termSelected, setTermSelected] = useState(termsOptions[0]);
-  const [departmentSelected, setDepartmentSelected] = useState(departments[0]);
-  const [armSelected, setArmSelected] = useState(arms[0]);
+export const InvoicesHeader = ({
+  filter,
+  onFilterChange,
+  branches,
+  loadingBranches,
+  classes,
+  loadingClasses,
+  terms,
+  loadingTerms,
+}: InvoicesHeaderProps) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const activeSession = terms?.data?.academicSessionName;
 
   useBreadcrumb([{ label: "Invoices", url: "/staff/invoices" }]);
 
@@ -34,53 +48,93 @@ export const InvoicesHeader = () => {
       <div className="flex w-full justify-between align-middle">
         <h2 className="text-text-default text-xl font-semibold">Overview</h2>
         <div className="hidden gap-2 align-middle md:flex">
-          <Select value={branchSelected} onValueChange={setBranchSelected}>
-            <SelectTrigger className="border-border-darker h-8! w-auto border">
-              <SelectValue>
-                <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
-                <span className="text-text-default text-sm font-medium">{branchSelected}</span>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="bg-bg-card border-border-default">
-              {branches.map(branch => (
-                <SelectItem key={branch} value={branch} className="text-text-default text-sm font-medium">
-                  {branch}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {loadingBranches || !branches ? (
+            <Skeleton className="bg-bg-input-soft h-8 w-32" />
+          ) : (
+            <Select
+              value={filter.branchSelected ? String(filter.branchSelected.id) : ""}
+              onValueChange={value => {
+                const branch = branches.data?.find((b: BranchWithClassLevels) => String(b.branch.id) === value);
+                onFilterChange("branchSelected", branch?.branch);
+              }}
+            >
+              <SelectTrigger className="border-border-darker h-8! w-auto border">
+                <SelectValue>
+                  <Image src="/staff/icons/school.svg" alt="branch" width={14} height={14} />
+                  <span className="text-text-default text-sm font-medium">{filter.branchSelected?.name ?? "Select Branch"}</span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-border-default">
+                {branches.data.map((b: BranchWithClassLevels) => (
+                  <SelectItem key={b.branch.id} value={String(b.branch.id)} className="text-text-default text-sm font-medium">
+                    {b.branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
-          <Select value={classSelected} onValueChange={setClassSelected}>
-            <SelectTrigger className="border-border-darker h-8! w-auto border">
-              <SelectValue>
-                <GraduationCap fill="var(--color-icon-black-muted )" className="size-4" />
-                <span className="text-text-default text-sm font-medium">{classSelected}</span>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="bg-bg-card border-border-default">
-              {classes.map(val => (
-                <SelectItem key={val} value={val} className="text-text-default text-sm font-medium">
-                  {val}
+          {loadingClasses ? (
+            <Skeleton className="bg-bg-input-soft h-8 w-32" />
+          ) : (
+            <Select
+              value={filter.classSelected ? String(filter.classSelected.id) : "none"}
+              onValueChange={value => {
+                if (value === "none") return onFilterChange("classSelected", undefined);
+                const cls = classes?.data?.content?.find((c: ClassType) => String(c.id) === value);
+                onFilterChange("classSelected", cls);
+              }}
+            >
+              <SelectTrigger className="border-border-darker h-8! w-auto border">
+                <SelectValue>
+                  <GraduationCap fill="var(--color-icon-black-muted)" className="size-4" />
+                  <span className="text-text-default text-sm font-medium">{filter.classSelected?.name ?? "All Classes"}</span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-border-default">
+                <SelectItem value="none" className="text-text-default text-sm font-medium">
+                  All Classes
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                {classes?.data?.content?.map((c: ClassType) => (
+                  <SelectItem key={c.id} value={String(c.id)} className="text-text-default text-sm font-medium">
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
-          <Select value={termSelected} onValueChange={setTermSelected}>
-            <SelectTrigger className="border-border-darker h-8! w-auto border">
-              <SelectValue>
-                <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
-                <span className="text-text-default text-sm font-medium">{termSelected}</span>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="bg-bg-card border-border-default">
-              {termsOptions.map(status => (
-                <SelectItem key={status} value={status} className="text-text-default text-sm font-medium">
-                  {status}
+          {loadingTerms || !terms ? (
+            <Skeleton className="bg-bg-input-soft h-8 w-32" />
+          ) : (
+            <Select
+              value={filter.termSelected ? String(filter.termSelected.termId) : "none"}
+              onValueChange={value => {
+                if (value === "none") return onFilterChange("termSelected", undefined);
+                const term = terms.data?.terms?.find((t: Term) => String(t.termId) === value);
+                onFilterChange("termSelected", term);
+              }}
+            >
+              <SelectTrigger className="border-border-darker h-8! w-auto border">
+                <SelectValue>
+                  <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
+                  <span className="text-text-default text-sm font-medium capitalize">
+                    {filter.termSelected ? `${activeSession ?? ""} ${filter.termSelected.term.toLowerCase()}` : "All Terms"}
+                  </span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-border-default">
+                <SelectItem value="none" className="text-text-default text-sm font-medium">
+                  All Terms
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                {terms.data?.terms?.map((t: Term) => (
+                  <SelectItem key={t.termId} value={String(t.termId)} className="text-text-default text-sm font-medium capitalize">
+                    {activeSession} {t.term.toLowerCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
@@ -94,20 +148,30 @@ export const InvoicesHeader = () => {
                 <School fill="var(--color-icon-black-muted)" className="size-4" />
                 <Label className="text-text-default text-sm font-medium">Branch</Label>
               </div>
-              <Select value={branchSelected} onValueChange={setBranchSelected}>
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{branchSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {branches.map(branch => (
-                    <SelectItem key={branch} value={branch} className="text-text-default text-sm">
-                      {branch}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {loadingBranches || !branches ? (
+                <Skeleton className="bg-bg-input-soft h-9 w-full" />
+              ) : (
+                <Select
+                  value={filter.branchSelected ? String(filter.branchSelected.id) : ""}
+                  onValueChange={value => {
+                    const branch = branches.data?.find((b: BranchWithClassLevels) => String(b.branch.id) === value);
+                    onFilterChange("branchSelected", branch?.branch);
+                  }}
+                >
+                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+                    <SelectValue>
+                      <span className="text-text-default text-sm">{filter.branchSelected?.name ?? "Select Branch"}</span>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-default border-border-default">
+                    {branches.data.map((b: BranchWithClassLevels) => (
+                      <SelectItem key={b.branch.id} value={String(b.branch.id)} className="text-text-default text-sm">
+                        {b.branch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -115,104 +179,71 @@ export const InvoicesHeader = () => {
                 <GraduationCap fill="var(--color-icon-black-muted)" className="size-4" />
                 <Label className="text-text-default text-sm font-medium">Class</Label>
               </div>
-              <Select value={classSelected} onValueChange={setClassSelected}>
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{classSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {classes.map(value => (
-                    <SelectItem key={value} value={value} className="text-text-default text-sm">
-                      {value}
+              {loadingClasses ? (
+                <Skeleton className="bg-bg-input-soft h-9 w-full" />
+              ) : (
+                <Select
+                  value={filter.classSelected ? String(filter.classSelected.id) : "none"}
+                  onValueChange={value => {
+                    if (value === "none") return onFilterChange("classSelected", undefined);
+                    const cls = classes?.data?.content?.find((c: ClassType) => String(c.id) === value);
+                    onFilterChange("classSelected", cls);
+                  }}
+                >
+                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                    <SelectValue>
+                      <span className="text-text-default text-sm">{filter.classSelected?.name ?? "All Classes"}</span>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-default border-border-default">
+                    <SelectItem value="none" className="text-text-default text-sm">
+                      All Classes
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Group fill="var(--color-icon-black-muted)" className="size-4" />
-                <Label className="text-text-default text-sm font-medium">Department</Label>
-              </div>
-              <Select value={departmentSelected} onValueChange={setDepartmentSelected}>
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{departmentSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {departments.map(dept => (
-                    <SelectItem key={dept} value={dept} className="text-text-default text-sm">
-                      {dept}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    {classes?.data?.content?.map((c: ClassType) => (
+                      <SelectItem key={c.id} value={String(c.id)} className="text-text-default text-sm">
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <BookOpen fill="var(--color-icon-black-muted)" className="size-4" />
-                <Label className="text-text-default text-sm font-medium">Arm</Label>
+                <Label className="text-text-default text-sm font-medium">Term</Label>
               </div>
-              <Select value={armSelected} onValueChange={setArmSelected}>
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{classSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {arms.map(arm => (
-                    <SelectItem key={arm} value={arm} className="text-text-default text-sm">
-                      {arm}
+              {loadingTerms || !terms ? (
+                <Skeleton className="bg-bg-input-soft h-9 w-full" />
+              ) : (
+                <Select
+                  value={filter.termSelected ? String(filter.termSelected.termId) : "none"}
+                  onValueChange={value => {
+                    if (value === "none") return onFilterChange("termSelected", undefined);
+                    const term = terms.data?.terms?.find((t: Term) => String(t.termId) === value);
+                    onFilterChange("termSelected", term);
+                  }}
+                >
+                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                    <SelectValue>
+                      <span className="text-text-default text-sm capitalize">
+                        {filter.termSelected ? `${activeSession ?? ""} ${filter.termSelected.term.toLowerCase()}` : "All Terms"}
+                      </span>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-default border-border-default">
+                    <SelectItem value="none" className="text-text-default text-sm">
+                      All Terms
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
-                <Label className="text-text-default text-sm font-medium">Period</Label>
-              </div>
-              <Select value={termSelected} onValueChange={setTermSelected}>
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{termSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {termsOptions.map(status => (
-                    <SelectItem key={status} value={status} className="text-text-default text-sm">
-                      {status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Calendar fill="var(--color-icon-black-muted)" className="size-4" />
-                <Label className="text-text-default text-sm font-medium">Date Range</Label>
-              </div>
-              <Select value={termSelected} onValueChange={setTermSelected}>
-                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                  <SelectValue>
-                    <span className="text-text-default text-sm">{termSelected}</span>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-default border-border-default">
-                  {termsOptions.map(status => (
-                    <SelectItem key={status} value={status} className="text-text-default text-sm">
-                      {status}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    {terms.data?.terms?.map((t: Term) => (
+                      <SelectItem key={t.termId} value={String(t.termId)} className="text-text-default text-sm capitalize">
+                        {activeSession} {t.term.toLowerCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 
@@ -222,9 +253,11 @@ export const InvoicesHeader = () => {
                 <Button className="bg-bg-state-soft text-text-subtle rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
               </DrawerClose>
 
-              <Button className="bg-bg-state-primary text-text-white-default rounded-md! px-4 py-2 text-sm tracking-[0.1rem]">
+              <Button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-bg-state-primary text-text-white-default rounded-md! px-4 py-2 text-sm tracking-[0.1rem]"
+              >
                 <span>Apply Filter</span>
-                <span className="bg-bg-badge-white border-border-white rounded-sm px-1.5 py-0.5 text-xs">2</span>
               </Button>
             </div>
           </DrawerFooter>

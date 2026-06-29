@@ -34,5 +34,7 @@ export const useGetOnboardingProgress = () => {
   return useQuery({
     queryKey: schoolsKey.getOnboardingProgress,
     queryFn: getOnboardingProgress,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 };

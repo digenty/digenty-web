@@ -56,6 +56,7 @@ export const AllClassesMain = () => {
       classId: arm.classId,
       classArmName: arm.classArmName,
       classTeacherName: arm.classTeacherName,
+      classTeacherId: arm.classTeacherId,
       numberOfSubjects: arm.numberOfSubjects,
       numberOfSubmittedSubjects: arm.numberOfSubmittedSubjects,
       classArmReportId: arm?.classArmReportId,

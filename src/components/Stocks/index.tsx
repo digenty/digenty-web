@@ -1,15 +1,49 @@
-import { AlertFill, IndeterminateCircleFill, Store3 } from "@digenty/icons";
-import React from "react";
-import { StocksSearchAndFilter } from "./StocksSearchAndFilter";
-import { OverviewCard } from "../OverviewCard";
+"use client";
 
+import { AlertFill, IndeterminateCircleFill, Store3 } from "@digenty/icons";
+import React, { useMemo, useState } from "react";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { OverviewCard } from "../OverviewCard";
 import { StockHeader } from "./StockHeader";
 import { StockOverviewTable } from "./StockOverviewTable";
+import { StocksSearchAndFilter } from "./StocksSearchAndFilter";
+import { StockStatus } from "@/api/stock";
+import { useGetStockByStatus } from "@/hooks/queryHooks/useStock";
 
 export const StockMain = () => {
+  const user = useLoggedInUser();
+  const defaultBranchId = useMemo(() => user.branchIds?.[0], [user.branchIds]);
+
+  const [branchId, setBranchId] = useState<number | undefined>(undefined);
+  const effectiveBranchId = branchId ?? defaultBranchId;
+
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StockStatus | undefined>(undefined);
+  const [categoryFilter, setCategoryFilter] = useState<number | undefined>(undefined);
+
+  const { data: inStockData } = useGetStockByStatus("IN_STOCK");
+  const { data: lowStockData } = useGetStockByStatus("LOW_STOCK");
+  const { data: outOfStockData } = useGetStockByStatus("OUT_OF_STOCK");
+
+  const extractCount = (resp: unknown): number => {
+    if (!resp || typeof resp !== "object") return 0;
+    const r = resp as Record<string, unknown>;
+    if (typeof r.totalElements === "number") return r.totalElements;
+    const d = r.data as Record<string, unknown> | undefined;
+    if (typeof d?.totalElements === "number") return d.totalElements as number;
+    if (Array.isArray(d?.content)) return (d.content as unknown[]).length;
+    if (Array.isArray(r.content)) return (r.content as unknown[]).length;
+    return 0;
+  };
+
+  const inStockCount = extractCount(inStockData);
+  const lowStockCount = extractCount(lowStockData);
+  const outOfStockCount = extractCount(outOfStockData);
+
   return (
     <div className="flex flex-col gap-6 p-4 md:p-8">
-      <StockHeader />
+      <StockHeader branchId={effectiveBranchId} setBranchId={setBranchId} />
+
       <div className="grid w-full grid-cols-2 gap-3 lg:grid-cols-3">
         <div>
           <OverviewCard
@@ -19,7 +53,7 @@ export const StockMain = () => {
                 <Store3 fill="var(--color-icon-default)" />
               </div>
             )}
-            value="500"
+            value={String(inStockCount + lowStockCount + outOfStockCount)}
           />
         </div>
 
@@ -31,7 +65,7 @@ export const StockMain = () => {
                 <AlertFill fill="var(--color-icon-default)" />
               </div>
             )}
-            value="5"
+            value={String(lowStockCount)}
           />
         </div>
 
@@ -43,13 +77,21 @@ export const StockMain = () => {
                 <IndeterminateCircleFill fill="var(--color-icon-default)" />
               </div>
             )}
-            value="20"
+            value={String(outOfStockCount)}
           />
         </div>
       </div>
-      <StocksSearchAndFilter />
 
-      <StockOverviewTable />
+      <StocksSearchAndFilter
+        search={search}
+        setSearch={setSearch}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
+      />
+
+      <StockOverviewTable branchId={effectiveBranchId} search={search} statusFilter={statusFilter} categoryFilter={categoryFilter} />
     </div>
   );
 };

@@ -11,6 +11,7 @@ import { PageEmptyState } from "@/components/Error/PageEmptyState";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
+import { NotifyBranchHead } from "./NotifyBranchHead";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,6 +36,7 @@ export const AllBranchesTable = ({
   const [rowSelection, setRowSelection] = useState({});
   const [visibleCount, setVisibleCount] = useState(3);
   const [isOpen, setIsOpen] = useState(false);
+  const [notifyBranchHeadId, setNotifyBranchHeadId] = useState<number | null>(null);
   const router = useRouter();
 
   const pageSize = 15;
@@ -99,7 +101,14 @@ export const AllBranchesTable = ({
                         >
                           <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Branch
                         </div>
-                        <div className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
+                        <div
+                          role="button"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setNotifyBranchHeadId(item.branchHeadId);
+                          }}
+                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                        >
                           <Notification2 className="size-4" fill="var(--color-icon-default-subtle)" /> Notify Branch Head
                         </div>
 
@@ -161,6 +170,16 @@ export const AllBranchesTable = ({
           })}
         </div>
       </div>
+
+      {notifyBranchHeadId !== null && (
+        <NotifyBranchHead
+          open={notifyBranchHeadId !== null}
+          setOpen={value => {
+            if (!value) setNotifyBranchHeadId(null);
+          }}
+          branchHeadId={notifyBranchHeadId}
+        />
+      )}
     </div>
   );
 };

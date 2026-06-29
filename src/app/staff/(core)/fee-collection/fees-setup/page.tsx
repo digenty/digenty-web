@@ -1,12 +1,10 @@
 import { FeesSetup } from "@/components/FeeCollection/FeesCollectionSteppers";
 import React from "react";
 
-const FeesSetupMainPage = () => {
+export default function FeesSetupPage() {
   return (
-    <div>
+    <div className="p-4">
       <FeesSetup />
     </div>
   );
-};
-
-export default FeesSetupMainPage;
+}

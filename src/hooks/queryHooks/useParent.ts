@@ -1,4 +1,4 @@
-import { addParent, deleteParents, editParent, exportParents, getParent, getParents, uploadParents } from "@/api/parent";
+import { addParent, commitParentsUpload, deleteParents, editParent, exportParents, getParent, getParents, uploadParents, validateParentsUpload } from "@/api/parent";
 import { parentKeys } from "@/queries/parent";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -13,15 +13,16 @@ export const useAddParent = () => {
   });
 };
 
-export const useGetParents = ({ limit, branchId, search }: { limit: number; branchId?: number; search?: string }) => {
+export const useGetParents = ({ limit, branchId, search, enabled }: { limit: number; branchId?: number; search?: string; enabled?: boolean }) => {
   return useInfiniteQuery({
     queryKey: [parentKeys.all, branchId, search],
     queryFn: ({ pageParam }) => getParents({ pageParam, limit, branchId, search }),
     initialPageParam: 0,
     getNextPageParam: lastPage => {
       if (lastPage.last) return undefined;
-      return lastPage.number + 1; // next page index
+      return lastPage.number + 1;
     },
+    enabled: enabled !== false,
   });
 };
 
@@ -30,6 +31,24 @@ export const useUploadParents = ({ branchId }: { branchId?: number }) => {
   return useMutation({
     mutationKey: parentKeys.parentsUpload,
     mutationFn: ({ file }: { file: File | null }) => uploadParents({ file, branchId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
+    },
+  });
+};
+
+export const useValidateParentsUpload = ({ branchId }: { branchId?: number }) => {
+  return useMutation({
+    mutationKey: parentKeys.parentsValidateUpload,
+    mutationFn: ({ file }: { file: File }) => validateParentsUpload({ file, branchId: branchId! }),
+  });
+};
+
+export const useCommitParentsUpload = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: parentKeys.parentsCommitUpload,
+    mutationFn: ({ batchId }: { batchId: string }) => commitParentsUpload({ batchId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
     },

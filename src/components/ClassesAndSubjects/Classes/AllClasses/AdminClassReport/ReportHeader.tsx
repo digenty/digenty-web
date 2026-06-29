@@ -44,7 +44,7 @@ export const ReportHeader = ({
   onExport?: () => void;
   classArmName: string;
   classArmReportId?: number;
-  reportStatus: "APPROVED" | "NOT_SUBMITTED" | "SUBMITTED" | "PENDING_APPROVAL" | "EDIT_REQUEST";
+  reportStatus?: "APPROVED" | "NOT_SUBMITTED" | "SUBMITTED" | "PENDING_APPROVAL" | "EDIT_REQUEST";
 }) => {
   const isMobile = useIsMobile();
 
@@ -182,26 +182,34 @@ export const ReportHeader = ({
 
           <div className="border-border-default border-t py-1 md:border-none">
             <div className="flex items-center gap-1 px-4 py-2 md:p-0">
-              <Button className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-22! items-center gap-1 rounded-md border text-sm font-medium md:flex">
-                <ShareBox fill="var(--color-icon-default-muted)" /> Export
-              </Button>
-              {(reportStatus === "PENDING_APPROVAL" || reportStatus === "APPROVED" || reportStatus === "EDIT_REQUEST") && (
-                <Button
-                  onClick={() => setOpenReturn(true)}
-                  className="bg-bg-state-destructive hover:bg-bg-state-destructive/90! border-border-default text-text-white-default flex h-8 w-39.5! items-center gap-1 rounded-md border text-sm font-medium md:w-33.5"
-                >
-                  <ArrowGoBack fill="var(--color-icon-white-default)" /> Return Result
-                </Button>
-              )}
-
-              {reportStatus !== "APPROVED" && (
-                <Button
-                  onClick={() => setOpenApprove(true)}
-                  className="bg-bg-state-primary hover:bg-bg-state-primary/90! border-border-default text-text-white-default flex h-8 w-39.5 items-center gap-1 rounded-md border text-sm font-medium md:w-36.5"
-                >
-                  <Approve fill="var(--color-icon-white-default)" />
-                  Approve Result
-                </Button>
+              {!reportStatus ? (
+                <>
+                  <Skeleton className="bg-bg-input-soft hidden h-8 w-22 md:block" />
+                  <Skeleton className="bg-bg-input-soft h-8 w-36" />
+                </>
+              ) : (
+                <>
+                  <Button className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-22! items-center gap-1 rounded-md border text-sm font-medium md:flex">
+                    <ShareBox fill="var(--color-icon-default-muted)" /> Export
+                  </Button>
+                  {(reportStatus === "PENDING_APPROVAL" || reportStatus === "APPROVED" || reportStatus === "EDIT_REQUEST") && (
+                    <Button
+                      onClick={() => setOpenReturn(true)}
+                      className="bg-bg-state-destructive hover:bg-bg-state-destructive/90! border-border-default text-text-white-default flex h-8 w-39.5! items-center gap-1 rounded-md border text-sm font-medium md:w-33.5"
+                    >
+                      <ArrowGoBack fill="var(--color-icon-white-default)" /> Return Result
+                    </Button>
+                  )}
+                  {reportStatus !== "APPROVED" && (
+                    <Button
+                      onClick={() => setOpenApprove(true)}
+                      className="bg-bg-state-primary hover:bg-bg-state-primary/90! border-border-default text-text-white-default flex h-8 w-39.5 items-center gap-1 rounded-md border text-sm font-medium md:w-36.5"
+                    >
+                      <Approve fill="var(--color-icon-white-default)" />
+                      Approve Result
+                    </Button>
+                  )}
+                </>
               )}
 
               <DropdownMenu>

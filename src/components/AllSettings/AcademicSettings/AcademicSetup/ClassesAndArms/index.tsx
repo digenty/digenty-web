@@ -433,7 +433,9 @@ export const ClassesAndArms = ({
     { label: "Classes and Arms", url: "/staff/settings/academic?step=class-and-arms" },
   ]);
 
-  const { data: branchLevels } = useGetLevels(activeBranch?.id);
+  const { data: branchesData } = useGetBranches();
+  const defaultBranchId = branchesData?.data?.[0]?.branch?.id;
+  const { data: branchLevels } = useGetLevels(branchSpecific ? activeBranch?.id : defaultBranchId);
   const levels = useMemo(() => extractUniqueLevelsByType(branchLevels?.data || []), [branchLevels?.data]);
 
   const { data: classesByLevelData, isPending: isLoadingClasses } = useGetClassesByLevel(activeLevel?.id);
@@ -444,9 +446,9 @@ export const ClassesAndArms = ({
     const max = classes.reduce((m, cls) => {
       const num = parseInt(cls.className?.split(" ").pop() ?? "0", 10);
       return isNaN(num) ? m : Math.max(m, num);
-    }, activeLevel?.classEnd ?? 0);
+    }, 0);
     return max + 1;
-  }, [classesByLevelData, activeLevel?.classEnd]);
+  }, [classesByLevelData]);
 
   useEffect(() => {
     if (levels.length === 0) {
@@ -462,8 +464,9 @@ export const ClassesAndArms = ({
     });
   }, [levels]);
 
-  return (
-    <section className="">
+  return <>
+  
+  <section className="">
       <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 pb-12 lg:px-36">
         <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
           <div className="">
@@ -532,26 +535,28 @@ export const ClassesAndArms = ({
         </div>
       </div>
 
-      <div className="border-border-default bg-bg-default mx-auto flex w-full items-center justify-between border-t px-4 py-3 lg:px-40">
-        <Button
-          className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
-          onClick={() => {
-            setIsEditing?.(false);
-          }}
-        >
-          Cancel
-        </Button>
+      {/* {hasClasses && (
+        <div className="border-border-default bg-bg-default mx-auto flex w-full items-center justify-between border-t px-4 py-3 lg:px-40">
+          <Button
+            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+            onClick={() => {
+              setIsEditing?.(false);
+            }}
+          >
+            Cancel
+          </Button>
 
-        <Button
-          type="button"
-          onClick={() => {
-            setIsEditing?.(false);
-          }}
-          className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-        >
-          Save Changes
-        </Button>
-      </div>
+          <Button
+            type="button"
+            onClick={() => {
+              setIsEditing?.(false);
+            }}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+          >
+            Save Changes
+          </Button>
+        </div>
+      )} */}
 
       {/* <div className="border-border-default bg-bg-default  border-t right-0 -z-1 left-0 fixed bottom-0 flex justify-center  ">
         <div className="w-3/4 justify-between  items-center flex  px-4 py-3 lg:px-40 mx-auto">
@@ -577,7 +582,7 @@ export const ClassesAndArms = ({
       </div> */}
 
       {completedSteps && setCompletedSteps && (
-        <div className="border-border-default bg-bg-default absolute bottom-0 mx-auto flex w-full justify-between border-t px-4 py-3 lg:px-40">
+        <div className="border-border-default bg-bg-default fixed bottom-0 left-(--sidebar-w) right-0 z-10 flex justify-between border-t px-4 py-3 lg:px-40">
           <Button
             className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
             onClick={() => {
@@ -600,7 +605,7 @@ export const ClassesAndArms = ({
         </div>
       )}
     </section>
-  );
+  </> 
 };
 
 export const ClassesSetup = ({

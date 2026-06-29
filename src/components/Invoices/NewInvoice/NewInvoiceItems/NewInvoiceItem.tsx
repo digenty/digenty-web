@@ -15,31 +15,46 @@ import { GroupFeesSheet } from "./GroupFeesSheet";
 import { NewInvoiceItemMobile } from "./NewInvoiceMobileItem";
 import { StockSheet } from "./StockSheet";
 
-type ItemRow = {
-  id: string;
-  name: string;
-  qty: number;
-  price: number;
-  required: boolean;
-};
+import { FormikProps } from "formik";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import type { InvoiceFormValues } from "../index";
+import type { InvoiceItem } from "./NewInvoiceMobileItem";
 
-export const NewInvoiceItem = () => {
+type Props = { formik: FormikProps<InvoiceFormValues> };
+
+export const NewInvoiceItem = ({ formik }: Props) => {
   const [openMobileDrawer, setOpenMobileDrawer] = useState(false);
-  const [items, setItems] = useState<ItemRow[]>([{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }]);
+  const items: InvoiceItem[] = formik.values.items;
+  const { branchIds } = useLoggedInUser();
+  const branchId = branchIds?.[0];
+  const termId = formik.values.termId ?? undefined;
 
   const subtotal = items.reduce((acc, item) => acc + item.qty * item.price, 0);
 
-  const updateItem = (id: string, data: Partial<ItemRow>) => {
-    setItems(prev => prev.map(i => (i.id === id ? { ...i, ...data } : i)));
+  const updateItem = (id: string, data: Partial<InvoiceItem>) => {
+    formik.setFieldValue(
+      "items",
+      items.map(i => (i.id === id ? { ...i, ...data } : i)),
+    );
   };
 
   const addItem = () => {
-    setItems(prev => [...prev, { id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }]);
+    formik.setFieldValue("items", [...items, { id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }]);
   };
 
   const removeItem = (id: string) => {
-    setItems(prev => prev.filter(i => i.id !== id));
+    formik.setFieldValue(
+      "items",
+      items.filter(i => i.id !== id),
+    );
   };
+
+  const handleAddFromSheet = (newItems: InvoiceItem[]) => {
+    const existing = items.filter(i => i.name.trim());
+    formik.setFieldValue("items", [...existing, ...newItems]);
+  };
+
+  const sheetProps = { branchId, termId, onAddItems: handleAddFromSheet };
 
   return (
     <div className="">
@@ -47,11 +62,9 @@ export const NewInvoiceItem = () => {
         <div className="text-text-default text-normal mb-4 text-lg font-semibold">Invoice Items</div>
         <div className="mb-6">
           <div className="hidden flex-wrap gap-1 md:flex">
-            <StockSheet />
-
-            <FeesSheet />
-
-            <GroupFeesSheet />
+            <StockSheet {...sheetProps} />
+            <FeesSheet {...sheetProps} />
+            <GroupFeesSheet {...sheetProps} />
           </div>
           <div className="flex md:hidden">
             <Button
@@ -65,11 +78,9 @@ export const NewInvoiceItem = () => {
             {openMobileDrawer && (
               <MobileDrawer title="Action" open={openMobileDrawer} setIsOpen={setOpenMobileDrawer}>
                 <div className="flex flex-col content-center gap-2 p-4">
-                  <StockSheet />
-
-                  <FeesSheet />
-
-                  <GroupFeesSheet />
+                  <StockSheet {...sheetProps} />
+                  <FeesSheet {...sheetProps} />
+                  <GroupFeesSheet {...sheetProps} />
                 </div>
               </MobileDrawer>
             )}
@@ -95,12 +106,19 @@ export const NewInvoiceItem = () => {
                   <td className="w-6 cursor-grab">
                     <Draggable fill="var(--color-icon-default-muted)" />
                   </td>
-                  <td className="bg-bg-input-soft flex h-8! w-full max-w-78 items-center rounded-md">
+                  <td
+                    className={cn(
+                      "bg-bg-input-soft flex h-8! w-full max-w-78 items-center rounded-md",
+                      (Array.isArray(formik.errors.items) ? (formik.errors.items as Record<string, string>[])?.[items.indexOf(item)]?.name : false) &&
+                        "border-border-destructive border",
+                    )}
+                  >
                     <Input
                       type="text"
                       placeholder="Item Name"
                       value={item.name}
                       onChange={e => updateItem(item.id, { name: e.target.value })}
+                      onBlur={() => formik.setFieldTouched(`items.${items.indexOf(item)}.name`, true)}
                       className="text-text-muted flex h-8! items-center border-none text-sm shadow-none"
                     />
                   </td>
@@ -171,6 +189,8 @@ export const NewInvoiceItem = () => {
           </div>
         </div>
       </div>
+
+      {typeof formik.errors.items === "string" && <p className="text-text-destructive mt-2 text-xs font-light">{formik.errors.items}</p>}
 
       <NewInvoiceItemMobile items={items} subtotal={subtotal} onUpdateItem={updateItem} onAddItem={addItem} onRemoveItem={removeItem} />
     </div>

@@ -4,16 +4,24 @@ import { levelKeys } from "@/queries/level";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAddAssessmentDefault = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: assessmentKeys.addDefault,
     mutationFn: addAssessmentDefault,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: levelKeys.levelAssessments });
+    },
   });
 };
 
 export const useAddAssessment = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: assessmentKeys.add,
     mutationFn: addAssessment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: levelKeys.levelAssessments });
+    },
   });
 };
 

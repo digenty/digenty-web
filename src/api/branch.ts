@@ -19,7 +19,6 @@ export const addBranch = async (payload: CreateBranchPayload) => {
 export const getBranchesForASchool = async () => {
   try {
     const { data } = await api.get("/branches?page=0&size=100");
-
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

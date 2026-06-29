@@ -15,9 +15,10 @@ interface TabsProps {
   items: TabItem[];
   className?: string;
   buttonClassName?: string;
+  onTabChange?: (label: string) => void;
 }
 
-export const Tabs: React.FC<TabsProps> = ({ items, className, buttonClassName }) => {
+export const Tabs: React.FC<TabsProps> = ({ items, className, buttonClassName, onTabChange }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -30,7 +31,7 @@ export const Tabs: React.FC<TabsProps> = ({ items, className, buttonClassName })
             return (
               <button
                 key={index}
-                onClick={() => setActiveIndex(index)}
+                onClick={() => { setActiveIndex(index); onTabChange?.(item.label); }}
                 className={cn(
                   "transit flex flex-1 justify-center px-4 py-2 text-sm font-medium",
                   buttonClassName,

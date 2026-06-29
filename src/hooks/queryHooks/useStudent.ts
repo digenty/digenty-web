@@ -1,6 +1,7 @@
 import {
   addStudent,
   addTeacherInput,
+  commitStudentsUpload,
   deleteStudents,
   editStudent,
   exportStudents,
@@ -9,6 +10,7 @@ import {
   getStudents,
   getStudentsDistribution,
   uploadStudents,
+  validateStudentsUpload,
   withdrawStudents,
 } from "@/api/student";
 import { updateAssignSubjectTeacher } from "@/api/subject";
@@ -37,6 +39,7 @@ export const useGetStudents = ({
   armId,
   status,
   search,
+  enabled = true,
 }: {
   limit: number;
   branchId?: number;
@@ -44,14 +47,16 @@ export const useGetStudents = ({
   armId?: number;
   status?: StudentsStatus;
   search?: string;
+  enabled?: boolean;
 }) => {
   return useInfiniteQuery({
     queryKey: [studentKeys.all, branchId, classId, armId, status, search],
     queryFn: ({ pageParam }) => getStudents({ pageParam, limit, branchId, classId, armId, status, search }),
     initialPageParam: 0,
+    enabled,
     getNextPageParam: lastPage => {
       if (lastPage.last) return undefined;
-      return lastPage.number + 1; // next page index
+      return lastPage.number + 1;
     },
   });
 };
@@ -61,6 +66,25 @@ export const useUploadStudents = ({ branchId }: { branchId?: number }) => {
   return useMutation({
     mutationKey: studentKeys.studentsUpload,
     mutationFn: ({ file }: { file: File | null }) => uploadStudents({ file, branchId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
+      queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
+    },
+  });
+};
+
+export const useValidateStudentsUpload = ({ branchId }: { branchId?: number }) => {
+  return useMutation({
+    mutationKey: studentKeys.studentsValidateUpload,
+    mutationFn: ({ file }: { file: File }) => validateStudentsUpload({ file, branchId: branchId! }),
+  });
+};
+
+export const useCommitStudentsUpload = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: studentKeys.studentsCommitUpload,
+    mutationFn: ({ batchId }: { batchId: string }) => commitStudentsUpload({ batchId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
       queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });

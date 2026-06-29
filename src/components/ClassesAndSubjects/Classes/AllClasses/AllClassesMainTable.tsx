@@ -52,6 +52,7 @@ export const AllClassesMainTable = ({
   const [activeClassId, setActiveClassId] = useState<number | null>(null);
   const [activeArmId, setActiveArmId] = useState<number | null>(null);
   const [activeClassArmReportId, setActiveClassArmReportId] = useState<number | null>(null);
+  const [activeClassTeacherId, setActiveClassTeacherId] = useState<number | null>(null);
   const [activeArmName, setActiveArmName] = useState<string>("");
   const router = useRouter();
 
@@ -174,7 +175,13 @@ export const AllClassesMainTable = ({
       )}
 
       <div className="flex flex-col gap-4 pb-8">
-        {openNotifyModalMobile && <NotifyTeacherModal openNotifyModal={openNotifyModalMobile} setOpenNotifyModal={setOpenNotifyModalMobile} />}
+        {openNotifyModalMobile && (
+          <NotifyTeacherModal
+            openNotifyModal={openNotifyModalMobile}
+            setOpenNotifyModal={setOpenNotifyModalMobile}
+            classTeacherId={activeClassTeacherId}
+          />
+        )}
         {openApproveModalMobile && (
           <ApproveModal
             openApproveModal={openApproveModalMobile}
@@ -268,6 +275,7 @@ export const AllClassesMainTable = ({
                             setActiveArmId(arm.armId);
                             setActiveArmName(arm.classArmName);
                             setActiveClassArmReportId(arm.classArmReportId);
+                            setActiveClassTeacherId(arm.classTeacherId);
                           }}
                         >
                           <MoreHorizontalIcon className="text-icon-default-muted size-4" />

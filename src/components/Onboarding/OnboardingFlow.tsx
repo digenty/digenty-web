@@ -15,7 +15,7 @@ interface OnboardingFlowProps {
 
 export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
   const pathname = usePathname();
-  const { data: progressResp, isLoading: isProgressLoading } = useGetOnboardingProgress();
+  const { data: progressResp, isLoading: isProgressLoading, refetch: refetchProgress } = useGetOnboardingProgress();
 
   // If no schoolId, we show the onboarding modal
   const showOnboardingModal = !user?.schoolId;
@@ -28,6 +28,12 @@ export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
   });
 
   const { showSetupSteps, setShowSetupSteps } = useOnboardingStore();
+
+  useEffect(() => {
+    if (showSetupSteps) {
+      refetchProgress();
+    }
+  }, [showSetupSteps]);
 
   useEffect(() => {
     // Only auto-open if we have a schoolId and progress has finished loading

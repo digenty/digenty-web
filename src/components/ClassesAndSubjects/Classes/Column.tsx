@@ -50,7 +50,9 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
 
   return (
     <>
-      {openNotifyModal && <NotifyTeacherModal openNotifyModal={openNotifyModal} setOpenNotifyModal={setOpenNotifyModal} />}
+      {openNotifyModal && (
+        <NotifyTeacherModal openNotifyModal={openNotifyModal} setOpenNotifyModal={setOpenNotifyModal} classTeacherId={row.original.classTeacherId} />
+      )}
       {openApproveModal && (
         <ApproveModal
           openApproveModal={openApproveModal}
@@ -84,7 +86,14 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
             <CheckboxCircle fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Approve submission</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3" onClick={() => setOpenNotifyModal(true)}>
+          <DropdownMenuItem
+            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+            onSelect={e => {
+              e.preventDefault();
+              setOpen(false);
+              setOpenNotifyModal(true);
+            }}
+          >
             <Notification fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Notify class teacher</span>
           </DropdownMenuItem>

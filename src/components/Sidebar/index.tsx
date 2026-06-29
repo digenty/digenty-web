@@ -4,6 +4,7 @@ import {
   Bill,
   CalendarCheck,
   ColorFilter,
+  DoorOpen,
   FileList3,
   Global,
   GraduationCap,
@@ -54,6 +55,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SetupGuideProgress } from "./SetupGuideProgress";
 import { canViewCBT } from "@/lib/permissions/cbt";
 import { getSessionToken } from "@/app/actions/auth";
+import { canViewAdmissionManagement } from "@/lib/permissions/admission-management";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -107,13 +109,23 @@ export const Sidebar = () => {
               },
             ]
           : []),
+
+        ...(canViewAdmissionManagement(user?.permissions)
+          ? [
+              {
+                title: "Admission Management",
+                url: "admission-management",
+                icon: DoorOpen,
+              },
+            ]
+          : []),
       ],
     },
 
-    // ...(canViewFinanceReport(user?.permissions) ||
-    // canViewFeeCollection(user?.permissions) ||
-    // canViewExpenses(user?.permissions) ||
-    // canViewFees(user?.permissions) ||
+    // ...(canViewFeeCollection(user?.permissions) ||
+    // // canViewFinanceReport(user?.permissions) ||
+    // // canViewExpenses(user?.permissions) ||
+    // // canViewFees(user?.permissions) ||
     // canViewInvoices(user?.permissions) ||
     // canViewStock(user?.permissions)
     //   ? [
@@ -140,15 +152,15 @@ export const Sidebar = () => {
     //               ]
     //             : []),
 
-    //           ...(canViewExpenses(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Expenses",
-    //                   url: "expense",
-    //                   icon: BankCard,
-    //                 },
-    //               ]
-    //             : []),
+    //           // ...(canViewExpenses(user?.permissions)
+    //           //   ? [
+    //           //       {
+    //           //         title: "Expenses",
+    //           //         url: "expense",
+    //           //         icon: BankCard,
+    //           //       },
+    //           //     ]
+    //           //   : []),
 
     //           ...(canViewStock(user?.permissions)
     //             ? [
@@ -170,71 +182,48 @@ export const Sidebar = () => {
     //               ]
     //             : []),
 
-    //           ...(canViewFinanceReport(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Finance Report",
-    //                   url: "finance-report",
-    //                   icon: LineChart,
-    //                 },
-    //               ]
-    //             : []),
+    //           // ...(canViewFinanceReport(user?.permissions)
+    //           //   ? [
+    //           //       {
+    //           //         title: "Finance Report",
+    //           //         url: "finance-report",
+    //           //         icon: LineChart,
+    //           //       },
+    //           //     ]
+    //           //   : []),
     //         ],
     //       },
     //     ]
     //   : []),
 
-    // ...(canViewCommunication(user?.permissions) ||
-    // canViewPortalCustomization(user?.permissions) ||
-    // canViewPortalOverview(user?.permissions) ||
-    // canViewDomain(user?.permissions)
-    //   ? [
-    //       {
-    //         title: "Communication & Portal",
-    //         menu: [
-    //           ...(canViewCommunication(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Communications",
-    //                   url: "communications",
-    //                   icon: Megaphone,
-    //                 },
-    //               ]
-    //             : []),
+    ...(canViewCommunication(user?.permissions) || canViewPortalCustomization(user?.permissions)
+      ? [
+          {
+            title: "Communication & Portal",
+            menu: [
+              ...(canViewCommunication(user?.permissions)
+                ? [
+                    {
+                      title: "Communications",
+                      url: "communications",
+                      icon: Megaphone,
+                    },
+                  ]
+                : []),
 
-    //           ...(canViewPortalOverview(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Portal Overview",
-    //                   url: "portal-overview",
-    //                   icon: Macbook,
-    //                 },
-    //               ]
-    //             : []),
-
-    //           ...(canViewPortalCustomization(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Portal Customization",
-    //                   url: "portal-customization",
-    //                   icon: ColorFilter,
-    //                 },
-    //               ]
-    //             : []),
-
-    //           ...(canViewDomain(user?.permissions)
-    //             ? [
-    //                 {
-    //                   title: "Domain",
-    //                   url: "domain",
-    //                   icon: Global,
-    //                 },
-    //               ]
-    //             : []),
-    //         ],
-    //       },
-    //     ]
-    //   : []),
+              // ...(canViewPortalCustomization(user?.permissions)
+              //   ? [
+              //       {
+              //         title: "Website Customization",
+              //         url: "website-customization",
+              //         icon: ColorFilter,
+              //       },
+              //     ]
+              //   : []),
+            ],
+          },
+        ]
+      : []),
 
     // ...(canViewSettings(user?.permissions)
     //   ? [
@@ -267,6 +256,10 @@ export const Sidebar = () => {
       setActiveNav(segments[2]);
     }
   }, [pathname, setActiveNav]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty("--sidebar-w", isSidebarOpen ? "17.25rem" : "4rem");
+  }, [isSidebarOpen]);
 
   const logout = () => {
     queryClient.clear();
@@ -449,8 +442,17 @@ export const Sidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          // onClick={() => router.push(`/staff/${menu.url}`)}
-                          onClick={menu.url === "cbt" ? handleCBTClick : () => router.push(`/staff/${menu.url}`)}
+                          onClick={
+                            menu.url === "cbt"
+                              ? e => {
+                                  handleCBTClick(e);
+                                  setIsSidebarOpen(false);
+                                }
+                              : () => {
+                                  router.push(`/staff/${menu.url}`);
+                                  setIsSidebarOpen(false);
+                                }
+                          }
                         >
                           <menu.icon fill="var(--color-icon-default-subtle)" />
                           <p className="text-sm leading-5 font-medium">{menu.title}</p>
@@ -476,7 +478,10 @@ export const Sidebar = () => {
                     !isSidebarOpen && "justify-center px-0",
                     activeNav === "profile" && "bg-bg-state-soft rounded-md",
                   )}
-                  onClick={() => router.push("/staff/profile")}
+                  onClick={() => {
+                    router.push("/staff/profile");
+                    setIsSidebarOpen(false);
+                  }}
                 >
                   <User fill="var(--color-icon-default-subtle)" />
                   <p className="text-sm leading-5 font-medium">Profile</p>
@@ -489,7 +494,10 @@ export const Sidebar = () => {
                       !isSidebarOpen && "justify-center px-0",
                       activeNav === "settings" && "bg-bg-state-soft rounded-md",
                     )}
-                    onClick={() => router.push("/staff/settings")}
+                    onClick={() => {
+                      router.push("/staff/settings");
+                      setIsSidebarOpen(false);
+                    }}
                   >
                     <Settings4 fill="var(--color-icon-default-subtle)" />
                     <p className="text-sm leading-5 font-medium">Settings</p>

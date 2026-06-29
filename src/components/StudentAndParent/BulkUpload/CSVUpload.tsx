@@ -33,8 +33,8 @@ export const CSVUpload = ({
   entity: "Students" | "Parents";
   file: File | null;
   setFile: (file: File | null) => void;
-  setErrors: Dispatch<SetStateAction<ValidationError[]>>;
-  handleValidation: (file: File, filetype: string) => void;
+  setErrors?: Dispatch<SetStateAction<ValidationError[]>>;
+  handleValidation?: (file: File, filetype: string) => void;
   branchSelected: Branch | null;
   setBranchSelected: (branch: Branch | null) => void;
 }) => {
@@ -87,7 +87,7 @@ export const CSVUpload = ({
 
         if (!fileError) {
           setFile(file);
-          handleValidation(file, extension);
+          handleValidation?.(file, extension);
         }
       });
     },
@@ -106,7 +106,7 @@ export const CSVUpload = ({
 
   const clearFile = () => {
     setFile(null);
-    setErrors([]);
+    setErrors?.([]);
     setFileError(null);
   };
 
