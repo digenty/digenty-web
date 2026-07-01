@@ -24,7 +24,6 @@ export const Review = () => {
   const { id: parentId } = useLoggedInUser();
 
   const { data, isLoading } = useGetParent(parentId);
-  console.log("data", data);
   const isMobile = useIsMobile();
 
   const handleSubmit = () => {

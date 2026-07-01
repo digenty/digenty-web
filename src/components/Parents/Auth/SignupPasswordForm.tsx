@@ -39,6 +39,7 @@ export const SignupPasswordForm = () => {
     initialValues: {
       email: "",
       password: "",
+      // schoolId:
     },
     validationSchema: authSchema,
     onSubmit: async values => {

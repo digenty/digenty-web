@@ -42,6 +42,7 @@ export const LoginPasswordForm = () => {
           email: values.email,
           password: values.password,
           userType: "PARENT",
+          // schoolId:
         },
         {
           onSuccess: async data => {

@@ -53,14 +53,13 @@ const StudentForm = ({
   const [classId, setClassId] = useState<number | null>(null);
 
   const { data: branches, isPending: loadingBranches } = useGetBranchesBySchool(schoolId);
-  const { data: classes, isPending: loadingClasses } = useGetClasses(branchId);
+  const { data: classes, isPending: loadingClasses } = useGetClasses();
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
   const { data: studentData } = useGetStudent(studentId);
   const { mutate: addStudent, isPending: isAddingStudent } = useAddStudentByParent();
   const { mutate: updateStudentData, isPending: isUpdatingStudentData } = useEditStudent();
   const { id: parentId } = useLoggedInUser();
   const student = studentData?.data;
-  console.log(student, "@@@")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,7 +91,7 @@ const StudentForm = ({
       stateOfOrigin: student?.stateOfOrigin ?? "",
       joinedSchoolTerm: student?.joinedSchoolTerm ?? "",
       joinedSchoolSession: student?.joinedSchoolSession ?? "",
-      branchId: student?.branchId ?? null,
+      branchId: null,
       classId: null,
       armId: student?.armId ?? null,
     },
@@ -145,16 +144,13 @@ const StudentForm = ({
   });
 
   useEffect(() => {
-    if (student) {
-      setBranchId(student.branchId);
-      setClassId(student.classId);
-      if (student.dateOfBirth) setDate(new Date(student.dateOfBirth));
-    }
+    if (student?.dateOfBirth) setDate(new Date(student.dateOfBirth));
   }, [student]);
 
   useEffect(() => {
     if (student) {
-      formik.setValues({
+      formik.setValues(prev => ({
+        ...prev,
         firstName: student.firstName ?? "",
         lastName: student.lastName ?? "",
         middleName: student.middleName ?? "",
@@ -174,10 +170,8 @@ const StudentForm = ({
         stateOfOrigin: student.stateOfOrigin ?? "",
         joinedSchoolTerm: student.joinedSchoolTerm ?? "",
         joinedSchoolSession: student.joinedSchoolSession ?? "",
-        branchId: student.branchId ?? null,
-        classId: student.classId ?? null,
         armId: student.armId ?? null,
-      });
+      }));
     }
   }, [student]);
 
@@ -195,6 +189,22 @@ const StudentForm = ({
       setAvailableStates([]);
     }
   }, [countries, values.nationality]);
+
+  useEffect(() => {
+    if (!student || !branches?.data || !classes?.data?.content) return;
+
+    const branchMatch = branches.data.find((br: Branch) => br.name === student.branch);
+    if (branchMatch) {
+      setBranchId(branchMatch.id);
+      setFieldValue("branchId", branchMatch.id);
+
+      const classMatch = classes.data.content.find((c: ClassType) => c.name === student.class && c.branchId === branchMatch.id);
+      if (classMatch) {
+        setClassId(classMatch.id);
+        setFieldValue("classId", classMatch.id);
+      }
+    }
+  }, [student, branches, classes]);
 
   // const handleCountryChange = (countryName: string) => {
   //   const selected = countries.find(c => c.name === countryName);
@@ -223,7 +233,7 @@ const StudentForm = ({
             <Input
               id={`firstName-${index}`}
               name="firstName"
-              autoFocus
+              autoFocus={!studentId}
               value={values.firstName}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -358,6 +368,7 @@ const StudentForm = ({
                 }}
                 placeholder="Select Nationality"
                 searchPlaceholder="Search country..."
+                modal
               />
             ) : (
               <Skeleton className="bg-bg-input-soft h-9 w-full" />
@@ -655,11 +666,13 @@ const StudentForm = ({
                   <SelectValue placeholder={!branchId ? "Select a branch first" : "Select Class"} />
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-none">
-                  {classes.data.content.map((cls: ClassType) => (
-                    <SelectItem key={cls.id} value={`${cls.id}`} className="text-text-default">
-                      {cls.name}
-                    </SelectItem>
-                  ))}
+                  {classes.data.content
+                    .filter((cls: ClassType) => !branchId || cls.branchId === branchId)
+                    .map((cls: ClassType) => (
+                      <SelectItem key={cls.id} value={`${cls.id}`} className="text-text-default">
+                        {cls.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             )}
@@ -796,13 +809,13 @@ export const ParentStudent = ({ schoolId }: { schoolId?: number }) => {
 
   useEffect(() => {
     if (parentData?.linkedStudents?.length) {
-      setItems(
-        parentData.linkedStudents.map((s: Parent) => ({
-          id: s.id,
-          title: "Student",
-          studentId: s.id,
-        })),
-      );
+      const students = parentData.linkedStudents.map((s: Parent) => ({
+        id: s.id,
+        title: "Student",
+        studentId: s.id,
+      }));
+      setItems(students);
+      setOpenId(students[0].id);
     }
   }, [parentData]);
 

@@ -117,7 +117,6 @@ export const StudentReview = ({ data }: { data?: Parent }) => {
   const [openId, setOpenId] = useState<number | null>(null);
 
   const students = data?.linkedStudents || [];
-  console.log("students", students);
 
   if (!students.length) {
     return (
