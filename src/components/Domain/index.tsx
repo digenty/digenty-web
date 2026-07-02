@@ -1,9 +1,10 @@
 "use client";
 
-import { useCreateSubdomain, useGetSchoolDetails } from "@/hooks/queryHooks/useSchool";
+import { useCreateSubdomain, useGetSchoolDetails, useGetSubdomain, useUpdateSubdomain } from "@/hooks/queryHooks/useSchool";
 import { cn } from "@/lib/utils";
-import { AlertCircle, ChevronDown, Globe } from "lucide-react";
+import { ChevronDown, Globe } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
@@ -52,92 +53,138 @@ const DomainCard = ({ domain, slug, primary, onSelect, isPending }: DomainCardPr
 
 export const DomainMain = () => {
   const { data: schoolResponse } = useGetSchoolDetails();
+  const { data: subdomainResponse } = useGetSubdomain();
   const schoolName = schoolResponse?.data?.schoolName ?? "";
+  const currentSubdomain = subdomainResponse?.data?.subdomain;
   const [search, setSearch] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(true);
-  const { mutate: createSubdomain, isPending } = useCreateSubdomain();
+  const [isEditing, setIsEditing] = useState(false);
+  const { mutate: createSubdomain, isPending: isCreating } = useCreateSubdomain();
+  const { mutate: updateSubdomain, isPending: isUpdating } = useUpdateSubdomain();
+  const isPending = isCreating || isUpdating;
 
   useBreadcrumb([{ label: "Domain", url: "/staff/domain" }]);
 
   const formats = toHostnameFormats(schoolName);
   const hasSearch = search.trim().length > 0;
+  const showSearchFlow = !currentSubdomain || isEditing;
+
+  const handleSelect = (slug: string) => {
+    if (currentSubdomain) {
+      updateSubdomain(
+        { subdomain: slug },
+        {
+          onSuccess: () => {
+            toast.success("Domain updated successfully");
+            setSearch("");
+            setIsEditing(false);
+          },
+          onError: (error: unknown) => {
+            toast.error((error as { message?: string })?.message ?? "Failed to update domain");
+          },
+        },
+      );
+      return;
+    }
+
+    createSubdomain(
+      { subdomain: slug },
+      {
+        onSuccess: () => {
+          toast.success("Domain created successfully");
+          setSearch("");
+        },
+        onError: (error: unknown) => {
+          toast.error((error as { message?: string })?.message ?? "Failed to create domain");
+        },
+      },
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4 p-4 md:p-8">
       <h2 className="text-text-default text-xl font-semibold">Domain</h2>
 
-      <div className="border-border-default bg-bg-badge-blue flex items-center gap-3 rounded-lg border p-4">
-        <Globe className="text-text-muted size-5 shrink-0" />
-        <div className="flex flex-col gap-0.5">
-          <p className="text-text-default text-sm font-medium">You do not have a domain yet</p>
-          <p className="text-text-muted text-xs">To continue, search and purchase your preferred domain</p>
-        </div>
-      </div>
-
-      <div className="border-bg-basic-lime-accent bg-bg-basic-lime-subtle flex flex-col items-center justify-center gap-3 rounded-xl border px-6 py-10">
-        <p className="text-text-subtle text-xs">Every great idea starts with a name!</p>
-        <p className="text-text-default text-base font-semibold">Search up a domain</p>
-        <div className="border-border-default bg-bg-default flex items-center overflow-hidden rounded-md border">
-          <span className="border-border-default text-text-muted border-r px-3 py-2 text-sm">www.</span>
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Enter your preferred domain"
-            className="text-text-default placeholder:text-text-hint h-9 flex-1 bg-transparent px-3 text-sm outline-none"
-          />
-          <Button className="bg-bg-state-primary! text-text-white-default! hover:bg-bg-state-primary-hover! m-1 h-7 rounded-md text-xs font-medium">
-            Search
+      {!showSearchFlow ? (
+        <div className="border-border-default bg-bg-badge-blue flex items-center justify-between gap-3 rounded-lg border p-4">
+          <div className="flex items-center gap-3">
+            <Globe className="text-text-muted size-5 shrink-0" />
+            <div className="flex flex-col gap-0.5">
+              <p className="text-text-default text-sm font-medium">Your domain is live</p>
+              <p className="text-text-muted text-xs">{currentSubdomain}.axisbydigenty.com</p>
+            </div>
+          </div>
+          <Button variant="outline" className="border-border-default! h-8 px-4 text-xs" onClick={() => setIsEditing(true)}>
+            Change domain
           </Button>
         </div>
-      </div>
-
-      {(hasSearch || formats.length > 0) && (
-        <div className="flex flex-col gap-3">
-          {hasSearch && (
-            <>
-              {/* <div className="flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4">
-                <AlertCircle className="mt-0.5 size-5 shrink-0 text-orange-500" />
-                <div className="flex flex-col gap-0.5">
-                  <p className="text-sm font-semibold text-orange-700">Domain Unavailable</p>
-                  <p className="text-xs text-orange-600">{search}.axisbydigenty.com is available for transfer</p>
-                </div>
-              </div> */}
-
-              <div className="border-border-default rounded-lg border">
-                <DomainCard
-                  domain={`${search.trim()}.axisbydigenty.com`}
-                  slug={search.trim()}
-                  primary
-                  onSelect={slug => createSubdomain({ subdomain: slug })}
-                  isPending={isPending}
-                />
+      ) : (
+        <>
+          <div className="border-border-default bg-bg-badge-blue flex items-center justify-between gap-3 rounded-lg border p-4">
+            <div className="flex items-center gap-3">
+              <Globe className="text-text-muted size-5 shrink-0" />
+              <div className="flex flex-col gap-0.5">
+                <p className="text-text-default text-sm font-medium">{currentSubdomain ? "Update your domain" : "You do not have a domain yet"}</p>
+                <p className="text-text-muted text-xs">To continue, search and purchase your preferred domain</p>
               </div>
-            </>
-          )}
+            </div>
+            {currentSubdomain && (
+              <Button variant="outline" className="border-border-default! h-8 px-4 text-xs" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+            )}
+          </div>
 
-          {formats.length > 0 && (
-            <div className="border-border-default rounded-xl border">
-              <button onClick={() => setShowSuggestions(prev => !prev)} className="flex w-full items-center justify-between px-4 py-3">
-                <span className="text-text-default text-sm font-semibold">Suggested Domains</span>
-                <ChevronDown className={cn("text-text-muted size-4 transition-transform duration-200", showSuggestions && "rotate-180")} />
-              </button>
+          <div className="border-bg-basic-lime-accent bg-bg-basic-lime-subtle flex flex-col items-center justify-center gap-3 rounded-xl border px-6 py-10">
+            <p className="text-text-subtle text-xs">Every great idea starts with a name!</p>
+            <p className="text-text-default text-base font-semibold">Search up a domain</p>
+            <div className="border-border-default bg-bg-default flex w-full max-w-100 items-center overflow-hidden rounded-md border">
+              <span className="border-border-default text-text-muted border-r px-3 py-2 text-sm">www.</span>
+              <input
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Enter your preferred domain"
+                className="text-text-default placeholder:text-text-hint h-9 flex-1 bg-transparent px-3 text-sm outline-none"
+              />
+              <Button className="bg-bg-state-primary! text-text-white-default! hover:bg-bg-state-primary-hover! m-1 h-7 rounded-md text-xs font-medium">
+                Search
+              </Button>
+            </div>
+          </div>
 
-              {showSuggestions && (
-                <div className="divide-border-default border-border-default divide-y border-t">
-                  {formats.map(slug => (
-                    <DomainCard
-                      key={slug}
-                      domain={`${slug}.axisbydigenty.com`}
-                      slug={slug}
-                      onSelect={slug => createSubdomain({ subdomain: slug })}
-                      isPending={isPending}
-                    />
-                  ))}
+          {(hasSearch || formats.length > 0) && (
+            <div className="flex flex-col gap-3">
+              {hasSearch && (
+                <div className="border-border-default rounded-lg border">
+                  <DomainCard
+                    domain={`${search.trim()}.axisbydigenty.com`}
+                    slug={search.trim()}
+                    primary
+                    onSelect={handleSelect}
+                    isPending={isPending}
+                  />
+                </div>
+              )}
+
+              {formats.length > 0 && (
+                <div className="border-border-default rounded-xl border">
+                  <button onClick={() => setShowSuggestions(prev => !prev)} className="flex w-full items-center justify-between px-4 py-3">
+                    <span className="text-text-default text-sm font-semibold">Suggested Domains</span>
+                    <ChevronDown className={cn("text-text-muted size-4 transition-transform duration-200", showSuggestions && "rotate-180")} />
+                  </button>
+
+                  {showSuggestions && (
+                    <div className="divide-border-default border-border-default divide-y border-t">
+                      {formats.map(slug => (
+                        <DomainCard key={slug} domain={`${slug}.axisbydigenty.com`} slug={slug} onSelect={handleSelect} isPending={isPending} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

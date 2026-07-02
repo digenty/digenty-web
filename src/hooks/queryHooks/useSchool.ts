@@ -1,6 +1,15 @@
-import { addSchool, createSubdomain, getSchoolDetails, getSchools, updateSchool, getOnboardingProgress } from "@/api/school";
+import {
+  addSchool,
+  createSubdomain,
+  getSchoolDetails,
+  getSchools,
+  getSubdomain,
+  updateSchool,
+  updateSubdomain,
+  getOnboardingProgress,
+} from "@/api/school";
 import { schoolsKey } from "@/queries/school";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAddSchool = () => {
   return useMutation({
@@ -39,9 +48,35 @@ export const useGetOnboardingProgress = () => {
   });
 };
 
+export const useGetSubdomain = () => {
+  return useQuery({
+    queryKey: schoolsKey.getSubdomain,
+    queryFn: getSubdomain,
+  });
+};
+
 export const useCreateSubdomain = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: schoolsKey.createSubdomain,
     mutationFn: createSubdomain,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: schoolsKey.getSchoolDetails });
+      queryClient.invalidateQueries({ queryKey: schoolsKey.getSubdomain });
+    },
+  });
+};
+
+export const useUpdateSubdomain = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: schoolsKey.updateSubdomain,
+    mutationFn: updateSubdomain,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: schoolsKey.getSchoolDetails });
+      queryClient.invalidateQueries({ queryKey: schoolsKey.getSubdomain });
+    },
   });
 };

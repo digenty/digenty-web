@@ -64,9 +64,33 @@ export const getOnboardingProgress = async () => {
   }
 };
 
+export const getSubdomain = async () => {
+  try {
+    const { data } = await api.get("/schools/subdomain");
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const createSubdomain = async (payload: { subdomain: string }) => {
   try {
     const { data } = await api.post("/schools/subdomain", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const updateSubdomain = async (payload: { subdomain: string }) => {
+  try {
+    const { data } = await api.put("/schools/subdomain", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

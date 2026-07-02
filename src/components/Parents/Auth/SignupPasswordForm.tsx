@@ -1,4 +1,5 @@
 "use client";
+import { setSchoolFromHost } from "@/app/actions/school";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,7 @@ import { authSchema } from "@/schema/auth";
 import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PasswordChecklist } from "@/components/Auth/PasswordCheckList";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LegalModal } from "@/components/Auth/LegalModal";
@@ -21,6 +22,7 @@ export const SignupPasswordForm = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [passwordIsFulfilled, setPasswordIsFulfilled] = useState(false);
+  const [schoolId, setSchoolId] = useState<number>();
 
   const { mutate, isPending } = useSignup();
   const { mutate: parentMutate, isPending: parentIsPending } = useParentSignup();
@@ -31,6 +33,12 @@ export const SignupPasswordForm = () => {
     content: "",
   });
 
+  useEffect(() => {
+    setSchoolFromHost(window.location.host)
+      .then(school => setSchoolId(school?.id))
+      .catch(e => console.error("School lookup failed", e));
+  }, []);
+
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
   };
@@ -39,7 +47,6 @@ export const SignupPasswordForm = () => {
     initialValues: {
       email: "",
       password: "",
-      // schoolId:
     },
     validationSchema: authSchema,
     onSubmit: async values => {
@@ -47,6 +54,7 @@ export const SignupPasswordForm = () => {
         {
           email: values.email.toLowerCase(),
           password: values.password,
+          schoolId,
         },
         {
           onSuccess: data => {
@@ -132,7 +140,12 @@ export const SignupPasswordForm = () => {
           {formik.values.password && <PasswordChecklist password={formik.values.password} setIsfulfilled={setPasswordIsFulfilled} />}
 
           <div className="flex items-start gap-2">
-            <Checkbox id="accept-terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked === true)} className="mt-0.5" />
+            <Checkbox
+              id="accept-terms"
+              checked={acceptTerms}
+              onCheckedChange={checked => setAcceptTerms(checked === true)}
+              className="mt-0.5 cursor-pointer"
+            />
             <label htmlFor="accept-terms" className="text-text-muted text-xs leading-normal">
               I agree to the{" "}
               <button

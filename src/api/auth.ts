@@ -11,6 +11,7 @@ type LoginPayload = {
 type SignupPayload = {
   email: string;
   password: string;
+  schoolId?: number;
 };
 
 type VerifyOtpPayload = {
