@@ -6,7 +6,7 @@ function getSubdomain(host: string): string | null {
   if (hostname.endsWith(".localhost") && hostname !== "localhost") {
     return hostname.slice(0, hostname.lastIndexOf(".localhost"));
   }
-  if (hostname.endsWith(".axis.com") && hostname !== "axis.com" && hostname !== "app.axis.com") {
+  if (hostname.endsWith(".axisbydigenty.com") && hostname !== "axisbydigenty.com" && hostname !== "app.axisbydigenty.com") {
     return hostname.split(".")[0];
   }
   return null;

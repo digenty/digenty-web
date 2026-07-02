@@ -1,4 +1,15 @@
-import { addParent, commitParentsUpload, deleteParents, editParent, exportParents, getParent, getParents, uploadParents, validateParentsUpload } from "@/api/parent";
+import {
+  addParent,
+  addParentOnParentPortal,
+  commitParentsUpload,
+  deleteParents,
+  editParent,
+  exportParents,
+  getParent,
+  getParents,
+  uploadParents,
+  validateParentsUpload,
+} from "@/api/parent";
 import { parentKeys } from "@/queries/parent";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 

@@ -23,6 +23,7 @@ export const SignupPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordIsFulfilled, setPasswordIsFulfilled] = useState(false);
   const [schoolId, setSchoolId] = useState<number>();
+  const [schoolLookupFailed, setSchoolLookupFailed] = useState(false);
 
   const { mutate, isPending } = useSignup();
   const { mutate: parentMutate, isPending: parentIsPending } = useParentSignup();
@@ -35,8 +36,17 @@ export const SignupPasswordForm = () => {
 
   useEffect(() => {
     setSchoolFromHost(window.location.host)
-      .then(school => setSchoolId(school?.id))
-      .catch(e => console.error("School lookup failed", e));
+      .then(school => {
+        if (school?.id) {
+          setSchoolId(school.id);
+        } else {
+          setSchoolLookupFailed(true);
+        }
+      })
+      .catch(e => {
+        console.error("School lookup failed", e);
+        setSchoolLookupFailed(true);
+      });
   }, []);
 
   const toggleShowPassword = () => {
@@ -50,6 +60,15 @@ export const SignupPasswordForm = () => {
     },
     validationSchema: authSchema,
     onSubmit: async values => {
+      if (!schoolId) {
+        toast({
+          title: "Could not determine your school",
+          description: "Please make sure you're on your school's signup link and try again.",
+          type: "error",
+        });
+        return;
+      }
+
       await parentMutate(
         {
           email: values.email.toLowerCase(),
@@ -85,6 +104,11 @@ export const SignupPasswordForm = () => {
       </div>
 
       <div className="mt-7 w-full">
+        {schoolLookupFailed && (
+          <p className="text-text-destructive mb-4 text-center text-xs">
+            We couldn&apos;t determine your school from this link. Please use your school&apos;s signup link.
+          </p>
+        )}
         <form noValidate onSubmit={formik.handleSubmit} className="w-full space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-text-default text-sm font-medium">
