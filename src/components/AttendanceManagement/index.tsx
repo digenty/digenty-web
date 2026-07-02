@@ -27,6 +27,8 @@ export const AttendanceManagement = () => {
   const user = useLoggedInUser();
 
   const { data, isPending, isError, isLoading } = useGetAllAttendance(branchSelected?.id, termSelected?.termId, debouncedSearchQuery);
+
+  console.log("Attendance data:", data);
   const attendanceStats = {
     totalClasses: data?.data.totalClasses ?? 0,
     attendanceTken: data?.data.numberOfClassAttendanceTaken ?? 0,

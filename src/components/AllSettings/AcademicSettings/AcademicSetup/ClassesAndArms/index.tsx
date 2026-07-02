@@ -433,7 +433,9 @@ export const ClassesAndArms = ({
     { label: "Classes and Arms", url: "/staff/settings/academic?step=class-and-arms" },
   ]);
 
-  const { data: branchLevels } = useGetLevels(activeBranch?.id);
+  const { data: branchesData } = useGetBranches();
+  const defaultBranchId = branchesData?.data?.[0]?.branch?.id;
+  const { data: branchLevels } = useGetLevels(branchSpecific ? activeBranch?.id : defaultBranchId);
   const levels = useMemo(() => extractUniqueLevelsByType(branchLevels?.data || []), [branchLevels?.data]);
 
   const { data: classesByLevelData, isPending: isLoadingClasses } = useGetClassesByLevel(activeLevel?.id);

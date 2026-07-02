@@ -86,10 +86,10 @@ export const setupFeeCollection = async (payload: FeeCollectionSetupDto) => {
   }
 };
 
-export const getSetupStatus = async (): Promise<FeeCollectionConfigResponse> => {
+export const getSetupStatus = async (): Promise<FeeCollectionConfigResponse | null> => {
   try {
     const { data } = await api.get<{ data: FeeCollectionConfigResponse }>(`/api/fee-collection/setup/status`);
-    return data.data;
+    return data.data ?? null;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

@@ -16,6 +16,12 @@ export default async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const path = url.pathname;
 
+  // Temporarily disabled finance routes
+  const disabledRoutes = ["/staff/fees", "/staff/fee-collection", "/staff/invoices", "/staff/website-customization"];
+  if (disabledRoutes.some(route => path === route || path.startsWith(route + "/"))) {
+    return NextResponse.redirect(new URL("/staff/", req.nextUrl));
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 

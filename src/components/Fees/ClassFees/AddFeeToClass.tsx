@@ -13,12 +13,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useRef } from "react";
 import { Formik, Form, type FormikHelpers } from "formik";
 import { toast } from "sonner";
-import { addFeeToClassSchema } from "@/schema/fees";
-import { useCreateFeeItem } from "@/hooks/queryHooks/useFee";
+import { addFeeToClassSchema, addFeeToClassWithArmsSchema } from "@/schema/fees";
+import { useCreateSingleArmFeeItem } from "@/hooks/queryHooks/useFee";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useFeeFormData } from "../AddFee/useFeeForm";
 import { useSearchStocks } from "@/hooks/queryHooks/useStock";
-import type { FeeItemDto, FeeTermType } from "@/api/fee";
+import type { SingleArmFeeItemDto, FeeTermType } from "@/api/fee";
 import { Spinner } from "@/components/ui/spinner";
 
 interface AddFeeToClassValues {
@@ -36,21 +36,27 @@ interface AddFeeToClassValues {
 const AddFeeToClass = () => {
   const router = useRouter();
   const params = useSearchParams();
+  const armId = params.get("armId") ? Number(params.get("armId")) : null;
+  const armName = params.get("armName") ?? "";
   const classId = params.get("classId") ? Number(params.get("classId")) : null;
   const classNameParam = params.get("className") ?? "This Class";
 
+  // arm-mode: armId in URL → single-arm API, no arm selection UI
+  // class-mode: classId in URL → multi-arm API with arm checkboxes
+  const isArmMode = !!armId;
+
   const { termList, sessionName, sessionId, classList, branchList } = useFeeFormData();
-  const { mutate: createFeeItem, isPending } = useCreateFeeItem();
+  const { mutateAsync: createSingleArmFeeItem, isPending } = useCreateSingleArmFeeItem();
   const addAnotherRef = useRef(false);
 
-  const { data: armsResp, isLoading: loadingArms } = useGetArmsByClass(classId);
+  const { data: armsResp, isLoading: loadingArms } = useGetArmsByClass(isArmMode ? null : classId);
   const arms: { armId: number; armName: string }[] = useMemo(() => {
-    if (!armsResp) return [];
-    if (Array.isArray(armsResp)) return armsResp;
-    return (armsResp as { content?: { armId: number; armName: string }[] })?.content ?? [];
+    const raw: { id: number; name: string }[] = Array.isArray(armsResp)
+      ? armsResp
+      : ((armsResp as { data?: unknown[] })?.data ?? (armsResp as { content?: unknown[] })?.content ?? []) as { id: number; name: string }[];
+    return raw.map(a => ({ armId: a.id, armName: a.name }));
   }, [armsResp]);
 
-  // Derive branchId for the stock picker from the class
   const classBranchId = useMemo(() => classList.find(c => c.id === classId)?.branchId ?? branchList[0]?.id, [classList, classId, branchList]);
 
   const { data: stockData } = useSearchStocks({ branchId: classBranchId, size: 50 });
@@ -62,10 +68,9 @@ const AddFeeToClass = () => {
     { label: "Add Fee", url: "/staff/fees/add-fee-to-class" },
   ]);
 
-  // Pre-select all arms; reinitialises when arms load
   const initialValues: AddFeeToClassValues = useMemo(
     () => ({
-      armIds: arms.map(a => a.armId),
+      armIds: isArmMode ? [] : arms.map(a => a.armId),
       name: "",
       sessionId: sessionId ?? "",
       term: "",
@@ -76,47 +81,52 @@ const AddFeeToClass = () => {
       minimumPartPayment: "",
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [arms, sessionId],
+    [arms, sessionId, isArmMode],
   );
 
-  const handleSubmit = (values: AddFeeToClassValues, helpers: FormikHelpers<AddFeeToClassValues>) => {
-    const payload: FeeItemDto = {
+  const handleSubmit = async (values: AddFeeToClassValues, helpers: FormikHelpers<AddFeeToClassValues>) => {
+    const payload: SingleArmFeeItemDto = {
       name: values.name.trim(),
       session: Number(values.sessionId),
       term: values.term as FeeTermType,
       quantity: values.quantity,
-      armIds: values.armIds,
       amount: Number(values.amount) || 0,
       required: values.required,
       allowPartPayment: values.allowPartPayment,
       minimumPartPayment: values.allowPartPayment ? Number(values.minimumPartPayment) || 0 : undefined,
     };
 
-    createFeeItem(payload, {
-      onSuccess: () => {
-        toast.success("Fee added to class successfully");
-        if (addAnotherRef.current) {
-          helpers.resetForm({ values: { ...initialValues, armIds: values.armIds } });
-        } else {
-          router.push("/staff/fees?tab=Fee Items");
-        }
-      },
-      onError: (error: unknown) => {
-        toast.error((error as { message?: string })?.message ?? "Failed to add fee to class");
-      },
-      onSettled: () => {
-        addAnotherRef.current = false;
-      },
-    });
+    const targetArmIds = isArmMode ? [armId!] : values.armIds;
+
+    try {
+      await Promise.all(targetArmIds.map(id => createSingleArmFeeItem({ armId: id, payload })));
+      toast.success("Fee added successfully");
+      if (addAnotherRef.current) {
+        helpers.resetForm({ values: { ...initialValues, armIds: isArmMode ? [] : values.armIds } });
+      } else {
+        router.push("/staff/fees?tab=Fee Items");
+      }
+    } catch (error: unknown) {
+      toast.error((error as { message?: string })?.message ?? "Failed to add fee");
+    } finally {
+      addAnotherRef.current = false;
+    }
   };
 
-  const toggleArm = (armId: number, checked: boolean, currentIds: number[], setField: (f: string, v: unknown) => void) => {
-    const next = checked ? [...currentIds, armId] : currentIds.filter(id => id !== armId);
+  const toggleArm = (id: number, checked: boolean, currentIds: number[], setField: (f: string, v: unknown) => void) => {
+    const next = checked ? [...currentIds, id] : currentIds.filter(x => x !== id);
     setField("armIds", next);
   };
 
+  const title = isArmMode ? `Add Fee To ${armName} — ${classNameParam}` : `Add Fee To ${classNameParam}`;
+
   return (
-    <Formik initialValues={initialValues} enableReinitialize validationSchema={addFeeToClassSchema} onSubmit={handleSubmit}>
+    <Formik
+      initialValues={initialValues}
+      enableReinitialize
+      validationSchema={isArmMode ? addFeeToClassSchema : addFeeToClassWithArmsSchema}
+      onSubmit={handleSubmit}
+    >
       {({ values, errors, touched, setFieldValue, handleChange, handleBlur, handleSubmit: submitForm }) => {
         const increase = () => setFieldValue("quantity", values.quantity + 1);
         const decrease = () => setFieldValue("quantity", values.quantity > 1 ? values.quantity - 1 : 1);
@@ -125,7 +135,7 @@ const AddFeeToClass = () => {
           <Form>
             <div className="bg-bg-card-subtle border-border-default flex w-full items-center justify-center border-b p-3">
               <div className="mx-auto w-full font-semibold md:max-w-150">
-                <div className="text-text-default text-md">Add Fee To {classNameParam}</div>
+                <div className="text-text-default text-md">{title}</div>
               </div>
             </div>
 
@@ -224,47 +234,49 @@ const AddFeeToClass = () => {
                     </div>
                   </div>
 
-                  {/* Apply to Arms */}
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-text-default text-sm font-medium">Apply to Arms</Label>
-                      {!loadingArms && arms.length > 0 && (
-                        <button
-                          type="button"
-                          className="text-text-muted hover:text-text-default text-xs underline"
-                          onClick={() => {
-                            const allSelected = values.armIds.length === arms.length;
-                            setFieldValue("armIds", allSelected ? [] : arms.map(a => a.armId));
-                          }}
-                        >
-                          {values.armIds.length === arms.length ? "Deselect all" : "Select all"}
-                        </button>
-                      )}
-                    </div>
-                    {loadingArms ? (
-                      <div className="flex flex-col gap-2">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <Skeleton key={i} className="bg-bg-input-soft h-10 w-full rounded-md" />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="border-border-default rounded-md border">
-                        {arms.map((arm, i) => (
-                          <label
-                            key={arm.armId}
-                            className={`flex cursor-pointer items-center gap-3 px-3 py-2.5 ${i < arms.length - 1 ? "border-border-default border-b" : ""}`}
+                  {/* Apply to Arms — only shown in class-mode */}
+                  {!isArmMode && (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-text-default text-sm font-medium">Apply to Arms</Label>
+                        {!loadingArms && arms.length > 0 && (
+                          <button
+                            type="button"
+                            className="text-text-muted hover:text-text-default text-xs underline"
+                            onClick={() => {
+                              const allSelected = values.armIds.length === arms.length;
+                              setFieldValue("armIds", allSelected ? [] : arms.map(a => a.armId));
+                            }}
                           >
-                            <Checkbox
-                              checked={values.armIds.includes(arm.armId)}
-                              onCheckedChange={v => toggleArm(arm.armId, !!v, values.armIds, setFieldValue)}
-                            />
-                            <span className="text-text-default text-sm">{arm.armName}</span>
-                          </label>
-                        ))}
+                            {values.armIds.length === arms.length ? "Deselect all" : "Select all"}
+                          </button>
+                        )}
                       </div>
-                    )}
-                    {touched.armIds && errors.armIds && <span className="text-text-destructive text-xs">{errors.armIds as string}</span>}
-                  </div>
+                      {loadingArms ? (
+                        <div className="flex flex-col gap-2">
+                          {Array.from({ length: 3 }).map((_, i) => (
+                            <Skeleton key={i} className="bg-bg-input-soft h-10 w-full rounded-md" />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="border-border-default rounded-md border">
+                          {arms.map((arm, i) => (
+                            <label
+                              key={arm.armId}
+                              className={`flex cursor-pointer items-center gap-3 px-3 py-2.5 ${i < arms.length - 1 ? "border-border-default border-b" : ""}`}
+                            >
+                              <Checkbox
+                                checked={values.armIds.includes(arm.armId)}
+                                onCheckedChange={v => toggleArm(arm.armId, !!v, values.armIds, setFieldValue)}
+                              />
+                              <span className="text-text-default text-sm">{arm.armName}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                      {touched.armIds && errors.armIds && <span className="text-text-destructive text-xs">{errors.armIds as string}</span>}
+                    </div>
+                  )}
 
                   {/* Quantity / Amount */}
                   <div className="flex items-start justify-between gap-4">

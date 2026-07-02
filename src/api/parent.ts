@@ -1,5 +1,6 @@
 import { getSessionToken } from "@/app/actions/auth";
 import { ParentInputType } from "@/components/StudentAndParent/types";
+import { CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
 import api from "@/lib/axios/axios-auth";
 import axios, { isAxiosError } from "axios";
 
@@ -69,6 +70,28 @@ export const uploadParents = async ({ file, branchId }: { file: File | null; bra
       }
       throw error;
     }
+  }
+};
+
+export const validateParentsUpload = async ({ file, branchId }: { file: File; branchId: number }): Promise<ValidateUploadResponse> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  try {
+    const { data } = await api.post(`/parents/upload/validate/${branchId}`, formData);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const commitParentsUpload = async ({ batchId }: { batchId: string }): Promise<CommitUploadResponse> => {
+  try {
+    const { data } = await api.post(`/parents/upload/${batchId}/commit`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
   }
 };
 

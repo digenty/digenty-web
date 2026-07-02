@@ -133,6 +133,7 @@ export const ParentsUpload = () => {
     setValidRows(validRows);
     setErrors(rowErrors);
   };
+
   const validateFile = (fileToValidate: File, type: string) => {
     if (type === "xlsx") {
       parseXLSX(fileToValidate);

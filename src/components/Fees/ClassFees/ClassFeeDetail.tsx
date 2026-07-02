@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteFeeItem, useGetFeeItems } from "@/hooks/queryHooks/useFee";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
+import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams, useRouter } from "next/navigation";
-import React from "react";
+import React, { useMemo } from "react";
 import { toast } from "sonner";
 import type { ClassType } from "@/api/types";
 
@@ -20,6 +21,14 @@ export const ClassFeeDetail = () => {
 
   const { data: classesResp } = useGetClasses();
   const className = (classesResp?.data?.content as ClassType[] | undefined)?.find(c => c.id === classId)?.name ?? "Class Fees";
+
+  const { data: armsResp, isLoading: loadingArms } = useGetArmsByClass(classId);
+  const arms: { armId: number; armName: string }[] = useMemo(() => {
+    const raw: { id: number; name: string }[] = Array.isArray(armsResp)
+      ? armsResp
+      : (((armsResp as { data?: unknown[] })?.data ?? (armsResp as { content?: unknown[] })?.content ?? []) as { id: number; name: string }[]);
+    return raw.map(a => ({ armId: a.id, armName: a.name }));
+  }, [armsResp]);
 
   const { data: items = [], isPending, isError } = useGetFeeItems({ classId });
   const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
@@ -44,7 +53,7 @@ export const ClassFeeDetail = () => {
       <div className="w-full py-4">
         <div className="mb-4 flex flex-col justify-between gap-4 md:mb-9 md:flex-row">
           <div className="text-text-default text-xl font-semibold">{className}</div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               onClick={() => router.push(`/staff/fees/add-fee-to-class?classId=${classId}&className=${encodeURIComponent(className)}`)}
               className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! h-8! border font-medium shadow-sm!"
@@ -52,6 +61,24 @@ export const ClassFeeDetail = () => {
               <AddFill fill="var(--color-icon-default-muted)" />
               Add Fee To This Class
             </Button>
+            {/* {loadingArms ? (
+              <Skeleton className="bg-bg-input-soft h-8 w-40 rounded-md" />
+            ) : (
+              arms.map(arm => (
+                <Button
+                  key={arm.armId}
+                  onClick={() =>
+                    router.push(
+                      `/staff/fees/add-fee-to-class?armId=${arm.armId}&armName=${encodeURIComponent(arm.armName)}&className=${encodeURIComponent(className)}`,
+                    )
+                  }
+                  className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! invisible h-8! border font-medium shadow-sm!"
+                >
+                  <AddFill fill="var(--color-icon-default-muted)" />
+                  Add Fee To {arm.armName}
+                </Button>
+              ))
+            )} */}
           </div>
         </div>
 
