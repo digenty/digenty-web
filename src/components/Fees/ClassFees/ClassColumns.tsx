@@ -68,7 +68,10 @@ const RenderOptions = ({ row }: { row: Row<ClassFeeTypes> }) => {
 
         <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
           <DropdownMenuItem
-            onClick={evt => { evt.stopPropagation(); router.push(`/staff/fees/${id}`); }}
+            onClick={evt => {
+              evt.stopPropagation();
+              router.push(`/staff/fees/${id}`);
+            }}
             className="gap-2.5 px-3"
           >
             <EyeIcon className="text-icon-default-subtle size-4" />
@@ -76,7 +79,11 @@ const RenderOptions = ({ row }: { row: Row<ClassFeeTypes> }) => {
           </DropdownMenuItem>
           <DropdownMenuSeparator className="border-border-default bg-border-default" />
           <DropdownMenuItem
-            onClick={evt => { evt.stopPropagation(); setOpen(false); setDeleteOpen(true); }}
+            onClick={evt => {
+              evt.stopPropagation();
+              setOpen(false);
+              setDeleteOpen(true);
+            }}
             className="gap-2.5 px-3"
           >
             <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />

@@ -60,8 +60,8 @@ export const SummaryCard = ({
         <div className="border-border-default bg-bg-card-subtle flex items-start gap-2 rounded-md border p-3">
           <Information fill="var(--color-icon-default-muted)" className="mt-0.5 size-4 shrink-0" />
           <p className="text-text-muted text-xs leading-relaxed">
-            You&apos;ll be redirected to a secure payment gateway to complete this transaction. Your campaign will be ready to send once payment
-            is confirmed.
+            You&apos;ll be redirected to a secure payment gateway to complete this transaction. Your campaign will be ready to send once payment is
+            confirmed.
           </p>
         </div>
       )}

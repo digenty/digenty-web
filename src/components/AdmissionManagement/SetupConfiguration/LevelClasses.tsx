@@ -21,11 +21,7 @@ const buildQuery = (branchId?: number) => (branchId ? `?branchId=${branchId}` : 
 export const LevelClasses = ({ cycleId, level, branchId }: Props) => {
   const router = useRouter();
   const configured = level.status === "CONFIGURED";
-  const { data: classes = [], isPending, isError, refetch } = useGetLevelClasses(
-    cycleId,
-    configured ? level.classLevelId : undefined,
-    branchId,
-  );
+  const { data: classes = [], isPending, isError, refetch } = useGetLevelClasses(cycleId, configured ? level.classLevelId : undefined, branchId);
 
   const baseUrl = `/staff/admission-management/setup/${cycleId}/levels/${level.classLevelId}`;
 

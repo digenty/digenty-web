@@ -5,11 +5,7 @@ import { Progress4 } from "@/components/Icons/Progress4";
 import { OverviewCard } from "@/components/OverviewCard";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  useGetDashboardApplicantsByClass,
-  useGetDashboardApplicantsByStatus,
-  useGetDashboardOverview,
-} from "@/hooks/queryHooks/useAdmission";
+import { useGetDashboardApplicantsByClass, useGetDashboardApplicantsByStatus, useGetDashboardOverview } from "@/hooks/queryHooks/useAdmission";
 import { CashFill, School, UserFill } from "@digenty/icons";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -129,7 +125,9 @@ export const AdmissionDashboard = () => {
     return (
       <div className="border-border-default mx-auto mt-10 flex max-w-md flex-col items-center gap-2 rounded-xl border border-dashed py-16">
         <p className="text-text-default text-sm font-medium">No active admission cycle</p>
-        <p className="text-text-muted text-center text-xs">Create and activate an admission cycle from Set Up &amp; Configuration to see the dashboard.</p>
+        <p className="text-text-muted text-center text-xs">
+          Create and activate an admission cycle from Set Up &amp; Configuration to see the dashboard.
+        </p>
       </div>
     );
   }

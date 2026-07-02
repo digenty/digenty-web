@@ -1,4 +1,12 @@
-import { addBranch, deleteBranch, getAllBranchesDetails, getBranchDetails, getBranchesForASchool, updateBranch } from "@/api/branch";
+import {
+  addBranch,
+  deleteBranch,
+  getAllBranchesDetails,
+  getBranchDetails,
+  getBranchesBySchool,
+  getBranchesForASchool,
+  updateBranch,
+} from "@/api/branch";
 import { branchKeys } from "@/queries/branch";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -40,6 +48,14 @@ export const useUpdateBranch = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [branchKeys.branches] });
     },
+  });
+};
+
+export const useGetBranchesBySchool = (schoolId?: number) => {
+  return useQuery({
+    queryKey: branchKeys.branchBySchool(String(schoolId)),
+    queryFn: () => getBranchesBySchool(schoolId!),
+    enabled: !!schoolId,
   });
 };
 

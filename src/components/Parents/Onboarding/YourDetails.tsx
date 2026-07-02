@@ -6,54 +6,31 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetBranches } from "@/hooks/queryHooks/useBranch";
-import { useAddParent, useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
+import { useGetBranchesBySchool } from "@/hooks/queryHooks/useBranch";
+import { useAddParentOnParentPortal, useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
 import { cn } from "@/lib/utils";
 import { parentSchema } from "@/schema/parent";
 import { Gender, genders, Relationship, relationships } from "@/types";
 import { Branch } from "@/api/types";
 import { useFormik } from "formik";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Country, ParentInputValues, State } from "@/components/StudentAndParent/types";
 import { toast } from "@/components/Toast";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 
-export const YourDetails = () => {
+export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useParams();
-  const schoolSlug = params.schoolSlug as string;
 
   const [countries, setCountries] = useState<Country[]>([]);
   const [availableStates, setAvailableStates] = useState<string[]>([]);
   const [avatar, setAvatar] = useState<string | undefined>();
-  const { data: branches, isPending: loadingBranches } = useGetBranches();
-  const { mutate: createParent, isPending: creating } = useAddParent();
+  const { data: branches, isPending: loadingBranches } = useGetBranchesBySchool(schoolId);
+  const { mutate: createParent, isPending: creating } = useAddParentOnParentPortal();
   const { data: parentData, isLoading: loadingParent } = useGetParent();
   const { mutate: editParent, isPending: updating } = useEditParent();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const countryList = await getCountries();
-      setCountries(countryList);
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (countries.length > 0 && values.nationality) {
-      const selectedCountry = countries.find(c => c.name === values.nationality);
-      if (selectedCountry) {
-        setAvailableStates(selectedCountry.states || []);
-      } else {
-        setAvailableStates([]);
-      }
-    } else {
-      setAvailableStates([]);
-    }
-  }, [countries]);
 
   const formik = useFormik<ParentInputValues>({
     initialValues: {
@@ -125,6 +102,27 @@ export const YourDetails = () => {
       }
     },
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const countryList = await getCountries();
+      setCountries(countryList);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (countries.length > 0 && values.nationality) {
+      const selectedCountry = countries.find(c => c.name === values.nationality);
+      if (selectedCountry) {
+        setAvailableStates(selectedCountry.states || []);
+      } else {
+        setAvailableStates([]);
+      }
+    } else {
+      setAvailableStates([]);
+    }
+  }, [countries, formik.values.nationality]);
 
   useEffect(() => {
     if (parentData) {
@@ -274,9 +272,9 @@ export const YourDetails = () => {
                   <Skeleton className="bg-bg-input-soft h-9 w-full" />
                 ) : (
                   <Select
-                    value={branches.data.content?.find((b: Branch) => b.id === values.branchId)?.uuid || ""}
+                    value={String(branches.data?.find((branch: Branch) => branch.id === values.branchId)?.id) || ""}
                     onValueChange={value => {
-                      const branch = branches.data.content?.find((b: Branch) => b.uuid === value);
+                      const branch = branches.data?.find((branch: Branch) => branch.id === Number(value));
                       setFieldValue("branchId", branch.id);
                     }}
                   >
@@ -287,8 +285,8 @@ export const YourDetails = () => {
                       <SelectValue placeholder="Select Branch" />
                     </SelectTrigger>
                     <SelectContent className="bg-bg-card border-none">
-                      {branches.data.content.map((branch: Branch) => (
-                        <SelectItem key={branch.id} value={branch.uuid} className="text-text-default">
+                      {branches.data?.map((branch: Branch) => (
+                        <SelectItem key={branch.id} value={`${branch.id}`} className="text-text-default">
                           {branch.name}
                         </SelectItem>
                       ))}

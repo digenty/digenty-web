@@ -7,15 +7,16 @@ import { useGetParent } from "@/hooks/queryHooks/useParent";
 import { Pencil } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { Student } from "@/api/types";
+import { Parent } from "@/api/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { cn } from "@/lib/utils";
 
 const Row = ({ label, value }: { label: string; value?: string }) => (
   <div className="border-border-default flex items-center border-b pb-2">
     <div className="text-text-subtle flex-1 text-sm">{label}</div>
-    <div className="text-text-default flex-1 text-sm">{value || "-"}</div>
+    <div className="text-text-default flex-1 text-sm capitalize">{value?.toLowerCase() || "-"}</div>
   </div>
 );
 
@@ -40,10 +41,10 @@ const StudentItem = ({
   const isOpen = openId === studentId;
 
   return (
-    <div className="border-border-default flex flex-col gap-6 rounded-md border">
-      <div className="border-border-default border-b">
-        <div className="flex cursor-pointer justify-between px-4 py-2" onClick={() => setOpenId(isOpen ? null : studentId)}>
-          <div className="text-text-default text-lg font-semibold">Student {index + 1} Details</div>
+    <div className="border-border-default flex flex-col gap-4 rounded-md border">
+      <div className={cn(isOpen ? "border-border-default border-b" : "")}>
+        <div className="flex cursor-pointer items-center justify-between px-4 py-2" onClick={() => setOpenId(isOpen ? null : studentId)}>
+          <div className="text-text-default text-lg font-medium">Student {index + 1} Details</div>
 
           <Button
             onClick={e => {
@@ -64,7 +65,7 @@ const StudentItem = ({
           {isError && <ErrorComponent title="Error" description="Failed to load student details." />}
           {!isError && !isLoading && (
             <>
-              <Avatar className="size-8" />
+              <Avatar className="size-8" url={student?.image} />
               <div className="text-text-default text-lg font-semibold">Personal Information</div>
               <div className="flex flex-col gap-3">
                 <Row label="First Name" value={student?.firstName} />
@@ -110,14 +111,12 @@ const StudentItem = ({
   );
 };
 
-export const StudentReview = () => {
+export const StudentReview = ({ data }: { data?: Parent }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const parentId = Number(pathname.split("/")[3]);
-  const { data: parentData } = useGetParent(parentId);
   const [openId, setOpenId] = useState<number | null>(null);
 
-  const students = parentData?.linkedStudents || [];
+  const students = data?.linkedStudents || [];
 
   if (!students.length) {
     return (
@@ -125,14 +124,14 @@ export const StudentReview = () => {
         title="No Data"
         description="You do not have any data yet. Kindly add a student to review their details here."
         buttonText="Enter student's details"
-        url={`${pathname}?step=your-details`}
+        url={`${pathname}?step=student`}
       />
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      {students.map((s: Student, index: number) => (
+      {students.map((s, index) => (
         <StudentItem key={s.id} studentId={s.id} index={index} openId={openId} setOpenId={setOpenId} pathname={pathname} router={router} />
       ))}
     </div>

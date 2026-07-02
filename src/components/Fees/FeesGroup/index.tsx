@@ -174,10 +174,7 @@ export const FeesGroup = () => {
                 <div key={item.feeGroupId} className="border-border-default bg-bg-subtle rounded-md border">
                   <div className="flex h-[38px] items-center justify-between px-3 py-1.5">
                     <span className="text-text-default text-sm font-medium">{item.name}</span>
-                    <Button
-                      onClick={() => setActiveItemId(item.feeGroupId)}
-                      className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!"
-                    >
+                    <Button onClick={() => setActiveItemId(item.feeGroupId)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
                       <Ellipsis className="size-5" />
                     </Button>
                   </div>
@@ -214,17 +211,29 @@ export const FeesGroup = () => {
           </div>
 
           {/* Single shared mobile drawer */}
-          <MobileDrawer open={activeItemId !== null} setIsOpen={open => { if (!open) setActiveItemId(null); }} title="Actions">
+          <MobileDrawer
+            open={activeItemId !== null}
+            setIsOpen={open => {
+              if (!open) setActiveItemId(null);
+            }}
+            title="Actions"
+          >
             <div className="flex w-full flex-col gap-4 px-3 py-4">
               <div className="flex flex-col items-center gap-2">
                 <button
-                  onClick={() => { setActiveItemId(null); router.push(`/staff/fees/fee-group/${activeItemId}`); }}
+                  onClick={() => {
+                    setActiveItemId(null);
+                    router.push(`/staff/fees/fee-group/${activeItemId}`);
+                  }}
                   className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                 >
                   <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View fee group
                 </button>
                 <button
-                  onClick={() => { setActiveItemId(null); router.push(`/staff/fees/add-fee-to-group?id=${activeItemId}`); }}
+                  onClick={() => {
+                    setActiveItemId(null);
+                    router.push(`/staff/fees/add-fee-to-group?id=${activeItemId}`);
+                  }}
                   className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                 >
                   <Edit className="size-4" fill="var(--color-icon-default-subtle)" /> Edit fee group

@@ -1,8 +1,8 @@
-import { ParentOnboarding } from "@/components/Parents/Onboarding";
+import { DomainMain } from "@/components/Domain";
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 
-export default function ParentOnboardingPage() {
+const DomainPage = () => {
   return (
     <Suspense
       fallback={
@@ -11,7 +11,9 @@ export default function ParentOnboardingPage() {
         </div>
       }
     >
-      <ParentOnboarding />
+      <DomainMain />
     </Suspense>
   );
-}
+};
+
+export default DomainPage;

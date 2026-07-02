@@ -1,32 +1,20 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
+function getSubdomain(host: string): string | null {
+  const hostname = host.split(":")[0];
+  if (hostname.endsWith(".localhost") && hostname !== "localhost") {
+    return hostname.slice(0, hostname.lastIndexOf(".localhost"));
+  }
+  if (hostname.endsWith(".axisbydigenty.com") && hostname !== "axisbydigenty.com" && hostname !== "app.axisbydigenty.com") {
+    return hostname.split(".")[0];
+  }
+  return null;
+}
+
 export default async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
-  const host = req.headers.get("host");
   const path = url.pathname;
-  console.log(url, host, path);
-
-  // Subdomain handling
-  // For local testing: greenwood.localhost:3000
-  // For production: school.axis.com
-  const mainDomains = ["axis.com", "localhost:3000", "localhost:8000", "app.axis.com"];
-
-  if (host && !mainDomains.includes(host)) {
-    const parts = host.split(".");
-    // Check if we have a subdomain (e.g., greenwood.axis.com or greenwood.localhost:3000)
-    // For localhost:3000, parts would be ["greenwood", "localhost:3000"]
-    // For axis.com, parts would be ["greenwood", "axis", "com"]
-    const subdomain = parts.length > 2 || (parts.length === 2 && parts[1].includes("localhost")) ? parts[0] : null;
-
-    if (subdomain && subdomain !== "www") {
-      // Rewrite root /onboarding to /parents/[schoolSlug]/onboarding
-      if (path === "/onboarding" || path === "/parent/onboarding") {
-        url.pathname = `/parents/${subdomain}/onboarding`;
-        return NextResponse.rewrite(url);
-      }
-    }
-  }
 
   // Temporarily disabled finance routes
   const disabledRoutes = ["/staff/fees", "/staff/fee-collection", "/staff/invoices", "/staff/website-customization"];
@@ -37,25 +25,33 @@ export default async function middleware(req: NextRequest) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
+  const host = req.headers.get("host") ?? req.nextUrl.host;
+  const isParentPortal = !!getSubdomain(host);
+
   //include all routes that you want to be accessed without auth
   const authRoutes = [
     "/auth/staff",
     "/auth/staff?step=login",
     "/auth/staff?step=signup",
-    "/auth/parents",
-    "/auth/parents?step=login",
-    "/auth/parents?step=signup",
+    "/auth/parents/login",
+    "/auth/parents/signup",
+    "/auth/parents/forgot-password",
   ];
 
   const isAuthRoute = authRoutes.includes(path);
 
   if (path === "/") {
+    if (isParentPortal) {
+      const target = token ? "/parents" : "/auth/parents/login";
+      return NextResponse.redirect(new URL(target, req.nextUrl));
+    }
     return NextResponse.redirect(new URL("/auth/staff", req.nextUrl));
   }
 
   //   If user is logged in and tries to visit auth routes
   if (token && isAuthRoute) {
-    return NextResponse.redirect(new URL("/staff/", req.nextUrl));
+    const target = isParentPortal || path.startsWith("/auth/parent") ? "/parents" : "/staff/";
+    return NextResponse.redirect(new URL(target, req.nextUrl));
   }
 
   if (!token && !isAuthRoute) {
@@ -64,10 +60,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     if (path.startsWith("/parent")) {
-      // Don't redirect if it's already a rewritten path or subdomain specific
-      if (!path.includes(`/${host?.split(".")[0]}/`)) {
-        return NextResponse.redirect(new URL("/auth/parent/login", req.url));
-      }
+      return NextResponse.redirect(new URL("/auth/parents/login", req.url));
     }
   }
 

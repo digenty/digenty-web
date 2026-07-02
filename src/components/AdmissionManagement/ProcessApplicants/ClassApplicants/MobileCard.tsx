@@ -34,7 +34,10 @@ export const MobileCard = ({ applicant, onView }: { applicant: Applicant; onView
           <MobileDrawer open={isOpen} setIsOpen={setIsOpen} title="Actions">
             <div className="flex flex-col gap-2 px-3 py-4">
               <Button
-                onClick={() => { setIsOpen(false); onView(applicant); }}
+                onClick={() => {
+                  setIsOpen(false);
+                  onView(applicant);
+                }}
                 className="bg-bg-state-secondary border-border-darker text-text-default h-8 border text-sm font-medium"
               >
                 <EyeIcon className="text-icon-default-muted size-4" />

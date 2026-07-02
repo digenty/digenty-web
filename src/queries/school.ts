@@ -4,4 +4,7 @@ export const schoolsKey = {
   getSchool: ["getSchools"] as const,
   getSchoolDetails: ["getSchoolDetails"] as const,
   getOnboardingProgress: ["getOnboardingProgress"] as const,
+  getSubdomain: ["getSubdomain"] as const,
+  createSubdomain: ["createSubdomain"] as const,
+  updateSubdomain: ["updateSubdomain"] as const,
 };

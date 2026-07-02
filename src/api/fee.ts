@@ -157,7 +157,12 @@ export interface ClassFeeDetailResponse {
   totalAmount: number;
 }
 
-export const getFeeClassOverview = async (sessionId: number, term: FeeTermType, branchId?: number, search?: string): Promise<FeeClassOverviewResponse> => {
+export const getFeeClassOverview = async (
+  sessionId: number,
+  term: FeeTermType,
+  branchId?: number,
+  search?: string,
+): Promise<FeeClassOverviewResponse> => {
   try {
     const params = new URLSearchParams({ sessionId: String(sessionId), term });
     if (branchId) params.append("branchId", String(branchId));

@@ -52,11 +52,7 @@ export const StockDetailsManagement = ({ stock }: Props) => {
   const currentQty = stock?.totalQuantity ?? stock?.quantity ?? 0;
   const branchName = stock?.branchName ?? stock?.branch?.name;
   const branchId =
-    stock?.branchId ??
-    stock?.branch?.id ??
-    stock?.branchStocks?.[0]?.branchId ??
-    stock?.branches?.[0]?.branchId ??
-    branchEntries[0]?.branchId;
+    stock?.branchId ?? stock?.branch?.id ?? stock?.branchStocks?.[0]?.branchId ?? stock?.branches?.[0]?.branchId ?? branchEntries[0]?.branchId;
   const unitName = stock?.unit?.name ?? stock?.unitName;
 
   const handleAdjusted = (tx: StockTransactionRecord) => {

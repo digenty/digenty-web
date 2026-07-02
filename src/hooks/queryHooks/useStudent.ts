@@ -1,5 +1,6 @@
 import {
   addStudent,
+  addStudentByParent,
   addTeacherInput,
   commitStudentsUpload,
   deleteStudents,
@@ -29,6 +30,18 @@ export const useAddStudent = () => {
       queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
       queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
     },
+  });
+};
+
+export const useAddStudentByParent = () => {
+  // const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: studentKeys.addStudentByParent,
+    mutationFn: addStudentByParent,
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
+    //   queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
+    // },
   });
 };
 

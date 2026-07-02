@@ -49,14 +49,7 @@ export const Communications = () => {
         onChannelChange={handleChannelChange}
       />
 
-      <CampaignsTable
-        search={debouncedSearch}
-        status={status}
-        channel={channel}
-        termId={termId}
-        page={page}
-        onPageChange={setPage}
-      />
+      <CampaignsTable search={debouncedSearch} status={status} channel={channel} termId={termId} page={page} onPageChange={setPage} />
     </div>
   );
 };

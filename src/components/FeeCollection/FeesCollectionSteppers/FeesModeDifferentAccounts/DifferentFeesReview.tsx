@@ -32,16 +32,12 @@ export const DifferentFeesReview = ({ selected, onSelect }: { selected: FlowType
     setOpenMode(false);
   };
 
-  const editingAccount = editingBranchId !== null
-    ? values.branchAccounts.find(a => a.branchId === editingBranchId)
-    : null;
+  const editingAccount = editingBranchId !== null ? values.branchAccounts.find(a => a.branchId === editingBranchId) : null;
 
   const handleSaveAccount = (updated: { bankCode: string; bankName: string; accountNumber: string }) => {
     setFieldValue(
       "branchAccounts",
-      values.branchAccounts.map(a =>
-        a.branchId === editingBranchId ? { ...a, ...updated } : a,
-      ),
+      values.branchAccounts.map(a => (a.branchId === editingBranchId ? { ...a, ...updated } : a)),
     );
     setEditingBranchId(null);
   };
@@ -115,11 +111,7 @@ export const DifferentFeesReview = ({ selected, onSelect }: { selected: FlowType
                       {acc.bankName} • {acc.accountNumber}
                     </div>
                   </div>
-                  <Button
-                    type="button"
-                    onClick={() => setEditingBranchId(acc.branchId ?? null)}
-                    className="hover:bg-bg-none! bg-none"
-                  >
+                  <Button type="button" onClick={() => setEditingBranchId(acc.branchId ?? null)} className="hover:bg-bg-none! bg-none">
                     <Edit fill="var(--color-icon-default-muted)" />
                   </Button>
                 </div>

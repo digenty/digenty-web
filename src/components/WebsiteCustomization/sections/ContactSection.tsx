@@ -54,9 +54,7 @@ export const ContactSection = () => {
           key={phone.id}
           label={index === 0 ? "Phone Number" : `Phone Number ${index + 1}`}
           hint={
-            index > 0 && !disabled ? (
-              <RemoveLabelButton onClick={() => updatePhones(contact.phones.filter(p => p.id !== phone.id))} />
-            ) : undefined
+            index > 0 && !disabled ? <RemoveLabelButton onClick={() => updatePhones(contact.phones.filter(p => p.id !== phone.id))} /> : undefined
           }
         >
           <Input
@@ -85,9 +83,7 @@ export const ContactSection = () => {
           key={line.id}
           label={index === 0 ? "Office Hours" : `Office Hours ${index + 1}`}
           hint={
-            index > 0 && !disabled ? (
-              <RemoveLabelButton onClick={() => updateHours(contact.officeHours.filter(l => l.id !== line.id))} />
-            ) : undefined
+            index > 0 && !disabled ? <RemoveLabelButton onClick={() => updateHours(contact.officeHours.filter(l => l.id !== line.id))} /> : undefined
           }
         >
           <Input

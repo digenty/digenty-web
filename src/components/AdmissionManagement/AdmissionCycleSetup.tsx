@@ -40,10 +40,7 @@ export const AdmissionCycleSetup = ({ cycle, onConfigureLevel, onViewClasses }: 
   const handleDiffersChange = (enabled: boolean) => {
     setDiffersByBranch(enabled);
     if (enabled && activeBranchId === undefined && branches.length > 0) setActiveBranchId(branches[0].branch.id);
-    setBranchSpecific(
-      { cycleId: cycle.id, payload: { enabled } },
-      { onError: () => toast.error("Failed to update branch settings") },
-    );
+    setBranchSpecific({ cycleId: cycle.id, payload: { enabled } }, { onError: () => toast.error("Failed to update branch settings") });
   };
 
   return (

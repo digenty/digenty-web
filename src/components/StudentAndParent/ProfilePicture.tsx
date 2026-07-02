@@ -1,6 +1,6 @@
 "use client";
 import { Avatar } from "@/components/Avatar";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { uploadImage } from "@/app/actions/upload-image";
 import { Spinner } from "@/components/ui/spinner";
@@ -17,6 +17,10 @@ export const ProfilePicture = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState<string | undefined>(defaultImageUrl || "/images/profile-picture.png");
   const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    if (defaultImageUrl) setImageUrl(defaultImageUrl);
+  }, [defaultImageUrl]);
 
   const handleFileChange = async (evt: React.ChangeEvent<HTMLInputElement>) => {
     const file = evt.target.files?.[0];

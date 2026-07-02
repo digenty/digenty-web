@@ -26,10 +26,7 @@ export const AdmissionManagement = () => {
 
   useEffect(() => {
     if (activeTab === "setup") return;
-    setBreadcrumbs([
-      { label: "Admission Management", url: "/staff/admission-management" },
-      { label: activeTabLabel },
-    ]);
+    setBreadcrumbs([{ label: "Admission Management", url: "/staff/admission-management" }, { label: activeTabLabel }]);
   }, [activeTab, activeTabLabel, setBreadcrumbs]);
 
   return (

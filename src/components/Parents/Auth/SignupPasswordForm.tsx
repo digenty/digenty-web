@@ -1,4 +1,5 @@
 "use client";
+import { setSchoolFromHost } from "@/app/actions/school";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,7 @@ import { authSchema } from "@/schema/auth";
 import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PasswordChecklist } from "@/components/Auth/PasswordCheckList";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LegalModal } from "@/components/Auth/LegalModal";
@@ -21,6 +22,8 @@ export const SignupPasswordForm = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [passwordIsFulfilled, setPasswordIsFulfilled] = useState(false);
+  const [schoolId, setSchoolId] = useState<number>();
+  const [schoolLookupFailed, setSchoolLookupFailed] = useState(false);
 
   const { mutate, isPending } = useSignup();
   const { mutate: parentMutate, isPending: parentIsPending } = useParentSignup();
@@ -30,6 +33,21 @@ export const SignupPasswordForm = () => {
     title: "",
     content: "",
   });
+
+  useEffect(() => {
+    setSchoolFromHost(window.location.host)
+      .then(school => {
+        if (school?.id) {
+          setSchoolId(school.id);
+        } else {
+          setSchoolLookupFailed(true);
+        }
+      })
+      .catch(e => {
+        console.error("School lookup failed", e);
+        setSchoolLookupFailed(true);
+      });
+  }, []);
 
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
@@ -42,10 +60,20 @@ export const SignupPasswordForm = () => {
     },
     validationSchema: authSchema,
     onSubmit: async values => {
+      if (!schoolId) {
+        toast({
+          title: "Could not determine your school",
+          description: "Please make sure you're on your school's signup link and try again.",
+          type: "error",
+        });
+        return;
+      }
+
       await parentMutate(
         {
           email: values.email.toLowerCase(),
           password: values.password,
+          schoolId,
         },
         {
           onSuccess: data => {
@@ -54,7 +82,7 @@ export const SignupPasswordForm = () => {
               description: data.message,
               type: "success",
             });
-            router.push(`/auth/parent/login`);
+            router.push(`/auth/parents/login`);
           },
           onError: error => {
             toast({
@@ -76,6 +104,11 @@ export const SignupPasswordForm = () => {
       </div>
 
       <div className="mt-7 w-full">
+        {schoolLookupFailed && (
+          <p className="text-text-destructive mb-4 text-center text-xs">
+            We couldn&apos;t determine your school from this link. Please use your school&apos;s signup link.
+          </p>
+        )}
         <form noValidate onSubmit={formik.handleSubmit} className="w-full space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-text-default text-sm font-medium">
@@ -131,7 +164,12 @@ export const SignupPasswordForm = () => {
           {formik.values.password && <PasswordChecklist password={formik.values.password} setIsfulfilled={setPasswordIsFulfilled} />}
 
           <div className="flex items-start gap-2">
-            <Checkbox id="accept-terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked === true)} className="mt-0.5" />
+            <Checkbox
+              id="accept-terms"
+              checked={acceptTerms}
+              onCheckedChange={checked => setAcceptTerms(checked === true)}
+              className="mt-0.5 cursor-pointer"
+            />
             <label htmlFor="accept-terms" className="text-text-muted text-xs leading-normal">
               I agree to the{" "}
               <button
@@ -164,7 +202,7 @@ export const SignupPasswordForm = () => {
           </div>
           <div className="flex items-center justify-center gap-2 text-sm">
             <p className="text-text-muted">Already have an account?</p>
-            <Link href={`/auth/parent/login`} className="text-text-informative text-sm font-medium">
+            <Link href={`/auth/parents/login`} className="text-text-informative text-sm font-medium">
               Log In
             </Link>
           </div>

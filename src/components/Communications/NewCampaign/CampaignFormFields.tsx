@@ -59,9 +59,7 @@ export const CampaignFormFields = ({ formik, onEditSchedule, onCancelSchedule }:
                   <span className="flex items-center gap-2">
                     {opt.label}
                     {isComingSoon && (
-                      <span className="bg-bg-badge-orange text-bg-basic-orange-strong rounded px-1.5 py-0.5 text-xs font-medium">
-                        Coming soon
-                      </span>
+                      <span className="bg-bg-badge-orange text-bg-basic-orange-strong rounded px-1.5 py-0.5 text-xs font-medium">Coming soon</span>
                     )}
                   </span>
                 </SelectItem>

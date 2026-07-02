@@ -205,10 +205,7 @@ export const ClassFees = () => {
                       <div key={fee.id} className="border-border-default bg-bg-subtle rounded-md border last:border-none">
                         <div className="flex h-[38px] items-center justify-between px-3 py-1.5">
                           <span className="text-text-default text-sm font-medium">{fee.classname}</span>
-                          <Button
-                            onClick={() => setActiveClassFeeId(fee.id)}
-                            className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!"
-                          >
+                          <Button onClick={() => setActiveClassFeeId(fee.id)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
                             <Ellipsis className="size-5" />
                           </Button>
                         </div>
@@ -249,13 +246,18 @@ export const ClassFees = () => {
           {/* Single shared mobile drawer */}
           <MobileDrawer
             open={activeClassFeeId !== null}
-            setIsOpen={open => { if (!open) setActiveClassFeeId(null); }}
+            setIsOpen={open => {
+              if (!open) setActiveClassFeeId(null);
+            }}
             title="Actions"
           >
             <div className="flex w-full flex-col gap-4 px-3 py-4">
               <div className="flex flex-col items-center gap-2">
                 <button
-                  onClick={() => { setActiveClassFeeId(null); router.push(`/staff/fees/${activeClassFeeId}`); }}
+                  onClick={() => {
+                    setActiveClassFeeId(null);
+                    router.push(`/staff/fees/${activeClassFeeId}`);
+                  }}
                   className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                 >
                   <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View class fee

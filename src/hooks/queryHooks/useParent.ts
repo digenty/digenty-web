@@ -1,4 +1,15 @@
-import { addParent, commitParentsUpload, deleteParents, editParent, exportParents, getParent, getParents, uploadParents, validateParentsUpload } from "@/api/parent";
+import {
+  addParent,
+  addParentOnParentPortal,
+  commitParentsUpload,
+  deleteParents,
+  editParent,
+  exportParents,
+  getParent,
+  getParents,
+  uploadParents,
+  validateParentsUpload,
+} from "@/api/parent";
 import { parentKeys } from "@/queries/parent";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -10,6 +21,17 @@ export const useAddParent = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
     },
+  });
+};
+
+export const useAddParentOnParentPortal = () => {
+  // const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: parentKeys.addParentOnParentPortal,
+    mutationFn: addParentOnParentPortal,
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
+    // },
   });
 };
 
