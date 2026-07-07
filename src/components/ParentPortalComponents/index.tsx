@@ -12,11 +12,7 @@ export const Parents = () => {
 
   useEffect(() => {
     if (!isLoading && id) {
-      if (!data) {
-        router.push("/parents/onboarding");
-      } else {
-        router.push("/parents");
-      }
+      router.push(data ? "/parents/dashboard" : "/parents/onboarding");
     }
   }, [data, isLoading, router, id]);
 

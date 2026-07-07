@@ -1,5 +1,5 @@
 import { AuthHeader } from "@/components/Auth/AuthHeader";
-import { SignupPasswordForm } from "@/components/Parents/Auth/SignupPasswordForm";
+import { SignupPasswordForm } from "@/components/ParentPortalComponents/Auth/SignupPasswordForm";
 import { cn } from "@/lib/utils";
 
 export default function ParentSignupPage() {

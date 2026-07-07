@@ -143,7 +143,6 @@ export interface FeeClassOverviewResponse {
   grandTotalVariations: number;
 }
 
-// GET /fee/fees/{id}
 export interface ClassFeeDetailResponse {
   feeId: number;
   branchId: number;

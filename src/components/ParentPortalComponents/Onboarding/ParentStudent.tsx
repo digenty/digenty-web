@@ -1,7 +1,8 @@
 "use client";
 
 import { ArrowUpS, CalendarIcon } from "@digenty/icons";
-import { Arm, Branch, ClassType, Parent } from "@/api/types";
+import { Parent } from "@/api/types";
+import { ArmLookup, BranchLookup, ClassLookup } from "@/api/parent-lookup";
 import { getCountries } from "@/app/actions/country";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Country, State, StudentInputValues } from "@/components/StudentAndParent/types";
@@ -15,9 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
-import { useGetBranchesBySchool } from "@/hooks/queryHooks/useBranch";
-import { useGetClasses } from "@/hooks/queryHooks/useClass";
+import { useGetParentPortalArms, useGetParentPortalBranches, useGetParentPortalClasses } from "@/hooks/queryHooks/useParentLookup";
 import { useAddStudent, useAddStudentByParent, useEditStudent, useGetStudent } from "@/hooks/queryHooks/useStudent";
 import { cn, getAcademicYears } from "@/lib/utils";
 import { studentSchema } from "@/schema/student";
@@ -52,9 +51,9 @@ const StudentForm = ({
   const [branchId, setBranchId] = useState<number | undefined>();
   const [classId, setClassId] = useState<number | null>(null);
 
-  const { data: branches, isPending: loadingBranches } = useGetBranchesBySchool(schoolId);
-  const { data: classes, isPending: loadingClasses } = useGetClasses();
-  const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
+  const { data: branches, isPending: loadingBranches } = useGetParentPortalBranches(schoolId);
+  const { data: classes, isPending: loadingClasses } = useGetParentPortalClasses(schoolId, branchId);
+  const { data: arms, isPending: loadingArms } = useGetParentPortalArms(classId ?? undefined);
   const { data: studentData } = useGetStudent(studentId);
   const { mutate: addStudent, isPending: isAddingStudent } = useAddStudentByParent();
   const { mutate: updateStudentData, isPending: isUpdatingStudentData } = useEditStudent();
@@ -191,14 +190,14 @@ const StudentForm = ({
   }, [countries, values.nationality]);
 
   useEffect(() => {
-    if (!student || !branches?.data || !classes?.data?.content) return;
+    if (!student || !branches || !classes) return;
 
-    const branchMatch = branches.data.find((br: Branch) => br.name === student.branch);
+    const branchMatch = branches.find((br: BranchLookup) => br.name === student.branch);
     if (branchMatch) {
       setBranchId(branchMatch.id);
       setFieldValue("branchId", branchMatch.id);
 
-      const classMatch = classes.data.content.find((c: ClassType) => c.name === student.class && c.branchId === branchMatch.id);
+      const classMatch = classes.find((c: ClassLookup) => c.name === student.class && c.branchId === branchMatch.id);
       if (classMatch) {
         setClassId(classMatch.id);
         setFieldValue("classId", classMatch.id);
@@ -616,7 +615,7 @@ const StudentForm = ({
               <Select
                 value={values.branchId ? String(values.branchId) : ""}
                 onValueChange={value => {
-                  const branch = branches.data?.find((br: Branch) => br.id === Number(value));
+                  const branch = branches?.find((br: BranchLookup) => br.id === Number(value));
                   setBranchId(branch?.id);
                   setFieldValue("branchId", branch?.id ?? null);
                   setFieldValue("classId", null);
@@ -631,7 +630,7 @@ const StudentForm = ({
                   <SelectValue placeholder="Select Branch" />
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-none">
-                  {branches.data?.map((br: Branch) => (
+                  {branches?.map((br: BranchLookup) => (
                     <SelectItem key={br.id} value={`${br.id}`} className="text-text-default">
                       {br.name}
                     </SelectItem>
@@ -666,9 +665,9 @@ const StudentForm = ({
                   <SelectValue placeholder={!branchId ? "Select a branch first" : "Select Class"} />
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-none">
-                  {classes.data.content
-                    .filter((cls: ClassType) => !branchId || cls.branchId === branchId)
-                    .map((cls: ClassType) => (
+                  {classes
+                    ?.filter((cls: ClassLookup) => !branchId || cls.branchId === branchId)
+                    .map((cls: ClassLookup) => (
                       <SelectItem key={cls.id} value={`${cls.id}`} className="text-text-default">
                         {cls.name}
                       </SelectItem>
@@ -701,12 +700,12 @@ const StudentForm = ({
                   <SelectValue placeholder={!classId ? "Select a class first" : "Select Arm"} />
                 </SelectTrigger>
                 <SelectContent className="bg-bg-card border-none">
-                  {arms.data.length === 0 ? (
+                  {!arms || arms.length === 0 ? (
                     <SelectItem disabled value="none" className="text-text-default">
                       No Arms Found
                     </SelectItem>
                   ) : (
-                    arms.data.map((arm: Arm) => (
+                    arms.map((arm: ArmLookup) => (
                       <SelectItem key={arm.id} value={`${arm.id}`} className="text-text-default">
                         {arm.name}
                       </SelectItem>
@@ -808,8 +807,8 @@ export const ParentStudent = ({ schoolId }: { schoolId?: number }) => {
   }
 
   useEffect(() => {
-    if (parentData?.linkedStudents?.length) {
-      const students = parentData.linkedStudents.map((s: Parent) => ({
+    if (parentData?.data?.linkedStudents?.length) {
+      const students = parentData.data.linkedStudents.map((s: Parent["linkedStudents"][number]) => ({
         id: s.id,
         title: "Student",
         studentId: s.id,

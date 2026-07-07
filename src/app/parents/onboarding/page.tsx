@@ -1,4 +1,4 @@
-import { ParentOnboarding } from "@/components/Parents/Onboarding";
+import { ParentOnboarding } from "@/components/ParentPortalComponents/Onboarding";
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 

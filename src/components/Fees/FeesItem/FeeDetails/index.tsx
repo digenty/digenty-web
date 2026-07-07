@@ -1,10 +1,10 @@
 "use client";
 
-import { DeleteBin, Edit } from "@digenty/icons";
+import { DeleteBin, Edit, SendPlaneFill } from "@digenty/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetFeeItemById, useDeleteFeeItem } from "@/hooks/queryHooks/useFee";
+import { useGetFeeItemById, useDeleteFeeItem, usePublishFee } from "@/hooks/queryHooks/useFee";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -13,16 +13,29 @@ import type { FeeItemDetailResponse } from "@/api/fee";
 import { useDuplicateFeeItem } from "@/hooks/queryHooks/useFee";
 import { EmptyFeeState } from "../../EmptyFeeState";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const FeeItemDetail = () => {
   const router = useRouter();
   const params = useParams();
   const id = Number(params?.id);
+  const user = useLoggedInUser();
+  console.log("user", user);
 
   const { data, isPending, isError } = useGetFeeItemById(id);
   const item = data as FeeItemDetailResponse | undefined;
   const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
   const { mutate: duplicateFeeItem, isPending: duplicating } = useDuplicateFeeItem();
+
+  const { mutate: publishFee, isPending: publishing } = usePublishFee();
+
+  const handlePublish = () => {
+    if (!item?.feeItemId) return;
+    publishFee(item.feeItemId, {
+      onSuccess: () => toast.success("Fee published"),
+      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to publish fee"),
+    });
+  };
 
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
@@ -83,6 +96,14 @@ export const FeeItemDetail = () => {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h1 className="text-text-default text-xl font-semibold">{item.feeName}</h1>
           <div className="flex items-center gap-2">
+            <Button
+              onClick={handlePublish}
+              disabled={publishing}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8! rounded-md font-medium disabled:opacity-40"
+            >
+              <SendPlaneFill fill="var(--color-icon-white-default)" />
+              {publishing ? "Publishing..." : "Publish Fee"}
+            </Button>
             <Button
               onClick={handleDelete}
               disabled={deleting}

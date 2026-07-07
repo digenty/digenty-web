@@ -1,4 +1,4 @@
-import { Parents } from "@/components/Parents";
+import { Parents } from "@/components/ParentPortalComponents";
 import { Spinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 
