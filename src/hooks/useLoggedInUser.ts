@@ -3,7 +3,7 @@ import { decodeJWT } from "@/lib/utils";
 import { JWTPayload } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
-export const useLoggedInUser = () => {
+export const useLoggedInUser = (): Partial<JWTPayload> & { isUserLoading: boolean } => {
   const { data: currentUser, isLoading: isUserLoading } = useQuery({
     queryKey: ["session-user"],
     queryFn: async (): Promise<JWTPayload | null> => {
