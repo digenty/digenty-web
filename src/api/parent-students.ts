@@ -2,8 +2,6 @@ import { FeeStatus, PendingFeeItem } from "@/api/parent-fees";
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
-// GET /parent/portal/students
-// GET /parent/portal/students/{studentId}/overview
 export interface StudentOverviewResponse {
   studentId: number;
   studentName: string;
@@ -15,7 +13,6 @@ export interface StudentOverviewResponse {
   pendingFees: PendingFeeItem[];
 }
 
-// GET /parent/portal/students/{studentId}/academic-record
 export interface AssessmentScoreDto {
   assessmentId: number;
   assessmentName: string;

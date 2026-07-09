@@ -51,6 +51,13 @@ export interface InvoiceLineItem {
   balance: number;
 }
 
+export interface InvoiceAccount {
+  accountName: string;
+  accountNumber: string;
+  bankName: string;
+  // bankCode: string;
+}
+
 export interface InvoiceResponse {
   invoiceId: number;
   invoiceNumber: string;
@@ -66,6 +73,7 @@ export interface InvoiceResponse {
   totalPaid: number;
   totalBalance: number;
   status: InvoiceStatus;
+  collectionAccount: InvoiceAccount;
 }
 
 export const getFeeOverview = async (studentId: number, termId?: number): Promise<FeeOverviewResponse> => {

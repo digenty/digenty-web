@@ -8,11 +8,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { useGetFeeOverview, useGetInvoice } from "@/hooks/queryHooks/useParentFees";
+import { useInitiatePayment } from "@/hooks/queryHooks/usePayment";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useStudentFilterStore } from "@/store/parent";
 import { InvoiceStatus } from "@/api/parent-fees";
 import { AlertFill, Bank, BankCard, CheckboxCircleFill, Download2, FileCopy, LogoMark } from "@digenty/icons";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const invoiceStatusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
   PAID: { label: "Paid", className: "bg-bg-badge-green text-bg-basic-green-strong" },
@@ -26,9 +29,44 @@ const invoiceStatusConfig: Record<InvoiceStatus, { label: string; className: str
 export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const { selectedStudentId } = useStudentFilterStore();
+  const user = useLoggedInUser();
 
   const { data: overview, isLoading: loadingOverview, isError: isErrorOverview } = useGetFeeOverview(selectedStudentId, termId);
   const { data: invoice, isLoading: loadingInvoice, isError: isErrorInvoice } = useGetInvoice(selectedStudentId, termId);
+
+  const initiatePayment = useInitiatePayment();
+
+  const handleCopyAccountNumber = (accountNumber: string) => {
+    navigator.clipboard.writeText(accountNumber);
+    toast.success("Account number copied");
+  };
+
+  const handlePayOnline = () => {
+    if (!invoice) return;
+    if (!user?.email) {
+      toast.error("No email found on your account. Please contact support.");
+      return;
+    }
+    initiatePayment.mutate(
+      {
+        invoiceId: invoice.invoiceId,
+        email: user.email,
+        currency: "NGN",
+        paymentType: "FULL",
+        callBackUrl: `${window.location.origin}/parents/parent-fees/verify?invoiceId=${invoice.invoiceId}`,
+      },
+      {
+        onSuccess: data => {
+          if (data?.authorizationUrl) {
+            window.location.href = data.authorizationUrl;
+          } else {
+            toast.error("Could not start payment. Please try again.");
+          }
+        },
+        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to start payment"),
+      },
+    );
+  };
 
   if (!selectedStudentId) {
     return <PageEmptyState title="No Student Selected" description="Select a student above to view their fees breakdown" buttonText="Refresh" />;
@@ -108,7 +146,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
             <div className="border-border-default bg-bg-default flex flex-col gap-6 rounded-sm border p-5">
               <div className="text-text-default flex items-center justify-between">
                 <div className="flex items-center gap-1 text-lg font-bold">
-                  <LogoMark /> Digenty
+                  <LogoMark />
                 </div>
                 <div className="text-xl font-semibold">INVOICE</div>
               </div>
@@ -245,40 +283,54 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                     <span className="text-text-default text-sm font-medium">Online Payment</span>
                   </div>
                   <div className="text-text-subtle text-sm">Pay securely with card or bank transfer.</div>
-                  <Button className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7 w-full text-sm">Pay Online</Button>
+                  <Button
+                    onClick={handlePayOnline}
+                    disabled={initiatePayment.isPending}
+                    className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7 w-full text-sm disabled:opacity-50"
+                  >
+                    {initiatePayment.isPending ? "Redirecting…" : "Pay Online"}
+                  </Button>
                 </div>
               </div>
 
-              <div className="border-border-default flex flex-col gap-1 rounded-sm border p-4">
-                <div className="text-text-default flex items-center gap-1 text-sm font-medium">
-                  <Bank fill="var(--color-bg-basic-purple-accent)" /> Bank Payment
-                </div>
-
-                <div className="text-text-subtle mb-2 text-sm font-normal">Transfer to our bank account using the details below</div>
-
-                <div className="flex items-center justify-between">
-                  <div className="text-text-muted text-sm font-normal">Account Name</div>
-                  <div className="text-text-default text-sm font-medium">Greenfield Academy</div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="text-text-muted text-sm font-normal">Account Number</div>
+              {invoice.collectionAccount && (
+                <div className="border-border-default flex flex-col gap-1 rounded-sm border p-4">
                   <div className="text-text-default flex items-center gap-1 text-sm font-medium">
-                    0123456789
-                    <FileCopy fill="var(--color-icon-default-muted)" />
+                    <Bank fill="var(--color-bg-basic-purple-accent)" /> Bank Payment
+                  </div>
+
+                  <div className="text-text-subtle mb-2 text-sm font-normal">Transfer to our bank account using the details below</div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-text-muted text-sm font-normal">Account Name</div>
+                    <div className="text-text-default text-sm font-medium">{invoice.collectionAccount.accountName}</div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-text-muted text-sm font-normal">Account Number</div>
+                    <div className="text-text-default flex items-center gap-1 text-sm font-medium">
+                      {invoice.collectionAccount.accountNumber}
+                      <button
+                        type="button"
+                        onClick={() => handleCopyAccountNumber(invoice.collectionAccount.accountNumber)}
+                        className="cursor-pointer"
+                      >
+                        <FileCopy fill="var(--color-icon-default-muted)" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-text-muted text-sm font-normal">Bank</div>
+                    <div className="text-text-default text-sm font-medium">{invoice.collectionAccount.bankName}</div>
+                  </div>
+
+                  <div className="bg-bg-basic-orange-subtle text-text-subtle border-border-default rounded-xs border px-3 py-2.5 text-sm">
+                    <div className="font-semibold">Important:</div>
+                    Please include invoice number &apos;{invoice.invoiceNumber}&apos; as transfer reference
                   </div>
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="text-text-muted text-sm font-normal">Bank</div>
-                  <div className="text-text-default text-sm font-medium">Access Bank</div>
-                </div>
-
-                <div className="bg-bg-basic-orange-subtle text-text-subtle border-border-default rounded-xs border px-3 py-2.5 text-sm">
-                  <div className="font-semibold">Important:</div>
-                  Please include invoice number &apos;{invoice.invoiceNumber}&apos; as transfer reference
-                </div>
-              </div>
+              )}
 
               <Button className="text-text-default border-border-default flex h-8 w-41 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium">
                 <Download2 fill="var(--color-icon-default-muted)" />

@@ -17,17 +17,29 @@ import { useSidebarStore } from "@/store";
 import { Avatar } from "@/components/Avatar";
 import { CloseLarge, LeadIcon, Line, Logout } from "@digenty/icons";
 import { parentNav } from "./constants";
+import { deleteSession } from "@/app/actions/auth";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 
 export const ParentSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
   const [showLogo, setShowLogo] = useState(true);
   const { setIsSidebarOpen, isSidebarOpen, activeNav, setActiveNav } = useSidebarStore();
+  const { data } = useGetUserProfile();
+  const profile = data?.data;
+  const fullName = [profile?.firstName, profile?.middleName, profile?.lastName].filter(Boolean).join(" ");
 
   useEffect(() => {
     setActiveNav(pathname.split("/")[1]);
   }, [pathname, setActiveNav]);
+
+  const logout = () => {
+    queryClient.clear();
+    deleteSession("/auth/parents/login");
+  };
 
   return (
     <aside className="h-screen">
@@ -40,8 +52,7 @@ export const ParentSidebar = () => {
         <div className={cn("flex", isSidebarOpen ? "justify-between" : "justify-center")}>
           {isSidebarOpen && (
             <div className="flex items-center gap-2">
-              <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" className="text-icon-default-subtle" />
-              <p className="text-text-default text-sm font-medium">Digenty</p>
+              <Image src="/icons/Logomark.svg" width={64} height={64} alt="Axis logo" className="text-icon-default-subtle" />
             </div>
           )}
 
@@ -112,20 +123,20 @@ export const ParentSidebar = () => {
 
         <div className="fixed bottom-0">
           <div className="flex w-full flex-col gap-3">
-            <nav className={cn("flex cursor-pointer gap-2.75 py-2 pr-2")}>
+            <nav onClick={logout} className={cn("flex cursor-pointer gap-2.75 py-2 pr-2")}>
               <Logout fill="var(--color-icon-default-subtle)" />
               {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">Sign out</p>}
             </nav>
             {isSidebarOpen ? (
               <div className="bg-bg-subtle border-border-default ml-[-5] flex h-13 w-61 max-w-full items-center gap-3 rounded-full border p-3">
-                <Avatar />
+                <Avatar url={profile?.image || undefined} />
                 <div className="flex flex-col gap-1">
-                  <div className="text-text-default text-sm font-medium">Damilare John</div>
-                  <div className="text-text-muted text-xs">damilarejohn@gmail.com</div>
+                  <div className="text-text-default text-sm font-medium">{fullName || "—"}</div>
+                  <div className="text-text-muted text-xs">{profile?.email || "—"}</div>
                 </div>
               </div>
             ) : (
-              <Avatar className="mb-2 ml-[-10]" />
+              <Avatar className="mb-2 ml-[-10]" url={profile?.image || undefined} />
             )}
           </div>
         </div>
@@ -187,15 +198,15 @@ export const ParentSidebar = () => {
 
             <div className="fixed bottom-0">
               <div className="flex w-full flex-col gap-3">
-                <nav className={cn("flex cursor-pointer gap-2.75 py-2 pr-2")}>
+                <nav onClick={logout} className={cn("flex cursor-pointer gap-2.75 py-2 pr-2")}>
                   <Logout fill="var(--color-icon-default-subtle)" />
                   <p className="text-sm leading-5 font-medium">Sign out</p>
                 </nav>
                 <div className="bg-bg-subtle border-border-default flex h-13 w-61 max-w-full items-center gap-3 rounded-full border p-3">
-                  <Avatar />
+                  <Avatar url={profile?.image || undefined} />
                   <div className="flex flex-col gap-1">
-                    <div className="text-text-default text-sm font-medium">Damilare John</div>
-                    <div className="text-text-muted text-xs">damilarejohn@gmail.com</div>
+                    <div className="text-text-default text-sm font-medium">{fullName || "—"}</div>
+                    <div className="text-text-muted text-xs">{profile?.email || "—"}</div>
                   </div>
                 </div>
               </div>

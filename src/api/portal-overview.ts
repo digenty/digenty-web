@@ -1,7 +1,6 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
-// GET /portal/overview — key metrics for a school's public website portal
 export interface RecentActivityDto {
   type: string;
   description: string;

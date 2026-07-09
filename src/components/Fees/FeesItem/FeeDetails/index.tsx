@@ -19,8 +19,6 @@ export const FeeItemDetail = () => {
   const router = useRouter();
   const params = useParams();
   const id = Number(params?.id);
-  const user = useLoggedInUser();
-  console.log("user", user);
 
   const { data, isPending, isError } = useGetFeeItemById(id);
   const item = data as FeeItemDetailResponse | undefined;

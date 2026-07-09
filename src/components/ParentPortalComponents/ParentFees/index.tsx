@@ -75,7 +75,7 @@ export const ParentFees = () => {
           onClick={() => router.push("/parents/parent-fees/fees-to-pay")}
           className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-full"
         >
-          Pay Online
+          Record Payment
         </Button>
       </div>
 
