@@ -9,6 +9,9 @@ function getSubdomain(host: string): string | null {
   if (hostname.endsWith(".axisbydigenty.com") && hostname !== "axisbydigenty.com" && hostname !== "app.axisbydigenty.com") {
     return hostname.split(".")[0];
   }
+  if (hostname.endsWith(".digenty-web.vercel.app") && hostname !== "digenty-web.vercel.app" && hostname !== "app.digenty-web.vercel.app") {
+    return hostname.split(".")[0];
+  }
   return null;
 }
 
