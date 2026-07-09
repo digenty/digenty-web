@@ -1,5 +1,5 @@
 import { AuthHeader } from "@/components/Auth/AuthHeader";
-import { LoginPasswordForm } from "@/components/Parents/Auth/LoginPasswordForm";
+import { LoginPasswordForm } from "@/components/ParentPortalComponents/Auth/LoginPasswordForm";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Suspense } from "react";

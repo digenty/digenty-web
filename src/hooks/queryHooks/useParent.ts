@@ -89,6 +89,7 @@ export const useGetParent = (parentId?: number) => {
     queryKey: [parentKeys.getParent, parentId],
     queryFn: () => getParent(parentId),
     enabled: !!parentId,
+    retry: false,
   });
 };
 

@@ -6,12 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetBranchesBySchool } from "@/hooks/queryHooks/useBranch";
+import { useGetParentPortalBranches } from "@/hooks/queryHooks/useParentLookup";
 import { useAddParentOnParentPortal, useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { parentSchema } from "@/schema/parent";
 import { Gender, genders, Relationship, relationships } from "@/types";
-import { Branch } from "@/api/types";
+import { BranchLookup } from "@/api/parent-lookup";
 import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -27,9 +28,10 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [availableStates, setAvailableStates] = useState<string[]>([]);
   const [avatar, setAvatar] = useState<string | undefined>();
-  const { data: branches, isPending: loadingBranches } = useGetBranchesBySchool(schoolId);
+  const { data: branches, isPending: loadingBranches } = useGetParentPortalBranches(schoolId);
   const { mutate: createParent, isPending: creating } = useAddParentOnParentPortal();
-  const { data: parentData, isLoading: loadingParent } = useGetParent();
+  const { id: loggedInUserId } = useLoggedInUser();
+  const { data: parentData, isLoading: loadingParent } = useGetParent(loggedInUserId);
   const { mutate: editParent, isPending: updating } = useEditParent();
 
   const formik = useFormik<ParentInputValues>({
@@ -125,20 +127,21 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
   }, [countries, formik.values.nationality]);
 
   useEffect(() => {
-    if (parentData) {
+    const data = parentData?.data;
+    if (data) {
       formik.setValues({
-        firstName: parentData.firstName || "",
-        lastName: parentData.lastName || "",
-        middleName: parentData.middleName || "",
-        email: parentData.email || "",
-        gender: parentData.gender || Gender.Male,
-        address: parentData.address || "",
-        phoneNumber: parentData.phoneNumber || "",
-        secondaryPhoneNumber: parentData.secondaryPhoneNumber || "",
-        nationality: parentData.nationality || "",
-        stateOfOrigin: parentData.stateOfOrigin || "",
-        relationship: parentData.relationship || Relationship.Father,
-        branchId: parentData.branchId || null,
+        firstName: data.firstName || "",
+        lastName: data.lastName || "",
+        middleName: data.middleName || "",
+        email: data.email || "",
+        gender: data.gender || Gender.Male,
+        address: data.address || "",
+        phoneNumber: data.phoneNumber || "",
+        secondaryPhoneNumber: data.secondaryPhoneNumber || "",
+        nationality: data.nationality || "",
+        stateOfOrigin: data.stateOfOrigin || "",
+        relationship: data.relationship || Relationship.Father,
+        branchId: data.branchId || null,
       });
     }
   }, [parentData]);
@@ -272,10 +275,10 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
                   <Skeleton className="bg-bg-input-soft h-9 w-full" />
                 ) : (
                   <Select
-                    value={String(branches.data?.find((branch: Branch) => branch.id === values.branchId)?.id) || ""}
+                    value={String(branches?.find((branch: BranchLookup) => branch.id === values.branchId)?.id) || ""}
                     onValueChange={value => {
-                      const branch = branches.data?.find((branch: Branch) => branch.id === Number(value));
-                      setFieldValue("branchId", branch.id);
+                      const branch = branches?.find((branch: BranchLookup) => branch.id === Number(value));
+                      setFieldValue("branchId", branch?.id);
                     }}
                   >
                     <SelectTrigger
@@ -285,7 +288,7 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
                       <SelectValue placeholder="Select Branch" />
                     </SelectTrigger>
                     <SelectContent className="bg-bg-card border-none">
-                      {branches.data?.map((branch: Branch) => (
+                      {branches?.map((branch: BranchLookup) => (
                         <SelectItem key={branch.id} value={`${branch.id}`} className="text-text-default">
                           {branch.name}
                         </SelectItem>

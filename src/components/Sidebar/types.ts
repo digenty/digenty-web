@@ -1,7 +1,7 @@
 type Menu = {
   title: string;
   url: string;
-  icon: (props: React.SVGProps<SVGSVGElement>) => React.JSX.Element;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
 
 export type NavigationType = {

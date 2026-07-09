@@ -166,7 +166,9 @@ export const ParentProfile = () => {
 
       <div className="space-y-6 md:space-y-8">
         <Biodata parent={parent} />
-        <LinkedStudentsTable students={parent.linkedStudents} />
+        <LinkedStudentsTable
+          students={parent.linkedStudents.map(({ id, fullName, image }) => ({ id, fullName, avatar: image }))}
+        />
       </div>
     </div>
   );

@@ -130,7 +130,7 @@ export interface Parent {
   address: string;
   secondaryPhoneNumber: string;
   tags: string[];
-  linkedStudents: { id: number; fullName: string; avatar: string | null; relationship: string }[];
+  linkedStudents: { id: number; fullName: string; image: string | null; relationship: string | null }[];
 }
 
 export interface AttendanceCard {
@@ -224,14 +224,12 @@ export interface StudentUpdate {
 
 export interface SubjectReport {
   subjectName: string;
-  assessments: [
-    {
-      assessmentId: number;
-      assessmentName: string;
-      score: number;
-      weight: number;
-    },
-  ];
+  assessments: {
+    assessmentId: number;
+    assessmentName: string;
+    score: number;
+    weight: number;
+  }[];
   total: number;
   grade: string;
   remark: string;

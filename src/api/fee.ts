@@ -30,7 +30,6 @@ export interface FeeItemDto {
   required?: boolean;
 }
 
-// POST /fee/items/arms/{armId} — add a single fee item to one arm
 export interface SingleArmFeeItemDto {
   name: string;
   session: number;
@@ -49,7 +48,6 @@ export interface BranchFeeSelection {
   classArmAmounts?: ClassArmAmount[];
 }
 
-// POST /fee/items/multi-branch — create a fee item across several branches at once
 export interface MultiBranchFeeItemDto {
   name: string;
   session: number;
@@ -102,7 +100,6 @@ export interface FeeRouteRequestDto {
   isDefault: boolean;
 }
 
-// Response shape from GET /fee/route and GET /fee/route/branch/{branchId}
 export interface FeeRouteResponseDto {
   id: number;
   branchName: string;
@@ -113,7 +110,6 @@ export interface FeeRouteResponseDto {
   isDefault: boolean;
 }
 
-// ---- Fee class overview / detail response shapes ----
 export interface ArmFeeOverview {
   armId: number;
   armName: string;
@@ -143,7 +139,6 @@ export interface FeeClassOverviewResponse {
   grandTotalVariations: number;
 }
 
-// GET /fee/fees/{id}
 export interface ClassFeeDetailResponse {
   feeId: number;
   branchId: number;
@@ -156,38 +151,6 @@ export interface ClassFeeDetailResponse {
   classes: ClassFeeOverview[];
   totalAmount: number;
 }
-
-export const getFeeClassOverview = async (
-  sessionId: number,
-  term: FeeTermType,
-  branchId?: number,
-  search?: string,
-): Promise<FeeClassOverviewResponse> => {
-  try {
-    const params = new URLSearchParams({ sessionId: String(sessionId), term });
-    if (branchId) params.append("branchId", String(branchId));
-    if (search) params.append("search", search);
-    const { data } = await api.get(`/fee/class/overview?${params}`);
-    return data?.data ?? data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) throw error.response?.data;
-    throw error;
-  }
-};
-
-// PUT /fee/class/{id}/name — rename a fee class
-export const renameFeeClass = async (id: number, name: string) => {
-  try {
-    const params = new URLSearchParams({ name });
-    const { data } = await api.put(`/fee/class/${id}/name?${params}`);
-    return data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) throw error.response?.data;
-    throw error;
-  }
-};
-
-// Raw fee entity returned by GET /fee/fees
 export interface Fee {
   id: number;
   uuid: string;
@@ -204,8 +167,6 @@ export interface Fee {
   published: boolean;
   publishedAt: string;
 }
-
-// Raw fee-arm join entity returned by GET /fee/fees/{id}/arms
 export interface FeeArm {
   id: number;
   uuid: string;
@@ -217,7 +178,6 @@ export interface FeeArm {
   armId: number;
 }
 
-// Raw fee-item entity returned by GET /fee/fees/{id}/items
 export interface FeeItemEntity {
   id: number;
   uuid: string;
@@ -239,69 +199,6 @@ export interface FeeItemEntity {
   termId: number;
 }
 
-export const getFees = async (termId?: number): Promise<Fee[]> => {
-  try {
-    const qs = termId ? `?termId=${termId}` : "";
-    const { data } = await api.get(`/fee/fees${qs}`);
-    return toArray<Fee>(data);
-  } catch (error: unknown) {
-    if (isAxiosError(error)) throw error.response?.data;
-    throw error;
-  }
-};
-
-export const getFeeById = async (id: number): Promise<ClassFeeDetailResponse> => {
-  try {
-    const { data } = await api.get(`/fee/fees/${id}`);
-    return data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) throw error.response?.data;
-    throw error;
-  }
-};
-
-// GET /fee/fees/{id}/arms — arms attached to a fee
-export const getFeeArms = async (id: number): Promise<FeeArm[]> => {
-  try {
-    const { data } = await api.get(`/fee/fees/${id}/arms`);
-    return toArray<FeeArm>(data);
-  } catch (error: unknown) {
-    if (isAxiosError(error)) throw error.response?.data;
-    throw error;
-  }
-};
-
-// GET /fee/fees/{id}/items — raw fee items belonging to a fee
-export const getFeeItemsByFee = async (id: number): Promise<FeeItemEntity[]> => {
-  try {
-    const { data } = await api.get(`/fee/fees/${id}/items`);
-    return toArray<FeeItemEntity>(data);
-  } catch (error: unknown) {
-    if (isAxiosError(error)) throw error.response?.data;
-    throw error;
-  }
-};
-
-export const deleteFee = async (id: number) => {
-  try {
-    const { data } = await api.delete(`/fee/fees/${id}`);
-    return data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) throw error.response?.data;
-    throw error;
-  }
-};
-
-export const publishFee = async (id: number) => {
-  try {
-    const { data } = await api.post(`/fee/fees/${id}/publish`);
-    return data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) throw error.response?.data;
-    throw error;
-  }
-};
-
 export interface FeeItemDetail {
   feeItemId: number;
   feeClassId: number;
@@ -313,7 +210,6 @@ export interface FeeItemDetail {
   minimumPartPayment: number;
 }
 
-// Enriched single-item response from GET /fee/items/{id}
 export interface AppliedClassEntry {
   classId: number;
   className: string;
@@ -357,6 +253,195 @@ export interface FeeItemsFilter {
   search?: string;
 }
 
+export interface FeeGroupSummary {
+  feeGroupId: number;
+  name: string;
+  description: string;
+  feeNames: string[];
+  totalAmount: number;
+  appliedToArmsCount: number;
+}
+
+export interface BranchFeeGroupOverview {
+  branchId: number;
+  branchName: string;
+  feeGroups: FeeGroupSummary[];
+}
+
+export interface FeeGroupOverviewResponse {
+  branches: BranchFeeGroupOverview[];
+  totalGroups: number;
+}
+
+export interface FeeGroupItemDetail {
+  id: number;
+  itemType: "FEE_CLASS" | "STOCK" | "CUSTOM";
+  itemName: string;
+  unitPrice: number;
+  quantity: number;
+  total: number;
+  optional: boolean;
+}
+
+export interface ArmInfo {
+  armId: number;
+  armName: string;
+  classId: number;
+  className: string;
+}
+
+export interface FeeGroupDetailResponse {
+  feeGroupId: number;
+  name: string;
+  description: string;
+  branchId: number;
+  branchName: string;
+  termId: number;
+  items: FeeGroupItemDetail[];
+  totalAmount: number;
+  allowPartPayment: boolean;
+  minimumPartPayment: number;
+}
+export interface FeeInvoiceItem {
+  id: number;
+  name: string;
+  amount: number;
+  required: boolean;
+}
+
+export interface FeePickerItem {
+  feeItemId: number;
+  feeClassId: number;
+  feeName: string;
+  amount: number;
+  quantity: number;
+  required: boolean;
+  allowPartPayment: boolean;
+  minimumPartPayment: number | null;
+}
+
+export interface FeeInvoiceResponse {
+  id: number;
+  classStudent: string;
+  termId: number;
+  termLabel: string;
+  totalAmount: number;
+  items: FeeInvoiceItem[];
+}
+
+export interface FeeGroupInvoiceItem {
+  id: number;
+  name: string;
+  amount: number;
+  required: boolean;
+}
+
+export interface FeeGroupInvoiceResponse {
+  id: number;
+  name: string;
+  totalAmount: number;
+  items: FeeGroupInvoiceItem[];
+}
+
+export interface FeeGroupPickerItem {
+  feeGroupId: number;
+  name: string;
+  description: string | null;
+  feeNames: string[];
+  totalAmount: number;
+  appliedToArmsCount: number;
+}
+
+export const getFeeClassOverview = async (
+  sessionId: number,
+  term: FeeTermType,
+  branchId?: number,
+  search?: string,
+): Promise<FeeClassOverviewResponse> => {
+  try {
+    const params = new URLSearchParams({ sessionId: String(sessionId), term });
+    if (branchId) params.append("branchId", String(branchId));
+    if (search) params.append("search", search);
+    const { data } = await api.get(`/fee/class/overview?${params}`);
+    return data?.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const renameFeeClass = async (id: number, name: string) => {
+  try {
+    const params = new URLSearchParams({ name });
+    const { data } = await api.put(`/fee/class/${id}/name?${params}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const getFees = async (termId?: number): Promise<Fee[]> => {
+  try {
+    const qs = termId ? `?termId=${termId}` : "";
+    const { data } = await api.get(`/fee/fees${qs}`);
+    return toArray<Fee>(data);
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const getFeeById = async (id: number): Promise<ClassFeeDetailResponse> => {
+  try {
+    const { data } = await api.get(`/fee/fees/${id}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const getFeeArms = async (id: number): Promise<FeeArm[]> => {
+  try {
+    const { data } = await api.get(`/fee/fees/${id}/arms`);
+    return toArray<FeeArm>(data);
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const getFeeItemsByFee = async (id: number): Promise<FeeItemEntity[]> => {
+  try {
+    const { data } = await api.get(`/fee/fees/${id}/items`);
+    return toArray<FeeItemEntity>(data);
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const deleteFee = async (id: number) => {
+  try {
+    const { data } = await api.delete(`/fee/fees/${id}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const publishFee = async (id: number) => {
+  try {
+    const { data } = await api.post(`/fee/items/${id}/publish`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
 export const getFeeItems = async (filter: FeeItemsFilter = {}): Promise<FeeItemDetail[]> => {
   try {
     const { branchId, termId, classId, armId, feeId, search } = filter;
@@ -396,7 +481,6 @@ export const createFeeItem = async (payload: FeeItemDto) => {
   }
 };
 
-// POST /fee/items/arms/{armId} — add one fee item to a single arm
 export const createSingleArmFeeItem = async (armId: number, payload: SingleArmFeeItemDto) => {
   try {
     const { data } = await api.post(`/fee/items/arms/${armId}`, payload);
@@ -407,7 +491,6 @@ export const createSingleArmFeeItem = async (armId: number, payload: SingleArmFe
   }
 };
 
-// POST /fee/items/multi-branch — create a fee item across several branches
 export const createMultiBranchFeeItem = async (payload: MultiBranchFeeItemDto) => {
   try {
     const { data } = await api.post(`/fee/items/multi-branch`, payload);
@@ -462,59 +545,6 @@ export const deleteFeeItem = async (id: number) => {
   }
 };
 
-// ---- Fee group response shapes ----
-export interface FeeGroupSummary {
-  feeGroupId: number;
-  name: string;
-  description: string;
-  feeNames: string[];
-  totalAmount: number;
-  appliedToArmsCount: number;
-}
-
-export interface BranchFeeGroupOverview {
-  branchId: number;
-  branchName: string;
-  feeGroups: FeeGroupSummary[];
-}
-
-// GET /fee/group/overview
-export interface FeeGroupOverviewResponse {
-  branches: BranchFeeGroupOverview[];
-  totalGroups: number;
-}
-
-export interface FeeGroupItemDetail {
-  id: number;
-  itemType: "FEE_CLASS" | "STOCK" | "CUSTOM";
-  itemName: string;
-  unitPrice: number;
-  quantity: number;
-  total: number;
-  optional: boolean;
-}
-
-export interface ArmInfo {
-  armId: number;
-  armName: string;
-  classId: number;
-  className: string;
-}
-
-// GET /fee/group/{feeGroupId}
-export interface FeeGroupDetailResponse {
-  feeGroupId: number;
-  name: string;
-  description: string;
-  branchId: number;
-  branchName: string;
-  termId: number;
-  items: FeeGroupItemDetail[];
-  totalAmount: number;
-  allowPartPayment: boolean;
-  minimumPartPayment: number;
-}
-
 export const getFeeGroups = async (branchId?: number, termId?: number, search?: string): Promise<FeeGroupSummary[]> => {
   try {
     const params = new URLSearchParams();
@@ -530,7 +560,6 @@ export const getFeeGroups = async (branchId?: number, termId?: number, search?: 
   }
 };
 
-// GET /fee/group/overview — grouped by branch with a grand total count
 export const getFeeGroupOverview = async (sessionId: number, term: FeeTermType, branchId?: number): Promise<FeeGroupOverviewResponse> => {
   try {
     const params = new URLSearchParams({ sessionId: String(sessionId), term });
@@ -553,7 +582,6 @@ export const getFeeGroupById = async (feeGroupId: number): Promise<FeeGroupDetai
   }
 };
 
-// POST /fee/group/items — add a single item to an existing fee group
 export const addFeeGroupItem = async (payload: FeeGroupItemDto) => {
   try {
     const { data } = await api.post(`/fee/group/items`, payload);
@@ -604,56 +632,6 @@ export const duplicateFeeGroup = async (id: number): Promise<{ feeGroupId: numbe
   }
 };
 
-export interface FeeInvoiceItem {
-  id: number;
-  name: string;
-  amount: number;
-  required: boolean;
-}
-
-export interface FeePickerItem {
-  feeItemId: number;
-  feeClassId: number;
-  feeName: string;
-  amount: number;
-  quantity: number;
-  required: boolean;
-  allowPartPayment: boolean;
-  minimumPartPayment: number | null;
-}
-
-export interface FeeInvoiceResponse {
-  id: number;
-  classStudent: string;
-  termId: number;
-  termLabel: string;
-  totalAmount: number;
-  items: FeeInvoiceItem[];
-}
-
-export interface FeeGroupInvoiceItem {
-  id: number;
-  name: string;
-  amount: number;
-  required: boolean;
-}
-
-export interface FeeGroupInvoiceResponse {
-  id: number;
-  name: string;
-  totalAmount: number;
-  items: FeeGroupInvoiceItem[];
-}
-
-export interface FeeGroupPickerItem {
-  feeGroupId: number;
-  name: string;
-  description: string | null;
-  feeNames: string[];
-  totalAmount: number;
-  appliedToArmsCount: number;
-}
-
 export const getFeesForPicker = async (branchId?: number, classId?: number, termId?: number, search?: string) => {
   try {
     const params = new URLSearchParams();
@@ -684,7 +662,6 @@ export const getFeeGroupsForPicker = async (branchId?: number, search?: string) 
   }
 };
 
-// GET /fee/group/invoice-picker — fee groups formatted for the invoice creation picker
 export const getFeeGroupsForInvoicePicker = async (branchId: number, search?: string): Promise<FeeGroupInvoiceResponse[]> => {
   try {
     const params = new URLSearchParams({ branchId: String(branchId) });
@@ -697,9 +674,6 @@ export const getFeeGroupsForInvoicePicker = async (branchId: number, search?: st
   }
 };
 
-// Normalise whatever the server returns to a plain array.
-// Swagger says array, but the runtime response may be a paginated wrapper
-// ({ content, data, items, … }) depending on the backend version.
 function toArray<T>(raw: unknown): T[] {
   if (Array.isArray(raw)) return raw as T[];
   if (raw && typeof raw === "object") {
@@ -711,7 +685,6 @@ function toArray<T>(raw: unknown): T[] {
   return [];
 }
 
-// GET /fee/route — all school fee routes
 export const getFeeRoutes = async (): Promise<FeeRouteResponseDto[]> => {
   try {
     const { data } = await api.get(`/fee/route`);
@@ -722,7 +695,6 @@ export const getFeeRoutes = async (): Promise<FeeRouteResponseDto[]> => {
   }
 };
 
-// GET /fee/route/branch/{branchId} — routes for a specific branch
 export const getFeeRoutesByBranch = async (branchId: number): Promise<FeeRouteResponseDto[]> => {
   try {
     const { data } = await api.get(`/fee/route/branch/${branchId}`);
@@ -743,7 +715,6 @@ export const createFeeRoute = async (payload: FeeRouteRequestDto) => {
   }
 };
 
-// PUT /fee/route/{id} — update an existing fee route
 export const updateFeeRoute = async (id: number, payload: FeeRouteRequestDto) => {
   try {
     const { data } = await api.put(`/fee/route/${id}`, payload);
