@@ -59,7 +59,7 @@ export const SearchableSelect = ({
             <ComboboxEmpty className="text-text-destructive py-2 text-center text-sm font-light">{emptyMessage}</ComboboxEmpty>
           )}
           {filteredOptions.map((option, index) => (
-            <ComboboxItem key={`${option.value}-${index}`} value={option.value} className="hover:bg-bg-state-ghost-hover hover:text-text-default">
+            <ComboboxItem key={`${option.value}-${index}`} value={option.value} className="hover:bg-bg-input-soft! hover:text-text-default">
               <span className="text-text-default flex items-center gap-2">
                 {option.flag && <span>{option.flag}</span>}
                 {option.label}

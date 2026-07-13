@@ -137,7 +137,7 @@ export default function DashboardHeader({
                     setTermSelected(term || null);
                   }}
                 >
-                  <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal focus-visible:ring-0">
+                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal focus-visible:ring-0">
                     <span className="text-text-default text-sm capitalize">
                       {activeSession} {termSelected?.term.toLowerCase()}
                     </span>
@@ -172,7 +172,7 @@ export default function DashboardHeader({
                     setBranchSelected(branch?.branch || null);
                   }}
                 >
-                  <SelectTrigger className="bg-bg-input-soft text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal! focus-visible:ring-0">
+                  <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal! focus-visible:ring-0">
                     <span className="text-text-default text-sm">{branchSelected ? branchSelected.name : "All Branches"}</span>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-default border-border-default">
@@ -196,7 +196,10 @@ export default function DashboardHeader({
                 <Button className="bg-bg-state-soft text-text-subtle rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
               </DrawerClose>
 
-              <Button className="bg-bg-state-primary text-text-white-default rounded-md! px-4 py-2 text-sm tracking-[0.1rem]">
+              <Button
+                onClick={() => setIsFilterOpen(false)}
+                className="bg-bg-state-primary text-text-white-default rounded-md! px-4 py-2 text-sm tracking-[0.1rem]"
+              >
                 <span>Apply Filter</span>
                 <span className="bg-bg-badge-white border-border-white rounded-sm px-1.5 py-0.5 text-xs">2</span>
               </Button>

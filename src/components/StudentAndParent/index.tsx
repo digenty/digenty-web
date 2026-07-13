@@ -6,6 +6,8 @@ import { ParentsTable } from "./Parent";
 import { StudentsTable } from "./Students";
 import { ModulePermissionsWrapper } from "@/components/ModulePermissionsWrapper";
 import { canViewStudentParentRecords } from "@/lib/permissions/students-and-parents";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "@digenty/icons";
 
 const tabs = ["Students", "Parents"];
 
@@ -23,6 +25,14 @@ const StudentAndParentRecord = () => {
   return (
     <ModulePermissionsWrapper permissionUtility={canViewStudentParentRecords}>
       <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
+        <Button
+          onClick={() => router.push("/staff")}
+          className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex w-fit shrink-0 items-center gap-1.5 border text-sm font-medium transition-colors md:hidden"
+        >
+          <ArrowLeft fill="var(--color-icon-default-subtle)" className="size-4 shrink-0" />
+          Back to Dashboard
+        </Button>
+
         {/* Tabs */}
         <div className="border-border-default flex w-auto max-w-105 items-center gap-3 border-b">
           {tabs.map(tab => {

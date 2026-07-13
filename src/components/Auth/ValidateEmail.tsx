@@ -80,7 +80,7 @@ export const ValidateEmail = ({ userType }: { userType: "SCHOOL_STAFF" | "PARENT
               {isLoading && <Spinner className="text-text-white-default" />}
               Continue
             </Button>
-            <p className="text-text-muted text-center text-xs">Trusted by 1,200+ schools and educators</p>
+            {/* <p className="text-text-muted text-center text-xs">Trusted by 1,200+ schools and educators</p> */}
           </div>
         </form>
       ) : step === "login" ? (

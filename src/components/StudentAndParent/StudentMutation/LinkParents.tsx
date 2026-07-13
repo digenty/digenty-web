@@ -13,9 +13,10 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetParents } from "@/hooks/queryHooks/useParent";
 import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { XIcon } from "lucide-react";
+import { PlusIcon, XIcon } from "lucide-react";
 import Image from "next/image";
 import { Dispatch, SetStateAction, useState } from "react";
+import { CreateParentModal } from "./CreateParentModal";
 
 export const LinkParents = ({
   open,
@@ -31,6 +32,7 @@ export const LinkParents = ({
   const [branchSelected, setBranchSelected] = useState<Branch>();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
+  const [isCreateParentOpen, setIsCreateParentOpen] = useState(false);
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
 
@@ -46,35 +48,46 @@ export const LinkParents = ({
 
   return (
     <>
+      <CreateParentModal open={isCreateParentOpen} setOpen={setIsCreateParentOpen} />
+
       {isMobile ? (
         <MobileDrawer open={open} setIsOpen={setOpen} title={`Link Parents`}>
-          <div className="border-border-default bg-bg-card-subtle flex items-center justify-between border-b px-4 py-3">
+          <div className="border-border-default bg-bg-card-subtle flex flex-col gap-2 border-b px-4 py-3 md:flex-row md:items-center md:justify-between">
             <h3 className="text-text-default text-base font-semibold">Parents List</h3>
-            {!branches || loadingBranches ? (
-              <Skeleton className="bg-bg-input-soft h-8 w-32" />
-            ) : (
-              <Select
-                onValueChange={value => {
-                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
-                  setBranchSelected(branch);
-                }}
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setIsCreateParentOpen(true)}
+                className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-default! flex h-8! items-center gap-1.5 border px-2! text-sm font-medium"
               >
-                <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
-                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                  <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-card border-border-default">
-                  <SelectItem value="none" className="text-text-default text-sm font-semibold">
-                    All Branches
-                  </SelectItem>
-                  {branches.data.map((branch: BranchWithClassLevels) => (
-                    <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-semibold">
-                      {branch.branch.name}
+                <PlusIcon className="text-icon-default-muted size-4" />
+                Create New Parent
+              </Button>
+              {!branches || loadingBranches ? (
+                <Skeleton className="bg-bg-input-soft h-8 w-32" />
+              ) : (
+                <Select
+                  onValueChange={value => {
+                    const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
+                    setBranchSelected(branch?.branch);
+                  }}
+                >
+                  <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
+                    <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                    <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-card border-border-default">
+                    <SelectItem value="none" className="text-text-default text-sm font-semibold">
+                      All Branches
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+                    {branches.data.map((branch: BranchWithClassLevels) => (
+                      <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-semibold">
+                        {branch.branch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
           </div>
 
           <div className="space-y-3 px-3 py-4 md:px-6">
@@ -85,7 +98,11 @@ export const LinkParents = ({
                 setSearchQuery(evt.target.value);
               }}
             />
-            <Button className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! border-border-default h-6 border px-1.5!">
+            <Button
+              onClick={() => setSelectedParents([])}
+              disabled={selectedParents.length === 0}
+              className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! border-border-default h-6 border px-1.5! disabled:cursor-not-allowed disabled:opacity-50"
+            >
               <XIcon className="text-icon-default-muted size-4" />
               <span className="text-text-default text-xs">Clear All</span>
             </Button>
@@ -127,7 +144,7 @@ export const LinkParents = ({
                           <p className="text-text-default text-sm font-medium">
                             {parent.firstName} {parent.lastName}
                           </p>
-                          <p className="text-text-subtle text-xs font-normal">{branchSelected?.name}</p>
+                          <p className="text-text-subtle text-xs font-normal">{parent.branch}</p>
                         </div>
                       </div>
                     </div>
@@ -184,33 +201,42 @@ export const LinkParents = ({
             </Button>
           }
         >
-          <div className="border-border-default bg-bg-card-subtle flex items-center justify-between border-b px-4 py-3">
+          <div className="border-border-default bg-bg-card-subtle flex items-center justify-between gap-2 border-b px-4 py-3">
             <h3 className="text-text-default text-base font-semibold">Parents List</h3>
-            {!branches || loadingBranches ? (
-              <Skeleton className="bg-bg-input-soft h-8 w-32" />
-            ) : (
-              <Select
-                onValueChange={value => {
-                  const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
-                  setBranchSelected(branch);
-                }}
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setIsCreateParentOpen(true)}
+                className="border-border-darker bg-bg-state-secondary text-text-default! hover:bg-bg-state-secondary-hover! flex h-8! items-center gap-1.5 border px-2! text-sm font-medium"
               >
-                <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
-                  <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                  <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
-                </SelectTrigger>
-                <SelectContent className="bg-bg-card border-border-default">
-                  <SelectItem value="none" className="text-text-default text-sm font-semibold">
-                    All Branches
-                  </SelectItem>
-                  {branches.data.map((branch: BranchWithClassLevels) => (
-                    <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-semibold">
-                      {branch.branch.name}
+                <PlusIcon className="text-icon-default-muted size-4" />
+                Create New Parent
+              </Button>
+              {!branches || loadingBranches ? (
+                <Skeleton className="bg-bg-input-soft h-8 w-32" />
+              ) : (
+                <Select
+                  onValueChange={value => {
+                    const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
+                    setBranchSelected(branch?.branch);
+                  }}
+                >
+                  <SelectTrigger className="border-border-darker flex h-8! w-auto items-center gap-2 border">
+                    <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
+                    <span className="text-text-default text-sm font-semibold">{branchSelected ? branchSelected?.name : "All Branches"}</span>
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-card border-border-default">
+                    <SelectItem value="none" className="text-text-default text-sm font-semibold">
+                      All Branches
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+                    {branches.data.map((branch: BranchWithClassLevels) => (
+                      <SelectItem key={branch.branch.id} value={branch.branch.uuid} className="text-text-default text-sm font-semibold">
+                        {branch.branch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
           </div>
 
           <div className="space-y-3 px-3 py-4 md:px-6">
@@ -221,7 +247,11 @@ export const LinkParents = ({
                 setSearchQuery(evt.target.value);
               }}
             />
-            <Button className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! border-border-default h-6 border px-1.5!">
+            <Button
+              onClick={() => setSelectedParents([])}
+              disabled={selectedParents.length === 0}
+              className="bg-bg-state-secondary hover:bg-bg-state-secondary-hover! border-border-default h-6 border px-1.5! disabled:cursor-not-allowed disabled:opacity-50"
+            >
               <XIcon className="text-icon-default-muted size-4" />
               <span className="text-text-default text-xs">Clear All</span>
             </Button>
@@ -263,7 +293,7 @@ export const LinkParents = ({
                           <p className="text-text-default text-sm font-medium">
                             {parent.firstName} {parent.lastName}
                           </p>
-                          <p className="text-text-subtle text-xs font-normal">{branchSelected?.name}</p>
+                          <p className="text-text-subtle text-xs font-normal">{parent.branch}</p>
                         </div>
                       </div>
                     </div>
