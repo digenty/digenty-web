@@ -37,11 +37,11 @@ export const AdmissionCyclesManagement = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
         <h2 className="text-text-default text-xl font-semibold">Admission Cycles Management</h2>
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium"
+          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex w-fit items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium"
         >
           + Create New Cycle
         </Button>
@@ -80,21 +80,63 @@ export const AdmissionCyclesManagement = () => {
         )}
 
         {!isPending && !isError && cycles.length > 0 && (
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border-default hover:bg-transparent!">
-                <TableHead className="text-text-muted text-xs font-medium">Cycle Name</TableHead>
-                <TableHead className="text-text-muted text-xs font-medium">Session Dates</TableHead>
-                <TableHead className="text-text-muted text-xs font-medium">Status</TableHead>
-                <TableHead className="text-text-muted text-right text-xs font-medium" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <>
+            <div className="hidden md:block">
+              <Table className="">
+                <TableHeader>
+                  <TableRow className="border-border-default hover:bg-transparent!">
+                    <TableHead className="text-text-muted text-xs font-medium">Cycle Name</TableHead>
+                    <TableHead className="text-text-muted text-xs font-medium">Session Dates</TableHead>
+                    <TableHead className="text-text-muted text-xs font-medium">Status</TableHead>
+                    <TableHead className="text-text-muted text-right text-xs font-medium" />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {cycles.map(cycle => (
+                    <TableRow key={cycle.id} className="border-border-default hover:bg-bg-subtle!">
+                      <TableCell className="text-text-default py-4 text-sm font-medium">{cycle.name}</TableCell>
+                      <TableCell className="text-text-muted py-4 text-sm">{formatSessionDates(cycle)}</TableCell>
+                      <TableCell className="py-4">
+                        <span
+                          className={cn(
+                            "inline-flex w-fit items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium",
+                            cycle.status === "ACTIVE" ? "bg-bg-badge-green text-bg-basic-green-strong" : "bg-bg-state-soft text-text-muted",
+                          )}
+                        >
+                          <span className={cn("size-1.5 shrink-0 rounded-full", cycle.status === "ACTIVE" ? "bg-green-500" : "bg-icon-default-muted")} />
+                          {cycle.status === "ACTIVE" ? "Active" : "Closed"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-4 text-right">
+                        {cycle.status === "ACTIVE" ? (
+                          <Button
+                            onClick={() => router.push(`/staff/admission-management/setup/${cycle.id}`)}
+                            className="border-border-darker bg-bg-state-secondary! text-text-default hover:bg-bg-state-secondary-hover! ml-auto flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
+                          >
+                            <Settings4 fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
+                            Configure
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() => router.push(`/staff/admission-management/setup/${cycle.id}`)}
+                            className="border-border-darker bg-bg-state-secondary! text-text-default hover:bg-bg-state-secondary-hover! ml-auto flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
+                          >
+                            <FileList3 fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
+                            See Report
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="flex flex-col gap-4 md:hidden">
               {cycles.map(cycle => (
-                <TableRow key={cycle.id} className="border-border-default hover:bg-bg-subtle!">
-                  <TableCell className="text-text-default py-4 text-sm font-medium">{cycle.name}</TableCell>
-                  <TableCell className="text-text-muted py-4 text-sm">{formatSessionDates(cycle)}</TableCell>
-                  <TableCell className="py-4">
+                <div key={cycle.id} className="border-border-default bg-bg-subtle rounded-md border">
+                  <div className="flex h-9.5 items-center justify-between px-3 py-1.5">
+                    <span className="text-text-default text-sm font-medium">{cycle.name}</span>
                     <span
                       className={cn(
                         "inline-flex w-fit items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium",
@@ -104,12 +146,20 @@ export const AdmissionCyclesManagement = () => {
                       <span className={cn("size-1.5 shrink-0 rounded-full", cycle.status === "ACTIVE" ? "bg-green-500" : "bg-icon-default-muted")} />
                       {cycle.status === "ACTIVE" ? "Active" : "Closed"}
                     </span>
-                  </TableCell>
-                  <TableCell className="py-4 text-right">
+                  </div>
+
+                  <div className="border-border-default border-t">
+                    <div className="flex justify-between px-3 py-2 text-sm">
+                      <span className="text-text-muted font-medium">Session Dates</span>
+                      <span className="text-text-default text-sm font-medium">{formatSessionDates(cycle)}</span>
+                    </div>
+                  </div>
+
+                  <div className="border-border-default flex justify-end border-t px-3 py-2">
                     {cycle.status === "ACTIVE" ? (
                       <Button
                         onClick={() => router.push(`/staff/admission-management/setup/${cycle.id}`)}
-                        className="border-border-darker bg-bg-state-secondary! text-text-default hover:bg-bg-state-secondary-hover! ml-auto flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
+                        className="border-border-darker bg-bg-state-secondary! text-text-default hover:bg-bg-state-secondary-hover! flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
                       >
                         <Settings4 fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
                         Configure
@@ -117,17 +167,17 @@ export const AdmissionCyclesManagement = () => {
                     ) : (
                       <Button
                         onClick={() => router.push(`/staff/admission-management/setup/${cycle.id}`)}
-                        className="border-border-darker bg-bg-state-secondary! text-text-default hover:bg-bg-state-secondary-hover! ml-auto flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
+                        className="border-border-darker bg-bg-state-secondary! text-text-default hover:bg-bg-state-secondary-hover! flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
                       >
                         <FileList3 fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
                         See Report
                       </Button>
                     )}
-                  </TableCell>
-                </TableRow>
+                  </div>
+                </div>
               ))}
-            </TableBody>
-          </Table>
+            </div>
+          </>
         )}
       </div>
 

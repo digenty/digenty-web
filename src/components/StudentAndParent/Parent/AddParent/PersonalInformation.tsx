@@ -13,7 +13,7 @@ import { genders, relationships } from "@/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { BranchWithClassLevels } from "@/api/types";
 
-export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInputValues> }) => {
+export const PersonalInformation = ({ formik, modal = false }: { formik: FormikProps<ParentInputValues>; modal?: boolean }) => {
   const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
   const [countries, setCountries] = useState<Country[]>([]);
   const [availableStates, setAvailableStates] = useState<string[]>([]);
@@ -194,6 +194,7 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
               }}
               placeholder="Select Nationality"
               searchPlaceholder="Search country..."
+              modal={modal}
             />
           ) : (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
@@ -221,7 +222,7 @@ export const PersonalInformation = ({ formik }: { formik: FormikProps<ParentInpu
                 </div>
               ) : (
                 availableStates.map(stateName => (
-                  <SelectItem key={stateName} className="text-text-default" value={stateName}>
+                  <SelectItem key={stateName} className="text-text-default hover:bg-bg-input-soft!" value={stateName}>
                     {stateName}
                   </SelectItem>
                 ))
