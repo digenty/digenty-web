@@ -16,6 +16,7 @@ import { Label } from "../ui/label";
 import { Skeleton } from "../ui/skeleton";
 import { studentsStatus } from "./constants";
 import { StudentsStatus } from "./types";
+import { ListFilter } from "lucide-react";
 
 export const RecordHeader = ({
   tab,
@@ -150,8 +151,9 @@ export const RecordHeader = ({
           )}
         </div>
 
-        <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
-          <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+        <Button className="bg-bg-state-soft flex size-7 items-center justify-center rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
+          {/* <Image src="/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} /> */}
+          <ListFilter className="text-text-default" />
         </Button>
 
         <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
@@ -336,7 +338,7 @@ export const RecordHeader = ({
 
               <Button
                 onClick={() => setIsFilterOpen(false)}
-                className="bg-bg-state-primary text-text-white-default rounded-md! px-4 py-2 text-sm tracking-[0.1rem]"
+                className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! flex items-center gap-2 rounded-md! px-4 py-2 text-sm font-medium tracking-[0.1rem]"
               >
                 <span>Apply Filter</span>
                 <span className="bg-bg-badge-white border-border-white rounded-sm px-1.5 py-0.5 text-xs">{filterCount}</span>

@@ -407,7 +407,7 @@ export const StudentsTable = () => {
             }}
           />
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between gap-1">
             <Button
               onClick={() => setOpenExportFilter(true)}
               className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"

@@ -24,7 +24,7 @@ const StudentAndParentRecord = () => {
 
   return (
     <ModulePermissionsWrapper permissionUtility={canViewStudentParentRecords}>
-      <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
+      <div className="space-y-4.5 px-3 py-6 md:space-y-8 md:px-8">
         <Button
           onClick={() => router.push("/staff")}
           className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex w-fit shrink-0 items-center gap-1.5 border text-sm font-medium transition-colors md:hidden"
