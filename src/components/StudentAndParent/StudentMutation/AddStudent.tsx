@@ -129,10 +129,10 @@ export const AddStudent = () => {
   };
 
   const handleBack = () => {
-    if (step > 0) {
+    if (step > 1) {
       setStep(prev => prev - 1);
     } else {
-      router.back();
+      router.push("/staff/student-and-parent-record?tab=Students");
     }
   };
 
@@ -220,7 +220,7 @@ export const AddStudent = () => {
           <LinkedParents setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />
         </div>
 
-        <div className="border-border-default bg-bg-default sticky bottom-0 w-full border-t py-3">
+        <div className="border-border-default bg-bg-default bottom-0 w-full border-t py-3">
           <div className="flex items-center justify-between gap-2">
             <Button onClick={() => handleBack()} className="bg-bg-state-soft text-text-subtle hover:bg-bg-state-soft-hover! h-7! text-sm">
               {step > 1 ? "Back" : "Cancel"}

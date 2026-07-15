@@ -10,7 +10,7 @@ export const ContactInformation = ({ formik }: { formik: FormikProps<ParentInput
 
   return (
     <div className="border-border-default space-y-6 py-6 md:border-b">
-      <h2 className="text-lg font-semibold">Contact Information</h2>
+      <h2 className="text-text-default text-lg font-semibold">Contact Information</h2>
 
       <div className="grid grid-cols-1 gap-6 sm:gap-5">
         <div className="space-y-2">

@@ -350,7 +350,7 @@ export const UserProfile = () => {
           </div>
         </div>
 
-        <div className="border-border-default flex h-20 items-center justify-between border-b py-4">
+        <div className="border-border-default flex flex-col gap-3 border-b py-4 md:h-20 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <Timee fill="var(--color-icon-default-muted)" />
@@ -366,18 +366,18 @@ export const UserProfile = () => {
             }}
             placeholder="Select Time Zone"
             searchPlaceholder="Search time zone..."
-            className="border-border-darker h-8! w-auto rounded-md border"
+            className="border-border-darker h-8! w-full rounded-md border md:w-auto"
           />
         </div>
 
-        <div className="border-border-default flex items-center justify-between gap-4 border-b py-4">
+        <div className="border-border-default flex flex-col gap-3 border-b py-4 md:flex-row md:items-center md:justify-between md:gap-4">
           <Label className="text-text-default text-sm font-medium">Password</Label>
-          <div className="flex items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1">
             {isLoadingSecurity ? (
               <Skeleton className="h-4 w-32" />
             ) : (
               <>
-                <div className="flex gap-1">
+                <div className="flex flex-wrap gap-1">
                   {Array.from({ length: PASSWORD_DOTS }).map((_, i) => (
                     <CircleFill key={i} fill={i < strengthMeta.filled ? strengthMeta.color : "var(--color-icon-default)"} />
                   ))}
@@ -392,7 +392,7 @@ export const UserProfile = () => {
           <Button
             disabled={isSendingOtp}
             onClick={handleChangePassword}
-            className="border-border-darker text-text-default bg-bg-state-secondary! h-8 rounded-md border disabled:cursor-not-allowed disabled:opacity-60"
+            className="border-border-darker text-text-default bg-bg-state-secondary! h-8 w-fit rounded-md border disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSendingOtp && <Spinner className="size-3" />} Change Password
           </Button>

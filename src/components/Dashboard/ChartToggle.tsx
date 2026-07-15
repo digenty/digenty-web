@@ -33,12 +33,12 @@ export const ChartToggle: React.FC<ToggleGroupProps> = ({ options, selected, onC
 
       <div className="block w-full md:hidden">
         <Select value={selected || (options[0]?.levelName ?? "")} onValueChange={handleSelect}>
-          <SelectTrigger className="bg-bg-state-soft text-text-default h-10 w-full rounded-full border-0 px-4 capitalize">
+          <SelectTrigger className="bg-bg-state-soft! text-text-default h-10 w-full rounded-full border-0 px-4 capitalize">
             <SelectValue placeholder="Select level" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-bg-card border-border-default border">
             {options.map(option => (
-              <SelectItem key={option.id} value={option.levelName} className="capitalize">
+              <SelectItem key={option.id} value={option.levelName} className="text-text-default capitalize">
                 {option.levelName.replaceAll("_", " ").toLowerCase()}
               </SelectItem>
             ))}
