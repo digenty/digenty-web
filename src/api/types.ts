@@ -133,20 +133,28 @@ export interface Parent {
   linkedStudents: { id: number; fullName: string; image: string | null; relationship: string | null }[];
 }
 
-export interface AttendanceCard {
+export interface AttendanceClassArm {
   armId: number;
+  levelId: number;
   classArm: string;
   classTeacher: string;
   numberOfStudentInArm: number;
   attendancePercentage: number;
-  lastUpdated: Date;
+  lastUpdated: Date | null;
 }
+
+export interface AttendanceLevel {
+  levelId: number;
+  levelName: string;
+  classArms: AttendanceClassArm[];
+}
+
 export interface Attendance {
-  classArmAttendanceCardList: AttendanceCard[];
-  numberOfClassAttendanceTaken: number;
-  overallAttendancePercentage: number;
   totalClasses: number;
+  numberOfClassAttendanceTaken: number;
   totalStudents: number;
+  overallAttendancePercentage: number;
+  levels: AttendanceLevel[];
 }
 
 export interface Term {
