@@ -1,7 +1,7 @@
 "use client";
 
 import { Approve, BarChartIcon, GraduationCapFill, NumStudentIcon } from "@digenty/icons";
-import { Branch, Term } from "@/api/types";
+import { AttendanceLevel, Branch, Term } from "@/api/types";
 import { useGetAllAttendance } from "@/hooks/queryHooks/useAttendance";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useState } from "react";
@@ -28,7 +28,9 @@ export const AttendanceManagement = () => {
 
   const { data, isPending, isError, isLoading } = useGetAllAttendance(branchSelected?.id, termSelected?.termId, debouncedSearchQuery);
 
-  console.log("Attendance data:", data);
+  const levels: AttendanceLevel[] = data?.data.levels ?? [];
+  const hasNoClasses = levels.every(level => level.classArms.length === 0);
+
   const attendanceStats = {
     totalClasses: data?.data.totalClasses ?? 0,
     attendanceTken: data?.data.numberOfClassAttendanceTaken ?? 0,
@@ -120,13 +122,13 @@ export const AttendanceManagement = () => {
             </div>
           )}
 
-          {!isPending && !isError && data?.data.classArmAttendanceCardList?.length === 0 && (
+          {!isPending && !isError && hasNoClasses && (
             <div className="flex h-80 items-center justify-center">
               <ErrorComponent title="No Attendance data found" description="No attendance has been taken yet." buttonText="Create Attendance" />
             </div>
           )}
 
-          <AttendanceCards attendance={data?.data.classArmAttendanceCardList || []} />
+          {!isPending && !isError && !hasNoClasses && <AttendanceCards levels={levels} />}
         </div>
       </div>
     </AttendanceMgtWrapper>

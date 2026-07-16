@@ -13,7 +13,7 @@ interface CardProps {
   classname: string;
   totalStudents: string;
   teacherName: string;
-  lastUpdate: Date;
+  lastUpdate: Date | null;
   attendancePercentage: number;
   viewLabel?: string;
   armId: number;
@@ -48,17 +48,19 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
     );
   };
 
+  const relativeUpdate = lastUpdate ? formatRelativeDate(lastUpdate) : null;
+
   const updateStyles =
-    formatRelativeDate(lastUpdate) === "Today"
+    relativeUpdate === "Today"
       ? "bg-bg-badge-green text-bg-basic-green-strong"
-      : formatRelativeDate(lastUpdate) === "Yesterday"
+      : relativeUpdate === "Yesterday"
         ? "bg-bg-badge-orange text-bg-basic-orange-strong"
         : "bg-bg-badge-default text-text-muted";
 
   const updateIconColor =
-    formatRelativeDate(lastUpdate) === "Today"
+    relativeUpdate === "Today"
       ? "var(--color-bg-basic-green-strong)"
-      : formatRelativeDate(lastUpdate) === "Yesterday"
+      : relativeUpdate === "Yesterday"
         ? "var(--color-bg-basic-orange-strong)"
         : "var(--color-text-muted)";
 
@@ -76,7 +78,7 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
 
       <div className="flex flex-col gap-4">
         <p className={`${updateStyles} border-border-default flex w-fit items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium`}>
-          <TimeFill fill={updateIconColor} /> {lastUpdate ? `Last Updated ${formatRelativeDate(lastUpdate)}` : "No Attendance Record"}
+          <TimeFill fill={updateIconColor} /> {relativeUpdate ? `Last Updated ${relativeUpdate}` : "No Attendance Record"}
         </p>
 
         {lastUpdate && (
