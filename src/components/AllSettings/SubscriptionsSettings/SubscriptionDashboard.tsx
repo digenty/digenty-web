@@ -9,6 +9,7 @@ import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCancelSubscription, useGetBillingHistory, useGetCurrentSubscription, useRenewSubscription } from "@/hooks/queryHooks/useSubscription";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
@@ -16,6 +17,9 @@ import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { BillingHistoryRow, billingStatusLabel, subscriptionStatusLabel } from "./type";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
+import { Spinner } from "@/components/ui/spinner";
 
 const PAGE_SIZE = 10;
 
@@ -63,6 +67,7 @@ interface CancelSubscriptionModalProps {
 }
 
 const CancelSubscriptionModal = ({ open, setOpen, subscriptionId }: CancelSubscriptionModalProps) => {
+  const isMobile = useIsMobile();
   const { mutate: cancel, isPending } = useCancelSubscription();
 
   const handleConfirm = () => {
@@ -87,31 +92,65 @@ const CancelSubscriptionModal = ({ open, setOpen, subscriptionId }: CancelSubscr
   };
 
   return (
-    <Modal
-      open={open}
-      setOpen={setOpen}
-      title="Cancel Subscription"
-      ActionButton={
-        <Button
-          onClick={handleConfirm}
-          disabled={isPending}
-          className="bg-bg-state-destructive hover:bg-bg-state-destructive-hover! text-text-white-default h-7 rounded-md px-3 text-sm font-medium"
+    <>
+      {!isMobile ? (
+        <Modal
+          open={open}
+          setOpen={setOpen}
+          title="Cancel Subscription"
+          ActionButton={
+            <Button
+              onClick={handleConfirm}
+              disabled={isPending}
+              className="bg-bg-state-destructive hover:bg-bg-state-destructive-hover! text-text-white-default h-7 rounded-md px-3 text-sm font-medium"
+            >
+              {isPending ? "Cancelling…" : "Yes, cancel"}
+            </Button>
+          }
         >
-          {isPending ? "Cancelling…" : "Yes, cancel"}
-        </Button>
-      }
-    >
-      <div className="flex flex-col gap-4 p-4">
-        <div className="bg-bg-badge-red flex gap-3 rounded-md p-3">
-          <AlertFill fill="var(--color-icon-destructive)" className="mt-0.5 h-4 w-4 shrink-0" />
-          <p className="text-text-subtle text-xs leading-relaxed">
-            Cancelling your subscription will end your access to all paid features at the end of the current billing period. This action cannot be
-            undone.
-          </p>
-        </div>
-        <p className="text-text-default text-sm">Are you sure you want to cancel your subscription?</p>
-      </div>
-    </Modal>
+          <div className="flex flex-col gap-4 p-4">
+            <div className="bg-bg-badge-red flex gap-3 rounded-md p-3">
+              <AlertFill fill="var(--color-icon-destructive)" className="mt-0.5 h-4 w-4 shrink-0" />
+              <p className="text-text-subtle text-xs leading-relaxed">
+                Cancelling your subscription will end your access to all paid features at the end of the current billing period. This action cannot be
+                undone.
+              </p>
+            </div>
+            <p className="text-text-default text-sm">Are you sure you want to cancel your subscription?</p>
+          </div>
+        </Modal>
+      ) : (
+        <MobileDrawer open={open} setIsOpen={setOpen} title="Cancel Subscription">
+          <div className="flex flex-col gap-4 p-4">
+            <div className="bg-bg-badge-red flex gap-3 rounded-md p-3">
+              <AlertFill fill="var(--color-icon-destructive)" className="mt-0.5 h-4 w-4 shrink-0" />
+              <p className="text-text-subtle text-xs leading-relaxed">
+                Cancelling your subscription will end your access to all paid features at the end of the current billing period. This action cannot be
+                undone.
+              </p>
+            </div>
+            <p className="text-text-default text-sm">Are you sure you want to cancel your subscription?</p>
+          </div>
+
+          <DrawerFooter className="border-border-default border-t">
+            <div className="flex justify-between">
+              <DrawerClose asChild>
+                <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Keep Subscription</Button>
+              </DrawerClose>
+
+              <Button
+                onClick={handleConfirm}
+                disabled={isPending}
+                className="bg-bg-state-destructive hover:bg-bg-state-destructive-hover! text-text-white-default h-7! rounded-md px-3 text-sm font-medium"
+              >
+                {isPending && <Spinner className="text-text-white-default" />}
+                {isPending ? "Cancelling…" : "Yes, cancel"}
+              </Button>
+            </div>
+          </DrawerFooter>
+        </MobileDrawer>
+      )}
+    </>
   );
 };
 
