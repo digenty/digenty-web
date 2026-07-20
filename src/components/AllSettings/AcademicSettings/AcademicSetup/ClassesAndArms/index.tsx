@@ -464,78 +464,78 @@ export const ClassesAndArms = ({
     });
   }, [levels]);
 
-  return <>
-  
-  <section className="">
-      <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 pb-12 lg:px-36">
-        <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
-          <div className="">
-            <div className="text-text-default text-md font-semibold">Do academic structures differ by school branch?</div>
-            <div className="text-text-subtle text-sm font-normal">Turn ON for branch-specific structures. Keep OFF to share one setup.</div>
-          </div>
-          <Toggle
-            withBorder={false}
-            checked={branchSpecific}
-            onChange={evt => {
-              setBranchSpecific(!branchSpecific);
-              if (!evt.target.checked) setActiveBranch(null);
-            }}
-          />
-        </div>
-        {branchSpecific && (
-          <div className="border-border-default mb-5 flex w-full items-center gap-3 px-4">
-            <BranchTabs activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
-          </div>
-        )}
-
-        <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="w-3/4">
-            <ClassesSetup
-              levels={levels}
-              activeLevel={activeLevel}
-              setActiveLevel={setActiveLevel}
-              branchId={activeBranch?.id}
-              branchSpecific={branchSpecific}
+  return (
+    <>
+      <section className="">
+        <div className="mx-auto flex w-full flex-1 flex-col gap-4 px-4 pb-12 lg:px-36">
+          <div className="bg-bg-subtle border-border-default mb-5 flex w-full items-start justify-between rounded-md border p-4">
+            <div className="">
+              <div className="text-text-default text-md font-semibold">Do academic structures differ by school branch?</div>
+              <div className="text-text-subtle text-sm font-normal">Turn ON for branch-specific structures. Keep OFF to share one setup.</div>
+            </div>
+            <Toggle
+              withBorder={false}
+              checked={branchSpecific}
+              onChange={evt => {
+                setBranchSpecific(!branchSpecific);
+                if (!evt.target.checked) setActiveBranch(null);
+              }}
             />
           </div>
-          <div className="shrink-0">
-            {activeLevel && (
-              <>
-                {sheetOpen && (
-                  <ClassQuickSetupSheet
-                    level={activeLevel}
-                    branchSpecific={branchSpecific}
-                    setActiveLevel={setActiveLevel}
-                    branchId={activeBranch?.id}
-                    sheetOpen={sheetOpen}
-                    setSheetOpen={setSheetOpen}
-                  />
-                )}
-                {addClassOpen && (
-                  <AddClassModal open={addClassOpen} setOpen={setAddClassOpen} level={activeLevel} nextClassNumber={nextClassNumber} />
-                )}
-                {hasClasses ? (
-                  <Button
-                    onClick={() => setAddClassOpen(true)}
-                    className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
-                  >
-                    + Add Class
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => setSheetOpen(true)}
-                    className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
-                  >
-                    <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
-                  </Button>
-                )}
-              </>
-            )}
+          {branchSpecific && (
+            <div className="border-border-default mb-5 flex w-full items-center gap-3 px-4">
+              <BranchTabs activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
+            </div>
+          )}
+
+          <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="w-3/4">
+              <ClassesSetup
+                levels={levels}
+                activeLevel={activeLevel}
+                setActiveLevel={setActiveLevel}
+                branchId={activeBranch?.id}
+                branchSpecific={branchSpecific}
+              />
+            </div>
+            <div className="shrink-0">
+              {activeLevel && (
+                <>
+                  {sheetOpen && (
+                    <ClassQuickSetupSheet
+                      level={activeLevel}
+                      branchSpecific={branchSpecific}
+                      setActiveLevel={setActiveLevel}
+                      branchId={activeBranch?.id}
+                      sheetOpen={sheetOpen}
+                      setSheetOpen={setSheetOpen}
+                    />
+                  )}
+                  {addClassOpen && (
+                    <AddClassModal open={addClassOpen} setOpen={setAddClassOpen} level={activeLevel} nextClassNumber={nextClassNumber} />
+                  )}
+                  {hasClasses ? (
+                    <Button
+                      onClick={() => setAddClassOpen(true)}
+                      className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
+                    >
+                      + Add Class
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => setSheetOpen(true)}
+                      className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
+                    >
+                      <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* {hasClasses && (
+        {/* {hasClasses && (
         <div className="border-border-default bg-bg-default mx-auto flex w-full items-center justify-between border-t px-4 py-3 lg:px-40">
           <Button
             className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
@@ -558,7 +558,7 @@ export const ClassesAndArms = ({
         </div>
       )} */}
 
-      {/* <div className="border-border-default bg-bg-default  border-t right-0 -z-1 left-0 fixed bottom-0 flex justify-center  ">
+        {/* <div className="border-border-default bg-bg-default  border-t right-0 -z-1 left-0 fixed bottom-0 flex justify-center  ">
         <div className="w-3/4 justify-between  items-center flex  px-4 py-3 lg:px-40 mx-auto">
           <Button
             className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
@@ -581,31 +581,32 @@ export const ClassesAndArms = ({
         </div>
       </div> */}
 
-      {completedSteps && setCompletedSteps && (
-        <div className="border-border-default bg-bg-default fixed bottom-0 left-(--sidebar-w) right-0 z-10 flex justify-between border-t px-4 py-3 lg:px-40">
-          <Button
-            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
-            onClick={() => {
-              router.push(`${pathname}?step=school-structure`);
-            }}
-          >
-            Previous
-          </Button>
+        {completedSteps && setCompletedSteps && (
+          <div className="border-border-default bg-bg-default fixed right-0 bottom-0 left-(--sidebar-w) z-10 flex justify-between border-t px-4 py-3 lg:px-40">
+            <Button
+              className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
+              onClick={() => {
+                router.push(`${pathname}?step=school-structure`);
+              }}
+            >
+              Previous
+            </Button>
 
-          <Button
-            type="button"
-            onClick={() => {
-              setCompletedSteps([...completedSteps, "class-and-arms"]);
-              router.push(`${pathname}?step=grading-and-assessment`);
-            }}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-          >
-            Next
-          </Button>
-        </div>
-      )}
-    </section>
-  </> 
+            <Button
+              type="button"
+              onClick={() => {
+                setCompletedSteps([...completedSteps, "class-and-arms"]);
+                router.push(`${pathname}?step=grading-and-assessment`);
+              }}
+              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+            >
+              Next
+            </Button>
+          </div>
+        )}
+      </section>
+    </>
+  );
 };
 
 export const ClassesSetup = ({

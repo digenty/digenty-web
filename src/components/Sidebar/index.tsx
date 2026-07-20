@@ -196,7 +196,7 @@ export const Sidebar = () => {
     //     ]
     //   : []),
 
-    ...(canViewCommunication(user?.permissions) || canViewPortalCustomization(user?.permissions)
+    ...(canViewCommunication(user?.permissions) || canViewPortalCustomization(user?.permissions) || canViewDomain(user?.permissions)
       ? [
           {
             title: "Communication & Portal",
@@ -217,6 +217,16 @@ export const Sidebar = () => {
               //         title: "Website Customization",
               //         url: "website-customization",
               //         icon: ColorFilter,
+              //       },
+              //     ]
+              //   : []),
+
+              // ...(canViewDomain(user?.permissions)
+              //   ? [
+              //       {
+              //         title: "Domain",
+              //         url: "domain",
+              //         icon: Global,
               //       },
               //     ]
               //   : []),
@@ -277,84 +287,81 @@ export const Sidebar = () => {
 
   return (
     <aside className="h-screen">
-      <div
-        className={cn(
-          "border-border-default bg-bg-sidebar-subtle hide-scrollbar relative hidden h-screen w-69 space-y-4 overflow-y-auto border-r p-4 md:block md:space-y-8",
-          !isSidebarOpen && "w-16",
-        )}
-      >
-        <div className={cn("flex", isSidebarOpen ? "justify-between" : "justify-center")}>
-          {isSidebarOpen && (
-            <div className="flex items-center gap-2">
-              <Image src="/icons/Logomark.svg" width={65} height={27} alt="Axis logo" className="text-icon-default-subtle" />
-            </div>
-          )}
-
-          {isSidebarOpen ? (
-            <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
-              <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5" />
-            </Button>
-          ) : (
-            <Tooltip
-              description="Expand"
-              Trigger={
-                <Button
-                  variant="ghost"
-                  onClick={() => setIsSidebarOpen(true)}
-                  onMouseEnter={() => setShowLogo(false)}
-                  onMouseLeave={() => setShowLogo(true)}
-                  className="p-0"
-                >
-                  {showLogo ? (
-                    <Image src="/icons/Logomark.svg" width={49} height={20} alt="Axis logo" />
-                  ) : (
-                    <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5 rotate-180" />
-                  )}
-                </Button>
-              }
-            />
-          )}
-        </div>
-
-        <div className="space-y-5 md:space-y-6">
-          {navigation.map((nav: NavigationType) => {
-            return (
-              <div key={nav.menu[0].title}>
-                {!isSidebarOpen && nav.title ? ( // Exclude divider and title for  groups without title
-                  <Line fill="var(--color-icon-default-subtle)" />
-                ) : (
-                  <p className="text-text-subtle text-xs leading-4 font-medium">{nav.title}</p>
-                )}
-
-                {nav.menu.map(menu => {
-                  const isActive = activeNav === menu.url || (!activeNav && menu.title === "Dashboard");
-                  return (
-                    <Tooltip
-                      key={menu.title}
-                      description={menu.title}
-                      Trigger={
-                        <nav
-                          className={cn(
-                            "flex cursor-pointer items-center gap-[11px] px-2 py-2",
-                            !isSidebarOpen && "justify-center px-0",
-                            isActive && "bg-bg-state-soft rounded-md",
-                          )}
-                          onClick={menu.url === "cbt" ? handleCBTClick : () => router.push(`/staff/${menu.url}`)}
-                        >
-                          <menu.icon fill="var(--color-icon-default-subtle)" />
-                          {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
-                        </nav>
-                      }
-                    />
-                  );
-                })}
+      <div className={cn("border-border-default bg-bg-sidebar-subtle hidden h-screen w-69 flex-col border-r md:flex", !isSidebarOpen && "w-16")}>
+        <div className="hide-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto p-4 md:space-y-8">
+          <div className={cn("flex", isSidebarOpen ? "justify-between" : "justify-center")}>
+            {isSidebarOpen && (
+              <div className="flex items-center gap-2">
+                <Image src="/icons/Logomark.svg" width={65} height={27} alt="Axis logo" className="text-icon-default-subtle" />
               </div>
-            );
-          })}
+            )}
+
+            {isSidebarOpen ? (
+              <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
+                <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5" />
+              </Button>
+            ) : (
+              <Tooltip
+                description="Expand"
+                Trigger={
+                  <Button
+                    variant="ghost"
+                    onClick={() => setIsSidebarOpen(true)}
+                    onMouseEnter={() => setShowLogo(false)}
+                    onMouseLeave={() => setShowLogo(true)}
+                    className="p-0"
+                  >
+                    {showLogo ? (
+                      <Image src="/icons/Logomark.svg" width={49} height={20} alt="Axis logo" />
+                    ) : (
+                      <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5 rotate-180" />
+                    )}
+                  </Button>
+                }
+              />
+            )}
+          </div>
+
+          <div className="space-y-5 md:space-y-6">
+            {navigation.map((nav: NavigationType) => {
+              return (
+                <div key={nav.menu[0].title}>
+                  {!isSidebarOpen && nav.title ? ( // Exclude divider and title for  groups without title
+                    <Line fill="var(--color-icon-default-subtle)" />
+                  ) : (
+                    <p className="text-text-subtle text-xs leading-4 font-medium">{nav.title}</p>
+                  )}
+
+                  {nav.menu.map(menu => {
+                    const isActive = activeNav === menu.url || (!activeNav && menu.title === "Dashboard");
+                    return (
+                      <Tooltip
+                        key={menu.title}
+                        description={menu.title}
+                        Trigger={
+                          <nav
+                            className={cn(
+                              "flex cursor-pointer items-center gap-[11px] px-2 py-2",
+                              !isSidebarOpen && "justify-center px-0",
+                              isActive && "bg-bg-state-soft rounded-md",
+                            )}
+                            onClick={menu.url === "cbt" ? handleCBTClick : () => router.push(`/staff/${menu.url}`)}
+                          >
+                            <menu.icon fill="var(--color-icon-default-subtle)" />
+                            {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">{menu.title}</p>}
+                          </nav>
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        <div className={cn("absolute right-4 bottom-4 left-4")}>
-          <div className="right-10">{user?.isMain && <SetupGuideProgress isCollapsed={!isSidebarOpen} />}</div>
+        <div className="shrink-0 p-4">
+          {user?.isMain && <SetupGuideProgress isCollapsed={!isSidebarOpen} />}
 
           <div>
             <Tooltip
@@ -408,7 +415,7 @@ export const Sidebar = () => {
           <SheetOverlay className="block md:hidden" />
           <SheetContent
             side="left"
-            className="2xs:w-81 hide-scrollbar border-border-default bg-bg-sidebar-subtle text-text-subtle flex h-screen w-69 overflow-y-auto p-4 text-left md:hidden"
+            className="2xs:w-81 border-border-default bg-bg-sidebar-subtle text-text-subtle flex h-dvh w-69 flex-col p-0 text-left md:hidden"
           >
             <VisuallyHidden>
               <SheetHeader className="space-y-3 px-4">
@@ -416,60 +423,58 @@ export const Sidebar = () => {
               </SheetHeader>
             </VisuallyHidden>
 
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                <Image src="/icons/Logomark.svg" width={65} height={27} alt="Axis logo" />
-              </div>
-
-              {/* <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
-              <CloseLarge fill="var(--color-icon-default-subtle)" />
-            </Button> */}
-            </div>
-            <div className="space-y-5 md:space-y-6">
-              {navigation.map((nav: NavigationType) => {
-                return (
-                  <div key={nav.menu[0].title}>
-                    <p className="text-xs leading-4 font-medium">{nav.title}</p>
-
-                    {nav.menu.map(menu => {
-                      const isActive = activeNav === menu.url || (!activeNav && menu.title === "Dashboard");
-
-                      return (
-                        <nav
-                          key={menu.title}
-                          className={cn(
-                            "flex cursor-pointer gap-2.75 p-2",
-                            !isSidebarOpen && "justify-center px-0",
-                            isActive && "bg-bg-state-soft rounded-md",
-                          )}
-                          onClick={
-                            menu.url === "cbt"
-                              ? e => {
-                                  handleCBTClick(e);
-                                  setIsSidebarOpen(false);
-                                }
-                              : () => {
-                                  router.push(`/staff/${menu.url}`);
-                                  setIsSidebarOpen(false);
-                                }
-                          }
-                        >
-                          <menu.icon fill="var(--color-icon-default-subtle)" />
-                          <p className="text-sm leading-5 font-medium">{menu.title}</p>
-                        </nav>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className={cn("absolute right-4 bottom-4 left-4")}>
-              {user?.isMain && (
-                <div className="right-10">
-                  <SetupGuideProgress />
+            <div className="hide-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+              <div className="flex justify-between">
+                <div className="flex items-center gap-2">
+                  <Image src="/icons/Logomark.svg" width={65} height={27} alt="Axis logo" />
                 </div>
-              )}
+
+                {/* <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
+                <CloseLarge fill="var(--color-icon-default-subtle)" />
+              </Button> */}
+              </div>
+              <div className="space-y-5 md:space-y-6">
+                {navigation.map((nav: NavigationType) => {
+                  return (
+                    <div key={nav.menu[0].title}>
+                      <p className="text-xs leading-4 font-medium">{nav.title}</p>
+
+                      {nav.menu.map(menu => {
+                        const isActive = activeNav === menu.url || (!activeNav && menu.title === "Dashboard");
+
+                        return (
+                          <nav
+                            key={menu.title}
+                            className={cn(
+                              "flex cursor-pointer gap-2.75 p-2",
+                              !isSidebarOpen && "justify-center px-0",
+                              isActive && "bg-bg-state-soft rounded-md",
+                            )}
+                            onClick={
+                              menu.url === "cbt"
+                                ? e => {
+                                    handleCBTClick(e);
+                                    setIsSidebarOpen(false);
+                                  }
+                                : () => {
+                                    router.push(`/staff/${menu.url}`);
+                                    setIsSidebarOpen(false);
+                                  }
+                            }
+                          >
+                            <menu.icon fill="var(--color-icon-default-subtle)" />
+                            <p className="text-sm leading-5 font-medium">{menu.title}</p>
+                          </nav>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="shrink-0 p-4">
+              {user?.isMain && <SetupGuideProgress />}
 
               <div className="space-y-2">
                 <nav

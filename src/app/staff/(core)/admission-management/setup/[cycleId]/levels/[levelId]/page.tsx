@@ -54,13 +54,7 @@ export default function LevelConfigPage() {
 
   return (
     <div className="p-3 md:p-6">
-      <ConfigureRequirements
-        scope="level"
-        name={level?.levelName ?? "Level"}
-        cycleId={cycleId}
-        levelId={levelId}
-        branchId={branchId}
-      />
+      <ConfigureRequirements scope="level" name={level?.levelName ?? "Level"} cycleId={cycleId} levelId={levelId} branchId={branchId} />
     </div>
   );
 }

@@ -691,8 +691,14 @@
   --text-2xs: 10px;
 }
 
+:root {
+  color-scheme: light;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
+    color-scheme: dark;
+
     /* Dark theme */
     --color-text-default: var(--zinc-00);
     --color-text-subtle: var(--transparent-light-70);

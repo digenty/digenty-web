@@ -12,17 +12,19 @@ import { useEffect, useState } from "react";
 import { AllClassesMainTableProps } from "../types";
 import { AllClassesHeader } from "./AllClassesHeader";
 import { AllClassesMainTable } from "./AllClassesMainTable";
-import { usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 
 export const AllClassesMain = () => {
   const user = useLoggedInUser();
+
   const { data: branchesData, isPending: loadingBranches } = useGetBranches();
-  const pathname = usePathname();
-  const branchId = pathname.split("/")[4];
+  const params = useParams<{ branchId?: string }>();
+  const branchId = params?.branchId;
 
-  const [activeBranchId, setActiveBranchId] = useState<number | null>(null);
+  const [activeBranchId, setActiveBranchId] = useState<number | null>(branchId ? Number(branchId) : null);
 
-  const userBranchIds = user?.adminBranchIds || [];
+  const hasBranchRestriction = (user?.adminBranchIds?.length ?? 0) > 0;
+  const userBranchIds = hasBranchRestriction ? user!.adminBranchIds! : (branchesData?.data?.map((b: BranchWithClassLevels) => b.branch.id) ?? []);
   const userBranches = branchesData?.data?.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) || [];
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export const AllClassesMain = () => {
     } else if (userBranchIds.length > 1 && !activeBranchId) {
       setActiveBranchId(userBranchIds[0]);
     }
-  }, [userBranchIds, activeBranchId]);
+  }, [branchId, userBranchIds, activeBranchId]);
 
   const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [activeSession, setActiveSession] = useState<string | null>(null);

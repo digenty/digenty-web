@@ -60,18 +60,16 @@ export const StockDetails = () => {
 
   const currentQty = stock?.totalQuantity ?? stock?.quantity ?? 0;
   const branchName = stock?.branchName ?? stock?.branch?.name;
-  const branchId =
-    stock?.branchId ??
-    stock?.branch?.id ??
-    stock?.branchStocks?.[0]?.branchId ??
-    stock?.branches?.[0]?.branchId;
+  const branchId = stock?.branchId ?? stock?.branch?.id ?? stock?.branchStocks?.[0]?.branchId ?? stock?.branches?.[0]?.branchId;
   const unitName = stock?.unit?.name ?? stock?.unitName;
 
   const branchEntries = stock?.branchStocks ?? stock?.branches ?? [];
-  const mobileQtyItems = Array.isArray(branchEntries) && branchEntries.length > 0
-    ? branchEntries
-    : stock ? [{ location: branchName ?? "-", quantity: currentQty, amount: stock.price ?? 0, status: stock.stockStatus ?? stock.status ?? "IN_STOCK" }]
-    : [];
+  const mobileQtyItems =
+    Array.isArray(branchEntries) && branchEntries.length > 0
+      ? branchEntries
+      : stock
+        ? [{ location: branchName ?? "-", quantity: currentQty, amount: stock.price ?? 0, status: stock.stockStatus ?? stock.status ?? "IN_STOCK" }]
+        : [];
 
   return (
     <div>
@@ -86,7 +84,10 @@ export const StockDetails = () => {
           branchName={branchName}
           unitName={unitName}
           currentQuantity={currentQty}
-          onAdjusted={tx => { setPostAdjustTx(tx); setShowDetails(true); }}
+          onAdjusted={tx => {
+            setPostAdjustTx(tx);
+            setShowDetails(true);
+          }}
         />
       )}
 
@@ -96,7 +97,10 @@ export const StockDetails = () => {
         transaction={postAdjustTx}
         stockName={stock?.name ?? stock?.itemName}
         stockImage={stock?.imagePath ?? stock?.image}
-        onEdit={() => { setShowDetails(false); setAdjustQty(true); }}
+        onEdit={() => {
+          setShowDetails(false);
+          setAdjustQty(true);
+        }}
       />
 
       <div className="hidden flex-col gap-6 md:flex">
@@ -223,11 +227,12 @@ export const StockDetails = () => {
 
                   <div className="flex flex-col gap-4">
                     {mobileQtyItems.map((entry, i) => {
-                      const loc = (entry as { location?: string; branchName?: string })?.location
-                        ?? (entry as { branchName?: string })?.branchName ?? "-";
+                      const loc =
+                        (entry as { location?: string; branchName?: string })?.location ?? (entry as { branchName?: string })?.branchName ?? "-";
                       const qty = (entry as { quantity?: number })?.quantity ?? 0;
                       const amt = (entry as { amount?: number; price?: number })?.amount ?? (entry as { price?: number })?.price ?? 0;
-                      const st = (entry as { status?: string; stockStatus?: string })?.status ?? (entry as { stockStatus?: string })?.stockStatus ?? "";
+                      const st =
+                        (entry as { status?: string; stockStatus?: string })?.status ?? (entry as { stockStatus?: string })?.stockStatus ?? "";
                       const stLabel = STATUS_LABELS[st] ?? st.replace(/_/g, " ");
                       return (
                         <div key={i} className="border-border-default bg-bg-subtle rounded-md border">
@@ -245,7 +250,15 @@ export const StockDetails = () => {
                           </div>
                           <div className="flex justify-between px-3 py-2 text-sm">
                             <span className="text-text-muted font-medium">Status</span>
-                            <span>{stLabel ? stockStatus(stLabel) : <Badge className="bg-bg-badge-default text-text-subtle border-border-default h-5 rounded-md border text-xs">{st}</Badge>}</span>
+                            <span>
+                              {stLabel ? (
+                                stockStatus(stLabel)
+                              ) : (
+                                <Badge className="bg-bg-badge-default text-text-subtle border-border-default h-5 rounded-md border text-xs">
+                                  {st}
+                                </Badge>
+                              )}
+                            </span>
                           </div>
                         </div>
                       );

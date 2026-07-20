@@ -88,10 +88,10 @@ export const AddParent = () => {
   };
 
   const handleBack = () => {
-    if (step > 0) {
+    if (step > 1) {
       setStep(prev => prev - 1);
     } else {
-      router.back();
+      router.push("/staff/student-and-parent-record?tab=Parents");
     }
   };
 

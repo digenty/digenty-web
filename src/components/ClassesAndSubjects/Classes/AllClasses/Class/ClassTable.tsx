@@ -2,6 +2,7 @@
 
 import { Eye, Key, Notification } from "@digenty/icons";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Avatar } from "@/components/Avatar";
 import { DataTable } from "@/components/DataTable";
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontalIcon } from "lucide-react";
 import { ClassTableColumns } from "../../Column";
 import { ClassProps } from "../../types";
+import { EditModal, NotifyTeacherModal } from "../AllClassesModal";
 
 export const ClassTable = ({
   classData,
@@ -29,8 +31,12 @@ export const ClassTable = ({
   armId: number;
   classArmName: string;
 }) => {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [action, setAction] = useState(false);
+  const [openNotifyMobile, setOpenNotifyMobile] = useState(false);
+  const [openEditMobile, setOpenEditMobile] = useState(false);
+  const [activeSubject, setActiveSubject] = useState<ClassProps | null>(null);
 
   return (
     <div className="px-4 py-3 md:px-8">
@@ -65,23 +71,48 @@ export const ClassTable = ({
           </div>
 
           <div className="flex flex-col gap-4 md:hidden">
-            {action && (
+            {openNotifyMobile && <NotifyTeacherModal openNotifyModal={openNotifyMobile} setOpenNotifyModal={setOpenNotifyMobile} />}
+            {openEditMobile && activeSubject && (
+              <EditModal openEditRequestModal={openEditMobile} setEditRequestModal={setOpenEditMobile} subjectId={activeSubject.subjectId} armId={armId} />
+            )}
+
+            {action && activeSubject && (
               <MobileDrawer open={action} setIsOpen={setAction} title="Actions">
                 <div className="flex flex-col gap-2 px-4 py-3">
-                  <Button className="border-border-darker bg-bg-state-secondary flex justify-center rounded-md border px-3.5 py-2">
+                  <Button
+                    onClick={() => {
+                      setAction(false);
+                      router.push(
+                        `/staff/classes-and-subjects/subjects/${activeSubject.subjectId}/classes/${classId}/arms/${armId}/view-score?classArmName=${classArmName.replaceAll(" ", "-")}&subjectName=${activeSubject.subjectName.replaceAll(" ", "-")}`,
+                      );
+                    }}
+                    className="border-border-darker bg-bg-state-secondary flex justify-center rounded-md border px-3.5 py-2"
+                  >
                     <div className="flex items-center gap-1">
                       <Eye fill="var(--color-icon-default-muted)" /> <span className="text-text-default text-sm font-medium">View Class</span>
                     </div>
                   </Button>
 
-                  <Button className="border-border-darker bg-bg-state-secondary flex justify-center rounded-md border px-3.5 py-2">
+                  <Button
+                    onClick={() => {
+                      setAction(false);
+                      setOpenNotifyMobile(true);
+                    }}
+                    className="border-border-darker bg-bg-state-secondary flex justify-center rounded-md border px-3.5 py-2"
+                  >
                     <div className="flex items-center gap-1">
                       <Notification fill="var(--color-icon-default-muted)" className="size-4" />
                       <span className="text-text-default text-sm font-medium">Notify Class Teacher</span>
                     </div>
                   </Button>
 
-                  <Button className="border-border-darker bg-bg-state-secondary flex justify-center rounded-md border px-3.5 py-2">
+                  <Button
+                    onClick={() => {
+                      setAction(false);
+                      setOpenEditMobile(true);
+                    }}
+                    className="border-border-darker bg-bg-state-secondary flex justify-center rounded-md border px-3.5 py-2"
+                  >
                     <div className="flex items-center gap-1">
                       <Key fill="var(--color-icon-default-muted)" className="size-4" />
                       <span className="text-text-default text-sm font-medium">Manage Edit Requests</span>
@@ -96,7 +127,12 @@ export const ClassTable = ({
                   <div className="border-border-default border-b">
                     <div className="flex h-11 items-center justify-between p-3">
                       <div className="text-text-default text-sm font-medium capitalize">{item.subjectName ? item.subjectName.toLowerCase() : ""}</div>
-                      <Button onClick={() => setAction(true)}>
+                      <Button
+                        onClick={() => {
+                          setActiveSubject(item);
+                          setAction(true);
+                        }}
+                      >
                         <MoreHorizontalIcon className="text-icon-default-muted size-4" />
                       </Button>
                     </div>

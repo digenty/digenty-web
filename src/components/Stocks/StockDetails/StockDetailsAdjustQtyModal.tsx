@@ -91,7 +91,7 @@ export const StockDetailsAdjustQtyModal = ({
 
         const raw = result as Record<string, unknown> | null;
         const tx: StockTransactionRecord = {
-          id: (raw?.id as number) ?? (raw?.data as Record<string, unknown>)?.id as number ?? 0,
+          id: (raw?.id as number) ?? ((raw?.data as Record<string, unknown>)?.id as number) ?? 0,
           reason: values.reason,
           before: (raw?.quantityBefore as number) ?? currentQuantity,
           after: (raw?.quantityAfter as number) ?? currentQuantity + signed,
@@ -187,9 +187,7 @@ export const StockDetailsAdjustQtyModal = ({
           </div>
         </div>
 
-        {branchName && (
-          <Badge className="border-border-darker bg-bg-state-secondary! text-text-default h-7! rounded-md border">{branchName}</Badge>
-        )}
+        {branchName && <Badge className="border-border-darker bg-bg-state-secondary! text-text-default h-7! rounded-md border">{branchName}</Badge>}
       </div>
 
       <div className="flex flex-col gap-2">

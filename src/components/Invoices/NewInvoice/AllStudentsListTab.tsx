@@ -86,7 +86,7 @@ export function AllStudentsListTab({ selectedKeys, onToggle, onClearAll }: Props
                 <Avatar className="size-8" url={s.image ?? undefined} />
                 <div>
                   <div className="text-text-default text-sm font-medium">
-                    {s.firstName} {s.lastName}
+                    {s.firstName} {s.middleName} {s.lastName}
                   </div>
                   <div className="text-text-muted text-xs">
                     {[s.class, s.arm].filter(Boolean).join(" ")}

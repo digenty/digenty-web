@@ -101,7 +101,12 @@ export const AdmissionPayments = () => {
   if (cycleError) {
     return (
       <div className="flex justify-center py-16">
-        <ErrorComponent title="Couldn't load payments" description="Something went wrong while loading the active cycle. Please try again." buttonText="Retry" onClick={() => refetchCycle()} />
+        <ErrorComponent
+          title="Couldn't load payments"
+          description="Something went wrong while loading the active cycle. Please try again."
+          buttonText="Retry"
+          onClick={() => refetchCycle()}
+        />
       </div>
     );
   }
@@ -119,7 +124,13 @@ export const AdmissionPayments = () => {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h2 className="text-text-default text-xl font-semibold">Overview</h2>
-        <Select value={branchName} onValueChange={val => { setBranchName(val); setPage(1); }}>
+        <Select
+          value={branchName}
+          onValueChange={val => {
+            setBranchName(val);
+            setPage(1);
+          }}
+        >
           <SelectTrigger className="border-border-darker bg-bg-state-secondary! h-8 w-auto gap-1.5 border text-sm font-medium focus-visible:ring-0">
             <School fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
             <span className="text-text-default">{branchName}</span>
@@ -181,7 +192,7 @@ export const AdmissionPayments = () => {
           <SelectTrigger className="border-border-default h-8 w-auto gap-2 rounded-full border text-sm font-medium focus-visible:ring-0">
             <ListFilterIcon className="text-icon-default-subtle size-4 shrink-0" />
             <span className="text-text-default">
-              {classFilter === "All Classes" ? "Class" : classOptions.find(c => String(c.id) === classFilter)?.name ?? "Class"}
+              {classFilter === "All Classes" ? "Class" : (classOptions.find(c => String(c.id) === classFilter)?.name ?? "Class")}
             </span>
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default">
@@ -199,7 +210,12 @@ export const AdmissionPayments = () => {
 
       {isError ? (
         <div className="flex justify-center py-12">
-          <ErrorComponent title="Couldn't load payments" description="Something went wrong while fetching payment records. Please try again." buttonText="Retry" onClick={() => refetch()} />
+          <ErrorComponent
+            title="Couldn't load payments"
+            description="Something went wrong while fetching payment records. Please try again."
+            buttonText="Retry"
+            onClick={() => refetch()}
+          />
         </div>
       ) : isPending ? (
         <Skeleton className="h-80 w-full rounded-xl" />
@@ -211,7 +227,14 @@ export const AdmissionPayments = () => {
       ) : (
         <>
           <div className="hidden md:block">
-            <DataTable columns={paymentColumns} data={records} totalCount={totalCount} page={page} setCurrentPage={p => setPage(p)} pageSize={PAGE_SIZE} />
+            <DataTable
+              columns={paymentColumns}
+              data={records}
+              totalCount={totalCount}
+              page={page}
+              setCurrentPage={p => setPage(p)}
+              pageSize={PAGE_SIZE}
+            />
           </div>
 
           <div className="flex flex-col gap-3 md:hidden">
@@ -221,7 +244,11 @@ export const AdmissionPayments = () => {
 
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-2">
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="text-text-subtle text-sm disabled:opacity-40">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="text-text-subtle text-sm disabled:opacity-40"
+                >
                   Previous
                 </button>
                 <span className="text-text-muted text-xs">

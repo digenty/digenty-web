@@ -130,23 +130,31 @@ export interface Parent {
   address: string;
   secondaryPhoneNumber: string;
   tags: string[];
-  linkedStudents: { id: number; fullName: string; avatar: string | null; relationship: string }[];
+  linkedStudents: { id: number; fullName: string; image: string | null; relationship: string | null }[];
 }
 
-export interface AttendanceCard {
+export interface AttendanceClassArm {
   armId: number;
+  levelId: number;
   classArm: string;
   classTeacher: string;
   numberOfStudentInArm: number;
   attendancePercentage: number;
-  lastUpdated: Date;
+  lastUpdated: Date | null;
 }
+
+export interface AttendanceLevel {
+  levelId: number;
+  levelName: string;
+  classArms: AttendanceClassArm[];
+}
+
 export interface Attendance {
-  classArmAttendanceCardList: AttendanceCard[];
-  numberOfClassAttendanceTaken: number;
-  overallAttendancePercentage: number;
   totalClasses: number;
+  numberOfClassAttendanceTaken: number;
   totalStudents: number;
+  overallAttendancePercentage: number;
+  levels: AttendanceLevel[];
 }
 
 export interface Term {
@@ -224,14 +232,12 @@ export interface StudentUpdate {
 
 export interface SubjectReport {
   subjectName: string;
-  assessments: [
-    {
-      assessmentId: number;
-      assessmentName: string;
-      score: number;
-      weight: number;
-    },
-  ];
+  assessments: {
+    assessmentId: number;
+    assessmentName: string;
+    score: number;
+    weight: number;
+  }[];
   total: number;
   grade: string;
   remark: string;

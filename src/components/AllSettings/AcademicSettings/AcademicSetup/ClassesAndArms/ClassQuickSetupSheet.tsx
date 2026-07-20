@@ -182,7 +182,11 @@ const DepartmentSubjectsSection = ({
           toast({ title: "Subject(s) added", description: `Subjects added to ${dept.name} successfully`, type: "success" });
         },
         onError: error => {
-          toast({ title: "Failed to add subjects", description: (error as { message?: string })?.message || "Could not add subjects", type: "error" });
+          toast({
+            title: "Failed to add subjects",
+            description: (error as { message?: string })?.message || "Could not add subjects",
+            type: "error",
+          });
         },
       },
     );
@@ -201,7 +205,11 @@ const DepartmentSubjectsSection = ({
         },
         onError: error => {
           setDeletingSubjectName(null);
-          toast({ title: "Failed to remove subject", description: (error as { message?: string })?.message || "Could not remove subject", type: "error" });
+          toast({
+            title: "Failed to remove subject",
+            description: (error as { message?: string })?.message || "Could not remove subject",
+            type: "error",
+          });
         },
       },
     );
@@ -292,9 +300,7 @@ export const ClassQuickSetupSheet = ({
 
   useEffect(() => {
     if (departmentsData) {
-      const deptList = Array.isArray(departmentsData?.data[0]?.departments)
-        ? departmentsData?.data[0]?.departments
-        : (departmentsData?.data ?? []);
+      const deptList = Array.isArray(departmentsData?.data[0]?.departments) ? departmentsData?.data[0]?.departments : (departmentsData?.data ?? []);
       const names: string[] = deptList.map((dept: DepartmentWithSubjects) => dept.name);
       setDepartments(names);
       setDepartmentsDetails(deptList);
@@ -385,7 +391,11 @@ export const ClassQuickSetupSheet = ({
           toast({ title: "Subject(s) added", description: "Subjects have been updated successfully", type: "success" });
         },
         onError: error => {
-          toast({ title: "Failed to add subjects", description: (error as { message?: string })?.message || "Could not add subjects", type: "error" });
+          toast({
+            title: "Failed to add subjects",
+            description: (error as { message?: string })?.message || "Could not add subjects",
+            type: "error",
+          });
         },
       },
     );
@@ -405,7 +415,11 @@ export const ClassQuickSetupSheet = ({
         },
         onError: error => {
           setDeletingSubjectName(null);
-          toast({ title: "Failed to remove subject", description: (error as { message?: string })?.message || "Could not remove subject", type: "error" });
+          toast({
+            title: "Failed to remove subject",
+            description: (error as { message?: string })?.message || "Could not remove subject",
+            type: "error",
+          });
         },
       },
     );
@@ -458,7 +472,11 @@ export const ClassQuickSetupSheet = ({
           toast({ title: "Department(s) added", description: "Departments have been updated successfully", type: "success" });
         },
         onError: error => {
-          toast({ title: "Failed to add departments", description: (error as { message?: string })?.message || "Could not add departments", type: "error" });
+          toast({
+            title: "Failed to add departments",
+            description: (error as { message?: string })?.message || "Could not add departments",
+            type: "error",
+          });
         },
       },
     );
@@ -478,7 +496,11 @@ export const ClassQuickSetupSheet = ({
         },
         onError: error => {
           setDeletingDepartmentName(null);
-          toast({ title: "Failed to remove department", description: (error as { message?: string })?.message || "Could not remove department", type: "error" });
+          toast({
+            title: "Failed to remove department",
+            description: (error as { message?: string })?.message || "Could not remove department",
+            type: "error",
+          });
         },
       },
     );

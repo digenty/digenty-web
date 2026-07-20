@@ -103,8 +103,7 @@ export const EditFeeItem = () => {
       validationSchema={validationSchema}
       onSubmit={values => {
         const branchIds = item?.branches?.map(b => b.branchId) ?? [];
-        const armIds =
-          item?.appliedClasses?.flatMap(g => g.classes.filter(c => c.armId !== null).map(c => c.armId as number)) ?? [];
+        const armIds = item?.appliedClasses?.flatMap(g => g.classes.filter(c => c.armId !== null).map(c => c.armId as number)) ?? [];
 
         const payload: UpdateFeeItemDto = {
           name: values.name.trim(),
@@ -149,7 +148,7 @@ export const EditFeeItem = () => {
         };
 
         return (
-          <Form className="flex flex-col items-center pb-24 p-4 md:p-8">
+          <Form className="flex flex-col items-center p-4 pb-24 md:p-8">
             <div className="flex w-full max-w-225 flex-col gap-6">
               <div className="text-text-default text-lg font-semibold">Edit Fee Item</div>
 
@@ -168,7 +167,9 @@ export const EditFeeItem = () => {
 
               <div className="flex max-w-fit items-center gap-2">
                 {values.required ? (
-                  <Badge className="text-bg-basic-fuchsia-strong bg-bg-badge-fuchsia border-border-default h-5! w-16! rounded-sm border">Required</Badge>
+                  <Badge className="text-bg-basic-fuchsia-strong bg-bg-badge-fuchsia border-border-default h-5! w-16! rounded-sm border">
+                    Required
+                  </Badge>
                 ) : (
                   <Badge className="text-text-default border-border-default h-5! w-16! rounded-sm border">Optional</Badge>
                 )}
@@ -272,7 +273,7 @@ export const EditFeeItem = () => {
               )}
             </div>
 
-            <div className="bg-bg-default border-border-default fixed bottom-0 left-(--sidebar-w) right-0 z-10 border-t">
+            <div className="bg-bg-default border-border-default fixed right-0 bottom-0 left-(--sidebar-w) z-10 border-t">
               <div className="flex items-center justify-between px-4 py-3">
                 <Button
                   type="button"

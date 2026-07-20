@@ -1,5 +1,5 @@
 import { Edit } from "@digenty/icons";
-import { StudentReport, SubjectReport, Term } from "@/api/types";
+import { StudentReport, SubjectReport } from "@/api/types";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -70,7 +70,7 @@ export const StudentResult = ({
   branchId,
 }: {
   studentReport: StudentReport;
-  termSelected: Term | null;
+  termSelected: { term: string } | null;
   isEditable?: boolean;
   armId?: number;
   branchId?: number;

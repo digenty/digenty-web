@@ -50,8 +50,6 @@ const MOBILE_COLUMN_TITLES: Record<MobileDrillStep, string> = {
   student: "Select Students",
 };
 
-// ─── Sub-components ────────────────────────────────────────────────────────────
-
 const ClassColumnHeader = ({ title }: { title: string }) => (
   <div className="text-text-muted border-border-default border-b px-3 py-2 text-xs font-medium">{title}</div>
 );
@@ -82,7 +80,7 @@ const ClassRow = ({
     )}
     onClick={onClick}
   >
-    <span className={cn("text-text-default text-sm", active && "font-medium")}>{label}</span>
+    <span className={cn("text-text-default text-sm capitalize", active && "font-medium")}>{label}</span>
     <div className="flex items-center gap-1">
       {count !== undefined && <span className="text-text-muted text-xs">{count}</span>}
       {hasChevron && <ChevronRight className="text-icon-default-muted size-3.5 shrink-0" />}
@@ -108,7 +106,6 @@ const TagRow = ({ tag, count, checked, onCheck }: { tag: string; count: number; 
   </div>
 );
 
-
 const SelectedChip = ({ recipient, onRemove }: { recipient: SelectedRecipient; onRemove: (id: string) => void }) => {
   const isIndividual = recipient.type === "student" || recipient.type === "parent";
   return (
@@ -124,8 +121,6 @@ const SelectedChip = ({ recipient, onRemove }: { recipient: SelectedRecipient; o
     </div>
   );
 };
-
-// ─── Shared modal body ─────────────────────────────────────────────────────────
 
 const ModalBody = ({
   localSelected,
@@ -155,7 +150,6 @@ const ModalBody = ({
 
   const searchRef = useRef<HTMLInputElement>(null);
 
-  // ─── API hooks ────────────────────────────────────────────────────────────────
   const { data: branchesData, isLoading: loadingBranches } = useGetBranches();
   const branches: BranchWithClassLevels[] = branchesData?.data ?? [];
 
@@ -259,9 +253,12 @@ const ModalBody = ({
     }
   };
 
-  const mobileBreadcrumbParts = [mobileNavBranch?.branch.name, mobileNavLevel?.levelName, mobileNavClass?.className, mobileNavArm?.name].filter(
-    Boolean,
-  );
+  const mobileBreadcrumbParts = [
+    mobileNavBranch?.branch.name,
+    mobileNavLevel?.levelName.replaceAll("_", " ").toLowerCase(),
+    mobileNavClass?.className,
+    mobileNavArm?.name,
+  ].filter(Boolean);
 
   // ─── Selection helpers ────────────────────────────────────────────────────────
   const isSelected = (id: string) => localSelected.some(r => r.id === id);
@@ -523,7 +520,7 @@ const ModalBody = ({
                   filteredLevels.map(l => (
                     <ClassRow
                       key={l.id}
-                      label={l.levelName}
+                      label={l.levelName.replaceAll("_", " ").toLowerCase()}
                       active={activeLevelId === l.id}
                       onClick={() => {
                         setActiveLevelId(l.id);
@@ -622,7 +619,7 @@ const ModalBody = ({
           <div className="border-border-default overflow-hidden rounded-lg border">
             {mobileDrillStep !== "branch" && (
               <div className="border-border-default flex items-center justify-between gap-2 border-b px-3 py-2">
-                <span className="text-text-muted truncate text-xs">{mobileBreadcrumbParts.join(" > ")}</span>
+                <span className="text-text-muted truncate text-xs capitalize">{mobileBreadcrumbParts.join(" > ")}</span>
                 <button type="button" onClick={handleMobileBack} className="text-text-default shrink-0 text-xs font-medium">
                   Back
                 </button>
@@ -661,7 +658,7 @@ const ModalBody = ({
                 filteredLevels.map(l => (
                   <ClassRow
                     key={l.id}
-                    label={l.levelName}
+                    label={l.levelName.replaceAll("_", " ").toLowerCase()}
                     active={false}
                     hasChevron
                     onClick={() => {

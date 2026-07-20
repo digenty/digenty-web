@@ -117,7 +117,7 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
                 <span className="text-text-default text-sm font-medium">{accountNameData.accountName}</span>
               </>
             ) : (
-              <span className="text-red-500 text-sm">Account not found</span>
+              <span className="text-sm text-red-500">Account not found</span>
             )}
           </div>
         )}
@@ -156,9 +156,7 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
             <div className="text-text-default text-md font-semibold">{title}</div>
           </SheetHeader>
           {form}
-          <SheetFooter className="border-border-default bg-bg-card absolute bottom-0 w-full border-t px-6 pb-8 pt-4">
-            {footer}
-          </SheetFooter>
+          <SheetFooter className="border-border-default bg-bg-card absolute bottom-0 w-full border-t px-6 pt-4 pb-8">{footer}</SheetFooter>
         </SheetContent>
       </Sheet>
     );

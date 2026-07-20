@@ -31,7 +31,10 @@ export const Tabs: React.FC<TabsProps> = ({ items, className, buttonClassName, o
             return (
               <button
                 key={index}
-                onClick={() => { setActiveIndex(index); onTabChange?.(item.label); }}
+                onClick={() => {
+                  setActiveIndex(index);
+                  onTabChange?.(item.label);
+                }}
                 className={cn(
                   "transit flex flex-1 justify-center px-4 py-2 text-sm font-medium",
                   buttonClassName,

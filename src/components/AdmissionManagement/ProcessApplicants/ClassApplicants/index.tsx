@@ -45,10 +45,7 @@ export const ClassApplicants = () => {
 
   // Resolve the class name for the title from the cycle's by-class summary.
   const { data: classSummaries } = useGetApplicantsByClass(cycleId);
-  const className = useMemo(
-    () => classSummaries?.find(c => c.classId === classId)?.className ?? `Class ${classId}`,
-    [classSummaries, classId],
-  );
+  const className = useMemo(() => classSummaries?.find(c => c.classId === classId)?.className ?? `Class ${classId}`, [classSummaries, classId]);
 
   const filters = {
     page: page - 1,
@@ -103,7 +100,12 @@ export const ClassApplicants = () => {
   if (cycleError) {
     return (
       <div className="flex justify-center py-16">
-        <ErrorComponent title="Couldn't load applicants" description="Something went wrong while loading the active cycle. Please try again." buttonText="Retry" onClick={() => refetchCycle()} />
+        <ErrorComponent
+          title="Couldn't load applicants"
+          description="Something went wrong while loading the active cycle. Please try again."
+          buttonText="Retry"
+          onClick={() => refetchCycle()}
+        />
       </div>
     );
   }
@@ -176,7 +178,12 @@ export const ClassApplicants = () => {
 
       {isError ? (
         <div className="flex justify-center py-12">
-          <ErrorComponent title="Couldn't load applicants" description="Something went wrong while fetching applicants. Please try again." buttonText="Retry" onClick={() => refetch()} />
+          <ErrorComponent
+            title="Couldn't load applicants"
+            description="Something went wrong while fetching applicants. Please try again."
+            buttonText="Retry"
+            onClick={() => refetch()}
+          />
         </div>
       ) : isPending ? (
         <Skeleton className="h-80 w-full rounded-xl" />
@@ -210,13 +217,21 @@ export const ClassApplicants = () => {
 
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-2">
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="text-text-subtle text-sm disabled:opacity-40">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="text-text-subtle text-sm disabled:opacity-40"
+                >
                   Previous
                 </button>
                 <span className="text-text-muted text-xs">
                   Page {page} of {totalPages}
                 </span>
-                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="text-text-subtle text-sm disabled:opacity-40">
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="text-text-subtle text-sm disabled:opacity-40"
+                >
                   Next
                 </button>
               </div>
@@ -225,7 +240,13 @@ export const ClassApplicants = () => {
         </>
       )}
 
-      <ApplicantSheet key={selectedApplicant?.id} cycleId={cycle.id} applicant={selectedApplicant} open={isSheetOpen} onClose={() => setIsSheetOpen(false)} />
+      <ApplicantSheet
+        key={selectedApplicant?.id}
+        cycleId={cycle.id}
+        applicant={selectedApplicant}
+        open={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+      />
     </div>
   );
 };

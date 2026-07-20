@@ -18,11 +18,12 @@ export const createSession = async (token: string, userType: "SCHOOL_STAFF" | "P
   redirect(`/${userType === "SCHOOL_STAFF" ? "staff" : "parents"}`);
 };
 
-export const deleteSession = async () => {
+export const deleteSession = async (redirectTo: string = "/auth/staff") => {
   const cookieStore = await cookies();
   cookieStore.delete("token");
+  cookieStore.delete("school");
 
-  redirect("/auth/staff");
+  redirect(redirectTo);
 };
 
 export const getSessionToken = async () => {

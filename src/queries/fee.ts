@@ -7,7 +7,8 @@ export const feeKeys = {
   feeById: (id: number) => ["fee", id] as const,
   feeArms: (id: number) => ["fee", id, "arms"] as const,
   feeItemsByFee: (id: number) => ["fee", id, "items"] as const,
-  feeClassOverview: (sessionId: number, term: FeeTermType, branchId?: number, search?: string) => ["feeClassOverview", sessionId, term, branchId, search] as const,
+  feeClassOverview: (sessionId: number, term: FeeTermType, branchId?: number, search?: string) =>
+    ["feeClassOverview", sessionId, term, branchId, search] as const,
   feeItems: (filter?: FeeItemsFilter) => ["feeItems", filter ?? {}] as const,
   feeItemById: (id: number) => ["feeItem", id] as const,
   feeGroups: (branchId?: number, termId?: number, search?: string) => ["feeGroups", branchId, termId, search] as const,

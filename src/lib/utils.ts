@@ -140,7 +140,7 @@ export const formatRelativeDate = (date: Date) => {
   return `${months} months ago`;
 };
 
-const LEVEL_ORDER: Record<string, number> = {
+export const LEVEL_ORDER: Record<string, number> = {
   CRECHE: 0,
   KINDERGARTEN: 1,
   NURSERY: 2,

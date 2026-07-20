@@ -143,7 +143,11 @@ export const MessageEditor = ({ value, onChange, error, channel }: MessageEditor
         <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
         <input ref={attachmentInputRef} type="file" className="hidden" onChange={handleAttachmentChange} />
 
-        <RichEditorContent editor={editor} initialContent={value} className="tiptap-editor bg-bg-input-soft text-text-default min-h-30 px-3 py-2 text-sm" />
+        <RichEditorContent
+          editor={editor}
+          initialContent={value}
+          className="tiptap-editor bg-bg-input-soft text-text-default min-h-30 px-3 py-2 text-sm"
+        />
 
         {/* Toolbar */}
         <div className="bg-bg-input-soft border-border-default flex items-center gap-3 border-t px-3 py-2">

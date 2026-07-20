@@ -88,9 +88,7 @@ export const ConfigureRequirements = ({ scope, name, cycleId, levelId, classId, 
   const { mutate: updateClass, isPending: savingClass } = useUpdateClassConfig();
   const saving = creatingLevel || savingLevel || creatingClass || savingClass;
 
-  const isFirstTimeConfig = isLevel
-    ? levelConfig?.status === "NOT_CONFIGURED" || (levelError && !levelPending)
-    : classError && !classPending;
+  const isFirstTimeConfig = isLevel ? levelConfig?.status === "NOT_CONFIGURED" || (levelError && !levelPending) : classError && !classPending;
 
   const [newDocument, setNewDocument] = useState("");
   const [isAddingDocument, setIsAddingDocument] = useState(false);

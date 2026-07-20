@@ -1,34 +1,29 @@
 import { deleteSession, getSessionToken } from "@/app/actions/auth";
 import { decodeJWT } from "@/lib/utils";
 import { JWTPayload } from "@/types";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-export const useLoggedInUser = () => {
-  const [currentUser, setCurrentUser] = useState<JWTPayload>();
-  const [isUserLoading, setIsUserLoading] = useState(true);
+export const useLoggedInUser = (): Partial<JWTPayload> & { isUserLoading: boolean } => {
+  const { data: currentUser, isLoading: isUserLoading } = useQuery({
+    queryKey: ["session-user"],
+    queryFn: async (): Promise<JWTPayload | null> => {
+      try {
+        const { token } = await getSessionToken();
+        const user = decodeJWT(token);
 
-  const getLoggedInUser = async () => {
-    try {
-      const token = await getSessionToken();
+        if (!token || !user) {
+          deleteSession();
+          return null;
+        }
 
-      const user = decodeJWT(token.token);
-
-      if (!token || !user) {
-        deleteSession();
-      } else {
-        setCurrentUser(user);
+        return user;
+      } catch (error) {
+        console.warn(error);
+        return null;
       }
-    } catch (error) {
-      console.warn(error);
-    } finally {
-      setIsUserLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getLoggedInUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    },
+    retry: false,
+  });
 
   return {
     ...currentUser,

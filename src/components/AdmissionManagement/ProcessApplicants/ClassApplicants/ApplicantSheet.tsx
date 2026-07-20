@@ -8,12 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  useGetApplicantDetail,
-  useGetApplicantScores,
-  useSaveApplicantScores,
-  useUpdateApplicantStatus,
-} from "@/hooks/queryHooks/useAdmission";
+import { useGetApplicantDetail, useGetApplicantScores, useSaveApplicantScores, useUpdateApplicantStatus } from "@/hooks/queryHooks/useAdmission";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -298,7 +293,9 @@ export const ApplicantSheet = ({ cycleId, applicant, open, onClose }: ApplicantS
           onClick={() => setActiveTab(i)}
           className={cn(
             "flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-all",
-            activeTab === i ? "bg-bg-state-secondary border-border-darker text-text-default border shadow-sm" : "text-text-muted hover:text-text-subtle",
+            activeTab === i
+              ? "bg-bg-state-secondary border-border-darker text-text-default border shadow-sm"
+              : "text-text-muted hover:text-text-subtle",
           )}
         >
           {tab}
@@ -309,7 +306,11 @@ export const ApplicantSheet = ({ cycleId, applicant, open, onClose }: ApplicantS
 
   const scrollableContent = (
     <div className="flex-1 overflow-y-auto px-5 py-4">
-      {activeTab === 0 ? <ApplicantDetailsTab cycleId={cycleId} applicantId={applicant.id} /> : <ScoresStatusTab cycleId={cycleId} applicantId={applicant.id} />}
+      {activeTab === 0 ? (
+        <ApplicantDetailsTab cycleId={cycleId} applicantId={applicant.id} />
+      ) : (
+        <ScoresStatusTab cycleId={cycleId} applicantId={applicant.id} />
+      )}
     </div>
   );
 
@@ -318,7 +319,10 @@ export const ApplicantSheet = ({ cycleId, applicant, open, onClose }: ApplicantS
       <Button onClick={onClose} className="bg-bg-state-soft! text-text-default border-none text-sm font-medium">
         Cancel
       </Button>
-      <Button onClick={onClose} className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-5 text-sm font-medium">
+      <Button
+        onClick={onClose}
+        className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-5 text-sm font-medium"
+      >
         Done
       </Button>
     </div>

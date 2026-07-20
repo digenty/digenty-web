@@ -152,3 +152,11 @@ export const currencies = [
   "ZMW",
   "ZWL",
 ];
+
+export const getFlagEmoji = (iso2: string) => {
+  return iso2
+    .toUpperCase()
+    .split("")
+    .map(char => String.fromCodePoint(127397 + char.charCodeAt(0)))
+    .join("");
+};

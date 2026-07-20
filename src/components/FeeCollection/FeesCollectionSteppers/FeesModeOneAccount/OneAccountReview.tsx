@@ -97,11 +97,7 @@ export const OneAccountReview = ({ selected, onSelect }: Props) => {
                   {account.bankName} • {account.accountNumber}
                 </div>
               </div>
-              <Button
-                type="button"
-                onClick={() => setEditAccountOpen(true)}
-                className="hover:bg-bg-none! bg-none"
-              >
+              <Button type="button" onClick={() => setEditAccountOpen(true)} className="hover:bg-bg-none! bg-none">
                 <Edit fill="var(--color-icon-default-muted)" />
               </Button>
             </div>
