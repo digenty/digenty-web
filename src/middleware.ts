@@ -20,10 +20,17 @@ export default async function middleware(req: NextRequest) {
   const path = url.pathname;
 
   // Temporarily disabled finance routes
-  // const disabledRoutes = ["/staff/fee-collection", "/staff/website-customization"];
-  // if (disabledRoutes.some(route => path === route || path.startsWith(route + "/"))) {
-  //   return NextResponse.redirect(new URL("/staff/", req.nextUrl));
-  // }
+  const disabledRoutes = [
+    "/staff/fee-collection",
+    "/staff/website-customization",
+    "/staff/invoice-templates",
+    "/staff/fees",
+    "/staff/stocks",
+    "/staff/domain",
+  ];
+  if (disabledRoutes.some(route => path === route || path.startsWith(route + "/"))) {
+    return NextResponse.redirect(new URL("/staff/", req.nextUrl));
+  }
 
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
