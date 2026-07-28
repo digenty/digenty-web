@@ -13,6 +13,7 @@ import { AllClassesMainTableProps } from "../types";
 import { AllClassesHeader } from "./AllClassesHeader";
 import { AllClassesMainTable } from "./AllClassesMainTable";
 import { useParams } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const AllClassesMain = () => {
   const user = useLoggedInUser();
@@ -76,26 +77,46 @@ export const AllClassesMain = () => {
       />
 
       {userBranchIds.length > 1 && (
-        <div className="bg-bg-state-soft mt-6 ml-4 flex w-fit items-center gap-1.5 rounded-full p-1 md:ml-8">
-          {userBranches.map((branchWrapper: BranchWithClassLevels) => {
-            const branch = branchWrapper.branch;
-            const isActive = activeBranchId === branch.id;
-            return (
-              <div
-                key={branch.id}
-                onClick={() => setActiveBranchId(branch.id)}
-                className={cn(
-                  "flex cursor-pointer items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-bg-state-secondary text-text-default shadow-sm"
-                    : "text-text-muted hover:text-text-default hover:bg-bg-state-ghost-hover/50",
-                )}
-              >
-                {branch.name}
-              </div>
-            );
-          })}
-        </div>
+        <>
+          <div className="mt-6 ml-4 md:hidden">
+            <Select value={activeBranchId ? String(activeBranchId) : undefined} onValueChange={value => setActiveBranchId(Number(value))}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select branch" />
+              </SelectTrigger>
+              <SelectContent>
+                {userBranches.map((branchWrapper: BranchWithClassLevels) => {
+                  const branch = branchWrapper.branch;
+                  return (
+                    <SelectItem key={branch.id} value={String(branch.id)} className="bg-bg-card!">
+                      {branch.name}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="bg-bg-state-soft mt-6 ml-4 hidden w-fit items-center gap-1.5 rounded-full p-1 md:ml-8 md:flex">
+            {userBranches.map((branchWrapper: BranchWithClassLevels) => {
+              const branch = branchWrapper.branch;
+              const isActive = activeBranchId === branch.id;
+              return (
+                <div
+                  key={branch.id}
+                  onClick={() => setActiveBranchId(branch.id)}
+                  className={cn(
+                    "flex cursor-pointer items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200",
+                    isActive
+                      ? "bg-bg-state-secondary text-text-default shadow-sm"
+                      : "text-text-muted hover:text-text-default hover:bg-bg-state-ghost-hover/50",
+                  )}
+                >
+                  {branch.name}
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
 
       <div className="mt-4 grid w-full grid-cols-2 gap-3 px-4 md:px-8 lg:grid-cols-3">

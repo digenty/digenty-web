@@ -27,7 +27,7 @@ export const useAddBranch = () => {
 export const useGetAllBranchesDetails = (termId?: number, search?: string) => {
   return useQuery({
     queryKey: branchKeys.allBranchesDetail(termId, search),
-    queryFn: () => getAllBranchesDetails(termId, search),
+    queryFn: getAllBranchesDetails,
     placeholderData: keepPreviousData,
   });
 };

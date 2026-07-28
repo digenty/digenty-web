@@ -40,7 +40,10 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
         toast({ title: "Reminder sent successfully", type: "success" });
         setSelectedInvoiceId(null);
       },
-      onError: () => toast({ title: "Failed to send reminder", type: "error" }),
+      onError: (error: unknown) => {
+        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+        toast({ title: "Failed to send reminder", description, type: "error" });
+      },
     });
   };
 
@@ -50,7 +53,10 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
         toast({ title: "Invoice deleted", type: "success" });
         setSelectedInvoiceId(null);
       },
-      onError: () => toast({ title: "Failed to delete invoice", type: "error" }),
+      onError: (error: unknown) => {
+        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+        toast({ title: "Failed to delete invoice", description, type: "error" });
+      },
     });
   };
 

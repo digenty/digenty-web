@@ -83,8 +83,8 @@ export const AddPAyment = () => {
             router.push(`/staff/invoices/${invoiceId}`);
           },
           onError: (error: unknown) => {
-            const message = error instanceof Error ? error.message : "Failed to add payment";
-            toast({ title: message, type: "error" });
+            const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+            toast({ title: "Failed to add payment", description, type: "error" });
           },
         },
       );

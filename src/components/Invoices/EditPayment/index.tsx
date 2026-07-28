@@ -71,8 +71,8 @@ export const EditPayment = () => {
             router.back();
           },
           onError: (error: unknown) => {
-            const message = error instanceof Error ? error.message : "Failed to update payment";
-            toast({ title: message, type: "error" });
+            const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+            toast({ title: "Failed to update payment", description, type: "error" });
           },
         },
       );

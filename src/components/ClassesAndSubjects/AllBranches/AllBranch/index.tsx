@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar } from "@digenty/icons";
+import { Calendar, Filter } from "@digenty/icons";
 import { Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
@@ -14,7 +14,6 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AllBranchesTable } from "./AllBranchesTable";
 import { OverviewStats } from "./OverviewStats";
@@ -31,6 +30,10 @@ export const AllBranches = () => {
   const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
 
   const { data: allBranchList, isPending, isError, isFetching } = useGetAllBranchesDetails(termSelected?.termId, debouncedSearchQuery);
+
+  const filteredBranchReports = (allBranchList?.data?.branchReports ?? []).filter((branch: { branchName: string }) =>
+    branch.branchName?.toLowerCase().includes(debouncedSearchQuery.trim().toLowerCase()),
+  );
 
   useBreadcrumb([{ label: "All Branches", url: "/staff/classes-and-subjects/all-branches" }]);
 
@@ -76,12 +79,12 @@ export const AllBranches = () => {
           </div>
 
           <Button
-            className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden"
+            className="bg-bg-state-soft flex size-7 items-center justify-center rounded-md p-1.5 md:hidden"
             onClick={() => {
               setIsFilterOpen(true);
             }}
           >
-            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+            <Filter fill="var(--color-icon-default-muted)" className="size-4" />
           </Button>
 
           <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
@@ -147,7 +150,7 @@ export const AllBranches = () => {
 
       {allBranchList && (
         <AllBranchesTable
-          allBranchList={allBranchList?.data?.branchReports}
+          allBranchList={filteredBranchReports}
           isFetching={isFetching}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}

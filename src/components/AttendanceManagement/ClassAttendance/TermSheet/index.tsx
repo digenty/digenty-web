@@ -62,7 +62,7 @@ export const TermSheet = () => {
       {isPending && !isError && <Skeleton className="bg-bg-input-soft mx-4 mt-8 hidden h-100 w-full md:mx-8 md:block" />}
 
       {/* <div className="space-y-6"> */}
-      <div className="pr-30">
+      <div className="md:pr-30">
         {!isError && data && (
           <TermSheetHeader
             classname={classGroup.replaceAll("-", " ")}
