@@ -119,7 +119,7 @@ export const CampaignsTable = ({ search, status, channel, termId, page, onPageCh
 
   if (isError) {
     return (
-      <div className="border-border-default flex w-full justify-center rounded-md border py-12">
+      <div className=" flex w-full justify-center ">
         <ErrorComponent
           title="Couldn't load campaigns"
           description="Something went wrong while loading your campaigns. Please try again."
@@ -132,7 +132,7 @@ export const CampaignsTable = ({ search, status, channel, termId, page, onPageCh
 
   if (!isLoading && campaigns.length === 0) {
     return (
-      <div className="border-border-default flex w-full justify-center rounded-md border py-12">
+      <div className=" flex w-full justify-center ">
         <PageEmptyState
           title="No campaigns yet"
           description="You haven't created any campaigns. Start by creating your first campaign."

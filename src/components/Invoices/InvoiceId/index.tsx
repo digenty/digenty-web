@@ -14,7 +14,7 @@ export const InvoiceDetail = () => {
   const params = useParams();
   const invoiceId = params.id as string;
 
-  const { data, isPending: loading, isError } = useGetInvoiceDetail(invoiceId);
+  const { data, isPending: loading, isError, error } = useGetInvoiceDetail(invoiceId);
 
   const invoice = (data as { data: InvoiceDetailResponse } | undefined)?.data;
 
@@ -22,7 +22,7 @@ export const InvoiceDetail = () => {
     return (
       <PageEmptyState
         title="Failed to load invoice"
-        description="We couldn't load this invoice. Please try again."
+        description={(error as { message?: string } | null)?.message ?? "We couldn't load this invoice. Please try again."}
         buttonText="Back to Invoices"
         url="/staff/invoices"
       />

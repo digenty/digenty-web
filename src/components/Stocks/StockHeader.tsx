@@ -1,6 +1,6 @@
 "use client";
 
-import { FolderReduce, School } from "@digenty/icons";
+import { Filter, FolderReduce, School } from "@digenty/icons";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -64,8 +64,8 @@ export const StockHeader = ({ branchId, setBranchId }: Props) => {
             </Select>
           </div>
         </div>
-        <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
-          <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+        <Button className="bg-bg-state-soft flex size-7 items-center justify-center rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
+          <Filter className="size-4" fill="var(--color-icon-default-muted)" />
         </Button>
 
         <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">

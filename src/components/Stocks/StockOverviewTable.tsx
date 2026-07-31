@@ -4,13 +4,14 @@ import { DeleteBin, Edit, Eye } from "@digenty/icons";
 import { Ellipsis } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useDeleteStock, useGetStockByCategory, useGetStockByStatus, useSearchStocks } from "@/hooks/queryHooks/useStock";
 import { StockStatus } from "@/api/stock";
 import { toast } from "../Toast";
 
 import { DataTable } from "../DataTable";
+import { ErrorComponent } from "../Error/ErrorComponent";
 import { Modal } from "../Modal";
 import { MobileDrawer } from "../MobileDrawer";
 import { stockStatus } from "../Status";
@@ -18,6 +19,7 @@ import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 import { buildStocksOverviewTableColumns, STATUS_DISPLAY } from "./Columns";
 import { StockListItem } from "./types";
+import { Skeleton } from "../ui/skeleton";
 
 const PAGE_SIZE = 10;
 
@@ -58,6 +60,15 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
 
   const activeQuery = statusFilter ? statusQ : categoryFilter ? categoryQ : searchQ;
   const { items, total } = useMemo(() => extractList(activeQuery.data), [activeQuery.data]);
+
+  const errorMessage = (activeQuery.error as { message?: string } | null)?.message ?? "Could not load stock";
+
+  useEffect(() => {
+    if (activeQuery.isError) {
+      toast({ title: errorMessage, type: "error" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeQuery.isError]);
 
   const { mutate: deleteStock, isPending: deleting } = useDeleteStock();
 
@@ -112,110 +123,116 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
         </Modal>
       )}
 
-      <div className="hidden md:block">
-        {isLoading ? (
-          <div className="flex h-40 items-center justify-center">
-            <Spinner className="size-10" />
+      {isLoading && <Skeleton className="bg-bg-input-soft! h-100 w-full" />}
+
+      {!isLoading && activeQuery.isError && (
+        <div className="flex justify-center py-12">
+          <ErrorComponent title="Couldn't load stock" description={errorMessage} buttonText="Retry" onClick={() => activeQuery.refetch()} />
+        </div>
+      )}
+
+      {!isLoading && !activeQuery.isError && items.length > 0 && (
+        <>
+          <div className="hidden md:block">
+            <DataTable
+              columns={columns}
+              data={items}
+              totalCount={total}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={PAGE_SIZE}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              onSelectRows={setSelectedRows}
+              clickHandler={row => {
+                router.push(`/staff/stock/${row.original.id}`);
+              }}
+              showPagination={useDefault}
+            />
           </div>
-        ) : (
-          <DataTable
-            columns={columns}
-            data={items}
-            totalCount={total}
-            page={page}
-            setCurrentPage={setPage}
-            pageSize={PAGE_SIZE}
-            rowSelection={rowSelection}
-            setRowSelection={setRowSelection}
-            onSelectRows={setSelectedRows}
-            clickHandler={row => {
-              router.push(`/staff/stock/${row.original.id}`);
-            }}
-            showPagination={useDefault}
-          />
-        )}
-      </div>
 
-      <div className="flex flex-col gap-4 md:hidden">
-        {items.slice(0, visibleCount).map(stock => {
-          return (
-            <div key={stock.id} className="border-border-default bg-bg-subtle rounded-md border">
-              <MobileDrawer open={drawerStock?.id === stock.id} setIsOpen={open => setDrawerStock(open ? stock : null)} title="Actions">
-                <div className="flex w-full flex-col gap-4 px-3 py-4">
-                  <div className="flex flex-col items-center gap-2">
-                    <div
-                      role="button"
-                      onClick={() => router.push(`/staff/stock/${stock.id}`)}
-                      className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                    >
-                      <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View stock
+          <div className="flex flex-col gap-4 md:hidden">
+            {items.slice(0, visibleCount).map(stock => {
+              return (
+                <div key={stock.id} className="border-border-default bg-bg-subtle rounded-md border">
+                  <MobileDrawer open={drawerStock?.id === stock.id} setIsOpen={open => setDrawerStock(open ? stock : null)} title="Actions">
+                    <div className="flex w-full flex-col gap-4 px-3 py-4">
+                      <div className="flex flex-col items-center gap-2">
+                        <div
+                          role="button"
+                          onClick={() => router.push(`/staff/stock/${stock.id}`)}
+                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                        >
+                          <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View stock
+                        </div>
+                        <div
+                          role="button"
+                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                        >
+                          <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit stock
+                        </div>
+                        <div
+                          role="button"
+                          onClick={() => {
+                            setStockToDelete(stock);
+                            setDrawerStock(null);
+                          }}
+                          className="text-text-destructive hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                        >
+                          <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+                          <span>Delete stock</span>
+                        </div>
+                      </div>
                     </div>
-                    <div
-                      role="button"
-                      className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                    >
-                      <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit stock
-                    </div>
-                    <div
-                      role="button"
-                      onClick={() => {
-                        setStockToDelete(stock);
-                        setDrawerStock(null);
-                      }}
-                      className="text-text-destructive hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                    >
-                      <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-                      <span>Delete stock</span>
+                  </MobileDrawer>
+
+                  <div>
+                    <div className="border-border-default flex justify-between border-b px-3 py-1 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Image src={stock.imagePath || "/staff/images/image.png"} alt={stock.name} width={20} height={20} />
+                        <span className="text-text-default text-sm font-medium">{stock.name}</span>
+                      </div>
+                      <Button onClick={() => setDrawerStock(stock)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
+                        <Ellipsis className="size-5" />
+                      </Button>
                     </div>
                   </div>
-                </div>
-              </MobileDrawer>
 
-              <div>
-                <div className="border-border-default flex justify-between border-b px-3 py-1 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Image src={stock.imagePath || "/staff/images/image.png"} alt={stock.name} width={20} height={20} />
-                    <span className="text-text-default text-sm font-medium">{stock.name}</span>
+                  <div>
+                    <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
+                      <span className="text-text-muted font-medium">Quantity</span>
+                      <span className="text-text-default text-sm font-medium">{stock.quantity}</span>
+                    </div>
                   </div>
-                  <Button onClick={() => setDrawerStock(stock)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
-                    <Ellipsis className="size-5" />
-                  </Button>
+
+                  <div>
+                    <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
+                      <span className="text-text-muted font-medium">Price</span>
+                      <span className="text-text-default text-sm font-medium">₦ {Number(stock.price ?? 0).toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between px-3 py-2 text-sm">
+                    <span className="text-text-muted font-medium">Status</span>
+                    {stockStatus(STATUS_DISPLAY[stock.status] ?? stock.status)}
+                  </div>
                 </div>
-              </div>
+              );
+            })}
 
-              <div>
-                <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
-                  <span className="text-text-muted font-medium">Quantity</span>
-                  <span className="text-text-default text-sm font-medium">{stock.quantity}</span>
-                </div>
-              </div>
+            {!isLoading && items.length === 0 && <div className="text-text-muted py-6 text-center text-sm">No stock items found</div>}
 
-              <div>
-                <div className="border-border-default flex justify-between border-b px-3 py-2 text-sm">
-                  <span className="text-text-muted font-medium">Price</span>
-                  <span className="text-text-default text-sm font-medium">₦ {Number(stock.price ?? 0).toLocaleString()}</span>
-                </div>
-              </div>
-
-              <div className="flex justify-between px-3 py-2 text-sm">
-                <span className="text-text-muted font-medium">Status</span>
-                {stockStatus(STATUS_DISPLAY[stock.status] ?? stock.status)}
-              </div>
-            </div>
-          );
-        })}
-
-        {!isLoading && items.length === 0 && <div className="text-text-muted py-6 text-center text-sm">No stock items found</div>}
-
-        {visibleCount < items.length && (
-          <Button
-            onClick={() => setVisibleCount(items.length)}
-            className="bg-bg-state-soft text-text-subtle mx-auto my-2 flex w-39 items-center justify-center rounded-md"
-          >
-            Load More
-          </Button>
-        )}
-      </div>
+            {visibleCount < items.length && (
+              <Button
+                onClick={() => setVisibleCount(items.length)}
+                className="bg-bg-state-soft text-text-subtle mx-auto my-2 flex w-39 items-center justify-center rounded-md"
+              >
+                Load More
+              </Button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

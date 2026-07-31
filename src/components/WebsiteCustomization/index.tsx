@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
@@ -40,7 +41,8 @@ const EditorColumn = ({ className }: { className?: string }) => (
 
 const WebsiteCustomizationInner = () => {
   const [mobileTab, setMobileTab] = useState<"editor" | "preview">("editor");
-  const { save, publish, startEdit, cancelEdit, isSaving, isPublishing, isLoading, live, hasData, isEditing } = useWebsiteCustomization();
+  const { save, publish, startEdit, cancelEdit, isSaving, isPublishing, isLoading, isError, errorMessage, retryLoad, live, hasData, isEditing } =
+    useWebsiteCustomization();
 
   useBreadcrumb([{ label: "Website Customization", url: "/staff/website-customization" }]);
 
@@ -59,44 +61,46 @@ const WebsiteCustomizationInner = () => {
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
-          {hasData && (
-            <Button
-              onClick={publish}
-              disabled={isPublishing || isLoading || isEditing}
-              className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-9! rounded-md border text-sm font-medium shadow-xs"
-            >
-              {isPublishing && <Spinner className="size-3" />}
-              {live ? "Unpublish" : "Publish"}
-            </Button>
-          )}
-
-          {hasData && !isEditing ? (
-            <Button onClick={startEdit} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-9!">
-              Edit
-            </Button>
-          ) : (
-            <>
-              {hasData && (
-                <Button
-                  onClick={cancelEdit}
-                  disabled={isSaving}
-                  className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-9! rounded-md border text-sm font-medium shadow-xs"
-                >
-                  Cancel
-                </Button>
-              )}
+        {!isError && (
+          <div className="flex items-center gap-3">
+            {hasData && (
               <Button
-                onClick={save}
-                disabled={isSaving || isLoading}
-                className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-9!"
+                onClick={publish}
+                disabled={isPublishing || isLoading || isEditing}
+                className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-9! rounded-md border text-sm font-medium shadow-xs"
               >
-                {isSaving && <Spinner className="text-text-white-default size-3" />}
-                Save
+                {isPublishing && <Spinner className="size-3" />}
+                {live ? "Unpublish" : "Publish"}
               </Button>
-            </>
-          )}
-        </div>
+            )}
+
+            {hasData && !isEditing ? (
+              <Button onClick={startEdit} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-9!">
+                Edit
+              </Button>
+            ) : (
+              <>
+                {hasData && (
+                  <Button
+                    onClick={cancelEdit}
+                    disabled={isSaving}
+                    className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-9! rounded-md border text-sm font-medium shadow-xs"
+                  >
+                    Cancel
+                  </Button>
+                )}
+                <Button
+                  onClick={save}
+                  disabled={isSaving || isLoading}
+                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-9!"
+                >
+                  {isSaving && <Spinner className="text-text-white-default size-3" />}
+                  Save
+                </Button>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {isLoading ? (
@@ -107,6 +111,10 @@ const WebsiteCustomizationInner = () => {
             ))}
           </div>
           <Skeleton className="bg-bg-input-soft h-[60vh] min-h-110 w-full rounded-xl xl:flex-1" />
+        </div>
+      ) : isError ? (
+        <div className="flex items-center justify-center py-20">
+          <ErrorComponent title="Could not load website" description={errorMessage} buttonText="Retry" onClick={retryLoad} />
         </div>
       ) : (
         <>

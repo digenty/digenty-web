@@ -27,6 +27,9 @@ interface WebsiteCustomizationContextValue {
   isLoading: boolean;
   isSaving: boolean;
   isPublishing: boolean;
+  isError: boolean;
+  errorMessage: string;
+  retryLoad: () => void;
   live: boolean;
   save: () => void;
   publish: () => void;
@@ -43,12 +46,18 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 };
 
 export const WebsiteCustomizationProvider = ({ children }: { children: React.ReactNode }) => {
-  const { data, isLoading } = useGetWebsiteConfig();
+  const { data, isLoading, isError, error, refetch } = useGetWebsiteConfig();
   const createMutation = useCreateWebsiteConfig();
   const updateMutation = useUpdateWebsiteConfig();
   const publishMutation = usePublishWebsite();
 
   const hasData = !!data?.id;
+  const errorMessage = getErrorMessage(error, "Could not load your website configuration. Please try again.");
+
+  useEffect(() => {
+    if (isError) toast({ title: "Could not load website", description: errorMessage, type: "error" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isError]);
 
   // Start in edit/create mode by default; switch to view mode once existing data loads.
   const [isEditing, setIsEditing] = useState(true);
@@ -145,6 +154,9 @@ export const WebsiteCustomizationProvider = ({ children }: { children: React.Rea
     isLoading,
     isSaving: createMutation.isPending || updateMutation.isPending,
     isPublishing: publishMutation.isPending,
+    isError,
+    errorMessage,
+    retryLoad: () => refetch(),
     live: data?.live ?? false,
     save: submitForm,
     publish,

@@ -10,9 +10,10 @@ import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams, useRouter } from "next/navigation";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import type { ClassType } from "@/api/types";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 export const ClassFeeDetail = () => {
   const router = useRouter();
@@ -30,8 +31,14 @@ export const ClassFeeDetail = () => {
     return raw.map(a => ({ armId: a.id, armName: a.name }));
   }, [armsResp]);
 
-  const { data: items = [], isPending, isError } = useGetFeeItems({ classId });
+  const { data: items = [], isPending, isError, error, refetch } = useGetFeeItems({ classId });
   const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
+  const errorMessage = (error as { message?: string } | null)?.message ?? "Could not load fees for this class.";
+
+  useEffect(() => {
+    if (isError) toast.error(errorMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isError]);
 
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
@@ -89,7 +96,9 @@ export const ClassFeeDetail = () => {
             ))}
           </div>
         ) : isError ? (
-          <div className="text-text-muted flex items-center justify-center py-20 text-sm">Could not load fees for this class.</div>
+          <div className="flex items-center justify-center py-20">
+            <ErrorComponent title="Could not load fees" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />
+          </div>
         ) : items.length === 0 ? (
           <div className="text-text-muted flex items-center justify-center py-20 text-sm">No fees attached to this class yet.</div>
         ) : (
