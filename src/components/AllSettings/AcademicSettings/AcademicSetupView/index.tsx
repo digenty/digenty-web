@@ -33,7 +33,7 @@ export const AcademicSetupView = () => {
   const session: AcademicSession | undefined = academicResponse?.data;
 
   return (
-    <div>
+    <div className="px-6 py-4">
       {isLoadingSession && !session && (
         <div className="p-4 md:p-8">
           <Skeleton className="bg-bg-state-soft! h-200 w-full" />
@@ -89,7 +89,7 @@ export const AcademicSetupView = () => {
               </div>
             </div>
             <div className="md:px-8 md:pt-8">
-              <div className="border-border-default hide-scrollbar mb-10 flex w-screen items-center gap-4 overflow-x-auto border-b py-2 md:p-0 lg:w-full">
+              <div className="border-border-default hide-scrollbar mb-10 flex w-full items-center gap-4 overflow-x-auto border-b py-2 md:p-0">
                 {tabs.map(tab => {
                   const isActive = activeTab === tab;
 

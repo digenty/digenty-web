@@ -47,8 +47,14 @@ export const FeesGroup = () => {
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const { data, isPending, isError } = useGetFeeGroups(branchId, termId, search || undefined);
+  const { data, isPending, isError, error, refetch } = useGetFeeGroups(branchId, termId, search || undefined);
   const feesGroup: FeeGroupProp[] = (data as FeeGroupSummary[] | undefined) ?? [];
+  const errorMessage = (error as { message?: string } | null)?.message ?? "An error occurred while fetching fee groups.";
+
+  useEffect(() => {
+    if (isError) toast.error(errorMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isError]);
 
   const { mutate: deleteFeeGroup, isPending: deleting } = useDeleteFeeGroup();
   const { mutate: duplicateFeeGroup, isPending: duplicating } = useDuplicateFeeGroup();
@@ -136,7 +142,7 @@ export const FeesGroup = () => {
         </div>
       )}
 
-      {!isPending && isError && <ErrorComponent title="Error" description="An error occurred while fetching fee groups." />}
+      {!isPending && isError && <ErrorComponent title="Error" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />}
 
       {!isPending && !isError && feesGroup.length === 0 && (
         <EmptyFeeState

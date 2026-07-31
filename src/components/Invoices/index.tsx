@@ -13,8 +13,10 @@ import { OverviewCard } from "../OverviewCard";
 import { InvoiceOverviewTable } from "./InvoiceOverviewTable";
 import { InvoicesHeader } from "./InvoicesHeader";
 import { InvoiceSearchAndExport } from "./InvoiceSearchAndExport";
-import { PageEmptyState } from "../Error/PageEmptyState";
+import { ErrorComponent } from "../Error/ErrorComponent";
+import { toast } from "../Toast";
 import { formatNaira, InvoicesResponse } from "./types";
+import { Skeleton } from "../ui/skeleton";
 
 type InvoiceFilter = {
   branchSelected?: Branch;
@@ -61,6 +63,8 @@ export const Invoices = () => {
     data,
     isFetching: loadingInvoices,
     isError: invoicesError,
+    error: invoicesErrorObj,
+    refetch: refetchInvoices,
   } = useGetInvoices({
     branchId: filter.branchSelected?.id,
     classId: filter.classSelected?.id,
@@ -68,6 +72,15 @@ export const Invoices = () => {
     page: 0,
     size: 1000,
   });
+
+  const invoicesErrorMessage = (invoicesErrorObj as { message?: string } | null)?.message ?? "We couldn't load your invoices. Please try again.";
+
+  useEffect(() => {
+    if (invoicesError) {
+      toast({ title: invoicesErrorMessage, type: "error" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoicesError]);
 
   const invoiceData = (data as { data: InvoicesResponse } | undefined)?.data;
   const allInvoices = invoiceData?.invoices ?? [];
@@ -82,16 +95,6 @@ export const Invoices = () => {
   }, [allInvoices, debouncedSearch, statusFilter]);
 
   const paginatedInvoices = filteredInvoices.slice((page - 1) * pageSize, page * pageSize);
-
-  if (invoicesError)
-    return (
-      <PageEmptyState
-        title="Failed to load invoices"
-        description="We couldn't load your invoices. Please try again."
-        buttonText="Retry"
-        url="/staff/invoices"
-      />
-    );
 
   return (
     <div>
@@ -151,14 +154,24 @@ export const Invoices = () => {
             currentBranchId={filter.branchSelected?.id}
           />
 
-          <InvoiceOverviewTable
-            invoices={paginatedInvoices}
-            loading={loadingInvoices}
-            page={page}
-            setPage={setPage}
-            pageSize={pageSize}
-            totalCount={filteredInvoices.length}
-          />
+          {loadingInvoices && <Skeleton className="bg-bg-input-soft! h-screen w-full" />}
+
+          {!loadingInvoices && invoicesError && (
+            <div className="flex justify-center py-12">
+              <ErrorComponent title="Failed to load invoices" description={invoicesErrorMessage} buttonText="Retry" onClick={() => refetchInvoices()} />
+            </div>
+          )}
+
+          {!invoicesError && !loadingInvoices && (
+            <InvoiceOverviewTable
+              invoices={paginatedInvoices}
+              loading={loadingInvoices}
+              page={page}
+              setPage={setPage}
+              pageSize={pageSize}
+              totalCount={filteredInvoices.length}
+            />
+          )}
         </div>
       </div>
     </div>

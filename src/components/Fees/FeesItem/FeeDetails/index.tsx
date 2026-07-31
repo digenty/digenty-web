@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetFeeItemById, useDeleteFeeItem, usePublishFee } from "@/hooks/queryHooks/useFee";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { Copy, Building2 } from "lucide-react";
 import type { FeeItemDetailResponse } from "@/api/fee";
@@ -20,10 +21,16 @@ export const FeeItemDetail = () => {
   const params = useParams();
   const id = Number(params?.id);
 
-  const { data, isPending, isError } = useGetFeeItemById(id);
+  const { data, isPending, isError, error, refetch } = useGetFeeItemById(id);
   const item = data as FeeItemDetailResponse | undefined;
   const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
   const { mutate: duplicateFeeItem, isPending: duplicating } = useDuplicateFeeItem();
+  const errorMessage = (error as { message?: string } | null)?.message ?? "Failed to load fee item details. Please try again.";
+
+  useEffect(() => {
+    if (isError) toast.error(errorMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isError]);
 
   const { mutate: publishFee, isPending: publishing } = usePublishFee();
 
@@ -74,7 +81,7 @@ export const FeeItemDetail = () => {
   if (isError) {
     return (
       <div className="flex items-center justify-center px-4 py-3 pb-8 md:px-8">
-        <ErrorComponent title="Could not load fee item" description="Failed to load fee item details. Please try again." buttonText="Go back" />;
+        <ErrorComponent title="Could not load fee item" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />
       </div>
     );
   }

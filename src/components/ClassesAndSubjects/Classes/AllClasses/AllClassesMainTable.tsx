@@ -56,7 +56,7 @@ export const AllClassesMainTable = ({
   const [activeArmName, setActiveArmName] = useState<string>("");
   const router = useRouter();
 
-  const { data: levels, isLoading: loadingLevels } = useGetLevels();
+  const { data: levels, isLoading: loadingLevels } = useGetLevels(branchId);
 
   useBreadcrumb([{ label: "All Classes", url: "" }]);
 
@@ -92,8 +92,9 @@ export const AllClassesMainTable = ({
           <DropdownMenu open={isLevelFilterOpen} onOpenChange={setIsLevelFilterOpen}>
             <DropdownMenuTrigger asChild>
               <div>
-                <Button className="text-text-muted border-border-darker bg-bg-state-secondary hidden h-8 w-20 items-center gap-1 rounded-full border border-dashed px-2.5 py-1.5 text-sm md:flex">
-                  <Filter fill="var(--color-icon-default-muted)" /> Level
+                <Button className="text-text-muted border-border-darker bg-bg-state-secondary hidden h-8 w-fit min-w-20 items-center gap-1 rounded-full border border-dashed px-2.5 py-1.5 text-sm capitalize md:flex">
+                  <Filter fill="var(--color-icon-default-muted)" />
+                  {levelSelected ? levelSelected.levelName.replace("_", " ").toLowerCase() : "Level"}
                 </Button>
                 <div className="bg-bg-input-soft flex h-8 items-center gap-1 rounded-sm px-2.5 py-1.5 text-sm md:hidden">
                   <Filter fill="var(--color-icon-default-muted)" />

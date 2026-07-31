@@ -211,22 +211,22 @@ export const Sidebar = () => {
                   ]
                 : []),
 
-              ...(canViewPortalCustomization(user?.permissions)
-                ? [
-                    {
-                      title: "Website Customization",
-                      url: "website-customization",
-                      icon: ColorFilter,
-                    },
-                  ]
-                : []),
-
               ...(canViewDomain(user?.permissions)
                 ? [
                     {
                       title: "Domain",
                       url: "domain",
                       icon: Global,
+                    },
+                  ]
+                : []),
+
+              ...(canViewPortalCustomization(user?.permissions)
+                ? [
+                    {
+                      title: "Website Customization",
+                      url: "website-customization",
+                      icon: ColorFilter,
                     },
                   ]
                 : []),

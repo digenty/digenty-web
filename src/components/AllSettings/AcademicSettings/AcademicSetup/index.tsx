@@ -27,7 +27,7 @@ export const AcademicSetup = () => {
   }));
 
   return (
-    <section className="flex w-full flex-1 flex-col pt-4 pb-20">
+    <section className="flex w-full flex-1 flex-col px-4 pt-4 pb-20">
       <div className="w-full flex-1 space-y-4 md:space-y-6">
         <div className="mx-auto flex w-full flex-col gap-4 lg:px-36">
           <ProgressIndicator currentStep={step} steps={steps} completedSteps={completedSteps} className="flex w-full" />

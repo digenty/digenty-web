@@ -1,6 +1,6 @@
 "use client";
 
-import { Draft, Mail, Message3, PhoneFill, TimeFill } from "@digenty/icons";
+import { Draft, Filter, Mail, Message3, PhoneFill, TimeFill } from "@digenty/icons";
 import { Check, Plus, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -65,7 +65,7 @@ export const SearchAndFilter = ({ search, onSearchChange, status, onStatusChange
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
       <div className="flex items-center gap-1">
         <SearchInput
-          className="border-border-default border text-sm"
+          className="border-border-default rounded-md border text-sm"
           value={search}
           onChange={e => onSearchChange(e.target.value)}
           placeholder="Search campaigns"
@@ -76,10 +76,10 @@ export const SearchAndFilter = ({ search, onSearchChange, status, onStatusChange
           <DropdownMenuTrigger asChild>
             <Badge
               className={cn(
-                "border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex",
+                "border-border-darker bg-bg-state-secondary text-text-muted hidden h-8 cursor-pointer items-center rounded-full border border-dashed md:flex",
               )}
             >
-              <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+              <Filter className="size-4" fill="var(--color-icon-default-muted)" />
               {status ? statusFilters.find(f => f.value === status)?.label : "Status"}
             </Badge>
           </DropdownMenuTrigger>
@@ -119,8 +119,8 @@ export const SearchAndFilter = ({ search, onSearchChange, status, onStatusChange
       </div>
 
       <div className="flex items-center justify-between gap-1">
-        <Button onClick={handleOpenMobileFilter} className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden">
-          <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+        <Button onClick={handleOpenMobileFilter} className="bg-bg-state-soft flex size-7 items-center justify-center rounded-md p-1.5 md:hidden">
+          <Filter className="size-4" fill="var(--color-icon-default-muted)" />
         </Button>
 
         <Button

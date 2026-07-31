@@ -489,7 +489,7 @@ export const ClassesAndArms = ({
           )}
 
           <div className="flex w-full flex-col-reverse gap-4 md:flex-row md:items-start md:justify-between">
-            <div className="w-3/4">
+            <div className="w-full md:w-3/4">
               <ClassesSetup
                 levels={levels}
                 activeLevel={activeLevel}
@@ -582,7 +582,7 @@ export const ClassesAndArms = ({
       </div> */}
 
         {completedSteps && setCompletedSteps && (
-          <div className="border-border-default bg-bg-default fixed right-0 bottom-0 left-(--sidebar-w) z-10 flex justify-between border-t px-4 py-3 lg:px-40">
+          <div className="border-border-default bg-bg-default fixed right-0 bottom-0 left-0 z-10 flex justify-between border-t px-4 py-3 md:left-(--sidebar-w) lg:px-40">
             <Button
               className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
               onClick={() => {

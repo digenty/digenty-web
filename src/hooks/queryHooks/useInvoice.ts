@@ -162,6 +162,7 @@ export const useGetInvoicesByStudent = (studentId?: number, page = 0, size = 50)
     queryKey: invoiceKeys.byStudent(studentId, page, size),
     queryFn: () => getInvoicesByStudent(studentId!, page, size),
     enabled: !!studentId,
+    placeholderData: keepPreviousData,
   });
 
 export const useGetPaymentById = (invoiceId?: string, paymentId?: string) =>
