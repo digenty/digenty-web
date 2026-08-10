@@ -96,7 +96,7 @@ export const AdmissionNumberSetupDone = () => {
     <div className="w-full">
       <div
         className={cn(
-          "mx-auto flex w-full items-center justify-center px-4 pb-20 md:w-151",
+          "mx-auto flex w-full items-center justify-center pb-20 md:w-151",
           !isEditing && "mx-auto flex w-full items-center justify-center md:max-w-200",
         )}
       >

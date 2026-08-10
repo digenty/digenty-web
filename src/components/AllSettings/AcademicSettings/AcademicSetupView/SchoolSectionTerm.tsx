@@ -338,7 +338,7 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
 
   return (
     <div>
-      <div className="mx-auto mb-10 flex w-full flex-col gap-4 px-4 pb-12 md:w-150">
+      <div className="mx-auto mb-10 flex w-full flex-col gap-4 pb-12 md:w-150">
         <div className="flex items-center justify-between">
           <div className="text-text-default text-lg font-semibold">Academic Session & Term</div>
           {!isEditing && (
