@@ -1,6 +1,6 @@
 "use client";
 
-import { AddFill, BookOpen, DeleteBin2, Edit, Loader2Fill, School } from "@digenty/icons";
+import { AddFill, BookOpen, DeleteBin2, Edit, School } from "@digenty/icons";
 import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -132,8 +132,8 @@ function BranchTabSwitch({ activeBranch, setActiveBranch }: { activeBranch: Bran
   }
 
   return (
-    <div className="flex w-auto max-w-64 items-center gap-3">
-      {isLoadingBranches && <Skeleton className="h-9 w-full" />}
+    <div className="hide-scrollbar flex w-full items-center gap-3 overflow-x-auto">
+      {isLoadingBranches && <Skeleton className="h-9 w-32 shrink-0" />}
       {branchesData?.data?.map((branchItem: BranchWithClassLevels) => {
         const branch = branchItem.branch;
         const isActive = activeBranch?.id === branch.id;
@@ -144,12 +144,11 @@ function BranchTabSwitch({ activeBranch, setActiveBranch }: { activeBranch: Bran
             type="button"
             onClick={() => setActiveBranch(branch)}
             className={cn(
-              "hover:bg-bg-none! w-1/2 cursor-pointer rounded-none py-2.5 text-center transition-all duration-150",
+              "hover:bg-bg-none! shrink-0 cursor-pointer rounded-none px-3 py-2.5 text-center whitespace-nowrap transition-all duration-150",
               isActive && "border-border-informative border-b-[1.5px]",
             )}
           >
             <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.name}</span>
-            {isActive ? <Loader2Fill fill="var(--color-icon-informative)" /> : <Loader2Fill fill="var(--color-icon-default-muted)" />}
           </Button>
         );
       })}
@@ -192,7 +191,7 @@ export const AcademicAssAndGradeSetupDone = () => {
           <GradingAndAssessment isEditing={isEditing} setIsEditing={setIsEditing} />
         </div>
       ) : (
-        <div className="mx-auto flex w-full items-center justify-center px-4 pb-12 md:max-w-200">
+        <div className="mx-auto flex w-full items-center justify-center pb-12 md:max-w-200">
           <div className="w-full">
             <div className="mb-5 flex w-full items-start justify-between">
               <div className="text-text-default text-xl font-semibold">Assessment & Grading</div>
