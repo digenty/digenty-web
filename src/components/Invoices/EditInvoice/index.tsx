@@ -1,5 +1,6 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -103,6 +104,9 @@ export const EditInvoice = () => {
   if (loadingInvoice) {
     return (
       <div className="flex flex-col gap-4 p-8">
+        <div className="md:hidden">
+          <BackButton />
+        </div>
         <Skeleton className="bg-bg-input-soft h-10 w-full" />
         <Skeleton className="bg-bg-input-soft h-40 w-full" />
         <Skeleton className="bg-bg-input-soft h-64 w-full" />

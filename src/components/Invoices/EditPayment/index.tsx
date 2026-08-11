@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRightS, Bank, BankCard, CalendarEventFill, Cash, Folder3, QuickReferenceAll, ResetLeft } from "@digenty/icons";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { PopoverContent, PopoverTrigger, Popover } from "@/components/ui/popover";
@@ -98,6 +99,9 @@ export const EditPayment = () => {
   if (loadingPayment) {
     return (
       <div className="flex w-full flex-col gap-6 p-8 md:mx-auto md:max-w-150">
+        <div className="md:hidden">
+          <BackButton />
+        </div>
         {Array.from({ length: 5 }).map((_, i) => (
           <Skeleton key={i} className="bg-bg-input-soft h-12 w-full" />
         ))}
@@ -107,6 +111,10 @@ export const EditPayment = () => {
 
   return (
     <div>
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
+
       <div className="bg-bg-card-subtle border-border-default flex h-13 w-full items-center justify-center border px-4 py-3">
         <div className="w-full md:w-150">
           <div className="text-text-default text-md font-semibold">Edit Payment</div>

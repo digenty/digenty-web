@@ -3,6 +3,7 @@
 import { AlertFill, GraduationCapFill } from "@digenty/icons";
 import { BranchArmReport, BranchWithClassLevels, ClassLevel, Term } from "@/api/types";
 
+import { BackButton } from "@/components/BackButton";
 import { OverviewCard } from "@/components/OverviewCard";
 import { useGetBranchDetails, useGetBranches } from "@/hooks/queryHooks/useBranch";
 import useDebounce from "@/hooks/useDebounce";
@@ -69,6 +70,10 @@ export const AllClassesMain = () => {
 
   return (
     <div className="flex flex-col">
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
+
       <AllClassesHeader
         termSelected={termSelected}
         setTermSelected={setTermSelected}

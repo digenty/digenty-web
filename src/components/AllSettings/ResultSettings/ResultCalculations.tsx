@@ -208,6 +208,8 @@ const LevelForm = ({
     onChange({ requiredSubjectIds: allSelected ? [] : subjects.map(s => s.id) });
   };
 
+  // const isFormLoading = isLoadingSubjects || isLoadingGradings || (isSeniorSecondary && isLoadingClasses);
+
   if (!existingRecord && !hasOpenedForm) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-20">
@@ -223,6 +225,26 @@ const LevelForm = ({
       </div>
     );
   }
+
+  // if (isFormLoading) {
+  //   return (
+  //     <div className="mx-auto flex w-full max-w-171 flex-col gap-6 px-4 pb-20">
+  //       <div className="flex justify-between">
+  //         <Skeleton className="bg-bg-input-soft h-7 w-48" />
+  //       </div>
+  //       <div className="flex flex-col gap-2">
+  //         <Skeleton className="bg-bg-input-soft h-5 w-64" />
+  //         <Skeleton className="bg-bg-input-soft h-4 w-80" />
+  //       </div>
+  //       <Skeleton className="bg-bg-input-soft h-36 w-full rounded-md" />
+  //       <div className="flex flex-col gap-2">
+  //         <Skeleton className="bg-bg-input-soft h-5 w-48" />
+  //         <Skeleton className="bg-bg-input-soft h-4 w-72" />
+  //       </div>
+  //       <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="relative">
@@ -346,13 +368,7 @@ const LevelForm = ({
                   <Label className="text-text-default text-sm font-medium">A. Required passes (Compulsory)</Label>
                   <div className="text-text-subtle text-sm">Multi-select subjects that student must pass</div>
 
-                  {isSeniorSecondary && isLoadingClasses ? (
-                    <div className="flex flex-col gap-3">
-                      <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
-                      <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
-                      <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
-                    </div>
-                  ) : isSeniorSecondary && allDepartments.length > 0 ? (
+                  {isSeniorSecondary && allDepartments.length > 0 ? (
                     <div className="flex flex-col gap-4">
                       {allDepartments.map(dept => {
                         const deptSubjects = dept.subjects;
@@ -431,8 +447,6 @@ const LevelForm = ({
                         );
                       })}
                     </div>
-                  ) : isLoadingSubjects ? (
-                    <Skeleton className="bg-bg-input-soft h-9 w-full rounded-md" />
                   ) : (
                     <>
                       <Select open={isEditing ? undefined : false}>
@@ -485,40 +499,36 @@ const LevelForm = ({
                 </div>
 
                 <div className="mt-4 pl-6">
-                  {isLoadingGradings ? (
-                    <Skeleton className="bg-bg-input-soft h-9 w-57 rounded-md" />
-                  ) : (
-                    <div className="flex flex-col gap-1">
-                      <Label className="text-text-default text-sm font-medium">Grade required to pass a subject</Label>
-                      <Select value={formState.minimumPassGrade} disabled={!isEditing} onValueChange={val => onChange({ minimumPassGrade: val })}>
-                        <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal md:w-57">
-                          <SelectValue placeholder="Select grade">
-                            <span className="text-text-default text-sm">{formState.minimumPassGrade}</span>
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent className="bg-bg-default border-border-default">
-                          {gradings.length === 0 && (
-                            <div className="text-text-default flex flex-col items-center justify-center gap-2 px-4 py-2 text-sm">
-                              No grades set for this level
-                              <Button
-                                onClick={() => router.push("/staff/settings/academic")}
-                                className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
-                              >
-                                Set Grades
-                              </Button>
-                            </div>
-                          )}
-                          {gradings.map((grading: SchoolGrading) =>
-                            grading.grade ? (
-                              <SelectItem key={grading.id} value={grading.grade} className="text-text-default text-sm">
-                                {grading.grade}
-                              </SelectItem>
-                            ) : null,
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
+                  <div className="flex flex-col gap-1">
+                    <Label className="text-text-default text-sm font-medium">Grade required to pass a subject</Label>
+                    <Select value={formState.minimumPassGrade} disabled={!isEditing} onValueChange={val => onChange({ minimumPassGrade: val })}>
+                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal md:w-57">
+                        <SelectValue placeholder="Select grade">
+                          <span className="text-text-default text-sm">{formState.minimumPassGrade}</span>
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="bg-bg-default border-border-default">
+                        {gradings.length === 0 && (
+                          <div className="text-text-default flex flex-col items-center justify-center gap-2 px-4 py-2 text-sm">
+                            No grades set for this level
+                            <Button
+                              onClick={() => router.push("/staff/settings/academic")}
+                              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
+                            >
+                              Set Grades
+                            </Button>
+                          </div>
+                        )}
+                        {gradings.map((grading: SchoolGrading) =>
+                          grading.grade ? (
+                            <SelectItem key={grading.id} value={grading.grade} className="text-text-default text-sm">
+                              {grading.grade}
+                            </SelectItem>
+                          ) : null,
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="mt-4 flex flex-col gap-2 pl-6">
@@ -702,9 +712,9 @@ export const ResultCalculations = () => {
           const isEditing = editingLevels[levelName] ?? false;
           return {
             label: levelName
-            .split("_")
-            .map(w => w.charAt(0) + w.slice(1).toLowerCase())
-            .join(" "),
+              .split("_")
+              .map(w => w.charAt(0) + w.slice(1).toLowerCase())
+              .join(" "),
             content: (
               <LevelForm
                 key={existingRecord ? `existing-${id}` : `new-${id}`}

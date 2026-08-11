@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteFeeItem, useGetFeeItems } from "@/hooks/queryHooks/useFee";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
+import { BackLink } from "@/components/BackLink";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useMemo } from "react";
@@ -58,6 +59,9 @@ export const ClassFeeDetail = () => {
   return (
     <div className="flex items-center justify-center px-4 md:px-30 lg:px-70.5">
       <div className="w-full py-4">
+        <div className="pb-3 md:hidden">
+          <BackLink href="/staff/fees" />
+        </div>
         <div className="mb-4 flex flex-col justify-between gap-4 md:mb-9 md:flex-row">
           <div className="text-text-default text-xl font-semibold">{className}</div>
           <div className="flex flex-wrap gap-2">

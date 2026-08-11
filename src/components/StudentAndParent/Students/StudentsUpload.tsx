@@ -1,4 +1,5 @@
 "use client";
+import { BackLink } from "@/components/BackLink";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -209,6 +210,9 @@ export const StudentsUpload = () => {
   return (
     <section className="flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-150 space-y-4 md:space-y-6">
+        <div className="md:hidden">
+          <BackLink href="/staff/student-and-parent-record?tab=Students" />
+        </div>
         <CSVUploadProgress currentStep={currentStep} steps={steps} className="w-full" completedSteps={completedSteps} />
 
         {currentStep === steps.length ? (

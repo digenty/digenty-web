@@ -1,6 +1,7 @@
 "use client";
 
 import { EditRequestResponseTypes } from "@/api/types";
+import { BackButton } from "@/components/BackButton";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { SearchInput } from "@/components/SearchInput";
@@ -197,6 +198,10 @@ export const ManageEditRequest = () => {
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
+
       <div className="text-text-default border-border-default border-b px-4 py-2 text-xl font-semibold md:px-8">Manage Edit Requests</div>
 
       <div className="flex flex-col gap-4 px-4 md:px-8">

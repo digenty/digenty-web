@@ -2,6 +2,7 @@
 
 import { useGetInvoiceDetail } from "@/hooks/queryHooks/useInvoice";
 import { useParams } from "next/navigation";
+import { BackLink } from "@/components/BackLink";
 import { InvoiceView } from "./InvoiceView";
 import { InvoiceIdBreakDownTable, InvoiceIdPaymentHistoryTable } from "./InvoiceIdTable";
 import { InvoicePaymentSummary } from "./InvoicePaymentSummary";
@@ -20,12 +21,17 @@ export const InvoiceDetail = () => {
 
   if (isError)
     return (
-      <PageEmptyState
-        title="Failed to load invoice"
-        description={(error as { message?: string } | null)?.message ?? "We couldn't load this invoice. Please try again."}
-        buttonText="Back to Invoices"
-        url="/staff/invoices"
-      />
+      <div>
+        <div className="px-4 pt-3 md:hidden">
+          <BackLink href="/staff/invoices" />
+        </div>
+        <PageEmptyState
+          title="Failed to load invoice"
+          description={(error as { message?: string } | null)?.message ?? "We couldn't load this invoice. Please try again."}
+          buttonText="Back to Invoices"
+          url="/staff/invoices"
+        />
+      </div>
     );
 
   return (
@@ -54,6 +60,7 @@ export const InvoiceDetail = () => {
 
       {/* Mobile */}
       <div className="flex flex-col gap-8 px-4 py-4 md:hidden">
+        <BackLink href="/staff/invoices" />
         <Tabs
           items={[
             {

@@ -5,6 +5,7 @@ import { CalendarEventFill, Save } from "@digenty/icons";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
+import { BackLink } from "@/components/BackLink";
 import { Button } from "../../ui/button";
 
 type NewCampaignHeaderProps = {
@@ -29,6 +30,10 @@ export const NewCampaignHeader = ({ totalCost, scheduled, onSaveDraft, onSchedul
 
   return (
     <div className="border-border-default bg-bg-card-subtle border-b px-4 py-3 md:px-8">
+      <div className="mb-2 md:hidden">
+        <BackLink href="/staff/communications" />
+      </div>
+
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h1 className="text-text-default text-xl font-semibold">New Campaign</h1>
 

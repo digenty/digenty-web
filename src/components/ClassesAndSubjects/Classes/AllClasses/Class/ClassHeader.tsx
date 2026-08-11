@@ -2,6 +2,7 @@
 
 import { FileList2, Key, Notification } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
+import { BackButton } from "@/components/BackButton";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -41,6 +42,9 @@ export const ClassHeader = ({
     <>
       {/* {openEdit && <EditModal openEditRequestModal={openEdit} setEditRequestModal={setOpenEdit} />} */}
       {openNotify && <NotifyTeacherModal openNotifyModal={openNotify} setOpenNotifyModal={setOpenNotify} />}
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
       <div className="border-border-default border-b">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:gap-4 md:py-3">
           <div className="flex flex-col gap-1 md:pl-8">

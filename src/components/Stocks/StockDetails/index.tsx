@@ -4,6 +4,7 @@ import { ArrowUpDown, IndeterminateCircleFill, ReplyFill, Store3 } from "@digent
 import { useParams } from "next/navigation";
 import { useState } from "react";
 
+import { BackLink } from "@/components/BackLink";
 import { OverviewCard } from "@/components/OverviewCard";
 import { Tabs } from "@/components/Tabs";
 import { Badge } from "@/components/ui/badge";
@@ -52,8 +53,13 @@ export const StockDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-60 items-center justify-center">
-        <Spinner className="size-12" />
+      <div>
+        <div className="md:hidden">
+          <BackLink href="/staff/stock" />
+        </div>
+        <div className="flex h-60 items-center justify-center">
+          <Spinner className="size-12" />
+        </div>
       </div>
     );
   }
@@ -73,6 +79,10 @@ export const StockDetails = () => {
 
   return (
     <div>
+      <div className="md:hidden">
+        <BackLink href="/staff/stock" />
+      </div>
+
       {adjustQty && stock?.id && (
         <StockDetailsAdjustQtyModal
           open={adjustQty}

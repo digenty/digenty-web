@@ -1,5 +1,6 @@
 import { Eye, EyeClose, SendPlane } from "@digenty/icons";
 import React from "react";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { X } from "lucide-react";
@@ -19,6 +20,10 @@ export const EditInvoiceHeader = ({ openPreview, onPreviewToggle, onSaveChanges,
   ]);
   return (
     <div className="mb-3">
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
+
       <div className="bg-bg-card-subtle border-border-default flex justify-between gap-3 border-b px-4 py-3 md:flex-row md:px-8">
         <div className="text-text-default text-xl font-semibold">Edit Invoice</div>
 

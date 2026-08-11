@@ -3,6 +3,7 @@
 import { Approve, ArrowGoBack, Calendar, ShareBox } from "@digenty/icons";
 import { Term } from "@/api/types";
 
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
@@ -149,6 +150,9 @@ export const ReportHeader = ({
           setReturnReason={setReturnReason}
         />
       )}
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
       <div className="border-border-default border-b">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-4">
           <div className="flex items-center justify-between gap-3 px-4 py-2 md:p-0">

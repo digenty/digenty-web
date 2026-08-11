@@ -17,6 +17,7 @@ import {
 } from "@/hooks/queryHooks/useCampaign";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
+import { BackLink } from "@/components/BackLink";
 import { Button } from "../../ui/button";
 import { DeleteCampaignModal } from "../DeleteCampaignModal";
 import { extractPaymentUrl } from "../types";
@@ -113,6 +114,10 @@ export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) =>
 
   return (
     <>
+      <div className="mb-2 md:hidden">
+        <BackLink href="/staff/communications" />
+      </div>
+
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h1 className="text-text-default text-xl font-semibold">{campaign.title}</h1>
 

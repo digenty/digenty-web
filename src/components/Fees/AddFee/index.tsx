@@ -9,6 +9,7 @@ import { FeeBranch } from "./FeeBranch";
 import FeesClassApplyTo from "./FeesClassApplyTo";
 import FeeAmount from "./FeeAmount";
 import { Button } from "@/components/ui/button";
+import { BackLink } from "@/components/BackLink";
 import { FEES_STEPS, useFeesStep } from "./FeesSteps";
 import { Badge } from "@/components/ui/badge";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
@@ -63,6 +64,9 @@ export const AddFee = () => {
     <Formik initialValues={initialValues} enableReinitialize validationSchema={feeSchema} onSubmit={handleSubmit}>
       {formik => (
         <Form>
+          <div className="px-4 pt-3 md:hidden">
+            <BackLink href="/staff/fees" />
+          </div>
           <div className="bg-bg-card-subtle border-border-default flex w-full items-center justify-between border-b p-3">
             <div className="text-text-default text-md mx-auto flex w-full font-semibold md:block md:max-w-150 md:items-center md:justify-center">
               Add Fees

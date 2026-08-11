@@ -2,6 +2,7 @@
 
 import { Calendar, Question, ShareBox } from "@digenty/icons";
 import { Assessment, Term } from "@/api/types";
+import { BackButton } from "@/components/BackButton";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
@@ -116,6 +117,9 @@ export const ViewScore = () => {
       {openRequest && (
         <RequestEdit open={openRequest} onOpenChange={setOpenRequest} armId={Number(armId)} subjectId={Number(subjectId)} classId={Number(classId)} />
       )}
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
       <>
         <div className="border-border-default border-b md:p-0">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
