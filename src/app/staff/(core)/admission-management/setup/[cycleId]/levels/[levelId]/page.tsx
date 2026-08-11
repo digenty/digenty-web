@@ -2,6 +2,7 @@
 
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { ConfigureRequirements } from "@/components/AdmissionManagement/SetupConfiguration/ConfigureRequirements";
+import { BackButton } from "@/components/BackButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetCycleLevels } from "@/hooks/queryHooks/useAdmission";
 import { useBreadcrumbStore } from "@/store/breadcrumb";
@@ -32,6 +33,9 @@ export default function LevelConfigPage() {
   if (isPending) {
     return (
       <div className="flex flex-col gap-4 p-3 md:p-6">
+        <div className="pb-1 md:hidden">
+          <BackButton />
+        </div>
         {Array.from({ length: 5 }).map((_, i) => (
           <Skeleton key={i} className="h-20 w-full rounded-xl" />
         ))}
@@ -41,19 +45,27 @@ export default function LevelConfigPage() {
 
   if (isError) {
     return (
-      <div className="flex justify-center py-16">
-        <ErrorComponent
-          title="Couldn't load level"
-          description="Something went wrong while loading this level. Please try again."
-          buttonText="Retry"
-          onClick={() => refetch()}
-        />
+      <div className="flex flex-col gap-4 p-3 md:p-6">
+        <div className="md:hidden">
+          <BackButton />
+        </div>
+        <div className="flex justify-center py-16">
+          <ErrorComponent
+            title="Couldn't load level"
+            description="Something went wrong while loading this level. Please try again."
+            buttonText="Retry"
+            onClick={() => refetch()}
+          />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="p-3 md:p-6">
+      <div className="pb-3 md:hidden">
+        <BackButton />
+      </div>
       <ConfigureRequirements scope="level" name={level?.levelName ?? "Level"} cycleId={cycleId} levelId={levelId} branchId={branchId} />
     </div>
   );

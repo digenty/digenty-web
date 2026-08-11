@@ -22,6 +22,7 @@ import { useMemo, useState } from "react";
 import { Formik, Form } from "formik";
 import { toast } from "sonner";
 import { addFeesToGroupSchema } from "@/schema/fees";
+import { BackLink } from "@/components/BackLink";
 import { useGetFeeGroupById, useUpdateFeeGroup } from "@/hooks/queryHooks/useFee";
 import { useFeeFormData } from "@/components/Fees/AddFee/useFeeForm";
 import type { FeeGroupDto, FeeTermType } from "@/api/fee";
@@ -93,6 +94,9 @@ export const EditFeeGroup = () => {
   if (loadingGroup) {
     return (
       <div className="mx-auto flex w-full max-w-250 flex-col gap-4 px-4 py-4 md:px-8">
+        <div className="md:hidden">
+          <BackLink href={`/staff/fees/fee-group/${id}`} />
+        </div>
         <Skeleton className="bg-bg-input-soft h-8 w-56" />
         {Array.from({ length: 3 }).map((_, i) => (
           <Skeleton key={i} className="bg-bg-input-soft h-12 w-full rounded-md" />
@@ -163,6 +167,9 @@ export const EditFeeGroup = () => {
         return (
           <Form className="flex items-center justify-center p-3">
             <div>
+              <div className="pb-3 md:hidden">
+                <BackLink href={`/staff/fees/fee-group/${id}`} />
+              </div>
               <div>
                 <div className="text-text-default text-normal mb-4 text-lg font-semibold">Edit Fee Group</div>
 

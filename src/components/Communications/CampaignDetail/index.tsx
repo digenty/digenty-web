@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
+import { BackLink } from "@/components/BackLink";
 import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetCampaign } from "@/hooks/queryHooks/useCampaign";
@@ -32,22 +33,32 @@ export const CampaignDetail = ({ id, paymentReference }: CampaignDetailProps) =>
 
   if (isLoading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner className="size-12" />
+      <div>
+        <div className="px-4 pt-3 md:hidden">
+          <BackLink href="/staff/communications" />
+        </div>
+        <div className="flex h-[60vh] items-center justify-center">
+          <Spinner className="size-12" />
+        </div>
       </div>
     );
   }
 
   if (isError || !campaign) {
     return (
-      <div className="flex h-[60vh] items-center justify-center px-4">
-        <ErrorComponent
-          title="Campaign not found"
-          description="We couldn't load this campaign. It may have been deleted or the link is invalid."
-          buttonText="Back to Communications"
-          url="/staff/communications"
-          onClick={() => refetch()}
-        />
+      <div>
+        <div className="px-4 pt-3 md:hidden">
+          <BackLink href="/staff/communications" />
+        </div>
+        <div className="flex h-[60vh] items-center justify-center px-4">
+          <ErrorComponent
+            title="Campaign not found"
+            description="We couldn't load this campaign. It may have been deleted or the link is invalid."
+            buttonText="Back to Communications"
+            url="/staff/communications"
+            onClick={() => refetch()}
+          />
+        </div>
       </div>
     );
   }

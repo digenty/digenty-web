@@ -1,4 +1,5 @@
 "use client";
+import { BackLink } from "@/components/BackLink";
 import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
 import { useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
@@ -155,6 +156,9 @@ export const EditParent = () => {
   if (loadingParent || !data) {
     return (
       <div className="flex h-screen flex-col">
+        <div className="px-4 pt-3 md:hidden">
+          <BackLink href={`/staff/student-and-parent-record/parents/${parentId}`} />
+        </div>
         <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />
       </div>
     );
@@ -162,6 +166,10 @@ export const EditParent = () => {
   return (
     <div className="flex h-screen flex-col">
       {open && <LinkStudents selectedStudents={selectedStudents} setSelectedStudents={setSelectedStudents} open={open} setOpen={setOpen} />}
+
+      <div className="px-4 pt-3 md:hidden">
+        <BackLink href={`/staff/student-and-parent-record/parents/${parentId}`} />
+      </div>
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">Edit Parent</h1>

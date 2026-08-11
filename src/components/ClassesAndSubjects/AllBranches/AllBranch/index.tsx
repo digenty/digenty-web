@@ -2,6 +2,7 @@
 
 import { Calendar, Filter } from "@digenty/icons";
 import { Term } from "@/api/types";
+import { BackButton } from "@/components/BackButton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -47,6 +48,10 @@ export const AllBranches = () => {
 
   return (
     <div className="flex flex-col gap-6 p-4 md:px-8">
+      <div className="md:hidden">
+        <BackButton />
+      </div>
+
       <div className="flex items-center justify-between">
         <div className="text-text-default text-xl font-semibold">All Branches</div>
 

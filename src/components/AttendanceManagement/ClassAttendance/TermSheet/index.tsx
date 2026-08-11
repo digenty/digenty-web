@@ -1,5 +1,6 @@
 "use client";
 import { Term } from "@/api/types";
+import { BackButton } from "@/components/BackButton";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,6 +51,10 @@ export const TermSheet = () => {
 
   return (
     <ClassAttendanceWrapper armId={Number(armId)} isLoading={isPending}>
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
+
       {isError && (
         <div className="flex h-80 items-center justify-center pt-15">
           <ErrorComponent

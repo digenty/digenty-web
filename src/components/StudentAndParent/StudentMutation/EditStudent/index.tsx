@@ -1,4 +1,5 @@
 "use client";
+import { BackLink } from "@/components/BackLink";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -224,13 +225,9 @@ export const EditStudent = () => {
   if (loadingStudent || !data) {
     return (
       <div className="flex h-screen flex-col p-4 md:p-8">
-        <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />
-      </div>
-    );
-  }
-  if (loadingStudent || !data) {
-    return (
-      <div className="flex h-screen flex-col p-4 md:p-8">
+        <div className="pb-3 md:hidden">
+          <BackLink href={`/staff/student-and-parent-record/students/${studentId}`} />
+        </div>
         <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />
       </div>
     );
@@ -239,6 +236,10 @@ export const EditStudent = () => {
   return (
     <div className="flex h-screen flex-col">
       {open && <LinkParents open={open} setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />}
+
+      <div className="px-4 pt-3 md:hidden">
+        <BackLink href={`/staff/student-and-parent-record/students/${studentId}`} />
+      </div>
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">Edit Student</h1>

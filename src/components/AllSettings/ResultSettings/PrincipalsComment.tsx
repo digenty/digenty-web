@@ -100,17 +100,17 @@ const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoading, hasE
 
           {!isLoading &&
             rows.map(row => (
-              <div key={row.id} className="mb-2 flex flex-row items-baseline gap-2">
-                <div className="flex flex-col gap-2">
+              <div key={row.id} className="mb-2 flex flex-col gap-3 md:flex-row md:items-baseline md:gap-2">
+                <div className="flex w-full flex-col gap-2 md:w-auto">
                   <Label className="text-text-muted text-sm font-medium">Percentage</Label>
-                  <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-2 items-center gap-2 md:flex md:w-auto">
                     <PercentInput
                       value={row.minPercentage}
                       placeholder="1"
                       readOnly={!isEditing}
                       onChange={v => updateRow(String(row.id), "minPercentage", v)}
                     />
-                    <span className="text-text-muted">-</span>
+                    <span className="text-text-muted hidden md:inline">-</span>
                     <PercentInput
                       value={row.maxPercentage}
                       placeholder="100"
@@ -165,9 +165,9 @@ const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoading, hasE
 };
 
 const PercentInput = ({ value, placeholder, readOnly, onChange }: PercentInputProps) => (
-  <div className="bg-bg-input-soft flex h-9 items-center gap-1 rounded-md p-1">
+  <div className="bg-bg-input-soft flex h-9 w-full items-center gap-1 rounded-md p-1 md:w-auto">
     <Input
-      className="text-text-muted placeholder:text-text-muted/40 h-9! w-24 border-none text-sm font-normal focus-visible:border-none! focus-visible:ring-0!"
+      className="text-text-muted placeholder:text-text-muted/40 h-9! w-full border-none text-sm font-normal focus-visible:border-none! focus-visible:ring-0! md:w-24"
       placeholder={placeholder}
       inputMode="numeric"
       pattern="[0-9]*"

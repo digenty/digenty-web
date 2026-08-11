@@ -10,6 +10,7 @@ import { ChangeEvent, useMemo, useState } from "react";
 import { CreateStockDto, EditStockDto } from "@/api/stock";
 import { BranchWithClassLevels } from "@/api/types";
 import { uploadImage } from "@/app/actions/upload-image";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -154,14 +155,23 @@ export const AddStock = () => {
 
   if (isEdit && loadingExisting) {
     return (
-      <div className="flex h-60 items-center justify-center">
-        <Spinner className="size-12" />
+      <div>
+        <div className="px-4 pt-3 md:hidden">
+          <BackButton />
+        </div>
+        <div className="flex h-60 items-center justify-center">
+          <Spinner className="size-12" />
+        </div>
       </div>
     );
   }
 
   return (
     <form onSubmit={formik.handleSubmit}>
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
+
       <div className="bg-bg-card-subtle border-border-default mb-6 w-full border-b">
         <div className="justify-left mx-auto flex w-full items-center p-4 md:max-w-150">
           <div className="text-text-default text-md font-semibold">{isEdit ? "Edit Stock" : "Add Stock"}</div>

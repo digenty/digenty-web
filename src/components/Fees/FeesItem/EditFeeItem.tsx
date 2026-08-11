@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toggle } from "@/components/Toggle";
 import { useGetFeeItemById, useUpdateFeeItem } from "@/hooks/queryHooks/useFee";
+import { BackLink } from "@/components/BackLink";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
@@ -88,6 +89,9 @@ export const EditFeeItem = () => {
   if (loadingItem) {
     return (
       <div className="mx-auto flex w-full max-w-225 flex-col gap-4 px-4 py-4 md:px-8">
+        <div className="md:hidden">
+          <BackLink href={`/staff/fees/fee-item/${id}`} />
+        </div>
         <Skeleton className="bg-bg-input-soft h-8 w-56" />
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="bg-bg-input-soft h-12 w-full rounded-md" />
@@ -150,6 +154,9 @@ export const EditFeeItem = () => {
         return (
           <Form className="flex flex-col items-center p-4 pb-24 md:p-8">
             <div className="flex w-full max-w-225 flex-col gap-6">
+              <div className="md:hidden">
+                <BackLink href={`/staff/fees/fee-item/${id}`} />
+              </div>
               <div className="text-text-default text-lg font-semibold">Edit Fee Item</div>
 
               <div className="flex flex-col gap-2">

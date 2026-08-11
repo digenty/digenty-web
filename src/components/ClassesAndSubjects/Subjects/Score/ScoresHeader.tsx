@@ -1,5 +1,6 @@
 import { CheckboxCircleFill, Question, Save, ShareBox } from "@digenty/icons";
 
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -48,6 +49,9 @@ export default function ScoresHeader({
       {openRequest && (
         <RequestEdit open={openRequest} onOpenChange={setOpenRequest} classId={Number(classId)} armId={Number(armId)} subjectId={Number(subjectId)} />
       )}
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
       <div className="border-border-default border-b md:p-0">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between md:px-8 md:py-2">
           <h2 className="text-text-default truncate px-4 py-2 text-lg font-semibold md:p-0">
