@@ -20,6 +20,7 @@ import { Spinner } from "../ui/spinner";
 import { buildStocksOverviewTableColumns, STATUS_DISPLAY } from "./Columns";
 import { StockListItem } from "./types";
 import { Skeleton } from "../ui/skeleton";
+import { PageEmptyState } from "../Error/PageEmptyState";
 
 const PAGE_SIZE = 10;
 
@@ -128,6 +129,17 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
       {!isLoading && activeQuery.isError && (
         <div className="flex justify-center py-12">
           <ErrorComponent title="Couldn't load stock" description={errorMessage} buttonText="Retry" onClick={() => activeQuery.refetch()} />
+        </div>
+      )}
+
+      {!isLoading && !activeQuery.isError && items.length === 0 && (
+        <div>
+          <PageEmptyState
+            title="No stocks found"
+            description="Try adjusting your search or filter to find what you're looking for."
+            buttonText="Add stock"
+            url="/staff/stock/add-stock"
+          />
         </div>
       )}
 

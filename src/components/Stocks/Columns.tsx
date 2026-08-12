@@ -2,7 +2,7 @@ import { DeleteBin, Edit, ExpandUpAndDown } from "@digenty/icons";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
-import { Avatar } from "../ui/avatar";
+import { Avatar } from "../Avatar";
 import { Badge } from "../ui/badge";
 import { Checkbox } from "../ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
@@ -107,7 +107,7 @@ export const buildStocksOverviewTableColumns = ({
     cell: ({ row }) => (
       <div className="flex items-center justify-between gap-4 lg:pr-10">
         <div className="flex items-center gap-2">
-          <Avatar className="size-5" />
+          <Avatar url={row.original.imagePath} className="size-5" />
           <span className="text-text-default cursor-pointer pl-0 text-sm font-medium">{row.original.name}</span>
         </div>
       </div>
