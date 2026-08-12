@@ -5,7 +5,7 @@ import { useFormik } from "formik";
 import { Minus } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
 
 import { CreateStockDto, EditStockDto } from "@/api/stock";
 import { BranchWithClassLevels } from "@/api/types";
@@ -61,6 +61,10 @@ export const AddStock = () => {
 
   const [uploading, setUploading] = useState(false);
 
+  // Guards against the "Done" submit and "Save and Add Another" click both firing a
+  // create/edit request when the two clicks race (e.g. fast double click).
+  const submittingRef = useRef(false);
+
   const formik = useFormik<FormValues>({
     enableReinitialize: true,
     initialValues: {
@@ -77,6 +81,8 @@ export const AddStock = () => {
     },
     validationSchema: isEdit ? editStockSchema : stockSchema,
     onSubmit: async values => {
+      if (submittingRef.current) return;
+      submittingRef.current = true;
       try {
         if (isEdit) {
           const { branchId: _b, ...rest } = values;
@@ -94,17 +100,21 @@ export const AddStock = () => {
       } catch (error) {
         const message = (error as { message?: string } | null)?.message ?? (isEdit ? "Could not update stock" : "Could not create stock");
         toast({ title: message, type: "error" });
+      } finally {
+        submittingRef.current = false;
       }
     },
   });
 
   const handleSaveAndAddAnother = async () => {
-    if (isEdit) return;
+    if (isEdit || submittingRef.current) return;
     const errors = await formik.validateForm();
     if (Object.keys(errors).length > 0) {
       formik.setTouched(Object.keys(formik.values).reduce<Record<string, boolean>>((acc, key) => ({ ...acc, [key]: true }), {}));
       return;
     }
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     try {
       const { stockId: _id, branchId, ...rest } = formik.values;
       void _id;
@@ -114,6 +124,8 @@ export const AddStock = () => {
     } catch (error) {
       const message = (error as { message?: string } | null)?.message ?? "Could not create stock";
       toast({ title: message, type: "error" });
+    } finally {
+      submittingRef.current = false;
     }
   };
 
@@ -149,7 +161,7 @@ export const AddStock = () => {
 
   const inputCls = (field: keyof FormValues) =>
     cn(
-      "bg-bg-input-soft! text-text-default rounded-md border-none text-sm",
+      "bg-bg-input-soft! text-text-default rounded-md border-none text-sm p-2",
       formik.touched[field] && formik.errors[field] && "border-border-destructive border",
     );
 
@@ -358,7 +370,16 @@ export const AddStock = () => {
                 <button type="button" onClick={() => adjustQuantity(-1)} className="text-text-muted">
                   <Minus className="size-4" />
                 </button>
-                <span className="text-text-default text-sm">{formik.values.quantity}</span>
+                <input
+                  id="quantity"
+                  name="quantity"
+                  type="number"
+                  min={0}
+                  value={formik.values.quantity}
+                  onChange={e => formik.setFieldValue("quantity", e.target.value === "" ? 0 : Math.max(0, Number(e.target.value)))}
+                  onBlur={formik.handleBlur}
+                  className="text-text-default [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none w-full bg-transparent text-center text-sm outline-none [appearance:textfield]"
+                />
                 <button type="button" onClick={() => adjustQuantity(1)}>
                   <AddFill fill="var(--color-icon-default-muted)" />
                 </button>
