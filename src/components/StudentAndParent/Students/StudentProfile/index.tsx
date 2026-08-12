@@ -2,6 +2,7 @@
 
 import { DeleteBin, Edit, UserMinus, WarningIcon } from "@digenty/icons";
 import { useEffect, useState } from "react";
+import { BackLink } from "@/components/BackLink";
 import { Avatar } from "../../../Avatar";
 import { Button } from "../../../ui/button";
 import { DialogDescription } from "../../../ui/dialog";
@@ -95,6 +96,9 @@ export const StudentProfile = () => {
   if (!data || isPending) {
     return (
       <div className="base:px-20.5 mb-5 space-y-8 px-4 py-4">
+        <div className="md:hidden">
+          <BackLink href="/staff/student-and-parent-record?tab=Students" />
+        </div>
         <div className="flex items-center justify-between gap-12">
           <div className="flex items-center gap-6">
             <Skeleton className="bg-bg-input-soft size-12 rounded-full md:size-26.5" />
@@ -112,6 +116,9 @@ export const StudentProfile = () => {
 
   return (
     <div className="base:px-20.5 mb-5 px-4 py-4">
+      <div className="mb-4 md:hidden">
+        <BackLink href="/staff/student-and-parent-record?tab=Students" />
+      </div>
       <div>
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-0">
           <div className="flex items-center gap-3.5">

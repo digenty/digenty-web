@@ -20,14 +20,20 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
   const handleSendReminder = (id: string) => {
     sendReminder(id, {
       onSuccess: () => toast({ title: "Reminder sent successfully", type: "success" }),
-      onError: () => toast({ title: "Failed to send reminder", type: "error" }),
+      onError: (error: unknown) => {
+        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+        toast({ title: "Failed to send reminder", description, type: "error" });
+      },
     });
   };
 
   const handleDelete = (id: string) => {
     deleteInvoice(id, {
       onSuccess: () => toast({ title: "Invoice deleted", type: "success" }),
-      onError: () => toast({ title: "Failed to delete invoice", type: "error" }),
+      onError: (error: unknown) => {
+        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+        toast({ title: "Failed to delete invoice", description, type: "error" });
+      },
     });
   };
 

@@ -1,4 +1,5 @@
 "use client";
+import { BackButton } from "@/components/BackButton";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -44,6 +45,9 @@ export const ClassOverview = () => {
     <ClassPermissionWrapper armId={Number(armId)} isLoading={isFetching}>
       <div className="space-y-6 px-4 py-6 md:px-8 md:py-4">
         {openNotifyTeacher && <NotifyTeacher />}
+        <div className="md:hidden">
+          <BackButton />
+        </div>
         <ClassOverviewHeader classArmName={classArmName} classId={data?.data?.data?.classId} />
 
         <h3 className="text-text-default hidden text-lg font-semibold md:inline">{classArmName}</h3>

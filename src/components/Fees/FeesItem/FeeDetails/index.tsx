@@ -5,8 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetFeeItemById, useDeleteFeeItem, usePublishFee } from "@/hooks/queryHooks/useFee";
+import { BackLink } from "@/components/BackLink";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { Copy, Building2 } from "lucide-react";
 import type { FeeItemDetailResponse } from "@/api/fee";
@@ -20,10 +22,16 @@ export const FeeItemDetail = () => {
   const params = useParams();
   const id = Number(params?.id);
 
-  const { data, isPending, isError } = useGetFeeItemById(id);
+  const { data, isPending, isError, error, refetch } = useGetFeeItemById(id);
   const item = data as FeeItemDetailResponse | undefined;
   const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
   const { mutate: duplicateFeeItem, isPending: duplicating } = useDuplicateFeeItem();
+  const errorMessage = (error as { message?: string } | null)?.message ?? "Failed to load fee item details. Please try again.";
+
+  useEffect(() => {
+    if (isError) toast.error(errorMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isError]);
 
   const { mutate: publishFee, isPending: publishing } = usePublishFee();
 
@@ -64,6 +72,9 @@ export const FeeItemDetail = () => {
   if (isPending) {
     return (
       <div className="mx-auto flex w-full max-w-225 flex-col gap-6 px-4 py-3 md:px-8">
+        <div className="md:hidden">
+          <BackLink href="/staff/fees?tab=Fee Items" />
+        </div>
         <Skeleton className="bg-bg-input-soft h-8 w-48" />
         <Skeleton className="bg-bg-input-soft h-24 w-full" />
         <Skeleton className="bg-bg-input-soft h-40 w-full" />
@@ -73,16 +84,26 @@ export const FeeItemDetail = () => {
 
   if (isError) {
     return (
-      <div className="flex items-center justify-center px-4 py-3 pb-8 md:px-8">
-        <ErrorComponent title="Could not load fee item" description="Failed to load fee item details. Please try again." buttonText="Go back" />;
+      <div className="flex flex-col px-4 py-3 pb-8 md:px-8">
+        <div className="md:hidden">
+          <BackLink href="/staff/fees?tab=Fee Items" />
+        </div>
+        <div className="flex items-center justify-center">
+          <ErrorComponent title="Could not load fee item" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />
+        </div>
       </div>
     );
   }
 
   if (!item) {
     return (
-      <div className="flex items-center justify-center px-4 py-3 pb-8 md:px-8">
-        <EmptyFeeState buttonText="Go back" url="/staff/fees" title="No fee details" description="Fee item not found" />;
+      <div className="flex flex-col px-4 py-3 pb-8 md:px-8">
+        <div className="md:hidden">
+          <BackLink href="/staff/fees?tab=Fee Items" />
+        </div>
+        <div className="flex items-center justify-center">
+          <EmptyFeeState buttonText="Go back" url="/staff/fees" title="No fee details" description="Fee item not found" />;
+        </div>
       </div>
     );
   }
@@ -90,6 +111,9 @@ export const FeeItemDetail = () => {
   return (
     <div className="flex items-center justify-center px-4 py-3 pb-8 md:px-8">
       <div className="mx-auto flex w-full max-w-225 flex-col gap-6 md:gap-8">
+        <div className="md:hidden">
+          <BackLink href="/staff/fees?tab=Fee Items" />
+        </div>
         {/* Header */}
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h1 className="text-text-default text-xl font-semibold">{item.feeName}</h1>

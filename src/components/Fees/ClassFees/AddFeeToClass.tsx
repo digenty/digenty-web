@@ -14,6 +14,7 @@ import { useMemo, useRef } from "react";
 import { Formik, Form, type FormikHelpers } from "formik";
 import { toast } from "sonner";
 import { addFeeToClassSchema, addFeeToClassWithArmsSchema } from "@/schema/fees";
+import { BackLink } from "@/components/BackLink";
 import { useCreateSingleArmFeeItem } from "@/hooks/queryHooks/useFee";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useFeeFormData } from "../AddFee/useFeeForm";
@@ -133,6 +134,9 @@ const AddFeeToClass = () => {
 
         return (
           <Form>
+            <div className="px-4 pt-3 md:hidden">
+              <BackLink href="/staff/fees" />
+            </div>
             <div className="bg-bg-card-subtle border-border-default flex w-full items-center justify-center border-b p-3">
               <div className="mx-auto w-full font-semibold md:max-w-150">
                 <div className="text-text-default text-md">{title}</div>

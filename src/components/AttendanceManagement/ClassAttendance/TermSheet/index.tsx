@@ -1,5 +1,6 @@
 "use client";
 import { Term } from "@/api/types";
+import { BackButton } from "@/components/BackButton";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,6 +51,10 @@ export const TermSheet = () => {
 
   return (
     <ClassAttendanceWrapper armId={Number(armId)} isLoading={isPending}>
+      <div className="px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
+
       {isError && (
         <div className="flex h-80 items-center justify-center pt-15">
           <ErrorComponent
@@ -62,7 +67,7 @@ export const TermSheet = () => {
       {isPending && !isError && <Skeleton className="bg-bg-input-soft mx-4 mt-8 hidden h-100 w-full md:mx-8 md:block" />}
 
       {/* <div className="space-y-6"> */}
-      <div className="pr-30">
+      <div className="md:pr-30">
         {!isError && data && (
           <TermSheetHeader
             classname={classGroup.replaceAll("-", " ")}

@@ -1,5 +1,6 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -69,8 +70,8 @@ export const EditInvoice = () => {
             router.push(`/staff/invoices/${invoiceId}`);
           },
           onError: (error: unknown) => {
-            const msg = error instanceof Error ? error.message : "Failed to update invoice";
-            toast({ title: msg, type: "error" });
+            const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+            toast({ title: "Failed to update invoice", description, type: "error" });
           },
         },
       );
@@ -103,6 +104,9 @@ export const EditInvoice = () => {
   if (loadingInvoice) {
     return (
       <div className="flex flex-col gap-4 p-8">
+        <div className="md:hidden">
+          <BackButton />
+        </div>
         <Skeleton className="bg-bg-input-soft h-10 w-full" />
         <Skeleton className="bg-bg-input-soft h-40 w-full" />
         <Skeleton className="bg-bg-input-soft h-64 w-full" />

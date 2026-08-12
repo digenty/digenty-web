@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRightS, Bank, BankCard, CalendarEventFill, Cash, Folder3, QuickReferenceAll, ResetLeft } from "@digenty/icons";
+import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { PopoverContent, PopoverTrigger, Popover } from "@/components/ui/popover";
@@ -83,8 +84,9 @@ export const AddPAyment = () => {
             router.push(`/staff/invoices/${invoiceId}`);
           },
           onError: (error: unknown) => {
-            const message = error instanceof Error ? error.message : "Failed to add payment";
-            toast({ title: message, type: "error" });
+            const description =
+              error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+            toast({ title: "Failed to add payment", description, type: "error" });
           },
         },
       );
@@ -95,6 +97,10 @@ export const AddPAyment = () => {
 
   return (
     <div>
+      <div className="mb-4 px-4 pt-3 md:hidden">
+        <BackButton />
+      </div>
+
       <div className="bg-bg-card-subtle border-border-default flex h-13 w-full items-center justify-center border px-4 py-3">
         <div className="w-full md:w-150">
           <div className="text-text-default text-md font-semibold">Add Payment</div>

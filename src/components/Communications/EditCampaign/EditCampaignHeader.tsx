@@ -2,15 +2,17 @@
 
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
+import { BackLink } from "@/components/BackLink";
 import { Button } from "../../ui/button";
 
 type EditCampaignHeaderProps = {
+  campaignId: string;
   onCancel: () => void;
   onSave: () => void;
   saving?: boolean;
 };
 
-export const EditCampaignHeader = ({ onCancel, onSave, saving }: EditCampaignHeaderProps) => {
+export const EditCampaignHeader = ({ campaignId, onCancel, onSave, saving }: EditCampaignHeaderProps) => {
   useBreadcrumb([
     { label: "Communications", url: "/staff/communications" },
     { label: "Edit Campaign", url: "" },
@@ -18,6 +20,10 @@ export const EditCampaignHeader = ({ onCancel, onSave, saving }: EditCampaignHea
 
   return (
     <div className="border-border-default bg-bg-card-subtle border-b px-4 py-3 md:px-8">
+      <div className="mb-2 md:hidden">
+        <BackLink href={`/staff/communications/${campaignId}`} />
+      </div>
+
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h1 className="text-text-default text-xl font-semibold">Edit Campaign</h1>
 

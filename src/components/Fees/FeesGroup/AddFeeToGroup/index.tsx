@@ -21,6 +21,7 @@ import { useMemo, useState } from "react";
 import { Formik, Form } from "formik";
 import { toast } from "sonner";
 import { addFeesToGroupSchema } from "@/schema/fees";
+import { BackLink } from "@/components/BackLink";
 import { useCreateFeeGroup } from "@/hooks/queryHooks/useFee";
 import { useFeeFormData } from "@/components/Fees/AddFee/useFeeForm";
 import type { FeeGroupDto, FeeTermType } from "@/api/fee";
@@ -125,6 +126,9 @@ export const AddFeeToGroup = () => {
         return (
           <Form className="flex items-center justify-center p-3">
             <div>
+              <div className="pb-3 md:hidden">
+                <BackLink href="/staff/fees?tab=Fee Groups" />
+              </div>
               <div>
                 <div className="text-text-default text-normal mb-4 text-lg font-semibold">Add Fee Group</div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertFill, Check, CheckDouble, CloseCircle, Draft, ShareBox } from "@digenty/icons";
+import { AlertFill, Check, CheckDouble, CloseCircle, Draft, Filter, ShareBox } from "@digenty/icons";
 import { BranchWithClassLevels, Terms } from "@/api/types";
 import Image from "next/image";
 import { useState } from "react";
@@ -78,9 +78,9 @@ export const InvoiceSearchAndExport = ({
           <DropdownMenu open={openFilter} onOpenChange={setOpenFilter}>
             <DropdownMenuTrigger asChild>
               <Badge
-                className={`border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex ${statusFilter ? "bg-bg-state-primary/10 text-text-default border-solid" : ""}`}
+                className={`border-border-darker bg-bg-state-secondary text-text-muted hidden h-8 cursor-pointer items-center rounded-full border border-dashed md:flex ${statusFilter ? "bg-bg-state-primary/10 text-text-default border-solid" : ""}`}
               >
-                <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+                <Filter className="mr-1 size-4" fill="var(--color-icon-default-muted)" />
                 {activeLabel ?? "Status"}
               </Badge>
             </DropdownMenuTrigger>
@@ -104,8 +104,8 @@ export const InvoiceSearchAndExport = ({
         </div>
 
         <div className="flex items-center justify-between gap-1">
-          <Button onClick={() => setOpenFilter(true)} className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden">
-            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+          <Button onClick={() => setOpenFilter(true)} className="bg-bg-state-soft flex size-7 items-center justify-center rounded-md p-1.5 md:hidden">
+            <Filter className="size-4" fill="var(--color-icon-default-muted)" />
           </Button>
 
           <Button

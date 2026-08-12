@@ -5,20 +5,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeleteFeeGroup, useGetFeeGroupById } from "@/hooks/queryHooks/useFee";
+import { BackLink } from "@/components/BackLink";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams, useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 import { toast } from "sonner";
 import type { FeeGroupDetailResponse } from "@/api/fee";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 export const FeeGroup = () => {
   const router = useRouter();
   const params = useParams();
   const id = Number(params?.id);
 
-  const { data, isPending, isError } = useGetFeeGroupById(id);
+  const { data, isPending, isError, error, refetch } = useGetFeeGroupById(id);
   const group = data as FeeGroupDetailResponse | undefined;
   const { mutate: deleteFeeGroup, isPending: deleting } = useDeleteFeeGroup();
+  const errorMessage = (error as { message?: string } | null)?.message ?? "Could not load this fee group.";
+
+  useEffect(() => {
+    if (isError) toast.error(errorMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isError]);
 
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
@@ -39,6 +47,9 @@ export const FeeGroup = () => {
   if (isPending) {
     return (
       <div className="mx-auto w-full px-4 py-3 md:px-30 lg:px-60">
+        <div className="pb-3 md:hidden">
+          <BackLink href="/staff/fees?tab=Fee Groups" />
+        </div>
         <Skeleton className="bg-bg-input-soft mb-6 h-8 w-56" />
         <div className="flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -50,7 +61,16 @@ export const FeeGroup = () => {
   }
 
   if (isError || !group) {
-    return <div className="text-text-muted flex items-center justify-center py-20 text-sm">Could not load this fee group.</div>;
+    return (
+      <div>
+        <div className="px-4 pt-3 md:hidden">
+          <BackLink href="/staff/fees?tab=Fee Groups" />
+        </div>
+        <div className="flex items-center justify-center py-20">
+          <ErrorComponent title="Could not load fee group" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />
+        </div>
+      </div>
+    );
   }
 
   const items = group.items ?? [];
@@ -58,6 +78,9 @@ export const FeeGroup = () => {
   return (
     <div className="mx-auto flex items-center justify-center">
       <div className="w-full px-4 py-3 md:px-30 lg:px-60">
+        <div className="pb-3 md:hidden">
+          <BackLink href="/staff/fees?tab=Fee Groups" />
+        </div>
         <div className="mb-4 flex flex-col justify-between gap-3 md:mb-9 md:flex-row">
           <div>
             <div className="text-text-default text-xl font-semibold">{group.name}</div>

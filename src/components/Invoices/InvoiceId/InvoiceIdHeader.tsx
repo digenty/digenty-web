@@ -33,7 +33,10 @@ export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, urlInvoiceId, loadin
         toast({ title: "Invoice deleted", type: "success" });
         router.push("/staff/invoices");
       },
-      onError: () => toast({ title: "Failed to delete invoice", type: "error" }),
+      onError: (error: unknown) => {
+        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+        toast({ title: "Failed to delete invoice", description, type: "error" });
+      },
     });
   };
 
@@ -50,7 +53,10 @@ export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, urlInvoiceId, loadin
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       },
-      onError: () => toast({ title: "Failed to download PDF", type: "error" }),
+      onError: (error: unknown) => {
+        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+        toast({ title: "Failed to download PDF", description, type: "error" });
+      },
     });
   };
 

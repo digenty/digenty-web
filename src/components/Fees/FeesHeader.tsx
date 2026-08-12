@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, School, ShareBox } from "@digenty/icons";
+import { Calendar, Filter, School, ShareBox } from "@digenty/icons";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
@@ -241,8 +241,11 @@ export const FeesHeader = ({
             </div>
           </div>
 
-          <Button className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden" onClick={() => setIsFilterOpen(true)}>
-            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+          <Button
+            className="bg-bg-state-soft flex size-7 items-center justify-center rounded-md p-1.5 md:hidden"
+            onClick={() => setIsFilterOpen(true)}
+          >
+            <Filter className="size-4" fill="var(--color-icon-default-muted)" />
           </Button>
 
           <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">

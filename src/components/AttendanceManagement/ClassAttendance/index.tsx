@@ -1,4 +1,5 @@
 "use client";
+import { BackButton } from "@/components/BackButton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetArmAttendance } from "@/hooks/queryHooks/useAttendance";
@@ -32,6 +33,10 @@ export const ClassAttendance = () => {
   return (
     <ClassAttendanceWrapper armId={Number(armId)} isLoading={isLoading}>
       <div className="space-y-6">
+        <div className="px-4 pt-3 md:hidden">
+          <BackButton />
+        </div>
+
         <ClassAttendanceHeader
           classArmName={classArmName.split("-").join(" ")}
           attendanceList={attendanceList}

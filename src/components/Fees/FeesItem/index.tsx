@@ -43,8 +43,14 @@ export const FeesItem = () => {
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const { data, isPending, isError } = useGetFeeItems({ branchId, termId, search: search || undefined });
+  const { data, isPending, isError, error, refetch } = useGetFeeItems({ branchId, termId, search: search || undefined });
   const feesItems: FeeItemProp[] = (data as FeeItemDetail[] | undefined) ?? [];
+  const errorMessage = (error as { message?: string } | null)?.message ?? "An error occurred while fetching fee items.";
+
+  useEffect(() => {
+    if (isError) toast.error(errorMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isError]);
 
   const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
   const { mutate: duplicateFeeItem, isPending: duplicating } = useDuplicateFeeItem();
@@ -84,7 +90,7 @@ export const FeesItem = () => {
         </div>
       )}
 
-      {!isPending && isError && <ErrorComponent title="Error" description="An error occurred while fetching fee items." />}
+      {!isPending && isError && <ErrorComponent title="Error" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />}
 
       {!isPending && !isError && feesItems.length === 0 && (
         <EmptyFeeState

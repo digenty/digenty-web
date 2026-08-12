@@ -28,9 +28,8 @@ export const getBranchesForASchool = async () => {
   }
 };
 
-export const getAllBranchesDetails = async (termId?: number, search?: string) => {
+export const getAllBranchesDetails = async () => {
   try {
-    // const { data } = await api.get(`/report/class/arm/school?page=0&size=100${search ? `&search=${search}` : ""}`);
     const { data } = await api.get(`/report/class/arm/school?page=0&size=100`);
     return data;
   } catch (error: unknown) {

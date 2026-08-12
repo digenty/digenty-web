@@ -1,7 +1,8 @@
 "use client";
 
-import { Calendar } from "@digenty/icons";
+import { Calendar, Filter } from "@digenty/icons";
 import { Term } from "@/api/types";
+import { BackButton } from "@/components/BackButton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -14,7 +15,6 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { AllBranchesTable } from "./AllBranchesTable";
 import { OverviewStats } from "./OverviewStats";
@@ -32,6 +32,10 @@ export const AllBranches = () => {
 
   const { data: allBranchList, isPending, isError, isFetching } = useGetAllBranchesDetails(termSelected?.termId, debouncedSearchQuery);
 
+  const filteredBranchReports = (allBranchList?.data?.branchReports ?? []).filter((branch: { branchName: string }) =>
+    branch.branchName?.toLowerCase().includes(debouncedSearchQuery.trim().toLowerCase()),
+  );
+
   useBreadcrumb([{ label: "All Branches", url: "/staff/classes-and-subjects/all-branches" }]);
 
   useEffect(() => {
@@ -44,6 +48,10 @@ export const AllBranches = () => {
 
   return (
     <div className="flex flex-col gap-6 p-4 md:px-8">
+      <div className="md:hidden">
+        <BackButton />
+      </div>
+
       <div className="flex items-center justify-between">
         <div className="text-text-default text-xl font-semibold">All Branches</div>
 
@@ -76,12 +84,12 @@ export const AllBranches = () => {
           </div>
 
           <Button
-            className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden"
+            className="bg-bg-state-soft flex size-7 items-center justify-center rounded-md p-1.5 md:hidden"
             onClick={() => {
               setIsFilterOpen(true);
             }}
           >
-            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+            <Filter fill="var(--color-icon-default-muted)" className="size-4" />
           </Button>
 
           <MobileDrawer open={isFilterOpen} setIsOpen={setIsFilterOpen} title="Filter">
@@ -147,7 +155,7 @@ export const AllBranches = () => {
 
       {allBranchList && (
         <AllBranchesTable
-          allBranchList={allBranchList?.data?.branchReports}
+          allBranchList={filteredBranchReports}
           isFetching={isFetching}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}

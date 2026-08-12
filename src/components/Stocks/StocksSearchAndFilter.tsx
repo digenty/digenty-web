@@ -1,6 +1,6 @@
 "use client";
 
-import { ShareBox } from "@digenty/icons";
+import { Filter, ShareBox } from "@digenty/icons";
 import { Ellipsis, Plus } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -58,14 +58,14 @@ export const StocksSearchAndFilter = ({ search, setSearch, statusFilter, setStat
           <SearchInput
             value={search}
             onChange={evt => setSearch(evt.target.value)}
-            className="border-border-default border text-sm"
+            className="border-border-default rounded-md border text-sm"
             placeholder="Search stocks"
           />
 
           <DropdownMenu open={openFilter} onOpenChange={setOpenFilter}>
             <DropdownMenuTrigger asChild>
-              <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex">
-                <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+              <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden h-8 cursor-pointer items-center rounded-full border border-dashed md:flex">
+                <Filter className="size-4" fill="var(--color-icon-default-muted)" />
                 {statusOptions.find(opt => opt.value === (statusFilter ?? ""))?.label ?? "Status"}
               </Badge>
             </DropdownMenuTrigger>
@@ -90,8 +90,8 @@ export const StocksSearchAndFilter = ({ search, setSearch, statusFilter, setStat
 
           <DropdownMenu open={openCategory} onOpenChange={setOpenCategory}>
             <DropdownMenuTrigger asChild>
-              <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden cursor-pointer items-center rounded-full border border-dashed md:flex">
-                <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} className="size-7 p-1.5" />
+              <Badge className="border-border-darker bg-bg-state-secondary text-text-muted hidden h-8 cursor-pointer items-center rounded-full border border-dashed md:flex">
+                <Filter className="size-4" fill="var(--color-icon-default-muted)" />
                 {categories.find(c => c.id === categoryFilter)?.name ?? "Category"}
               </Badge>
             </DropdownMenuTrigger>
@@ -125,8 +125,8 @@ export const StocksSearchAndFilter = ({ search, setSearch, statusFilter, setStat
         </div>
 
         <div className="flex items-center justify-between gap-1">
-          <Button onClick={() => setOpenFilter(true)} className="bg-bg-state-soft block size-7 rounded-md p-1.5 md:hidden">
-            <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
+          <Button onClick={() => setOpenFilter(true)} className="bg-bg-state-soft flex size-7 items-center justify-center rounded-md p-1.5 md:hidden">
+            <Filter className="size-4" fill="var(--color-icon-default-muted)" />
           </Button>
 
           <Button

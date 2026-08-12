@@ -88,8 +88,8 @@ export const NewInvoice = () => {
           router.push("/staff/invoices");
         },
         onError: (error: unknown) => {
-          const msg = error instanceof Error ? error.message : "Failed to send invoice";
-          toast({ title: msg, type: "error" });
+          const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+          toast({ title: "Failed to send invoice", description, type: "error" });
         },
       });
     },
@@ -102,8 +102,8 @@ export const NewInvoice = () => {
         router.push("/staff/invoices");
       },
       onError: (error: unknown) => {
-        const msg = error instanceof Error ? error.message : "Failed to save draft";
-        toast({ title: msg, type: "error" });
+        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+        toast({ title: "Failed to save draft", description, type: "error" });
       },
     });
   };

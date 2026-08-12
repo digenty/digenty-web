@@ -22,18 +22,20 @@ export const ErrorComponent = ({
 }) => {
   const router = useRouter();
   return (
-    <div className="flex max-w-80 flex-col items-center gap-4">
-      <QuickReferenceAll stroke="var(--color-icon-default-muted)" />
-      <p className="text-text-default text-center text-lg font-medium">{title}</p>
-      <p className="text-text-muted text-center text-xs font-normal">{description}</p>
-      {(buttonText || onClick) && (
-        <Button
-          onClick={() => (onClick ? onClick() : router.push(url ?? "/staff/"))}
-          className={cn("bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2", buttonStyle)}
-        >
-          {buttonText}
-        </Button>
-      )}
+    <div className="flex h-screen items-center justify-center">
+      <div className="flex max-w-80 flex-col items-center gap-4">
+        <QuickReferenceAll stroke="var(--color-icon-default-muted)" />
+        <p className="text-text-default text-center text-lg font-medium">{title}</p>
+        <p className="text-text-muted text-center text-xs font-normal">{description}</p>
+        {(buttonText || onClick) && (
+          <Button
+            onClick={() => (onClick ? onClick() : router.push(url ?? "/staff/"))}
+            className={cn("bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2", buttonStyle)}
+          >
+            {buttonText}
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

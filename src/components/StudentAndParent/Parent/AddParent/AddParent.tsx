@@ -1,4 +1,5 @@
 "use client";
+import { BackLink } from "@/components/BackLink";
 import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
 import { useAddParent } from "@/hooks/queryHooks/useParent";
@@ -139,6 +140,10 @@ export const AddParent = () => {
   return (
     <div className="flex h-screen flex-col">
       {open && <LinkStudents selectedStudents={selectedStudents} setSelectedStudents={setSelectedStudents} open={open} setOpen={setOpen} />}
+
+      <div className="px-4 pt-3 md:hidden">
+        <BackLink href="/staff/student-and-parent-record?tab=Parents" />
+      </div>
 
       <div className="border-border-default bg-bg-card-subtle flex justify-between border-b px-4 py-3 md:px-30 xl:px-70">
         <h1 className="text-text-default text-base font-semibold">

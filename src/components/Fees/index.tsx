@@ -27,7 +27,7 @@ export const FeesIndex = () => {
   useGetFeeClassOverview(sessionId ?? 0, term ?? "FIRST", branchId, undefined);
 
   return (
-    <div className="space-y-4 px-4 md:space-y-6 md:px-8">
+    <div className="flex flex-col gap-8 px-6 py-10 md:px-8">
       <div className="border-border-default flex w-auto max-w-105 items-center gap-3 border-b">
         {tabs.map(tab => {
           const isActive = activeTab === tab;

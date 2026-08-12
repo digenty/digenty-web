@@ -1,33 +1,24 @@
 import { Draft } from "@digenty/icons";
+import { StudentInvoicesPage } from "@/api/invoice";
 import { Term } from "@/api/types";
+import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { formatInvoiceStatus, formatNaira } from "@/components/Invoices/types";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetInvoicesByStudent } from "@/hooks/queryHooks/useInvoice";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { Calendar, Check, CheckCheck, TriangleAlert, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Invoice } from "./types";
-
-const invoices = [
-  { id: 0, title: "INV-2025-1001", issueDate: "30/5/2024", status: "Paid" },
-  { id: 1, title: "INV-2025-1002", issueDate: "30/5/2024", status: "Unpaid" },
-  { id: 2, title: "INV-2025-1003", issueDate: "30/5/2024", status: "Outstanding" },
-  { id: 3, title: "INV-2025-1004", issueDate: "30/5/2024", status: "Fully Paid" },
-  { id: 4, title: "INV-2025-1005", issueDate: "30/5/2024", status: "Paid" },
-  { id: 5, title: "INV-2025-1005", issueDate: "30/5/2024", status: "Unpaid" },
-  { id: 6, title: "INV-2025-1005", issueDate: "30/5/2024", status: "Paid" },
-  { id: 7, title: "INV-2025-1005", issueDate: "30/5/2024", status: "Outstanding" },
-  { id: 8, title: "INV-2025-1005", issueDate: "30/5/2024", status: "Paid" },
-];
-
-const termsOptions = ["24/25 Third Term", "24/25 Second Term", "24/25 First Term"];
+import { columns } from "./InvoiceColumns";
 
 export const getBadge = (status: string) => {
   switch (status) {
@@ -118,15 +109,13 @@ export const getBadge = (status: string) => {
   }
 };
 
-export default function StudentInvoiceTable() {
-  // const router = useRouter();
+export default function StudentInvoiceTable({ studentId }: { studentId?: number }) {
+  const router = useRouter();
   const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [page, setPage] = useState(1);
-  // const [rowSelection, setRowSelection] = useState({});
-  // const [selectedRows, setSelectedRows] = useState<Invoice[]>([]);
   const [activeSession, setActiveSession] = useState<string | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  // const pageSize = 10;
+  const pageSize = 10;
   const user = useLoggedInUser();
 
   const { data: terms, isPending: loadingTerms } = useGetTerms(user.schoolId);
@@ -138,6 +127,28 @@ export default function StudentInvoiceTable() {
       setActiveSession(terms.data.academicSessionName);
     }
   }, [setActiveSession, setTermSelected, terms]);
+
+  const {
+    data: invoicesRaw,
+    isFetching: loadingInvoices,
+    isError: invoicesError,
+    error: invoicesErrorObj,
+    refetch: refetchInvoices,
+  } = useGetInvoicesByStudent(studentId, page - 1, pageSize);
+
+  const invoicesErrorMessage =
+    (invoicesErrorObj as { message?: string } | null)?.message ?? "We couldn't load this student's invoices. Please try again.";
+
+  useEffect(() => {
+    if (invoicesError) {
+      toast({ title: invoicesErrorMessage, type: "error" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoicesError]);
+
+  const invoicesData = (invoicesRaw as { data: StudentInvoicesPage } | undefined)?.data;
+  const invoices = invoicesData?.content ?? [];
+  const totalCount = invoicesData?.totalElements ?? 0;
 
   return (
     <div className="space-y-4 md:space-y-8">
@@ -201,78 +212,75 @@ export default function StudentInvoiceTable() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center pt-25">
-        <ErrorComponent title="No Invoices" description="No Invoices for this student yet" />
-      </div>
+      {loadingInvoices && invoices.length === 0 ? (
+        <>
+          <div className="hidden md:block">
+            <Skeleton className="bg-bg-input-soft h-100 w-full" />
+          </div>
+          <div className="md:hidden">
+            <Skeleton className="bg-bg-input-soft h-80 w-full" />
+          </div>
+        </>
+      ) : invoicesError ? (
+        <div className="flex justify-center py-12">
+          <ErrorComponent title="Failed to load invoices" description={invoicesErrorMessage} buttonText="Retry" onClick={() => refetchInvoices()} />
+        </div>
+      ) : invoices.length === 0 ? (
+        <div className="flex items-center justify-center pt-25">
+          <ErrorComponent title="No Invoices" description="No Invoices for this student yet" />
+        </div>
+      ) : (
+        <>
+          {/* desktop table */}
+          <div className="hidden md:block">
+            <DataTable
+              columns={columns}
+              data={invoices}
+              totalCount={totalCount}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={pageSize}
+              clickHandler={row => router.push(`/staff/invoices/${row.original.invoiceId}`)}
+              showPagination={true}
+              loadingContent={loadingInvoices}
+            />
+          </div>
 
-      {/* TODO: When working on invoices module, update this to show user's data */}
-      {/* desktop table */}
-      {/* <div className="hidden md:block">
-        <DataTable
-          columns={columns}
-          data={invoices}
-          totalCount={invoices.length}
-          page={page}
-          setCurrentPage={setPage}
-          pageSize={pageSize}
-          clickHandler={row => {
-            console.log(row);
-            // setIsDetailsOpen(true);
-            // setSelectedRole(row.original);
-          }}
-          showPagination={false}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          onSelectRows={setSelectedRows}
-        />
-      </div> */}
+          {/* Mobile View */}
+          <div className="flex flex-col gap-4 md:hidden">
+            {invoices.map(invoice => (
+              <div
+                key={invoice.invoiceId}
+                role="button"
+                onClick={() => router.push(`/staff/invoices/${invoice.invoiceId}`)}
+                className="border-border-default bg-bg-card cursor-pointer rounded-md border"
+              >
+                <div className="flex h-[38px] items-center px-3 py-1.5">
+                  <span className="text-text-default text-sm font-medium">{invoice.invoiceNumber}</span>
+                </div>
 
-      {/* Mobile View */}
-      {/* <div className="flex flex-col gap-4 md:hidden">
-        {invoices.map(invoice => {
-          return (
-            <div key={invoice.id} className="border-border-default bg-bg-card rounded-md border">
-              <div className="flex h-[38px] items-center justify-between px-3 py-1.5">
-                <span className="text-text-default text-sm font-medium">{invoice.title}</span>
+                <div className="border-border-default border-t-1">
+                  <div className="border-border-default flex justify-between border-b-1 px-3 py-2 text-sm">
+                    <span className="text-text-muted font-medium">Amount:</span>
+                    <span className="text-text-muted font-normal">{formatNaira(invoice.amount)}</span>
+                  </div>
+                  <div className="border-border-default flex justify-between border-b-1 px-3 py-2 text-sm">
+                    <span className="text-text-muted font-medium">Last Activity:</span>
+                    <span className="text-text-muted font-normal">
+                      {invoice.lastActivity ? new Date(invoice.lastActivity).toLocaleDateString() : "-"}
+                    </span>
+                  </div>
+                </div>
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
-                      <Ellipsis className="size-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-bg-card border-border-default w-[192px] rounded-sm border shadow-sm">
-                    <DropdownMenuItem
-                      onClick={() => router.push(`/staff/invoices/${invoice.id}`)}
-                      className="text-text-default hover:bg-bg-muted flex items-center gap-2 p-2 text-sm"
-                    >
-                      <Eye className="size-4" /> View Invoice
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-text-default hover:bg-bg-muted flex items-center gap-2 p-2 text-sm">
-                      <Printer fill="var(--color-icon-default-subtle)" className="size-4" /> Print receipt
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-bg-muted flex items-center gap-2 p-2 text-sm text-red-600">
-                      <Trash2 className="size-4" /> Delete invoice
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              <div className="border-border-default border-t-1">
-                <div className="border-border-default flex justify-between border-b-1 px-3 py-2 text-sm">
-                  <span className="text-text-muted font-medium">Issued Date:</span>
-                  <span className="text-text-muted font-normal">{invoice.issueDate}</span>
+                <div className="flex justify-between px-3 py-2 text-sm">
+                  <span className="text-text-muted font-medium">Status:</span>
+                  {getBadge(formatInvoiceStatus(invoice.status))}
                 </div>
               </div>
-
-              <div className="flex justify-between px-3 py-2 text-sm">
-                <span className="text-text-muted font-medium">Status:</span>
-                {getBadge(invoice.status)}
-              </div>
-            </div>
-          );
-        })}
-      </div> */}
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

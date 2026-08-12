@@ -53,9 +53,15 @@ export const ClassFees = () => {
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  const { data, isPending, isError } = useGetFeeClassOverview(sessionId ?? 0, term ?? "FIRST", branchId, search || undefined);
+  const { data, isPending, isError, error, refetch } = useGetFeeClassOverview(sessionId ?? 0, term ?? "FIRST", branchId, search || undefined);
   const overview = data as FeeClassOverviewResponse | undefined;
   const branchGroups: BranchFeeOverview[] = overview?.branches ?? [];
+  const errorMessage = (error as { message?: string } | null)?.message ?? "An error occurred while fetching class fees.";
+
+  useEffect(() => {
+    if (isError) toast.error(errorMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isError]);
 
   const { mutate: deleteFee, isPending: deleting } = useDeleteFee();
 
@@ -140,7 +146,7 @@ export const ClassFees = () => {
         </div>
       )}
 
-      {!isPending && branchGroups.length === 0 && (
+      {!isPending && !isError && branchGroups.length === 0 && (
         <EmptyFeeState
           title="Let's set up your fees"
           description="You can add fees for one or more classes, branches and arms. We'll guide you step-by step"
@@ -149,7 +155,11 @@ export const ClassFees = () => {
         />
       )}
 
-      {!isPending && isError && <ErrorComponent title="Error" description="An error occurred while fetching class fees." />}
+      {!isPending && isError && (
+        <div className="flex h-screen items-center justify-center">
+          <ErrorComponent title="Error" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />
+        </div>
+      )}
 
       {!isPending && branchGroups.length > 0 && (
         <div className="mt-4 md:mt-6">

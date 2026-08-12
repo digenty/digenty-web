@@ -14,7 +14,7 @@ export default async function CoreLayout({
   return (
     <div className="bg-bg-default fixed inset-0 flex overflow-hidden leading-5">
       <Sidebar />
-      <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <Header />
         <div className="flex-1 overflow-y-auto">
           {children}

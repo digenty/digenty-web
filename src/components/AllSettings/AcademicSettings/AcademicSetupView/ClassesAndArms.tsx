@@ -1,6 +1,6 @@
 "use client";
 
-import { BookFill, BookOpen, Edit, GitMergeFill, GraduationCapFill } from "@digenty/icons";
+import { BookFill, BookOpen, Edit, GitMergeFill, GraduationCapFill, School } from "@digenty/icons";
 import { Branch, BranchWithClassLevels, ClassInLevelDetails, ClassLevel } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
@@ -89,6 +89,72 @@ function LevelTabSwitch({
   );
 }
 
+function BranchTabSwitch({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (b: Branch | null) => void }) {
+  const { data: branchesData, isFetching: isLoadingBranches } = useGetBranches();
+  const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (branchesData?.data?.length > 0 && !activeBranch) {
+      setActiveBranch(branchesData.data[0].branch);
+    }
+  }, [branchesData]);
+
+  if (isMobile) {
+    return (
+      <div className="w-full">
+        <Select
+          value={activeBranch?.name || ""}
+          onValueChange={value => {
+            const branch = branchesData?.data?.find((b: BranchWithClassLevels) => b.branch.name === value);
+            if (branch) setActiveBranch(branch.branch);
+          }}
+        >
+          <Label className="text-text-default mb-2 text-sm font-medium">
+            {" "}
+            <School fill="var(--color-icon-default-muted)" /> Select Branch
+          </Label>
+          <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
+            <SelectValue>
+              <span className="text-text-default text-sm">{activeBranch?.name}</span>
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent className="bg-bg-default border-border-default">
+            {branchesData?.data?.map((branchItem: BranchWithClassLevels) => (
+              <SelectItem key={branchItem.branch.id} value={branchItem.branch.name || ""} className="text-text-default text-sm">
+                {branchItem.branch.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  return (
+    <div className="hide-scrollbar flex w-full items-center gap-3 overflow-x-auto">
+      {isLoadingBranches && <Skeleton className="h-9 w-32 shrink-0" />}
+      {branchesData?.data?.map((branchItem: BranchWithClassLevels) => {
+        const branch = branchItem.branch;
+        const isActive = activeBranch?.id === branch.id;
+
+        return (
+          <Button
+            key={branch.id}
+            type="button"
+            onClick={() => setActiveBranch(branch)}
+            className={cn(
+              "hover:bg-bg-none! shrink-0 cursor-pointer rounded-none px-3 py-2.5 text-center whitespace-nowrap transition-all duration-150",
+              isActive && "border-border-informative border-b-[1.5px]",
+            )}
+          >
+            <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.name}</span>
+          </Button>
+        );
+      })}
+    </div>
+  );
+}
+
 function ClassesResponsiveTabs({ levels, activeLevel, branchId }: { levels: ClassLevel[]; activeLevel: ClassLevel | null; branchId?: number }) {
   const isMobile = useIsMobile();
 
@@ -123,22 +189,13 @@ export const AcademicDoneClassAndArms = () => {
   const [activeLevel, setActiveLevel] = useState<ClassLevel | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  const { data: branchesData, isFetching: isLoadingBranches } = useGetBranches();
   const { data: branchLevelsData } = useGetLevels(activeBranch?.id);
 
   const levels = useMemo(() => extractUniqueLevelsByType(branchLevelsData?.data || []), [branchLevelsData?.data]);
 
   useEffect(() => {
-    if (branchesData?.data?.length > 0 && !activeBranch) {
-      setActiveBranch(branchesData.data[0].branch);
-    }
-  }, [branchesData]);
-
-  useEffect(() => {
     setActiveLevel(levels[0] ?? null);
   }, [levels]);
-
-  const isMobile = useIsMobile();
 
   return (
     <div>
@@ -160,26 +217,8 @@ export const AcademicDoneClassAndArms = () => {
               </Button>
             </div>
 
-            <div className="mb-5 flex w-auto max-w-64 items-center gap-3">
-              {isLoadingBranches && <Skeleton className="h-9 w-full" />}
-              {branchesData?.data?.map((branchItem: BranchWithClassLevels) => {
-                const branch = branchItem.branch;
-                const isActive = activeBranch?.id === branch.id;
-
-                return (
-                  <Button
-                    key={branch.id}
-                    type="button"
-                    onClick={() => setActiveBranch(branch)}
-                    className={cn(
-                      "hover:bg-bg-none! w-1/2 cursor-pointer rounded-none py-2.5 text-center transition-all duration-150",
-                      isActive && "border-border-informative border-b-[1.5px]",
-                    )}
-                  >
-                    <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.name}</span>
-                  </Button>
-                );
-              })}
+            <div className="mb-5 flex w-full items-center gap-3">
+              <BranchTabSwitch activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
             </div>
 
             <div className="border-border-default mb-5 flex w-full items-center gap-3">

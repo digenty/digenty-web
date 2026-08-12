@@ -3,6 +3,7 @@
 import { AddFill, DeleteBin, Edit } from "@digenty/icons";
 import { useMemo, useState } from "react";
 
+import { BackLink } from "@/components/BackLink";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -47,6 +48,10 @@ export const StockCategories = () => {
 
       <div className="mx-auto flex w-full items-center justify-center p-4 md:max-w-169">
         <div className="flex w-full flex-col gap-6">
+          <div className="md:hidden">
+            <BackLink href="/staff/stock" />
+          </div>
+
           <div className="flex items-center justify-between">
             <div className="text-text-default text-xl font-semibold">Categories</div>
             <Button

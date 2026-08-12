@@ -96,7 +96,7 @@ export const AdmissionNumberSetupDone = () => {
     <div className="w-full">
       <div
         className={cn(
-          "mx-auto flex w-full items-center justify-center px-4 pb-20 md:w-151",
+          "mx-auto flex w-full items-center justify-center pb-20 md:w-151",
           !isEditing && "mx-auto flex w-full items-center justify-center md:max-w-200",
         )}
       >
@@ -226,7 +226,7 @@ export const AdmissionNumberSetupDone = () => {
       </div>
 
       {isEditing && (
-        <div className="border-border-default bg-bg-default fixed right-0 bottom-0 left-(--sidebar-w) z-10 flex justify-between border-t px-4 py-3 md:px-36">
+        <div className="border-border-default bg-bg-default fixed right-0 bottom-0 left-0 z-10 flex justify-between border-t px-4 py-3 md:left-(--sidebar-w) md:px-36">
           <Button type="button" onClick={handleCancel} disabled={isSaving} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
           </Button>

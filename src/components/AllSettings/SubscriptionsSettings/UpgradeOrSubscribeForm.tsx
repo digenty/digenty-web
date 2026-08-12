@@ -207,6 +207,7 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProp
                     price={plan.pricePerStudent}
                     selected={selectedPlanName === plan.name}
                     onSelect={() => setSelectedPlanName(plan.name)}
+                    disabled={plan.name === "FREEMIUM"}
                     featureSummary={plan.features?.length ? `${plan.features.length}+ modules` : undefined}
                   >
                     <StudentCountConfigurator value={studentCount} onChange={setStudentCount} activeStudents={totalActiveStudents} />
@@ -241,16 +242,18 @@ interface PlanRadioProps {
   price: number;
   selected: boolean;
   onSelect: () => void;
+  disabled?: boolean;
   featureSummary?: string;
   children?: React.ReactNode;
 }
 
-const PlanRadio = ({ name, price, selected, onSelect, featureSummary, children }: PlanRadioProps) => {
+const PlanRadio = ({ name, price, selected, onSelect, disabled, featureSummary, children }: PlanRadioProps) => {
   return (
     <div
-      onClick={onSelect}
+      onClick={disabled ? undefined : onSelect}
       className={cn(
-        "flex cursor-pointer flex-col gap-4 rounded-xl border p-4 transition-colors",
+        "flex flex-col gap-4 rounded-xl border p-4 transition-colors",
+        disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
         selected ? "border-border-informative ring-1 ring-[var(--color-border-informative)]" : "border-border-default bg-bg-default",
       )}
     >

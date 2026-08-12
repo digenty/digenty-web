@@ -2,6 +2,7 @@
 
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { LevelClasses } from "@/components/AdmissionManagement/SetupConfiguration/LevelClasses";
+import { BackButton } from "@/components/BackButton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetAdmissionCycle, useGetCycleLevels } from "@/hooks/queryHooks/useAdmission";
 import { useBreadcrumbStore } from "@/store/breadcrumb";
@@ -34,29 +35,42 @@ export default function LevelClassesPage() {
 
   if (isPending) {
     return (
-      <div className="grid grid-cols-1 gap-4 p-3 md:grid-cols-3 md:p-6">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-32 w-full rounded-xl" />
-        ))}
+      <div className="flex flex-col gap-4 p-3 md:p-6">
+        <div className="md:hidden">
+          <BackButton />
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 w-full rounded-xl" />
+          ))}
+        </div>
       </div>
     );
   }
 
   if (isError || !level) {
     return (
-      <div className="flex justify-center py-16">
-        <ErrorComponent
-          title="Couldn't load classes"
-          description="Something went wrong while loading this level's classes. Please try again."
-          buttonText="Retry"
-          onClick={() => refetch()}
-        />
+      <div className="flex flex-col gap-4 p-3 md:p-6">
+        <div className="md:hidden">
+          <BackButton />
+        </div>
+        <div className="flex justify-center py-16">
+          <ErrorComponent
+            title="Couldn't load classes"
+            description="Something went wrong while loading this level's classes. Please try again."
+            buttonText="Retry"
+            onClick={() => refetch()}
+          />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="p-3 md:p-6">
+      <div className="pb-3 md:hidden">
+        <BackButton />
+      </div>
       <LevelClasses cycleId={cycleId} level={level} branchId={branchId} />
     </div>
   );
