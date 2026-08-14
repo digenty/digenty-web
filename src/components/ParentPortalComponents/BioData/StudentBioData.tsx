@@ -22,7 +22,8 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
           <Avatar />
 
           <p className="text-text-default text-sm font-semibold">
-            {student?.data.firstName} {student?.data.lastName}
+            {student?.data.firstName}
+            {/* {student?.data.lastName} */}
           </p>
         </div>
         <Button

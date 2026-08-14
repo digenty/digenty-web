@@ -15,6 +15,13 @@ function getSubdomain(host: string): string | null {
   return null;
 }
 
+// TODO: temporary — until parent-portal subdomains are wired up on Vercel, let the bare
+// hosts act as a parent portal too so /auth/parent* etc. work without a real subdomain.
+function isBareParentPortalHost(host: string): boolean {
+  const hostname = host.split(":")[0];
+  return hostname === "localhost" || hostname === "digenty-web.vercel.app";
+}
+
 export default async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   const path = url.pathname;
@@ -36,7 +43,7 @@ export default async function middleware(req: NextRequest) {
   const token = cookieStore.get("token")?.value;
 
   const host = req.headers.get("host") ?? req.nextUrl.host;
-  const isParentPortal = !!getSubdomain(host);
+  const isParentPortal = !!getSubdomain(host) || isBareParentPortalHost(host);
 
   //include all routes that you want to be accessed without auth
   const authRoutes = [

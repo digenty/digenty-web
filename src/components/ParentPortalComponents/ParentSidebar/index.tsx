@@ -72,7 +72,7 @@ export const ParentSidebar = () => {
                   className="p-0"
                 >
                   {showLogo ? (
-                    <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
+                    <Image src="/icons/Logomark.svg" width={64} height={64} alt="Axis logo" />
                   ) : (
                     <LeadIcon fill="var(--color-icon-default-subtle)" className="size-5 rotate-180" />
                   )}
@@ -157,13 +157,9 @@ export const ParentSidebar = () => {
 
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
-                <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
-                <p className="text-text-default text-sm font-medium">Digenty</p>
+                <Image src="/icons/Logomark.svg" width={44} height={44} alt="Digenty logo" />
+                {/* <p className="text-text-default text-sm font-medium">Digenty</p> */}
               </div>
-
-              <Button variant="ghost" onClick={() => setIsSidebarOpen(false)} className="p-0">
-                <CloseLarge fill="var(--color-icon-default-subtle)" />
-              </Button>
             </div>
             <div className="space-y-5 md:space-y-6">
               {parentNav.map((nav: NavigationType) => {
