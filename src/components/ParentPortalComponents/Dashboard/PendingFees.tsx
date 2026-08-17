@@ -24,7 +24,7 @@ export const PendingFees = ({ fees, loading }: { fees?: PendingFeeItem[]; loadin
         <div className="bg-bg-subtle flex items-center justify-between rounded-t-lg p-4">
           <div className="text-text-default text-sm font-semibold">Pending Fees</div>
           <Button
-            onClick={() => router.push("/parents/parent-fees/fees-to-pay")}
+            onClick={() => router.push("/parents/parent-fees")}
             className="text-text-informative hover:bg-bg-none! bg-none! p-0 font-medium"
           >
             Pay Fees <ArrowRight />{" "}
