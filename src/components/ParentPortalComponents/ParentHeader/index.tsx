@@ -26,8 +26,8 @@ export const ParentHeader = () => {
         </Button>
 
         <div className="flex items-center gap-2">
-          <Image src="/icons/Logomark.svg" width={24} height={24} alt="Digenty logo" />
-          <p className="text-text-default text-sm font-medium">Digenty</p>
+          <Image src="/icons/Logomark.svg" width={44} height={44} alt="Digenty logo" />
+          {/* <p className="text-text-default text-sm font-medium">Digenty</p> */}
         </div>
       </div>
 

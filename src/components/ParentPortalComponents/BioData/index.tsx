@@ -6,13 +6,13 @@ import { Avatar } from "@/components/Avatar";
 import { ParentBioData } from "./ParentBioData";
 import { StudentBioData } from "./StudentBioData";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useStudentFilterStore } from "@/store/parent";
 
 export const BioDatas = () => {
   const { id: parentId } = useLoggedInUser();
+  const { selectedStudentId, selectedStudentName } = useStudentFilterStore();
 
   const [activeTab, setActiveTab] = useState<"parent" | "student">("parent");
-  const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
-  const [selectedStudentName, setSelectedStudentName] = useState<string>("");
 
   const tabs = [
     { key: "parent", label: "My Biodata" },
@@ -28,13 +28,7 @@ export const BioDatas = () => {
         </div>
         {activeTab === "student" && (
           <div className="hidden md:block">
-            <StudentFilter
-              parentId={parentId}
-              onSelect={(studentId, studentName) => {
-                setSelectedStudentId(studentId);
-                setSelectedStudentName(studentName);
-              }}
-            />
+            <StudentFilter parentId={parentId} />
           </div>
         )}
       </div>
@@ -54,7 +48,7 @@ export const BioDatas = () => {
       </div>
 
       {activeTab === "parent" && <ParentBioData parentId={parentId} />}
-      {activeTab === "student" && <StudentBioData parentId={parentId} selectedStudentId={selectedStudentId} />}
+      {activeTab === "student" && <StudentBioData parentId={parentId} selectedStudentId={selectedStudentId ?? null} />}
     </div>
   );
 };

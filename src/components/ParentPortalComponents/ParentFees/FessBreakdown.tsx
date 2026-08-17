@@ -4,17 +4,19 @@ import { Avatar } from "@/components/Avatar";
 import { OverviewCard } from "@/components/OverviewCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
-import { useGetFeeOverview, useGetInvoice } from "@/hooks/queryHooks/useParentFees";
+import { useGetFeeOverview, useGetInvoice, useGetPayFeesData } from "@/hooks/queryHooks/useParentFees";
 import { useInitiatePayment } from "@/hooks/queryHooks/usePayment";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useStudentFilterStore } from "@/store/parent";
 import { InvoiceStatus } from "@/api/parent-fees";
+import { exportToPDF } from "@/lib/export-utils";
 import { AlertFill, Bank, BankCard, CheckboxCircleFill, Download2, FileCopy, LogoMark } from "@digenty/icons";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const invoiceStatusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
@@ -28,13 +30,32 @@ const invoiceStatusConfig: Record<InvoiceStatus, { label: string; className: str
 
 export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [selectedFeeIds, setSelectedFeeIds] = useState<Set<number>>(new Set());
   const { selectedStudentId } = useStudentFilterStore();
   const user = useLoggedInUser();
 
   const { data: overview, isLoading: loadingOverview, isError: isErrorOverview } = useGetFeeOverview(selectedStudentId, termId);
   const { data: invoice, isLoading: loadingInvoice, isError: isErrorInvoice } = useGetInvoice(selectedStudentId, termId);
+  const { data: payFeesData } = useGetPayFeesData(selectedStudentId, termId);
 
   const initiatePayment = useInitiatePayment();
+
+  useEffect(() => {
+    setSelectedFeeIds(new Set());
+  }, [selectedStudentId, termId]);
+
+  const toggleFeeSelection = (id: number) => {
+    setSelectedFeeIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   const handleCopyAccountNumber = (accountNumber: string) => {
     navigator.clipboard.writeText(accountNumber);
@@ -47,13 +68,26 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
       toast.error("No email found on your account. Please contact support.");
       return;
     }
+    const hasSelectedFees = selectedFeeIds.size > 0;
+    const selectedFeeItems = [...(payFeesData?.requiredFees ?? []), ...(payFeesData?.optionalFees ?? [])].filter(fee =>
+      selectedFeeIds.has(fee.studentFeeItemId),
+    );
+    const customAmount = selectedFeeItems.reduce((sum, fee) => sum + fee.balance, 0);
+
+    if (hasSelectedFees && customAmount <= 0) {
+      toast.error("Selected fees have no outstanding balance to pay.");
+      return;
+    }
+
     initiatePayment.mutate(
       {
         invoiceId: invoice.invoiceId,
         email: user.email,
         currency: "NGN",
-        paymentType: "FULL",
+        paymentType: hasSelectedFees ? "CUSTOM" : "FULL",
         callBackUrl: `${window.location.origin}/parents/parent-fees/verify?invoiceId=${invoice.invoiceId}`,
+        selectedFeeIds: hasSelectedFees ? Array.from(selectedFeeIds) : undefined,
+        customAmount: hasSelectedFees ? customAmount : undefined,
       },
       {
         onSuccess: data => {
@@ -66,6 +100,18 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
         onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to start payment"),
       },
     );
+  };
+
+  const handleDownloadInvoice = async () => {
+    if (!invoice) return;
+    setIsDownloading(true);
+    try {
+      await exportToPDF("invoice-card", `Invoice_${invoice.invoiceNumber}.pdf`);
+    } catch {
+      toast.error("Could not download invoice. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   if (!selectedStudentId) {
@@ -106,6 +152,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
 
   const totalFees = (overview?.totalPaid ?? 0) + (overview?.outstandingAmount ?? 0);
   const status = invoice ? invoiceStatusConfig[invoice.status] : null;
+  const isPaid = invoice?.status === "PAID" || invoice?.status === "FULLY_PAID";
 
   return (
     <div className="flex flex-col gap-5 md:gap-10">
@@ -143,7 +190,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
       {invoice && (
         <div className="">
           <div className="bg-bg-subtle border-border-default rounded-sm border p-1.5">
-            <div className="border-border-default bg-bg-default flex flex-col gap-6 rounded-sm border p-5">
+            <div id="invoice-card" className="border-border-default bg-bg-default flex flex-col gap-6 rounded-sm border p-5">
               <div className="text-text-default flex items-center justify-between">
                 <div className="flex items-center gap-1 text-lg font-bold">
                   <LogoMark />
@@ -190,10 +237,20 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
               <div className="flex flex-col gap-2">
                 {invoice.requiredFees.map((fee, index) => {
                   const progressPercentage = fee.amount ? Math.min((fee.amountPaid / fee.amount) * 100, 100) : 0;
+                  const pendingFee = payFeesData?.requiredFees.find(p => p.name === fee.name);
                   return (
                     <div key={`${fee.name}-${index}`} className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4">
                       <div className="flex items-center justify-between">
-                        <div className="text-text-default text-sm">{fee.name}</div>
+                        <div className="flex items-center gap-2">
+                          {pendingFee && (
+                            <Checkbox
+                              checked={selectedFeeIds.has(pendingFee.studentFeeItemId)}
+                              onCheckedChange={() => toggleFeeSelection(pendingFee.studentFeeItemId)}
+                              className="rounded-sm"
+                            />
+                          )}
+                          <div className="text-text-default text-sm">{fee.name}</div>
+                        </div>
                         <div className="text-text-default text-sm">₦{fee.amount.toLocaleString()}</div>
                       </div>
 
@@ -227,6 +284,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                 {invoice.optionalFees.map((fee, index) => {
                   const progressPercentage = fee.amount ? Math.min((fee.amountPaid / fee.amount) * 100, 100) : 0;
                   const isOpen = openIndex === index;
+                  const pendingFee = payFeesData?.optionalFees.find(p => p.name === fee.name);
 
                   return (
                     <div
@@ -235,7 +293,17 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                       onClick={() => setOpenIndex(isOpen ? null : index)}
                     >
                       <div className="flex items-center justify-between">
-                        <div className="text-text-default text-sm">{fee.name}</div>
+                        <div className="flex items-center gap-2">
+                          {pendingFee && (
+                            <Checkbox
+                              checked={selectedFeeIds.has(pendingFee.studentFeeItemId)}
+                              onCheckedChange={() => toggleFeeSelection(pendingFee.studentFeeItemId)}
+                              onClick={e => e.stopPropagation()}
+                              className="rounded-sm"
+                            />
+                          )}
+                          <div className="text-text-default text-sm">{fee.name}</div>
+                        </div>
                         <div className="text-text-default text-sm">₦{fee.amount.toLocaleString()}</div>
                       </div>
 
@@ -285,10 +353,10 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                   <div className="text-text-subtle text-sm">Pay securely with card or bank transfer.</div>
                   <Button
                     onClick={handlePayOnline}
-                    disabled={initiatePayment.isPending}
-                    className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7 w-full text-sm disabled:opacity-50"
+                    disabled={initiatePayment.isPending || isPaid}
+                    className="pdf-ignore text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-10 w-full text-sm disabled:opacity-50"
                   >
-                    {initiatePayment.isPending ? "Redirecting…" : "Pay Online"}
+                    {isPaid ? "Paid" : initiatePayment.isPending ? "Redirecting…" : "Pay Online"}
                   </Button>
                 </div>
               </div>
@@ -332,9 +400,13 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                 </div>
               )}
 
-              <Button className="text-text-default border-border-default flex h-8 w-41 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium">
+              <Button
+                onClick={handleDownloadInvoice}
+                disabled={isDownloading}
+                className="pdf-ignore text-text-default border-border-default flex h-8 w-41 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium disabled:opacity-50"
+              >
                 <Download2 fill="var(--color-icon-default-muted)" />
-                Download Invoice
+                {isDownloading ? "Downloading…" : "Download Invoice"}
               </Button>
             </div>
           </div>

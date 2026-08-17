@@ -22,7 +22,8 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
           <Avatar />
 
           <p className="text-text-default text-sm font-semibold">
-            {student?.data.firstName} {student?.data.lastName}
+            {student?.data.firstName}
+            {/* {student?.data.lastName} */}
           </p>
         </div>
         <Button
@@ -60,7 +61,10 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
         </div>
 
         <div className="border-border-default flex items-center gap-3 border-b px-4 py-3 last:border-b-0">
-          <FirstAidKit className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2" fill="var(--color-icon-default-muted)" />
+          <div className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2">
+            <FirstAidKit fill="var(--color-icon-default-muted)" />
+          </div>
+
           <div className="flex flex-col gap-0.5">
             <p className="text-text-muted text-xs">Medical Information</p>
             <p className="text-text-default text-sm font-medium">{student?.data.medicalInformation}</p>
@@ -68,7 +72,10 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
         </div>
 
         <div className="border-border-default flex items-center gap-3 border-b px-4 py-3 last:border-b-0">
-          <Flag className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2" fill="var(--color-icon-default-muted)" />
+          <div className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2">
+            {" "}
+            <Flag fill="var(--color-icon-default-muted)" />
+          </div>
           <div className="flex flex-col gap-0.5">
             <p className="text-text-muted text-xs">Nationality</p>
             <p className="text-text-default text-sm font-medium">{student?.data.nationality}</p>
@@ -76,7 +83,10 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
         </div>
 
         <div className="border-border-default flex items-center gap-3 border-b px-4 py-3 last:border-b-0">
-          <Flag className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2" fill="var(--color-icon-default-muted)" />
+          <div className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2">
+            {" "}
+            <Flag fill="var(--color-icon-default-muted)" />
+          </div>
           <div className="flex flex-col gap-0.5">
             <p className="text-text-muted text-xs">State of Origin</p>
             <p className="text-text-default text-sm font-medium">{student?.data.stateOfOrigin}</p>
@@ -84,7 +94,10 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
         </div>
 
         <div className="border-border-default flex items-center gap-3 border-b px-4 py-3 last:border-b-0">
-          <Mail className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2" fill="var(--color-icon-default-muted)" />
+          <div className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2">
+            <Mail fill="var(--color-icon-default-muted)" />
+          </div>
+
           <div className="flex flex-col gap-0.5">
             <p className="text-text-muted text-xs">Email Address</p>
             <p className="text-text-default text-sm font-medium">{student?.data.email}</p>
@@ -108,7 +121,10 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
         </div>
 
         <div className="border-border-default flex items-center gap-3 border-b px-4 py-3 last:border-b-0">
-          <FirstAidKit className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2" fill="var(--color-icon-default-muted)" />
+          <div className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2">
+            <FirstAidKit fill="var(--color-icon-default-muted)" />
+          </div>
+
           <div className="flex flex-col gap-0.5">
             <p className="text-text-muted text-xs">Emergency Contact Name</p>
             <p className="text-text-default text-sm font-medium">{student?.data.emergencyContactName}</p>
@@ -116,7 +132,10 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
         </div>
 
         <div className="border-border-default flex items-center gap-3 border-b px-4 py-3 last:border-b-0">
-          <FirstAidKit className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2" fill="var(--color-icon-default-muted)" />
+          <div className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2">
+            <FirstAidKit fill="var(--color-icon-default-muted)" />
+          </div>
+
           <div className="flex flex-col gap-0.5">
             <p className="text-text-muted text-xs">Emergency Contact Number</p>
             <p className="text-text-default text-sm font-medium">{student?.data.emergencyContact}</p>
