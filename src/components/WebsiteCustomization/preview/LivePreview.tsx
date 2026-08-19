@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Monitor, RotateCw, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useGetSubdomain } from "@/hooks/queryHooks/useSchool";
 import { useWebsiteCustomization } from "../context";
 import { WebsitePreview } from "./WebsitePreview";
 
@@ -16,10 +17,12 @@ const slugify = (value: string) =>
 
 export const LivePreview = ({ className }: { className?: string }) => {
   const { config } = useWebsiteCustomization();
+  const { data: subdomainResponse } = useGetSubdomain();
   const [device, setDevice] = useState<Device>("desktop");
   const [nonce, setNonce] = useState(0);
 
-  const domain = `${slugify(config.schoolIdentity.name)}.axis.org`;
+  const subdomain = subdomainResponse?.data?.subdomain;
+  const domain = subdomain ? `${subdomain}.axisbydigenty.com` : `${slugify(config.schoolIdentity.name)}.axisbydigenty.com`;
 
   return (
     <div className={cn("border-border-default bg-bg-card flex flex-col overflow-hidden rounded-xl border shadow-xs", className)}>
