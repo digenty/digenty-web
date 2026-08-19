@@ -242,7 +242,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                     <div key={`${fee.name}-${index}`} className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          {pendingFee && (
+                          {!isPaid && pendingFee && pendingFee.balance > 0 && (
                             <Checkbox
                               checked={selectedFeeIds.has(pendingFee.studentFeeItemId)}
                               onCheckedChange={() => toggleFeeSelection(pendingFee.studentFeeItemId)}
@@ -294,7 +294,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          {pendingFee && (
+                          {!isPaid && pendingFee && pendingFee.balance > 0 && (
                             <Checkbox
                               checked={selectedFeeIds.has(pendingFee.studentFeeItemId)}
                               onCheckedChange={() => toggleFeeSelection(pendingFee.studentFeeItemId)}
