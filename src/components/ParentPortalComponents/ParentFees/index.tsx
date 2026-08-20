@@ -64,7 +64,7 @@ export const ParentFees = () => {
             <SelectContent className="bg-bg-card border-border-default border">
               {terms.map(t => (
                 <SelectItem key={t.id} className="text-text-default" value={String(t.id)}>
-                  {t.academicSessionName} {t.term.toLowerCase()}
+                  {t.academicSessionName} {t.term.toLocaleLowerCase()} term
                 </SelectItem>
               ))}
             </SelectContent>

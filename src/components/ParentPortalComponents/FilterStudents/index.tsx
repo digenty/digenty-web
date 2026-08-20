@@ -37,7 +37,7 @@ export const StudentFilter = ({ parentId, onSelect }: StudentFilterProps) => {
 
   const selected = students.find(s => String(s.id) === selectedId);
 
-  if (isPending || !students.length) return <Skeleton className="bg-bg-input-soft h-8 w-15 rounded-full md:h-12 md:w-59" />;
+  if (isPending || !students.length) return <Skeleton className="bg-bg-input-soft h-10 w-18 rounded-full md:h-12 md:w-59" />;
 
   return (
     <div className="">
@@ -52,7 +52,7 @@ export const StudentFilter = ({ parentId, onSelect }: StudentFilterProps) => {
           setStudent(id, name);
         }}
       >
-        <SelectTrigger className="border-border-default bg-bg-subtle h-8 w-15 rounded-full border md:h-12 md:w-59 [&>svg]:hidden">
+        <SelectTrigger className="border-border-default bg-bg-subtle flex h-10 w-18 items-center justify-between gap-1 rounded-full border px-1.5 py-0 md:h-12 md:w-59 md:gap-2 md:px-2.5 md:py-2 [&>svg]:hidden">
           {selected ? (
             <div className="flex w-full items-center justify-between">
               <div className="flex items-center gap-2">

@@ -22,7 +22,7 @@ export const MobileDrawer = ({
 }) => {
   const isMobile = useIsMobile();
   return (
-    <Drawer open={open} onOpenChange={setIsOpen}>
+    <Drawer open={open} onOpenChange={setIsOpen} repositionInputs={false}>
       {open && isMobile && <DrawerOverlay />}
       <DrawerContent
         {...(!showCloseButton && { onInteractOutside: event => event.preventDefault() })}

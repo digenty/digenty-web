@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAddmissionNumber } from "@/hooks/queryHooks/useAdmission";
+import { useGetAdmissionNumberDetails, useUpdateAdmissionNumber } from "@/hooks/queryHooks/useAdmisssion";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { admissionFormSchema } from "@/schema/academic";
 import { DIGITS } from "@/store/admission";
@@ -40,36 +41,44 @@ export const AdmissionNumberSetup = ({
     { label: "Admission Number Setup", url: "/staff/settings/academic?step=admission-number" },
   ]);
 
+  const { data: admissionResponse } = useGetAdmissionNumberDetails();
+  const admission = admissionResponse?.data ?? admissionResponse?.[0];
+
   const { mutate: addAdmissionNumber } = useAddmissionNumber();
+  const { mutate: updateAdmissionNumber } = useUpdateAdmissionNumber();
 
   const formik = useFormik<FormValues>({
+    enableReinitialize: true,
     initialValues: {
-      prefix: "",
-      numberFormat: "",
-      startingNumber: "1",
-      padding: "",
+      prefix: admission?.prefix ?? "",
+      numberFormat: admission?.numberFormat ?? "",
+      startingNumber: admission?.startingNumber ? String(admission.startingNumber) : "1",
+      padding: admission?.padding ? String(admission.padding) : "",
     },
     validationSchema: admissionFormSchema,
     onSubmit: async values => {
-      await addAdmissionNumber(
-        {
-          prefix: values.prefix,
-          numberFormat: values.numberFormat,
-          startingNumber: parseInt(values.startingNumber),
-          padding: parseInt(values.padding),
-        },
-        {
-          onSuccess: () => {
-            toast({ title: "Admission number setup saved", description: "Your admission number format has been saved.", type: "success" });
-            setCompletedSteps([...completedSteps, "admission-number"]);
-            router.push("/staff/settings/academic");
-          },
-          onError: (error: unknown) => {
-            const message = error instanceof Error ? error.message : "Could not save admission number settings";
-            toast({ title: "Failed to save admission setup", description: message, type: "error" });
-          },
-        },
-      );
+      const payload = {
+        prefix: values.prefix,
+        numberFormat: values.numberFormat,
+        startingNumber: parseInt(values.startingNumber),
+        padding: parseInt(values.padding),
+      };
+
+      const onSuccess = () => {
+        toast({ title: "Admission number setup saved", description: "Your admission number format has been saved.", type: "success" });
+        setCompletedSteps([...completedSteps, "admission-number"]);
+        router.push("/staff/settings/academic");
+      };
+      const onError = (error: unknown) => {
+        const message = error instanceof Error ? error.message : "Could not save admission number settings";
+        toast({ title: "Failed to save admission setup", description: message, type: "error" });
+      };
+
+      if (admission?.id) {
+        updateAdmissionNumber({ payload, id: admission.id }, { onSuccess, onError });
+      } else {
+        addAdmissionNumber(payload, { onSuccess, onError });
+      }
     },
   });
 

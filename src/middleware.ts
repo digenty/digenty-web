@@ -36,7 +36,7 @@ export default async function middleware(req: NextRequest) {
   const token = cookieStore.get("token")?.value;
 
   const host = req.headers.get("host") ?? req.nextUrl.host;
-  const isParentPortal = !!getSubdomain(host);
+  const isSubdomainPortal = !!getSubdomain(host);
 
   //include all routes that you want to be accessed without auth
   const authRoutes = [
@@ -51,7 +51,10 @@ export default async function middleware(req: NextRequest) {
   const isAuthRoute = authRoutes.includes(path);
 
   if (path === "/") {
-    if (isParentPortal) {
+    // Real parent-portal subdomains (e.g. greenwood.axisbydigenty.com) still land on the
+    // parent portal by default. Bare hosts (localhost, digenty-web.vercel.app) default to
+    // staff — users must manually navigate to /auth/parents/login for the parent portal.
+    if (isSubdomainPortal) {
       const target = token ? "/parents" : "/auth/parents/login";
       return NextResponse.redirect(new URL(target, req.nextUrl));
     }
@@ -60,7 +63,7 @@ export default async function middleware(req: NextRequest) {
 
   //   If user is logged in and tries to visit auth routes
   if (token && isAuthRoute) {
-    const target = isParentPortal || path.startsWith("/auth/parent") ? "/parents" : "/staff/";
+    const target = isSubdomainPortal || path.startsWith("/auth/parent") ? "/parents" : "/staff/";
     return NextResponse.redirect(new URL(target, req.nextUrl));
   }
 

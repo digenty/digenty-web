@@ -32,7 +32,7 @@ export const useAddGradingDefault = () => {
     mutationKey: gradingKeys.addGradingDefault,
     mutationFn: addGradingDefault,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: gradingKeys.getGradingsByLevel });
+      queryClient.invalidateQueries({ queryKey: [gradingKeys.getGradingsByLevel] });
     },
   });
 };
@@ -43,7 +43,7 @@ export const useAddGrading = () => {
     mutationKey: gradingKeys.addGrading,
     mutationFn: addGrading,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: gradingKeys.getGradingsByLevel });
+      queryClient.invalidateQueries({ queryKey: [gradingKeys.getGradingsByLevel] });
     },
   });
 };
@@ -54,7 +54,7 @@ export const useUpdateGradingsForLevel = () => {
     mutationKey: gradingKeys.updateGradingsForLevel,
     mutationFn: updateGradingsForLevel,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: gradingKeys.getGradingsByLevel });
+      queryClient.invalidateQueries({ queryKey: [gradingKeys.getGradingsByLevel] });
     },
   });
 };

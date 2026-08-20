@@ -310,11 +310,11 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
             </span>
           }
           showCloseButton={false}
-          className=""
+          className="flex flex-col overflow-y-hidden"
         >
-          {stepContent}
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{stepContent}</div>
 
-          <div className="border-border-default fixed w-full border-t">
+          <div className="border-border-default bg-bg-card sticky bottom-0 w-full shrink-0 border-t">
             <DialogFooter className="flex items-center justify-between px-6 py-2">
               {stepIndicator}
               {continueButton}

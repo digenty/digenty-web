@@ -211,25 +211,25 @@ export const Sidebar = () => {
                   ]
                 : []),
 
-              // ...(canViewDomain(user?.permissions)
-              //   ? [
-              //       {
-              //         title: "Domain",
-              //         url: "domain",
-              //         icon: Global,
-              //       },
-              //     ]
-              //   : []),
+              ...(canViewDomain(user?.permissions)
+                ? [
+                    {
+                      title: "Domain",
+                      url: "domain",
+                      icon: Global,
+                    },
+                  ]
+                : []),
 
-              // ...(canViewPortalCustomization(user?.permissions)
-              //   ? [
-              //       {
-              //         title: "Website Customization",
-              //         url: "website-customization",
-              //         icon: ColorFilter,
-              //       },
-              //     ]
-              //   : []),
+              ...(canViewPortalCustomization(user?.permissions)
+                ? [
+                    {
+                      title: "Website Customization",
+                      url: "website-customization",
+                      icon: ColorFilter,
+                    },
+                  ]
+                : []),
             ],
           },
         ]
@@ -278,11 +278,17 @@ export const Sidebar = () => {
 
   const handleCBTClick = async (e: React.MouseEvent) => {
     e.preventDefault();
+    // Open the tab synchronously (within the click gesture) so mobile browsers don't block it as a popup;
+    // fill in the real URL once the token is fetched.
+    const cbtWindow = window.open("", "_blank");
     const { token } = await getSessionToken();
     const baseUrl = process.env.NEXT_PUBLIC_CBT_URL?.replace(/\/$/, "");
     const cbtUrl = `${baseUrl}/auth-entry?token=${encodeURIComponent(token)}`; // &returnTo="/subjects"
-    window.open(cbtUrl, "_blank"); // or window.location.href = cbtUrl
-    // window.location.href = cbtUrl;
+    if (cbtWindow) {
+      cbtWindow.location.href = cbtUrl;
+    } else {
+      window.location.href = cbtUrl;
+    }
   };
 
   return (
