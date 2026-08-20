@@ -569,9 +569,7 @@ export const ClassQuickSetupSheet = ({
               onValueChange={startClass => formik.setFieldValue("startClass", startClass)}
             >
               <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
-                <SelectValue>
-                  <span className="text-text-muted text-sm font-normal">{values.startClass ? values.startClass : "Select start level"}</span>
-                </SelectValue>
+                <SelectValue placeholder="Select start level e.g 1" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 {startclasses.map(str => (
@@ -590,9 +588,7 @@ export const ClassQuickSetupSheet = ({
               onValueChange={endClass => formik.setFieldValue("endClass", endClass)}
             >
               <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
-                <SelectValue>
-                  <span className="text-text-muted text-sm font-normal">{values.endClass ? values.endClass : "Select end level"}</span>
-                </SelectValue>
+                <SelectValue placeholder="Select end level e.g 6" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 {endClasses.map(str => (

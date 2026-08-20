@@ -433,10 +433,11 @@ export const ClassesAndArms = ({
     { label: "Classes and Arms", url: "/staff/settings/academic?step=class-and-arms" },
   ]);
 
-  const { data: branchesData } = useGetBranches();
+  const { data: branchesData, isPending: isLoadingBranches } = useGetBranches();
   const defaultBranchId = branchesData?.data?.[0]?.branch?.id;
-  const { data: branchLevels } = useGetLevels(branchSpecific ? activeBranch?.id : defaultBranchId);
+  const { data: branchLevels, isPending: isLoadingBranchLevels } = useGetLevels(branchSpecific ? activeBranch?.id : defaultBranchId);
   const levels = useMemo(() => extractUniqueLevelsByType(branchLevels?.data || []), [branchLevels?.data]);
+  const isLoadingLevels = isLoadingBranches || isLoadingBranchLevels;
 
   const { data: classesByLevelData, isPending: isLoadingClasses } = useGetClassesByLevel(activeLevel?.id);
   const hasClasses = !isLoadingClasses && (classesByLevelData?.data?.content?.length ?? 0) > 0;
@@ -496,6 +497,7 @@ export const ClassesAndArms = ({
                 setActiveLevel={setActiveLevel}
                 branchId={activeBranch?.id}
                 branchSpecific={branchSpecific}
+                isLoadingLevels={isLoadingLevels}
               />
             </div>
             <div className="shrink-0">
@@ -615,12 +617,14 @@ export const ClassesSetup = ({
   setActiveLevel,
   branchId,
   branchSpecific,
+  isLoadingLevels,
 }: {
   levels: ClassLevel[];
   activeLevel: ClassLevel | null;
   setActiveLevel: (level: ClassLevel) => void;
   branchId?: number;
   branchSpecific: boolean;
+  isLoadingLevels?: boolean;
 }) => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
@@ -630,7 +634,13 @@ export const ClassesSetup = ({
 
   return (
     <div>
-      {levels.length > 0 && (
+      {isLoadingLevels && levels.length === 0 && (
+        <div className="flex flex-col gap-4">
+          <Skeleton className="h-9 w-64 rounded-full" />
+          <Skeleton className="bg-bg-state-soft h-80 w-full" />
+        </div>
+      )}
+      {!isLoadingLevels && levels.length > 0 && (
         <ClassesResponsiveTabs
           levels={levels}
           activeLevel={activeLevel}

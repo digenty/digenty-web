@@ -1,7 +1,7 @@
 "use client";
 
 import { AddFill, Map } from "@digenty/icons";
-import { BranchWithClassLevels, NewBranchForm, SchoolStructurePayload, Term, Terms } from "@/api/types";
+import { BranchWithClassLevels, LevelType, NewBranchForm, SchoolStructurePayload, Term, Terms } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useAddSchoolStructure, useGetActiveSession, useUpdateAcademic } from "@/hooks/queryHooks/useAcademic";
 import { useAddBranch, useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useAddLevel, useDeleteLevel } from "@/hooks/queryHooks/useLevel";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -103,6 +104,8 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
   const [newBranches, setNewBranches] = useState<NewBranchForm[]>([]);
   const { mutateAsync: submitSchoolStructure, isPending: isSubmitting } = useAddSchoolStructure();
   const { mutateAsync: createBranch } = useAddBranch();
+  const { mutateAsync: addLevel, isPending: isAddingLevel } = useAddLevel();
+  const { mutateAsync: removeLevel, isPending: isRemovingLevel } = useDeleteLevel();
   const { data: session } = useGetActiveSession();
   const activeSession = session?.data;
 
@@ -246,6 +249,32 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
     });
   };
 
+  const handleSaveBranchLevels = async (branch: BranchWithClassLevels, levelsToAdd: string[], levelsToRemove: string[]) => {
+    if (levelsToAdd.length === 0 && levelsToRemove.length === 0) return;
+
+    try {
+      await Promise.all([
+        ...levelsToAdd.map(levelType =>
+          addLevel({
+            name: levelType,
+            levelType: levelType as LevelType,
+            branchId: branch.branch.id,
+          }),
+        ),
+        ...levelsToRemove.map(levelType => {
+          const existing = branch.classLevels.find(l => l.levelType === levelType);
+          if (!existing) return Promise.resolve();
+          return removeLevel(existing.id);
+        }),
+      ]);
+      await refetchBranches();
+      toast({ title: "Levels updated", description: `Levels updated for ${branch.branch.name}.`, type: "success" });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      toast({ title: "Failed to update levels", description: message, type: "error" });
+    }
+  };
+
   const updateNewBranch = (id: string, field: keyof NewBranchForm, value: string | string[] | boolean) => {
     setNewBranches(prev => prev.map(b => (b.id === id ? { ...b, [field]: value } : b)));
   };
@@ -362,43 +391,66 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
 
         {!isLoadingBranches && existingBranches.length > 0 && (
           <div className="flex flex-col gap-6">
-            {existingBranches.map(branch => (
-              <div key={branch.branch.id} className="bg-bg-state-soft rounded-md p-1">
-                <div className="flex items-center justify-between px-5 py-2">
-                  <Badge className="bg-bg-badge-default! text-text-subtle rounded-md">{branch.branch.name}</Badge>
-                </div>
-                <div className="bg-bg-card flex flex-col gap-4 rounded-md px-5 py-6">
-                  <div className="flex flex-col gap-2">
-                    <Label className="text-text-default text-sm font-medium">Branch Name</Label>
-                    <Input className="bg-bg-input-soft! text-text-muted rounded-md border-none" disabled value={String(branch.branch.name)} />
+            {existingBranches.map(branch => {
+              const originalLevels = branch.classLevels.map(l => l.levelType as string);
+              const selectedLevels = formik.values.branchLevels[branch.branch.id] ?? [];
+              const levelsToAdd = selectedLevels.filter(l => !originalLevels.includes(l));
+              const levelsToRemove = originalLevels.filter(l => !selectedLevels.includes(l));
+              const hasLevelChanges = levelsToAdd.length > 0 || levelsToRemove.length > 0;
+              const isBusyWithLevels = isAddingLevel || isRemovingLevel;
+
+              return (
+                <div key={branch.branch.id} className="bg-bg-state-soft rounded-md p-1">
+                  <div className="flex items-center justify-between px-5 py-2">
+                    <Badge className="bg-bg-badge-default! text-text-subtle rounded-md">{branch.branch.name}</Badge>
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <Label className="text-text-default text-sm font-medium">
-                      <Map fill="var(--color-icon-default-muted)" /> Branch Address
-                    </Label>
-                    <Input className="bg-bg-input-soft! text-text-muted rounded-md border-none" disabled value={String(branch.branch.address)} />
-                  </div>
-                  <div className="border-border-darker rounded-md border p-3">
-                    <div className="text-text-default mb-3 text-sm font-medium">Select Levels</div>
-                    <div className="flex flex-wrap gap-3">
-                      {LEVELS.map(level => {
-                        const checked = (formik.values.branchLevels[branch.branch.id] ?? []).includes(level.value);
-                        return (
-                          <div
-                            key={level.value}
-                            onClick={() => toggleExistingBranchLevel(branch.branch.id, level.value)}
-                            className="bg-bg-card text-text-default border-border-darker flex h-8 cursor-pointer items-center gap-3 rounded-md border p-2.5 text-sm shadow-xs md:h-9"
+                  <div className="bg-bg-card flex flex-col gap-4 rounded-md px-5 py-6">
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-text-default text-sm font-medium">Branch Name</Label>
+                      <Input className="bg-bg-input-soft! text-text-muted rounded-md border-none" disabled value={String(branch.branch.name)} />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-text-default text-sm font-medium">
+                        <Map fill="var(--color-icon-default-muted)" /> Branch Address
+                      </Label>
+                      <Input className="bg-bg-input-soft! text-text-muted rounded-md border-none" disabled value={String(branch.branch.address)} />
+                    </div>
+                    <div className="border-border-darker rounded-md border p-3">
+                      <div className="text-text-default mb-3 text-sm font-medium">Select Levels</div>
+                      <div className="flex flex-wrap gap-3">
+                        {LEVELS.map(level => {
+                          const checked = selectedLevels.includes(level.value);
+                          return (
+                            <div
+                              key={level.value}
+                              onClick={() => toggleExistingBranchLevel(branch.branch.id, level.value)}
+                              className="bg-bg-card text-text-default border-border-darker flex h-8 cursor-pointer items-center gap-3 rounded-md border p-2.5 text-sm shadow-xs md:h-9"
+                            >
+                              <Checkbox checked={checked} onCheckedChange={() => toggleExistingBranchLevel(branch.branch.id, level.value)} />
+                              {level.label}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {hasLevelChanges && (
+                        <div className="mt-3 flex justify-end">
+                          <Button
+                            type="button"
+                            disabled={isBusyWithLevels}
+                            onClick={() => handleSaveBranchLevels(branch, levelsToAdd, levelsToRemove)}
+                            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
                           >
-                            <Checkbox checked={checked} onCheckedChange={() => toggleExistingBranchLevel(branch.branch.id, level.value)} />
-                            {level.label}
-                          </div>
-                        );
-                      })}
+                            {isBusyWithLevels && <Spinner className="text-text-white-default size-3" />}
+                            Save Levels
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

@@ -9,7 +9,7 @@ export const useAddAssessmentDefault = () => {
     mutationKey: assessmentKeys.addDefault,
     mutationFn: addAssessmentDefault,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: levelKeys.levelAssessments });
+      queryClient.invalidateQueries({ queryKey: [levelKeys.levelAssessments] });
     },
   });
 };
@@ -20,7 +20,7 @@ export const useAddAssessment = () => {
     mutationKey: assessmentKeys.add,
     mutationFn: addAssessment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: levelKeys.levelAssessments });
+      queryClient.invalidateQueries({ queryKey: [levelKeys.levelAssessments] });
     },
   });
 };
@@ -31,7 +31,7 @@ export const useUpdateAssessmentForLevel = () => {
     mutationKey: assessmentKeys.updateAssessmentForLevel,
     mutationFn: updateAssessmentForLevel,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: levelKeys.levelAssessments });
+      queryClient.invalidateQueries({ queryKey: [levelKeys.levelAssessments] });
     },
   });
 };
