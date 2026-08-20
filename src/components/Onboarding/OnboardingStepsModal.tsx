@@ -46,9 +46,9 @@ export const OnboardingStepsModal = ({ open, setOpen, apiSteps }: OnboardingStep
 
   const content = (
     <div className="flex flex-col gap-6 px-4 py-6 md:px-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>{title}</div>
-        {/* <X className="text-icon-default-muted size-5 cursor-pointer" onClick={() => setOpen(false)} /> */}
+        <X className="text-icon-default-muted size-5 shrink-0 cursor-pointer" onClick={() => setOpen(false)} />
       </div>
       {/* Progress Bar */}
       <div className="bg-bg-muted relative h-1 w-full overflow-hidden rounded-full">
