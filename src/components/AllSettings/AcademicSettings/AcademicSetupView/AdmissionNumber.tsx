@@ -101,28 +101,27 @@ export const AdmissionNumberSetupDone = () => {
         )}
       >
         <div className="flex w-full flex-col gap-6">
-          <div className="mb-5 flex w-full items-start justify-between">
-            <div className="text-text-default text-xl font-semibold">Admission Number</div>
+          {isLoading && (
+            <div className="flex flex-col gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="bg-bg-input-soft h-15 w-full" />
+              ))}
+            </div>
+          )}
+          {!isLoading && isError && (
+            <div className="flex h-80 w-full items-center justify-center">
+              <ErrorComponent
+                title="Could not get Admission Numbers"
+                description={`${error.message || "This is our problem, we are looking into it so as to serve you better"}`}
+                buttonText="Go to the Home page"
+              />
+            </div>
+          )}
+          {!isLoading && !isError && (
+            <>
+              <div className="mb-5 flex w-full items-start justify-between">
+                <div className="text-text-default text-xl font-semibold">Admission Number</div>
 
-            {isLoading && (
-              <div className="flex flex-col gap-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="bg-bg-input-soft h-15 w-full" />
-                ))}
-              </div>
-            )}
-            {isError && (
-              <div className="flex h-80 items-center justify-center">
-                <ErrorComponent
-                  title="Could not get Admission Numbers"
-                  description={`${error.message || "This is our problem, we are looking into it so as to serve you better"}`}
-                  buttonText="Go to the Home page"
-                />
-              </div>
-            )}
-            {!isLoading && !isError && (
-              <>
-                {" "}
                 {!isEditing ? (
                   <Button
                     type="button"
@@ -132,12 +131,8 @@ export const AdmissionNumberSetupDone = () => {
                     <Edit fill="var(--color-icon-default-muted)" /> Edit
                   </Button>
                 ) : null}
-              </>
-            )}
-          </div>
+              </div>
 
-          {!isLoading && !isError && (
-            <>
               <div className="flex flex-col gap-2">
                 <Label className="text-text-default text-sm font-medium">Admission Number Prefix</Label>
                 {isEditing ? (
