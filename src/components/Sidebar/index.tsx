@@ -211,25 +211,25 @@ export const Sidebar = () => {
                   ]
                 : []),
 
-              // ...(canViewDomain(user?.permissions)
-              //   ? [
-              //       {
-              //         title: "Domain",
-              //         url: "domain",
-              //         icon: Global,
-              //       },
-              //     ]
-              //   : []),
+              ...(canViewDomain(user?.permissions)
+                ? [
+                    {
+                      title: "Domain",
+                      url: "domain",
+                      icon: Global,
+                    },
+                  ]
+                : []),
 
-              // ...(canViewPortalCustomization(user?.permissions)
-              //   ? [
-              //       {
-              //         title: "Website Customization",
-              //         url: "website-customization",
-              //         icon: ColorFilter,
-              //       },
-              //     ]
-              //   : []),
+              ...(canViewPortalCustomization(user?.permissions)
+                ? [
+                    {
+                      title: "Website Customization",
+                      url: "website-customization",
+                      icon: ColorFilter,
+                    },
+                  ]
+                : []),
             ],
           },
         ]
