@@ -37,7 +37,7 @@ export const AddStudentsForm = () => {
     distribution?.data?.find((d: { status: StudentsStatus; count: number }) => d.status === StudentsStatus.Active)?.count ?? 0;
 
   const currentPlan = useMemo(
-    () => plans?.find((plan: PlanResponseDto) => plan.name === subscription?.data?.planName),
+    () => plans?.data?.find((plan: PlanResponseDto) => plan.name === subscription?.data?.planName),
     [plans, subscription?.data?.planName],
   );
 
