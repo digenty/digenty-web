@@ -44,6 +44,11 @@ export const AddStudentsForm = () => {
   const initialCount = (subscription?.data?.studentCapacity ?? 0) + 1;
   const [studentCount, setStudentCount] = useState(initialCount);
   const [useReferral, setUseReferral] = useState(false);
+  const [inputValue, setInputValue] = useState(String(initialCount));
+
+  useEffect(() => {
+    setInputValue(String(studentCount));
+  }, [studentCount]);
 
   useEffect(() => {
     if (subscription?.data?.studentCapacity) {
@@ -138,8 +143,23 @@ export const AddStudentsForm = () => {
                   </button>
                   <input
                     type="number"
-                    value={studentCount}
-                    onChange={e => setStudentCount(Math.max(1, parseInt(e.target.value) || 1))}
+                    value={inputValue}
+                    onChange={e => {
+                      const raw = e.target.value;
+                      setInputValue(raw);
+                      if (raw === "") return;
+                      setStudentCount(Math.max(0, parseInt(raw) || 0));
+                    }}
+                    onBlur={() => {
+                      const parsed = parseInt(inputValue);
+                      if (inputValue === "" || isNaN(parsed) || parsed < 1) {
+                        setInputValue("1");
+                        setStudentCount(1);
+                      } else {
+                        setInputValue(String(parsed));
+                        setStudentCount(parsed);
+                      }
+                    }}
                     className="text-text-default flex-1 bg-transparent text-center text-sm font-medium outline-none"
                   />
                   <button

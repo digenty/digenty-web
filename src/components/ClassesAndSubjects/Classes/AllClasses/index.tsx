@@ -7,9 +7,10 @@ import { BackButton } from "@/components/BackButton";
 import { OverviewCard } from "@/components/OverviewCard";
 import { useGetBranchDetails, useGetBranches } from "@/hooks/queryHooks/useBranch";
 import useDebounce from "@/hooks/useDebounce";
+import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AllClassesMainTableProps } from "../types";
 import { AllClassesHeader } from "./AllClassesHeader";
 import { AllClassesMainTable } from "./AllClassesMainTable";
@@ -25,19 +26,39 @@ export const AllClassesMain = () => {
 
   const [activeBranchId, setActiveBranchId] = useState<number | null>(branchId ? Number(branchId) : null);
 
+  useBreadcrumb(
+    branchId
+      ? [
+          { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+          { label: "All Branches", url: "/staff/classes-and-subjects/all-branches" },
+          { label: "All Classes", url: "" },
+        ]
+      : [
+          { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+          { label: "All Classes", url: "" },
+        ],
+  );
+
   const hasBranchRestriction = (user?.adminBranchIds?.length ?? 0) > 0;
-  const userBranchIds = hasBranchRestriction ? user!.adminBranchIds! : (branchesData?.data?.map((b: BranchWithClassLevels) => b.branch.id) ?? []);
+  const userBranchIds = useMemo(
+    () => (hasBranchRestriction ? (user!.adminBranchIds! as number[]) : (branchesData?.data?.map((b: BranchWithClassLevels) => b.branch.id) ?? [])),
+    [hasBranchRestriction, user, branchesData],
+  );
   const userBranches = branchesData?.data?.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) || [];
 
+  // Sync from the URL only when the URL's branchId itself changes (e.g. navigation) —
+  // not on every render, so selecting a branch tab isn't immediately overwritten.
   useEffect(() => {
     if (branchId) {
       setActiveBranchId(Number(branchId));
-    } else if (userBranchIds.length === 1) {
-      setActiveBranchId(userBranchIds[0]);
-    } else if (userBranchIds.length > 1 && !activeBranchId) {
+    }
+  }, [branchId]);
+
+  useEffect(() => {
+    if (!branchId && !activeBranchId && userBranchIds.length > 0) {
       setActiveBranchId(userBranchIds[0]);
     }
-  }, [branchId, userBranchIds, activeBranchId]);
+  }, [branchId, activeBranchId, userBranchIds]);
 
   const [termSelected, setTermSelected] = useState<Term | null>(null);
   const [activeSession, setActiveSession] = useState<string | null>(null);

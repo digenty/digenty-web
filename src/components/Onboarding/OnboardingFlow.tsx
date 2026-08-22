@@ -17,8 +17,18 @@ export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
   const pathname = usePathname();
   const { data: progressResp, isLoading: isProgressLoading, refetch: refetchProgress } = useGetOnboardingProgress();
 
-  // If no schoolId, we show the onboarding modal
-  const showOnboardingModal = !user?.schoolId;
+  const needsOnboarding = !user?.schoolId;
+
+  // Once the welcome flow opens, keep it mounted until it explicitly finishes.
+  // schoolId flips truthy partway through (right after the branch step), but the
+  // user still has the welcome/plan step left to see - if we derived this straight
+  // from `needsOnboarding` it would unmount mid-flow and let the setup-guide modal
+  // below race in ahead of it.
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(needsOnboarding);
+
+  useEffect(() => {
+    if (needsOnboarding) setIsOnboardingModalOpen(true);
+  }, [needsOnboarding]);
 
   const apiSteps = progressResp?.data?.steps || [];
 
@@ -42,16 +52,19 @@ export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
       const isSetupPage = pathname.includes("/settings");
 
       // Auto-open if required steps are not completed AND it's not a setup page AND it's currently closed
-      if (!areRequiredStepsCompleted && !isSetupPage && !showSetupSteps) {
+      // AND the welcome flow modal isn't still showing its final step.
+      if (!areRequiredStepsCompleted && !isSetupPage && !showSetupSteps && !isOnboardingModalOpen) {
         setShowSetupSteps(true);
       }
     }
-  }, [user?.schoolId, isProgressLoading, areRequiredStepsCompleted, pathname, setShowSetupSteps]);
+  }, [user?.schoolId, isProgressLoading, areRequiredStepsCompleted, pathname, setShowSetupSteps, isOnboardingModalOpen]);
 
   return (
     <>
-      {showOnboardingModal && <OnboardingModal initialShow={showOnboardingModal} />}
-      {!showOnboardingModal && showSetupSteps && user?.isMain && (
+      {isOnboardingModalOpen && (
+        <OnboardingModal initialShow={isOnboardingModalOpen} onClose={() => setIsOnboardingModalOpen(false)} />
+      )}
+      {!isOnboardingModalOpen && showSetupSteps && user?.isMain && (
         <OnboardingStepsModal open={showSetupSteps} setOpen={setShowSetupSteps} apiSteps={apiSteps} />
       )}
     </>

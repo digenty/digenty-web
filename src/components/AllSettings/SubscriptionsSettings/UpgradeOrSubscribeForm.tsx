@@ -202,7 +202,7 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProp
               ) : (
                 distinctNamedPlans.map(plan => (
                   <PlanRadio
-                    key={plan.id}
+                    key={plan.name}
                     name={plan.name}
                     price={plan.pricePerStudent}
                     selected={selectedPlanName === plan.name}
@@ -287,6 +287,12 @@ interface StudentCountConfiguratorProps {
 
 export const StudentCountConfigurator = ({ value, onChange, activeStudents }: StudentCountConfiguratorProps) => {
   const tier = tierForCount(value);
+  const [inputValue, setInputValue] = useState(String(value));
+
+  useEffect(() => {
+    setInputValue(String(value));
+  }, [value]);
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
@@ -315,9 +321,24 @@ export const StudentCountConfigurator = ({ value, onChange, activeStudents }: St
           </button>
           <input
             type="number"
-            value={value}
+            value={inputValue}
             onClick={e => e.stopPropagation()}
-            onChange={e => onChange(Math.max(1, parseInt(e.target.value) || 1))}
+            onChange={e => {
+              const raw = e.target.value;
+              setInputValue(raw);
+              if (raw === "") return;
+              onChange(Math.max(0, parseInt(raw) || 0));
+            }}
+            onBlur={() => {
+              const parsed = parseInt(inputValue);
+              if (inputValue === "" || isNaN(parsed) || parsed < 1) {
+                setInputValue("1");
+                onChange(1);
+              } else {
+                setInputValue(String(parsed));
+                onChange(parsed);
+              }
+            }}
             className="text-text-default flex-1 bg-transparent text-center text-sm font-medium outline-none"
           />
           <button

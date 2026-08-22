@@ -21,6 +21,7 @@ import { AddClassModal } from "./AddClassModal";
 import { ClassEditSheet } from "./ClassEditSheet";
 import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
+import { LevelAgeRangeNote } from "./LevelAgeRangeNote";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (t: Branch | null) => void }) {
@@ -365,6 +366,7 @@ function ClassesResponsiveTabs({
             ))}
           </SelectContent>
         </Select>
+        <LevelAgeRangeNote levelType={activeLevel?.levelType} />
         <div className="mt-4">{<Classes />}</div>
       </div>
     );
@@ -404,6 +406,7 @@ function ClassesResponsiveTabs({
         </div>
       </div>
 
+      <LevelAgeRangeNote levelType={activeLevel?.levelType} />
       <div className="mt-4 w-full">{<Classes />}</div>
     </div>
   );

@@ -10,7 +10,6 @@ import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -27,17 +26,6 @@ export const AllClassesHeader = ({ termSelected, setTermSelected, activeSession,
   const [draft, setDraft] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const user = useLoggedInUser();
-
-  useBreadcrumb([
-    {
-      label: "Classes and Subjects",
-      url: "/staff/classes-and-subjects/all-classes",
-    },
-    {
-      label: "All Classes",
-      url: "/staff/classes-and-subjects/all-classes",
-    },
-  ]);
 
   const { data: terms, isPending: loadingTerms } = useGetTerms(user.schoolId);
 
