@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -58,8 +57,6 @@ export const AllClassesMainTable = ({
 
   const { data: levels, isLoading: loadingLevels } = useGetLevels(branchId);
 
-  useBreadcrumb([{ label: "All Classes", url: "" }]);
-
   const { mutate: approveReport, isPending: isSubmitting } = useSubmitClassReport();
 
   const handleApprove = () => {
@@ -106,12 +103,13 @@ export const AllClassesMainTable = ({
               {levels?.data[0].classLevels.map((level: ClassLevel) => (
                 <DropdownMenuItem
                   key={level.levelName}
-                  className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3 capitalize"
                   onClick={() => {
                     setLevelSelected(level);
                   }}
                 >
-                  {level.levelName.replace("_", " ").toLowerCase()}
+                  <span className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer! gap-2.5 px-3 capitalize">
+                    {level.levelName.replace("_", " ").toLowerCase()}
+                  </span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

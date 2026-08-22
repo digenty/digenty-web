@@ -1,20 +1,21 @@
 "use client";
-import { useGetParent } from "@/hooks/queryHooks/useParent";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useGetParentStudents } from "@/hooks/queryHooks/useParentStudents";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Skeleton } from "../ui/skeleton";
 
 export const Parents = () => {
-  const { id } = useLoggedInUser();
   const router = useRouter();
-  const { data, isLoading } = useGetParent(id);
+  // /parents/{id} is staff-permission-gated and 403s a parent fetching their own
+  // record, so onboarding completion is determined by whether they have linked
+  // students instead - which is what actually matters here anyway.
+  const { data, isFetched } = useGetParentStudents();
 
   useEffect(() => {
-    if (!isLoading && id) {
-      router.push(data ? "/parents/dashboard" : "/parents/onboarding");
+    if (isFetched) {
+      router.push(data && data.length > 0 ? "/parents/dashboard" : "/parents/onboarding");
     }
-  }, [data, isLoading, router, id]);
+  }, [data, isFetched, router]);
 
   return (
     <div className="flex items-center justify-center p-4 md:p-8">

@@ -8,7 +8,7 @@ import { useAddSchool } from "@/hooks/queryHooks/useSchool";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { schoolSchema } from "@/schema/school";
 import { useFormik } from "formik";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { MobileDrawer } from "../MobileDrawer";
@@ -20,9 +20,11 @@ import { Spinner } from "../ui/spinner";
 import { SchoolOverview } from "./SchoolOverview";
 import { CreateSchoolTypes } from "./types";
 import { WelcomeInputs } from "./WelcomeInputs";
+import { WelcomePlan } from "./WelcomePlan";
 
 interface OnboardingModalProps {
   initialShow: boolean;
+  onClose?: () => void;
 }
 
 interface BranchFormValues {
@@ -56,23 +58,29 @@ const defaultBranchValues: BranchFormValues = {
   singleBranch: { branchName: "", address: "", levels: [] },
 };
 
-const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
+const OnboardingModal = ({ initialShow, onClose }: OnboardingModalProps) => {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  const stepParam = searchParams.get("step");
-  const step = stepParam ? parseInt(stepParam, 10) : 1;
-
-  const setStep = (newStep: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("step", newStep.toString());
-    router.push(`${pathname}?${params.toString()}`);
-  };
+  // Kept as local state rather than a `?step=` URL param: createSession() below
+  // does a hard server-side redirect to bare `/staff` once the school+branch are
+  // created, which would wipe any step query param before this wizard's own
+  // navigation ever gets a chance to render it.
+  const [step, setStep] = useState(1);
 
   const [showModal, setShowModal] = useState(initialShow);
   const isMobile = useIsMobile();
-  const totalSteps = 2;
+  const totalSteps = 3;
+
+  const finishOnboarding = () => {
+    setShowModal(false);
+    onClose?.();
+  };
+
+  const handleUpgrade = () => {
+    setShowModal(false);
+    onClose?.();
+    router.push("/staff/settings/subscription");
+  };
 
   const { mutate: mutateSchool, isPending: isSchoolPending } = useAddSchool();
   const { mutate: mutateBranch, isPending: isBranchPending } = useAddBranch();
@@ -180,11 +188,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
               // clearDrafts();
               createSession(data.data.token, "SCHOOL_STAFF");
               toast({ title: "Branch(es) created successfully", type: "success" });
-              setShowModal(false);
-              const newParams = new URLSearchParams(searchParams.toString());
-              newParams.delete("step");
-              const queryString = newParams.toString();
-              router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`);
+              setStep(3);
             },
           });
         },
@@ -260,6 +264,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
     <div className="px-6 py-4">
       {step === 1 && <WelcomeInputs formik={schoolFormik} />}
       {step === 2 && <SchoolOverview formik={branchFormik} />}
+      {step === 3 && <WelcomePlan onUpgrade={handleUpgrade} onFinish={finishOnboarding} />}
     </div>
   );
 
@@ -287,6 +292,7 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
           open={showModal}
           setOpen={setShowModal}
           showCloseButton={false}
+          showFooter={step !== 3}
           className="sm:max-w-175"
           title={
             <span className="text-text-default text-md flex items-center gap-2">
@@ -314,12 +320,14 @@ const OnboardingModal = ({ initialShow }: OnboardingModalProps) => {
         >
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{stepContent}</div>
 
-          <div className="border-border-default bg-bg-card sticky bottom-0 w-full shrink-0 border-t">
-            <DialogFooter className="flex items-center justify-between px-6 py-2">
-              {stepIndicator}
-              {continueButton}
-            </DialogFooter>
-          </div>
+          {step !== 3 && (
+            <div className="border-border-default bg-bg-card sticky bottom-0 w-full shrink-0 border-t">
+              <DialogFooter className="flex items-center justify-between px-6 py-2">
+                {stepIndicator}
+                {continueButton}
+              </DialogFooter>
+            </div>
+          )}
         </MobileDrawer>
       )}
     </>
