@@ -9,6 +9,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useGetParentPortalBranches } from "@/hooks/queryHooks/useParentLookup";
 import { useAddParentOnParentPortal, useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { applyConflictFieldError } from "@/lib/formErrors";
 import { cn } from "@/lib/utils";
 import { parentSchema } from "@/schema/parent";
 import { Gender, genders, Relationship, relationships } from "@/types";
@@ -72,6 +73,7 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
             router.push(`${pathname}?step=student`);
           },
           onError: error => {
+            applyConflictFieldError(error, formik.setFieldError);
             toast({
               title: error.message ?? "Something went wrong",
               description: "Could not add parent",
@@ -93,6 +95,7 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
               router.push(`${pathname}?step=student`);
             },
             onError: error => {
+              applyConflictFieldError(error, formik.setFieldError);
               toast({
                 title: error.message ?? "Something went wrong",
                 description: "Could not update parent",

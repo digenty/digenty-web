@@ -17,6 +17,7 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetRoles } from "@/hooks/queryHooks/useRole";
 import { useGetStaffDetails, useUpdateStaff } from "@/hooks/queryHooks/useStaff";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { applyConflictFieldError } from "@/lib/formErrors";
 import { cn } from "@/lib/utils";
 import { staffSchema } from "@/schema/staff";
 import { useFormik } from "formik";
@@ -147,6 +148,7 @@ export const EditStaff = () => {
             router.back();
           },
           onError: error => {
+            applyConflictFieldError(error, formik.setFieldError);
             toast({
               title: error.message ?? "Something went wrong",
               description: "Could not update staff",

@@ -2,7 +2,7 @@ import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
 export type FeeStatus = "PENDING" | "PARTIALLY_PAID" | "PAID" | "OVERDUE";
-export type InvoiceStatus = "PAID" | "UNPAID" | "FULLY_PAID" | "DRAFT" | "OUTSTANDING" | "PARTIALLY_PAID";
+export type InvoiceStatus = "DRAFT" | "UNPAID" | "PARTIALLY_PAID" | "PAID";
 
 export interface PendingFeeItem {
   studentFeeItemId: number;

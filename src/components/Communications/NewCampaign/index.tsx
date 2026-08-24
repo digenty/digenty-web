@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { CampaignChannel } from "@/api/campaign";
 import { toast } from "@/components/Toast";
 import { useCreateCampaign, useEstimateCampaign, usePayForCampaign } from "@/hooks/queryHooks/useCampaign";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 import { campaignSchema } from "@/schema/communications";
 
 import { buildTarget, mapFormToCampaignRequest } from "../campaignPayload";
@@ -21,7 +21,8 @@ import { SummaryCard } from "./SummaryCard";
 const getErrorMessage = (error: unknown) => (error as { message?: string })?.message ?? "Please try again.";
 
 export const NewCampaign = () => {
-  const { email: userEmail } = useLoggedInUser();
+  const { data: profile } = useGetUserProfile();
+  const userEmail: string | undefined = profile?.data?.email;
   const router = useRouter();
   const [scheduleOpen, setScheduleOpen] = useState(false);
 

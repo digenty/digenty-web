@@ -10,7 +10,7 @@ import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { useGetFeeOverview, useGetInvoice, useGetPayFeesData } from "@/hooks/queryHooks/useParentFees";
 import { useInitiatePayment } from "@/hooks/queryHooks/usePayment";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 import { useStudentFilterStore } from "@/store/parent";
 import { InvoiceStatus } from "@/api/parent-fees";
 import { exportToPDF } from "@/lib/export-utils";
@@ -21,9 +21,7 @@ import { toast } from "sonner";
 
 const invoiceStatusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
   PAID: { label: "Paid", className: "bg-bg-badge-green text-bg-basic-green-strong" },
-  FULLY_PAID: { label: "Paid", className: "bg-bg-badge-green text-bg-basic-green-strong" },
   UNPAID: { label: "Unpaid", className: "bg-bg-badge-red text-bg-basic-red-strong" },
-  OUTSTANDING: { label: "Outstanding", className: "bg-bg-badge-red text-bg-basic-red-strong" },
   PARTIALLY_PAID: { label: "Partially Paid", className: "bg-bg-badge-orange text-bg-basic-orange-strong" },
   DRAFT: { label: "Draft", className: "bg-bg-badge-gray text-bg-basic-gray-strong" },
 };
@@ -33,7 +31,8 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [selectedFeeIds, setSelectedFeeIds] = useState<Set<number>>(new Set());
   const { selectedStudentId } = useStudentFilterStore();
-  const user = useLoggedInUser();
+  const { data: profile } = useGetUserProfile();
+  const profileEmail: string | undefined = profile?.data?.email;
 
   const { data: overview, isLoading: loadingOverview, isError: isErrorOverview } = useGetFeeOverview(selectedStudentId, termId);
   const { data: invoice, isLoading: loadingInvoice, isError: isErrorInvoice } = useGetInvoice(selectedStudentId, termId);
@@ -64,8 +63,8 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
 
   const handlePayOnline = () => {
     if (!invoice) return;
-    if (!user?.email) {
-      toast.error("No email found on your account. Please contact support.");
+    if (!profileEmail) {
+      toast.error("Add an email address in Settings to pay online.");
       return;
     }
     const hasSelectedFees = selectedFeeIds.size > 0;
@@ -82,7 +81,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
     initiatePayment.mutate(
       {
         invoiceId: invoice.invoiceId,
-        email: user.email,
+        email: profileEmail,
         currency: "NGN",
         paymentType: hasSelectedFees ? "CUSTOM" : "FULL",
         callBackUrl: `${window.location.origin}/parents/parent-fees/verify?invoiceId=${invoice.invoiceId}`,
@@ -152,7 +151,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
 
   const totalFees = (overview?.totalPaid ?? 0) + (overview?.outstandingAmount ?? 0);
   const status = invoice ? invoiceStatusConfig[invoice.status] : null;
-  const isPaid = invoice?.status === "PAID" || invoice?.status === "FULLY_PAID";
+  const isPaid = invoice?.status === "PAID";
 
   return (
     <div className="flex flex-col gap-5 md:gap-10">
@@ -209,7 +208,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                   </div>
                   {status && (
                     <Badge className={`${status.className} border-border-default rounded-md text-xs font-medium`}>
-                      {invoice.status !== "PAID" && invoice.status !== "FULLY_PAID" && <X className="size-3" />}
+                      {invoice.status !== "PAID" && <X className="size-3" />}
                       <span>{status.label}</span>
                     </Badge>
                   )}

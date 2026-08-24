@@ -4,6 +4,7 @@ import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
 import { useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { applyConflictFieldError } from "@/lib/formErrors";
 import { parentSchema } from "@/schema/parent";
 import { Gender, Relationship } from "@/types";
 import { useFormik } from "formik";
@@ -77,6 +78,7 @@ export const EditParent = () => {
             router.back();
           },
           onError: error => {
+            applyConflictFieldError(error, formik.setFieldError);
             toast({
               title: error.message ?? "Something went wrong",
               description: "Could not update parent' details",
@@ -144,7 +146,7 @@ export const EditParent = () => {
       );
     }
     if (currentStep === 2) {
-      return !!values.email && !!values.phoneNumber && !!values.address && !errors.email && !errors.phoneNumber && !errors.address;
+      return (!!values.email || !!values.phoneNumber) && !!values.address && !errors.email && !errors.phoneNumber && !errors.address;
     }
     if (currentStep === 3) {
       return true;

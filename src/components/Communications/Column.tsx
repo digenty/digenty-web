@@ -8,7 +8,7 @@ import { useState } from "react";
 
 import { CampaignResponseDto } from "@/api/campaign";
 import { toast } from "@/components/Toast";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 
 import { Checkbox } from "../ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
@@ -21,7 +21,8 @@ import { useDeleteCampaign, useDuplicateCampaign, useResendCampaign } from "@/ho
 
 const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
   const router = useRouter();
-  const user = useLoggedInUser();
+  const { data: profile } = useGetUserProfile();
+  const userEmail: string | undefined = profile?.data?.email;
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -52,7 +53,7 @@ const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
 
   const handleResend = () => {
     resendMutation.mutate(
-      { id, payload: { email: user.email ?? "", callbackUrl: `${window.location.origin}/staff/communications` } },
+      { id, payload: { email: userEmail ?? "", callbackUrl: `${window.location.origin}/staff/communications` } },
       {
         onSuccess: response => {
           const url = extractPaymentUrl(response);

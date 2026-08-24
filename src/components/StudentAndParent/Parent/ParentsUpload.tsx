@@ -11,12 +11,13 @@ import * as yup from "yup";
 import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
 import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
 import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
-import { ParentUploadType, Step } from "../BulkUpload/types";
+import { parseServerRowErrors } from "../BulkUpload/parseServerRowErrors";
+import { BulkUploadResult, ParentUploadType, Step } from "../BulkUpload/types";
 import * as XLSX from "xlsx";
 import { Branch } from "@/api/types";
 import { Spinner } from "@/components/ui/spinner";
 
-const REQUIRED_HEADERS = ["firstName", "lastName", "middleName", "gender", "email", "address", "nationality", "stateOfOrigin", "phoneNumber"];
+const REQUIRED_HEADERS = ["firstName", "lastName", "middleName", "gender", "address", "nationality", "stateOfOrigin", "phoneNumber"];
 
 const steps: Step[] = [
   { id: 1, label: "Upload Parents", completed: false },
@@ -31,6 +32,7 @@ export const ParentsUpload = () => {
   const [validRows, setValidRows] = useState<Record<string, unknown>[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
+  const [uploadResult, setUploadResult] = useState<{ uploaded: number; errors: ValidationError[] } | null>(null);
 
   const { mutate, isPending } = useUploadParents({ branchId: branchSelected?.id });
 
@@ -48,11 +50,30 @@ export const ParentsUpload = () => {
           file,
         },
         {
-          onSuccess: data => {
+          onSuccess: response => {
+            const result: Partial<BulkUploadResult> & { duplicateEmails?: unknown[] } = response?.data ?? {};
+            const duplicateCount = Array.isArray(result.duplicateEmails) ? result.duplicateEmails.length : 0;
+            const failed = result.failed ?? duplicateCount;
+            const uploaded = result.uploaded ?? 0;
+            const hasRowErrors = Array.isArray(result.errors) && result.errors.length > 0;
+
+            if (failed > 0 && hasRowErrors) {
+              setUploadResult({ uploaded, errors: parseServerRowErrors(result.errors ?? []) });
+              toast({
+                title: `${uploaded} of ${uploaded + failed} parent(s) imported`,
+                description: `${failed} row(s) had errors and were skipped — see the breakdown below.`,
+                type: uploaded === 0 ? "error" : "warning",
+              });
+              return;
+            }
+
             toast({
-              title: `Successfully uploaded ${data?.data?.duplicateEmails ? "some" : "all"} parents`,
-              description: `${data?.data?.duplicateEmails ? `${data?.data?.duplicateEmails.length} parent(s) were not uploaded due to duplicate emails.` : data?.message}`,
-              type: "success",
+              title: `Successfully uploaded ${failed > 0 ? "some" : "all"} parents`,
+              description:
+                failed > 0
+                  ? `${failed} parent(s) were not uploaded because their email or phone number is already in use.`
+                  : (result.message ?? "Success"),
+              type: failed > 0 ? "warning" : "success",
             });
             setFile(null);
             router.push("/staff/student-and-parent-record?tab=Parents");
@@ -70,6 +91,15 @@ export const ParentsUpload = () => {
   };
 
   const handlePrevious = () => {
+    if (uploadResult) {
+      setUploadResult(null);
+      setFile(null);
+      setErrors([]);
+      setValidRows([]);
+      setCurrentStep(1);
+      setCompletedSteps([]);
+      return;
+    }
     if (currentStep === steps.length) {
       setCurrentStep(currentStep - 1);
     } else {
@@ -172,10 +202,11 @@ export const ParentsUpload = () => {
   };
 
   const downloadErrorReport = () => {
+    const reportErrors = uploadResult ? uploadResult.errors : errors;
     const headers = ["Row", "Errors"];
 
     // 2. CSV rows
-    const rows = errors.map(item => [item.row, item.errors.join(" | ")]);
+    const rows = reportErrors.map(item => [item.row, item.errors.join(" | ")]);
 
     // 3. Build CSV string
     const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
@@ -200,8 +231,18 @@ export const ParentsUpload = () => {
         </div>
         <CSVUploadProgress currentStep={currentStep} steps={steps} className="w-full" completedSteps={completedSteps} />
 
-        {currentStep === steps.length ? (
-          <ConfirmUpload entity="Parents" errors={errors} validRows={validRows} downloadErrorReport={downloadErrorReport} />
+        {uploadResult ? (
+          <ConfirmUpload
+            entity="Parents"
+            errors={uploadResult.errors}
+            validCount={uploadResult.uploaded}
+            downloadErrorReport={downloadErrorReport}
+            title="Upload Results"
+            subtitle="Here's what happened during the import."
+            bannerText={`${uploadResult.errors.length} row(s) had errors and were not imported.`}
+          />
+        ) : currentStep === steps.length ? (
+          <ConfirmUpload entity="Parents" errors={errors} validCount={validRows.length} downloadErrorReport={downloadErrorReport} />
         ) : (
           <CSVUpload
             branchSelected={branchSelected}
@@ -220,20 +261,21 @@ export const ParentsUpload = () => {
             onClick={handlePrevious}
             className="bg-bg-state-soft! hover:bg-bg-state-soft! text-text-subtle hover:text-text-subtle h-7 border-none px-2 py-1 text-sm font-medium"
           >
-            {currentStep === steps.length ? "Back" : "Cancel"}
+            {uploadResult ? "Upload Another File" : currentStep === steps.length ? "Back" : "Cancel"}
           </Button>
 
           <Button
             disabled={
-              (file === null && currentStep === 1) ||
-              (currentStep === steps.length && (errors.length > 0 || validRows.length === 0)) ||
-              !branchSelected
+              !uploadResult &&
+              ((file === null && currentStep === 1) ||
+                (currentStep === steps.length && (errors.length > 0 || validRows.length === 0)) ||
+                !branchSelected)
             }
-            onClick={goToNext}
+            onClick={uploadResult ? () => router.push("/staff/student-and-parent-record?tab=Parents") : goToNext}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
           >
             {isPending && currentStep === steps.length && <Spinner className="text-text-white-default" />}
-            <span className="text-sm font-medium">{currentStep === steps.length ? "Confirm & Import" : "Continue"}</span>
+            <span className="text-sm font-medium">{uploadResult ? "Done" : currentStep === steps.length ? "Confirm & Import" : "Continue"}</span>
           </Button>
         </div>
       </div>

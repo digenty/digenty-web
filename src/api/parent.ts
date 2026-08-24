@@ -1,6 +1,6 @@
 import { getSessionToken } from "@/app/actions/auth";
 import { ParentInputType } from "@/components/StudentAndParent/types";
-import { CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
+import { BulkUploadResult, CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
 import api from "@/lib/axios/axios-auth";
 import axios, { isAxiosError } from "axios";
 
@@ -52,7 +52,16 @@ export const getParents = async ({
   }
 };
 
-export const uploadParents = async ({ file, branchId }: { file: File | null; branchId?: number }) => {
+export const uploadParents = async ({
+  file,
+  branchId,
+}: {
+  file: File | null;
+  branchId?: number;
+}): Promise<
+  | { success: boolean; code: number; message: string; data: Partial<BulkUploadResult> & { duplicateEmails?: unknown[] }; timestamp: string }
+  | undefined
+> => {
   if (file) {
     const formData = new FormData();
     formData.append("file", file);

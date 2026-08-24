@@ -77,7 +77,7 @@ export default function Dashboard() {
           </div>
           <div className="border-border-default bg-bg-default base:w-[35%] w-full min-w-0 flex-col overflow-hidden rounded-md border text-sm">
             <div className="h-full min-w-0 flex-1">
-              <Alerts />
+              <Alerts termId={termSelected?.termId ?? null} branchId={branchSelected?.id ?? null} />
             </div>
           </div>
         </div>

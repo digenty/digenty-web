@@ -432,7 +432,14 @@ export const deleteFee = async (id: number) => {
   }
 };
 
-export const publishFee = async (id: number) => {
+export type PublishFeeResponse = {
+  message: string;
+  studentsBilled: number;
+  armsSkipped?: string[];
+  warning?: string;
+};
+
+export const publishFee = async (id: number): Promise<PublishFeeResponse> => {
   try {
     const { data } = await api.post(`/fee/items/${id}/publish`);
     return data;

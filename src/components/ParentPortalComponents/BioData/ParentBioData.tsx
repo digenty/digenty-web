@@ -8,6 +8,7 @@ import { Pencil } from "lucide-react";
 
 import { useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
 import { ParentInputValues } from "@/components/StudentAndParent/types";
+import { applyConflictFieldError } from "@/lib/formErrors";
 import { parentSchema } from "@/schema/parent";
 import { toast } from "@/components/Toast";
 import { useFormik } from "formik";
@@ -160,6 +161,7 @@ export const ParentBioData = ({ parentId }: ParentBioDataProps) => {
             });
           },
           onError: error => {
+            applyConflictFieldError(error, formik.setFieldError);
             toast({
               title: error.message ?? "Something went wrong",
               description: "Could not update parent' details",
