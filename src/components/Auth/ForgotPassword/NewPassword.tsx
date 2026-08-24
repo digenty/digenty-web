@@ -16,7 +16,6 @@ import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { PasswordChecklist } from "../PasswordCheckList";
 
 export const NewPassword = ({ userType }: { userType: "staff" | "parent" }) => {
   const router = useRouter();
@@ -27,7 +26,6 @@ export const NewPassword = ({ userType }: { userType: "staff" | "parent" }) => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [passwordIsFulfilled, setPasswordIsFulfilled] = useState(false);
   const [open, setOpen] = useState(false);
 
   const { mutate: resetPassword, isPending } = useResetPassword();
@@ -62,7 +60,8 @@ export const NewPassword = ({ userType }: { userType: "staff" | "parent" }) => {
     },
   });
 
-  const canSubmit = passwordIsFulfilled && formik.values.newPassword === formik.values.confirmPassword && formik.values.confirmPassword !== "";
+  const canSubmit =
+    formik.values.newPassword !== "" && formik.values.newPassword === formik.values.confirmPassword && formik.values.confirmPassword !== "";
 
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-4">
@@ -93,10 +92,6 @@ export const NewPassword = ({ userType }: { userType: "staff" | "parent" }) => {
         </div>
         {formik.touched.newPassword && formik.errors.newPassword && <p className="text-text-destructive text-xs">{formik.errors.newPassword}</p>}
       </div>
-
-      <div className="text-text-muted text-xs">Password requirements:</div>
-
-      <PasswordChecklist password={formik.values.newPassword} setIsfulfilled={setPasswordIsFulfilled} />
 
       <div className="space-y-2">
         <Label htmlFor="confirmPassword" className="text-text-default text-sm font-medium">

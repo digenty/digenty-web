@@ -29,11 +29,6 @@ export const VerifyCode = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email]);
 
-  useEffect(() => {
-    restart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const updateOtp = (index: number, value: string) => {
     const digit = value.replace(/\D/g, "").slice(-1);
     const next = [...otp];
