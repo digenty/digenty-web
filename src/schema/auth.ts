@@ -27,8 +27,12 @@ export const authSchema = yup.object().shape({
 export const resetPasswordSchema = yup.object().shape({
   email: identifierSchema,
   otp: yup.string().length(6, "OTP must be 6 characters").required("OTP is required!"),
-  newPassword: yup.string().trim().min(8, "Password must be at least 8 characters").required("Password is required!"),
-  confirmPassword: yup.string().trim().min(8, "Password must be at least 8 characters").required("Confirm Password is required!"),
+  newPassword: yup.string().trim().required("Password is required!"),
+  confirmPassword: yup
+    .string()
+    .trim()
+    .oneOf([yup.ref("newPassword")], "Confirm password must match new password")
+    .required("Confirm Password is required!"),
 });
 
 export const verifyOtpSchema = yup.object().shape({
