@@ -178,7 +178,10 @@ export const ParentSidebar = () => {
                             !isSidebarOpen && "justify-center px-0",
                             isActive && "bg-bg-state-soft rounded-md",
                           )}
-                          onClick={() => router.push(`/${menu.url}`)}
+                          onClick={() => {
+                            router.push(`/${menu.url}`);
+                            setIsSidebarOpen(false);
+                          }}
                         >
                           <menu.icon fill={`${isActive ? "var(--color-icon-default)" : "var(--color-icon-default-disabled)"}`} />
                           {isSidebarOpen && (
@@ -194,7 +197,13 @@ export const ParentSidebar = () => {
 
             <div className="fixed bottom-0">
               <div className="flex w-full flex-col gap-3">
-                <nav onClick={logout} className={cn("flex cursor-pointer gap-2.75 py-2 pr-2")}>
+                <nav
+                  onClick={() => {
+                    logout();
+                    setIsSidebarOpen(false);
+                  }}
+                  className={cn("flex cursor-pointer gap-2.75 py-2 pr-2")}
+                >
                   <Logout fill="var(--color-icon-default-subtle)" />
                   <p className="text-sm leading-5 font-medium">Sign out</p>
                 </nav>

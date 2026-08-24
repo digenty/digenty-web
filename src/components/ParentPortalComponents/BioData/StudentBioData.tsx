@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 import { useGetStudent } from "@/hooks/queryHooks/useStudent";
-import { useGetParent } from "@/hooks/queryHooks/useParent";
+import { useGetMyParentProfile } from "@/hooks/queryHooks/useParent";
 import { Parent, Student } from "@/api/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
@@ -146,9 +146,9 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
   </div>
 );
 
-export const StudentBioData = ({ parentId, selectedStudentId }: StudentBioDataProps) => {
+export const StudentBioData = ({ selectedStudentId }: StudentBioDataProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const { data: parentData } = useGetParent(parentId);
+  const { data: parentData } = useGetMyParentProfile();
   const linkedStudent = parentData?.data?.linkedStudents?.find((s: Parent["linkedStudents"][number]) => s.id === selectedStudentId);
   const { data: studentData, isLoading, isError } = useGetStudent(linkedStudent?.id);
   const student = studentData;

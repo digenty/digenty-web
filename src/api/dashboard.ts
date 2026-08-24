@@ -20,7 +20,7 @@ export const getDashboardAlerts = async (termId: number | null, branchId: number
     if (termId) params.set("termId", String(termId));
     if (branchId) params.set("branchId", String(branchId));
     const { data } = await api.get(`/admin/dashboard/alerts${params.toString() ? `?${params.toString()}` : ""}`);
-    return data;
+    return data.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;
@@ -40,7 +40,7 @@ export const getDashboardLevels = async (branchId: number | null): Promise<Dashb
     const params = new URLSearchParams();
     if (branchId) params.set("branchId", String(branchId));
     const { data } = await api.get(`/admin/dashboard/levels${params.toString() ? `?${params.toString()}` : ""}`);
-    return data;
+    return data.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;
@@ -84,7 +84,7 @@ export const getClassPaymentCompletion = async (
     if (branchId) params.set("branchId", String(branchId));
     if (levelType) params.set("levelType", levelType);
     const { data } = await api.get(`/admin/dashboard/class-payment-completion${params.toString() ? `?${params.toString()}` : ""}`);
-    return data;
+    return data.data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;

@@ -6,12 +6,11 @@ import { StudentReview } from "./StudentReview";
 import { ParentReview } from "./ParentReview";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useGetParent } from "@/hooks/queryHooks/useParent";
+import { useGetMyParentProfile } from "@/hooks/queryHooks/useParent";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 const tabs = ["Your Details", "Student Details"];
 
@@ -21,9 +20,8 @@ export const Review = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [open, setOpen] = useState<boolean>(false);
-  const { id: parentId } = useLoggedInUser();
 
-  const { data, isLoading } = useGetParent(parentId);
+  const { data, isLoading } = useGetMyParentProfile();
   const isMobile = useIsMobile();
 
   const handleSubmit = () => {

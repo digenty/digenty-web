@@ -10,6 +10,7 @@ import { MobileDrawer } from "../MobileDrawer";
 import { Modal } from "../Modal";
 import { Button } from "../ui/button";
 import { OnboardingStep, OnboardingStepsType } from "@/api/types";
+import { getSetupProgressBarClass } from "./constants";
 
 interface OnboardingStepsModalProps {
   open: boolean;
@@ -52,7 +53,10 @@ export const OnboardingStepsModal = ({ open, setOpen, apiSteps }: OnboardingStep
       </div>
       {/* Progress Bar */}
       <div className="bg-bg-muted relative h-1 w-full overflow-hidden rounded-full">
-        <div className="bg-bg-basic-green-accent h-full transition-all duration-500 ease-in-out" style={{ width: `${progressPercentage}%` }} />
+        <div
+          className={cn("h-full transition-all duration-500 ease-in-out", getSetupProgressBarClass(progressPercentage))}
+          style={{ width: `${progressPercentage}%` }}
+        />
       </div>
 
       {/* Steps List */}
