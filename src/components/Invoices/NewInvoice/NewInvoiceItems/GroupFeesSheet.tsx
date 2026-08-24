@@ -1,5 +1,6 @@
 "use client";
 
+import { QuickReferenceAll } from "@digenty/icons";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
@@ -63,11 +64,17 @@ export const GroupFeesSheet = ({ branchId, onAddItems }: Props) => {
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        <div className="flex max-h-96 flex-col gap-3 overflow-y-auto">
+        <div className="flex flex-col gap-3 md:max-h-96 md:overflow-y-auto">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="bg-bg-input-soft h-20 w-full rounded-md" />)
           ) : groupList.length === 0 ? (
-            <p className="text-text-muted py-4 text-center text-sm">No fee groups found</p>
+            <div className="flex flex-col items-center justify-center gap-2 py-8">
+              <QuickReferenceAll stroke="var(--color-icon-default-muted)" />
+              <p className="text-text-default text-center text-sm font-medium">No Fee Groups Yet</p>
+              <p className="text-text-muted max-w-64 text-center text-xs font-normal">
+                {search ? "No fee groups match your search." : "Create a fee group first to select it here."}
+              </p>
+            </div>
           ) : (
             groupList.map(group => (
               <div
@@ -129,6 +136,7 @@ export const GroupFeesSheet = ({ branchId, onAddItems }: Props) => {
   return (
     <div>
       <Button
+        type="button"
         onClick={() => setOpen(true)}
         className="bg-bg-state-secondary! border-border-darker text-text-default flex h-8 w-full cursor-pointer items-center justify-center rounded-md border text-sm font-medium"
       >

@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetInvoicesByStudent } from "@/hooks/queryHooks/useInvoice";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { Calendar, Check, CheckCheck, TriangleAlert, X } from "lucide-react";
+import { Calendar, Check, TriangleAlert, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -60,22 +60,6 @@ export const getBadge = (status: string) => {
         <Badge className="bg-bg-badge-red text-bg-basic-red-strong border-border-default h-5 rounded-md text-xs font-medium">
           <X className="size-3" />
           <span>Failed</span>
-        </Badge>
-      );
-    case "Outstanding":
-    case "OUTSTANDING":
-      return (
-        <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
-          <TriangleAlert className="size-3" />
-          <span>Outstanding</span>
-        </Badge>
-      );
-    case "Fully Paid":
-    case "FULLY_PAID":
-      return (
-        <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default h-5 rounded-md text-xs font-medium">
-          <CheckCheck className="size-3" />
-          <span>Fully Paid</span>
         </Badge>
       );
     case "Partially Paid":

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useAddParent } from "@/hooks/queryHooks/useParent";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { applyConflictFieldError } from "@/lib/formErrors";
 import { parentSchema } from "@/schema/parent";
 import { Gender, Relationship } from "@/types";
 import { useFormik } from "formik";
@@ -51,6 +52,7 @@ export const CreateParentModal = ({ open, setOpen }: { open: boolean; setOpen: (
             setOpen(false);
           },
           onError: error => {
+            applyConflictFieldError(error, formik.setFieldError);
             toast({ title: error.message ?? "Something went wrong", description: "Could not add parent", type: "error" });
           },
         },

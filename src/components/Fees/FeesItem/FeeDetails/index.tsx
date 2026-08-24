@@ -38,7 +38,15 @@ export const FeeItemDetail = () => {
   const handlePublish = () => {
     if (!item?.feeItemId) return;
     publishFee(item.feeItemId, {
-      onSuccess: () => toast.success("Fee published"),
+      onSuccess: data => {
+        const billedCount = data.studentsBilled != null ? ` — ${data.studentsBilled} student(s) billed` : "";
+        toast.success(`${data.message}${billedCount}`);
+        if (data.warning) {
+          toast.warning(data.warning, {
+            description: data.armsSkipped?.length ? `Skipped: ${data.armsSkipped.join(", ")}` : undefined,
+          });
+        }
+      },
       onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to publish fee"),
     });
   };

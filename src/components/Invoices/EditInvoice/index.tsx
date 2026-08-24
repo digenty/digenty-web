@@ -93,7 +93,9 @@ export const EditInvoice = () => {
         : [{ id: crypto.randomUUID(), name: "", qty: 1, price: 0, required: false }],
       note: inv.note ?? "",
       showAccountDetails: inv.showAccountDetails ?? false,
-      paymentStatus: (inv.status ?? "UNPAID") as "UNPAID" | "PAID" | "PARTIALLY_PAID",
+      // A DRAFT invoice has no settable payment status via this form — default the tab selection to Unpaid.
+      paymentStatus:
+        inv.status === "PAID" || inv.status === "PARTIALLY_PAID" || inv.status === "UNPAID" ? inv.status : ("UNPAID" as const),
       paymentMethod: "BANK_TRANSFER_TERMINAL",
       amount: "",
       transactionDate: null,

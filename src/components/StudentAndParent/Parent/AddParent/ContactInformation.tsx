@@ -15,7 +15,7 @@ export const ContactInformation = ({ formik }: { formik: FormikProps<ParentInput
       <div className="grid grid-cols-1 gap-6 sm:gap-5">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-text-default text-sm font-medium">
-            Email Address<small className="text-text-destructive text-xs">*</small>
+            Email Address
           </Label>
           <Input
             id="email"
@@ -33,10 +33,12 @@ export const ContactInformation = ({ formik }: { formik: FormikProps<ParentInput
         </div>
       </div>
 
+      <p className="text-text-muted -mt-2 text-xs">Provide at least an email address or a phone number.</p>
+
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-5">
         <div className="space-y-2">
           <Label htmlFor="phoneNumber" className="text-text-default text-sm font-medium">
-            Primary Phone Number<small className="text-text-destructive text-xs">*</small>
+            Primary Phone Number
           </Label>
           <Input
             id="phoneNumber"
@@ -55,7 +57,7 @@ export const ContactInformation = ({ formik }: { formik: FormikProps<ParentInput
 
         <div className="space-y-2">
           <Label htmlFor="secondaryPhoneNumber" className="text-text-default text-sm font-medium">
-            Whatsapp Phone Number <small className="text-text-destructive text-xs">*</small>
+            Whatsapp Phone Number
           </Label>
           <Input
             id="secondaryPhoneNumber"

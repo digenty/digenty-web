@@ -128,7 +128,7 @@ export const sendChangePasswordOtp = async () => {
 
 export const verifyChangePasswordOtp = async ({ otp }: { otp: string }) => {
   try {
-    const { data } = await api.post(`/users/verify-change-password-otp?otp=${otp}`);
+    const { data } = await api.post("/users/verify-change-password-otp", { otp });
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
@@ -148,9 +148,7 @@ export const changePassword = async ({
   confirmPassword: string;
 }) => {
   try {
-    const { data } = await api.post(
-      `/users/change-password?oldPassword=${oldPassword}&newPassword=${newPassword}&confirmPassword=${confirmPassword}`,
-    );
+    const { data } = await api.post("/users/change-password", { oldPassword, newPassword, confirmPassword });
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

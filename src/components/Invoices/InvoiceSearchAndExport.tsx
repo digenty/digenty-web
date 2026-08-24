@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertFill, Check, CheckDouble, CloseCircle, Draft, Filter, ShareBox } from "@digenty/icons";
+import { AlertFill, Check, CloseCircle, Draft, Filter, ShareBox } from "@digenty/icons";
 import { BranchWithClassLevels, Terms } from "@/api/types";
 import Image from "next/image";
 import { useState } from "react";
@@ -32,9 +32,8 @@ type InvoiceSearchAndExportProps = {
 
 const filterItems = [
   { icon: <CloseCircle className="size-4" fill="var(--color-icon-default-muted)" />, label: "Unpaid", value: "UNPAID" },
-  { icon: <AlertFill className="size-4" fill="var(--color-icon-default-muted)" />, label: "Outstanding", value: "OUTSTANDING" },
+  { icon: <AlertFill className="size-4" fill="var(--color-icon-default-muted)" />, label: "Partially Paid", value: "PARTIALLY_PAID" },
   { icon: <Check className="size-4" fill="var(--color-icon-default-muted)" />, label: "Paid", value: "PAID" },
-  { icon: <CheckDouble className="size-4" fill="var(--color-icon-default-muted)" />, label: "Fully Paid", value: "FULLY_PAID" },
   { icon: <Draft className="size-4" fill="var(--color-icon-default-muted)" />, label: "Draft", value: "DRAFT" },
 ];
 

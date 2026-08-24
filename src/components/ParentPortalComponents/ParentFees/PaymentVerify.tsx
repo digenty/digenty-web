@@ -31,7 +31,7 @@ export const PaymentVerify = () => {
 
   const { data, isError } = useVerifyPaymentInvoice(invoiceId, MAX_ATTEMPTS);
 
-  const settled = data?.status === "PAID" || data?.status === "FULLY_PAID";
+  const settled = data?.status === "PAID";
   const exhausted = timedOut;
 
   // Once the webhook has reconciled the payment, refresh the parent's fee views.

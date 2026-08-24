@@ -7,16 +7,22 @@ import { ValidationError } from "./CSVUpload";
 export const ConfirmUpload = ({
   entity,
   errors,
-  validRows,
+  validCount,
   downloadErrorReport,
+  title,
+  subtitle,
+  bannerText,
 }: {
   entity: "Students" | "Parents";
   errors: ValidationError[];
-  validRows: Record<string, unknown>[];
+  validCount: number;
   downloadErrorReport: () => void;
+  title?: string;
+  subtitle?: string;
+  bannerText?: string;
 }) => {
   const invalidRecords = errors.length > 0 ? errors.length : 0;
-  const totalRows = validRows.length + errors.length;
+  const totalRows = validCount + errors.length;
 
   const mapErrors = (errors: ValidationError[]) => {
     return errors.map(error => {
@@ -28,8 +34,10 @@ export const ConfirmUpload = ({
   return (
     <div className="flex w-full flex-col items-center justify-center gap-6">
       <div className="flex flex-col items-center justify-center">
-        <h3 className="text-text-default text-lg font-semibold">Confirm {entity} Upload</h3>
-        <p className="text-text-subtle max-w-100 text-center text-xs">Review the summary of your upload before completing the import.</p>
+        <h3 className="text-text-default text-lg font-semibold">{title ?? `Confirm ${entity} Upload`}</h3>
+        <p className="text-text-subtle max-w-100 text-center text-xs">
+          {subtitle ?? "Review the summary of your upload before completing the import."}
+        </p>
       </div>
 
       <div className="grid w-full gap-3 sm:grid-cols-3">
@@ -50,7 +58,7 @@ export const ConfirmUpload = ({
               <CheckboxCircleFill fill="var(--color-icon-default)" className="size-2.5" />
             </div>
           )}
-          value={validRows.length.toString()}
+          value={validCount.toString()}
         />
 
         <OverviewCard
@@ -68,7 +76,7 @@ export const ConfirmUpload = ({
       {errors.length > 1 && (
         <div className="bg-bg-basic-orange-subtle border-border-default shadow-light flex w-full items-center gap-2.5 rounded-md border px-3 py-2.5">
           <AlertFill fill="var(--color-bg-basic-orange-accent)" className="size-6" />
-          <p className="text-text-subtle text-sm">Some records contain errors. They will not be imported unless corrected.</p>
+          <p className="text-text-subtle text-sm">{bannerText ?? "Some records contain errors. They will not be imported unless corrected."}</p>
         </div>
       )}
 

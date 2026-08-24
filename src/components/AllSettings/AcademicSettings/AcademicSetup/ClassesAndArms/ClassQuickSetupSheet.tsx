@@ -561,7 +561,7 @@ export const ClassQuickSetupSheet = ({
       </div>
 
       <div className="border-border-default flex flex-col gap-6 border-b pb-6">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex w-full flex-col gap-2">
             <Label className="text-text-default text-sm font-medium">Start level</Label>
             <Select
@@ -791,10 +791,16 @@ export const ClassQuickSetupSheet = ({
 
       {/* Mobile */}
       {isMobile && (
-        <MobileDrawer open={sheetOpen} setIsOpen={handleSheetOpenChange} title="Quick Setup" showCloseButton={true}>
-          {contentNode}
+        <MobileDrawer
+          open={sheetOpen}
+          setIsOpen={handleSheetOpenChange}
+          title="Quick Setup"
+          showCloseButton={true}
+          className="flex max-h-[85vh] flex-col overflow-hidden"
+        >
+          <div className="min-h-0 flex-1 overflow-y-auto">{contentNode}</div>
 
-          <div className="border-border-default bg-bg-card flex items-center justify-between border-t px-6 py-4">
+          <div className="border-border-default bg-bg-card flex shrink-0 items-center justify-between border-t px-6 py-4">
             <Button
               onClick={() => handleSheetOpenChange(false)}
               variant="outline"

@@ -4,6 +4,7 @@ import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
 import { useAddParent } from "@/hooks/queryHooks/useParent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { applyConflictFieldError } from "@/lib/formErrors";
 import { parentSchema } from "@/schema/parent";
 import { useFormik } from "formik";
 import { useRouter } from "next/navigation";
@@ -69,6 +70,7 @@ export const AddParent = () => {
             router.back();
           },
           onError: error => {
+            applyConflictFieldError(error, formik.setFieldError);
             toast({
               title: error.message ?? "Something went wrong",
               description: "Could not add parent",
@@ -118,13 +120,10 @@ export const AddParent = () => {
     }
     if (currentStep === 2) {
       return (
-        !!values.email &&
-        !!values.phoneNumber &&
-        !!values.secondaryPhoneNumber &&
+        (!!values.email || !!values.phoneNumber) &&
         !!values.address &&
         !errors.email &&
         !errors.phoneNumber &&
-        !errors.secondaryPhoneNumber &&
         !errors.secondaryPhoneNumber &&
         !errors.address
       );

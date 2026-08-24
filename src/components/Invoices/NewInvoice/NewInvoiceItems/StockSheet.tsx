@@ -71,7 +71,7 @@ export const StockSheet = ({ branchId, onAddItems }: Props) => {
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        <div className="flex max-h-96 flex-col gap-3 overflow-y-auto">
+        <div className="flex flex-col gap-3 md:max-h-96 md:overflow-y-auto">
           {isLoading && Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="bg-bg-input-soft h-20 w-full rounded-md" />)}
           {!isLoading && stocks.length === 0 && <p className="text-text-muted py-4 text-center text-sm">No stock items found</p>}
           {!isLoading &&
@@ -127,6 +127,7 @@ export const StockSheet = ({ branchId, onAddItems }: Props) => {
   return (
     <div>
       <Button
+        type="button"
         onClick={() => setOpen(true)}
         className="bg-bg-state-secondary! border-border-darker text-text-default flex h-8 w-full cursor-pointer items-center justify-center rounded-md border text-sm font-medium"
       >

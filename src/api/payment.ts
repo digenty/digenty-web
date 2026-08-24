@@ -45,7 +45,7 @@ export const initiatePayment = async (payload: PaymentRequestDto): Promise<Payme
   }
 };
 
-export type InvoicePaymentStatus = "PAID" | "UNPAID" | "FULLY_PAID" | "DRAFT" | "OUTSTANDING" | "PARTIALLY_PAID";
+export type InvoicePaymentStatus = "DRAFT" | "UNPAID" | "PARTIALLY_PAID" | "PAID";
 
 export interface StudentInvoiceDto {
   invoiceId: number;

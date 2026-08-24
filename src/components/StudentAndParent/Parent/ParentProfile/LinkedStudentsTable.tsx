@@ -4,7 +4,7 @@ import { DataTable } from "@/components/DataTable";
 
 import { Badge } from "@/components/ui/badge";
 import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
-import { Check, CheckCheck, TriangleAlert, X } from "lucide-react";
+import { Check, TriangleAlert, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LinkedStudentMobileCard } from "./LinkedStudentMobileCard";
@@ -34,18 +34,11 @@ export const getBadge = (status: string) => {
           <span>Unpaid</span>
         </Badge>
       );
-    case "Outstanding":
+    case "Partially Paid":
       return (
         <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
           <TriangleAlert className="size-3" />
-          <span>Outstanding</span>
-        </Badge>
-      );
-    case "Fully Paid":
-      return (
-        <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default h-5 rounded-md text-xs font-medium">
-          <CheckCheck className="size-3" />
-          <span>Fully Paid</span>
+          <span>Partially Paid</span>
         </Badge>
       );
     case "Draft":

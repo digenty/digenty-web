@@ -20,8 +20,6 @@ export const formatInvoiceStatus = (status?: string) => {
   const map: Record<string, string> = {
     PAID: "Paid",
     UNPAID: "Unpaid",
-    OUTSTANDING: "Outstanding",
-    FULLY_PAID: "Fully Paid",
     PARTIALLY_PAID: "Partially Paid",
     DRAFT: "Draft",
   };

@@ -22,7 +22,7 @@ export const ErrorComponent = ({
 }) => {
   const router = useRouter();
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex h-full items-center justify-center">
       <div className="flex max-w-80 flex-col items-center gap-4">
         <QuickReferenceAll stroke="var(--color-icon-default-muted)" />
         <p className="text-text-default text-center text-lg font-medium">{title}</p>
