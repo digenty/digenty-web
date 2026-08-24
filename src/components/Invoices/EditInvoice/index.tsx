@@ -48,6 +48,12 @@ export const EditInvoice = () => {
     onSubmit: values => {
       const studentIds = values.billTo.filter(r => r.type === "student").map(r => r.id);
       const subtotal = values.items.reduce((acc, i) => acc + i.qty * i.price, 0);
+      // Guard against a stale/legacy paymentStatus value slipping through to the API — this field
+      // only accepts three values on the update endpoint (a DRAFT invoice can't be set back to draft here).
+      const paymentStatus =
+        values.paymentStatus === "PAID" || values.paymentStatus === "PARTIALLY_PAID" || values.paymentStatus === "UNPAID"
+          ? values.paymentStatus
+          : "UNPAID";
 
       mutate(
         {
@@ -62,7 +68,7 @@ export const EditInvoice = () => {
           subtotal,
           note: values.note,
           showAccountDetails: values.showAccountDetails,
-          paymentStatus: values.paymentStatus,
+          paymentStatus,
         },
         {
           onSuccess: () => {

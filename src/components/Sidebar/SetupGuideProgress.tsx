@@ -1,6 +1,8 @@
 import { useGetOnboardingProgress } from "@/hooks/queryHooks/useSchool";
 import { useOnboardingStore } from "@/store";
 import { Tooltip } from "../Tooltip";
+import { getSetupProgressBarClass, getSetupProgressStrokeColor } from "../Onboarding/constants";
+import { cn } from "@/lib/utils";
 
 const RADIUS = 15;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -40,7 +42,7 @@ export const SetupGuideProgress = ({ isCollapsed = false }: { isCollapsed?: bool
                   cy="18"
                   r={RADIUS}
                   fill="none"
-                  stroke="var(--color-bg-basic-green-accent)"
+                  stroke={getSetupProgressStrokeColor(progressPercentage)}
                   strokeWidth="3"
                   strokeDasharray={CIRCUMFERENCE}
                   strokeDashoffset={CIRCUMFERENCE * (1 - progressPercentage / 100)}
@@ -70,7 +72,10 @@ export const SetupGuideProgress = ({ isCollapsed = false }: { isCollapsed?: bool
       </div>
 
       <div className="bg-border-default relative h-1 w-full overflow-hidden rounded-full">
-        <div className="bg-bg-basic-green-accent h-full transition-all duration-500 ease-in-out" style={{ width: `${progressPercentage}%` }} />
+        <div
+          className={cn("h-full transition-all duration-500 ease-in-out", getSetupProgressBarClass(progressPercentage))}
+          style={{ width: `${progressPercentage}%` }}
+        />
       </div>
     </div>
   );

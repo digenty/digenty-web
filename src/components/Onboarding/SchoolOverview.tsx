@@ -149,7 +149,7 @@ export const SchoolOverview = ({ formik }: SchoolOverviewProps) => {
             </Select>
           </div>
 
-          <div className="flex max-h-50 min-h-0 flex-col gap-3 overflow-y-auto">
+          <div className="flex flex-col gap-3 md:max-h-50 md:min-h-0 md:overflow-y-auto">
             {branches.map((b, index) => (
               <div key={index} className="bg-bg-muted flex flex-col gap-3 rounded-lg p-3">
                 <div className="flex items-center justify-between">

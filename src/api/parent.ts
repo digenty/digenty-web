@@ -148,6 +148,22 @@ export const getParent = async (parentId?: number) => {
   }
 };
 
+// Self-service equivalent of getParent - resolves the parent purely from the
+// auth token. /parents/{id} is staff-permission-gated and 403s a parent
+// fetching their own record, so the parent portal must use this instead.
+export const getMyParentProfile = async () => {
+  try {
+    const { data } = await api.get(`/parent/portal/me`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      if (error.response?.status === 404) return null;
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const deleteParents = async (parentIds: number[]) => {
   try {
     const { data } = await api.delete(`/parents/${parentIds.join(",")}`);

@@ -1,6 +1,7 @@
 export const parentKeys = {
   all: ["parents"] as const,
   getParent: ["Parent"] as const,
+  getMyProfile: ["myParentProfile"] as const,
   addParent: ["addParent"] as const,
   addParentOnParentPortal: ["addParentOnParentPortal"] as const,
   editParent: ["editParent"] as const,

@@ -7,8 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetParentPortalBranches } from "@/hooks/queryHooks/useParentLookup";
-import { useAddParentOnParentPortal, useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useAddParentOnParentPortal, useEditParent, useGetMyParentProfile } from "@/hooks/queryHooks/useParent";
 import { applyConflictFieldError } from "@/lib/formErrors";
 import { cn } from "@/lib/utils";
 import { parentSchema } from "@/schema/parent";
@@ -31,8 +30,7 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
   const [avatar, setAvatar] = useState<string | undefined>();
   const { data: branches, isPending: loadingBranches } = useGetParentPortalBranches(schoolId);
   const { mutate: createParent, isPending: creating } = useAddParentOnParentPortal();
-  const { id: loggedInUserId } = useLoggedInUser();
-  const { data: parentData, isLoading: loadingParent } = useGetParent(loggedInUserId);
+  const { data: parentData, isLoading: loadingParent } = useGetMyParentProfile();
   const { mutate: editParent, isPending: updating } = useEditParent();
 
   const formik = useFormik<ParentInputValues>({

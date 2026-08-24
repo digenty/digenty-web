@@ -47,7 +47,7 @@ export const BioDatas = () => {
         ))}
       </div>
 
-      {activeTab === "parent" && <ParentBioData parentId={parentId} />}
+      {activeTab === "parent" && <ParentBioData />}
       {activeTab === "student" && <StudentBioData parentId={parentId} selectedStudentId={selectedStudentId ?? null} />}
     </div>
   );
