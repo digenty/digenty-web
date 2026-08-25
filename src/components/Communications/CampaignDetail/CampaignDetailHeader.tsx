@@ -15,7 +15,7 @@ import {
   usePayForCampaign,
   useResendCampaign,
 } from "@/hooks/queryHooks/useCampaign";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 
 import { BackLink } from "@/components/BackLink";
 import { Button } from "../../ui/button";
@@ -32,7 +32,8 @@ export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) =>
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const { email: userEmail, isUserLoading } = useLoggedInUser();
+  const { data: profile, isLoading: isUserLoading } = useGetUserProfile();
+  const userEmail: string | undefined = profile?.data?.email;
   const { refetch: refetchCampaign } = useGetCampaign(campaign.id);
   const deleteMutation = useDeleteCampaign();
   const duplicateMutation = useDuplicateCampaign();

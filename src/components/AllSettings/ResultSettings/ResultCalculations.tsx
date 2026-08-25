@@ -212,7 +212,7 @@ const LevelForm = ({
 
   if (!existingRecord && !hasOpenedForm) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-20">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center">
         <ErrorComponent
           title="Not Found"
           description="No result configurations set up for this level yet."

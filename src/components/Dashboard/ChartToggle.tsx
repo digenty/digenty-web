@@ -1,10 +1,14 @@
 import React from "react";
 import { Button } from "../ui/button";
-import { ClassLevelWithBranch } from "@/api/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
+export type ChartToggleOption = {
+  id: string;
+  label: string;
+};
+
 interface ToggleGroupProps {
-  options: ClassLevelWithBranch[];
+  options: ChartToggleOption[];
   selected?: string;
   onChange?: (value: string) => void;
 }
@@ -21,25 +25,25 @@ export const ChartToggle: React.FC<ToggleGroupProps> = ({ options, selected, onC
           <Button
             variant="ghost"
             key={option.id}
-            onClick={() => handleSelect(option.levelName)}
-            className={`w-auto rounded-full px-3! py-0.5 text-sm font-medium capitalize transition-all duration-300 ${
-              selected === option.levelName ? "text-text-default shadow-xlight border-border-darker bg-bg-state-secondary" : "text-text-muted"
+            onClick={() => handleSelect(option.id)}
+            className={`w-auto rounded-full px-3! py-0.5 text-sm font-medium transition-all duration-300 ${
+              selected === option.id ? "text-text-default shadow-xlight border-border-darker bg-bg-state-secondary" : "text-text-muted"
             }`}
           >
-            {option.levelName.replaceAll("_", " ").toLowerCase()}
+            {option.label}
           </Button>
         ))}
       </div>
 
       <div className="block w-full md:hidden">
-        <Select value={selected || (options[0]?.levelName ?? "")} onValueChange={handleSelect}>
-          <SelectTrigger className="bg-bg-state-soft! text-text-default h-10 w-full rounded-full border-0 px-4 capitalize">
+        <Select value={selected || (options[0]?.id ?? "")} onValueChange={handleSelect}>
+          <SelectTrigger className="bg-bg-state-soft! text-text-default h-10 w-full rounded-full border-0 px-4">
             <SelectValue placeholder="Select level" />
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default border">
             {options.map(option => (
-              <SelectItem key={option.id} value={option.levelName} className="text-text-default capitalize">
-                {option.levelName.replaceAll("_", " ").toLowerCase()}
+              <SelectItem key={option.id} value={option.id} className="text-text-default">
+                {option.label}
               </SelectItem>
             ))}
           </SelectContent>

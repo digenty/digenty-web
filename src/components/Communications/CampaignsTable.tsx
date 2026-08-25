@@ -8,7 +8,7 @@ import { useState } from "react";
 import { CampaignChannel, CampaignResponseDto, CampaignStatus } from "@/api/campaign";
 import { toast } from "@/components/Toast";
 import { useDeleteCampaign, useDuplicateCampaign, useGetCampaigns, useResendCampaign } from "@/hooks/queryHooks/useCampaign";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 
 import { DataTable } from "../DataTable";
 import { ErrorComponent } from "../Error/ErrorComponent";
@@ -36,7 +36,8 @@ type Props = {
 
 export const CampaignsTable = ({ search, status, channel, termId, page, onPageChange }: Props) => {
   const router = useRouter();
-  const user = useLoggedInUser();
+  const { data: profile } = useGetUserProfile();
+  const userEmail: string | undefined = profile?.data?.email;
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<CampaignResponseDto[]>([]);
   const [activeCampaign, setActiveCampaign] = useState<CampaignResponseDto | null>(null);
@@ -75,7 +76,7 @@ export const CampaignsTable = ({ search, status, channel, termId, page, onPageCh
 
   const handleResend = (campaign: CampaignResponseDto) => {
     resendMutation.mutate(
-      { id: campaign.id, payload: { email: user.email ?? "", callbackUrl: `${window.location.origin}/staff/communications` } },
+      { id: campaign.id, payload: { email: userEmail ?? "", callbackUrl: `${window.location.origin}/staff/communications` } },
       {
         onSuccess: response => {
           const url = extractPaymentUrl(response);

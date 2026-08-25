@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
       { header: "admissionNumber", key: "admissionNumber" },
       { header: "email", key: "email" },
       { header: "parentEmail", key: "parentEmail" },
+      { header: "parentPhoneNumber", key: "parentPhoneNumber" },
       { header: "phoneNumber", key: "phoneNumber" },
       { header: "secondaryPhoneNumber", key: "secondaryPhoneNumber" },
     ];
@@ -41,6 +42,7 @@ export async function GET(req: NextRequest) {
       admissionNumber: "ADM001",
       email: "chinedu.okwu@example.com",
       parentEmail: "emeka.okwu@example.com",
+      parentPhoneNumber: "08034567892",
       phoneNumber: "08034567891",
       secondaryPhoneNumber: "08034567891",
     });

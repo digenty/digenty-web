@@ -5,8 +5,7 @@ import { Avatar } from "@/components/Avatar";
 import { ExpandUpDownFill } from "@digenty/icons";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetParent } from "@/hooks/queryHooks/useParent";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { useGetMyParentProfile } from "@/hooks/queryHooks/useParent";
 import { useStudentFilterStore } from "@/store/parent";
 import { useEffect, useState } from "react";
 
@@ -17,12 +16,13 @@ interface StudentFilterProps {
   onSelect?: (studentId: number, studentName: string) => void;
 }
 
-export const StudentFilter = ({ parentId, onSelect }: StudentFilterProps) => {
+// parentId is accepted for backward compatibility with existing callers but is
+// unused: the parent portal only ever shows the logged-in parent's own
+// students, resolved from the auth token via /parent/portal/me.
+export const StudentFilter = ({ onSelect }: StudentFilterProps) => {
   const { setStudent } = useStudentFilterStore();
-  const { id: loggedInUserId } = useLoggedInUser();
   const [selectedId, setSelectedId] = useState<string>("");
-  // Fall back to the logged-in parent when a valid parentId isn't supplied (NaN from URL parsing is falsy).
-  const { data: parentData, isPending } = useGetParent(parentId || loggedInUserId);
+  const { data: parentData, isPending } = useGetMyParentProfile();
   const students: LinkedStudent[] = parentData?.data?.linkedStudents ?? [];
 
   useEffect(() => {

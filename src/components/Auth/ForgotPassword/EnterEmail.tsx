@@ -51,18 +51,18 @@ export const EnterEmail = () => {
     <div className="flex w-full flex-col items-center gap-7">
       <div className="flex flex-col items-center gap-2">
         <h2 className="text-text-default text-lg font-semibold">Forgot password?</h2>
-        <p className="text-text-muted text-sm font-normal">Enter your email to reset your password.</p>
+        <p className="text-text-muted text-sm font-normal">Enter your email or phone number to reset your password.</p>
       </div>
       <form onSubmit={formik.handleSubmit} className="w-full space-y-6">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-text-default text-sm font-medium">
-            Email Address
+            Email or Phone Number
           </Label>
           <Input
             id="email"
             onChange={formik.handleChange}
             autoFocus
-            placeholder="example@domain.com"
+            placeholder="example@domain.com or 08031234567"
             onBlur={formik.handleBlur}
             value={formik.values.email}
             type="text"

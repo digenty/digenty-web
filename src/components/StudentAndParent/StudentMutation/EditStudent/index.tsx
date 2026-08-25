@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useEditStudent, useGetStudent } from "@/hooks/queryHooks/useStudent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { applyConflictFieldError } from "@/lib/formErrors";
 import { studentSchema } from "@/schema/student";
 import { AdmissionStatus, BoardingStatus, Gender } from "@/types";
 import { format } from "date-fns";
@@ -119,6 +120,7 @@ export const EditStudent = () => {
             router.back();
           },
           onError: error => {
+            applyConflictFieldError(error, formik.setFieldError);
             toast({
               title: error.message ?? "Something went wrong",
               description: "Could not edit student details",

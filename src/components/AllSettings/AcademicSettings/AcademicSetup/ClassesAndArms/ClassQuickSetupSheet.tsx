@@ -254,7 +254,9 @@ export const ClassQuickSetupSheet = ({
   const [armsDetails, setArmsDetails] = useState<ArmDetails[]>([]);
   const [departmentsDetails, setDepartmentsDetails] = useState<DepartmentWithSubjects[]>([]);
   const [departmentsEnabled, setDepartmentsEnabled] = useState(false);
-  const [armsEnabled, setArmsEnabled] = useState(false);
+  const [isLevelDetailsSaved, setIsLevelDetailsSaved] = useState(
+    Boolean(level?.levelName && level?.classNamePrefix && level?.classStart && level?.classEnd),
+  );
   const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
   const [deletingArmName, setDeletingArmName] = useState<string | null>(null);
   const [deletingDepartmentName, setDeletingDepartmentName] = useState<string | null>(null);
@@ -292,9 +294,6 @@ export const ClassQuickSetupSheet = ({
       const armsWithDetails = Array.isArray(armsData?.data[0]?.arms) ? armsData?.data[0]?.arms : (armsData?.data ?? []);
       setArms(armsWithDetails.map((arm: ArmDetails) => arm.name));
       setArmsDetails(armsWithDetails);
-      if (armsWithDetails.length > 0) {
-        setArmsEnabled(true);
-      }
     }
   }, [armsData]);
 
@@ -368,6 +367,7 @@ export const ClassQuickSetupSheet = ({
               classStart: values.startClass,
               classEnd: values.endClass,
             });
+            setIsLevelDetailsSaved(true);
             toast({ title: "Level updated successfully", description: "The level has been updated", type: "success" });
           },
           onError: error => {
@@ -561,7 +561,7 @@ export const ClassQuickSetupSheet = ({
       </div>
 
       <div className="border-border-default flex flex-col gap-6 border-b pb-6">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex w-full flex-col gap-2">
             <Label className="text-text-default text-sm font-medium">Start level</Label>
             <Select
@@ -613,7 +613,16 @@ export const ClassQuickSetupSheet = ({
         </Button>
       </div>
 
-      <div className="flex flex-col gap-6">
+      {!isLevelDetailsSaved && (
+        <div className="bg-bg-subtle border-border-default rounded-md border p-3">
+          <p className="text-text-subtle text-xs">Save the level details above to unlock departments, subjects, and arms.</p>
+        </div>
+      )}
+
+      <fieldset
+        disabled={!isLevelDetailsSaved}
+        className={cn("m-0 flex flex-col gap-6 border-0 p-0", !isLevelDetailsSaved && "pointer-events-none opacity-50")}
+      >
         {/* Departments */}
         {(level?.levelType === "JUNIOR_SECONDARY" || level?.levelType === "SENIOR_SECONDARY") && (
           <div className="flex flex-col gap-6">
@@ -703,45 +712,48 @@ export const ClassQuickSetupSheet = ({
         <div>
           {/* Arms */}
           <div className="space-y-6">
-            <div className="space-y-6">
-              <div className="text-text-default text-xl font-semibold">Arms</div>
-              <div className={cn("border-border-default flex justify-between border-b pb-6", !armsEnabled && "border-none")}>
-                <div>
-                  <Label className="text-text-default text-sm font-medium">Enable Arms</Label>
-                  <span className="text-text-subtle text-sm">
-                    Arms let you split a class or department into smaller groups while still keeping them under the same level. They&apos;re simply
-                    parallel divisions of the same class (e.g., Class A, Class B).
-                  </span>
-                </div>
-                <Toggle withBorder={false} checked={armsEnabled} onChange={e => setArmsEnabled((e.target as HTMLInputElement).checked)} />
+            <div className="space-y-2">
+              <div className="text-text-default text-xl font-semibold">
+                Arms<small className="text-text-destructive text-xs">*</small>
               </div>
+              <span className="text-text-subtle text-sm">
+                Arms let you split a class or department into smaller groups while still keeping them under the same level. They&apos;re simply
+                parallel divisions of the same class (e.g., Class A, Class B). At least one arm is required.
+              </span>
             </div>
-            {armsEnabled && (
-              <LevelItemsSection
-                existingItems={arms}
-                globalOptions={availableArms}
-                isLoadingOptions={isLoadingAllArms}
-                onAdd={handleAddArm}
-                onDelete={handleDeleteArm}
-                isAdding={isAddingArm}
-                deletingName={deletingArmName}
-                placeholder="Search or type new arms e.g A, B, C"
-              />
-            )}
+            <LevelItemsSection
+              existingItems={arms}
+              globalOptions={availableArms}
+              isLoadingOptions={isLoadingAllArms}
+              onAdd={handleAddArm}
+              onDelete={handleDeleteArm}
+              isAdding={isAddingArm}
+              deletingName={deletingArmName}
+              placeholder="Search or type new arms e.g A, B, C"
+            />
+            {arms.length === 0 && <p className="text-text-destructive text-xs font-light">Add at least one arm before you can close this setup.</p>}
           </div>
         </div>
 
         {departmentsEnabled && armsDetails.length > 0 && departmentsDetails.length > 0 && (
           <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} levelId={level.id} branchId={branchId} />
         )}
-      </div>
+      </fieldset>
     </div>
   );
+
+  const handleSheetOpenChange = (open: boolean) => {
+    if (!open && arms.length === 0) {
+      toast({ title: "Arms required", description: "Add at least one arm before closing this setup.", type: "error" });
+      return;
+    }
+    setSheetOpen(open);
+  };
 
   return (
     <div className="">
       {!isMobile && (
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
           <div>
             <SheetContent className="bg-bg-card border-border-default mt-4 mr-4 hidden overflow-y-auto rounded-md border md:block md:min-w-130">
               <SheetHeader className="border-border-darker bg-bg-card-subtle rounded-t-md border-b px-4 py-3">
@@ -757,7 +769,7 @@ export const ClassQuickSetupSheet = ({
 
               <div className="border-border-default bg-bg-card flex items-center justify-between border-t px-6 py-4">
                 <Button
-                  onClick={() => setSheetOpen(false)}
+                  onClick={() => handleSheetOpenChange(false)}
                   variant="outline"
                   className="bg-bg-state-soft! hover:bg-bg-state-soft! text-text-subtle hover:text-text-subtle h-7 border-none px-2 py-1 text-sm font-medium"
                 >
@@ -765,7 +777,7 @@ export const ClassQuickSetupSheet = ({
                 </Button>
 
                 <Button
-                  onClick={() => setSheetOpen(false)}
+                  onClick={() => handleSheetOpenChange(false)}
                   variant="outline"
                   className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7 border-none px-2 py-1 text-sm font-medium"
                 >
@@ -779,12 +791,18 @@ export const ClassQuickSetupSheet = ({
 
       {/* Mobile */}
       {isMobile && (
-        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Quick Setup" showCloseButton={true}>
-          {contentNode}
+        <MobileDrawer
+          open={sheetOpen}
+          setIsOpen={handleSheetOpenChange}
+          title="Quick Setup"
+          showCloseButton={true}
+          className="flex max-h-[85vh] flex-col overflow-hidden"
+        >
+          <div className="min-h-0 flex-1 overflow-y-auto">{contentNode}</div>
 
-          <div className="border-border-default bg-bg-card flex items-center justify-between border-t px-6 py-4">
+          <div className="border-border-default bg-bg-card flex shrink-0 items-center justify-between border-t px-6 py-4">
             <Button
-              onClick={() => setSheetOpen(false)}
+              onClick={() => handleSheetOpenChange(false)}
               variant="outline"
               className="bg-bg-state-soft! hover:bg-bg-state-soft! text-text-subtle hover:text-text-subtle h-7 border-none px-2 py-1 text-sm font-medium"
             >
@@ -792,7 +810,7 @@ export const ClassQuickSetupSheet = ({
             </Button>
 
             <Button
-              onClick={() => setSheetOpen(false)}
+              onClick={() => handleSheetOpenChange(false)}
               variant="outline"
               className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7 border-none px-2 py-1 text-sm font-medium"
             >

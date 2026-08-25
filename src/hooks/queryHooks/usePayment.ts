@@ -7,7 +7,7 @@ export const useInitiatePayment = () => {
   });
 };
 
-const isSettledStatus = (status?: StudentInvoiceDto["status"]) => status === "PAID" || status === "FULLY_PAID";
+const isSettledStatus = (status?: StudentInvoiceDto["status"]) => status === "PAID";
 
 // Polls the invoice snapshot while the Paystack webhook reconciles the payment.
 // Stops once the invoice is fully settled. `maxAttempts` bounds how long we wait.

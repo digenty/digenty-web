@@ -25,7 +25,7 @@ import { format, formatDate } from "date-fns";
 import { useFormik } from "formik";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { useGetParent } from "@/hooks/queryHooks/useParent";
+import { useGetMyParentProfile } from "@/hooks/queryHooks/useParent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 import { PlusIcon } from "lucide-react";
@@ -780,15 +780,13 @@ export const ParentStudent = ({ schoolId }: { schoolId?: number }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const parentId = Number(pathname.split("/")[3]);
-
   const editingStudentId = searchParams.get("id") ? Number(searchParams.get("id")) : undefined;
   const isEditing = editingStudentId != null;
 
   const [items, setItems] = useState<AccordionItem[]>([{ id: 1, title: "Student" }]);
   const [openId, setOpenId] = useState<number | null>(1);
   const [savedIds, setSavedIds] = useState<Set<number>>(new Set());
-  const { data: parentData } = useGetParent(parentId);
+  const { data: parentData } = useGetMyParentProfile();
 
   const handleSaveSuccess = (id: number) => {
     setSavedIds(prev => new Set(prev).add(id));

@@ -1,6 +1,6 @@
 import { getSessionToken } from "@/app/actions/auth";
 import { StudentInputType, StudentsStatus } from "@/components/StudentAndParent/types";
-import { CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
+import { BulkUploadResult, CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
 import api from "@/lib/axios/axios-auth";
 import axios, { isAxiosError } from "axios";
 
@@ -58,7 +58,13 @@ export const getStudents = async ({
   }
 };
 
-export const uploadStudents = async ({ file, branchId }: { file: File | null; branchId?: number }) => {
+export const uploadStudents = async ({
+  file,
+  branchId,
+}: {
+  file: File | null;
+  branchId?: number;
+}): Promise<{ success: boolean; code: number; message: string; data: BulkUploadResult; timestamp: string } | undefined> => {
   if (file) {
     const formData = new FormData();
     formData.append("file", file);

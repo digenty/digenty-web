@@ -6,8 +6,9 @@ import { Gender, Relationship } from "@/types";
 
 import { Pencil } from "lucide-react";
 
-import { useEditParent, useGetParent } from "@/hooks/queryHooks/useParent";
+import { useEditParent, useGetMyParentProfile } from "@/hooks/queryHooks/useParent";
 import { ParentInputValues } from "@/components/StudentAndParent/types";
+import { applyConflictFieldError } from "@/lib/formErrors";
 import { parentSchema } from "@/schema/parent";
 import { toast } from "@/components/Toast";
 import { useFormik } from "formik";
@@ -16,7 +17,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Parent } from "@/api/types";
 
-import { ParentBioDataProps } from "./types";
 import { Flag, GenderLess, Mail, MapPin, Phone, School } from "@digenty/icons";
 
 const ViewBiodata = ({ onEdit, data, setAvatar }: { onEdit: () => void; data: Parent | undefined; setAvatar: (url?: string) => void }) => {
@@ -118,10 +118,10 @@ const ViewBiodata = ({ onEdit, data, setAvatar }: { onEdit: () => void; data: Pa
   );
 };
 
-export const ParentBioData = ({ parentId }: ParentBioDataProps) => {
+export const ParentBioData = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [avatar, setAvatar] = useState<string>();
-  const { data: parentData, isLoading: loadingParent } = useGetParent(parentId);
+  const { data: parentData, isLoading: loadingParent } = useGetMyParentProfile();
   const data = parentData?.data;
   const { mutate, isPending } = useEditParent();
 
@@ -149,7 +149,7 @@ export const ParentBioData = ({ parentId }: ParentBioDataProps) => {
           tags: [],
           linkedStudents: [],
           image: avatar,
-          id: Number(parentId),
+          id: Number(data?.id),
         },
         {
           onSuccess: data => {
@@ -160,6 +160,7 @@ export const ParentBioData = ({ parentId }: ParentBioDataProps) => {
             });
           },
           onError: error => {
+            applyConflictFieldError(error, formik.setFieldError);
             toast({
               title: error.message ?? "Something went wrong",
               description: "Could not update parent' details",

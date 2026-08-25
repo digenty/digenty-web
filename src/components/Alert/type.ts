@@ -1,24 +1,15 @@
-export type ActiveAlert = {
-  id: number;
+export type AlertSeverity = "SUCCESS" | "WARNING" | "INFO";
+
+export type DashboardAlertType = "PAYMENT_COMPLETED" | "PAYMENT_OUTSTANDING";
+
+export type DashboardAlert = {
+  type: DashboardAlertType;
+  severity: AlertSeverity;
+  classId: number;
+  className: string;
   title: string;
-  description: string;
-  action: string;
-  type: AlertType;
+  message: string;
+  outstandingAmount: number;
+  studentsBilled: number;
+  studentsOwing: number;
 };
-
-export interface AlertListProps {
-  alert: {
-    id: number;
-    title: string;
-    description: string;
-    action: string;
-    label: string;
-    type: AlertType;
-  };
-}
-
-export enum AlertType {
-  results = "results",
-  fees = "fees",
-  attendance = "attendance",
-}

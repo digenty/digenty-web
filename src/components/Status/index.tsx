@@ -1,5 +1,5 @@
 import { Draft } from "@digenty/icons";
-import { Check, CheckCheck, TriangleAlert, X } from "lucide-react";
+import { Check, TriangleAlert, X } from "lucide-react";
 import { Badge } from "../ui/badge";
 
 export const stockStatus = (status: string) => {
@@ -68,24 +68,17 @@ export const getStatusBadge = (status: string) => {
           <span>Unpaid</span>
         </Badge>
       );
-    case "outstanding":
+    case "partially paid":
       return (
         <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
           <TriangleAlert className="size-3" />
-          <span>Outstanding</span>
+          <span>Partially Paid</span>
         </Badge>
       );
     case "pending":
       return (
         <Badge className="bg-bg-badge-orange text-bg-basic-orange-strong border-border-default h-5 rounded-md text-xs font-medium">
           <span>Pending</span>
-        </Badge>
-      );
-    case "fully paid":
-      return (
-        <Badge className="bg-bg-badge-lime text-bg-basic-lime-strong border-border-default h-5 rounded-md text-xs font-medium">
-          <CheckCheck className="size-3" />
-          <span>Fully Paid</span>
         </Badge>
       );
     case "draft":

@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertFill, Check, CheckDouble, CloseLarge, Draft, FileList3, ShareBox } from "@digenty/icons";
+import { AlertFill, Check, CloseLarge, Draft, FileList3, ShareBox } from "@digenty/icons";
 import { BranchWithClassLevels, ClassType, Term, Terms } from "@/api/types";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { useGetInvoices } from "@/hooks/queryHooks/useInvoice";
@@ -166,14 +166,11 @@ export const InvoiceExportModal = ({ open, setOpen, branches, terms, initialBran
               <SelectItem value="UNPAID" className="text-text-default text-sm">
                 <CloseLarge fill="var(--color-icon-default-subtle)" /> Unpaid
               </SelectItem>
-              <SelectItem value="OUTSTANDING" className="text-text-default text-sm">
-                <AlertFill fill="var(--color-icon-default-subtle)" /> Outstanding
+              <SelectItem value="PARTIALLY_PAID" className="text-text-default text-sm">
+                <AlertFill fill="var(--color-icon-default-subtle)" /> Partially Paid
               </SelectItem>
               <SelectItem value="PAID" className="text-text-default text-sm">
                 <Check fill="var(--color-icon-default-subtle)" /> Paid
-              </SelectItem>
-              <SelectItem value="FULLY_PAID" className="text-text-default text-sm">
-                <CheckDouble fill="var(--color-icon-default-subtle)" /> Fully Paid
               </SelectItem>
               <SelectItem value="DRAFT" className="text-text-default text-sm">
                 <Draft fill="var(--color-icon-default-subtle)" /> Draft

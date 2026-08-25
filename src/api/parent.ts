@@ -1,6 +1,6 @@
 import { getSessionToken } from "@/app/actions/auth";
 import { ParentInputType } from "@/components/StudentAndParent/types";
-import { CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
+import { BulkUploadResult, CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
 import api from "@/lib/axios/axios-auth";
 import axios, { isAxiosError } from "axios";
 
@@ -52,7 +52,16 @@ export const getParents = async ({
   }
 };
 
-export const uploadParents = async ({ file, branchId }: { file: File | null; branchId?: number }) => {
+export const uploadParents = async ({
+  file,
+  branchId,
+}: {
+  file: File | null;
+  branchId?: number;
+}): Promise<
+  | { success: boolean; code: number; message: string; data: Partial<BulkUploadResult> & { duplicateEmails?: unknown[] }; timestamp: string }
+  | undefined
+> => {
   if (file) {
     const formData = new FormData();
     formData.append("file", file);
@@ -129,6 +138,22 @@ export const exportParents = async ({ branchId }: { branchId?: number }) => {
 export const getParent = async (parentId?: number) => {
   try {
     const { data } = await api.get(`/parents/${parentId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      if (error.response?.status === 404) return null;
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+// Self-service equivalent of getParent - resolves the parent purely from the
+// auth token. /parents/{id} is staff-permission-gated and 403s a parent
+// fetching their own record, so the parent portal must use this instead.
+export const getMyParentProfile = async () => {
+  try {
+    const { data } = await api.get(`/parent/portal/me`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

@@ -29,11 +29,6 @@ export const VerifyCode = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email]);
 
-  useEffect(() => {
-    restart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const updateOtp = (index: number, value: string) => {
     const digit = value.replace(/\D/g, "").slice(-1);
     const next = [...otp];
@@ -105,7 +100,7 @@ export const VerifyCode = () => {
       <h2 className="text-text-default text-xl font-semibold">Forgot password?</h2>
 
       <p className="text-text-muted text-center text-sm leading-relaxed">
-        Enter the 6-digits code sent to your email
+        Enter the 6-digit code sent to
         <br />
         <strong className="text-text-default font-medium">{email}</strong>
       </p>

@@ -16,6 +16,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { ClassesAndArms } from "../AcademicSetup/ClassesAndArms";
+import { LevelAgeRangeNote } from "../AcademicSetup/ClassesAndArms/LevelAgeRangeNote";
 
 function LevelTabSwitch({
   levels,
@@ -155,7 +156,7 @@ function BranchTabSwitch({ activeBranch, setActiveBranch }: { activeBranch: Bran
   );
 }
 
-function ClassesResponsiveTabs({ levels, activeLevel, branchId }: { levels: ClassLevel[]; activeLevel: ClassLevel | null; branchId?: number }) {
+function ClassesResponsiveTabs({ activeLevel }: { levels: ClassLevel[]; activeLevel: ClassLevel | null; branchId?: number }) {
   const isMobile = useIsMobile();
 
   const { data: classesByLevelData, isPending: isLoadingClasses } = useGetClassesByLevel(activeLevel?.id);
@@ -172,14 +173,20 @@ function ClassesResponsiveTabs({ levels, activeLevel, branchId }: { levels: Clas
   if (isMobile) {
     return (
       <div className="mt-4 w-full">
-        <Content />
+        <LevelAgeRangeNote levelType={activeLevel?.levelType} />
+        <div className="mt-4">
+          <Content />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="mt-4">
-      <Content />
+      <LevelAgeRangeNote levelType={activeLevel?.levelType} />
+      <div className="mt-4">
+        <Content />
+      </div>
     </div>
   );
 }

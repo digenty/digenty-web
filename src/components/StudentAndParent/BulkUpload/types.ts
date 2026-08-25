@@ -39,6 +39,16 @@ export type CommitUploadResponse = {
   message: string;
 };
 
+// The live one-shot upload endpoints (`/students/upload/{branchId}`, `/parents/upload/{branchId}`)
+// return this shape wrapped in the app's standard `{ success, code, message, data, timestamp }` envelope.
+export type BulkUploadResult = {
+  uploaded: number;
+  failed: number;
+  message: string;
+  batchId: string;
+  errors: string[];
+};
+
 export type StudentUploadType = {
   firstName: string;
   lastName: string;

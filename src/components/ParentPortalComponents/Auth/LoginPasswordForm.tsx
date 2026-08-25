@@ -89,13 +89,13 @@ export const LoginPasswordForm = () => {
         <form noValidate onSubmit={formik.handleSubmit} className="w-full space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-text-default text-sm font-medium">
-              Email Address
+              Email or Phone Number
             </Label>
             <Input
               id="email"
               onChange={formik.handleChange}
               autoFocus
-              placeholder="example@domain.com"
+              placeholder="example@domain.com or 08031234567"
               onBlur={formik.handleBlur}
               value={formik.values.email}
               type="text"
