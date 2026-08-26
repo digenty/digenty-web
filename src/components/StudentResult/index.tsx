@@ -1,5 +1,6 @@
 import { Edit } from "@digenty/icons";
 import { StudentReport, SubjectReport } from "@/api/types";
+import { cn } from "@/lib/utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -67,13 +68,11 @@ export const StudentResult = ({
   termSelected,
   isEditable = false,
   armId,
-  branchId,
 }: {
   studentReport: StudentReport;
   termSelected: { term: string } | null;
   isEditable?: boolean;
   armId?: number;
-  branchId?: number;
 }) => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
@@ -167,26 +166,28 @@ export const StudentResult = ({
         </div>
 
         <div className="w-1/2 space-y-2">
-          <h3 className="text-bg-basic-red-accent text-sm font-semibold md:text-sm">CONDUCT</h3>
+          <h3 className="text-bg-basic-red-accent text-sm font-semibold md:text-sm">DEVELOPMENT</h3>
           <div className="text-text-subtle border-border-default border text-xs font-medium md:text-sm">
-            <div className="border-border-default flex justify-between border-b px-2">
-              <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Neatness</div>
-              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
-                {studentReport.neatness?.toLowerCase() ?? "--"}
+            {studentReport.developments.length === 0 ? (
+              <div className="flex justify-between px-2">
+                <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">--</div>
               </div>
-            </div>
-            <div className="border-border-default flex justify-between border-b px-2">
-              <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Punctuality</div>
-              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
-                {studentReport.punctuality?.toLowerCase() ?? "--"}
-              </div>
-            </div>
-            <div className="flex justify-between px-2">
-              <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">Diligence</div>
-              <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
-                {studentReport.diligence?.toLowerCase() ?? "--"}
-              </div>
-            </div>
+            ) : (
+              studentReport.developments.map((category, categoryIndex) =>
+                category.skills.map((skill, skillIndex) => {
+                  const isLast = categoryIndex === studentReport.developments.length - 1 && skillIndex === category.skills.length - 1;
+                  const label = studentReport.ratingLegend.find(entry => entry.value === skill.rating)?.label;
+                  return (
+                    <div key={skill.skillId} className={cn("flex justify-between px-2", !isLast && "border-border-default border-b")}>
+                      <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">{skill.skillName ?? category.categoryName}</div>
+                      <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
+                        {label ?? "--"}
+                      </div>
+                    </div>
+                  );
+                }),
+              )
+            )}
           </div>
         </div>
       </div>
@@ -242,19 +243,7 @@ export const StudentResult = ({
           </div>
         </div>
       </div>
-      <EditTeacherInputModal
-        open={isEditModalOpen}
-        setIsOpen={setIsEditModalOpen}
-        studentId={studentReport?.studentId}
-        armId={armId}
-        branchId={branchId}
-        initialData={{
-          neatness: studentReport?.neatness,
-          punctuality: studentReport?.punctuality,
-          diligence: studentReport?.diligence,
-          classTeacherComment: studentReport?.classTeacherComment,
-        }}
-      />
+      <EditTeacherInputModal open={isEditModalOpen} setIsOpen={setIsEditModalOpen} studentId={studentReport?.studentId} armId={armId} />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { Calendar, ListCheck } from "@digenty/icons";
-import { Term } from "@/api/types";
+import { AttendanceWeek, Term } from "@/api/types";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
@@ -11,7 +11,6 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import React, { useEffect } from "react";
-import { AttendanceWeek } from "./students";
 
 export const TermSheetHeader = ({
   classname,

@@ -11,12 +11,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AdmissionNumberSetupDone } from "./AdmissionNumber";
 import { AcademicDoneClassAndArms } from "./ClassesAndArms";
+import { DevelopmentSettings } from "./DevelopmentSettings";
 import { AcademicAssAndGradeSetupDone } from "./GradingAndAssessment";
 import { SchoolSectionAndTerm } from "./SchoolSectionTerm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ClassesAndArms } from "../AcademicSetup/ClassesAndArms";
 const termsOptions = ["24/25 Session", "24/25 Session", "24/25 Session"];
-const tabs = ["School, Session & Term", "Classes & Arms", "Assessment & Grading", "Admission Number"] as const;
+const tabs = ["School, Session & Term", "Classes & Arms", "Assessment & Grading", "Development Skills", "Admission Number"] as const;
 type Tab = (typeof tabs)[number];
 
 export const AcademicSetupView = () => {
@@ -111,6 +112,11 @@ export const AcademicSetupView = () => {
               {activeTab === "Assessment & Grading" && (
                 <div className="">
                   <AcademicAssAndGradeSetupDone />
+                </div>
+              )}
+              {activeTab === "Development Skills" && (
+                <div className="">
+                  <DevelopmentSettings />
                 </div>
               )}
               {activeTab === "Admission Number" && (

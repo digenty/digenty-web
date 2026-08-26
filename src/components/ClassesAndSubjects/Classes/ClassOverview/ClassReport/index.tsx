@@ -20,6 +20,7 @@ import { StudentCumulative, Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ClassPermissionWrapper } from "../../ClassPermissionWrapper";
 import { ClassReportFooter } from "./ClassReportFooter";
@@ -85,8 +86,8 @@ export const ClassReport = () => {
   const router = useRouter();
   const params = useSearchParams();
   const armId = path.split("/")[5];
-  const { branchIds } = useLoggedInUser();
-  const branchId = branchIds?.[0];
+  const { permissions } = useLoggedInUser();
+  const canEditTeacherInput = canManageClassesAndSubjects(permissions);
   const classArmName = params.get("classArmName")?.replaceAll("-", " ") || "";
 
   const isMobile = useIsMobile();
@@ -367,9 +368,8 @@ export const ClassReport = () => {
                       <StudentResult
                         studentReport={studentReportData?.data}
                         termSelected={termSelected}
-                        isEditable={true}
+                        isEditable={canEditTeacherInput}
                         armId={Number(armId)}
-                        branchId={branchId}
                       />
                     </div>
                   )}

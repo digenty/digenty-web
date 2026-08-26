@@ -1,79 +1,124 @@
+import { RatingLegendEntry, StudentDevelopment } from "@/api/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Modal } from "@/components/Modal";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { DrawerFooter, DrawerClose } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
-import { useAddTeacherInput } from "@/hooks/queryHooks/useStudent";
+import { useAddTeacherInput, useGetTeacherInputByStudentArm } from "@/hooks/queryHooks/useStudent";
 import { useEffect, useState } from "react";
 import { Spinner } from "../ui/spinner";
 import { toast } from "../Toast";
 
-const ratingOptions = ["Excellent", "Good", "Fair", "Poor"];
+type RatingsState = Record<number, number | null>;
+
+const buildInitialRatings = (developments: StudentDevelopment[]): RatingsState =>
+  developments.reduce<RatingsState>((acc, category) => {
+    category.skills.forEach(skill => {
+      acc[skill.skillId] = skill.rating;
+    });
+    return acc;
+  }, {});
+
+const SkillRatingFields = ({
+  developments,
+  ratingLegend,
+  ratings,
+  onChange,
+}: {
+  developments: StudentDevelopment[];
+  ratingLegend: RatingLegendEntry[];
+  ratings: RatingsState;
+  onChange: (skillId: number, rating: number) => void;
+}) => {
+  if (developments.length === 0) {
+    return <div className="text-text-muted text-sm">No development skills have been configured for this class level yet.</div>;
+  }
+
+  return (
+    <>
+      {developments.map(category => (
+        <div key={category.categoryId}>
+          <h3 className="text-bg-basic-red-accent text-sm font-semibold">{category.categoryName}</h3>
+          <div className="mt-4 space-y-4">
+            {category.skills.map(skill => (
+              <div key={skill.skillId} className="flex items-center justify-between gap-4">
+                <Label className="text-text-default w-1/3 text-sm font-medium">{skill.skillName}</Label>
+                <Select
+                  value={ratings[skill.skillId] != null ? String(ratings[skill.skillId]) : ""}
+                  onValueChange={val => onChange(skill.skillId, Number(val))}
+                >
+                  <SelectTrigger className="text-text-default border-border-default bg-bg-card h-10 w-full rounded-lg border px-3 py-2 text-sm">
+                    <SelectValue placeholder="Select a rating" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-bg-card border-none">
+                    {ratingLegend.map(entry => (
+                      <SelectItem className="text-text-default" key={entry.value} value={String(entry.value)}>
+                        {entry.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </>
+  );
+};
 
 export const EditTeacherInputModal = ({
   open,
   setIsOpen,
   studentId,
   armId,
-  branchId,
-  initialData,
 }: {
   open: boolean;
   setIsOpen: (val: boolean) => void;
   studentId?: number;
   armId?: number;
-  branchId?: number;
-  initialData?: {
-    neatness?: string | null;
-    punctuality?: string | null;
-    diligence?: string | null;
-    classTeacherComment?: string | null;
-  };
 }) => {
   const isMobile = useIsMobile();
   const { mutate: addTeacherInput, isPending } = useAddTeacherInput();
+  const { data: teacherInputData, isFetching: isLoadingTeacherInput } = useGetTeacherInputByStudentArm({ studentId, armId, enabled: open });
 
-  const [formData, setFormData] = useState({
-    neatness: "",
-    punctuality: "",
-    diligence: "",
-    classTeacherComment: "",
-  });
+  const teacherInput = teacherInputData?.data;
+
+  const [ratings, setRatings] = useState<RatingsState>({});
+  const [classTeacherComment, setClassTeacherComment] = useState("");
 
   useEffect(() => {
-    if (open && initialData) {
-      setFormData({
-        neatness: initialData.neatness?.toLowerCase() || "",
-        punctuality: initialData.punctuality?.toLowerCase() || "",
-        diligence: initialData.diligence?.toLowerCase() || "",
-        classTeacherComment: initialData.classTeacherComment || "",
-      });
+    if (open && teacherInput) {
+      setRatings(buildInitialRatings(teacherInput.developments));
+      setClassTeacherComment(teacherInput.classTeacherComment || "");
     }
-  }, [open, initialData]);
+  }, [open, teacherInput]);
 
   const handleSubmit = () => {
-    if (!studentId || !armId || branchId === undefined) {
+    if (!studentId || !armId) {
       toast({
         title: "Missing values",
-        description: "Missing required information (Student ID, Arm ID, or Branch ID)",
+        description: "Missing required information (Student ID or Arm ID)",
         type: "error",
       });
       return;
     }
 
+    const ratingsPayload = Object.entries(ratings)
+      .filter(([, rating]) => rating != null)
+      .map(([skillId, rating]) => ({ skillId: Number(skillId), rating: rating as number }));
+
     addTeacherInput(
       {
         studentId,
         armId,
-        branchId,
-        neatness: formData.neatness.toUpperCase(),
-        punctuality: formData.punctuality.toUpperCase(),
-        diligence: formData.diligence.toUpperCase(),
-        classTeacherComment: formData.classTeacherComment,
+        ratings: ratingsPayload,
+        classTeacherComment,
       },
       {
         onSuccess: () => {
@@ -94,6 +139,24 @@ export const EditTeacherInputModal = ({
       },
     );
   };
+
+  const fieldsProps = {
+    developments: teacherInput?.developments ?? [],
+    ratingLegend: teacherInput?.ratingLegend ?? [],
+    ratings,
+    onChange: (skillId: number, rating: number) => setRatings(prev => ({ ...prev, [skillId]: rating })),
+  };
+
+  const fields = isLoadingTeacherInput ? (
+    <div className="flex flex-col gap-3">
+      <Skeleton className="h-5 w-32" />
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-10 w-full" />
+    </div>
+  ) : (
+    <SkillRatingFields {...fieldsProps} />
+  );
+
   return (
     <>
       {/* Mobile view */}
@@ -101,58 +164,7 @@ export const EditTeacherInputModal = ({
         {isMobile && (
           <MobileDrawer open={open} title="Edit Teacher's Input" setIsOpen={setIsOpen}>
             <div className="flex flex-col gap-6 px-6 py-4">
-              <div>
-                <h3 className="text-bg-basic-red-accent text-sm font-semibold">Conduct</h3>
-                <div className="mt-4 space-y-4">
-                  <div className="flex flex-col gap-2">
-                    <Label className="text-text-default text-sm font-medium">Neatness</Label>
-                    <Select value={formData.neatness} onValueChange={val => setFormData(prev => ({ ...prev, neatness: val }))}>
-                      <SelectTrigger className="border-border-default text-text-default bg-bg-card w-full rounded-lg border px-3 py-2 text-sm">
-                        <SelectValue placeholder="Select an option" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-card border-none">
-                        {ratingOptions.map(option => (
-                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <Label className="text-text-default text-sm font-medium">Punctuality</Label>
-                    <Select value={formData.punctuality} onValueChange={val => setFormData(prev => ({ ...prev, punctuality: val }))}>
-                      <SelectTrigger className="border-border-default text-text-default bg-bg-card w-full rounded-lg border px-3 py-2 text-sm">
-                        <SelectValue placeholder="Select an option" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-card border-none">
-                        {ratingOptions.map(option => (
-                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <Label className="text-text-default text-sm font-medium">Diligence</Label>
-                    <Select value={formData.diligence} onValueChange={val => setFormData(prev => ({ ...prev, diligence: val }))}>
-                      <SelectTrigger className="border-border-default text-text-default bg-bg-card w-full rounded-lg border px-3 py-2 text-sm">
-                        <SelectValue placeholder="Select an option" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-card border-none">
-                        {ratingOptions.map(option => (
-                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
+              {fields}
 
               <div className="border-border-default border-t pt-4">
                 <div className="flex flex-col gap-2">
@@ -161,8 +173,8 @@ export const EditTeacherInputModal = ({
                   </Label>
                   <Textarea
                     id="mobileClassTeacherComment"
-                    value={formData.classTeacherComment}
-                    onChange={e => setFormData(prev => ({ ...prev, classTeacherComment: e.target.value }))}
+                    value={classTeacherComment}
+                    onChange={e => setClassTeacherComment(e.target.value)}
                     className="text-text-default border-border-default bg-bg-input-soft! focus:border-border-highlight! h-32 w-full resize-none rounded-lg border p-3 text-sm"
                     placeholder="Enter your comment"
                   />
@@ -215,58 +227,7 @@ export const EditTeacherInputModal = ({
             }
           >
             <div className="flex flex-col gap-6 p-6">
-              <div>
-                <h3 className="text-bg-basic-red-accent text-sm font-semibold">Conduct</h3>
-                <div className="mt-4 space-y-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <Label className="text-text-default w-1/3 text-sm font-medium">Neatness</Label>
-                    <Select value={formData.neatness} onValueChange={val => setFormData(prev => ({ ...prev, neatness: val }))}>
-                      <SelectTrigger className="text-text-default border-border-default bg-bg-card h-10 w-full rounded-lg border px-3 py-2 text-sm">
-                        <SelectValue placeholder="Select an option" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-card border-none">
-                        {ratingOptions.map(option => (
-                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <Label className="text-text-default w-1/3 text-sm font-medium">Punctuality</Label>
-                    <Select value={formData.punctuality} onValueChange={val => setFormData(prev => ({ ...prev, punctuality: val }))}>
-                      <SelectTrigger className="border-border-default text-text-default bg-bg-card h-10 w-full rounded-lg border px-3 py-2 text-sm">
-                        <SelectValue placeholder="Select an option" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-card border-none">
-                        {ratingOptions.map(option => (
-                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <Label className="text-text-default w-1/3 text-sm font-medium">Diligence</Label>
-                    <Select value={formData.diligence} onValueChange={val => setFormData(prev => ({ ...prev, diligence: val }))}>
-                      <SelectTrigger className="border-border-default text-text-default bg-bg-card h-10 w-full rounded-lg border px-3 py-2 text-sm">
-                        <SelectValue placeholder="Select an option" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-card border-none">
-                        {ratingOptions.map(option => (
-                          <SelectItem className="text-text-default" key={option} value={option.toLowerCase()}>
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
+              {fields}
 
               <div className="border-border-default border-t pt-4">
                 <div className="flex flex-col gap-2">
@@ -275,8 +236,8 @@ export const EditTeacherInputModal = ({
                   </Label>
                   <Textarea
                     id="classTeacherComment"
-                    value={formData.classTeacherComment}
-                    onChange={e => setFormData(prev => ({ ...prev, classTeacherComment: e.target.value }))}
+                    value={classTeacherComment}
+                    onChange={e => setClassTeacherComment(e.target.value)}
                     className="text-text-default border-border-default bg-bg-input-soft! focus:border-border-highlight! h-32 w-full resize-none rounded-lg border p-3 text-sm"
                     placeholder="Enter your comment"
                   />

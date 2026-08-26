@@ -1,9 +1,11 @@
+import { AttendanceSession } from "@/api/types";
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
 type AttendancePayload = {
   armId?: number;
   date?: string;
+  attendanceSession?: AttendanceSession;
 };
 
 type Attendance = {
@@ -20,6 +22,7 @@ type markAllAttendancePayload = {
   armId: number;
   date: string;
   isPresent: boolean;
+  attendanceSession?: AttendanceSession;
 };
 
 export const getAllAttendance = async (branchId?: number, termId?: number, searchQuery?: string) => {
@@ -48,9 +51,23 @@ export const createAttendanceSheet = async (payload: AttendancePayload) => {
   }
 };
 
-export const getArmAttendance = async ({ armId, date, limit, page }: { armId: number; date?: string; limit?: number; page?: number }) => {
+export const getArmAttendance = async ({
+  armId,
+  date,
+  limit,
+  page,
+  session,
+}: {
+  armId: number;
+  date?: string;
+  limit?: number;
+  page?: number;
+  session?: AttendanceSession;
+}) => {
   try {
-    const { data } = await api.get(`/attendance/arm/${armId}?size=${limit}&page=${page}&${date ? `date=${date}` : ""}`);
+    const { data } = await api.get(
+      `/attendance/arm/${armId}?size=${limit}&page=${page}&${date ? `date=${date}` : ""}${session ? `&session=${session}` : ""}`,
+    );
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

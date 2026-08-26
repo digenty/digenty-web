@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Monitor, RotateCw, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useGetSubdomain } from "@/hooks/queryHooks/useSchool";
+import { useDomainPurchases } from "@/hooks/queryHooks/useDomain";
+import { isDomainPurchaseLive } from "@/queries/domain";
 import { useWebsiteCustomization } from "../context";
 import { WebsitePreview } from "./WebsitePreview";
 
@@ -17,12 +18,15 @@ const slugify = (value: string) =>
 
 export const LivePreview = ({ className }: { className?: string }) => {
   const { config } = useWebsiteCustomization();
-  const { data: subdomainResponse } = useGetSubdomain();
+  const { data: purchases } = useDomainPurchases();
   const [device, setDevice] = useState<Device>("desktop");
   const [nonce, setNonce] = useState(0);
 
-  const subdomain = subdomainResponse?.data?.subdomain;
-  const domain = subdomain ? `${subdomain}.axisbydigenty.com` : `${slugify(config.schoolIdentity.name)}.axisbydigenty.com`;
+  // Newest purchase first, per the domains API — show it regardless of status (still "theirs"
+  // even mid-provisioning), falling back to a placeholder only when nothing's been connected yet.
+  const connectedDomain = purchases?.[0]?.domainName;
+  const domain = connectedDomain ?? `${slugify(config.schoolIdentity.name)}.com`;
+  const isLive = !!purchases?.[0] && isDomainPurchaseLive(purchases[0].status);
 
   return (
     <div className={cn("border-border-default bg-bg-card flex flex-col overflow-hidden rounded-xl border shadow-xs", className)}>
@@ -35,7 +39,7 @@ export const LivePreview = ({ className }: { className?: string }) => {
         </div>
 
         <div className="bg-bg-input-soft text-text-muted flex min-w-0 flex-1 items-center gap-2 rounded-md px-3 py-1.5 text-xs">
-          <span className="text-icon-success shrink-0">🔒</span>
+          <span className="shrink-0">{isLive ? "🔒" : "🌐"}</span>
           <span className="truncate">{domain}</span>
         </div>
 

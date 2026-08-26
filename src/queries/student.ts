@@ -13,4 +13,5 @@ export const studentKeys = {
   deleteStudents: ["deleteStudents"] as const,
   studentReport: ["studentReport"] as const,
   teacherInput: ["teacherInput"] as const,
+  teacherInputByStudentArm: ["teacherInputByStudentArm"] as const,
 };

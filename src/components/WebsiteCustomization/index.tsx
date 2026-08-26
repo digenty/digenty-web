@@ -41,10 +41,24 @@ const EditorColumn = ({ className }: { className?: string }) => (
 
 const WebsiteCustomizationInner = () => {
   const [mobileTab, setMobileTab] = useState<"editor" | "preview">("editor");
+  const [isOpeningPreview, setIsOpeningPreview] = useState(false);
   const { save, publish, startEdit, cancelEdit, isSaving, isPublishing, isLoading, isError, errorMessage, retryLoad, live, hasData, isEditing } =
     useWebsiteCustomization();
 
   useBreadcrumb([{ label: "Website Customization", url: "/staff/website-customization" }]);
+
+  const handlePreview = async () => {
+    setIsOpeningPreview(true);
+    try {
+      // Preview always reflects the last-saved draft, so flush any in-progress edits first —
+      // the new tab fetches fresh from the server (scoped to the logged-in staff member's own
+      // school, same as the editor itself), it has no access to in-memory form state.
+      if (isEditing) await save();
+      window.open("/staff/website-preview", "_blank", "noopener,noreferrer");
+    } finally {
+      setIsOpeningPreview(false);
+    }
+  };
 
   return (
     <div className="p-4 md:p-8">
@@ -63,6 +77,17 @@ const WebsiteCustomizationInner = () => {
 
         {!isError && (
           <div className="flex items-center gap-3">
+            {hasData && (
+              <Button
+                onClick={handlePreview}
+                disabled={isOpeningPreview || isSaving || isLoading}
+                className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-9! rounded-md border text-sm font-medium shadow-xs"
+              >
+                {isOpeningPreview && <Spinner className="size-3" />}
+                Preview
+              </Button>
+            )}
+
             {hasData && (
               <Button
                 onClick={publish}

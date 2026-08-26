@@ -1,11 +1,12 @@
 "use client";
-import { ArrowOpenRight, NumStudentIcon, TimeFill } from "@digenty/icons";
+import { ArrowOpenRight, ListCheck, NumStudentIcon, TimeFill } from "@digenty/icons";
 import { formatRelativeDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { useCreateAttendanceSheet } from "@/hooks/queryHooks/useAttendance";
+import { useGetAttendanceSettingsByLevel } from "@/hooks/queryHooks/useAttendanceSettings";
 import { toast } from "../Toast";
 import { Spinner } from "../ui/spinner";
 
@@ -17,16 +18,20 @@ interface CardProps {
   attendancePercentage: number;
   viewLabel?: string;
   armId: number;
+  levelId?: number;
 }
 
-export function Card({ classname, totalStudents, teacherName, lastUpdate, attendancePercentage, viewLabel = "Open", armId }: CardProps) {
+export function Card({ classname, totalStudents, teacherName, lastUpdate, attendancePercentage, viewLabel = "Open", armId, levelId }: CardProps) {
   const router = useRouter();
   const { mutate, isPending } = useCreateAttendanceSheet();
+  const { data: attendanceSettings } = useGetAttendanceSettingsByLevel(levelId);
+  const sessionsPerDay: 1 | 2 = attendanceSettings?.data?.sessionsPerDay ?? 1;
 
   const createSheet = () => {
     mutate(
       {
         armId,
+        ...(sessionsPerDay === 2 ? { attendanceSession: "MORNING" as const } : {}),
       },
       {
         onError: error => {
@@ -46,6 +51,10 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
         },
       },
     );
+  };
+
+  const viewTermSheet = () => {
+    router.push(`/staff/attendance/${classname.split(" ").join("-")}/${armId}/term-sheet`);
   };
 
   const relativeUpdate = lastUpdate ? formatRelativeDate(lastUpdate) : null;
@@ -89,14 +98,24 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
         )}
       </div>
 
-      <Button
-        onClick={createSheet}
-        className="border-border-darker bg-bg-state-secondary text-text-default flex h-7 items-center gap-2 rounded-md border p-2"
-      >
-        {isPending && <Spinner />}
-        <span className="text-sm font-medium">{viewLabel}</span>
-        <ArrowOpenRight fill="var(--color-icon-default-muted)" className="size-3" />
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          onClick={createSheet}
+          className="border-border-darker bg-bg-state-secondary text-text-default flex h-7 flex-1 items-center justify-center gap-2 rounded-md border p-2"
+        >
+          {isPending && <Spinner />}
+          <span className="text-sm font-medium">{viewLabel}</span>
+          <ArrowOpenRight fill="var(--color-icon-default-muted)" className="size-3" />
+        </Button>
+
+        <Button
+          onClick={viewTermSheet}
+          className="border-border-darker bg-bg-state-secondary text-text-default flex h-7 flex-1 items-center justify-center gap-2 rounded-md border p-2"
+        >
+          <span className="text-sm font-medium">View</span>
+          <ListCheck fill="var(--color-icon-default-muted)" className="size-3" />
+        </Button>
+      </div>
     </li>
   );
 }

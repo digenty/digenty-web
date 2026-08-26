@@ -1,4 +1,5 @@
 import { createAttendanceSheet, getAllAttendance, getArmAttendance, getTermSheet, markAllAttendance, markAttendance } from "@/api/attendance";
+import { AttendanceSession } from "@/api/types";
 import { attendanceKeys } from "@/queries/attendance";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -17,10 +18,25 @@ export const useCreateAttendanceSheet = () => {
   });
 };
 
-export const useGetArmAttendance = ({ armId, date, limit, page }: { armId: number; date?: string; limit?: number; page?: number }) => {
+export const useGetArmAttendance = ({
+  armId,
+  date,
+  limit,
+  page,
+  session,
+  enabled = true,
+}: {
+  armId: number;
+  date?: string;
+  limit?: number;
+  page?: number;
+  session?: AttendanceSession;
+  enabled?: boolean;
+}) => {
   return useQuery({
-    queryKey: [attendanceKeys.getArmAttendance, armId, date],
-    queryFn: () => getArmAttendance({ armId, date, limit, page }),
+    queryKey: [attendanceKeys.getArmAttendance, armId, date, session],
+    queryFn: () => getArmAttendance({ armId, date, limit, page, session }),
+    enabled,
   });
 };
 
