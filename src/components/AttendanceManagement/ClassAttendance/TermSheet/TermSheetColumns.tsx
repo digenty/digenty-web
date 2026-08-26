@@ -1,34 +1,39 @@
 "use client";
 
 import { Avatar } from "@/components/Avatar";
+import { AttendanceWeek, DayAttendanceDto, StudentTermAttendance } from "@/api/types";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
 import { CheckIcon, XIcon } from "lucide-react";
-import { useState } from "react";
-import { AttendanceDay, AttendanceWeek, StudentAttendance } from "./students";
 
-const RenderCell = (row: Row<StudentAttendance>, week: string, day: AttendanceDay) => {
+const RenderSessionCell = (row: Row<StudentTermAttendance>, week: string, day: DayAttendanceDto) => {
   const studentWeek = row.original.weeks.find(wk => wk.week === week);
-
   const record = studentWeek?.days.find(dy => dy.date === day.date);
-  const [isPresent, setIsPresent] = useState(record?.isPresent);
-
-  const toggleAttendance = () => {
-    setIsPresent(prev => !prev);
-  };
+  const sessions = record?.sessions ?? [];
 
   return (
-    <div
-      role="button"
-      // onClick={() => toggleAttendance()}
-      className="full-cell absolute top-0 bottom-0 flex h-full w-full cursor-pointer items-center justify-center"
-    >
-      {isPresent ? <CheckIcon className="text-bg-basic-emerald-strong size-4.5" /> : <XIcon className="text-icon-destructive size-4.5" />}
+    <div className="full-cell absolute top-0 bottom-0 flex h-full w-full items-stretch justify-center">
+      {sessions.map((session, index) => (
+        <div
+          key={`${session.session}-${index}`}
+          role="button"
+          className="text-text-muted flex h-full flex-1 flex-col items-center justify-center gap-0.5 last:border-l"
+        >
+          {sessions.length > 1 && <span className="text-2xs capitalize">{session.session.slice(0, 3).toLowerCase()}</span>}
+          {session.isPresent === true ? (
+            <CheckIcon className="text-bg-basic-emerald-strong size-4" />
+          ) : session.isPresent === false ? (
+            <XIcon className="text-icon-destructive size-4" />
+          ) : (
+            <span className="text-text-muted text-xs">--</span>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
 
-export const generateColumns = ({ weeks, totalStudents }: { weeks: AttendanceWeek[]; totalStudents: number }): ColumnDef<StudentAttendance>[] => {
+export const generateColumns = ({ weeks, totalStudents }: { weeks: AttendanceWeek[]; totalStudents: number }): ColumnDef<StudentTermAttendance>[] => {
   return [
     {
       accessorKey: "attendance-name",
@@ -59,7 +64,7 @@ export const generateColumns = ({ weeks, totalStudents }: { weeks: AttendanceWee
         header: () => (
           <span className="text-text-muted flex items-center justify-center text-center text-sm">{format(parseISO(day.date), "MMM d")}</span>
         ),
-        cell: ({ row }: { row: Row<StudentAttendance> }) => RenderCell(row, week.week, day),
+        cell: ({ row }: { row: Row<StudentTermAttendance> }) => RenderSessionCell(row, week.week, day),
       })),
     })),
 
@@ -73,13 +78,13 @@ export const generateColumns = ({ weeks, totalStudents }: { weeks: AttendanceWee
       ),
       cell: ({ row }) => {
         const total = row.original;
-        const percentage = Math.round((total.totalPresent / total.totalSchoolDays) * 100);
+        const percentage = Math.round((total.sessionsPresent / total.totalSessions) * 100);
 
         return (
           <div className="flex flex-col items-center justify-center text-center">
             <div className="text-text-default text-xs">{percentage}%</div>
             <div className="text-text-muted text-xs">
-              {total.totalPresent}/{total.totalSchoolDays} day{total.totalSchoolDays > 1 ? "s" : ""}
+              {total.sessionsPresent}/{total.totalSessions} session{total.totalSessions > 1 ? "s" : ""}
             </div>
           </div>
         );

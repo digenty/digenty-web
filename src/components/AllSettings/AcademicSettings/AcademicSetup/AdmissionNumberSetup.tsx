@@ -1,7 +1,6 @@
 "use client";
 
 import { toast } from "@/components/Toast";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,6 +11,7 @@ import { admissionFormSchema } from "@/schema/academic";
 import { DIGITS } from "@/store/admission";
 import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
+import { WizardStepFooter } from "./WizardStepFooter";
 
 type FormValues = {
   prefix: string;
@@ -161,24 +161,12 @@ export const AdmissionNumberSetup = ({
         </div>
       </div>
 
-      <div className="border-border-default bg-bg-default fixed right-0 bottom-0 left-0 z-10 flex justify-between border-t px-4 py-3 md:left-(--sidebar-w) lg:px-40">
-        <Button
-          className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
-          onClick={() => {
-            router.push(`${pathname}?step=grading-and-assessment`);
-          }}
-        >
-          Previous
-        </Button>
-
-        <Button
-          type="button"
-          onClick={() => formik.handleSubmit()}
-          className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-        >
-          Finish
-        </Button>
-      </div>
+      <WizardStepFooter
+        onBack={() => router.push(`${pathname}?step=development-skills`)}
+        onContinue={() => formik.handleSubmit()}
+        continueLabel="Finish"
+        showContinueArrow={false}
+      />
     </section>
   );
 };

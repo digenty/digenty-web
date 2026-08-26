@@ -1,11 +1,12 @@
 "use client";
 
-import { Calendar, School } from "@digenty/icons";
+import { Calendar, School, Settings4 } from "@digenty/icons";
 import { Branch, BranchWithClassLevels, Term } from "@/api/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { MobileDrawer } from "../MobileDrawer";
@@ -52,6 +53,14 @@ export const AttendanceHeader = ({
 
       {isAdmin && (
         <div className="hidden gap-2 align-middle lg:flex">
+          <Link
+            href="/staff/settings/attendance"
+            className="border-border-darker bg-bg-state-secondary flex h-8 items-center gap-2 rounded-md border px-2"
+          >
+            <Settings4 fill="var(--color-icon-default-muted)" className="size-4" />
+            <span className="text-text-default text-sm font-medium">Attendance Settings</span>
+          </Link>
+
           {!branches || loadingBranches ? (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (

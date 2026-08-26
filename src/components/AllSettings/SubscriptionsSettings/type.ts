@@ -4,10 +4,13 @@ export type BillingCycle = "Termly" | "Yearly";
 
 export type StudentTier = "1-200" | "201-400" | "401+";
 
+export type FeatureAvailability = boolean | string;
+
 export interface PlanFeatureRow {
   feature: string;
-  standard: boolean;
-  advanced: boolean;
+  starter: FeatureAvailability;
+  standard: FeatureAvailability;
+  advanced: FeatureAvailability;
 }
 
 export interface BillingHistoryRow {
@@ -22,18 +25,18 @@ export const BILLING_CYCLE_TO_PLAN_TYPE: Record<BillingCycle, PlanType> = {
   Yearly: "YEARLY",
 };
 
-export const PLAN_PRICES: Record<StudentTier, Record<BillingCycle, { standard: number; advanced: number }>> = {
+export const PLAN_PRICES: Record<StudentTier, Record<BillingCycle, { starter: number; standard: number; advanced: number }>> = {
   "1-200": {
-    Yearly: { standard: 3000, advanced: 4500 },
-    Termly: { standard: 1200, advanced: 1500 },
+    Yearly: { starter: 2500, standard: 3500, advanced: 4500 },
+    Termly: { starter: 900, standard: 1200, advanced: 1500 },
   },
   "201-400": {
-    Yearly: { standard: 2750, advanced: 4250 },
-    Termly: { standard: 1100, advanced: 1425 },
+    Yearly: { starter: 2250, standard: 3250, advanced: 4250 },
+    Termly: { starter: 800, standard: 1100, advanced: 1425 },
   },
   "401+": {
-    Yearly: { standard: 2500, advanced: 4000 },
-    Termly: { standard: 1000, advanced: 1350 },
+    Yearly: { starter: 2000, standard: 3000, advanced: 4000 },
+    Termly: { starter: 700, standard: 1000, advanced: 1350 },
   },
 };
 
@@ -57,38 +60,32 @@ export const billingStatusLabel: Record<BillingStatus, "Paid" | "Failed" | "Pend
 };
 
 export const planFeaturesData: PlanFeatureRow[] = [
-  { feature: "Administrator Tools", standard: true, advanced: true },
-  { feature: "User Information Systems", standard: true, advanced: true },
-  { feature: "Students Attendance Management", standard: true, advanced: true },
-  { feature: "Result Processing, Publishing & Remote Access", standard: true, advanced: true },
-  { feature: "Students Class Promotion / Transfer Management", standard: true, advanced: true },
-  { feature: "Communications (Bulk SMS)", standard: true, advanced: true },
-  { feature: "Online Assignments / Home Works & Lesson/Lecture Notes", standard: true, advanced: true },
-  { feature: "Online Admission Management", standard: true, advanced: true },
-  { feature: "Fees & Bursary Management", standard: true, advanced: true },
-  { feature: "Financial summary and Analytics", standard: true, advanced: true },
-  { feature: "Online Fees Payment", standard: true, advanced: true },
-  { feature: "Stock keeping and Management (School uniform, textbooks, notebooks etc.)", standard: true, advanced: true },
-  { feature: "Expense Management", standard: true, advanced: true },
-  { feature: "School Website", standard: true, advanced: true },
-  { feature: "Computer-based Testing / Examination (CBT/CBE)", standard: true, advanced: true },
-  { feature: "HR / Payroll Management", standard: true, advanced: true },
-  { feature: "Hostel Management", standard: false, advanced: true },
-  { feature: "Transport Management", standard: false, advanced: true },
-  { feature: "LMS (Live class sessions online,online courses etc.)", standard: false, advanced: true },
-  { feature: "Students E-Portal", standard: false, advanced: true },
-  { feature: "Library Management", standard: false, advanced: true },
-  { feature: "Students Graduation, Transcripts & Alumni", standard: false, advanced: true },
-  // { feature: "AI powered WhatsApp Bot as parent portal", standard: true, advanced: true },
-  // {
-  //   feature: "AI powered National Exams Mock Testing (using past questions) and preparation advisory/learning path",
-  //   standard: true,
-  //   advanced: true,
-  // },
-  // {
-  //   feature: "AI assistant for staff (assessment creation from question bank, business growth metrics, debt and expense management recommendations, etc.)",
-  //   standard: true,
-  //   advanced: true,
-  // },
-  // { feature: "AI question bank auto create from lesson notes, textbooks and curriculum", standard: true, advanced: true },
+  { feature: "Dashboard", starter: true, standard: true, advanced: true },
+  { feature: "Student & Parent Records", starter: true, standard: true, advanced: true },
+  { feature: "Classes & Subjects", starter: true, standard: true, advanced: true },
+  { feature: "Attendance", starter: true, standard: true, advanced: true },
+  { feature: "Communication", starter: true, standard: true, advanced: true },
+  { feature: "Settings", starter: true, standard: true, advanced: true },
+  { feature: "Referrals", starter: true, standard: true, advanced: true },
+  { feature: "Admission Management", starter: true, standard: true, advanced: true },
+  { feature: "Invoices", starter: true, standard: true, advanced: true },
+  { feature: "Fees", starter: true, standard: true, advanced: true },
+  { feature: "Fee Collection", starter: true, standard: true, advanced: true },
+  { feature: "Expenses", starter: true, standard: true, advanced: true },
+  { feature: "Stock", starter: true, standard: true, advanced: true },
+  { feature: "Finance Report", starter: true, standard: true, advanced: true },
+  { feature: "Portal Overview", starter: true, standard: true, advanced: true },
+  { feature: "Portal Customization", starter: true, standard: true, advanced: true },
+  { feature: "Domain", starter: true, standard: true, advanced: true },
+  { feature: "CBT", starter: false, standard: "100 AI imports / school / term", advanced: "150 AI imports / school / term" },
+  // Roadmap features — not sold as modules until built, so not offered on Starter/Standard yet;
+  // Advanced (coming soon) is slated to ship with all of them.
+  { feature: "Online Assignments / Lesson Notes", starter: false, standard: false, advanced: true },
+  { feature: "HR / Payroll Management", starter: false, standard: false, advanced: true },
+  { feature: "Hostel Management", starter: false, standard: false, advanced: true },
+  { feature: "Transport Management", starter: false, standard: false, advanced: true },
+  { feature: "LMS (live classes, online courses)", starter: false, standard: false, advanced: true },
+  { feature: "Students E-Portal", starter: false, standard: false, advanced: true },
+  { feature: "Library Management", starter: false, standard: false, advanced: true },
+  { feature: "Graduation, Transcripts & Alumni", starter: false, standard: false, advanced: true },
 ];

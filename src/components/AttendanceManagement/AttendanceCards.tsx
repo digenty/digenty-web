@@ -58,6 +58,7 @@ export const AttendanceCards = ({ levels }: { levels: AttendanceLevel[] }) => {
               lastUpdate={arm.lastUpdated}
               attendancePercentage={arm.attendancePercentage}
               armId={arm.armId}
+              levelId={activeLevel.levelId}
             />
           ))}
         </ul>

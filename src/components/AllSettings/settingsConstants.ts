@@ -1,8 +1,9 @@
-import { Award, BankCard, Box3, FileList3, GraduationCap, Group, IdCard, School, User } from "@digenty/icons";
+import { Award, BankCard, Box3, FileList3, GraduationCap, Group, IdCard, School, Settings4, User } from "@digenty/icons";
 
 export const SETTINGS_NAV = [
   { label: "General Settings", url: "/staff/settings/general", icon: School },
   { label: "Academic Setup", url: "/staff/settings/academic", icon: GraduationCap },
+  { label: "Attendance", url: "/staff/settings/attendance", icon: Settings4 },
   { label: "Result", url: "/staff/settings/result", icon: Award },
   { label: "Subscription", url: "/staff/settings/subscription", icon: BankCard },
   { label: "Invoice", url: "/staff/settings/invoice", icon: FileList3 },

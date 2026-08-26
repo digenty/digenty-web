@@ -23,6 +23,7 @@ import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
 import { DeleteClass } from "./ClassesAndArmsModals";
 import { LevelAgeRangeNote } from "./LevelAgeRangeNote";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { WizardStepFooter } from "../WizardStepFooter";
 
 function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (t: Branch | null) => void }) {
   const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
@@ -587,27 +588,13 @@ export const ClassesAndArms = ({
       </div> */}
 
         {completedSteps && setCompletedSteps && (
-          <div className="border-border-default bg-bg-default fixed right-0 bottom-0 left-0 z-10 flex justify-between border-t px-4 py-3 md:left-(--sidebar-w) lg:px-40">
-            <Button
-              className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
-              onClick={() => {
-                router.push(`${pathname}?step=school-structure`);
-              }}
-            >
-              Previous
-            </Button>
-
-            <Button
-              type="button"
-              onClick={() => {
-                setCompletedSteps([...completedSteps, "class-and-arms"]);
-                router.push(`${pathname}?step=grading-and-assessment`);
-              }}
-              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-            >
-              Next
-            </Button>
-          </div>
+          <WizardStepFooter
+            onBack={() => router.push(`${pathname}?step=school-structure`)}
+            onContinue={() => {
+              setCompletedSteps([...completedSteps, "class-and-arms"]);
+              router.push(`${pathname}?step=grading-and-assessment`);
+            }}
+          />
         )}
       </section>
     </>

@@ -1,4 +1,5 @@
 import api from "@/lib/axios/axios-auth";
+import apiPublic from "@/lib/axios/axios-public";
 import axios, { isAxiosError } from "axios";
 import { getSessionToken } from "@/app/actions/auth";
 
@@ -96,6 +97,9 @@ export interface FooterDto {
 export interface WebsiteConfigDto {
   id?: number;
   live?: boolean;
+  // Raw-HTML override. Non-empty -> render this verbatim instead of the structured sections below.
+  // null/undefined for every school built purely with the visual editor. Sending "" clears it.
+  customHtml?: string | null;
   identity?: IdentityDto;
   theme?: ThemeDto;
   hero?: HeroDto;
@@ -115,6 +119,37 @@ export const getWebsiteConfig = async (): Promise<WebsiteConfigDto> => {
   try {
     const { data } = await api.get("/website");
     // API wraps every response: { success, code, message, data: <payload>, timestamp }
+    return data.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export interface SiteResolutionDto {
+  slug: string;
+  live: boolean;
+}
+
+// Unauthenticated — host -> slug lookup used before rendering the public site. A 404 here means
+// no school owns this host at all (fall through to normal routing); a resolved `live: false`
+// means the school owns the host but hasn't published (show "coming soon", not a 404).
+export const resolveWebsiteHost = async (host: string): Promise<SiteResolutionDto | null> => {
+  try {
+    const { data } = await apiPublic.get("/public/website/resolve", { params: { host } });
+    return data.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error) && error.response?.status === 404) return null;
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+// Unauthenticated — the full site to render for a host. Only ever returns a published site;
+// an unpublished one 404s here even though resolveWebsiteHost still resolves it.
+export const getPublicWebsiteConfig = async (host: string): Promise<WebsiteConfigDto> => {
+  try {
+    const { data } = await apiPublic.get("/public/website", { params: { host } });
     return data.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;

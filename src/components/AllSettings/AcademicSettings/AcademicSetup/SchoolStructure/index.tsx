@@ -18,6 +18,7 @@ import { useAddSchoolStructure, useGetActiveSession, useUpdateAcademic } from "@
 import { useAddBranch, useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useAddLevel, useDeleteLevel } from "@/hooks/queryHooks/useLevel";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { WizardStepFooter } from "../WizardStepFooter";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { getAcademicYears } from "@/lib/utils";
@@ -532,21 +533,12 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
         </Button>
       </div>
 
-      <div className="border-border-default bg-bg-default fixed right-0 bottom-0 left-0 z-10 flex justify-between border-t px-4 py-3 md:left-(--sidebar-w) lg:px-36">
-        <Button className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!" disabled>
-          Previous
-        </Button>
-
-        <Button
-          type="button"
-          onClick={() => formik.handleSubmit()}
-          disabled={isSubmitting || isUpdating}
-          className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-        >
-          {isSubmitting && <Spinner className="text-text-white-default h-4 w-4" />}
-          Next
-        </Button>
-      </div>
+      <WizardStepFooter
+        backDisabled
+        onContinue={() => formik.handleSubmit()}
+        continueDisabled={isSubmitting || isUpdating}
+        isLoading={isSubmitting}
+      />
     </section>
   );
 };

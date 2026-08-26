@@ -31,7 +31,7 @@ interface WebsiteCustomizationContextValue {
   errorMessage: string;
   retryLoad: () => void;
   live: boolean;
-  save: () => void;
+  save: () => Promise<void>;
   publish: () => void;
 }
 

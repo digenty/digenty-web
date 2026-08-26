@@ -1,5 +1,5 @@
 "use client";
-import { Term } from "@/api/types";
+import { StudentTermAttendance, Term } from "@/api/types";
 import { BackButton } from "@/components/BackButton";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
@@ -10,16 +10,8 @@ import { useEffect, useState } from "react";
 import { TermSheetCard } from "./TermSheetCard";
 import { generateColumns } from "./TermSheetColumns";
 import { TermSheetHeader } from "./TermSheetHeader";
-import { StudentAttendance } from "./students";
 import { ClassAttendanceWrapper } from "../ClassAttendanceWrapper";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-
-export interface Student {
-  id: number;
-  name: string;
-  avatar: string;
-  present: boolean;
-}
 
 export const TermSheet = () => {
   const path = usePathname();
@@ -113,7 +105,7 @@ export const TermSheet = () => {
           </div>
 
           <div className="block space-y-3 px-4 md:hidden">
-            {data.data.map((student: StudentAttendance) => {
+            {data.data.map((student: StudentTermAttendance) => {
               const days = student.weeks.find(wk => wk.week === activeWeek)?.days;
               return (
                 <TermSheetCard

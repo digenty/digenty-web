@@ -157,6 +157,45 @@ export interface Attendance {
   levels: AttendanceLevel[];
 }
 
+export type AttendanceSession = "MORNING" | "AFTERNOON" | "FULL_DAY";
+
+export interface AttendanceLevelSettings {
+  levelId: number;
+  levelName: string;
+  branchId: number;
+  sessionsPerDay: 1 | 2;
+  sessions: AttendanceSession[];
+  effectiveFrom: string | null;
+  configured: boolean;
+}
+
+export interface SessionAttendanceDto {
+  attendanceTransactionId: number | null;
+  session: AttendanceSession;
+  isPresent: boolean | null;
+}
+
+export interface DayAttendanceDto {
+  date: string;
+  sessions: SessionAttendanceDto[];
+}
+
+export interface AttendanceWeek {
+  week: string;
+  days: DayAttendanceDto[];
+}
+
+export interface StudentTermAttendance {
+  studentId: number;
+  studentName: string;
+  totalSessions: number;
+  sessionsPresent: number;
+  sessionsAbsent: number;
+  sessionsPerDay: 1 | 2;
+  attendancePercentage: number;
+  weeks: AttendanceWeek[];
+}
+
 export interface Term {
   termId: number;
   term: string;
@@ -243,6 +282,66 @@ export interface SubjectReport {
   remark: string;
 }
 
+export interface DevelopmentSkill {
+  id: number | null;
+  name: string;
+  displayOrder?: number;
+  hasRatings?: boolean;
+}
+
+// GET /development-settings/categories (flat CRUD list) — no skills, id/name naming.
+export interface DevelopmentCategorySummary {
+  id: number;
+  name: string;
+  displayOrder: number;
+}
+
+// Categories nested under GET /development-settings/level/{id} — categoryId/categoryName naming, includes skills.
+export interface DevelopmentCategory {
+  categoryId: number;
+  categoryName: string;
+  displayOrder: number;
+  skills: DevelopmentSkill[];
+}
+
+export interface RatingLegendEntry {
+  value: number;
+  label: string;
+}
+
+export interface DevelopmentLevelSettings {
+  levelId: number;
+  levelName: string;
+  levelType: LevelType;
+  branchId: number;
+  categories: DevelopmentCategory[];
+  ratingLegend: RatingLegendEntry[];
+}
+
+export interface SkillRating {
+  skillId: number;
+  skillName?: string;
+  rating: number | null;
+}
+
+export interface StudentDevelopment {
+  categoryId: number;
+  categoryName: string;
+  skills: SkillRating[];
+}
+
+export interface TeacherInputRecord {
+  id: number | null;
+  branchId: number;
+  studentId: number;
+  studentName: string;
+  armId: number;
+  termId: number;
+  developments: StudentDevelopment[];
+  ratingLegend: RatingLegendEntry[];
+  classTeacherComment: string | null;
+}
+
 export interface StudentReport {
   schoolName: string;
   sessionName: string;
@@ -252,9 +351,12 @@ export interface StudentReport {
   totalSchoolDays: number;
   totalPresent: number;
   totalAbsent: number;
-  neatness: string | null;
-  punctuality: string | null;
-  diligence: string | null;
+  totalSessions: number;
+  sessionsPresent: number;
+  sessionsAbsent: number;
+  sessionsPerDay: 1 | 2;
+  developments: StudentDevelopment[];
+  ratingLegend: RatingLegendEntry[];
   subjectReports: SubjectReport[];
   overallPercentage: number;
   classTeacherComment: string | null;

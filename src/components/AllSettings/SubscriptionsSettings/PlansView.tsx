@@ -113,6 +113,7 @@ export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
   }, [plans, billingCycle, studentTier]);
 
   const staticPrices = PLAN_PRICES[studentTier][billingCycle];
+  const starterPrice = filteredPlans.find(p => p.name.toLowerCase().includes("starter"))?.pricePerStudent ?? staticPrices.starter;
   const standardPrice = filteredPlans.find(p => p.name.toLowerCase().includes("standard"))?.pricePerStudent ?? staticPrices.standard;
   const advancedPrice = filteredPlans.find(p => p.name.toLowerCase().includes("advanced"))?.pricePerStudent ?? staticPrices.advanced;
 
@@ -134,7 +135,12 @@ export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
         <div className="self-center">
           <BillingCycleTabs value={billingCycle} onChange={setBillingCycle} />
         </div>
-        <ComparisonTable standardPrice={standardPrice} advancedPrice={advancedPrice} onSubscribe={() => goToSubscribe("Standard")} />
+        <ComparisonTable
+          starterPrice={starterPrice}
+          standardPrice={standardPrice}
+          advancedPrice={advancedPrice}
+          onSubscribe={plan => goToSubscribe(plan)}
+        />
       </div>
     </div>
   );

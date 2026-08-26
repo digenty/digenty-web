@@ -1,261 +1,237 @@
 "use client";
 
-import { useCreateSubdomain, useGetSchoolDetails, useGetSubdomain, useUpdateSubdomain } from "@/hooks/queryHooks/useSchool";
-import { cn } from "@/lib/utils";
-import { ChevronDown, Globe, Plus } from "lucide-react";
 import { useState } from "react";
+import { AlertTriangle, CheckCircle2, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Modal } from "@/components/Modal";
-import { MobileDrawer } from "@/components/MobileDrawer";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { useDomainPurchase, useDomainPurchases, usePurchaseAndConnectDomain } from "@/hooks/queryHooks/useDomain";
+import { DomainPurchaseDto, DomainPurchaseType } from "@/api/domain";
+import { DOMAIN_FAILURE_COPY, DOMAIN_STATUS_CONFIG, isDomainPurchaseFailed, isDomainPurchaseInFlight, isDomainPurchaseLive } from "@/queries/domain";
+import { getApiErrorCode, getApiErrorDetails, getApiErrorMessage } from "@/lib/apiError";
+import { cn } from "@/lib/utils";
 
-function toHostnameFormats(schoolName: string): string[] {
-  const cleaned = schoolName
-    .toLowerCase()
-    .replace(/['']/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim();
+const DOMAIN_REGEX = /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/;
 
-  const words = cleaned.split(/\s+/).filter(Boolean);
+const SCHOOL_PROFILE_FIELD_LABELS: Record<string, string> = {
+  "school.address": "school address",
+  "school.phoneNumber": "school phone number",
+  "school.name": "school name",
+  "school.email": "school email",
+};
 
-  const candidates = [
-    words.join(""),
-    words.join("-"),
-    words[0],
-    words.map(w => w[0]).join(""),
-    words.slice(0, 2).join(""),
-    words.slice(0, 2).join("-"),
-  ];
-
-  return [...new Set(candidates)].filter(s => s && s.length > 1);
-}
-
-type DomainCardProps = { domain: string; slug: string; primary?: boolean; onSelect: (slug: string) => void; isPending?: boolean };
-
-const DomainCard = ({ domain, slug, primary, onSelect, isPending }: DomainCardProps) => (
-  <div className="flex items-center justify-between px-4 py-3">
-    <div className="flex items-center gap-3">
-      <Globe className="size-5 shrink-0 text-blue-500" />
-      <span className="text-text-default text-sm font-medium">{domain}</span>
+const DnsRecordsTable = ({ records }: { records: DomainPurchaseDto["requiredDnsRecords"] }) => (
+  <div className="border-border-default divide-border-default divide-y overflow-hidden rounded-lg border">
+    <div className="bg-bg-input-soft text-text-muted grid grid-cols-4 gap-2 px-4 py-2 text-xs font-semibold">
+      <span>Host</span>
+      <span>Type</span>
+      <span className="col-span-2">Value</span>
     </div>
-    <Button
-      variant={primary ? "default" : "outline"}
-      disabled={isPending}
-      onClick={() => onSelect(slug)}
-      className={cn(
-        "border-border-default! h-8 border px-4 text-xs",
-        primary && "bg-bg-state-primary! text-text-white-default! hover:bg-bg-state-primary-hover!",
-      )}
-    >
-      Select
-    </Button>
+    {records.map((record, i) => (
+      <div key={i} className="text-text-default grid grid-cols-4 gap-2 px-4 py-2.5 text-xs">
+        <span className="font-mono">{record.hostname}</span>
+        <span className="font-mono">{record.type}</span>
+        <span className="col-span-2 truncate font-mono">{record.value}</span>
+      </div>
+    ))}
   </div>
 );
 
-const AddExistingDomainModal = ({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) => {
-  const isMobile = useIsMobile();
-  const [existingDomain, setExistingDomain] = useState("");
+const DomainProgressCard = ({ purchase, onStartOver }: { purchase: DomainPurchaseDto; onStartOver: () => void }) => {
+  const { data } = useDomainPurchase(purchase.purchaseId);
+  const current = data ?? purchase;
+  const statusConfig = DOMAIN_STATUS_CONFIG[current.status];
+  const failure = DOMAIN_FAILURE_COPY[current.status];
+  const inFlight = isDomainPurchaseInFlight(current.status);
+  const live = isDomainPurchaseLive(current.status);
+  const failed = isDomainPurchaseFailed(current.status);
 
-  const handleClose = (nextOpen: boolean) => {
-    if (!nextOpen) setExistingDomain("");
-    setOpen(nextOpen);
-  };
-
-  const handleConnect = () => {
-    toast.success("Domain request submitted");
-    handleClose(false);
-  };
-
-  const formFields = (
-    <div className="flex flex-col gap-2 p-4">
-      <label htmlFor="existing-domain" className="text-text-default text-sm font-medium">
-        Domain name
-      </label>
-      <Input id="existing-domain" value={existingDomain} onChange={e => setExistingDomain(e.target.value)} placeholder="e.g. www.yourschool.com" />
-      <p className="text-text-muted text-xs">Enter a domain you already own. We&apos;ll guide you through connecting it afterwards.</p>
-    </div>
-  );
-
-  const connectButton = (
-    <Button
-      disabled={!existingDomain.trim()}
-      onClick={handleConnect}
-      className="bg-bg-state-primary! text-text-white-default! hover:bg-bg-state-primary-hover! h-8 px-4 text-xs"
-    >
-      Connect domain
-    </Button>
-  );
-
-  if (isMobile) {
-    return (
-      <MobileDrawer open={open} setIsOpen={handleClose} title="Add an existing domain">
-        {formFields}
-        <div className="border-border-default flex items-center justify-end border-t p-4">{connectButton}</div>
-      </MobileDrawer>
-    );
-  }
+  const showDnsRecords = current.requiredDnsRecords.length > 0 && (!current.manageDns || current.status === "VERIFICATION_TIMEOUT");
 
   return (
-    <Modal open={open} setOpen={handleClose} title="Add an existing domain" ActionButton={connectButton}>
-      {formFields}
-    </Modal>
+    <div className="flex flex-col gap-4">
+      <div
+        className={cn(
+          "flex items-start justify-between gap-3 rounded-lg border p-4",
+          live
+            ? "border-bg-basic-green-strong bg-bg-badge-green"
+            : failed
+              ? "border-bg-basic-red-strong bg-bg-badge-red"
+              : "border-border-default bg-bg-badge-blue",
+        )}
+      >
+        <div className="flex items-start gap-3">
+          {live ? (
+            <CheckCircle2 className="text-bg-basic-green-strong mt-0.5 size-5 shrink-0" />
+          ) : failed ? (
+            <AlertTriangle className="text-bg-basic-red-strong mt-0.5 size-5 shrink-0" />
+          ) : (
+            <Spinner className="mt-0.5 size-5 shrink-0" />
+          )}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <p className="text-text-default text-sm font-medium">{current.domainName}</p>
+              <span className={cn("rounded-full px-2.5 py-1 text-xs font-medium", statusConfig.className)}>{statusConfig.label}</span>
+              {current.simulated && (
+                <span className="bg-bg-badge-orange text-bg-basic-orange-strong rounded-full px-2.5 py-1 text-xs font-medium">Simulated</span>
+              )}
+            </div>
+            <p className="text-text-muted text-xs">{current.message}</p>
+            {current.requiresManualReview && <p className="text-text-muted text-xs">Our team has been notified and is on this.</p>}
+            {failure && <p className="text-text-muted text-xs">{failure.description}</p>}
+          </div>
+        </div>
+
+        {(live || failure?.allowRetry) && (
+          <Button variant="outline" className="border-border-default! h-8 shrink-0 px-4 text-xs" onClick={onStartOver}>
+            {live ? "Change domain" : "Try a different domain"}
+          </Button>
+        )}
+      </div>
+
+      {showDnsRecords && (
+        <div className="flex flex-col gap-2">
+          <p className="text-text-default text-sm font-medium">Add these DNS records</p>
+          <p className="text-text-muted text-xs">Provisioning can&apos;t finish until these are in place with your DNS provider.</p>
+          <DnsRecordsTable records={current.requiredDnsRecords} />
+        </div>
+      )}
+
+      {inFlight && <p className="text-text-hint text-xs">This can take a few minutes, occasionally longer — this page updates on its own.</p>}
+    </div>
   );
 };
 
-export const DomainMain = () => {
-  const { data: schoolResponse } = useGetSchoolDetails();
-  const { data: subdomainResponse } = useGetSubdomain();
-  const schoolName = schoolResponse?.data?.schoolName ?? "";
-  const currentSubdomain = subdomainResponse?.data?.subdomain;
-  const [search, setSearch] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [showAddExistingDomain, setShowAddExistingDomain] = useState(false);
-  const { mutate: createSubdomain, isPending: isCreating } = useCreateSubdomain();
-  const { mutate: updateSubdomain, isPending: isUpdating } = useUpdateSubdomain();
-  const isPending = isCreating || isUpdating;
+const DomainConnectForm = ({ onPurchased }: { onPurchased: (purchase: DomainPurchaseDto) => void }) => {
+  const [mode, setMode] = useState<DomainPurchaseType>("PURCHASE");
+  const [domainName, setDomainName] = useState("");
+  const { mutate: purchaseAndConnect, isPending } = usePurchaseAndConnectDomain();
 
-  useBreadcrumb([{ label: "Domain", url: "/staff/domain" }]);
+  const trimmed = domainName.trim().toLowerCase();
+  const isValid = DOMAIN_REGEX.test(trimmed);
 
-  const formats = toHostnameFormats(schoolName);
-  const hasSearch = search.trim().length > 0;
-  const showSearchFlow = !currentSubdomain || isEditing;
+  const handleSubmit = () => {
+    if (!isValid) return;
 
-  const handleSelect = (slug: string) => {
-    if (currentSubdomain) {
-      updateSubdomain(
-        { subdomain: slug },
-        {
-          onSuccess: () => {
-            toast.success("Domain updated successfully");
-            setSearch("");
-            setIsEditing(false);
-          },
-          onError: (error: unknown) => {
-            toast.error((error as { message?: string })?.message ?? "Failed to update domain");
-          },
-        },
-      );
-      return;
-    }
-
-    createSubdomain(
-      { subdomain: slug },
+    purchaseAndConnect(
+      { domainName: trimmed, purchaseType: mode, years: mode === "PURCHASE" ? 1 : undefined },
       {
-        onSuccess: () => {
-          toast.success("Domain created successfully");
-          setSearch("");
+        onSuccess: purchase => {
+          toast.success(mode === "PURCHASE" ? "Domain purchase started" : "Domain connection started");
+          onPurchased(purchase);
         },
         onError: (error: unknown) => {
-          toast.error((error as { message?: string })?.message ?? "Failed to create domain");
+          const code = getApiErrorCode(error);
+          const details = getApiErrorDetails(error);
+          if (code === "DUPLICATE_RECORD_REQUEST") {
+            toast.error("That domain is already taken.");
+          } else if (code === "SUBSCRIPTION_REQUIRED") {
+            toast.error("Your current plan doesn't include custom domains.");
+          } else if (Array.isArray(details) && details.length > 0) {
+            const missing = details
+              .map(field => (typeof field === "string" ? (SCHOOL_PROFILE_FIELD_LABELS[field] ?? field.split(".").pop()) : String(field)))
+              .join(", ");
+            toast.error(getApiErrorMessage(error, "Complete your school profile before buying a domain."), {
+              description: `Missing: ${missing}`,
+            });
+          } else {
+            toast.error(getApiErrorMessage(error, "Could not connect that domain. Please try again."));
+          }
         },
       },
     );
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 md:p-8">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-text-default text-xl font-semibold">Domain</h2>
-        {showSearchFlow && (
-          <Button variant="outline" className="border-border-default! h-8 gap-1.5 px-4 text-xs" onClick={() => setShowAddExistingDomain(true)}>
-            <Plus className="size-3.5" />
-            Add existing domain
-          </Button>
-        )}
+    <div className="flex flex-col gap-4">
+      <div className="bg-bg-input-soft flex gap-1 rounded-lg p-1">
+        {(
+          [
+            { value: "PURCHASE" as const, label: "Buy a new domain" },
+            { value: "CONNECT_EXISTING" as const, label: "Connect a domain I own" },
+          ] satisfies { value: DomainPurchaseType; label: string }[]
+        ).map(tab => (
+          <button
+            key={tab.value}
+            type="button"
+            onClick={() => setMode(tab.value)}
+            className={cn(
+              "flex-1 cursor-pointer rounded-md py-2 text-sm font-medium transition-colors",
+              mode === tab.value ? "bg-bg-card text-text-default shadow-xs" : "text-text-muted",
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      <AddExistingDomainModal open={showAddExistingDomain} setOpen={setShowAddExistingDomain} />
-
-      {!showSearchFlow ? (
-        <div className="border-border-default bg-bg-badge-blue flex items-center justify-between gap-3 rounded-lg border p-4">
-          <div className="flex items-center gap-3">
-            <Globe className="text-text-muted size-5 shrink-0" />
-            <div className="flex flex-col gap-0.5">
-              <div className="flex items-center gap-2">
-                <p className="text-text-default text-sm font-medium">Your domain is live</p>
-                <span className="relative flex size-2">
-                  <span className="bg-bg-basic-lime-accent absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
-                  <span className="bg-bg-basic-lime-accent relative inline-flex size-2 rounded-full" />
-                </span>
-              </div>
-              <p className="text-text-muted text-xs">{currentSubdomain}.axisbydigenty.com</p>
-            </div>
-          </div>
-          <Button variant="outline" className="border-border-default! h-8 px-4 text-xs" onClick={() => setIsEditing(true)}>
-            Change domain
+      <div className="border-bg-basic-lime-accent bg-bg-basic-lime-subtle flex flex-col items-center justify-center gap-3 rounded-xl border px-6 py-10">
+        <p className="text-text-subtle text-xs">Every great idea starts with a name!</p>
+        <p className="text-text-default text-base font-semibold">{mode === "PURCHASE" ? "Search up a domain" : "Enter the domain you already own"}</p>
+        <div className="flex w-full max-w-100 flex-col gap-2">
+          <Input
+            value={domainName}
+            onChange={e => setDomainName(e.target.value)}
+            placeholder={mode === "PURCHASE" ? "e.g. yourschool.com" : "e.g. www.yourschool.com"}
+          />
+          {domainName.trim().length > 0 && !isValid && <p className="text-text-danger text-xs">Enter a valid domain, e.g. yourschool.com</p>}
+          {mode === "PURCHASE" && (
+            <p className="text-text-muted text-xs">Root domains only (yourschool.com). Use &ldquo;connect existing&rdquo; for a subdomain.</p>
+          )}
+          <Button
+            disabled={!isValid || isPending}
+            onClick={handleSubmit}
+            className="bg-bg-state-primary! text-text-white-default! hover:bg-bg-state-primary-hover! mt-1 h-9"
+          >
+            {isPending && <Spinner className="size-3" />}
+            {mode === "PURCHASE" ? "Buy & connect" : "Connect domain"}
           </Button>
         </div>
+      </div>
+    </div>
+  );
+};
+
+export const DomainMain = () => {
+  const { data: purchases, isLoading } = useDomainPurchases();
+  const [startedOver, setStartedOver] = useState(false);
+  const [justPurchased, setJustPurchased] = useState<DomainPurchaseDto | null>(null);
+
+  useBreadcrumb([{ label: "Domain", url: "/staff/domain" }]);
+
+  const activePurchase = justPurchased ?? purchases?.[0];
+  const showForm = startedOver || !activePurchase;
+
+  return (
+    <div className="flex flex-col gap-4 p-4 md:p-8">
+      <div className="flex items-center gap-3">
+        <Globe className="text-text-muted size-5" />
+        <h2 className="text-text-default text-xl font-semibold">Domain</h2>
+      </div>
+
+      {isLoading ? (
+        <div className="flex flex-col gap-3">
+          <Skeleton className="bg-bg-input-soft h-16 w-full rounded-lg" />
+          <Skeleton className="bg-bg-input-soft h-40 w-full rounded-xl" />
+        </div>
+      ) : showForm ? (
+        <DomainConnectForm
+          onPurchased={purchase => {
+            setJustPurchased(purchase);
+            setStartedOver(false);
+          }}
+        />
       ) : (
-        <>
-          <div className="border-border-default bg-bg-badge-blue flex items-center justify-between gap-3 rounded-lg border p-4">
-            <div className="flex items-center gap-3">
-              <Globe className="text-text-muted size-5 shrink-0" />
-              <div className="flex flex-col gap-0.5">
-                <p className="text-text-default text-sm font-medium">{currentSubdomain ? "Update your domain" : "You do not have a domain yet"}</p>
-                <p className="text-text-muted text-xs">To continue, search and purchase your preferred domain</p>
-              </div>
-            </div>
-            {currentSubdomain && (
-              <Button variant="outline" className="border-border-default! h-8 px-4 text-xs" onClick={() => setIsEditing(false)}>
-                Cancel
-              </Button>
-            )}
-          </div>
-
-          <div className="border-bg-basic-lime-accent bg-bg-basic-lime-subtle flex flex-col items-center justify-center gap-3 rounded-xl border px-6 py-10">
-            <p className="text-text-subtle text-xs">Every great idea starts with a name!</p>
-            <p className="text-text-default text-base font-semibold">Search up a domain</p>
-            <div className="border-border-default bg-bg-default flex w-full max-w-100 items-center overflow-hidden rounded-md border">
-              <span className="border-border-default text-text-muted border-r px-3 py-2 text-sm">www.</span>
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Enter your preferred domain"
-                className="text-text-default placeholder:text-text-hint h-9 flex-1 bg-transparent px-3 text-sm outline-none"
-              />
-              <Button className="bg-bg-state-primary! text-text-white-default! hover:bg-bg-state-primary-hover! m-1 h-7 rounded-md text-xs font-medium">
-                Search
-              </Button>
-            </div>
-          </div>
-
-          {(hasSearch || formats.length > 0) && (
-            <div className="flex flex-col gap-3">
-              {hasSearch && (
-                <div className="border-border-default rounded-lg border">
-                  <DomainCard
-                    domain={`${search.trim()}.axisbydigenty.com`}
-                    slug={search.trim()}
-                    primary
-                    onSelect={handleSelect}
-                    isPending={isPending}
-                  />
-                </div>
-              )}
-
-              {formats.length > 0 && (
-                <div className="border-border-default rounded-xl border">
-                  <button onClick={() => setShowSuggestions(prev => !prev)} className="flex w-full items-center justify-between px-4 py-3">
-                    <span className="text-text-default text-sm font-semibold">Suggested Domains</span>
-                    <ChevronDown className={cn("text-text-muted size-4 transition-transform duration-200", showSuggestions && "rotate-180")} />
-                  </button>
-
-                  {showSuggestions && (
-                    <div className="divide-border-default border-border-default divide-y border-t">
-                      {formats.map(slug => (
-                        <DomainCard key={slug} domain={`${slug}.axisbydigenty.com`} slug={slug} onSelect={handleSelect} isPending={isPending} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </>
+        <DomainProgressCard
+          purchase={activePurchase}
+          onStartOver={() => {
+            setJustPurchased(null);
+            setStartedOver(true);
+          }}
+        />
       )}
     </div>
   );

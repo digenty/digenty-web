@@ -5,6 +5,11 @@ import { WebsiteConfig } from "../types";
 
 const FALLBACK_YEAR = 2025;
 
+// Fixed destination, never school-editable — see WebsiteConfigDto, which has no field for this.
+// Absolute on purpose: this component also renders on a school's own custom domain (unilag.com),
+// where a relative href would resolve against that domain instead of the main app.
+const PARENT_LOGIN_HREF = `${(process.env.NEXT_PUBLIC_FRONTEND_BASE_URL || "").replace(/\/$/, "")}/auth/parents/login`;
+
 const PlaceholderImage = ({ className }: { className?: string }) => (
   <div className={`flex items-center justify-center bg-zinc-100 ${className ?? ""}`}>
     <svg viewBox="0 0 24 24" className="size-8 text-zinc-300" fill="none" stroke="currentColor" strokeWidth={1.5}>
@@ -15,7 +20,15 @@ const PlaceholderImage = ({ className }: { className?: string }) => (
   </div>
 );
 
-export const WebsitePreview = ({ config }: { config: WebsiteConfig }) => {
+interface WebsitePreviewProps {
+  config: WebsiteConfig;
+  // false (default) for every in-app preview surface — the embedded editor panel and the staff
+  // preview tab both render this as a static mockup. true only for the real public /site/[slug]
+  // route, where links must actually navigate.
+  interactive?: boolean;
+}
+
+export const WebsitePreview = ({ config, interactive = false }: WebsitePreviewProps) => {
   const { schoolIdentity, theme, hero, about, gallery, news, admissions, contact, footer } = config;
   const primary = theme.primaryColor || "#437dfc";
 
@@ -45,16 +58,37 @@ export const WebsitePreview = ({ config }: { config: WebsiteConfig }) => {
           <span className="truncate text-sm font-semibold @2xl:text-base">{schoolIdentity.name || "Your School"}</span>
         </div>
         <nav className="hidden items-center gap-7 text-sm text-zinc-600 @3xl:flex">
-          <span style={{ color: primary }} className="font-medium">
-            Home
-          </span>
-          {navLinks.map(link => (
-            <span key={link.href}>{link.label}</span>
-          ))}
+          {interactive ? (
+            <a href="#" style={{ color: primary }} className="font-medium">
+              Home
+            </a>
+          ) : (
+            <span style={{ color: primary }} className="font-medium">
+              Home
+            </span>
+          )}
+          {navLinks.map(link =>
+            interactive ? (
+              <a key={link.href} href={link.href}>
+                {link.label}
+              </a>
+            ) : (
+              <span key={link.href}>{link.label}</span>
+            ),
+          )}
         </nav>
-        <button className="shrink-0 rounded-md px-3 py-2 text-xs font-medium text-white @2xl:px-4 @2xl:text-sm" style={{ backgroundColor: primary }}>
-          {hero.buttonText || "Apply Now"}
-        </button>
+        <div className="flex shrink-0 items-center gap-3">
+          {interactive ? (
+            <a href={PARENT_LOGIN_HREF} className="hidden text-xs font-medium text-zinc-600 @2xl:inline">
+              Parent Login
+            </a>
+          ) : (
+            <span className="hidden text-xs font-medium text-zinc-600 @2xl:inline">Parent Login</span>
+          )}
+          <button className="rounded-md px-3 py-2 text-xs font-medium text-white @2xl:px-4 @2xl:text-sm" style={{ backgroundColor: primary }}>
+            {hero.buttonText || "Apply Now"}
+          </button>
+        </div>
       </header>
 
       {/* Hero */}
