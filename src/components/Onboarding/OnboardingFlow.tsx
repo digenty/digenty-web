@@ -15,9 +15,9 @@ interface OnboardingFlowProps {
 
 export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
   const pathname = usePathname();
-  const { data: progressResp, isLoading: isProgressLoading, refetch: refetchProgress } = useGetOnboardingProgress();
-
   const needsOnboarding = !user?.schoolId;
+  // Nothing to have progress on before a school exists — this endpoint is school-scoped.
+  const { data: progressResp, isLoading: isProgressLoading, refetch: refetchProgress } = useGetOnboardingProgress(!needsOnboarding);
 
   // Once the welcome flow opens, keep it mounted until it explicitly finishes.
   // schoolId flips truthy partway through (right after the branch step), but the
@@ -61,9 +61,7 @@ export const OnboardingFlow = ({ user }: OnboardingFlowProps) => {
 
   return (
     <>
-      {isOnboardingModalOpen && (
-        <OnboardingModal initialShow={isOnboardingModalOpen} onClose={() => setIsOnboardingModalOpen(false)} />
-      )}
+      {isOnboardingModalOpen && <OnboardingModal initialShow={isOnboardingModalOpen} onClose={() => setIsOnboardingModalOpen(false)} />}
       {!isOnboardingModalOpen && showSetupSteps && user?.isMain && (
         <OnboardingStepsModal open={showSetupSteps} setOpen={setShowSetupSteps} apiSteps={apiSteps} />
       )}

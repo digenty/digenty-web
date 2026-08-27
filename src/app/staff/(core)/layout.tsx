@@ -11,6 +11,18 @@ export default async function CoreLayout({
   const { user } = await getSessionData();
   const showOnboarding = !user?.schoolId;
 
+  // A user with no schoolId yet has nothing for the dashboard shell to query — Sidebar, Header,
+  // and {children} all fire school-scoped requests (dashboard, branches, profile) on mount with
+  // no guard, which used to race the "create school" submission and trip a backend transaction
+  // rollback. Render only the onboarding flow until a school actually exists.
+  if (showOnboarding) {
+    return (
+      <div className="bg-bg-default fixed inset-0 overflow-hidden leading-5">
+        <OnboardingFlow user={user} />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-bg-default fixed inset-0 flex overflow-hidden leading-5">
       <Sidebar />

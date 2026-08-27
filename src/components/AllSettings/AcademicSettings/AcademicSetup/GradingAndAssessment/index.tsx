@@ -444,6 +444,7 @@ const LevelFormPanel = ({ level, branchId, branchSpecific }: { level: ClassLevel
       setHasExistingAssessment(true);
     } else {
       formik.setFieldValue("assessments", [emptyAssessmentRow()]);
+      setHasExistingAssessment(false);
     }
   }, [assessmentsData, level?.id]);
 
@@ -461,6 +462,7 @@ const LevelFormPanel = ({ level, branchId, branchSpecific }: { level: ClassLevel
       setHasExistingGradings(true);
     } else {
       formik.setFieldValue("grades", [emptyGradeRow()]);
+      setHasExistingGradings(false);
     }
   }, [gradingsData, level?.id]);
 

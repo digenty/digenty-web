@@ -9,7 +9,7 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { format } from "date-fns";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AttendanceTable } from "./AttendanceTable";
 import { ClassAttendanceHeader } from "./ClassAttendanceHeader";
 import { ClassAttendanceWrapper } from "./ClassAttendanceWrapper";
@@ -31,11 +31,19 @@ export const ClassAttendance = () => {
   const path = usePathname();
   const armId = path.split("/")[4] ?? "";
   const classArmName = path.split("/")[3] ?? "";
+  // The attendance list's "Open" button (Card.tsx) already creates today's first sheet
+  // (MORNING, or the session-less/full-day one) before linking here, and puts its id in the
+  // URL. Trust it instead of re-creating the same sheet and colliding with it.
+  const sheetIdFromUrl = Number(path.split("/")[6]);
+  const initialSheetId = Number.isFinite(sheetIdFromUrl) && sheetIdFromUrl > 0 ? sheetIdFromUrl : undefined;
+
   const [date, setDate] = useState<Date>(new Date());
   const [fullDayList, setFullDayList] = useState<AttendanceMarkList>([]);
   const [morningList, setMorningList] = useState<AttendanceMarkList>([]);
   const [afternoonList, setAfternoonList] = useState<AttendanceMarkList>([]);
-  const [sessionAttendanceIds, setSessionAttendanceIds] = useState<Partial<Record<AttendanceSession, number>>>({});
+  const [sessionAttendanceIds, setSessionAttendanceIds] = useState<Partial<Record<AttendanceSession, number>>>(() =>
+    initialSheetId ? { MORNING: initialSheetId, FULL_DAY: initialSheetId } : {},
+  );
   const user = useLoggedInUser();
 
   const { data: terms } = useGetTerms(user?.schoolId);
@@ -58,9 +66,20 @@ export const ClassAttendance = () => {
   const settingsReady = !!levelId && !isLoadingAttendanceSettings;
 
   const { mutate: createSheet } = useCreateAttendanceSheet();
+  const requestedSheetsRef = useRef<Set<string>>(
+    initialSheetId
+      ? new Set([`${armId}|${format(date, "yyyy-MM-dd")}|MORNING`, `${armId}|${format(date, "yyyy-MM-dd")}|FULL_DAY`])
+      : new Set(),
+  );
 
-  // Reset local marks and known sheet ids whenever the date changes.
+  // Reset local marks and known sheet ids whenever the date actually changes (not on mount,
+  // which would immediately wipe the sheet id seeded from the URL above).
+  const isFirstDateRun = useRef(true);
   useEffect(() => {
+    if (isFirstDateRun.current) {
+      isFirstDateRun.current = false;
+      return;
+    }
     setFullDayList([]);
     setMorningList([]);
     setAfternoonList([]);
@@ -72,6 +91,12 @@ export const ClassAttendance = () => {
     if (!armId || !settingsReady) return;
 
     sessionsNeeded.forEach(session => {
+      const requestKey = `${armId}|${format(date, "yyyy-MM-dd")}|${session}`;
+      // Guard against React Strict Mode's dev-only double-invoke firing this create twice
+      // in a row, which would otherwise self-collide with the record it just created.
+      if (requestedSheetsRef.current.has(requestKey)) return;
+      requestedSheetsRef.current.add(requestKey);
+
       createSheet(
         {
           armId: Number(armId),
@@ -99,7 +124,7 @@ export const ClassAttendance = () => {
     limit: 200,
     page: 0,
     date: format(date, "yyyy-MM-dd"),
-    enabled: !isTwoSession,
+    enabled: settingsReady && !isTwoSession,
   });
 
   const { data: morningData, isLoading: isLoadingMorning } = useGetArmAttendance({
@@ -108,7 +133,7 @@ export const ClassAttendance = () => {
     page: 0,
     date: format(date, "yyyy-MM-dd"),
     session: "MORNING",
-    enabled: isTwoSession,
+    enabled: settingsReady && isTwoSession,
   });
 
   const { data: afternoonData, isLoading: isLoadingAfternoon } = useGetArmAttendance({
@@ -117,10 +142,10 @@ export const ClassAttendance = () => {
     page: 0,
     date: format(date, "yyyy-MM-dd"),
     session: "AFTERNOON",
-    enabled: isTwoSession,
+    enabled: settingsReady && isTwoSession,
   });
 
-  const isLoading = isTwoSession ? isLoadingMorning || isLoadingAfternoon : isLoadingFullDay;
+  const isLoading = !settingsReady || (isTwoSession ? isLoadingMorning || isLoadingAfternoon : isLoadingFullDay);
 
   const slots: SessionSlot[] = isTwoSession
     ? [
