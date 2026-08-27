@@ -1,6 +1,8 @@
 import { addAssessment, addAssessmentDefault, getAssessmentDefault, getAssessmentForBranch, updateAssessmentForLevel } from "@/api/assessment";
 import { assessmentKeys } from "@/queries/assessment";
 import { levelKeys } from "@/queries/level";
+import { scoresKey } from "@/queries/score";
+import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAddAssessmentDefault = () => {
@@ -10,6 +12,8 @@ export const useAddAssessmentDefault = () => {
     mutationFn: addAssessmentDefault,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [levelKeys.levelAssessments] });
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
+      queryClient.invalidateQueries({ queryKey: [scoresKey.getScore] });
     },
   });
 };
@@ -21,6 +25,8 @@ export const useAddAssessment = () => {
     mutationFn: addAssessment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [levelKeys.levelAssessments] });
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
+      queryClient.invalidateQueries({ queryKey: [scoresKey.getScore] });
     },
   });
 };
@@ -32,6 +38,8 @@ export const useUpdateAssessmentForLevel = () => {
     mutationFn: updateAssessmentForLevel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [levelKeys.levelAssessments] });
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
+      queryClient.invalidateQueries({ queryKey: [scoresKey.getScore] });
     },
   });
 };
