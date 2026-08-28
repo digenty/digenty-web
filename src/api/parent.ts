@@ -86,8 +86,10 @@ export const validateParentsUpload = async ({ file, branchId }: { file: File; br
   const formData = new FormData();
   formData.append("file", file);
   try {
-    const { data } = await api.post(`/parents/upload/validate/${branchId}`, formData);
-    return data;
+    const { data } = await api.post(`/parents/upload/validate/${branchId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
@@ -97,7 +99,7 @@ export const validateParentsUpload = async ({ file, branchId }: { file: File; br
 export const commitParentsUpload = async ({ batchId }: { batchId: string }): Promise<CommitUploadResponse> => {
   try {
     const { data } = await api.post(`/parents/upload/${batchId}/commit`);
-    return data;
+    return data.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

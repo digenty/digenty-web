@@ -1,7 +1,9 @@
 "use client";
 import { AlertFill, CashFill, IndeterminateCircleFill, UserFill } from "@digenty/icons";
 import { Branch, Term } from "@/api/types";
+import { ModulePermissionsWrapper } from "@/components/ModulePermissionsWrapper";
 import { useGetDashboard } from "@/hooks/queryHooks/useDashboard";
+import { canViewPortalOverview } from "@/lib/permissions/portal-overview";
 import { useState } from "react";
 import { Alerts } from "../Alert";
 
@@ -18,7 +20,7 @@ export default function Dashboard() {
   const dashboardInfo = data?.data;
 
   return (
-    <>
+    <ModulePermissionsWrapper permissionUtility={canViewPortalOverview}>
       <div className="space-y-6 px-4 py-6 md:space-y-8 md:px-8">
         <DashboardHeader
           branchSelected={branchSelected}
@@ -82,6 +84,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </>
+    </ModulePermissionsWrapper>
   );
 }

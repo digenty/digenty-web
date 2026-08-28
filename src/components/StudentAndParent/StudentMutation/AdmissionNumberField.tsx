@@ -27,9 +27,10 @@ export const AdmissionNumberField = ({ formik }: { formik: FormikProps<StudentIn
     const numberFormat = admission.numberFormat || "";
     const padding = admission.padding || 0;
     const startingNumber = admission.startingNumber || 0;
+    const separator = admission.separator || "";
 
     const seq = String(parseInt(startingNumber) || 1).padStart(Number(padding) || 2, "0");
-    return `${prefix}${numberFormat}${seq}`;
+    return [prefix, numberFormat, seq].filter(Boolean).join(separator);
   };
 
   const handleAutoGenerate = async () => {

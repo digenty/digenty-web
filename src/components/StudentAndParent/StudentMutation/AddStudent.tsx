@@ -46,9 +46,10 @@ export const AddStudent = () => {
     const numberFormat = admissionResponse?.data?.numberFormat;
     const padding = admissionResponse?.data?.padding;
     const startingNumber = admissionResponse?.data?.startingNumber;
+    const separator = admissionResponse?.data?.separator || "";
 
     const seq = String(parseInt(startingNumber) || 1).padStart(Number(padding) || 2, "0");
-    return `${prefix}${numberFormat}${seq}`;
+    return [prefix, numberFormat, seq].filter(Boolean).join(separator);
   };
 
   const matchesDynamicAdmissionFormat = (input: string, formatExample: string, padding: number) => {
