@@ -52,23 +52,34 @@ export const ClassAttendanceHeader = ({
   const [open, setOpen] = React.useState(false);
 
   const handleSaveAttendance = async () => {
-    if (slots.some(slot => !slot.attendanceId)) {
+    const readySlots = slots.filter(slot => slot.attendanceId);
+    const blockedSlots = slots.filter(slot => !slot.attendanceId);
+
+    if (readySlots.length === 0) {
       toast({ title: "Please wait", description: "The attendance sheet is still being prepared", type: "error" });
       return;
     }
 
     setIsSaving(true);
     try {
-      await Promise.all(
-        slots.map(slot => saveAttendanceAsync({ attendanceId: slot.attendanceId as number, studentAttendanceList: slot.attendanceList })),
+      const results = await Promise.allSettled(
+        readySlots.map(slot => saveAttendanceAsync({ attendanceId: slot.attendanceId as number, studentAttendanceList: slot.attendanceList })),
       );
-      toast({ title: "Attendance saved successfully", type: "success" });
-    } catch (error) {
-      toast({
-        title: "Failed to save attendance",
-        description: error instanceof Error ? error.message : undefined,
-        type: "error",
-      });
+
+      const failedSlots = readySlots.filter((_, index) => results[index].status === "rejected");
+      const unsavedLabels = [...blockedSlots, ...failedSlots].map(slot => slot.label);
+
+      if (unsavedLabels.length === 0) {
+        toast({ title: "Attendance saved successfully", type: "success" });
+      } else if (failedSlots.length === readySlots.length) {
+        toast({ title: "Failed to save attendance", type: "error" });
+      } else {
+        toast({
+          title: "Attendance partially saved",
+          description: `Could not save: ${unsavedLabels.join(", ")}. The rest was saved successfully.`,
+          type: "error",
+        });
+      }
     } finally {
       setIsSaving(false);
     }

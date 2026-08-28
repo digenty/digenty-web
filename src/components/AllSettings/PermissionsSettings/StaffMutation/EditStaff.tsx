@@ -23,7 +23,7 @@ import { staffSchema } from "@/schema/staff";
 import { useFormik } from "formik";
 import { MailIcon, PlusIcon, Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Tabs } from "@/components/Tabs";
 import { TeacherAssignments } from "../StaffDetails/TeacherAssignments";
 
@@ -57,8 +57,15 @@ export const EditStaff = () => {
   const { data: staffDetails, isPending: loadingStaffDetails } = useGetStaffDetails(Number(staffId));
   const { mutate, isPending } = useUpdateStaff();
 
+  // Hydrate the form from server data exactly once. TeacherAssignments (mounted when its tab
+  // is active) shares this same staffDetails query, and a later refetch of it — e.g. from
+  // switching tabs — would otherwise re-run this effect and silently wipe any branch/role
+  // selection the user already made but hasn't saved yet.
+  const hasHydratedRef = useRef(false);
   useEffect(() => {
+    if (hasHydratedRef.current) return;
     if (staffDetails?.data && roles?.data) {
+      hasHydratedRef.current = true;
       const details = staffDetails.data;
       formik.setValues({
         firstName: details.fullname.split(" ")[0] || "",

@@ -31,19 +31,12 @@ export const ClassAttendance = () => {
   const path = usePathname();
   const armId = path.split("/")[4] ?? "";
   const classArmName = path.split("/")[3] ?? "";
-  // The attendance list's "Open" button (Card.tsx) already creates today's first sheet
-  // (MORNING, or the session-less/full-day one) before linking here, and puts its id in the
-  // URL. Trust it instead of re-creating the same sheet and colliding with it.
-  const sheetIdFromUrl = Number(path.split("/")[6]);
-  const initialSheetId = Number.isFinite(sheetIdFromUrl) && sheetIdFromUrl > 0 ? sheetIdFromUrl : undefined;
 
   const [date, setDate] = useState<Date>(new Date());
   const [fullDayList, setFullDayList] = useState<AttendanceMarkList>([]);
   const [morningList, setMorningList] = useState<AttendanceMarkList>([]);
   const [afternoonList, setAfternoonList] = useState<AttendanceMarkList>([]);
-  const [sessionAttendanceIds, setSessionAttendanceIds] = useState<Partial<Record<AttendanceSession, number>>>(() =>
-    initialSheetId ? { MORNING: initialSheetId, FULL_DAY: initialSheetId } : {},
-  );
+  const [sessionAttendanceIds, setSessionAttendanceIds] = useState<Partial<Record<AttendanceSession, number>>>({});
   const user = useLoggedInUser();
 
   const { data: terms } = useGetTerms(user?.schoolId);
@@ -66,20 +59,10 @@ export const ClassAttendance = () => {
   const settingsReady = !!levelId && !isLoadingAttendanceSettings;
 
   const { mutate: createSheet } = useCreateAttendanceSheet();
-  const requestedSheetsRef = useRef<Set<string>>(
-    initialSheetId
-      ? new Set([`${armId}|${format(date, "yyyy-MM-dd")}|MORNING`, `${armId}|${format(date, "yyyy-MM-dd")}|FULL_DAY`])
-      : new Set(),
-  );
+  const requestedSheetsRef = useRef<Set<string>>(new Set());
 
-  // Reset local marks and known sheet ids whenever the date actually changes (not on mount,
-  // which would immediately wipe the sheet id seeded from the URL above).
-  const isFirstDateRun = useRef(true);
+  // Reset local marks and known sheet ids whenever the date changes.
   useEffect(() => {
-    if (isFirstDateRun.current) {
-      isFirstDateRun.current = false;
-      return;
-    }
     setFullDayList([]);
     setMorningList([]);
     setAfternoonList([]);
@@ -108,6 +91,10 @@ export const ClassAttendance = () => {
             setSessionAttendanceIds(prev => ({ ...prev, [session]: data?.data?.id }));
           },
           onError: (error: Error) => {
+            // The roster fetch below now returns the sheet's id directly (attendanceId on
+            // GetAttendanceByArmDto), so a sheet that already exists isn't a real failure —
+            // only surface genuinely unexpected errors here.
+            if (error?.message?.toLowerCase().includes("already exist")) return;
             toast({
               title: error?.message ?? `Could not prepare the ${session === "FULL_DAY" ? "" : session.toLowerCase() + " "}attendance sheet`,
               type: "error",
@@ -152,7 +139,7 @@ export const ClassAttendance = () => {
         {
           session: "MORNING",
           label: "Morning",
-          attendanceId: sessionAttendanceIds.MORNING,
+          attendanceId: morningData?.data?.attendanceId ?? sessionAttendanceIds.MORNING,
           students: morningData?.data?.studentsPresent ?? [],
           isLoading: isLoadingMorning,
           attendanceList: morningList,
@@ -161,7 +148,7 @@ export const ClassAttendance = () => {
         {
           session: "AFTERNOON",
           label: "Afternoon",
-          attendanceId: sessionAttendanceIds.AFTERNOON,
+          attendanceId: afternoonData?.data?.attendanceId ?? sessionAttendanceIds.AFTERNOON,
           students: afternoonData?.data?.studentsPresent ?? [],
           isLoading: isLoadingAfternoon,
           attendanceList: afternoonList,
@@ -172,7 +159,7 @@ export const ClassAttendance = () => {
         {
           session: "FULL_DAY",
           label: "Attendance",
-          attendanceId: sessionAttendanceIds.FULL_DAY,
+          attendanceId: fullDayData?.data?.attendanceId ?? sessionAttendanceIds.FULL_DAY,
           students: fullDayData?.data?.studentsPresent ?? [],
           isLoading: isLoadingFullDay,
           attendanceList: fullDayList,

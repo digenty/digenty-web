@@ -83,7 +83,7 @@ const FeeDetails = () => {
         </div>
       </div>
 
-      <div>
+      {/* <div>
         <Label className="text-text-default mb-2 text-sm font-medium">Quantity</Label>
         <div className="bg-bg-input-soft flex w-full max-w-57 justify-between gap-2 rounded-md p-2">
           <div className="text-text-subtle cursor-pointer select-none" onClick={decrease}>
@@ -94,7 +94,7 @@ const FeeDetails = () => {
             +
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -651,8 +651,9 @@ export const ClassEditSheet = ({
                 <div>
                   <Label className="text-text-default text-sm font-medium">Enable Arms</Label>
                   <span className="text-text-subtle text-sm">
-                    Arms let you split a class or department into smaller groups while still keeping them under the same level. They’re simply
-                    parallel divisions of the same class (e.g., Class A, Class B).
+                    Arms let you split a class or department into smaller groups while still keeping them under the same level &mdash; parallel
+                    sections of the same class. Name them however your school does: letters (A, B), colours (Gold, Silver), numbers (1, 2), or
+                    anything else your structure uses.
                   </span>
                 </div>
                 <Toggle withBorder={false} checked={armsEnabled} onChange={e => setArmsEnabled((e.target as HTMLInputElement).checked)} />
@@ -712,7 +713,9 @@ export const ClassEditSheet = ({
                       </button>
                     </Badge>
                   ))}
-                  <div className="text-text-muted mt-1 text-xs">You can add multiple arms at once by separating with a comma e.g A, B, C etc.</div>
+                  <div className="text-text-muted mt-1 text-xs">
+                    You can add multiple arms at once by separating with a comma e.g A, B or Gold, Silver etc.
+                  </div>
                 </div>
               </div>
             )}

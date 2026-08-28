@@ -521,6 +521,24 @@ export interface AdmissionNumberPayload {
   numberFormat: string;
   startingNumber: number;
   padding: number;
+  includeClassOfEntry: boolean;
+  separator: string;
+}
+
+export interface AdmissionNumberResponse {
+  id: number;
+  uuid: string;
+  active: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+  prefix: string;
+  numberFormat: string;
+  startingNumber: number;
+  padding: number;
+  includeClassOfEntry: boolean;
+  separator: string;
+  schoolId: number;
 }
 
 export interface LevelTab {
@@ -645,6 +663,8 @@ export interface UpdateAdmissionNumber {
   numberFormat: string;
   startingNumber: number;
   padding: number;
+  includeClassOfEntry: boolean;
+  separator: string;
 }
 
 export interface UpdateGradingDefaultPayload {

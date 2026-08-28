@@ -12,7 +12,6 @@ import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { PasswordChecklist } from "@/components/Auth/PasswordCheckList";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LegalModal } from "@/components/Auth/LegalModal";
 import { PRIVACY_POLICY, TERMS_AND_CONDITIONS } from "@/constants/legal";
@@ -21,7 +20,6 @@ import Link from "next/link";
 export const SignupPasswordForm = () => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [passwordIsFulfilled, setPasswordIsFulfilled] = useState(false);
   const [schoolId, setSchoolId] = useState<number>();
   const [schoolLookupFailed, setSchoolLookupFailed] = useState(false);
 
@@ -161,8 +159,6 @@ export const SignupPasswordForm = () => {
             )}
           </div>
 
-          {formik.values.password && <PasswordChecklist password={formik.values.password} setIsfulfilled={setPasswordIsFulfilled} />}
-
           <div className="flex items-start gap-2">
             <Checkbox
               id="accept-terms"
@@ -192,7 +188,7 @@ export const SignupPasswordForm = () => {
 
           <div className="mt-8 space-y-8">
             <Button
-              disabled={!formik.values.email || !formik.values.password || !passwordIsFulfilled || !acceptTerms}
+              disabled={!formik.values.email || !formik.values.password || !acceptTerms}
               type="submit"
               className="bg-bg-state-primary disabled:bg-bg-state-primary-hover disabled:text-text-white-default hover:bg-bg-state-primary-hover! text-text-white-default h-10 w-full"
             >

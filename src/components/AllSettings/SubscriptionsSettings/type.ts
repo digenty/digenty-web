@@ -66,7 +66,7 @@ export const planFeaturesData: PlanFeatureRow[] = [
   { feature: "Attendance", starter: true, standard: true, advanced: true },
   { feature: "Communication", starter: true, standard: true, advanced: true },
   { feature: "Settings", starter: true, standard: true, advanced: true },
-  { feature: "Referrals", starter: true, standard: true, advanced: true },
+  // { feature: "Referrals", starter: true, standard: true, advanced: true },
   { feature: "Admission Management", starter: true, standard: true, advanced: true },
   { feature: "Invoices", starter: true, standard: true, advanced: true },
   { feature: "Fees", starter: true, standard: true, advanced: true },

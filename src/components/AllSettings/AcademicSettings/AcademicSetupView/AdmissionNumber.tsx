@@ -16,10 +16,11 @@ import { useEffect, useState } from "react";
 
 const DIGITS = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-const buildPreview = (prefix: string, numberFormat: string, startingNumber: string, padding: string): string => {
+const buildPreview = (prefix: string, numberFormat: string, startingNumber: string, padding: string, separator: string): string => {
   const seq = String(parseInt(startingNumber) || 1).padStart(Number(padding) || 2, "0");
   const year = numberFormat;
-  return `${prefix || "ADM"}-${year}${seq}`.toUpperCase();
+  const sep = separator || "-";
+  return [prefix || "ADM", year, seq].filter(Boolean).join(sep).toUpperCase();
 };
 
 export const AdmissionNumberSetupDone = () => {
@@ -29,6 +30,8 @@ export const AdmissionNumberSetupDone = () => {
   const [numberFormat, setNumberFormat] = useState("");
   const [startingNumber, setStartingNumber] = useState("");
   const [padding, setPadding] = useState("");
+  const [includeClassOfEntry, setIncludeClassOfEntry] = useState("");
+  const [separator, setSeparator] = useState("");
 
   const { data: admissionResponse, isLoading, isError, error } = useGetAdmissionNumberDetails();
   const { mutateAsync: updateAdmission } = useUpdateAdmissionNumber();
@@ -41,9 +44,11 @@ export const AdmissionNumberSetupDone = () => {
     setNumberFormat(admission.numberFormat ?? "");
     setStartingNumber(String(admission.startingNumber ?? ""));
     setPadding(String(admission.padding ?? ""));
+    setIncludeClassOfEntry(admission.includeClassOfEntry !== undefined ? String(admission.includeClassOfEntry) : "");
+    setSeparator(admission.separator ?? "");
   }, [admission]);
 
-  const preview = buildPreview(prefix, numberFormat, startingNumber, padding);
+  const preview = buildPreview(prefix, numberFormat, startingNumber, padding, separator);
 
   const handleEdit = () => setIsEditing(true);
 
@@ -53,6 +58,8 @@ export const AdmissionNumberSetupDone = () => {
       setNumberFormat(admission.numberFormat ?? "");
       setStartingNumber(String(admission.startingNumber ?? ""));
       setPadding(String(admission.padding ?? ""));
+      setIncludeClassOfEntry(admission.includeClassOfEntry !== undefined ? String(admission.includeClassOfEntry) : "");
+      setSeparator(admission.separator ?? "");
     }
     setIsEditing(false);
   };
@@ -60,7 +67,7 @@ export const AdmissionNumberSetupDone = () => {
   const handleSave = async () => {
     if (!admission?.id) return;
 
-    if (!prefix || !numberFormat || !startingNumber || !padding) {
+    if (!prefix || !numberFormat || !startingNumber || !padding || !includeClassOfEntry || !separator) {
       toast({ title: "All fields are required", description: "Please fill in all fields before saving.", type: "warning" });
       return;
     }
@@ -73,6 +80,8 @@ export const AdmissionNumberSetupDone = () => {
           numberFormat,
           startingNumber: parseInt(startingNumber),
           padding: parseInt(padding),
+          includeClassOfEntry: includeClassOfEntry === "true",
+          separator,
         },
         id: admission.id,
       });
@@ -207,6 +216,55 @@ export const AdmissionNumberSetupDone = () => {
                     {admissionResponse?.data?.padding ? `${admissionResponse?.data?.padding} Digits` : "-—"}
                   </div>
                 )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label className="text-text-default text-sm font-medium">Separator</Label>
+                {isEditing ? (
+                  <Input
+                    value={separator}
+                    onChange={e => setSeparator(e.target.value)}
+                    className="bg-bg-input-soft! text-text-default rounded-md border-none text-sm"
+                    placeholder="e.g. - or /"
+                  />
+                ) : (
+                  <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">
+                    {admissionResponse?.data?.separator || "-—"}
+                  </div>
+                )}
+                <div className="text-text-muted text-xs">Character used between parts of the admission number, e.g. - or /</div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label className="text-text-default text-sm font-medium">Include Class of Entry</Label>
+                {isEditing ? (
+                  <Select value={includeClassOfEntry} onValueChange={setIncludeClassOfEntry}>
+                    <SelectTrigger className="bg-bg-input-soft! h-9! w-full rounded-md border-none">
+                      <SelectValue placeholder="Select option">
+                        <span className="text-text-default text-sm">
+                          {includeClassOfEntry ? (includeClassOfEntry === "true" ? "Yes" : "No") : "Select option"}
+                        </span>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="bg-bg-card border-border-default">
+                      <SelectItem value="true" className="text-text-default text-sm font-medium">
+                        Yes
+                      </SelectItem>
+                      <SelectItem value="false" className="text-text-default text-sm font-medium">
+                        No
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">
+                    {admissionResponse?.data?.includeClassOfEntry !== undefined
+                      ? admissionResponse?.data?.includeClassOfEntry
+                        ? "Yes"
+                        : "No"
+                      : "-—"}
+                  </div>
+                )}
+                <div className="text-text-muted text-xs">Whether the student&apos;s class of entry appears in the admission number</div>
               </div>
 
               {isEditing && (

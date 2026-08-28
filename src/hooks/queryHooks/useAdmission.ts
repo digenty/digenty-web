@@ -59,9 +59,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 // ===========================================================================
 
 export const useAddmissionNumber = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: admissionKeys.add,
     mutationFn: addAdmissionNumberSetup,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: admissionKeys.get });
+    },
   });
 };
 

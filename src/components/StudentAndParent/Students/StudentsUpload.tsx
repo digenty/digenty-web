@@ -3,224 +3,134 @@ import { BackLink } from "@/components/BackLink";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useUploadStudents } from "@/hooks/queryHooks/useStudent";
-import { studentUploadSchema } from "@/schema/student";
+import { useCommitStudentsUpload, useValidateStudentsUpload } from "@/hooks/queryHooks/useStudent";
 import { useRouter } from "next/navigation";
-import Papa from "papaparse";
 import { useState } from "react";
-import * as XLSX from "xlsx";
-import * as yup from "yup";
 import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
 import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
 import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
-import { parseServerRowErrors } from "../BulkUpload/parseServerRowErrors";
-import { BulkUploadResult, Step, StudentUploadType } from "../BulkUpload/types";
+import { Step, UploadInvalidRow, ValidateUploadResponse } from "../BulkUpload/types";
 import { Branch } from "@/api/types";
-
-const REQUIRED_HEADERS = [
-  "firstName",
-  "lastName",
-  "middleName",
-  "gender",
-  "dob",
-  "address",
-  "nationality",
-  "stateOfOrigin",
-  "phoneNumber",
-  "admissionNumber",
-  "class",
-  "arm",
-];
 
 const steps: Step[] = [
   { id: 1, label: "Upload Students", completed: false },
   { id: 2, label: "Confirm & Upload", completed: false },
 ];
 
+const mapInvalidRows = (rows: UploadInvalidRow[] = []): ValidationError[] =>
+  rows.map(row => ({
+    row: row.rowNumber,
+    errors: row.errors.map(error => (error.field ? `${error.field}: ${error.message}` : error.message)),
+  }));
+
 export const StudentsUpload = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [errors, setErrors] = useState<ValidationError[]>([]);
-  const [validRows, setValidRows] = useState<Record<string, unknown>[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
+  const [validation, setValidation] = useState<ValidateUploadResponse | null>(null);
   const [uploadResult, setUploadResult] = useState<{ uploaded: number; errors: ValidationError[] } | null>(null);
 
-  const { mutate, isPending } = useUploadStudents({ branchId: branchSelected?.id });
+  const { mutate: validateUpload, isPending: isValidating } = useValidateStudentsUpload({ branchId: branchSelected?.id });
+  const { mutate: commitUpload, isPending: isCommitting } = useCommitStudentsUpload();
+
+  const validationErrors = mapInvalidRows(validation?.invalidRows);
+  const validCount = validation?.summary?.valid ?? 0;
+
+  const handleFileChange = (nextFile: File | null) => {
+    setFile(nextFile);
+    setValidation(null);
+  };
 
   const goToNext = () => {
-    // Check if the previous step is completed, then add step to completed steps array
-    setCompletedSteps(completedSteps => [...completedSteps, currentStep]);
+    if (currentStep === 1) {
+      if (!file || !branchSelected) return;
 
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
-    }
-
-    if (currentStep === steps.length) {
-      mutate(
-        {
-          file,
-        },
+      validateUpload(
+        { file },
         {
           onSuccess: response => {
-            const result: Partial<BulkUploadResult> = response?.data ?? {};
-            const uploaded = result.uploaded ?? 0;
-            const failed = result.failed ?? 0;
-
-            if (failed > 0) {
-              setUploadResult({ uploaded, errors: parseServerRowErrors(result.errors ?? []) });
-              toast({
-                title: `${uploaded} of ${uploaded + failed} student(s) imported`,
-                description: `${failed} row(s) had errors and were skipped — see the breakdown below.`,
-                type: uploaded === 0 ? "error" : "warning",
-              });
-              return;
-            }
-
-            toast({
-              title: "Successfully uploaded students",
-              description: result.message ?? "Success",
-              type: "success",
-            });
-            setFile(null);
-            router.push("/staff/student-and-parent-record?tab=Students");
+            setValidation(response);
+            setCompletedSteps(prev => [...prev, 1]);
+            setCurrentStep(2);
           },
           onError: error => {
             toast({
-              title: error.message ?? "Something went wrong",
-              description: "Could not upload students",
+              title: error.message ?? "Could not validate file",
+              description: "Check that the file matches the template and try again.",
               type: "error",
             });
           },
         },
       );
+      return;
     }
+
+    if (!validation) return;
+
+    commitUpload(
+      { batchId: validation.batchId },
+      {
+        onSuccess: result => {
+          const imported = result?.summary?.imported ?? 0;
+          const failed = result?.summary?.failed ?? 0;
+
+          if (failed > 0) {
+            setUploadResult({ uploaded: imported, errors: mapInvalidRows(result.failedRows) });
+            toast({
+              title: `${imported} of ${imported + failed} student(s) imported`,
+              description: `${failed} row(s) had errors and were skipped — see the breakdown below.`,
+              type: imported === 0 ? "error" : "warning",
+            });
+            return;
+          }
+
+          toast({
+            title: "Successfully uploaded students",
+            description: result?.message ?? "Success",
+            type: "success",
+          });
+          setFile(null);
+          router.push("/staff/student-and-parent-record?tab=Students");
+        },
+        onError: error => {
+          toast({
+            title: error.message ?? "Something went wrong",
+            description: "Could not upload students",
+            type: "error",
+          });
+        },
+      },
+    );
   };
 
   const handlePrevious = () => {
     if (uploadResult) {
       setUploadResult(null);
       setFile(null);
-      setErrors([]);
-      setValidRows([]);
+      setValidation(null);
       setCurrentStep(1);
       setCompletedSteps([]);
       return;
     }
     if (currentStep === steps.length) {
+      setValidation(null);
+      setCompletedSteps([]);
       setCurrentStep(currentStep - 1);
     } else {
       router.back();
     }
   };
 
-  const parseXLSX = async (file: File) => {
-    const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer);
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-    const json = XLSX.utils.sheet_to_json<StudentUploadType>(sheet, {
-      defval: "",
-    });
-
-    processXlsxRows(json);
-  };
-
-  const processXlsxRows = async (data: StudentUploadType[]) => {
-    if (!data.length) {
-      setErrors([{ row: 0, errors: ["The File is empty. Please add some data to the file"] }]);
-      return;
-    }
-
-    // Header validation
-    const headers = Object.keys(data[0]);
-    const missingHeaders = REQUIRED_HEADERS.filter(h => !headers.includes(h));
-
-    if (missingHeaders.length) {
-      setErrors([
-        {
-          row: 0,
-          errors: [`Missing headers: ${missingHeaders.join(", ")}`],
-        },
-      ]);
-      return;
-    }
-
-    const validRows: Record<string, unknown>[] = [];
-    const rowErrors: {
-      row: number;
-      errors: string[];
-    }[] = [];
-
-    data.forEach((row, index) => {
-      try {
-        const validated = studentUploadSchema.validateSync(row, {
-          abortEarly: true,
-        });
-        validRows.push(validated);
-      } catch (err) {
-        if (err instanceof yup.ValidationError) {
-          rowErrors.push({
-            row: index + 2, // Excel row number
-            errors: [err.message],
-          });
-        }
-      }
-    });
-
-    setValidRows(validRows);
-    setErrors(rowErrors);
-  };
-
-  const validateFile = (fileToValidate: File, type: string) => {
-    if (type === "xlsx") {
-      parseXLSX(fileToValidate);
-      return;
-    }
-
-    Papa.parse(fileToValidate, {
-      header: true,
-      complete: async results => {
-        const rowErrors: ValidationError[] = [];
-        const validData: Record<string, unknown>[] = [];
-
-        for (let i = 0; i < results.data.length; i++) {
-          const row = results.data[i];
-
-          try {
-            const validatedRow = await studentUploadSchema.validate(row, {
-              abortEarly: false,
-            });
-
-            validData.push(validatedRow);
-          } catch (err) {
-            if (err instanceof yup.ValidationError) {
-              rowErrors.push({
-                row: i + 2, // header row = 1
-                errors: err.errors,
-              });
-            }
-          }
-        }
-
-        setErrors(rowErrors);
-        setValidRows(validData);
-      },
-    });
-  };
-
   const downloadErrorReport = () => {
-    const reportErrors = uploadResult ? uploadResult.errors : errors;
+    const reportErrors = uploadResult ? uploadResult.errors : validationErrors;
     const headers = ["Row", "Errors"];
 
-    // 2. CSV rows
     const rows = reportErrors.map(item => [item.row, item.errors.join(" | ")]);
 
-    // 3. Build CSV string
     const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
 
-    // 4. Create blob & download
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
@@ -251,17 +161,19 @@ export const StudentsUpload = () => {
             bannerText={`${uploadResult.errors.length} row(s) had errors and were not imported.`}
           />
         ) : currentStep === steps.length ? (
-          <ConfirmUpload entity="Students" errors={errors} validCount={validRows.length} downloadErrorReport={downloadErrorReport} />
-        ) : (
-          <CSVUpload
-            branchSelected={branchSelected}
-            setBranchSelected={setBranchSelected}
-            file={file}
-            setFile={setFile}
+          <ConfirmUpload
             entity="Students"
-            setErrors={setErrors}
-            handleValidation={validateFile}
+            errors={validationErrors}
+            validCount={validCount}
+            downloadErrorReport={downloadErrorReport}
+            bannerText={
+              validationErrors.length > 0
+                ? `${validationErrors.length} row(s) have errors and will be skipped. Only the ${validCount} valid row(s) will be imported.`
+                : undefined
+            }
           />
+        ) : (
+          <CSVUpload branchSelected={branchSelected} setBranchSelected={setBranchSelected} file={file} setFile={handleFileChange} entity="Students" />
         )}
 
         <div className="border-border-default mt-10 flex w-full justify-between border-t py-4">
@@ -275,12 +187,14 @@ export const StudentsUpload = () => {
 
           <Button
             disabled={
-              !uploadResult && ((file === null && currentStep === 1) || (currentStep === steps.length && errors.length > 0) || !branchSelected)
+              !uploadResult &&
+              ((currentStep === 1 && (file === null || !branchSelected || isValidating)) ||
+                (currentStep === steps.length && (validCount === 0 || isCommitting)))
             }
             onClick={uploadResult ? () => router.push("/staff/student-and-parent-record?tab=Students") : goToNext}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
           >
-            {isPending && currentStep === steps.length && <Spinner className="text-text-white-default" />}
+            {(isValidating || isCommitting) && <Spinner className="text-text-white-default" />}
             <span className="text-sm font-medium">{uploadResult ? "Done" : currentStep === steps.length ? "Confirm & Import" : "Continue"}</span>
           </Button>
         </div>
