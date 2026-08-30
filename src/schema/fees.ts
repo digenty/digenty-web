@@ -37,7 +37,7 @@ export const feeSchema = yup.object({
   name: yup.string().trim().required("Fee name is required"),
   sessionId: yup.number().required("Session is required"),
   term: yup.string().required("Term is required"),
-  quantity: yup.number().min(1, "Quantity must be at least 1").required("Quantity is required"),
+  dueDate: yup.date().required("Due date is required"),
   required: yup.boolean(),
   branchIds: yup.array().of(yup.number()).min(1, "Select at least one branch"),
   setDifferentPricesPerBranch: yup.boolean(),

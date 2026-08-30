@@ -1,14 +1,16 @@
 "use client";
 
+import { DateRangePicker } from "@/components/DatePicker";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useFormikContext } from "formik";
 import React, { useMemo } from "react";
 import type { FeeItemFormValues } from "./useFeeForm";
 import { buildClassesWithArms, useFeeFormData } from "./useFeeForm";
 
 const FeeAmount = () => {
-  const { values, errors, touched, setFieldValue, handleChange, handleBlur } = useFormikContext<FeeItemFormValues>();
+  const { values, errors, touched, setFieldValue, setFieldTouched, handleChange, handleBlur } = useFormikContext<FeeItemFormValues>();
   const { classList, armList, branchList } = useFeeFormData();
 
   const classesWithArms = useMemo(() => buildClassesWithArms(classList, armList, values.branchIds), [classList, armList, values.branchIds]);
@@ -154,6 +156,18 @@ const FeeAmount = () => {
           )}
         </div>
       )}
+
+      <div className="flex flex-col gap-2">
+        <Label className="text-text-default text-sm font-medium">Due Date</Label>
+        <DateRangePicker
+          date={values.dueDate}
+          setDate={date => {
+            setFieldValue("dueDate", date);
+            setFieldTouched("dueDate", true);
+          }}
+        />
+        {touched.dueDate && errors.dueDate && <span className="text-text-destructive text-xs">{errors.dueDate as string}</span>}
+      </div>
     </div>
   );
 };

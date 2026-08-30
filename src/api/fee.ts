@@ -17,17 +17,17 @@ export interface FeeItemDto {
   name: string;
   session: number;
   term: FeeTermType;
-  quantity?: number;
+  required?: boolean;
+  amount?: number;
   branchIds?: number[];
   armIds: number[];
-  amount?: number;
   setDifferentPricesPerBranch?: boolean;
   setDifferentPricesPerClass?: boolean;
   branchAmounts?: BranchAmount[];
   classArmAmounts?: ClassArmAmount[];
   allowPartPayment?: boolean;
   minimumPartPayment?: number;
-  required?: boolean;
+  dueDate: string;
 }
 
 export interface SingleArmFeeItemDto {

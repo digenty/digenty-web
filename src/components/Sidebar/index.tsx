@@ -64,11 +64,15 @@ export const Sidebar = () => {
     {
       title: "",
       menu: [
-        {
-          title: "Dashboard",
-          url: "/",
-          icon: Home2,
-        },
+        ...(canViewPortalOverview(user?.permissions)
+          ? [
+              {
+                title: "Dashboard",
+                url: "/",
+                icon: Home2,
+              },
+            ]
+          : []),
 
         ...(canViewStudentParentRecords(user?.permissions)
           ? [
@@ -249,7 +253,7 @@ export const Sidebar = () => {
     //       },
     //     ]
     //   : []),
-  ];
+  ].filter(nav => nav.menu.length > 0);
 
   const pathname = usePathname();
   const router = useRouter();

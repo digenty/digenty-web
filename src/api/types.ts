@@ -289,14 +289,8 @@ export interface DevelopmentSkill {
   hasRatings?: boolean;
 }
 
-// GET /development-settings/categories (flat CRUD list) — no skills, id/name naming.
-export interface DevelopmentCategorySummary {
-  id: number;
-  name: string;
-  displayOrder: number;
-}
-
 // Categories nested under GET /development-settings/level/{id} — categoryId/categoryName naming, includes skills.
+// This is the only reliable source of a level's categories; the flat /development-settings/categories list mixes all levels together.
 export interface DevelopmentCategory {
   categoryId: number;
   categoryName: string;

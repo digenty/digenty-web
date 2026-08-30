@@ -2,7 +2,6 @@ import {
   AddDevelopmentCategoryPayload,
   addDevelopmentCategory,
   deleteDevelopmentCategory,
-  getDevelopmentCategories,
   getDevelopmentSettings,
   getDevelopmentSettingsByLevel,
   updateDevelopmentCategory,
@@ -12,20 +11,13 @@ import {
 import { developmentSettingsKeys } from "@/queries/development-settings";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetDevelopmentCategories = () => {
-  return useQuery({
-    queryKey: developmentSettingsKeys.categories,
-    queryFn: getDevelopmentCategories,
-  });
-};
-
 export const useAddDevelopmentCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: developmentSettingsKeys.addCategory,
     mutationFn: (payload: AddDevelopmentCategoryPayload) => addDevelopmentCategory(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: developmentSettingsKeys.categories });
+      queryClient.invalidateQueries({ queryKey: [developmentSettingsKeys.settingsByLevel] });
     },
   });
 };
@@ -37,7 +29,7 @@ export const useUpdateDevelopmentCategory = () => {
     mutationFn: ({ categoryId, payload }: { categoryId: number; payload: AddDevelopmentCategoryPayload }) =>
       updateDevelopmentCategory(categoryId, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: developmentSettingsKeys.categories });
+      queryClient.invalidateQueries({ queryKey: [developmentSettingsKeys.settingsByLevel] });
     },
   });
 };
@@ -48,7 +40,7 @@ export const useDeleteDevelopmentCategory = () => {
     mutationKey: developmentSettingsKeys.deleteCategory,
     mutationFn: (categoryId: number) => deleteDevelopmentCategory(categoryId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: developmentSettingsKeys.categories });
+      queryClient.invalidateQueries({ queryKey: [developmentSettingsKeys.settingsByLevel] });
     },
   });
 };
