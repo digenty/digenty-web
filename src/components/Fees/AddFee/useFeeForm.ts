@@ -24,7 +24,7 @@ export interface FeeItemFormValues {
   required: boolean;
   sessionId: number | "";
   term: FeeTermType | "";
-  quantity: number;
+  dueDate: Date | undefined;
   branchIds: number[];
   setDifferentPricesPerBranch: boolean;
   branchAmounts: BranchAmountInput[];
@@ -41,7 +41,7 @@ export const initialFeeItemValues: FeeItemFormValues = {
   required: false,
   sessionId: "",
   term: "",
-  quantity: 1,
+  dueDate: undefined,
   branchIds: [],
   setDifferentPricesPerBranch: false,
   branchAmounts: [],
@@ -51,6 +51,14 @@ export const initialFeeItemValues: FeeItemFormValues = {
   classArmAmounts: [],
   allowPartPayment: false,
   minimumPartPayment: "",
+};
+
+/** Formats a Date to the backend's expected `yyyy-MM-dd` ISO date (no time component). */
+const toIsoDate = (date: Date) => {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 };
 
 // Shape returned by GET /arms (ArmWithClassNameDto).
@@ -109,7 +117,6 @@ export const buildFeeItemPayload = (values: FeeItemFormValues): FeeItemDto => {
     name: values.name.trim(),
     session: Number(values.sessionId),
     term: values.term as FeeTermType,
-    quantity: values.quantity,
     required: values.required,
     branchIds: values.branchIds,
     armIds: values.armIds,
@@ -120,6 +127,7 @@ export const buildFeeItemPayload = (values: FeeItemFormValues): FeeItemDto => {
     classArmAmounts,
     allowPartPayment: values.allowPartPayment,
     minimumPartPayment: values.allowPartPayment ? Number(values.minimumPartPayment) || 0 : undefined,
+    dueDate: values.dueDate ? toIsoDate(values.dueDate) : "",
   };
 };
 

@@ -1,5 +1,4 @@
 export const developmentSettingsKeys = {
-  categories: ["developmentCategories"] as const,
   addCategory: ["addDevelopmentCategory"] as const,
   updateCategory: ["updateDevelopmentCategory"] as const,
   deleteCategory: ["deleteDevelopmentCategory"] as const,

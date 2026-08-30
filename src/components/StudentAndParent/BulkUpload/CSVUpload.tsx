@@ -202,6 +202,10 @@ export const CSVUpload = ({
           <div>
             <h3 className="text-text-default text-base font-semibold">Download CSV or XLSX Template</h3>
             <p className="text-text-subtle text-xs">You can download the attached example and use them as a starting point for your file</p>
+            <p className="text-text-subtle text-xs">
+              The <span className="font-medium">gender</span> column only accepts <span className="font-medium">MALE</span> or{" "}
+              <span className="font-medium">FEMALE</span> in uppercase.
+            </p>
           </div>
         </div>
 

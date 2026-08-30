@@ -2,7 +2,7 @@
 
 import { AddFill, DeleteBin2, Edit, Information } from "@digenty/icons";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import { ClassLevel, DevelopmentCategory, DevelopmentCategorySummary, DevelopmentSkill } from "@/api/types";
+import { ClassLevel, DevelopmentCategory, DevelopmentSkill } from "@/api/types";
 
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,6 @@ import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import {
   useAddDevelopmentCategory,
   useDeleteDevelopmentCategory,
-  useGetDevelopmentCategories,
   useGetDevelopmentSettingsByLevel,
   useUpdateDevelopmentCategory,
   useUpdateLevelSkills,
@@ -25,8 +24,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { WizardStepFooter } from "../AcademicSetup/WizardStepFooter";
 
-const CategoriesSetup = ({ canEdit }: { canEdit: boolean }) => {
-  const { data: categoriesData, isFetching: isLoading } = useGetDevelopmentCategories();
+// The flat /development-settings/categories list can't be trusted to carry a reliable levelId, so both the
+// category CRUD list and the skills-per-level dropdown read from the per-level endpoint's nested categories instead.
+const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: number }) => {
+  const { data: levelSettingsData, isFetching: isLoading } = useGetDevelopmentSettingsByLevel(levelId);
   const { mutate: addCategory, isPending: isAdding } = useAddDevelopmentCategory();
   const { mutate: updateCategory, isPending: isUpdating } = useUpdateDevelopmentCategory();
   const { mutate: deleteCategory, isPending: isDeleting } = useDeleteDevelopmentCategory();
@@ -36,12 +37,12 @@ const CategoriesSetup = ({ canEdit }: { canEdit: boolean }) => {
   const [editingName, setEditingName] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const categories: DevelopmentCategorySummary[] = categoriesData?.data ?? [];
+  const categories: DevelopmentCategory[] = levelSettingsData?.data?.categories ?? [];
 
   const handleAdd = () => {
-    if (!newName.trim()) return;
+    if (!newName.trim() || !levelId) return;
     addCategory(
-      { name: newName.trim() },
+      { name: newName.trim(), levelId },
       {
         onSuccess: () => {
           toast({ title: "Category added", type: "success" });
@@ -53,9 +54,9 @@ const CategoriesSetup = ({ canEdit }: { canEdit: boolean }) => {
   };
 
   const handleUpdate = (categoryId: number) => {
-    if (!editingName.trim()) return;
+    if (!editingName.trim() || !levelId) return;
     updateCategory(
-      { categoryId, payload: { name: editingName.trim() } },
+      { categoryId, payload: { name: editingName.trim(), levelId } },
       {
         onSuccess: () => {
           toast({ title: "Category updated", type: "success" });
@@ -94,8 +95,8 @@ const CategoriesSetup = ({ canEdit }: { canEdit: boolean }) => {
 
         {!isLoading &&
           categories.map(category => (
-            <div key={category.id} className="bg-bg-input-soft flex items-center gap-2 rounded-md px-3 py-1">
-              {editingId === category.id ? (
+            <div key={category.categoryId} className="bg-bg-input-soft flex items-center gap-2 rounded-md px-3 py-1">
+              {editingId === category.categoryId ? (
                 <>
                   <Input
                     className="bg-bg-input-soft! text-text-default h-9! flex-1 border-none"
@@ -103,7 +104,7 @@ const CategoriesSetup = ({ canEdit }: { canEdit: boolean }) => {
                     onChange={e => setEditingName(e.target.value)}
                   />
                   <Button
-                    onClick={() => handleUpdate(category.id)}
+                    onClick={() => handleUpdate(category.categoryId)}
                     disabled={isUpdating}
                     className="bg-bg-state-primary! text-text-white-default! h-8! rounded-md"
                   >
@@ -115,24 +116,24 @@ const CategoriesSetup = ({ canEdit }: { canEdit: boolean }) => {
                 </>
               ) : (
                 <>
-                  <span className="text-text-default flex-1 text-sm">{category.name}</span>
+                  <span className="text-text-default flex-1 text-sm">{category.categoryName}</span>
                   {canEdit && (
                     <>
                       <Button
                         onClick={() => {
-                          setEditingId(category.id);
-                          setEditingName(category.name);
+                          setEditingId(category.categoryId);
+                          setEditingName(category.categoryName);
                         }}
                         className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
                       >
                         <Edit fill="var(--color-icon-default-subtle)" />
                       </Button>
                       <Button
-                        onClick={() => handleDelete(category.id)}
-                        disabled={isDeleting && deletingId === category.id}
+                        onClick={() => handleDelete(category.categoryId)}
+                        disabled={isDeleting && deletingId === category.categoryId}
                         className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
                       >
-                        {isDeleting && deletingId === category.id ? (
+                        {isDeleting && deletingId === category.categoryId ? (
                           <Spinner className="size-4" />
                         ) : (
                           <DeleteBin2 fill="var(--color-icon-default-subtle)" />
@@ -155,7 +156,7 @@ const CategoriesSetup = ({ canEdit }: { canEdit: boolean }) => {
             />
             <Button
               onClick={handleAdd}
-              disabled={isAdding || !newName.trim()}
+              disabled={isAdding || !newName.trim() || !levelId}
               className="text-text-subtle hover:bg-bg-none! rounded-md bg-none! text-xs"
             >
               {isAdding ? <Spinner className="size-3" /> : <AddFill fill="var(--color-icon-default-muted)" className="size-3" />} Add
@@ -171,8 +172,8 @@ interface EditableSkill extends DevelopmentSkill {
   key: string;
 }
 
-const SkillsForLevel = ({ level, categories, canEdit }: { level: ClassLevel; categories: DevelopmentCategorySummary[]; canEdit: boolean }) => {
-  const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(categories[0]?.id);
+const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolean }) => {
+  const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(undefined);
   const [skills, setSkills] = useState<EditableSkill[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<EditableSkill | null>(null);
@@ -181,18 +182,18 @@ const SkillsForLevel = ({ level, categories, canEdit }: { level: ClassLevel; cat
     if (!canEdit) setIsEditing(false);
   }, [canEdit]);
 
-  useEffect(() => {
-    if (categories.length > 0 && !categories.some(c => c.id === activeCategoryId)) {
-      setActiveCategoryId(categories[0].id);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categories]);
-
   const { data: levelSettingsData, isFetching: isLoadingLevelSettings } = useGetDevelopmentSettingsByLevel(level.id);
   const { mutate: saveSkills, isPending } = useUpdateLevelSkills();
 
   const levelCategories: DevelopmentCategory[] = levelSettingsData?.data?.categories ?? [];
   const activeLevelCategory = levelCategories.find(c => c.categoryId === activeCategoryId);
+
+  useEffect(() => {
+    if (levelCategories.length > 0 && !levelCategories.some(c => c.categoryId === activeCategoryId)) {
+      setActiveCategoryId(levelCategories[0].categoryId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [levelCategories]);
 
   useEffect(() => {
     if (isLoadingLevelSettings) return;
@@ -261,7 +262,11 @@ const SkillsForLevel = ({ level, categories, canEdit }: { level: ClassLevel; cat
     setIsEditing(false);
   };
 
-  if (categories.length === 0) {
+  if (isLoadingLevelSettings) {
+    return <Skeleton className="h-48 w-full" />;
+  }
+
+  if (levelCategories.length === 0) {
     return <div className="text-text-muted py-6 text-center text-sm">Add a category above before configuring skills.</div>;
   }
 
@@ -277,9 +282,9 @@ const SkillsForLevel = ({ level, categories, canEdit }: { level: ClassLevel; cat
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-bg-default border-border-default">
-            {categories.map(category => (
-              <SelectItem key={category.id} value={String(category.id)} className="text-text-default text-sm">
-                {category.name}
+            {levelCategories.map(category => (
+              <SelectItem key={category.categoryId} value={String(category.categoryId)} className="text-text-default text-sm">
+                {category.categoryName}
               </SelectItem>
             ))}
           </SelectContent>
@@ -294,9 +299,7 @@ const SkillsForLevel = ({ level, categories, canEdit }: { level: ClassLevel; cat
       </div>
 
       <div className="bg-bg-card border-border-default flex flex-col gap-3 rounded-md border p-4 md:px-5 md:py-6">
-        {isLoadingLevelSettings ? (
-          <Skeleton className="h-32 w-full" />
-        ) : skills.length === 0 ? (
+        {skills.length === 0 ? (
           <div className="text-text-muted py-4 text-center text-sm">No skills configured for this level yet</div>
         ) : (
           skills.map((skill, index) => (
@@ -392,8 +395,6 @@ export const DevelopmentSettings = ({
   const isMobile = useIsMobile();
   const { data: classLevel, isFetching: isLoadingLevels } = useGetClassLevel();
   const levels = extractUniqueLevelsByType(classLevel?.data || []);
-  const { data: categoriesData } = useGetDevelopmentCategories();
-  const categories: DevelopmentCategorySummary[] = categoriesData?.data ?? [];
 
   const [activeLevel, setActiveLevel] = useState<ClassLevel>();
   const [isEditing, setIsEditing] = useState(false);
@@ -480,14 +481,14 @@ export const DevelopmentSettings = ({
         {levelSwitcher}
       </div>
 
-      <CategoriesSetup canEdit={isEditing} />
+      <CategoriesSetup canEdit={isEditing} levelId={activeLevel?.id} />
 
       <div className="flex flex-col gap-1">
         <div className="text-text-default text-md font-semibold">Skills per level</div>
         <div className="text-text-muted text-sm">Each class level can have its own skill list per category.</div>
       </div>
 
-      {activeLevel && <SkillsForLevel key={activeLevel.id} level={activeLevel} categories={categories} canEdit={isEditing} />}
+      {activeLevel && <SkillsForLevel key={activeLevel.id} level={activeLevel} canEdit={isEditing} />}
 
       {completedSteps && setCompletedSteps && (
         <WizardStepFooter

@@ -1,6 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 
+const GENDER_COLUMN = "D";
+const TEMPLATE_ROW_COUNT = 500;
+
+const applyGenderDataValidation = (worksheet: ExcelJS.Worksheet) => {
+  for (let row = 2; row <= TEMPLATE_ROW_COUNT + 1; row++) {
+    worksheet.getCell(`${GENDER_COLUMN}${row}`).dataValidation = {
+      type: "list",
+      allowBlank: true,
+      formulae: ['"MALE,FEMALE"'],
+      showErrorMessage: true,
+      errorStyle: "error",
+      errorTitle: "Invalid gender",
+      error: "Gender must be MALE or FEMALE (uppercase).",
+      showInputMessage: true,
+      promptTitle: "Gender",
+      prompt: "Select MALE or FEMALE.",
+    };
+  }
+};
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const entity = searchParams.get("entity");
@@ -73,6 +93,8 @@ export async function GET(req: NextRequest) {
       email: "chinedu.okwu@example.com",
     });
   }
+
+  applyGenderDataValidation(worksheet);
 
   // Generate buffer
   const buffer = await workbook.xlsx.writeBuffer();

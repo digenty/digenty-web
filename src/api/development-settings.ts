@@ -4,6 +4,7 @@ import { isAxiosError } from "axios";
 
 export type AddDevelopmentCategoryPayload = {
   name: string;
+  levelId: number;
   displayOrder?: number;
 };
 
@@ -13,18 +14,6 @@ export type UpdateLevelSkillsPayload = {
   levelType?: LevelType;
   levelId?: number | null;
   skills: { id: number | null; name: string }[];
-};
-
-export const getDevelopmentCategories = async () => {
-  try {
-    const { data } = await api.get(`/development-settings/categories`);
-    return data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) {
-      throw error.response?.data;
-    }
-    throw error;
-  }
 };
 
 export const addDevelopmentCategory = async (payload: AddDevelopmentCategoryPayload) => {
