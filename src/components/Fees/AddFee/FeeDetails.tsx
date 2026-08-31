@@ -13,9 +13,6 @@ import type { FeeTermType } from "@/api/fee";
 const FeeDetails = () => {
   const { values, errors, touched, setFieldValue, handleChange, handleBlur } = useFormikContext<FeeItemFormValues>();
   const { termList, sessionName, sessionId } = useFeeFormData();
-  console.log(sessionId, sessionName);
-  const decrease = () => setFieldValue("quantity", values.quantity > 1 ? values.quantity - 1 : 1);
-  const increase = () => setFieldValue("quantity", values.quantity + 1);
 
   return (
     <div className="border-border-default flex flex-col gap-6 rounded-md border p-4 md:rounded-none md:border-b md:pb-6">
@@ -80,19 +77,6 @@ const FeeDetails = () => {
             </SelectContent>
           </Select>
           {touched.term && errors.term && <span className="text-text-destructive text-xs">{errors.term}</span>}
-        </div>
-      </div>
-
-      <div>
-        <Label className="text-text-default mb-2 text-sm font-medium">Quantity</Label>
-        <div className="bg-bg-input-soft flex w-full max-w-57 justify-between gap-2 rounded-md p-2">
-          <div className="text-text-subtle cursor-pointer select-none" onClick={decrease}>
-            -
-          </div>
-          <div className="text-text-default text-sm font-normal">{values.quantity}</div>
-          <div className="text-text-subtle cursor-pointer select-none" onClick={increase}>
-            +
-          </div>
         </div>
       </div>
     </div>

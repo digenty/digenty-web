@@ -9,11 +9,13 @@ import {
   updateGradingsForLevel,
 } from "@/api/grading";
 import { gradingKeys } from "@/queries/grading";
+import { scoresKey } from "@/queries/score";
+import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetGradingsForClass = (classId: number) => {
   return useQuery({
-    queryKey: gradingKeys.getClassGrading,
+    queryKey: [gradingKeys.getClassGrading, classId],
     queryFn: () => getClassGrading(classId),
   });
 };
@@ -33,6 +35,9 @@ export const useAddGradingDefault = () => {
     mutationFn: addGradingDefault,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [gradingKeys.getGradingsByLevel] });
+      queryClient.invalidateQueries({ queryKey: [gradingKeys.getClassGrading] });
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
+      queryClient.invalidateQueries({ queryKey: [scoresKey.getScore] });
     },
   });
 };
@@ -44,6 +49,9 @@ export const useAddGrading = () => {
     mutationFn: addGrading,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [gradingKeys.getGradingsByLevel] });
+      queryClient.invalidateQueries({ queryKey: [gradingKeys.getClassGrading] });
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
+      queryClient.invalidateQueries({ queryKey: [scoresKey.getScore] });
     },
   });
 };
@@ -55,6 +63,9 @@ export const useUpdateGradingsForLevel = () => {
     mutationFn: updateGradingsForLevel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [gradingKeys.getGradingsByLevel] });
+      queryClient.invalidateQueries({ queryKey: [gradingKeys.getClassGrading] });
+      queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
+      queryClient.invalidateQueries({ queryKey: [scoresKey.getScore] });
     },
   });
 };

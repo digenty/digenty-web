@@ -33,6 +33,7 @@ import { schoolDefaultSchema } from "@/schema/academic";
 import { usePathname, useRouter } from "next/navigation";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { Spinner } from "@/components/ui/spinner";
+import { WizardStepFooter } from "../WizardStepFooter";
 
 export type GradingAndAssessmentHandle = {
   submit: () => Promise<boolean>;
@@ -443,6 +444,7 @@ const LevelFormPanel = ({ level, branchId, branchSpecific }: { level: ClassLevel
       setHasExistingAssessment(true);
     } else {
       formik.setFieldValue("assessments", [emptyAssessmentRow()]);
+      setHasExistingAssessment(false);
     }
   }, [assessmentsData, level?.id]);
 
@@ -460,6 +462,7 @@ const LevelFormPanel = ({ level, branchId, branchSpecific }: { level: ClassLevel
       setHasExistingGradings(true);
     } else {
       formik.setFieldValue("grades", [emptyGradeRow()]);
+      setHasExistingGradings(false);
     }
   }, [gradingsData, level?.id]);
 
@@ -679,27 +682,13 @@ export const GradingAndAssessment = ({
       </div>
 
       {completedSteps && setCompletedSteps && (
-        <div className="border-border-default bg-bg-default fixed right-0 bottom-0 left-0 z-10 flex justify-between border-t px-4 py-3 md:left-(--sidebar-w) lg:px-40">
-          <Button
-            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
-            onClick={() => {
-              router.push(`${pathname}?step=class-and-arms`);
-            }}
-          >
-            Previous
-          </Button>
-
-          <Button
-            type="button"
-            onClick={() => {
-              setCompletedSteps([...completedSteps, "grading-and-assessment"]);
-              router.push(`${pathname}?step=admission-number`);
-            }}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-          >
-            Next
-          </Button>
-        </div>
+        <WizardStepFooter
+          onBack={() => router.push(`${pathname}?step=class-and-arms`)}
+          onContinue={() => {
+            setCompletedSteps([...completedSteps, "grading-and-assessment"]);
+            router.push(`${pathname}?step=development-skills`);
+          }}
+        />
       )}
     </section>
   );

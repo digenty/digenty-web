@@ -16,9 +16,13 @@ import { resultKeys } from "@/queries/result";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useAddResultCalculation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: resultKeys.addResultCalculation,
     mutationFn: addResultCalculations,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: resultKeys.getResultCalculation });
+    },
   });
 };
 
@@ -92,10 +96,14 @@ export const useGetResultCalculation = () => {
 };
 
 export const useUpdateResultCalculation = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: resultKeys.updateResultCalculation,
     mutationFn: ({ payload, resultSettingId }: { payload: UpdateResultCalculationPayload; resultSettingId: number }) =>
       updateResultCalculation(payload, resultSettingId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: resultKeys.getResultCalculation });
+    },
   });
 };
 

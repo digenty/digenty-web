@@ -20,7 +20,7 @@ export const LevelAgeRangeNote = ({ levelType }: { levelType?: LevelType }) => {
       <AlertFill fill="var(--color-icon-default-muted)" className="mt-0.5 size-4 shrink-0" />
       <div className="text-text-subtle text-xs leading-relaxed">
         <span className="text-text-default font-medium">School levels/age ranges should accommodate:</span>{" "}
-        <span className="text-text-default font-medium">{ageRange.label}:</span> {ageRange.range}
+        <span className="text-text-default font-medium">{ageRange.range}</span>
       </div>
     </div>
   );

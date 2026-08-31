@@ -189,9 +189,12 @@ export const formatToDynamicRegex = (format: string, padding: number) => {
   const middleEnd = format.length - padding;
   const middle = format.slice(middleStart, middleEnd);
 
-  // build regex
+  // build regex — alphanumeric middle chars stand in for digits (e.g. YEAR → \d{4}); separators like - or / stay literal
   const prefixRegex = prefix ? prefix : "[A-Za-z]+";
-  const middleRegex = middle ? `\\d{${middle.length}}` : "";
+  const middleRegex = middle
+    .split("")
+    .map(ch => (/[A-Za-z0-9]/.test(ch) ? "\\d" : ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))
+    .join("");
   const serialRegex = `\\d{${padding}}`;
 
   return new RegExp(`^${prefixRegex}${middleRegex}${serialRegex}$`, "i");

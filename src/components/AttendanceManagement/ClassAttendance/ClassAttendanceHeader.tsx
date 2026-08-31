@@ -3,44 +3,46 @@
 import { Calendar, ListCheck } from "@digenty/icons";
 import { toast } from "@/components/Toast";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateAttendanceSheet, useMarkAllAttendance, useMarkAttendance } from "@/hooks/queryHooks/useAttendance";
+import { useMarkAllAttendance, useMarkAttendance } from "@/hooks/queryHooks/useAttendance";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { format } from "date-fns";
 import { CheckIcon, XIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 
 import { Button } from "../../ui/button";
 import { Calendar as AttendanceCalendar } from "../../ui/calendar";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "../../ui/select";
 
-import { StudentAttendance, Term } from "@/api/types";
+import { Term } from "@/api/types";
+import { SessionSlot } from ".";
 
 export const ClassAttendanceHeader = ({
   classArmName,
-  attendanceList,
-  setAttendanceList,
-  students,
+  slots,
   date,
   setDate,
   activeTerm,
 }: {
   classArmName: string;
-  attendanceList: { studentId: number; isPresent: boolean }[];
-  setAttendanceList: React.Dispatch<React.SetStateAction<{ studentId: number; isPresent: boolean }[]>>;
-  students: StudentAttendance[];
+  slots: SessionSlot[];
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
   activeTerm?: Term;
 }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const attendanceId = pathname.split("/")[6] ?? "";
   const armId = pathname.split("/")[4] ?? "";
 
-  const { mutate: saveAttendance, isPending: saving } = useMarkAttendance();
-  const { mutate: markAllAttendance, isPending: markingAll } = useMarkAllAttendance();
-  const { mutate: createSheet } = useCreateAttendanceSheet();
+  const { mutateAsync: saveAttendanceAsync, isPending: savePending } = useMarkAttendance();
+  const { mutateAsync: markAllAsync, isPending: markAllPending } = useMarkAllAttendance();
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [isMarkingAll, setIsMarkingAll] = useState(false);
+  const [isAllPresent, setIsAllPresent] = useState(false);
+
+  const saving = isSaving || savePending;
+  const markingAll = isMarkingAll || markAllPending;
 
   useBreadcrumb([
     { label: "Attendance Management", url: "/staff/attendance" },
@@ -48,57 +50,63 @@ export const ClassAttendanceHeader = ({
   ]);
 
   const [open, setOpen] = React.useState(false);
-  const [isAllPresent, setIsAllPresent] = React.useState(false);
 
-  const handleSaveAttendance = () => {
-    saveAttendance(
-      {
-        attendanceId: Number(attendanceId),
-        studentAttendanceList: attendanceList,
-      },
-      {
-        onSuccess: data => {
-          toast({
-            title: "Attendance saved successfully",
-            description: data.message,
-            type: "success",
-          });
-        },
-        onError: () => {
-          toast({
-            title: "Failed to save attendance",
-            type: "error",
-          });
-        },
-      },
-    );
+  const handleSaveAttendance = async () => {
+    const readySlots = slots.filter(slot => slot.attendanceId);
+    const blockedSlots = slots.filter(slot => !slot.attendanceId);
+
+    if (readySlots.length === 0) {
+      toast({ title: "Please wait", description: "The attendance sheet is still being prepared", type: "error" });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const results = await Promise.allSettled(
+        readySlots.map(slot => saveAttendanceAsync({ attendanceId: slot.attendanceId as number, studentAttendanceList: slot.attendanceList })),
+      );
+
+      const failedSlots = readySlots.filter((_, index) => results[index].status === "rejected");
+      const unsavedLabels = [...blockedSlots, ...failedSlots].map(slot => slot.label);
+
+      if (unsavedLabels.length === 0) {
+        toast({ title: "Attendance saved successfully", type: "success" });
+      } else if (failedSlots.length === readySlots.length) {
+        toast({ title: "Failed to save attendance", type: "error" });
+      } else {
+        toast({
+          title: "Attendance partially saved",
+          description: `Could not save: ${unsavedLabels.join(", ")}. The rest was saved successfully.`,
+          type: "error",
+        });
+      }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleMarkAllAttendance = (isPresent: boolean) => {
+  const handleMarkAllAttendance = async (isPresent: boolean) => {
     setIsAllPresent(isPresent);
-    setAttendanceList(students.map(student => ({ studentId: student.studentId, isPresent })));
-    markAllAttendance(
-      {
-        armId: Number(armId),
-        date: format(date, "yyyy-MM-dd"),
-        isPresent,
-      },
-      {
-        onSuccess: data => {
-          toast({
-            title: `All students marked as ${isPresent ? "Present" : "Absent"}`,
-            description: data.message,
-            type: "success",
-          });
-        },
-        onError: () => {
-          toast({
-            title: `Failed to mark all students ${isPresent ? "Present" : "Absent"}`,
-            type: "error",
-          });
-        },
-      },
-    );
+    slots.forEach(slot => slot.setAttendanceList(slot.students.map(student => ({ studentId: student.studentId, isPresent }))));
+
+    setIsMarkingAll(true);
+    try {
+      await Promise.all(
+        slots.map(slot =>
+          markAllAsync({
+            armId: Number(armId),
+            date: format(date, "yyyy-MM-dd"),
+            isPresent,
+            ...(slot.session === "FULL_DAY" ? {} : { attendanceSession: slot.session }),
+          }),
+        ),
+      );
+      toast({ title: `All students marked as ${isPresent ? "Present" : "Absent"}`, type: "success" });
+    } catch {
+      toast({ title: `Failed to mark all students ${isPresent ? "Present" : "Absent"}`, type: "error" });
+    } finally {
+      setIsMarkingAll(false);
+    }
   };
 
   return (
@@ -155,24 +163,6 @@ export const ClassAttendanceHeader = ({
                   const newDate = selected as Date;
                   setDate(newDate);
                   setOpen(false);
-                  createSheet(
-                    { armId: Number(armId), date: format(newDate, "yyyy-MM-dd") },
-                    {
-                      onSuccess: data => {
-                        toast({
-                          title: "Attendance sheet ready",
-                          description: data.message,
-                          type: "success",
-                        });
-                      },
-                      onError: error => {
-                        toast({
-                          title: error?.message ?? "Could not create attendance sheet",
-                          type: "error",
-                        });
-                      },
-                    },
-                  );
                 }}
                 disabled={[
                   { dayOfWeek: [0, 6] },
@@ -185,6 +175,7 @@ export const ClassAttendanceHeader = ({
 
           <Button
             onClick={handleSaveAttendance}
+            disabled={saving}
             className="bg-bg-state-primary text-text-white-default! hover:bg-bg-state-primary-hover! flex h-8! items-center gap-2"
           >
             {saving && <Spinner className="text-text-white-default" />}

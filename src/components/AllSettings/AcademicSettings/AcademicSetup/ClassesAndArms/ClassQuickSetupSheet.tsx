@@ -257,6 +257,11 @@ export const ClassQuickSetupSheet = ({
   const [isLevelDetailsSaved, setIsLevelDetailsSaved] = useState(
     Boolean(level?.levelName && level?.classNamePrefix && level?.classStart && level?.classEnd),
   );
+  // Separate from isLevelDetailsSaved: that one is a data-presence check (true the moment a
+  // level exists, since the backend defaults classNamePrefix/classStart/classEnd on creation)
+  // and is only meant to unlock the arms/subjects section when reopening an already-configured
+  // level. Closing should only be blocked once the user has actually saved in *this* sheet.
+  const [hasSavedLevelDetailsThisSession, setHasSavedLevelDetailsThisSession] = useState(false);
   const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
   const [deletingArmName, setDeletingArmName] = useState<string | null>(null);
   const [deletingDepartmentName, setDeletingDepartmentName] = useState<string | null>(null);
@@ -368,6 +373,7 @@ export const ClassQuickSetupSheet = ({
               classEnd: values.endClass,
             });
             setIsLevelDetailsSaved(true);
+            setHasSavedLevelDetailsThisSession(true);
             toast({ title: "Level updated successfully", description: "The level has been updated", type: "success" });
           },
           onError: error => {
@@ -717,8 +723,9 @@ export const ClassQuickSetupSheet = ({
                 Arms<small className="text-text-destructive text-xs">*</small>
               </div>
               <span className="text-text-subtle text-sm">
-                Arms let you split a class or department into smaller groups while still keeping them under the same level. They&apos;re simply
-                parallel divisions of the same class (e.g., Class A, Class B). At least one arm is required.
+                Arms let you split a class or department into smaller groups while still keeping them under the same level &mdash; parallel
+                sections of the same class. Name them however your school does: letters (A, B), colours (Gold, Silver), numbers (1, 2), or
+                anything else your structure uses. At least one arm is required.
               </span>
             </div>
             <LevelItemsSection
@@ -729,7 +736,7 @@ export const ClassQuickSetupSheet = ({
               onDelete={handleDeleteArm}
               isAdding={isAddingArm}
               deletingName={deletingArmName}
-              placeholder="Search or type new arms e.g A, B, C"
+              placeholder="Search or type new arms e.g A, B or Gold, Silver"
             />
             {arms.length === 0 && <p className="text-text-destructive text-xs font-light">Add at least one arm before you can close this setup.</p>}
           </div>
@@ -743,7 +750,9 @@ export const ClassQuickSetupSheet = ({
   );
 
   const handleSheetOpenChange = (open: boolean) => {
-    if (!open && arms.length === 0) {
+    // Arms only become required once the class itself has been saved in this session — before
+    // that, nothing has actually been added yet, so there's nothing to enforce.
+    if (!open && hasSavedLevelDetailsThisSession && arms.length === 0) {
       toast({ title: "Arms required", description: "Add at least one arm before closing this setup.", type: "error" });
       return;
     }

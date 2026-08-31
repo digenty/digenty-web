@@ -39,12 +39,13 @@ export const useGetSchoolDetails = () => {
   });
 };
 
-export const useGetOnboardingProgress = () => {
+export const useGetOnboardingProgress = (enabled = true) => {
   return useQuery({
     queryKey: schoolsKey.getOnboardingProgress,
     queryFn: getOnboardingProgress,
     staleTime: 0,
     refetchOnWindowFocus: true,
+    enabled,
   });
 };
 

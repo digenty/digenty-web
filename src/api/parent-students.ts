@@ -1,4 +1,5 @@
 import { FeeStatus, PendingFeeItem } from "@/api/parent-fees";
+import { RatingLegendEntry, StudentDevelopment } from "@/api/types";
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
@@ -37,9 +38,12 @@ export interface StudentReportCardResponse {
   totalSchoolDays: number;
   totalPresent: number;
   totalAbsent: number;
-  neatness: string;
-  punctuality: string;
-  diligence: string;
+  totalSessions: number;
+  sessionsPresent: number;
+  sessionsAbsent: number;
+  sessionsPerDay: 1 | 2;
+  developments: StudentDevelopment[];
+  ratingLegend: RatingLegendEntry[];
   subjectReports: SubjectReportRow[];
   overallPercentage: number;
   classTeacherComment: string;

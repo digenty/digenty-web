@@ -190,7 +190,7 @@ export const EditFeeItem = () => {
                 </div>
               )}
 
-              <div>
+              {/* <div>
                 <Label className="text-text-default mb-2 text-sm font-medium">Quantity</Label>
                 <div className="bg-bg-input-soft flex w-full max-w-57 justify-between gap-2 rounded-md p-2">
                   <div className="text-text-subtle cursor-pointer select-none" onClick={decrease}>
@@ -201,7 +201,7 @@ export const EditFeeItem = () => {
                     +
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {!values.setDifferentPricesPerClass && (
                 <div className="flex flex-col gap-2">

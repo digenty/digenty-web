@@ -1,34 +1,174 @@
 "use client";
+import { AttendanceSession, StudentAttendance, Term } from "@/api/types";
 import { BackButton } from "@/components/BackButton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetArmAttendance } from "@/hooks/queryHooks/useAttendance";
+import { useCreateAttendanceSheet, useGetAllAttendance, useGetArmAttendance } from "@/hooks/queryHooks/useAttendance";
+import { useGetAttendanceSettingsByLevel } from "@/hooks/queryHooks/useAttendanceSettings";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { format } from "date-fns";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AttendanceTable } from "./AttendanceTable";
 import { ClassAttendanceHeader } from "./ClassAttendanceHeader";
 import { ClassAttendanceWrapper } from "./ClassAttendanceWrapper";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { Term } from "@/api/types";
+import { toast } from "@/components/Toast";
+
+export type AttendanceMarkList = { studentId: number; isPresent: boolean }[];
+
+export interface SessionSlot {
+  session: AttendanceSession;
+  label: string;
+  attendanceId?: number;
+  students: StudentAttendance[];
+  isLoading: boolean;
+  attendanceList: AttendanceMarkList;
+  setAttendanceList: React.Dispatch<React.SetStateAction<AttendanceMarkList>>;
+}
 
 export const ClassAttendance = () => {
   const path = usePathname();
   const armId = path.split("/")[4] ?? "";
   const classArmName = path.split("/")[3] ?? "";
+
   const [date, setDate] = useState<Date>(new Date());
-  const [attendanceList, setAttendanceList] = useState<{ studentId: number; isPresent: boolean }[]>([]);
+  const [fullDayList, setFullDayList] = useState<AttendanceMarkList>([]);
+  const [morningList, setMorningList] = useState<AttendanceMarkList>([]);
+  const [afternoonList, setAfternoonList] = useState<AttendanceMarkList>([]);
+  const [sessionAttendanceIds, setSessionAttendanceIds] = useState<Partial<Record<AttendanceSession, number>>>({});
   const user = useLoggedInUser();
 
-  const { data, isLoading, isError } = useGetArmAttendance({ armId: Number(armId), limit: 200, page: 0, date: format(date, "yyyy-MM-dd") });
   const { data: terms } = useGetTerms(user?.schoolId);
-
   const currentTerm = terms?.data?.terms?.find((term: Term) => term.isActiveTerm);
 
+  const { data: allAttendance } = useGetAllAttendance(undefined, currentTerm?.termId);
+  const levelId = allAttendance?.data?.levels
+    ?.flatMap((level: { levelId: number; classArms: { armId: number }[] }) =>
+      level.classArms.map(arm => ({ armId: arm.armId, levelId: level.levelId })),
+    )
+    .find((arm: { armId: number }) => arm.armId === Number(armId))?.levelId;
+
+  const { data: attendanceSettings, isPending: isLoadingAttendanceSettings } = useGetAttendanceSettingsByLevel(levelId);
+  const sessionsPerDay: 1 | 2 = attendanceSettings?.data?.sessionsPerDay ?? 1;
+  const isTwoSession = sessionsPerDay === 2;
+  const sessionsNeeded: AttendanceSession[] = isTwoSession ? ["MORNING", "AFTERNOON"] : ["FULL_DAY"];
+  // Wait for the real sessions-per-day setting before provisioning sheets, otherwise this
+  // fires once for the default of 1 session and again once the actual value loads, and the
+  // second create conflicts (409) with the sheet the first call already created for that date.
+  const settingsReady = !!levelId && !isLoadingAttendanceSettings;
+
+  const { mutate: createSheet } = useCreateAttendanceSheet();
+  const requestedSheetsRef = useRef<Set<string>>(new Set());
+
+  // Reset local marks and known sheet ids whenever the date changes.
   useEffect(() => {
-    setAttendanceList([]);
+    setFullDayList([]);
+    setMorningList([]);
+    setAfternoonList([]);
+    setSessionAttendanceIds({});
   }, [date]);
+
+  // Make sure a register exists for the selected date, for every session this level takes.
+  useEffect(() => {
+    if (!armId || !settingsReady) return;
+
+    sessionsNeeded.forEach(session => {
+      const requestKey = `${armId}|${format(date, "yyyy-MM-dd")}|${session}`;
+      // Guard against React Strict Mode's dev-only double-invoke firing this create twice
+      // in a row, which would otherwise self-collide with the record it just created.
+      if (requestedSheetsRef.current.has(requestKey)) return;
+      requestedSheetsRef.current.add(requestKey);
+
+      createSheet(
+        {
+          armId: Number(armId),
+          date: format(date, "yyyy-MM-dd"),
+          ...(session === "FULL_DAY" ? {} : { attendanceSession: session }),
+        },
+        {
+          onSuccess: data => {
+            setSessionAttendanceIds(prev => ({ ...prev, [session]: data?.data?.id }));
+          },
+          onError: (error: Error) => {
+            // The roster fetch below now returns the sheet's id directly (attendanceId on
+            // GetAttendanceByArmDto), so a sheet that already exists isn't a real failure —
+            // only surface genuinely unexpected errors here.
+            if (error?.message?.toLowerCase().includes("already exist")) return;
+            toast({
+              title: error?.message ?? `Could not prepare the ${session === "FULL_DAY" ? "" : session.toLowerCase() + " "}attendance sheet`,
+              type: "error",
+            });
+          },
+        },
+      );
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [armId, date, isTwoSession, settingsReady]);
+
+  const { data: fullDayData, isLoading: isLoadingFullDay } = useGetArmAttendance({
+    armId: Number(armId),
+    limit: 200,
+    page: 0,
+    date: format(date, "yyyy-MM-dd"),
+    enabled: settingsReady && !isTwoSession,
+  });
+
+  const { data: morningData, isLoading: isLoadingMorning } = useGetArmAttendance({
+    armId: Number(armId),
+    limit: 200,
+    page: 0,
+    date: format(date, "yyyy-MM-dd"),
+    session: "MORNING",
+    enabled: settingsReady && isTwoSession,
+  });
+
+  const { data: afternoonData, isLoading: isLoadingAfternoon } = useGetArmAttendance({
+    armId: Number(armId),
+    limit: 200,
+    page: 0,
+    date: format(date, "yyyy-MM-dd"),
+    session: "AFTERNOON",
+    enabled: settingsReady && isTwoSession,
+  });
+
+  const isLoading = !settingsReady || (isTwoSession ? isLoadingMorning || isLoadingAfternoon : isLoadingFullDay);
+
+  const slots: SessionSlot[] = isTwoSession
+    ? [
+        {
+          session: "MORNING",
+          label: "Morning",
+          attendanceId: morningData?.data?.attendanceId ?? sessionAttendanceIds.MORNING,
+          students: morningData?.data?.studentsPresent ?? [],
+          isLoading: isLoadingMorning,
+          attendanceList: morningList,
+          setAttendanceList: setMorningList,
+        },
+        {
+          session: "AFTERNOON",
+          label: "Afternoon",
+          attendanceId: afternoonData?.data?.attendanceId ?? sessionAttendanceIds.AFTERNOON,
+          students: afternoonData?.data?.studentsPresent ?? [],
+          isLoading: isLoadingAfternoon,
+          attendanceList: afternoonList,
+          setAttendanceList: setAfternoonList,
+        },
+      ]
+    : [
+        {
+          session: "FULL_DAY",
+          label: "Attendance",
+          attendanceId: fullDayData?.data?.attendanceId ?? sessionAttendanceIds.FULL_DAY,
+          students: fullDayData?.data?.studentsPresent ?? [],
+          isLoading: isLoadingFullDay,
+          attendanceList: fullDayList,
+          setAttendanceList: setFullDayList,
+        },
+      ];
+
+  const roster = slots.find(slot => slot.students.length > 0)?.students ?? slots[0]?.students ?? [];
+  const hasNoStudents = !isLoading && roster.length === 0;
 
   return (
     <ClassAttendanceWrapper armId={Number(armId)} isLoading={isLoading}>
@@ -39,27 +179,16 @@ export const ClassAttendance = () => {
 
         <ClassAttendanceHeader
           classArmName={classArmName.split("-").join(" ")}
-          attendanceList={attendanceList}
-          setAttendanceList={setAttendanceList}
-          students={data?.data?.studentsPresent || []}
+          slots={slots}
           date={date}
           setDate={setDate}
           activeTerm={currentTerm}
         />
 
         <div className="px-4 pb-10 md:px-8">
-          {isError && !data && (
-            <div className="flex h-80 items-center justify-center">
-              <ErrorComponent
-                title="Could not load attendance sheet"
-                description="This is our problem, we are looking into it so as to serve you better"
-                buttonText="Go to the Home page"
-              />
-            </div>
-          )}
           {isLoading && <Skeleton className="bg-bg-input-soft h-200 w-full" />}
 
-          {!isLoading && !isError && data.data.studentsPresent.length === 0 && (
+          {!isLoading && hasNoStudents && (
             <div className="flex h-80 items-center justify-center">
               <ErrorComponent
                 title="No Students in this arm yet"
@@ -70,9 +199,7 @@ export const ClassAttendance = () => {
             </div>
           )}
 
-          {data && !isLoading && !isError && data.data.studentsPresent.length > 0 && (
-            <AttendanceTable students={data.data.studentsPresent} attendanceList={attendanceList} setAttendanceList={setAttendanceList} />
-          )}
+          {!isLoading && !hasNoStudents && <AttendanceTable roster={roster} slots={slots} />}
         </div>
       </div>
     </ClassAttendanceWrapper>

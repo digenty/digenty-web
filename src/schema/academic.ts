@@ -41,4 +41,6 @@ export const admissionFormSchema = yup.object().shape({
   numberFormat: yup.string().required("Number format is required"),
   startingNumber: yup.number().typeError("Starting number must be a number").min(1, "Must be at least 1").required("Starting number is required"),
   padding: yup.string().required("Padding is required"),
+  includeClassOfEntry: yup.string().oneOf(["true", "false"], "Select an option").required("Class of entry option is required"),
+  separator: yup.string().required("Separator is required"),
 });

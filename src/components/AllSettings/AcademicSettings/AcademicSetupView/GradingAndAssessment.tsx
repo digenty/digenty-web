@@ -1,6 +1,6 @@
 "use client";
 
-import { AddFill, BookOpen, DeleteBin2, Edit, School } from "@digenty/icons";
+import { AddFill, BookOpen, DeleteBin2, Edit, Information, School } from "@digenty/icons";
 import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -202,6 +202,14 @@ export const AcademicAssAndGradeSetupDone = () => {
               >
                 <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
               </Button>
+            </div>
+
+            <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent mb-5 flex items-start gap-2 rounded-md border p-3">
+              <Information fill="var(--color-icon-default-muted)" className="mt-0.5 size-4 shrink-0" />
+              <div className="text-text-default text-sm">
+                These weights and grade bands decide how every student&apos;s report card looks for this level — assessment weights determine how CA
+                and Exam scores combine into each subject&apos;s total, and the grading bands decide which grade and remark that total gets.
+              </div>
             </div>
 
             <div className="border-border-default mb-5 flex w-full items-center gap-3">
