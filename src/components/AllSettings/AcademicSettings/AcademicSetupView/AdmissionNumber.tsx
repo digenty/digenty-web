@@ -14,7 +14,7 @@ import { useGetAdmissionNumberDetails, useUpdateAdmissionNumber } from "@/hooks/
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-const DIGITS = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+const DIGITS = [2, 3, 4];
 
 const buildPreview = (prefix: string, numberFormat: string, startingNumber: string, padding: string, separator: string): string => {
   const seq = String(parseInt(startingNumber) || 1).padStart(Number(padding) || 2, "0");

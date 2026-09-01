@@ -11,11 +11,14 @@ import { useGetFeeItemById, useUpdateFeeItem } from "@/hooks/queryHooks/useFee";
 import { BackLink } from "@/components/BackLink";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams, useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Formik, Form } from "formik";
 import { toast } from "sonner";
 import * as yup from "yup";
-import type { UpdateFeeItemDto, FeeItemDetailResponse } from "@/api/fee";
+import type { UpdateFeeItemDto, FeeItemDetailResponse, FeePaymentMode, FeeInstallmentDetail } from "@/api/fee";
+import { emptyInstallmentRow, PaymentModeFields, type InstallmentRowInput } from "@/components/Fees/PaymentMode/PaymentModeFields";
+import { buildInstallmentsPayload } from "@/components/Fees/AddFee/useFeeForm";
+import { AlertFill } from "@digenty/icons";
 
 interface EditFeeItemFormValues {
   name: string;
@@ -24,9 +27,20 @@ interface EditFeeItemFormValues {
   amount: number | "";
   setDifferentPricesPerClass: boolean;
   classArmAmounts: { armId: number; amount: number | ""; label: string }[];
-  allowPartPayment: boolean;
-  minimumPartPayment: number | "";
+  paymentMode: FeePaymentMode;
+  installments: InstallmentRowInput[];
 }
+
+// The server locks paymentMode/installments/amount/quantity once a parent has paid into an
+// instalment schedule and rejects edits with this message — there's no separate flag on the
+// GET response to detect it proactively, so we react to the 400 instead.
+const SCHEDULE_LOCKED_MESSAGE = "already paid into";
+
+const toInstallmentRow = (row: FeeInstallmentDetail): InstallmentRowInput => ({
+  percentage: row.percentage,
+  dueDate: row.dueDate ? new Date(row.dueDate) : undefined,
+  label: row.label ?? "",
+});
 
 const validationSchema = yup.object({
   name: yup.string().required("Fee name is required"),
@@ -40,6 +54,7 @@ export const EditFeeItem = () => {
   const { data, isPending: loadingItem } = useGetFeeItemById(id);
   const item = data as FeeItemDetailResponse | undefined;
   const { mutate: updateFeeItem, isPending } = useUpdateFeeItem(id);
+  const [locked, setLocked] = useState(false);
 
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
@@ -59,8 +74,8 @@ export const EditFeeItem = () => {
         amount: "",
         setDifferentPricesPerClass: false,
         classArmAmounts: [],
-        allowPartPayment: false,
-        minimumPartPayment: "",
+        paymentMode: "FULL",
+        installments: [{ ...emptyInstallmentRow }, { ...emptyInstallmentRow }],
       };
     }
 
@@ -81,8 +96,9 @@ export const EditFeeItem = () => {
       amount: item.amount ?? (hasDifferentPrices ? "" : (item.minAmount ?? "")),
       setDifferentPricesPerClass: hasDifferentPrices,
       classArmAmounts,
-      allowPartPayment: item.allowPartPayment,
-      minimumPartPayment: item.minimumPartPayment || "",
+      paymentMode: item.paymentMode ?? "FULL",
+      installments:
+        item.installments && item.installments.length > 0 ? item.installments.map(toInstallmentRow) : [{ ...emptyInstallmentRow }, { ...emptyInstallmentRow }],
     };
   }, [item, hasDifferentPrices]);
 
@@ -113,8 +129,8 @@ export const EditFeeItem = () => {
           name: values.name.trim(),
           quantity: values.quantity,
           required: values.required,
-          allowPartPayment: values.allowPartPayment,
-          minimumPartPayment: values.allowPartPayment && values.minimumPartPayment !== "" ? Number(values.minimumPartPayment) : undefined,
+          paymentMode: values.paymentMode,
+          installments: values.paymentMode === "INSTALLMENT" ? buildInstallmentsPayload(values.installments) : undefined,
           branchIds,
           armIds,
         };
@@ -135,7 +151,11 @@ export const EditFeeItem = () => {
             router.push(`/staff/fees/fee-item/${id}`);
           },
           onError: (error: unknown) => {
-            toast.error((error as { message?: string })?.message ?? "Failed to update fee item");
+            const message = (error as { message?: string })?.message;
+            if (message?.toLowerCase().includes(SCHEDULE_LOCKED_MESSAGE)) {
+              setLocked(true);
+            }
+            toast.error(message ?? "Failed to update fee item");
           },
         });
       }}
@@ -158,6 +178,16 @@ export const EditFeeItem = () => {
                 <BackLink href={`/staff/fees/fee-item/${id}`} />
               </div>
               <div className="text-text-default text-lg font-semibold">Edit Fee Item</div>
+
+              {locked && (
+                <div className="border-border-destructive bg-bg-basic-red-subtle flex items-start gap-2 rounded-md border p-3">
+                  <AlertFill fill="var(--color-bg-basic-red-strong)" className="mt-0.5 size-4 shrink-0" />
+                  <p className="text-text-destructive text-sm">
+                    This fee is on an instalment plan that parents have already paid into. Its payment mode, schedule, amount and quantity can no
+                    longer be changed — you can still update the name and required status.
+                  </p>
+                </div>
+              )}
 
               <div className="flex flex-col gap-2">
                 <Label className="text-text-default text-sm font-medium">Fee Name</Label>
@@ -212,6 +242,7 @@ export const EditFeeItem = () => {
                     value={values.amount}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    disabled={locked}
                     className="bg-bg-input-soft! text-text-default w-full border-none"
                     placeholder="₦0.00"
                   />
@@ -219,8 +250,12 @@ export const EditFeeItem = () => {
                 </div>
               )}
 
-              <label className="flex cursor-pointer items-center gap-2">
-                <Checkbox checked={values.setDifferentPricesPerClass} onCheckedChange={v => setFieldValue("setDifferentPricesPerClass", !!v)} />
+              <label className={`flex items-center gap-2 ${locked ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+                <Checkbox
+                  checked={values.setDifferentPricesPerClass}
+                  disabled={locked}
+                  onCheckedChange={v => setFieldValue("setDifferentPricesPerClass", !!v)}
+                />
                 <div className="text-text-muted text-xs font-normal">Set different prices per class</div>
               </label>
 
@@ -251,33 +286,14 @@ export const EditFeeItem = () => {
                 </div>
               )}
 
-              <label className="border-border-default flex cursor-pointer items-start justify-between rounded-md border p-4">
-                <div className="flex w-full flex-col gap-2">
-                  <div className="text-text-default text-sm font-medium">Allow part payment</div>
-                  <div className="text-text-subtle text-sm font-normal">
-                    Let parents pay this fee in instalments instead of paying the full amount at once.
-                  </div>
-                </div>
-                <Checkbox checked={values.allowPartPayment} onCheckedChange={v => setFieldValue("allowPartPayment", !!v)} />
-              </label>
-
-              {values.allowPartPayment && (
-                <div className="flex flex-col gap-2">
-                  <Label className="text-text-default text-sm font-medium">Minimum Initial Payment</Label>
-                  <Input
-                    name="minimumPartPayment"
-                    type="number"
-                    value={values.minimumPartPayment}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    className="bg-bg-input-soft! text-text-default w-full border-none"
-                    placeholder="₦0.00"
-                  />
-                  {touched.minimumPartPayment && errors.minimumPartPayment && (
-                    <span className="text-text-destructive text-xs">{String(errors.minimumPartPayment)}</span>
-                  )}
-                </div>
-              )}
+              <PaymentModeFields
+                mode={values.paymentMode}
+                installments={values.installments}
+                onModeChange={mode => setFieldValue("paymentMode", mode)}
+                onInstallmentsChange={rows => setFieldValue("installments", rows)}
+                error={typeof errors.installments === "string" ? errors.installments : undefined}
+                disabled={locked}
+              />
             </div>
 
             <div className="bg-bg-default border-border-default fixed right-0 bottom-0 left-(--sidebar-w) z-10 border-t">

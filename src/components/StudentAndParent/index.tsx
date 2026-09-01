@@ -5,22 +5,26 @@ import { useEffect } from "react";
 import { ParentsTable } from "./Parent";
 import { StudentsTable } from "./Students";
 import { ModulePermissionsWrapper } from "@/components/ModulePermissionsWrapper";
-import { canViewStudentParentRecords } from "@/lib/permissions/students-and-parents";
+import { canManageStudentParentRecords, canViewStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "@digenty/icons";
-
-const tabs = ["Students", "Parents"];
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 const StudentAndParentRecord = () => {
   const router = useRouter();
   const params = useSearchParams();
   const activeTab = params.get("tab") ?? "Students";
+  const { permissions } = useLoggedInUser();
+  const canManage = canManageStudentParentRecords(permissions);
+  const tabs = canManage ? ["Students", "Parents"] : ["Students"];
 
   useEffect(() => {
     if (!activeTab) {
       router.push(`/staff/student-and-parent-record?tab=Students`);
+    } else if (!canManage && activeTab !== "Students") {
+      router.push(`/staff/student-and-parent-record?tab=Students`);
     }
-  }, [activeTab, router]);
+  }, [activeTab, router, canManage]);
 
   return (
     <ModulePermissionsWrapper permissionUtility={canViewStudentParentRecords}>
@@ -56,7 +60,7 @@ const StudentAndParentRecord = () => {
         </div>
 
         {/* Separate the table components into two different files with their separate states, then render conditionally here */}
-        <div>{activeTab === "Students" ? <StudentsTable /> : <ParentsTable />}</div>
+        <div>{activeTab === "Students" || !canManage ? <StudentsTable /> : <ParentsTable />}</div>
       </div>
     </ModulePermissionsWrapper>
   );

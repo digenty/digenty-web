@@ -7,20 +7,44 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetClasses } from "@/hooks/queryHooks/useClass";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn, getAcademicYears } from "@/lib/utils";
 import { terms } from "@/types";
 import { FormikProps } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AdmissionStatusValues, BoardingStatusValues } from "../../constants";
 import { StudentInputValues } from "../../types";
 import { AdmissionNumberField } from "../AdmissionNumberField";
 
-export const AcademicInformation = ({ formik, data }: { formik: FormikProps<StudentInputValues>; data: { data: Student } | undefined }) => {
+export const AcademicInformation = ({
+  formik,
+  data,
+  onAdmissionNumberGenerated,
+}: {
+  formik: FormikProps<StudentInputValues>;
+  data: { data: Student } | undefined;
+  onAdmissionNumberGenerated?: (number: string) => void;
+}) => {
   const [classId, setClassId] = useState<number | null>(null);
+
+  const { branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
+  const userBranchIds = useMemo(() => branchIds ?? [], [branchIds]);
+  const hasFullAccess = isMain || isAdmin || (adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses();
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(classId);
+
+  const visibleBranches = useMemo(() => {
+    if (!branches || !isBranchRestricted) return branches;
+    return { data: branches.data.filter((brnch: BranchWithClassLevels) => userBranchIds.includes(brnch.branch.id)) };
+  }, [branches, isBranchRestricted, userBranchIds]);
+
+  const visibleClasses = useMemo(() => {
+    if (!classes || !isBranchRestricted) return classes;
+    return { data: { content: classes.data.content.filter((cls: ClassType) => userBranchIds.includes(cls.branchId)) } };
+  }, [classes, isBranchRestricted, userBranchIds]);
 
   const [branch, setBranch] = useState<string>();
   const [className, setClassName] = useState<string>();
@@ -112,20 +136,20 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
           </Select>
         </div>
 
-        <AdmissionNumberField formik={formik} />
+        <AdmissionNumberField formik={formik} onGenerated={onAdmissionNumberGenerated} />
 
         <div className="space-y-2">
           <Label htmlFor="branch" className="text-text-default text-sm font-medium">
             Branch <small className="text-text-destructive text-xs">*</small>
           </Label>
-          {!branches || loadingBranches ? (
+          {!visibleBranches || loadingBranches ? (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (
             <Select
               value={branch}
               onValueChange={value => {
                 if (value) {
-                  const branchObj = branches.data?.find((branch: BranchWithClassLevels) => branch?.branch?.name === value);
+                  const branchObj = visibleBranches.data?.find((branch: BranchWithClassLevels) => branch?.branch?.name === value);
                   if (branchObj) {
                     formik.setFieldValue("branchId", branchObj?.branch?.id);
                     setBranch(branchObj?.branch?.name);
@@ -137,7 +161,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
                 <SelectValue placeholder="Branch" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {branches.data.map((branch: BranchWithClassLevels) => (
+                {visibleBranches.data.map((branch: BranchWithClassLevels) => (
                   <SelectItem key={branch?.branch.id} className="text-text-default" value={branch.branch.name ?? ""}>
                     {branch?.branch?.name}
                   </SelectItem>
@@ -151,14 +175,14 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
           <Label htmlFor="class" className="text-text-default text-sm font-medium">
             Class <small className="text-text-destructive text-xs">*</small>
           </Label>
-          {!classes || loadingClasses ? (
+          {!visibleClasses || loadingClasses ? (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (
             <Select
               value={classId?.toString()}
               onValueChange={value => {
                 if (value) {
-                  const classObj = classes.data.content?.find((cls: ClassType) => cls.id.toString() === value);
+                  const classObj = visibleClasses.data.content?.find((cls: ClassType) => cls.id.toString() === value);
                   if (classObj) {
                     formik.setFieldValue("classId", classObj.id);
                     setClassName(classObj.name);
@@ -171,7 +195,7 @@ export const AcademicInformation = ({ formik, data }: { formik: FormikProps<Stud
                 <SelectValue placeholder="Class" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {classes.data.content.map((cls: ClassType, index: number) => (
+                {visibleClasses.data.content.map((cls: ClassType, index: number) => (
                   <SelectItem key={`${cls.id}-${index}`} className="text-text-default" value={cls.id.toString()}>
                     {cls.name}
                   </SelectItem>

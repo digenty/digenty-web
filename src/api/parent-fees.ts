@@ -1,8 +1,20 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
+import type { FeePaymentMode } from "@/api/fee";
 
 export type FeeStatus = "PENDING" | "PARTIALLY_PAID" | "PAID" | "OVERDUE";
 export type InvoiceStatus = "DRAFT" | "UNPAID" | "PARTIALLY_PAID" | "PAID";
+
+export interface ParentInstallment {
+  id: number;
+  sequence: number;
+  percentage: number;
+  amount: number;
+  amountPaid: number;
+  balance: number;
+  dueDate: string;
+  status: FeeStatus;
+}
 
 export interface PendingFeeItem {
   studentFeeItemId: number;
@@ -12,6 +24,10 @@ export interface PendingFeeItem {
   amountPaid: number;
   balance: number;
   status: FeeStatus;
+  paymentMode: FeePaymentMode;
+  minimumPartPayment: number | null;
+  payableAmounts: number[] | null;
+  installments?: ParentInstallment[];
 }
 
 export interface FeeOverviewResponse {

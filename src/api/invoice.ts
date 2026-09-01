@@ -117,13 +117,21 @@ export type PaymentHistoryResponse = {
   size: number;
 };
 
+export type PaymentMethod = "CASH" | "POS" | "CHEQUE" | "BANK_TRANSFER" | "BANK_TRANSFER_TERMINAL" | "ONLINE";
+
+export type PaymentAllocation = {
+  studentFeeItemId: number;
+  amount: number;
+};
+
 export type AddPaymentPayload = {
   transactionDate: string;
-  method: string;
+  method: PaymentMethod;
   terminalTransactionId: string | null;
   paidById: number;
   amount: number;
   note: string;
+  allocations?: PaymentAllocation[];
 };
 
 export type InvoicePreviewPayment = {
