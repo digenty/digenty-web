@@ -1,6 +1,7 @@
 "use client";
 
 import { DateRangePicker } from "@/components/DatePicker";
+import { PaymentModeFields } from "@/components/Fees/PaymentMode/PaymentModeFields";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -129,33 +130,13 @@ const FeeAmount = () => {
         </div>
       )}
 
-      <label className="border-border-default flex cursor-pointer items-start justify-between rounded-md border p-4">
-        <div className="flex w-full flex-col gap-2">
-          <div className="text-text-default text-sm font-medium">Allow part payment</div>
-          <div className="text-text-subtle text-sm font-normal">
-            Let parents pay this fee in instalments instead of paying the full amount at once.
-          </div>
-        </div>
-        <Checkbox checked={values.allowPartPayment} onCheckedChange={v => setFieldValue("allowPartPayment", !!v)} />
-      </label>
-
-      {values.allowPartPayment && (
-        <div className="flex flex-col gap-2">
-          <div className="text-text-default text-sm font-medium">Minimum Initial Payment</div>
-          <Input
-            name="minimumPartPayment"
-            type="number"
-            value={values.minimumPartPayment}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className="bg-bg-input-soft! text-text-default w-full border-none"
-            placeholder="₦0.00"
-          />
-          {touched.minimumPartPayment && errors.minimumPartPayment && (
-            <span className="text-text-destructive text-xs">{errors.minimumPartPayment}</span>
-          )}
-        </div>
-      )}
+      <PaymentModeFields
+        mode={values.paymentMode}
+        installments={values.installments}
+        onModeChange={mode => setFieldValue("paymentMode", mode)}
+        onInstallmentsChange={rows => setFieldValue("installments", rows)}
+        error={typeof errors.installments === "string" ? errors.installments : undefined}
+      />
 
       <div className="flex flex-col gap-2">
         <Label className="text-text-default text-sm font-medium">Due Date</Label>

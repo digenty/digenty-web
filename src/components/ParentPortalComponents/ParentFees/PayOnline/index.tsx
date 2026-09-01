@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
@@ -15,6 +16,7 @@ import { useGetParentPortalTerms } from "@/hooks/queryHooks/useParentLookup";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useStudentFilterStore } from "@/store/parent";
 import { PendingFeeItem } from "@/api/parent-fees";
+import { feeStatusConfig } from "@/components/ParentPortalComponents/feeStatus";
 import { TermLookup } from "@/api/parent-lookup";
 import { toast } from "sonner";
 
@@ -27,7 +29,47 @@ const ProgressBar = ({ paid, amount }: { paid: number; amount: number }) => {
   );
 };
 
-const RequiredFeeItem = ({
+/** Unpaid instalments in sequence order, used to label payableAmounts entries and to render the schedule. */
+const unpaidInstallments = (fee: PendingFeeItem) => (fee.installments ?? []).filter(i => i.status !== "PAID").sort((a, b) => a.sequence - b.sequence);
+
+/** payableAmounts[i] settles the first (i+1) unpaid instalments — build a human label for each option. */
+const payableAmountOptions = (fee: PendingFeeItem): { value: number; label: string }[] => {
+  const amounts = fee.payableAmounts ?? [];
+  if (amounts.length <= 1) return amounts.map(value => ({ value, label: `₦${value.toLocaleString()}` }));
+
+  const unpaid = unpaidInstallments(fee);
+  return amounts.map((value, i) => {
+    const covered = unpaid.slice(0, i + 1);
+    const first = covered[0]?.sequence;
+    const last = covered[covered.length - 1]?.sequence;
+    const label = !first ? `₦${value.toLocaleString()}` : first === last ? `Pay instalment ${first}` : `Pay instalments ${first}–${last}`;
+    return { value, label: `${label} — ₦${value.toLocaleString()}` };
+  });
+};
+
+const InstallmentSchedule = ({ fee }: { fee: PendingFeeItem }) => {
+  if (!fee.installments || fee.installments.length === 0) return null;
+  return (
+    <div className="flex flex-col gap-1.5">
+      {fee.installments.map(inst => {
+        const status = feeStatusConfig[inst.status];
+        return (
+          <div key={inst.id} className="bg-bg-input-soft flex items-center justify-between rounded-md px-2.5 py-1.5">
+            <span className="text-text-muted text-xs">
+              Instalment {inst.sequence} · Due {inst.dueDate}
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-text-default text-xs font-medium">₦{inst.amount.toLocaleString()}</span>
+              <Badge className={`${status?.className ?? ""} rounded-md text-[10px] font-medium`}>{status?.label ?? inst.status}</Badge>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const FeeItemRow = ({
   fee,
   checked,
   onCheck,
@@ -41,12 +83,16 @@ const RequiredFeeItem = ({
   onAmountChange: (id: number, amount: number) => void;
 }) => {
   const amountAfterPayment = fee.balance - amount;
+  const payableAmounts = fee.payableAmounts;
+  const settled = payableAmounts !== null && payableAmounts.length === 0;
+  const options = payableAmounts !== null && payableAmounts.length > 1 ? payableAmountOptions(fee) : [];
+  const fixedAmount = payableAmounts !== null && payableAmounts.length === 1 ? payableAmounts[0] : null;
 
   return (
     <div className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Checkbox checked={checked} onCheckedChange={() => onCheck(fee.studentFeeItemId)} className="rounded-sm" />
+          {!settled && <Checkbox checked={checked} onCheckedChange={() => onCheck(fee.studentFeeItemId)} className="rounded-sm" />}
           <p className="text-text-default text-sm">{fee.name}</p>
         </div>
         <p className="text-text-default text-sm font-medium">₦{fee.amount.toLocaleString()}</p>
@@ -62,29 +108,56 @@ const RequiredFeeItem = ({
         </>
       )}
 
-      {checked && (
+      <InstallmentSchedule fee={fee} />
+
+      {checked && !settled && (
         <div className="flex flex-col gap-2">
           <p className="text-text-default text-sm font-medium">Amount to Pay</p>
-          <div className="flex items-center gap-2">
-            <div className="bg-bg-input-soft! flex h-8 flex-1 items-center gap-1 rounded-md px-3 py-2">
-              <span className="text-text-muted text-sm">₦</span>
-              <Input
-                type="number"
-                value={amount || ""}
-                onChange={e => onAmountChange(fee.studentFeeItemId, Math.min(Number(e.target.value) || 0, fee.balance))}
-                placeholder="0.00"
-                className="text-text-default h-5 border-none! bg-none p-0 text-sm"
-              />
+
+          {fixedAmount !== null ? (
+            <div className="bg-bg-input-soft! flex h-8 items-center rounded-md px-3 text-sm">₦{fixedAmount.toLocaleString()}</div>
+          ) : options.length > 0 ? (
+            <div className="flex flex-col gap-1.5">
+              {options.map(option => (
+                <label
+                  key={option.value}
+                  className={`flex cursor-pointer items-center gap-2 rounded-md border p-2 text-sm ${
+                    amount === option.value ? "border-border-informative border-2" : "border-border-default"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name={`payable-${fee.studentFeeItemId}`}
+                    checked={amount === option.value}
+                    onChange={() => onAmountChange(fee.studentFeeItemId, option.value)}
+                  />
+                  <span className="text-text-default">{option.label}</span>
+                </label>
+              ))}
             </div>
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => onAmountChange(fee.studentFeeItemId, fee.balance)}
-              className="bg-bg-input-soft text-text-subtle hover:bg-bg-input-soft text-sm font-medium"
-            >
-              Pay Full
-            </Button>
-          </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="bg-bg-input-soft! flex h-8 flex-1 items-center gap-1 rounded-md px-3 py-2">
+                <span className="text-text-muted text-sm">₦</span>
+                <Input
+                  type="number"
+                  value={amount || ""}
+                  onChange={e => onAmountChange(fee.studentFeeItemId, Math.min(Number(e.target.value) || 0, fee.balance))}
+                  placeholder="0.00"
+                  className="text-text-default h-5 border-none! bg-none p-0 text-sm"
+                />
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => onAmountChange(fee.studentFeeItemId, fee.balance)}
+                className="bg-bg-input-soft text-text-subtle hover:bg-bg-input-soft text-sm font-medium"
+              >
+                Pay Full
+              </Button>
+            </div>
+          )}
+
           <div className="border-border-default rounded-md border">
             <div className="border-border-default flex items-center justify-between border-b p-4">
               <p className="text-text-default text-sm">Paying now</p>
@@ -100,16 +173,6 @@ const RequiredFeeItem = ({
     </div>
   );
 };
-
-const OptionalFeeItem = ({ fee, checked, onCheck }: { fee: PendingFeeItem; checked: boolean; onCheck: (id: number) => void }) => (
-  <div className="border-border-default flex w-full items-center justify-between rounded-sm border p-4">
-    <div className="flex items-center gap-2">
-      <Checkbox checked={checked} onCheckedChange={() => onCheck(fee.studentFeeItemId)} className="rounded-sm" />
-      <p className="text-text-default text-sm">{fee.name}</p>
-    </div>
-    <p className="text-text-default text-sm">₦{fee.amount.toLocaleString()}</p>
-  </div>
-);
 
 export const PayInvoice = () => {
   const user = useLoggedInUser();
@@ -135,6 +198,9 @@ export const PayInvoice = () => {
     setAmounts({});
   }, [selectedStudentId, termSelected?.id]);
 
+  /** Default amount for a newly-checked fee: the first payableAmounts entry (the "next thing due"), or the balance for a free-amount (FLEXIBLE) fee. */
+  const defaultAmountFor = (fee: PendingFeeItem) => (fee.payableAmounts && fee.payableAmounts.length > 0 ? fee.payableAmounts[0] : fee.balance);
+
   const toggleRequired = (id: number) => {
     setCheckedRequired(prev => {
       const next = new Set(prev);
@@ -143,7 +209,7 @@ export const PayInvoice = () => {
       } else {
         next.add(id);
         const fee = payFeesData?.requiredFees.find(f => f.studentFeeItemId === id);
-        if (fee) setAmounts(a => ({ ...a, [id]: fee.balance }));
+        if (fee) setAmounts(a => ({ ...a, [id]: defaultAmountFor(fee) }));
       }
       return next;
     });
@@ -157,7 +223,7 @@ export const PayInvoice = () => {
       } else {
         next.add(id);
         const fee = payFeesData?.optionalFees.find(f => f.studentFeeItemId === id);
-        if (fee) setAmounts(a => ({ ...a, [id]: fee.balance }));
+        if (fee) setAmounts(a => ({ ...a, [id]: defaultAmountFor(fee) }));
       }
       return next;
     });
@@ -271,7 +337,7 @@ export const PayInvoice = () => {
                 <p className="text-text-default text-sm font-semibold">Required Fees</p>
                 <div className="flex flex-col gap-2">
                   {requiredFees.map(fee => (
-                    <RequiredFeeItem
+                    <FeeItemRow
                       key={fee.studentFeeItemId}
                       fee={fee}
                       checked={checkedRequired.has(fee.studentFeeItemId)}
@@ -296,11 +362,13 @@ export const PayInvoice = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   {optionalFees.map(fee => (
-                    <OptionalFeeItem
+                    <FeeItemRow
                       key={fee.studentFeeItemId}
                       fee={fee}
                       checked={checkedOptional.has(fee.studentFeeItemId)}
                       onCheck={toggleOptional}
+                      amount={amounts[fee.studentFeeItemId] ?? 0}
+                      onAmountChange={(id, value) => setAmounts(a => ({ ...a, [id]: value }))}
                     />
                   ))}
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightS, Bank, BankCard, CalendarEventFill, Cash, Folder3, QuickReferenceAll, ResetLeft } from "@digenty/icons";
+import { ArrowRightS, CalendarEventFill, QuickReferenceAll, ResetLeft } from "@digenty/icons";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -17,21 +17,15 @@ import { useAddPayment, useGetInvoiceDetail } from "@/hooks/queryHooks/useInvoic
 import { useGetStudent } from "@/hooks/queryHooks/useStudent";
 import { InvoiceDetailResponse } from "@/components/Invoices/InvoiceId/invoiceIdTypes";
 import { addPaymentSchema } from "@/schema/invoice";
+import { payMethod } from "@/components/Invoices/paymentMethods";
 import { getParent } from "@/api/parent";
 import { Parent, Student } from "@/api/types";
 import { parentKeys } from "@/queries/parent";
 import { cn } from "@/lib/utils";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-
-const payMethod = [
-  { label: "Bank Transfer - Terminal", value: "BANK_TRANSFER_TERMINAL", icon: Bank },
-  { label: "Cash", value: "CASH", icon: Cash },
-  { label: "POS", value: "POS", icon: BankCard },
-  { label: "Other Bank Transfer", value: "OTHER_BANK_TRANSFER", icon: Folder3 },
-];
 
 export const AddPAyment = () => {
   const router = useRouter();
@@ -58,6 +52,17 @@ export const AddPAyment = () => {
   });
   const linkedParents = parentQueries.map(q => (q.data as { data: Parent } | undefined)?.data).filter(Boolean) as Parent[];
 
+  const invoiceItems = invoiceDetail?.items ?? [];
+  const [allocations, setAllocations] = useState<Record<number, number>>({});
+  const allocationsSeeded = useRef(false);
+  useEffect(() => {
+    if (!allocationsSeeded.current && invoiceItems.length > 0) {
+      setAllocations(Object.fromEntries(invoiceItems.map(item => [item.id, item.total])));
+      allocationsSeeded.current = true;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [invoiceItems.length]);
+
   const formik = useFormik({
     initialValues: {
       transactionDate: null as Date | null,
@@ -69,14 +74,19 @@ export const AddPAyment = () => {
     },
     validationSchema: addPaymentSchema,
     onSubmit: values => {
+      const allocationRows = invoiceItems
+        .map(item => ({ studentFeeItemId: item.id, amount: allocations[item.id] ?? 0 }))
+        .filter(row => row.amount > 0);
+
       mutate(
         {
           transactionDate: (values.transactionDate as Date).toISOString(),
-          method: values.method,
+          method: values.method as (typeof payMethod)[number]["value"],
           terminalTransactionId: values.terminalTransactionId || null,
           paidById: values.paidById,
           amount: Number(values.amount),
           note: values.note,
+          allocations: allocationRows.length > 0 ? allocationRows : undefined,
         },
         {
           onSuccess: () => {
@@ -254,6 +264,44 @@ export const AddPAyment = () => {
             {formik.touched.amount && formik.errors.amount && <p className="text-text-destructive text-xs font-light">{formik.errors.amount}</p>}
           </div>
 
+          {/* Allocation breakdown */}
+          {invoiceItems.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-text-default tex-sm font-medium">Allocation Breakdown</Label>
+              <p className="text-text-muted text-xs">Which fee lines is this payment for? Defaults to each line&apos;s full amount — adjust as needed.</p>
+              <div className="border-border-default flex flex-col gap-2 rounded-md border p-3">
+                {invoiceItems.map(item => (
+                  <div key={item.id} className="flex items-center justify-between gap-3">
+                    <span className="text-text-default flex-1 text-sm">{item.name}</span>
+                    <div className="bg-bg-input-soft flex h-8 w-32 items-center rounded-md px-2">
+                      <span className="text-text-muted mr-1 text-xs">₦</span>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={allocations[item.id] ?? ""}
+                        onChange={e => setAllocations(a => ({ ...a, [item.id]: Number(e.target.value) || 0 }))}
+                        className="h-full border-none bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+                      />
+                    </div>
+                  </div>
+                ))}
+                {(() => {
+                  const allocatedTotal = Object.values(allocations).reduce((sum, v) => sum + (v || 0), 0);
+                  const amount = Number(formik.values.amount) || 0;
+                  const overAllocated = allocatedTotal > amount + 0.001;
+                  return (
+                    <div className={cn("border-border-default flex items-center justify-between border-t pt-2 text-sm", overAllocated && "text-text-destructive")}>
+                      <span>Allocated</span>
+                      <span className="font-medium">
+                        ₦{allocatedTotal.toLocaleString()} {overAllocated && "— exceeds the amount above"}
+                      </span>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
           {/* Paid By */}
           <div className="space-y-2">
             <Label className="text-text-default tex-sm font-medium">
@@ -324,7 +372,7 @@ export const AddPAyment = () => {
             </Button>
             <Button
               onClick={() => formik.handleSubmit()}
-              disabled={isPending}
+              disabled={isPending || Object.values(allocations).reduce((sum, v) => sum + (v || 0), 0) > (Number(formik.values.amount) || 0) + 0.001}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover/90! text-text-white-default h-7 rounded-md px-2.5 py-1.5 text-sm"
             >
               {isPending && <Spinner className="text-text-white-default mr-1 size-4" />}

@@ -17,10 +17,11 @@ import { addFeeToClassSchema, addFeeToClassWithArmsSchema } from "@/schema/fees"
 import { BackLink } from "@/components/BackLink";
 import { useCreateSingleArmFeeItem } from "@/hooks/queryHooks/useFee";
 import { useGetArmsByClass } from "@/hooks/queryHooks/useArm";
-import { useFeeFormData } from "../AddFee/useFeeForm";
+import { buildInstallmentsPayload, useFeeFormData } from "../AddFee/useFeeForm";
 import { useSearchStocks } from "@/hooks/queryHooks/useStock";
-import type { SingleArmFeeItemDto, FeeTermType } from "@/api/fee";
+import type { SingleArmFeeItemDto, FeeTermType, FeePaymentMode } from "@/api/fee";
 import { Spinner } from "@/components/ui/spinner";
+import { emptyInstallmentRow, PaymentModeFields, type InstallmentRowInput } from "@/components/Fees/PaymentMode/PaymentModeFields";
 
 interface AddFeeToClassValues {
   armIds: number[];
@@ -30,8 +31,8 @@ interface AddFeeToClassValues {
   quantity: number;
   amount: number | "";
   required: boolean;
-  allowPartPayment: boolean;
-  minimumPartPayment: number | "";
+  paymentMode: FeePaymentMode;
+  installments: InstallmentRowInput[];
 }
 
 const AddFeeToClass = () => {
@@ -78,8 +79,8 @@ const AddFeeToClass = () => {
       quantity: 1,
       amount: "",
       required: false,
-      allowPartPayment: false,
-      minimumPartPayment: "",
+      paymentMode: "FULL",
+      installments: [{ ...emptyInstallmentRow }, { ...emptyInstallmentRow }],
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [arms, sessionId, isArmMode],
@@ -93,8 +94,8 @@ const AddFeeToClass = () => {
       quantity: values.quantity,
       amount: Number(values.amount) || 0,
       required: values.required,
-      allowPartPayment: values.allowPartPayment,
-      minimumPartPayment: values.allowPartPayment ? Number(values.minimumPartPayment) || 0 : undefined,
+      paymentMode: values.paymentMode,
+      installments: values.paymentMode === "INSTALLMENT" ? buildInstallmentsPayload(values.installments) : undefined,
     };
 
     const targetArmIds = isArmMode ? [armId!] : values.armIds;
@@ -311,36 +312,13 @@ const AddFeeToClass = () => {
                     </div>
                   </div>
 
-                  {/* Allow part payment */}
-                  <label className="border-border-default flex cursor-pointer items-start justify-between rounded-md border p-4">
-                    <div className="flex w-full flex-col gap-2">
-                      <div className="text-text-default text-sm font-medium">Allow part payment</div>
-                      <div className="text-text-subtle text-sm font-normal">
-                        Let parents pay this fee in instalments instead of paying the full amount at once.
-                      </div>
-                    </div>
-                    <Checkbox checked={values.allowPartPayment} onCheckedChange={v => setFieldValue("allowPartPayment", !!v)} />
-                  </label>
-
-                  {/* Minimum Initial Payment — always visible */}
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-text-default text-sm font-medium">Minimum Initial Payment</Label>
-                      {!values.allowPartPayment && <span className="text-text-muted text-xs">Optional</span>}
-                    </div>
-                    <Input
-                      name="minimumPartPayment"
-                      type="number"
-                      value={values.minimumPartPayment}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      className="bg-bg-input-soft! text-text-default rounded-md border-none text-sm"
-                      placeholder="₦0.00"
-                    />
-                    {touched.minimumPartPayment && errors.minimumPartPayment && (
-                      <span className="text-text-destructive text-xs">{errors.minimumPartPayment}</span>
-                    )}
-                  </div>
+                  <PaymentModeFields
+                    mode={values.paymentMode}
+                    installments={values.installments}
+                    onModeChange={mode => setFieldValue("paymentMode", mode)}
+                    onInstallmentsChange={rows => setFieldValue("installments", rows)}
+                    error={typeof errors.installments === "string" ? errors.installments : undefined}
+                  />
                 </div>
 
                 <div className="border-border-default bg-bg-default fixed bottom-0 w-full max-w-150 border-t py-3 pr-8 pl-4 md:px-0">

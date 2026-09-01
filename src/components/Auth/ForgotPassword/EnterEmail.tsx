@@ -11,7 +11,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 
-export const EnterEmail = () => {
+type EnterEmailProps = {
+  userType: "staff" | "parent";
+};
+
+export const EnterEmail = ({ userType }: EnterEmailProps) => {
+  const isStaff = userType === "staff";
   const router = useRouter();
   const pathname = usePathname();
   const { mutate, isPending } = useForgetPassword();
@@ -51,18 +56,20 @@ export const EnterEmail = () => {
     <div className="flex w-full flex-col items-center gap-7">
       <div className="flex flex-col items-center gap-2">
         <h2 className="text-text-default text-lg font-semibold">Forgot password?</h2>
-        <p className="text-text-muted text-sm font-normal">Enter your email or phone number to reset your password.</p>
+        <p className="text-text-muted text-sm font-normal">
+          {isStaff ? "Enter your email to reset your password." : "Enter your email or phone number to reset your password."}
+        </p>
       </div>
       <form onSubmit={formik.handleSubmit} className="w-full space-y-6">
         <div className="space-y-2">
           <Label htmlFor="email" className="text-text-default text-sm font-medium">
-            Email or Phone Number
+            {isStaff ? "Email" : "Email or Phone Number"}
           </Label>
           <Input
             id="email"
             onChange={formik.handleChange}
             autoFocus
-            placeholder="example@domain.com or 08031234567"
+            placeholder={isStaff ? "example@domain.com" : "example@domain.com or 08031234567"}
             onBlur={formik.handleBlur}
             value={formik.values.email}
             type="text"

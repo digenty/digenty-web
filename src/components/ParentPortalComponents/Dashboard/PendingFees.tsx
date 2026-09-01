@@ -1,19 +1,13 @@
 "use client";
 
-import { FeeStatus, PendingFeeItem } from "@/api/parent-fees";
+import { PendingFeeItem } from "@/api/parent-fees";
+import { feeStatusConfig } from "@/components/ParentPortalComponents/feeStatus";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Close } from "@digenty/icons";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-const statusConfig: Record<FeeStatus, { label: string; className: string; showIcon?: boolean }> = {
-  PAID: { label: "Paid", className: "bg-bg-badge-green text-bg-basic-green-strong" },
-  PARTIALLY_PAID: { label: "Partially Paid", className: "bg-bg-badge-orange text-bg-basic-orange-strong" },
-  PENDING: { label: "Unpaid", className: "bg-bg-badge-red text-bg-basic-red-strong", showIcon: true },
-  OVERDUE: { label: "Overdue", className: "bg-bg-badge-red text-bg-basic-red-strong", showIcon: true },
-};
 
 export const PendingFees = ({ fees, loading }: { fees?: PendingFeeItem[]; loading?: boolean }) => {
   const router = useRouter();
@@ -41,7 +35,7 @@ export const PendingFees = ({ fees, loading }: { fees?: PendingFeeItem[]; loadin
         ) : (
           <div className="flex flex-col">
             {fees.map(fee => {
-              const status = statusConfig[fee.status];
+              const status = feeStatusConfig[fee.status];
               return (
                 <div key={fee.studentFeeItemId} className="border-border-default flex items-center justify-between border-t p-3 md:p-5">
                   <div className="flex flex-col gap-1">

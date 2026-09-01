@@ -1,6 +1,6 @@
 "use client";
 import { GraduationCap, Import, ShareBox, UserFill, UserMinus, WarningIcon } from "@digenty/icons";
-import { Arm, Branch, ClassType, Student } from "@/api/types";
+import { Arm, Branch, BranchWithClassLevels, ClassType, Student } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
@@ -24,11 +24,12 @@ import { useDeleteStudents, useExportStudents, useGetStudents, useGetStudentsDis
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { useStudentStore } from "@/store/student";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
 import { columns } from "./Columns";
@@ -37,6 +38,13 @@ import { MobileCard } from "./MobileCard";
 export const StudentsTable = () => {
   const router = useRouter();
   const isMobile = useIsMobile();
+  const { permissions, branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
+  const canManage = canManageStudentParentRecords(permissions);
+  const tableColumns = canManage ? columns : columns.filter(column => column.id !== "actions");
+  const userBranchIds = useMemo(() => branchIds ?? [], [branchIds]);
+  const hasFullAccess = isMain || isAdmin || (adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
+  const restrictedBranchId = isBranchRestricted ? userBranchIds[0] : undefined;
   const {
     openWithdraw,
     setOpenWithdraw,
@@ -76,6 +84,8 @@ export const StudentsTable = () => {
     statusSelected?: { value: StudentsStatus; label: string };
   }>({});
 
+  const effectiveBranchId = filter?.branchSelected?.id ?? restrictedBranchId;
+
   const {
     data,
     isPending: loadingStudents,
@@ -85,7 +95,7 @@ export const StudentsTable = () => {
     isFetchingNextPage,
   } = useGetStudents({
     limit: pageSize,
-    branchId: filter?.branchSelected?.id,
+    branchId: effectiveBranchId,
     classId: filter?.classSelected?.id,
     armId: filter?.armSelected?.id,
     status: filter?.statusSelected?.value,
@@ -93,14 +103,14 @@ export const StudentsTable = () => {
   });
   const students = (data?.pages.flatMap(page => page.content) ?? []).filter(Boolean);
 
-  const { data: distribution } = useGetStudentsDistribution(filter?.branchSelected?.id);
+  const { data: distribution } = useGetStudentsDistribution(effectiveBranchId);
   const { data: branches, isPending: loadingBranches } = useGetBranches();
   const { data: classes, isPending: loadingClasses } = useGetClasses();
   const { data: arms, isPending: loadingArms } = useGetArmsByClass(filter?.classSelected?.id || null);
 
   const { mutate, isPending: exporting } = useExportStudents({
     armId: filter.armSelected?.id,
-    branchId: filter.branchSelected?.id,
+    branchId: effectiveBranchId,
     classId: filter.classSelected?.id,
     status: filter.statusSelected?.value,
   });
@@ -179,6 +189,15 @@ export const StudentsTable = () => {
   };
 
   useEffect(() => {
+    if (restrictedBranchId && !filter.branchSelected && branches?.data) {
+      const assignedBranch = branches.data.find((b: BranchWithClassLevels) => b.branch.id === restrictedBranchId)?.branch;
+      if (assignedBranch) {
+        setFilter(prev => ({ ...prev, branchSelected: assignedBranch }));
+      }
+    }
+  }, [restrictedBranchId, filter.branchSelected, branches]);
+
+  useEffect(() => {
     if (distribution) {
       const studentDistr = {
         total: distribution.data?.find((distr: { status: StudentsStatus; count: number }) => distr.status === StudentsStatus.Total)?.count ?? 0,
@@ -200,6 +219,16 @@ export const StudentsTable = () => {
   }, [page, data?.pages.length, fetchNextPage]);
 
   const dataForDesktop = (data?.pages[page - 1]?.content ?? []).filter(Boolean);
+
+  const exportBranches = useMemo(() => {
+    if (!branches || !isBranchRestricted) return branches;
+    return { data: branches.data.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) };
+  }, [branches, isBranchRestricted, userBranchIds]);
+
+  const exportClasses = useMemo(() => {
+    if (!classes || !isBranchRestricted) return classes;
+    return { data: { content: classes.data.content.filter((c: ClassType) => userBranchIds.includes(c.branchId)) } };
+  }, [classes, isBranchRestricted, userBranchIds]);
 
   return (
     <div className="space-y-4.5 px-4 py-6 md:space-y-8 md:px-8">
@@ -229,9 +258,9 @@ export const StudentsTable = () => {
             tab="Students"
             filter={filter}
             onFilterChange={handleFilterChange}
-            branches={branches}
+            branches={exportBranches}
             loadingBranches={loadingBranches}
-            classes={classes}
+            classes={exportClasses}
             loadingClasses={loadingClasses}
             arms={arms}
             loadingArms={loadingArms}
@@ -315,9 +344,9 @@ export const StudentsTable = () => {
             tab="Students"
             filter={filter}
             onFilterChange={handleFilterChange}
-            branches={branches}
+            branches={exportBranches}
             loadingBranches={loadingBranches}
-            classes={classes}
+            classes={exportClasses}
             loadingClasses={loadingClasses}
             arms={arms}
             loadingArms={loadingArms}
@@ -522,7 +551,7 @@ export const StudentsTable = () => {
         <div>
           <div className="hidden md:block">
             <DataTable
-              columns={columns}
+              columns={tableColumns}
               data={dataForDesktop}
               totalCount={data?.pages[0].totalElements}
               page={page}

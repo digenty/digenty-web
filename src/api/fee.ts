@@ -3,6 +3,20 @@ import { isAxiosError } from "axios";
 
 export type FeeTermType = "FIRST" | "SECOND" | "THIRD";
 
+export type FeePaymentMode = "FULL" | "FLEXIBLE" | "INSTALLMENT";
+
+export interface FeeInstallmentInput {
+  sequence?: number;
+  percentage: number;
+  dueDate: string;
+  label?: string;
+}
+
+export interface FeeInstallmentDetail extends FeeInstallmentInput {
+  sequence: number;
+  amount: number | null;
+}
+
 export interface ClassArmAmount {
   armId: number;
   amount: number;
@@ -27,6 +41,8 @@ export interface FeeItemDto {
   classArmAmounts?: ClassArmAmount[];
   allowPartPayment?: boolean;
   minimumPartPayment?: number;
+  paymentMode?: FeePaymentMode;
+  installments?: FeeInstallmentInput[];
   dueDate: string;
 }
 
@@ -39,6 +55,8 @@ export interface SingleArmFeeItemDto {
   required?: boolean;
   allowPartPayment?: boolean;
   minimumPartPayment?: number;
+  paymentMode?: FeePaymentMode;
+  installments?: FeeInstallmentInput[];
 }
 
 export interface BranchFeeSelection {
@@ -60,6 +78,8 @@ export interface MultiBranchFeeItemDto {
   branches: BranchFeeSelection[];
   allowPartPayment?: boolean;
   minimumPartPayment?: number;
+  paymentMode?: FeePaymentMode;
+  installments?: FeeInstallmentInput[];
 }
 
 export interface FeeGroupItemDto {
@@ -197,6 +217,8 @@ export interface FeeItemEntity {
   classId: number;
   branchId: number;
   termId: number;
+  paymentMode: FeePaymentMode;
+  installments?: FeeInstallmentDetail[];
 }
 
 export interface FeeItemDetail {
@@ -208,6 +230,8 @@ export interface FeeItemDetail {
   required: boolean;
   allowPartPayment: boolean;
   minimumPartPayment: number;
+  paymentMode: FeePaymentMode;
+  installments?: FeeInstallmentDetail[];
 }
 
 export interface AppliedClassEntry {
@@ -240,6 +264,8 @@ export interface FeeItemDetailResponse {
   required: boolean;
   allowPartPayment: boolean;
   minimumPartPayment: number;
+  paymentMode: FeePaymentMode;
+  installments?: FeeInstallmentDetail[];
   branches: { branchId: number; branchName: string }[];
   appliedClasses: AppliedClassGroup[];
 }
@@ -318,6 +344,8 @@ export interface FeePickerItem {
   required: boolean;
   allowPartPayment: boolean;
   minimumPartPayment: number | null;
+  paymentMode: FeePaymentMode;
+  installments?: FeeInstallmentDetail[];
 }
 
 export interface FeeInvoiceResponse {
@@ -514,6 +542,8 @@ export interface UpdateFeeItemDto {
   required?: boolean;
   allowPartPayment?: boolean;
   minimumPartPayment?: number;
+  paymentMode?: FeePaymentMode;
+  installments?: FeeInstallmentInput[];
   amount?: number;
   setDifferentPricesPerClass?: boolean;
   classArmAmounts?: ClassArmAmount[];
