@@ -1,4 +1,4 @@
-import { AddFeeToGroup } from "@/components/Fees/FeesGroup/AddFeeToGroup/index";
+import { AddFeeToGroup } from "@/components/Fees/FeesGroup/addFeeToGroup/index";
 
 const AddFeeToGroupPage = () => {
   return (
