@@ -1,6 +1,6 @@
 "use client";
 import { DeleteBin, Import, ShareBox, WarningIcon } from "@digenty/icons";
-import { Arm, Branch, ClassType, Department, Parent } from "@/api/types";
+import { Arm, Branch, BranchWithClassLevels, ClassType, Department, Parent } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
@@ -20,10 +20,11 @@ import { useDeleteParents, useExportParents, useGetParents } from "@/hooks/query
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useParentStore } from "@/store/useParentStore";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
 import { parentColumns } from "./ParentColumns";
@@ -34,6 +35,11 @@ import { canManageStudentParentRecords } from "@/lib/permissions/students-and-pa
 export const ParentsTable = () => {
   const router = useRouter();
   const isMobile = useIsMobile();
+  const { branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
+  const userBranchIds = useMemo(() => branchIds ?? [], [branchIds]);
+  const hasFullAccess = isMain || isAdmin || (adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
+  const restrictedBranchId = isBranchRestricted ? userBranchIds[0] : undefined;
   const { openDelete, setOpenDelete, parentIds, setParentIds } = useParentStore();
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
@@ -54,6 +60,8 @@ export const ParentsTable = () => {
     branchSelected?: Branch;
   }>({});
 
+  const effectiveBranchId = filter?.branchSelected?.id ?? restrictedBranchId;
+
   const {
     data,
     isPending: loadingParents,
@@ -63,15 +71,20 @@ export const ParentsTable = () => {
     isFetchingNextPage,
   } = useGetParents({
     limit: pageSize,
-    branchId: filter?.branchSelected?.id,
+    branchId: effectiveBranchId,
     search: debouncedSearchQuery,
   });
   const parents = data?.pages.flatMap(page => page.content) ?? [];
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
 
+  const exportBranches = useMemo(() => {
+    if (!branches || !isBranchRestricted) return branches;
+    return { data: branches.data.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) };
+  }, [branches, isBranchRestricted, userBranchIds]);
+
   const { mutate, isPending: exporting } = useExportParents({
-    branchId: filter.branchSelected?.id,
+    branchId: effectiveBranchId,
   });
 
   const { mutate: deleteParents, isPending: deleting } = useDeleteParents(parentIds);
@@ -127,6 +140,15 @@ export const ParentsTable = () => {
   };
 
   useEffect(() => {
+    if (restrictedBranchId && !filter.branchSelected && branches?.data) {
+      const assignedBranch = branches.data.find((b: BranchWithClassLevels) => b.branch.id === restrictedBranchId)?.branch;
+      if (assignedBranch) {
+        setFilter(prev => ({ ...prev, branchSelected: assignedBranch }));
+      }
+    }
+  }, [restrictedBranchId, filter.branchSelected, branches]);
+
+  useEffect(() => {
     // Make sure that page is fetched
     if (page > (data?.pages.length ?? 0)) {
       fetchNextPage();
@@ -163,7 +185,7 @@ export const ParentsTable = () => {
             tab="Parents"
             filter={filter}
             onFilterChange={handleFilterChange}
-            branches={branches}
+            branches={exportBranches}
             loadingBranches={loadingBranches}
             filteredCount={data?.pages[0].totalElements}
           />
@@ -214,7 +236,7 @@ export const ParentsTable = () => {
             tab="Parents"
             filter={filter}
             onFilterChange={handleFilterChange}
-            branches={branches}
+            branches={exportBranches}
             loadingBranches={loadingBranches}
             filteredCount={data?.pages[0].totalElements}
           />

@@ -11,6 +11,7 @@ import { Country, ParentInputValues } from "../../types";
 import { SearchableSelect } from "../../SearchableSelect";
 import { genders, relationships } from "@/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { BranchWithClassLevels } from "@/api/types";
 
 export const PersonalInformation = ({ formik, modal = false }: { formik: FormikProps<ParentInputValues>; modal?: boolean }) => {
@@ -18,7 +19,24 @@ export const PersonalInformation = ({ formik, modal = false }: { formik: FormikP
   const [countries, setCountries] = useState<Country[]>([]);
   const [availableStates, setAvailableStates] = useState<string[]>([]);
 
+  const { branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
+  const userBranchIds = branchIds ?? [];
+  const hasFullAccess = isMain || isAdmin || (adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
+
   const { data: branches, isPending: loadingBranches } = useGetBranches();
+
+  const visibleBranches =
+    branches && isBranchRestricted
+      ? { data: branches.data.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) }
+      : branches;
+
+  useEffect(() => {
+    if (isBranchRestricted && !values.branchId && visibleBranches?.data?.length) {
+      setFieldValue("branchId", visibleBranches.data[0].branch.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBranchRestricted, values.branchId, visibleBranches]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -152,13 +170,14 @@ export const PersonalInformation = ({ formik, modal = false }: { formik: FormikP
           <Label htmlFor="branch" className="text-text-default text-sm font-medium">
             Branch <small className="text-text-destructive text-xs">*</small>
           </Label>
-          {!branches || loadingBranches ? (
+          {!visibleBranches || loadingBranches ? (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (
             <Select
-              value={branches.data?.find((b: BranchWithClassLevels) => b.branch.id === values.branchId)?.branch.uuid || ""}
+              disabled={isBranchRestricted && visibleBranches.data.length === 1}
+              value={visibleBranches.data?.find((b: BranchWithClassLevels) => b.branch.id === values.branchId)?.branch.uuid || ""}
               onValueChange={value => {
-                const branch = branches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
+                const branch = visibleBranches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
                 formik.setFieldValue("branchId", branch.branch.id);
               }}
             >
@@ -166,7 +185,7 @@ export const PersonalInformation = ({ formik, modal = false }: { formik: FormikP
                 <SelectValue placeholder="Branch" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {branches.data.map((branch: BranchWithClassLevels) => (
+                {visibleBranches.data.map((branch: BranchWithClassLevels) => (
                   <SelectItem key={branch.branch.id} className="text-text-default" value={branch.branch.uuid}>
                     {branch.branch.name}
                   </SelectItem>

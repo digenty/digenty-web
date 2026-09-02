@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { genders, relationships } from "@/types";
 import { FormikProps } from "formik";
@@ -18,7 +19,17 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
   const [availableStates, setAvailableStates] = useState<string[]>([]);
   const [branch, setBranch] = useState<string>();
 
+  const { branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
+  const userBranchIds = branchIds ?? [];
+  const hasFullAccess = isMain || isAdmin || (adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
+
   const { data: branches, isPending: loadingBranches } = useGetBranches();
+
+  const visibleBranches =
+    branches && isBranchRestricted
+      ? { data: branches.data.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) }
+      : branches;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -167,13 +178,13 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
           <Label htmlFor="branch" className="text-text-default text-sm font-medium">
             Branch <small className="text-text-destructive text-xs">*</small>
           </Label>
-          {!branches || loadingBranches ? (
+          {!visibleBranches || loadingBranches ? (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (
             <Select
               value={branch}
               onValueChange={value => {
-                const branch = branches.data?.find((branch: BranchWithClassLevels) => branch?.branch?.name === value);
+                const branch = visibleBranches.data?.find((branch: BranchWithClassLevels) => branch?.branch?.name === value);
                 if (branch) {
                   formik.setFieldValue("branchId", branch?.branch?.id);
                 }
@@ -183,7 +194,7 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
                 <SelectValue placeholder="Branch" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-none">
-                {branches.data?.map((branch: BranchWithClassLevels) => (
+                {visibleBranches.data?.map((branch: BranchWithClassLevels) => (
                   <SelectItem key={branch?.branch?.id} className="text-text-default" value={branch?.branch?.name ?? ""}>
                     {branch?.branch?.name}
                   </SelectItem>

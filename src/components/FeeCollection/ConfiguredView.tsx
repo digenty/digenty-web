@@ -249,6 +249,7 @@ const FeeRouteRow = ({ route, branchId }: { route: FeeRouteInfo; branchId: numbe
     required: false,
     allowPartPayment: false,
     minimumPartPayment: 0,
+    paymentMode: "FULL",
   };
 
   return (

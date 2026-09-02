@@ -11,7 +11,13 @@ import { FormikProps } from "formik";
 import { Wand2 } from "lucide-react";
 import { StudentInputValues } from "../types";
 
-export const AdmissionNumberField = ({ formik }: { formik: FormikProps<StudentInputValues> }) => {
+export const AdmissionNumberField = ({
+  formik,
+  onGenerated,
+}: {
+  formik: FormikProps<StudentInputValues>;
+  onGenerated?: (number: string) => void;
+}) => {
   const { handleBlur, handleChange, errors, touched, values, setFieldValue } = formik;
   const { mutateAsync: generateMutation, isPending: isGenerating } = useGenerateAdmissionNumber();
   const { data: admissionResponse } = useGetAdmissionNumberDetails();
@@ -34,10 +40,16 @@ export const AdmissionNumberField = ({ formik }: { formik: FormikProps<StudentIn
   };
 
   const handleAutoGenerate = async () => {
-    await generateMutation(undefined, {
+    if (!values.classId) return;
+
+    await generateMutation(values.classId, {
       onSuccess: data => {
         if (data?.data?.number) {
           setFieldValue("admissionNumber", data?.data?.number);
+          // The backend just generated this number, so it's authoritative — the client-side
+          // format regex doesn't know about school-specific tokens (e.g. a class-level segment)
+          // it can embed, and shouldn't second-guess it.
+          onGenerated?.(data.data.number);
           toast({
             title: "Admission number generated",
             type: "success",
@@ -78,14 +90,14 @@ export const AdmissionNumberField = ({ formik }: { formik: FormikProps<StudentIn
               type="button"
               variant="outline"
               size="icon"
-              disabled={isGenerating}
+              disabled={isGenerating || !values.classId}
               onClick={handleAutoGenerate}
               className="border-border-default shrink-0 cursor-pointer"
             >
               {isGenerating ? <Spinner className="text-text-muted h-4 w-4" /> : <Wand2 className="text-text-muted h-4 w-4" />}
             </Button>
           }
-          description="Auto generate admission number"
+          description={values.classId ? "Auto generate admission number" : "Select a class first"}
           side="top"
         />
       </div>

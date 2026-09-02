@@ -1,7 +1,8 @@
 "use client";
 
-import type { BranchAmount, ClassArmAmount, FeeItemDto, FeeTermType } from "@/api/fee";
+import type { BranchAmount, ClassArmAmount, FeeInstallmentInput, FeeItemDto, FeePaymentMode, FeeTermType } from "@/api/fee";
 import type { Branch, BranchWithClassLevels, ClassType, Term } from "@/api/types";
+import { emptyInstallmentRow, type InstallmentRowInput } from "@/components/Fees/PaymentMode/PaymentModeFields";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useGetAllArms } from "@/hooks/queryHooks/useArm";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
@@ -32,8 +33,8 @@ export interface FeeItemFormValues {
   amount: number | "";
   setDifferentPricesPerClass: boolean;
   classArmAmounts: ArmAmountInput[];
-  allowPartPayment: boolean;
-  minimumPartPayment: number | "";
+  paymentMode: FeePaymentMode;
+  installments: InstallmentRowInput[];
 }
 
 export const initialFeeItemValues: FeeItemFormValues = {
@@ -49,8 +50,8 @@ export const initialFeeItemValues: FeeItemFormValues = {
   amount: "",
   setDifferentPricesPerClass: false,
   classArmAmounts: [],
-  allowPartPayment: false,
-  minimumPartPayment: "",
+  paymentMode: "FULL",
+  installments: [{ ...emptyInstallmentRow }, { ...emptyInstallmentRow }],
 };
 
 /** Formats a Date to the backend's expected `yyyy-MM-dd` ISO date (no time component). */
@@ -125,11 +126,19 @@ export const buildFeeItemPayload = (values: FeeItemFormValues): FeeItemDto => {
     setDifferentPricesPerClass,
     branchAmounts,
     classArmAmounts,
-    allowPartPayment: values.allowPartPayment,
-    minimumPartPayment: values.allowPartPayment ? Number(values.minimumPartPayment) || 0 : undefined,
+    paymentMode: values.paymentMode,
+    installments: values.paymentMode === "INSTALLMENT" ? buildInstallmentsPayload(values.installments) : undefined,
     dueDate: values.dueDate ? toIsoDate(values.dueDate) : "",
   };
 };
+
+/** Converts editable instalment rows into the backend's request shape. */
+export const buildInstallmentsPayload = (rows: InstallmentRowInput[]): FeeInstallmentInput[] =>
+  rows.map(row => ({
+    percentage: Number(row.percentage) || 0,
+    dueDate: row.dueDate ? toIsoDate(row.dueDate) : "",
+    label: row.label || undefined,
+  }));
 
 /** Shared reference data for the Add Fee form (branches, classes, arms, session, terms). */
 export const useFeeFormData = () => {

@@ -31,6 +31,9 @@ export const AddStudent = () => {
   const [avatar, setAvatar] = useState<string>();
   const [step, setStep] = useState(1);
   const [selectedParents, setSelectedParents] = useState<{ id: number; fullName: string; image: string | null }[]>([]);
+  // Tracks a backend-generated admission number so the client-side format check (which doesn't
+  // know about school-specific tokens like a class-level segment) doesn't reject it.
+  const [generatedAdmissionNumber, setGeneratedAdmissionNumber] = useState<string | null>(null);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
@@ -88,7 +91,12 @@ export const AddStudent = () => {
     validationSchema: studentSchema,
     validate: values => {
       const errors: FormikErrors<StudentInputValues> = {};
-      if (admissionResponse && !matchesDynamicAdmissionFormat(values.admissionNumber, admissionFormat(), admissionResponse?.data?.padding)) {
+      const isGenerated = !!values.admissionNumber && values.admissionNumber === generatedAdmissionNumber;
+      if (
+        !isGenerated &&
+        admissionResponse &&
+        !matchesDynamicAdmissionFormat(values.admissionNumber, admissionFormat(), admissionResponse?.data?.padding)
+      ) {
         errors.admissionNumber = `Please enter a valid admission number in the format ${admissionFormat()}`;
       }
       return errors;
@@ -210,7 +218,7 @@ export const AddStudent = () => {
 
           {step === 2 && <ContactInformation formik={formik} />}
 
-          {step === 3 && <AcademicInformation formik={formik} />}
+          {step === 3 && <AcademicInformation formik={formik} onAdmissionNumberGenerated={setGeneratedAdmissionNumber} />}
 
           {/* Tags */}
           {step === 3 && <Tags tags={tags} setTags={setTags} />}
@@ -223,7 +231,7 @@ export const AddStudent = () => {
           <ProfilePicture setAvatar={setAvatar} />
           <PersonalInformation date={date} setDate={setDate} formik={formik} />
           <ContactInformation formik={formik} />
-          <AcademicInformation formik={formik} />
+          <AcademicInformation formik={formik} onAdmissionNumberGenerated={setGeneratedAdmissionNumber} />
           <Tags tags={tags} setTags={setTags} />
           <LinkedParents setOpen={setOpen} setSelectedParents={setSelectedParents} selectedParents={selectedParents} />
         </div>

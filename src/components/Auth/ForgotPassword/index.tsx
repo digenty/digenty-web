@@ -17,7 +17,7 @@ export const ForgotPassword = () => {
   return (
     <div className="">
       <div className="w-full md:w-106 md:p-0">
-        {stepId === "enter-email" && <EnterEmail />}
+        {stepId === "enter-email" && <EnterEmail userType={userType} />}
 
         {stepId === "verify-code" && <VerifyCode />}
 

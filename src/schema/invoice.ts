@@ -38,6 +38,19 @@ export const addPaymentSchema = yup.object().shape({
   paidById: yup.number().min(1, "Please select who paid").required("Please select who paid"),
   amount: yup.number().typeError("Amount must be a number").min(0.01, "Amount must be greater than 0").required("Amount is required"),
   note: yup.string(),
+  allocations: yup
+    .array()
+    .of(
+      yup.object({
+        studentFeeItemId: yup.number().required(),
+        amount: yup.number().min(0, "Amount must be positive").required("Amount is required"),
+      }),
+    )
+    .test("allocations-not-over-amount", "The allocation breakdown cannot add up to more than the amount being recorded", (rows, ctx) => {
+      const total = (rows ?? []).reduce((sum, r) => sum + Number(r?.amount || 0), 0);
+      const amount = Number(ctx.parent.amount || 0);
+      return total <= amount + 0.001;
+    }),
 });
 
 // export const invoiceSettingsSchema = yup.object({

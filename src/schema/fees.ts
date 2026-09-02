@@ -1,5 +1,30 @@
 import * as yup from "yup";
 
+const installmentsSchema = yup.array().when("paymentMode", {
+  is: "INSTALLMENT",
+  then: schema =>
+    schema
+      .of(
+        yup.object({
+          percentage: yup.number().moreThan(0, "Must be greater than 0").max(100, "Cannot exceed 100").required("Percentage is required"),
+          dueDate: yup.date().required("Due date is required").typeError("Due date is required"),
+          label: yup.string(),
+        }),
+      )
+      .min(2, "An instalment schedule needs at least 2 instalments")
+      .max(12, "An instalment schedule can have at most 12 instalments")
+      .test("sums-to-100", "Instalment percentages must add up to 100", rows =>
+        Math.round((rows ?? []).reduce((sum, r) => sum + Number(r?.percentage || 0), 0) * 100) === 10000,
+      )
+      .test("ascending-dates", "Instalment due dates must be in ascending order and cannot repeat", rows => {
+        if (!rows || rows.length < 2) return true;
+        const dates = rows.map(r => (r?.dueDate ? new Date(r.dueDate as unknown as string).getTime() : NaN));
+        return dates.every((d, i) => i === 0 || d > dates[i - 1]);
+      })
+      .required("Instalment schedule is required"),
+  otherwise: schema => schema.notRequired(),
+});
+
 // Used when adding a fee to a specific arm (armId comes from URL — no arm selection in form)
 export const addFeeToClassSchema = yup.object({
   name: yup.string().trim().required("Fee name is required"),
@@ -8,12 +33,8 @@ export const addFeeToClassSchema = yup.object({
   quantity: yup.number().min(1, "Quantity must be at least 1").required("Quantity is required"),
   amount: yup.number().min(0, "Amount must be positive").required("Amount is required"),
   required: yup.boolean(),
-  allowPartPayment: yup.boolean(),
-  minimumPartPayment: yup.number().when("allowPartPayment", {
-    is: true,
-    then: schema => schema.min(0).required("Minimum initial payment is required"),
-    otherwise: schema => schema.notRequired(),
-  }),
+  paymentMode: yup.string().oneOf(["FULL", "FLEXIBLE", "INSTALLMENT"]).required("Payment mode is required"),
+  installments: installmentsSchema,
 });
 
 // Used when adding a fee to all arms of a class (arm selection shown in form)
@@ -25,12 +46,8 @@ export const addFeeToClassWithArmsSchema = yup.object({
   quantity: yup.number().min(1, "Quantity must be at least 1").required("Quantity is required"),
   amount: yup.number().min(0, "Amount must be positive").required("Amount is required"),
   required: yup.boolean(),
-  allowPartPayment: yup.boolean(),
-  minimumPartPayment: yup.number().when("allowPartPayment", {
-    is: true,
-    then: schema => schema.min(0).required("Minimum initial payment is required"),
-    otherwise: schema => schema.notRequired(),
-  }),
+  paymentMode: yup.string().oneOf(["FULL", "FLEXIBLE", "INSTALLMENT"]).required("Payment mode is required"),
+  installments: installmentsSchema,
 });
 
 export const feeSchema = yup.object({
@@ -51,12 +68,8 @@ export const feeSchema = yup.object({
     then: schema => schema.min(0, "Amount must be positive").required("Amount is required"),
     otherwise: schema => schema.notRequired(),
   }),
-  allowPartPayment: yup.boolean(),
-  minimumPartPayment: yup.number().when("allowPartPayment", {
-    is: true,
-    then: schema => schema.min(0).required("Minimum initial payment is required"),
-    otherwise: schema => schema.notRequired(),
-  }),
+  paymentMode: yup.string().oneOf(["FULL", "FLEXIBLE", "INSTALLMENT"]).required("Payment mode is required"),
+  installments: installmentsSchema,
 });
 
 export const addFeesToGroupSchema = yup.object({
