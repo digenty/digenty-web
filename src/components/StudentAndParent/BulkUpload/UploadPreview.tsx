@@ -16,13 +16,7 @@ const formatColLabel = (col: string) =>
     .trim()
     .replace(/^./, c => c.toUpperCase());
 
-export const UploadPreview = ({
-  entity,
-  validateResponse,
-}: {
-  entity: "Students" | "Parents";
-  validateResponse: ValidateUploadResponse;
-}) => {
+export const UploadPreview = ({ entity, validateResponse }: { entity: "Students" | "Parents"; validateResponse: ValidateUploadResponse }) => {
   const { summary, validRows, invalidRows, columns } = validateResponse;
   const hasFailures = invalidRows.length > 0;
   const [activeTab, setActiveTab] = useState<Tab>(hasFailures ? "failed" : "ready");
@@ -122,7 +116,7 @@ export const UploadPreview = ({
           >
             Will fail ({summary.invalid})
             {hasFailures && (
-              <span className="bg-bg-basic-red-subtle text-text-destructive rounded-full px-1.5 py-0.5 text-[10px] font-semibold leading-none">
+              <span className="bg-bg-basic-red-subtle text-text-destructive rounded-full px-1.5 py-0.5 text-[10px] leading-none font-semibold">
                 {summary.invalid}
               </span>
             )}
@@ -139,7 +133,7 @@ export const UploadPreview = ({
             ) : (
               <table className="w-full text-sm">
                 <thead className="sticky top-0">
-                  <tr className="border-border-default border-b bg-bg-state-secondary">
+                  <tr className="border-border-default bg-bg-state-secondary border-b">
                     <th className="text-text-subtle px-3 py-2 text-left text-xs font-medium">Row</th>
                     {displayColumns.map(col => (
                       <th key={col} className="text-text-subtle px-3 py-2 text-left text-xs font-medium">
@@ -170,7 +164,7 @@ export const UploadPreview = ({
           ) : (
             <table className="w-full text-sm">
               <thead className="sticky top-0">
-                <tr className="border-border-default border-b bg-bg-state-secondary">
+                <tr className="border-border-default bg-bg-state-secondary border-b">
                   <th className="text-text-subtle px-3 py-2 text-left text-xs font-medium">Row</th>
                   {displayColumns.map(col => (
                     <th key={col} className="text-text-subtle px-3 py-2 text-left text-xs font-medium">

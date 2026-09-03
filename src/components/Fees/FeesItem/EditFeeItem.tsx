@@ -98,7 +98,9 @@ export const EditFeeItem = () => {
       classArmAmounts,
       paymentMode: item.paymentMode ?? "FULL",
       installments:
-        item.installments && item.installments.length > 0 ? item.installments.map(toInstallmentRow) : [{ ...emptyInstallmentRow }, { ...emptyInstallmentRow }],
+        item.installments && item.installments.length > 0
+          ? item.installments.map(toInstallmentRow)
+          : [{ ...emptyInstallmentRow }, { ...emptyInstallmentRow }],
     };
   }, [item, hasDifferentPrices]);
 

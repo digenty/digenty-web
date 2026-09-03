@@ -89,9 +89,7 @@ export const RecordHeader = ({
             >
               <SelectTrigger className="border-border-darker h-8! w-auto border">
                 <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                <span className="text-text-default text-sm font-medium">
-                  {filter.branchSelected ? filter.branchSelected?.name : "All Branches"}
-                </span>
+                <span className="text-text-default text-sm font-medium">{filter.branchSelected ? filter.branchSelected?.name : "All Branches"}</span>
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 <SelectItem value="none" className="text-text-default text-sm font-medium">
@@ -106,7 +104,7 @@ export const RecordHeader = ({
             </Select>
           )}
 
-          {tab === "Students" && (
+          {(tab === "Students" || tab === "Parents") && (
             <>
               {!visibleClasses || loadingClasses ? (
                 <Skeleton className="bg-bg-input-soft h-8 w-32" />
@@ -119,9 +117,7 @@ export const RecordHeader = ({
                 >
                   <SelectTrigger className="border-border-darker h-8! w-auto border">
                     <Image src="/icons/school.svg" alt="branch" width={14} height={14} />
-                    <span className="text-text-default text-sm font-medium">
-                      {filter.classSelected ? filter.classSelected?.name : "All Classes"}
-                    </span>
+                    <span className="text-text-default text-sm font-medium">{filter.classSelected ? filter.classSelected?.name : "All Classes"}</span>
                   </SelectTrigger>
                   <SelectContent className="bg-bg-card border-border-default">
                     <SelectItem value="none" className="text-text-default text-sm font-medium">
@@ -205,42 +201,44 @@ export const RecordHeader = ({
               )}
             </div>
 
+            {(tab === "Students" || tab === "Parents") && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <GraduationCap fill="var(--color-icon-black-muted)" className="size-4" />
+                  <Label className="text-text-default text-sm font-medium">Class</Label>
+                </div>
+                {!visibleClasses || loadingClasses ? (
+                  <Skeleton className="bg-bg-input-soft h-9 w-full" />
+                ) : (
+                  <Select
+                    onValueChange={value => {
+                      const cls = visibleClasses.data.content?.find((cls: ClassType) => cls.uuid === value);
+                      onFilterChange("classSelected", cls);
+                      setFilterCount(prev => (!filter.classSelected ? prev + 1 : prev));
+                    }}
+                  >
+                    <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
+                      <span className="text-text-default text-sm font-medium">
+                        {filter.classSelected ? filter.classSelected?.name : "All Classes"}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-bg-card border-border-default">
+                      <SelectItem value="none" className="text-text-default text-sm font-medium">
+                        All Classes
+                      </SelectItem>
+                      {visibleClasses.data.content.map((cls: ClassType) => (
+                        <SelectItem key={cls.id} value={cls.uuid} className="text-text-default text-sm font-medium">
+                          {cls.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            )}
+
             {tab === "Students" && (
               <>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <GraduationCap fill="var(--color-icon-black-muted)" className="size-4" />
-                    <Label className="text-text-default text-sm font-medium">Class</Label>
-                  </div>
-                  {!visibleClasses || loadingClasses ? (
-                    <Skeleton className="bg-bg-input-soft h-9 w-full" />
-                  ) : (
-                    <Select
-                      onValueChange={value => {
-                        const cls = visibleClasses.data.content?.find((cls: ClassType) => cls.uuid === value);
-                        onFilterChange("classSelected", cls);
-                        setFilterCount(prev => (!filter.classSelected ? prev + 1 : prev));
-                      }}
-                    >
-                      <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
-                        <span className="text-text-default text-sm font-medium">
-                          {filter.classSelected ? filter.classSelected?.name : "All Classes"}
-                        </span>
-                      </SelectTrigger>
-                      <SelectContent className="bg-bg-card border-border-default">
-                        <SelectItem value="none" className="text-text-default text-sm font-medium">
-                          All Classes
-                        </SelectItem>
-                        {visibleClasses.data.content.map((cls: ClassType) => (
-                          <SelectItem key={cls.id} value={cls.uuid} className="text-text-default text-sm font-medium">
-                            {cls.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
-
                 {/* <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Group fill="var(--color-icon-black-muted)" className="size-4" />

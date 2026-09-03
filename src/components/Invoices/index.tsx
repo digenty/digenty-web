@@ -158,7 +158,12 @@ export const Invoices = () => {
 
           {!loadingInvoices && invoicesError && (
             <div className="flex justify-center py-12">
-              <ErrorComponent title="Failed to load invoices" description={invoicesErrorMessage} buttonText="Retry" onClick={() => refetchInvoices()} />
+              <ErrorComponent
+                title="Failed to load invoices"
+                description={invoicesErrorMessage}
+                buttonText="Retry"
+                onClick={() => refetchInvoices()}
+              />
             </div>
           )}
 

@@ -378,7 +378,7 @@ export const AddStock = () => {
                   value={formik.values.quantity}
                   onChange={e => formik.setFieldValue("quantity", e.target.value === "" ? 0 : Math.max(0, Number(e.target.value)))}
                   onBlur={formik.handleBlur}
-                  className="text-text-default [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none w-full bg-transparent text-center text-sm outline-none [appearance:textfield]"
+                  className="text-text-default w-full [appearance:textfield] bg-transparent text-center text-sm outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
                 <button type="button" onClick={() => adjustQuantity(1)}>
                   <AddFill fill="var(--color-icon-default-muted)" />

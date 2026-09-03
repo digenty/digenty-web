@@ -53,13 +53,13 @@ export const AttendanceHeader = ({
 
       {isAdmin && (
         <div className="hidden gap-2 align-middle lg:flex">
-          <Link
+          {/* <Link
             href="/staff/settings/attendance"
             className="border-border-darker bg-bg-state-secondary flex h-8 items-center gap-2 rounded-md border px-2"
           >
             <Settings4 fill="var(--color-icon-default-muted)" className="size-4" />
             <span className="text-text-default text-sm font-medium">Attendance Settings</span>
-          </Link>
+          </Link> */}
 
           {!branches || loadingBranches ? (
             <Skeleton className="bg-bg-input-soft h-9 w-full" />

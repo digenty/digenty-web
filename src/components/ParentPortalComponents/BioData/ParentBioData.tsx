@@ -62,8 +62,10 @@ const ViewBiodata = ({ onEdit, data, setAvatar }: { onEdit: () => void; data: Pa
           </div>
 
           <div className="border-border-default flex items-center gap-3 border-b px-4 py-3 last:border-b-0">
-           <div  className="bg-bg-muted! mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2"><Mail fill="var(--color-icon-default-muted)" /> </div>
-            
+            <div className="bg-bg-muted! mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2">
+              <Mail fill="var(--color-icon-default-muted)" />{" "}
+            </div>
+
             <div className="flex flex-col gap-0.5">
               <p className="text-text-muted text-xs">Email Address</p>
               <p className="text-text-default text-sm font-medium">{data?.email}</p>
@@ -79,9 +81,11 @@ const ViewBiodata = ({ onEdit, data, setAvatar }: { onEdit: () => void; data: Pa
           </div>
 
           <div className="border-border-default flex items-center gap-3 border-b px-4 py-3 last:border-b-0">
-            
-            <div className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2"> <Flag  fill="var(--color-icon-default-muted)" /></div>
-           
+            <div className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2">
+              {" "}
+              <Flag fill="var(--color-icon-default-muted)" />
+            </div>
+
             <div className="flex flex-col gap-0.5">
               <p className="text-text-muted text-xs">Nationality</p>
               <p className="text-text-default text-sm font-medium">{data?.nationality}</p>
@@ -89,9 +93,12 @@ const ViewBiodata = ({ onEdit, data, setAvatar }: { onEdit: () => void; data: Pa
           </div>
 
           <div className="border-border-default flex items-center gap-3 border-b px-4 py-3 last:border-b-0">
-            <div className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2"> <Flag  fill="var(--color-icon-default-muted)" /></div>
-           
-             <div className="flex flex-col gap-0.5">
+            <div className="bg-bg-muted mt-0.5 size-4 h-8 w-8 shrink-0 rounded-md p-2">
+              {" "}
+              <Flag fill="var(--color-icon-default-muted)" />
+            </div>
+
+            <div className="flex flex-col gap-0.5">
               <p className="text-text-muted text-xs">State of Origin</p>
               <p className="text-text-default text-sm font-medium">{data?.stateOfOrigin}</p>
             </div>

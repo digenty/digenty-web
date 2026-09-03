@@ -27,9 +27,7 @@ export const PersonalInformation = ({ formik, modal = false }: { formik: FormikP
   const { data: branches, isPending: loadingBranches } = useGetBranches();
 
   const visibleBranches =
-    branches && isBranchRestricted
-      ? { data: branches.data.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) }
-      : branches;
+    branches && isBranchRestricted ? { data: branches.data.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) } : branches;
 
   useEffect(() => {
     if (isBranchRestricted && !values.branchId && visibleBranches?.data?.length) {
@@ -61,7 +59,7 @@ export const PersonalInformation = ({ formik, modal = false }: { formik: FormikP
 
   return (
     <div className="border-border-default space-y-6 border-b py-6">
-      <h2 className="text-lg font-semibold text-text-default">Personal Information</h2>
+      <h2 className="text-text-default text-lg font-semibold">Personal Information</h2>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-5">
         <div className="space-y-2">

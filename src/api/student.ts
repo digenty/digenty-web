@@ -252,3 +252,40 @@ export const getTeacherInputByStudentArm = async ({ studentId, armId }: { studen
     throw error;
   }
 };
+
+// Proposed batch counterpart to GET /teacher-input/student/{studentId}/arm/{armId} so a roster grid can
+// hydrate every student's current ratings (and the category/skill list) in one call instead of one
+// request per student.
+export const getArmTeacherInput = async (armId: number) => {
+  try {
+    const { data } = await api.get(`/teacher-input/arm/${armId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+// Proposed batch counterpart to POST /teacher-input (which only saves one student at a time) so a class
+// roster's development ratings can be submitted in a single request, mirroring how /report/subject/students
+// batches score submission across a whole arm.
+export const submitArmTeacherInput = async (payload: {
+  armId: number;
+  studentReports: {
+    studentId: number;
+    ratings: { skillId: number; rating: number }[];
+    classTeacherComment?: string | null;
+  }[];
+}) => {
+  try {
+    const { data } = await api.post(`/teacher-input/arm/${payload.armId}`, { studentReports: payload.studentReports });
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

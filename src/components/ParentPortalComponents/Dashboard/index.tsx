@@ -38,7 +38,10 @@ export const Overview = () => {
         <PageEmptyState title="No Student Selected" description="Select a student above to view their overview" buttonText="Refresh" url="" />
       ) : isError ? (
         <div className="flex items-center justify-center p-10">
-          <ErrorComponent title="Could not load student overview" description="This is our problem, we are looking into it so as to serve you better" />
+          <ErrorComponent
+            title="Could not load student overview"
+            description="This is our problem, we are looking into it so as to serve you better"
+          />
         </div>
       ) : (
         <>
@@ -73,7 +76,9 @@ export const Overview = () => {
               {isLoading ? (
                 <Skeleton className="bg-bg-input-soft h-7 w-48 rounded-md" />
               ) : (
-                <div className="text-text-default text-lg font-semibold">{overview?.termName ? `${overview.termName} Result Available` : "Result"}</div>
+                <div className="text-text-default text-lg font-semibold">
+                  {overview?.termName ? `${overview.termName} Result Available` : "Result"}
+                </div>
               )}
               <Button
                 onClick={() => router.push("/parents/academic-record")}

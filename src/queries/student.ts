@@ -14,4 +14,6 @@ export const studentKeys = {
   studentReport: ["studentReport"] as const,
   teacherInput: ["teacherInput"] as const,
   teacherInputByStudentArm: ["teacherInputByStudentArm"] as const,
+  armTeacherInput: ["armTeacherInput"] as const,
+  submitArmTeacherInput: ["submitArmTeacherInput"] as const,
 };
