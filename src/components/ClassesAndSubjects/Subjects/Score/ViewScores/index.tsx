@@ -19,8 +19,11 @@ import { exportToCSV } from "@/lib/export-utils";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 import RequestEdit from "../../../RequestEditAccess";
 import { SubjectReportPermissionWrapper } from "../../SubjectReportPermissionWrapper";
+import { DevelopmentPreview } from "../DevelopmentPreview";
+import { useArmDevelopmentData } from "../DevelopmentPreview/useArmDevelopmentData";
 import { viewScoreColumns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 
@@ -51,6 +54,7 @@ export const ViewScore = () => {
   const [activeSession, setActiveSession] = useState<string | null>();
   const [openRequest, setOpenRequest] = useState<boolean>(false);
   const [termFilterOpen, setTermFilterOpen] = useState<boolean>(false);
+  const [activeScoreTab, setActiveScoreTab] = useState<string>("Standard");
 
   const pageSize = 15;
 
@@ -58,6 +62,13 @@ export const ViewScore = () => {
   const { data: viewScoreData, isLoading: isLoadingScores, isError } = useViewScore(Number(subjectId), Number(armId), termSelected?.termId);
 
   const studentsScores: ScoreType[] = viewScoreData?.data?.response?.content ?? [];
+  const {
+    categories: developmentCategories,
+    ratingLegend: developmentRatingLegend,
+    ratings: developmentRatings,
+  } = useArmDevelopmentData(Number(armId));
+  const scoreTabs = ["Standard", ...developmentCategories.map(category => category.categoryName)];
+  const activeDevelopmentCategory = developmentCategories.find(category => category.categoryName === activeScoreTab);
 
   useBreadcrumb([
     { label: "Classes & Subjects", url: "/staff/classes-and-subjects" },
@@ -209,57 +220,90 @@ export const ViewScore = () => {
         </div>
       </>
 
-      {isError && !isLoadingScores && !viewScoreData && (
-        <div className="flex h-80 items-center justify-center">
-          <ErrorComponent
-            title="Could not get Students Scores"
-            description="This is our problem, we are looking into it so as to serve you better"
-            buttonText="Go to the Home page"
-          />
-        </div>
-      )}
+      <div className="border-border-default hide-scrollbar flex w-full items-center overflow-x-auto overscroll-x-contain border-b px-4 [-webkit-overflow-scrolling:touch] md:px-8">
+        {scoreTabs.map(tab => {
+          const isActive = activeScoreTab === tab;
+          return (
+            <div
+              role="button"
+              onClick={() => setActiveScoreTab(tab)}
+              key={tab}
+              className={cn(
+                "cursor-pointer px-3 py-2.5 text-center whitespace-nowrap transition-all duration-150",
+                isActive && "border-border-informative border-b-[1.5px]",
+              )}
+            >
+              <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{tab}</span>
+            </div>
+          );
+        })}
+      </div>
 
-      <div className="p-2">{isLoadingScores && <Skeleton className="bg-bg-input-soft h-100 w-full" />}</div>
-
-      {!isLoadingScores && !isError && viewScoreData?.data?.response?.content.length === 0 && (
-        <div className="flex h-80 items-center justify-center">
-          <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Go to the Home page" />
-        </div>
-      )}
-
-      {/* Table */}
-      {!isLoadingScores && !isError && studentsScores.length > 0 && (
-        <div className="">
-          <div className="hidden px-4 md:block md:px-8">
-            <DataTable
-              pageSize={pageSize}
-              columns={viewScoreColumns(assessmentHeader)}
-              data={transformAssessmentData(studentsScores)}
-              totalCount={studentsScores.length}
-              page={page}
-              setCurrentPage={setPage}
-              fullBorder
-              showPagination={false}
-              classNames={{
-                tableBodyCell: "text-center pr-2 py-4",
-                tableHeadCell: "pr-2",
-                tableHead: "bg-bg-subtle h-13.5",
-              }}
-            />
-          </div>
-
-          <ul className="flex flex-col gap-4 px-4 md:hidden">
-            {transformAssessmentData(studentsScores).map((score: StudentResult) => (
-              <MobileCard
-                key={score.studentName}
-                student={score}
-                activeStudent={activeStudent}
-                assessmentHeader={assessmentHeader}
-                setActiveStudent={setActiveStudent}
+      {activeScoreTab === "Standard" && (
+        <>
+          {isError && !isLoadingScores && !viewScoreData && (
+            <div className="flex h-80 items-center justify-center">
+              <ErrorComponent
+                title="Could not get Students Scores"
+                description="This is our problem, we are looking into it so as to serve you better"
+                buttonText="Go to the Home page"
               />
-            ))}
-          </ul>
-        </div>
+            </div>
+          )}
+
+          <div className="p-2">{isLoadingScores && <Skeleton className="bg-bg-input-soft h-100 w-full" />}</div>
+
+          {!isLoadingScores && !isError && viewScoreData?.data?.response?.content.length === 0 && (
+            <div className="flex h-80 items-center justify-center">
+              <ErrorComponent title="No Students" description="No student has been added yet" buttonText="Go to the Home page" />
+            </div>
+          )}
+
+          {/* Table */}
+          {!isLoadingScores && !isError && studentsScores.length > 0 && (
+            <div className="">
+              <div className="hidden px-4 md:block md:px-8">
+                <DataTable
+                  pageSize={pageSize}
+                  columns={viewScoreColumns(assessmentHeader)}
+                  data={transformAssessmentData(studentsScores)}
+                  totalCount={studentsScores.length}
+                  page={page}
+                  setCurrentPage={setPage}
+                  fullBorder
+                  showPagination={false}
+                  classNames={{
+                    tableBodyCell: "text-center pr-2 py-4",
+                    tableHeadCell: "pr-2",
+                    tableHead: "bg-bg-subtle h-13.5",
+                  }}
+                />
+              </div>
+
+              <ul className="flex flex-col gap-4 px-4 md:hidden">
+                {transformAssessmentData(studentsScores).map((score: StudentResult) => (
+                  <MobileCard
+                    key={score.studentName}
+                    student={score}
+                    activeStudent={activeStudent}
+                    assessmentHeader={assessmentHeader}
+                    setActiveStudent={setActiveStudent}
+                  />
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      )}
+
+      {activeDevelopmentCategory && !isLoadingScores && !isError && studentsScores.length > 0 && (
+        <DevelopmentPreview
+          category={activeDevelopmentCategory}
+          students={studentsScores.map(s => ({ studentId: s.studentId, studentName: s.studentName }))}
+          ratingLegend={developmentRatingLegend}
+          ratings={developmentRatings}
+          onRatingChange={() => {}}
+        />
       )}
     </SubjectReportPermissionWrapper>
   );

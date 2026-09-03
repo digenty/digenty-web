@@ -82,7 +82,8 @@ export const EditPayment = () => {
             router.back();
           },
           onError: (error: unknown) => {
-            const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+            const description =
+              error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
             toast({ title: "Failed to update payment", description, type: "error" });
           },
         },
@@ -304,7 +305,12 @@ export const EditPayment = () => {
                   const amount = Number(formik.values.amount) || 0;
                   const overAllocated = allocatedTotal > amount + 0.001;
                   return (
-                    <div className={cn("border-border-default flex items-center justify-between border-t pt-2 text-sm", overAllocated && "text-text-destructive")}>
+                    <div
+                      className={cn(
+                        "border-border-default flex items-center justify-between border-t pt-2 text-sm",
+                        overAllocated && "text-text-destructive",
+                      )}
+                    >
                       <span>Allocated</span>
                       <span className="font-medium">
                         ₦{allocatedTotal.toLocaleString()} {overAllocated && "— exceeds the amount above"}

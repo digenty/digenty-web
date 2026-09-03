@@ -6,11 +6,13 @@ import {
   deleteStudents,
   editStudent,
   exportStudents,
+  getArmTeacherInput,
   getStudent,
   getStudentReport,
   getStudents,
   getStudentsDistribution,
   getTeacherInputByStudentArm,
+  submitArmTeacherInput,
   uploadStudents,
   validateStudentsUpload,
   withdrawStudents,
@@ -200,6 +202,27 @@ export const useGetTeacherInputByStudentArm = ({ studentId, armId, enabled = tru
     queryKey: [studentKeys.teacherInputByStudentArm, studentId, armId],
     queryFn: () => getTeacherInputByStudentArm({ studentId: studentId!, armId: armId! }),
     enabled: enabled && !!studentId && !!armId,
+  });
+};
+
+export const useGetArmTeacherInput = (armId?: number) => {
+  return useQuery({
+    queryKey: [studentKeys.armTeacherInput, armId],
+    queryFn: () => getArmTeacherInput(armId!),
+    enabled: !!armId,
+  });
+};
+
+export const useSubmitArmTeacherInput = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: studentKeys.submitArmTeacherInput,
+    mutationFn: submitArmTeacherInput,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [studentKeys.studentReport] });
+      queryClient.invalidateQueries({ queryKey: [studentKeys.teacherInputByStudentArm] });
+      queryClient.invalidateQueries({ queryKey: [studentKeys.armTeacherInput] });
+    },
   });
 };
 

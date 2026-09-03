@@ -73,7 +73,12 @@ export const ClassTable = ({
           <div className="flex flex-col gap-4 md:hidden">
             {openNotifyMobile && <NotifyTeacherModal openNotifyModal={openNotifyMobile} setOpenNotifyModal={setOpenNotifyMobile} />}
             {openEditMobile && activeSubject && (
-              <EditModal openEditRequestModal={openEditMobile} setEditRequestModal={setOpenEditMobile} subjectId={activeSubject.subjectId} armId={armId} />
+              <EditModal
+                openEditRequestModal={openEditMobile}
+                setEditRequestModal={setOpenEditMobile}
+                subjectId={activeSubject.subjectId}
+                armId={armId}
+              />
             )}
 
             {action && activeSubject && (
