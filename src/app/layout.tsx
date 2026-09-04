@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { SerwistProvider } from "@serwist/turbopack/react";
 import { Toaster } from "sonner";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { inter } from "./fonts";
 import { TanstackProvider } from "./providers/Tanstack";
 import "./styles/globals.css";
@@ -34,6 +35,7 @@ export default function RootLayout({
           <TanstackProvider>
             {children}
             <Toaster position="bottom-right" richColors closeButton />
+            <InstallPrompt />
           </TanstackProvider>
         </SerwistProvider>
       </body>
