@@ -58,6 +58,7 @@ export interface FeeItemPayment {
 export interface PayFeeRequest {
   studentFeeId: number;
   items: FeeItemPayment[];
+  paymentProofUrl: string;
 }
 
 export interface InvoiceLineItem {

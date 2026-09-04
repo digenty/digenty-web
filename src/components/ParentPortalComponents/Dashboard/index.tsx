@@ -18,7 +18,8 @@ export const Overview = () => {
   const user = useLoggedInUser();
   const { selectedStudentId } = useStudentFilterStore();
 
-  const { data: overview, isLoading, isError } = useGetStudentOverview(selectedStudentId);
+  const { data: overview, isLoading, isError, error } = useGetStudentOverview(selectedStudentId);
+  const errorMessage = (error as { message?: string } | null)?.message ?? "This is our problem, we are looking into it so as to serve you better";
 
   const welcomeName = overview?.parentName || user?.name || "";
 
@@ -38,10 +39,7 @@ export const Overview = () => {
         <PageEmptyState title="No Student Selected" description="Select a student above to view their overview" buttonText="Refresh" url="" />
       ) : isError ? (
         <div className="flex items-center justify-center p-10">
-          <ErrorComponent
-            title="Could not load student overview"
-            description="This is our problem, we are looking into it so as to serve you better"
-          />
+          <ErrorComponent title="Could not load student overview" description={errorMessage} />
         </div>
       ) : (
         <>

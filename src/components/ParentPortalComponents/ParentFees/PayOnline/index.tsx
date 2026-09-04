@@ -1,24 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
+import Image from "next/image";
+import { X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { StudentFilter } from "../../FilterStudents";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Information } from "@digenty/icons";
+import { Calendar, DownloadT, File as FileIcon, Information } from "@digenty/icons";
 import { useGetPayFeesData, useRecordPayment } from "@/hooks/queryHooks/useParentFees";
-import { useGetParentPortalTerms } from "@/hooks/queryHooks/useParentLookup";
+import { useGetActiveParentPortalTerm, useGetParentPortalTerms } from "@/hooks/queryHooks/useParentLookup";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useStudentFilterStore } from "@/store/parent";
 import { PendingFeeItem } from "@/api/parent-fees";
 import { feeStatusConfig } from "@/components/ParentPortalComponents/feeStatus";
 import { TermLookup } from "@/api/parent-lookup";
+import { uploadImage } from "@/app/actions/upload-image";
 import { toast } from "sonner";
+
+const MAX_PROOF_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_PROOF_TYPES = "application/pdf,image/png,image/jpeg";
+const isImagePath = (path?: string) => !!path && /\.(png|jpe?g|gif|webp|avif)$/i.test(path.split("?")[0]);
 
 const ProgressBar = ({ paid, amount }: { paid: number; amount: number }) => {
   const progressPercentage = amount ? Math.min((paid / amount) * 100, 100) : 0;
@@ -27,24 +35,6 @@ const ProgressBar = ({ paid, amount }: { paid: number; amount: number }) => {
       <div className="bg-bg-basic-green-accent h-full transition-all duration-500 ease-in-out" style={{ width: `${progressPercentage}%` }} />
     </div>
   );
-};
-
-/** Unpaid instalments in sequence order, used to label payableAmounts entries and to render the schedule. */
-const unpaidInstallments = (fee: PendingFeeItem) => (fee.installments ?? []).filter(i => i.status !== "PAID").sort((a, b) => a.sequence - b.sequence);
-
-/** payableAmounts[i] settles the first (i+1) unpaid instalments — build a human label for each option. */
-const payableAmountOptions = (fee: PendingFeeItem): { value: number; label: string }[] => {
-  const amounts = fee.payableAmounts ?? [];
-  if (amounts.length <= 1) return amounts.map(value => ({ value, label: `₦${value.toLocaleString()}` }));
-
-  const unpaid = unpaidInstallments(fee);
-  return amounts.map((value, i) => {
-    const covered = unpaid.slice(0, i + 1);
-    const first = covered[0]?.sequence;
-    const last = covered[covered.length - 1]?.sequence;
-    const label = !first ? `₦${value.toLocaleString()}` : first === last ? `Pay instalment ${first}` : `Pay instalments ${first}–${last}`;
-    return { value, label: `${label} — ₦${value.toLocaleString()}` };
-  });
 };
 
 const InstallmentSchedule = ({ fee }: { fee: PendingFeeItem }) => {
@@ -83,10 +73,7 @@ const FeeItemRow = ({
   onAmountChange: (id: number, amount: number) => void;
 }) => {
   const amountAfterPayment = fee.balance - amount;
-  const payableAmounts = fee.payableAmounts;
-  const settled = payableAmounts !== null && payableAmounts.length === 0;
-  const options = payableAmounts !== null && payableAmounts.length > 1 ? payableAmountOptions(fee) : [];
-  const fixedAmount = payableAmounts !== null && payableAmounts.length === 1 ? payableAmounts[0] : null;
+  const settled = fee.payableAmounts !== null && fee.payableAmounts.length === 0;
 
   return (
     <div className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4">
@@ -112,51 +99,28 @@ const FeeItemRow = ({
 
       {checked && !settled && (
         <div className="flex flex-col gap-2">
-          <p className="text-text-default text-sm font-medium">Amount to Pay</p>
+          <p className="text-text-default text-sm font-medium">Amount Paid</p>
 
-          {fixedAmount !== null ? (
-            <div className="bg-bg-input-soft! flex h-8 items-center rounded-md px-3 text-sm">₦{fixedAmount.toLocaleString()}</div>
-          ) : options.length > 0 ? (
-            <div className="flex flex-col gap-1.5">
-              {options.map(option => (
-                <label
-                  key={option.value}
-                  className={`flex cursor-pointer items-center gap-2 rounded-md border p-2 text-sm ${
-                    amount === option.value ? "border-border-informative border-2" : "border-border-default"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name={`payable-${fee.studentFeeItemId}`}
-                    checked={amount === option.value}
-                    onChange={() => onAmountChange(fee.studentFeeItemId, option.value)}
-                  />
-                  <span className="text-text-default">{option.label}</span>
-                </label>
-              ))}
+          <div className="flex items-center gap-2">
+            <div className="bg-bg-input-soft! flex h-8 flex-1 items-center gap-1 rounded-md px-3 py-2">
+              <span className="text-text-muted text-sm">₦</span>
+              <Input
+                type="number"
+                value={amount || ""}
+                onChange={e => onAmountChange(fee.studentFeeItemId, Math.min(Number(e.target.value) || 0, fee.balance))}
+                placeholder="0.00"
+                className="text-text-default h-5 border-none! bg-none p-0 text-sm"
+              />
             </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <div className="bg-bg-input-soft! flex h-8 flex-1 items-center gap-1 rounded-md px-3 py-2">
-                <span className="text-text-muted text-sm">₦</span>
-                <Input
-                  type="number"
-                  value={amount || ""}
-                  onChange={e => onAmountChange(fee.studentFeeItemId, Math.min(Number(e.target.value) || 0, fee.balance))}
-                  placeholder="0.00"
-                  className="text-text-default h-5 border-none! bg-none p-0 text-sm"
-                />
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => onAmountChange(fee.studentFeeItemId, fee.balance)}
-                className="bg-bg-input-soft text-text-subtle hover:bg-bg-input-soft text-sm font-medium"
-              >
-                Pay Full
-              </Button>
-            </div>
-          )}
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => onAmountChange(fee.studentFeeItemId, fee.balance)}
+              className="bg-bg-input-soft text-text-subtle hover:bg-bg-input-soft text-sm font-medium"
+            >
+              Full Amount
+            </Button>
+          </div>
 
           <div className="border-border-default rounded-md border">
             <div className="border-border-default flex items-center justify-between border-b p-4">
@@ -181,25 +145,65 @@ export const PayInvoice = () => {
   const [checkedRequired, setCheckedRequired] = useState<Set<number>>(new Set());
   const [checkedOptional, setCheckedOptional] = useState<Set<number>>(new Set());
   const [amounts, setAmounts] = useState<Record<number, number>>({});
+  const [proofOfPaymentUrl, setProofOfPaymentUrl] = useState("");
+  const [proofOfPaymentName, setProofOfPaymentName] = useState("");
+  const [uploadingProof, setUploadingProof] = useState(false);
 
-  const { data: terms, isLoading: loadingTerms } = useGetParentPortalTerms(user?.schoolId);
-  const { data: payFeesData, isLoading: loadingPayFeesData, isError: isErrorPayFeesData } = useGetPayFeesData(selectedStudentId, termSelected?.id);
+  const { data: activeTerm, isLoading: loadingActiveTerm } = useGetActiveParentPortalTerm();
+  const { data: terms, isLoading: loadingTerms } = useGetParentPortalTerms(activeTerm?.academicSessionId);
+  const {
+    data: payFeesData,
+    isLoading: loadingPayFeesData,
+    isError: isErrorPayFeesData,
+    error: payFeesError,
+  } = useGetPayFeesData(selectedStudentId, termSelected?.id);
+  const payFeesErrorMessage =
+    (payFeesError as { message?: string } | null)?.message ?? "This is our problem, we are looking into it so as to serve you better";
   const recordPayment = useRecordPayment(selectedStudentId);
 
   useEffect(() => {
-    if (terms?.length && !termSelected) {
-      setTermSelected(terms.find(t => t.isActive) ?? terms[0]);
+    if (activeTerm && !termSelected) {
+      setTermSelected(activeTerm);
     }
-  }, [terms, termSelected]);
+  }, [activeTerm, termSelected]);
 
   useEffect(() => {
     setCheckedRequired(new Set());
     setCheckedOptional(new Set());
     setAmounts({});
+    setProofOfPaymentUrl("");
+    setProofOfPaymentName("");
   }, [selectedStudentId, termSelected?.id]);
 
-  /** Default amount for a newly-checked fee: the first payableAmounts entry (the "next thing due"), or the balance for a free-amount (FLEXIBLE) fee. */
-  const defaultAmountFor = (fee: PendingFeeItem) => (fee.payableAmounts && fee.payableAmounts.length > 0 ? fee.payableAmounts[0] : fee.balance);
+  /** Default amount for a newly-checked fee: the full outstanding balance, editable down to whatever was actually paid. */
+  const defaultAmountFor = (fee: PendingFeeItem) => fee.balance;
+
+  const handleProofChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_PROOF_BYTES) {
+      toast.error("Proof of payment must be 5MB or smaller");
+      event.target.value = "";
+      return;
+    }
+
+    setUploadingProof(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const result = await uploadImage(formData);
+      if (result?.url) {
+        setProofOfPaymentUrl(result.url);
+        setProofOfPaymentName(file.name);
+      } else {
+        toast.error("Proof of payment upload failed");
+      }
+    } finally {
+      setUploadingProof(false);
+      event.target.value = "";
+    }
+  };
 
   const toggleRequired = (id: number) => {
     setCheckedRequired(prev => {
@@ -237,7 +241,7 @@ export const PayInvoice = () => {
   const totalCost = allSelected.reduce((sum, f) => sum + (amounts[f.studentFeeItemId] ?? f.balance), 0);
 
   const handlePay = () => {
-    if (!payFeesData || allSelected.length === 0) return;
+    if (!payFeesData || allSelected.length === 0 || !proofOfPaymentUrl) return;
 
     recordPayment.mutate(
       {
@@ -246,6 +250,7 @@ export const PayInvoice = () => {
           studentFeeItemId: fee.studentFeeItemId,
           amount: amounts[fee.studentFeeItemId] ?? fee.balance,
         })),
+        paymentProofUrl: proofOfPaymentUrl,
       },
       {
         onSuccess: () => {
@@ -253,6 +258,8 @@ export const PayInvoice = () => {
           setCheckedRequired(new Set());
           setCheckedOptional(new Set());
           setAmounts({});
+          setProofOfPaymentUrl("");
+          setProofOfPaymentName("");
         },
         onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to record payment"),
       },
@@ -269,7 +276,7 @@ export const PayInvoice = () => {
         <StudentFilter parentId={user?.id} />
       </div>
 
-      {loadingTerms || !terms ? (
+      {loadingActiveTerm || loadingTerms || !terms ? (
         <Skeleton className="bg-bg-input-soft h-8 w-40 rounded-md" />
       ) : (
         <Select
@@ -316,7 +323,7 @@ export const PayInvoice = () => {
 
       {selectedStudentId && isErrorPayFeesData && (
         <div className="flex items-center justify-center p-10">
-          <ErrorComponent title="Could not load fees to pay" description="This is our problem, we are looking into it so as to serve you better" />
+          <ErrorComponent title="Could not load fees to pay" description={payFeesErrorMessage} />
         </div>
       )}
 
@@ -374,6 +381,56 @@ export const PayInvoice = () => {
                 </div>
               </div>
             )}
+
+            {allSelected.length > 0 && (
+              <div className="border-border-default flex flex-col gap-3 rounded-md border p-4">
+                <p className="text-text-default text-sm font-semibold">Proof of Payment</p>
+                <p className="text-text-subtle text-xs">Upload a receipt or screenshot of the payment you made (e.g. bank transfer, POS slip)</p>
+
+                <label className="border-border-default flex cursor-pointer items-center justify-center rounded-sm border border-dashed px-6 py-8">
+                  <input type="file" accept={ACCEPTED_PROOF_TYPES} className="hidden" onChange={handleProofChange} />
+                  <div className="flex flex-col items-center gap-2">
+                    {uploadingProof ? <Spinner className="size-6" /> : <DownloadT />}
+                    <div className="text-text-default text-sm font-medium">
+                      Drop your file here, or <span className="text-text-informative">click to browse</span>
+                    </div>
+                    <div className="text-text-muted text-xs">PDF, JPG or PNG. 5MB Max.</div>
+                  </div>
+                </label>
+
+                {proofOfPaymentUrl && (
+                  <div className="border-border-default flex items-center gap-3 rounded-md border p-2">
+                    <div className="bg-bg-input-soft flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md">
+                      {isImagePath(proofOfPaymentUrl) ? (
+                        <Image
+                          src={proofOfPaymentUrl}
+                          alt={proofOfPaymentName || "proof of payment"}
+                          width={40}
+                          height={40}
+                          className="size-10 object-cover"
+                        />
+                      ) : (
+                        <FileIcon fill="var(--color-icon-default-muted)" className="size-5" />
+                      )}
+                    </div>
+
+                    <span className="text-text-default min-w-0 flex-1 truncate text-sm font-medium">{proofOfPaymentName || "Proof of payment"}</span>
+
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setProofOfPaymentUrl("");
+                        setProofOfPaymentName("");
+                      }}
+                      className="hover:bg-bg-state-ghost-hover text-text-muted size-8 rounded-md p-0!"
+                      aria-label="Remove proof of payment"
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="bg-bg-subtle border-border-default rounded-md border p-1">
@@ -403,17 +460,19 @@ export const PayInvoice = () => {
                   <div className="bg-bg-basic-gray-subtle border-border-default flex items-start gap-2 rounded-md border px-3 py-2.5">
                     <Information fill="var(--color-icon-default)" className="size-10" />
                     <p className="text-text-subtle text-xs leading-relaxed">
-                      You&apos;ll be redirected to a secure payment gateway to complete this transaction.
+                      This payment will be recorded against your account and reviewed by the school.
                     </p>
                   </div>
 
                   <Button
                     onClick={handlePay}
-                    disabled={recordPayment.isPending || totalCost <= 0}
+                    disabled={recordPayment.isPending || totalCost <= 0 || !proofOfPaymentUrl || uploadingProof}
                     className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default w-full"
                   >
-                    {recordPayment.isPending ? "Processing..." : `Pay ₦${totalCost.toLocaleString()}`}
+                    {recordPayment.isPending ? "Processing..." : `Record Payment of ₦${totalCost.toLocaleString()}`}
                   </Button>
+
+                  {!proofOfPaymentUrl && <p className="text-text-muted text-center text-xs">Upload proof of payment to continue</p>}
                 </>
               )}
             </div>

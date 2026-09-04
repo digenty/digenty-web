@@ -128,7 +128,7 @@ export const Sidebar = () => {
 
     ...(canViewFeeCollection(user?.permissions) ||
     // canViewFinanceReport(user?.permissions) ||
-    // canViewExpenses(user?.permissions) ||
+    canViewExpenses(user?.permissions) ||
     canViewFees(user?.permissions) ||
     canViewInvoices(user?.permissions) ||
     canViewStock(user?.permissions)
@@ -156,15 +156,15 @@ export const Sidebar = () => {
                   ]
                 : []),
 
-              // ...(canViewExpenses(user?.permissions)
-              //   ? [
-              //       {
-              //         title: "Expenses",
-              //         url: "expense",
-              //         icon: BankCard,
-              //       },
-              //     ]
-              //   : []),
+              ...(canViewExpenses(user?.permissions)
+                ? [
+                    {
+                      title: "Expenses",
+                      url: "expense",
+                      icon: BankCard,
+                    },
+                  ]
+                : []),
 
               ...(canViewStock(user?.permissions)
                 ? [

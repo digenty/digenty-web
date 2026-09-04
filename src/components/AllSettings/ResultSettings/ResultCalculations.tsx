@@ -173,11 +173,13 @@ const LevelForm = ({
     return Array.from(deptMap.values());
   }, [classesByLevelData, isSeniorSecondary]);
 
+  const hasDepartments = isSeniorSecondary && allDepartments.length > 0;
+
   const setPromotionType = (type: PromotionType) => {
     onChange({
       promotionType: type,
 
-      ...(type === "PROMOTE_ALL" || type === "MANUAL" ? { requiredSubjectIds: isSeniorSecondary ? {} : [] } : {}),
+      ...(type === "PROMOTE_ALL" || type === "MANUAL" ? { requiredSubjectIds: hasDepartments ? {} : [] } : {}),
     });
   };
 
@@ -194,14 +196,14 @@ const LevelForm = ({
   };
 
   const toggleSubjectFlat = (subjectId: number) => {
-    const arr = formState.requiredSubjectIds as number[];
+    const arr = Array.isArray(formState.requiredSubjectIds) ? formState.requiredSubjectIds : [];
     const exists = arr.includes(subjectId);
     onChange({
       requiredSubjectIds: exists ? arr.filter(id => id !== subjectId) : [...arr, subjectId],
     });
   };
 
-  const flatIds = isSeniorSecondary ? [] : (formState.requiredSubjectIds as number[]);
+  const flatIds = hasDepartments ? [] : Array.isArray(formState.requiredSubjectIds) ? formState.requiredSubjectIds : [];
   const allSelected = subjects.length > 0 && subjects.every(s => flatIds.includes(s.id));
 
   const toggleAllSubjects = () => {
@@ -368,7 +370,7 @@ const LevelForm = ({
                   <Label className="text-text-default text-sm font-medium">A. Required passes (Compulsory)</Label>
                   <div className="text-text-subtle text-sm">Multi-select subjects that student must pass</div>
 
-                  {isSeniorSecondary && allDepartments.length > 0 ? (
+                  {hasDepartments ? (
                     <div className="flex flex-col gap-4">
                       {allDepartments.map(dept => {
                         const deptSubjects = dept.subjects;

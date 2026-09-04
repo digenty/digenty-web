@@ -4,6 +4,7 @@ import { toast } from "@/components/Toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useAddmissionNumber } from "@/hooks/queryHooks/useAdmission";
 import { useGetAdmissionNumberDetails, useUpdateAdmissionNumber } from "@/hooks/queryHooks/useAdmisssion";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
@@ -47,6 +48,9 @@ export const AdmissionNumberSetup = ({
   const { data: admissionResponse } = useGetAdmissionNumberDetails();
   const admission = admissionResponse?.data ?? admissionResponse?.[0];
 
+  const { data: activeSessionResponse } = useGetActiveSession();
+  const activeSessionName: string = activeSessionResponse?.data?.name ?? "";
+
   const { mutate: addAdmissionNumber } = useAddmissionNumber();
   const { mutate: updateAdmissionNumber } = useUpdateAdmissionNumber();
 
@@ -54,7 +58,7 @@ export const AdmissionNumberSetup = ({
     enableReinitialize: true,
     initialValues: {
       prefix: admission?.prefix ?? "",
-      numberFormat: admission?.numberFormat ?? "",
+      numberFormat: admission?.numberFormat ?? activeSessionName,
       startingNumber: admission?.startingNumber ? String(admission.startingNumber) : "1",
       padding: admission?.padding ? String(admission.padding) : "",
       includeClassOfEntry: admission?.includeClassOfEntry !== undefined ? String(admission.includeClassOfEntry) : "",
@@ -117,18 +121,24 @@ export const AdmissionNumberSetup = ({
 
           <div className="flex flex-col gap-2">
             <Label className="text-text-default text-sm font-medium">Number Format</Label>
-            <Input
-              name="numberFormat"
-              value={formik.values.numberFormat}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="bg-bg-input-soft! text-text-default rounded-md border-none text-sm"
-              placeholder={new Date().getFullYear().toString()}
-            />
+            <Select value={formik.values.numberFormat} onValueChange={val => formik.setFieldValue("numberFormat", val)}>
+              <SelectTrigger className="bg-bg-input-soft! h-9! w-full rounded-md border-none">
+                <SelectValue placeholder="Select academic year">
+                  <span className="text-text-default text-sm">{formik.values.numberFormat || "Select academic year"}</span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-border-default">
+                {activeSessionName && (
+                  <SelectItem value={activeSessionName} className="text-text-default text-sm font-medium">
+                    {activeSessionName}
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
             {formik.touched.numberFormat && formik.errors.numberFormat && (
               <p className="text-text-destructive text-xs">{formik.errors.numberFormat}</p>
             )}
-            <div className="text-text-muted text-xs">Use tokens: PREFIX, YEAR, MONTH, SESSION, SEQ</div>
+            <div className="text-text-muted text-xs">The current academic year to include in the admission number</div>
           </div>
 
           <div className="flex flex-col gap-2">
