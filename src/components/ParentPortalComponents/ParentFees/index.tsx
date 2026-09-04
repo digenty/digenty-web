@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { Calendar } from "@digenty/icons";
 import { FeesBreakdown } from "./FessBreakdown";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetParentPortalTerms } from "@/hooks/queryHooks/useParentLookup";
+import { useGetActiveParentPortalTerm, useGetParentPortalTerms } from "@/hooks/queryHooks/useParentLookup";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { TermLookup } from "@/api/parent-lookup";
 
@@ -22,13 +22,14 @@ export const ParentFees = () => {
   const [termSelected, setTermSelected] = useState<TermLookup | null>(null);
   const router = useRouter();
 
-  const { data: terms, isLoading: loadingTerms } = useGetParentPortalTerms(user?.schoolId);
+  const { data: activeTerm, isLoading: loadingActiveTerm } = useGetActiveParentPortalTerm();
+  const { data: terms, isLoading: loadingTerms } = useGetParentPortalTerms(activeTerm?.academicSessionId);
 
   useEffect(() => {
-    if (terms?.length && !termSelected) {
-      setTermSelected(terms.find(t => t.isActive) ?? terms[0]);
+    if (activeTerm && !termSelected) {
+      setTermSelected(activeTerm);
     }
-  }, [terms, termSelected]);
+  }, [activeTerm, termSelected]);
 
   return (
     <div className="flex w-full flex-col gap-10 p-4 md:p-8">
@@ -43,7 +44,7 @@ export const ParentFees = () => {
       </div>
 
       <div className="flex items-center justify-between">
-        {loadingTerms || !terms ? (
+        {loadingActiveTerm || loadingTerms || !terms ? (
           <Skeleton className="bg-bg-input-soft h-8 w-40 rounded-md" />
         ) : (
           <Select

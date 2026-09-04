@@ -1,3 +1,5 @@
+"use client";
+
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 export const PermissionCheck = ({

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useGetAdmissionNumberDetails, useUpdateAdmissionNumber } from "@/hooks/queryHooks/useAdmisssion";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -35,18 +36,20 @@ export const AdmissionNumberSetupDone = () => {
 
   const { data: admissionResponse, isLoading, isError, error } = useGetAdmissionNumberDetails();
   const { mutateAsync: updateAdmission } = useUpdateAdmissionNumber();
+  const { data: activeSessionResponse } = useGetActiveSession();
+  const activeSessionName: string = activeSessionResponse?.data?.name ?? "";
 
   const admission = admissionResponse?.data ?? admissionResponse?.[0];
 
   useEffect(() => {
     if (!admission) return;
     setPrefix(admission.prefix ?? "");
-    setNumberFormat(admission.numberFormat ?? "");
+    setNumberFormat(admission.numberFormat || activeSessionName);
     setStartingNumber(String(admission.startingNumber ?? ""));
     setPadding(String(admission.padding ?? ""));
     setIncludeClassOfEntry(admission.includeClassOfEntry !== undefined ? String(admission.includeClassOfEntry) : "");
     setSeparator(admission.separator ?? "");
-  }, [admission]);
+  }, [admission, activeSessionName]);
 
   const preview = buildPreview(prefix, numberFormat, startingNumber, padding, separator);
 
@@ -55,7 +58,7 @@ export const AdmissionNumberSetupDone = () => {
   const handleCancel = () => {
     if (admission) {
       setPrefix(admission.prefix ?? "");
-      setNumberFormat(admission.numberFormat ?? "");
+      setNumberFormat(admission.numberFormat || activeSessionName);
       setStartingNumber(String(admission.startingNumber ?? ""));
       setPadding(String(admission.padding ?? ""));
       setIncludeClassOfEntry(admission.includeClassOfEntry !== undefined ? String(admission.includeClassOfEntry) : "");
@@ -162,18 +165,26 @@ export const AdmissionNumberSetupDone = () => {
               <div className="flex flex-col gap-2">
                 <Label className="text-text-default text-sm font-medium">Number Format</Label>
                 {isEditing ? (
-                  <Input
-                    value={numberFormat}
-                    onChange={e => setNumberFormat(e.target.value)}
-                    className="bg-bg-input-soft! text-text-default rounded-md border-none text-sm"
-                    placeholder="e.g. PREFIX-YEAR-SEQ"
-                  />
+                  <Select value={numberFormat} onValueChange={setNumberFormat}>
+                    <SelectTrigger className="bg-bg-input-soft! h-9! w-full rounded-md border-none">
+                      <SelectValue placeholder="Select academic year">
+                        <span className="text-text-default text-sm">{numberFormat || "Select academic year"}</span>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="bg-bg-card border-border-default">
+                      {activeSessionName && (
+                        <SelectItem value={activeSessionName} className="text-text-default text-sm font-medium">
+                          {activeSessionName}
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
                 ) : (
                   <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">
                     {admissionResponse?.data?.numberFormat || "-—"}
                   </div>
                 )}
-                <div className="text-text-muted text-xs">Use tokens: PREFIX, YEAR, MONTH, SESSION, SEQ</div>
+                <div className="text-text-muted text-xs">The current academic year to include in the admission number</div>
               </div>
 
               <div className="flex flex-col gap-2">

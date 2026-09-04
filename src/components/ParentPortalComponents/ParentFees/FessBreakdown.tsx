@@ -34,8 +34,8 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   const { data: profile } = useGetUserProfile();
   const profileEmail: string | undefined = profile?.data?.email;
 
-  const { data: overview, isLoading: loadingOverview, isError: isErrorOverview } = useGetFeeOverview(selectedStudentId, termId);
-  const { data: invoice, isLoading: loadingInvoice, isError: isErrorInvoice } = useGetInvoice(selectedStudentId, termId);
+  const { data: overview, isLoading: loadingOverview, isError: isErrorOverview, error: overviewError } = useGetFeeOverview(selectedStudentId, termId);
+  const { data: invoice, isLoading: loadingInvoice, isError: isErrorInvoice, error: invoiceError } = useGetInvoice(selectedStudentId, termId);
   const { data: payFeesData } = useGetPayFeesData(selectedStudentId, termId);
 
   const initiatePayment = useInitiatePayment();
@@ -131,9 +131,13 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   }
 
   if (isErrorOverview || isErrorInvoice) {
+    const errorMessage =
+      (overviewError as { message?: string } | null)?.message ??
+      (invoiceError as { message?: string } | null)?.message ??
+      "This is our problem, we are looking into it so as to serve you better";
     return (
       <div className="flex items-center justify-center p-10">
-        <ErrorComponent title="Could not load fees breakdown" description="This is our problem, we are looking into it so as to serve you better" />
+        <ErrorComponent title="Could not load fees breakdown" description={errorMessage} />
       </div>
     );
   }

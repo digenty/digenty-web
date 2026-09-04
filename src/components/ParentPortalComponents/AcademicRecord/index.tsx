@@ -9,7 +9,7 @@ import { TermLookup } from "@/api/parent-lookup";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
-import { useGetParentPortalTerms } from "@/hooks/queryHooks/useParentLookup";
+import { useGetActiveParentPortalTerm, useGetParentPortalTerms } from "@/hooks/queryHooks/useParentLookup";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useStudentFilterStore } from "@/store/parent";
 import { Calendar } from "@digenty/icons";
@@ -20,17 +20,21 @@ export const AcademicRecord = () => {
 
   const [termSelected, setTermSelected] = useState<TermLookup | null>(null);
 
-  const { data: terms, isLoading: loadingTerms } = useGetParentPortalTerms(user?.schoolId);
+  const { data: activeTerm, isLoading: loadingActiveTerm } = useGetActiveParentPortalTerm();
+  const { data: terms, isLoading: loadingTerms } = useGetParentPortalTerms(activeTerm?.academicSessionId);
   const {
     data: studentReportData,
     isLoading: loadingStudentReport,
     isError: isErrorStudentReport,
+    error: studentReportError,
   } = useGetStudentAcademicRecord(selectedStudentId, termSelected?.id);
+  const studentReportErrorMessage =
+    (studentReportError as { message?: string } | null)?.message ?? "This is our problem, we are looking into it so as to serve you better";
   useEffect(() => {
-    if (terms?.length && !termSelected) {
-      setTermSelected(terms.find(t => t.isActive) ?? terms[0]);
+    if (activeTerm && !termSelected) {
+      setTermSelected(activeTerm);
     }
-  }, [terms, termSelected]);
+  }, [activeTerm, termSelected]);
   return (
     <div className="flex w-full flex-col gap-10 p-4 md:p-8">
       <div className="flex w-full items-center md:justify-between">
@@ -44,8 +48,8 @@ export const AcademicRecord = () => {
       </div>
 
       <div className="flex items-center justify-between">
-        {loadingTerms || (!terms && <Skeleton className="bg-bg-input-soft h-9 w-50 rounded-md" />)}
-        {!loadingTerms && terms && (
+        {(loadingActiveTerm || loadingTerms) && <Skeleton className="bg-bg-input-soft h-9 w-50 rounded-md" />}
+        {!loadingActiveTerm && !loadingTerms && terms && (
           <Select
             value={termSelected ? String(termSelected.id) : ""}
             onValueChange={value => {
@@ -80,11 +84,7 @@ export const AcademicRecord = () => {
 
       {selectedStudentId && isErrorStudentReport && (
         <div className="flex h-screen items-center justify-center">
-          <ErrorComponent
-            title="Could not get Student's report"
-            description="This is our problem, we are looking into it so as to serve you better"
-            buttonText="Go to the Home page"
-          />
+          <ErrorComponent title="Could not get Student's report" description={studentReportErrorMessage} buttonText="Go to the Home page" />
         </div>
       )}
 
