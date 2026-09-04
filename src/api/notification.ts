@@ -29,15 +29,15 @@ export type GetNotificationsParams = {
   read?: boolean;
 };
 
-export type GetNotificationsResponse = {
-  data: {
-    notifications: Notification[];
-    unreadCount: number;
-    total: number;
-    page: number;
-    pageSize: number;
-  };
+export type BranchNotifications = {
+  notifications: Notification[];
+  unreadCount: number;
+  total: number;
+  page: number;
+  pageSize: number;
 };
+
+export type GetNotificationsResponse = Record<string, BranchNotifications>;
 
 export const getNotifications = async (params?: GetNotificationsParams): Promise<GetNotificationsResponse> => {
   try {
