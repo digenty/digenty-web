@@ -1,8 +1,7 @@
-import { getSessionToken } from "@/app/actions/auth";
 import { ParentInputType } from "@/components/StudentAndParent/types";
 import { BulkUploadResult, CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
 import api from "@/lib/axios/axios-auth";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 
 export const addParent = async (payload: ParentInputType) => {
   try {
@@ -65,12 +64,9 @@ export const uploadParents = async ({
   if (file) {
     const formData = new FormData();
     formData.append("file", file);
-    const { token } = await getSessionToken();
     try {
-      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/parents/upload/${branchId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const { data } = await api.post(`/parents/upload/${branchId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       return data;
     } catch (error: unknown) {
