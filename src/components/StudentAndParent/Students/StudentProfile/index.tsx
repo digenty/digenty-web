@@ -15,7 +15,7 @@ import { useDeleteStudents, useGetStudent, useWithdrawStudents } from "@/hooks/q
 import { Skeleton } from "../../../ui/skeleton";
 import { Student } from "@/api/types";
 import { useStudentStore } from "@/store/student";
-import { queryClient } from "@/lib/tanstack";
+import { useQueryClient } from "@tanstack/react-query";
 import { studentKeys } from "@/queries/student";
 import { toast } from "../../../Toast";
 import { Spinner } from "../../../ui/spinner";
@@ -26,6 +26,7 @@ import { Tooltip } from "@/components/Tooltip";
 export const StudentProfile = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const studentId = pathname.split("/")[4] ?? "";
 
   const {

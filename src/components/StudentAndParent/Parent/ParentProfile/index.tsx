@@ -10,7 +10,7 @@ import { DialogDescription } from "../../../ui/dialog";
 import { Parent } from "@/api/types";
 import { useDeleteParents, useGetParent } from "@/hooks/queryHooks/useParent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { queryClient } from "@/lib/tanstack";
+import { useQueryClient } from "@tanstack/react-query";
 import { studentKeys } from "@/queries/student";
 import { useParentStore } from "@/store/useParentStore";
 import { usePathname, useRouter } from "next/navigation";
@@ -28,6 +28,7 @@ import { Tooltip } from "@/components/Tooltip";
 export const ParentProfile = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const parentId = pathname.split("/")[4] ?? "";
 
   const { openDelete, setOpenDelete, parentIds, setParentIds } = useParentStore();
