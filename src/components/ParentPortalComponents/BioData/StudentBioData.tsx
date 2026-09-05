@@ -26,14 +26,14 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
             {/* {student?.data.lastName} */}
           </p>
         </div>
-        <Button
+        {/* <Button
           size="sm"
           onClick={onEdit}
           className="text-text-default border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex items-center gap-1.5 rounded-full border font-medium"
         >
           <Pencil className="size-3" />
           Edit <span className="hidden md:block">Biodata</span>
-        </Button>
+        </Button> */}
       </div>
 
       <div className="bg-bg-card w-full rounded-lg">

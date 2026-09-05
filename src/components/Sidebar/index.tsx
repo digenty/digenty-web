@@ -56,6 +56,7 @@ import { SetupGuideProgress } from "./SetupGuideProgress";
 import { canViewCBT } from "@/lib/permissions/cbt";
 import { getSessionToken } from "@/app/actions/auth";
 import { canViewAdmissionManagement } from "@/lib/permissions/admission-management";
+import { canViewDashboard } from "@/lib/permissions/dashboard";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -64,7 +65,7 @@ export const Sidebar = () => {
     {
       title: "",
       menu: [
-        ...(canViewPortalOverview(user?.permissions)
+        ...(canViewDashboard(user?.permissions)
           ? [
               {
                 title: "Dashboard",
@@ -128,7 +129,7 @@ export const Sidebar = () => {
 
     ...(canViewFeeCollection(user?.permissions) ||
     // canViewFinanceReport(user?.permissions) ||
-    canViewExpenses(user?.permissions) ||
+    // canViewExpenses(user?.permissions) ||
     canViewFees(user?.permissions) ||
     canViewInvoices(user?.permissions) ||
     canViewStock(user?.permissions)
@@ -156,15 +157,15 @@ export const Sidebar = () => {
                   ]
                 : []),
 
-              ...(canViewExpenses(user?.permissions)
-                ? [
-                    {
-                      title: "Expenses",
-                      url: "expense",
-                      icon: BankCard,
-                    },
-                  ]
-                : []),
+              // ...(canViewExpenses(user?.permissions)
+              //   ? [
+              //       {
+              //         title: "Expenses",
+              //         url: "expense",
+              //         icon: BankCard,
+              //       },
+              //     ]
+              //   : []),
 
               ...(canViewStock(user?.permissions)
                 ? [
@@ -215,25 +216,25 @@ export const Sidebar = () => {
                   ]
                 : []),
 
-              // ...(canViewDomain(user?.permissions)
-              //   ? [
-              //       {
-              //         title: "Domain",
-              //         url: "domain",
-              //         icon: Global,
-              //       },
-              //     ]
-              //   : []),
+              ...(canViewDomain(user?.permissions)
+                ? [
+                    {
+                      title: "Domain",
+                      url: "domain",
+                      icon: Global,
+                    },
+                  ]
+                : []),
 
-              // ...(canViewPortalCustomization(user?.permissions)
-              //   ? [
-              //       {
-              //         title: "Website Customization",
-              //         url: "website-customization",
-              //         icon: ColorFilter,
-              //       },
-              //     ]
-              //   : []),
+              ...(canViewPortalCustomization(user?.permissions)
+                ? [
+                    {
+                      title: "Website Customization",
+                      url: "website-customization",
+                      icon: ColorFilter,
+                    },
+                  ]
+                : []),
             ],
           },
         ]

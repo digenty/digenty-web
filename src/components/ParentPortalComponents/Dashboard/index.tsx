@@ -57,7 +57,7 @@ export const Overview = () => {
                 <div className="text-text-default text-lg font-semibold">₦{(overview?.outstandingBalance ?? 0).toLocaleString()}</div>
               )}
               <Button
-                onClick={() => router.push("/parents/parent-fees/fees-to-pay")}
+                onClick={() => router.push("/parents/parent-fees")}
                 className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default w-full rounded-full"
               >
                 Pay now <ArrowRight />
