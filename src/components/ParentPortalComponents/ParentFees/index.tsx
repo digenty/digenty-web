@@ -72,12 +72,12 @@ export const ParentFees = () => {
           </Select>
         )}
 
-        <Button
+        {/* <Button
           onClick={() => router.push("/parents/parent-fees/fees-to-pay")}
           className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-full"
         >
           Record Payment
-        </Button>
+        </Button> */}
       </div>
 
       <div className="bg-bg-state-soft flex h-9 w-full rounded-md p-0.5 md:w-87">
