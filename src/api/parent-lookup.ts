@@ -2,7 +2,7 @@ import { FeeTermType } from "@/api/fee";
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
-// GET /parent/portal/lookup/schools/{schoolId}/terms
+// GET /parent/portal/terms/active, GET /parent/portal/terms
 export interface TermLookup {
   id: number;
   term: FeeTermType;
@@ -13,12 +13,19 @@ export interface TermLookup {
   academicSessionName: string;
 }
 
-export const getParentPortalTerms = async (schoolId: number, academicSessionId?: number): Promise<TermLookup[]> => {
+export const getActiveParentPortalTerm = async (): Promise<TermLookup> => {
   try {
-    const params = new URLSearchParams();
-    if (academicSessionId) params.append("academicSessionId", String(academicSessionId));
-    const qs = params.toString();
-    const { data } = await api.get(`/parent/portal/lookup/schools/${schoolId}/terms${qs ? `?${qs}` : ""}`);
+    const { data } = await api.get(`/parent/portal/terms/active`);
+    return data?.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const getParentPortalTerms = async (academicSessionId: number): Promise<TermLookup[]> => {
+  try {
+    const { data } = await api.get(`/parent/portal/terms?academicSessionId=${academicSessionId}`);
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;

@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
 type OverviewCardProps = {
-  title: string;
+  title: ReactNode;
   Icon: () => React.ReactNode;
   value?: string | number | ReactNode;
   className?: string;

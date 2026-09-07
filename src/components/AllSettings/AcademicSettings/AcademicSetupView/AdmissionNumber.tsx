@@ -36,17 +36,19 @@ export const AdmissionNumberSetupDone = () => {
   const { data: admissionResponse, isLoading, isError, error } = useGetAdmissionNumberDetails();
   const { mutateAsync: updateAdmission } = useUpdateAdmissionNumber();
 
+  const currentYear = String(new Date().getFullYear());
+
   const admission = admissionResponse?.data ?? admissionResponse?.[0];
 
   useEffect(() => {
     if (!admission) return;
     setPrefix(admission.prefix ?? "");
-    setNumberFormat(admission.numberFormat ?? "");
+    setNumberFormat(currentYear);
     setStartingNumber(String(admission.startingNumber ?? ""));
     setPadding(String(admission.padding ?? ""));
     setIncludeClassOfEntry(admission.includeClassOfEntry !== undefined ? String(admission.includeClassOfEntry) : "");
     setSeparator(admission.separator ?? "");
-  }, [admission]);
+  }, [admission, currentYear]);
 
   const preview = buildPreview(prefix, numberFormat, startingNumber, padding, separator);
 
@@ -55,7 +57,7 @@ export const AdmissionNumberSetupDone = () => {
   const handleCancel = () => {
     if (admission) {
       setPrefix(admission.prefix ?? "");
-      setNumberFormat(admission.numberFormat ?? "");
+      setNumberFormat(currentYear);
       setStartingNumber(String(admission.startingNumber ?? ""));
       setPadding(String(admission.padding ?? ""));
       setIncludeClassOfEntry(admission.includeClassOfEntry !== undefined ? String(admission.includeClassOfEntry) : "");
@@ -161,19 +163,8 @@ export const AdmissionNumberSetupDone = () => {
 
               <div className="flex flex-col gap-2">
                 <Label className="text-text-default text-sm font-medium">Number Format</Label>
-                {isEditing ? (
-                  <Input
-                    value={numberFormat}
-                    onChange={e => setNumberFormat(e.target.value)}
-                    className="bg-bg-input-soft! text-text-default rounded-md border-none text-sm"
-                    placeholder="e.g. PREFIX-YEAR-SEQ"
-                  />
-                ) : (
-                  <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">
-                    {admissionResponse?.data?.numberFormat || "-—"}
-                  </div>
-                )}
-                <div className="text-text-muted text-xs">Use tokens: PREFIX, YEAR, MONTH, SESSION, SEQ</div>
+                <div className="bg-bg-input-soft text-text-default flex h-9 items-center rounded-md px-3 text-sm">{currentYear}</div>
+                <div className="text-text-muted text-xs">The current year, automatically included in the admission number</div>
               </div>
 
               <div className="flex flex-col gap-2">

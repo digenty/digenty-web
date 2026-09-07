@@ -100,13 +100,7 @@ export const CreateParentModal = ({ open, setOpen }: { open: boolean; setOpen: (
   }
 
   return (
-    <Modal
-      open={open}
-      setOpen={setOpen}
-      title="Create New Parent"
-      className="max-w-138.5! max-h-[85vh] overflow-y-auto"
-      ActionButton={actionButton}
-    >
+    <Modal open={open} setOpen={setOpen} title="Create New Parent" className="max-h-[85vh] max-w-138.5! overflow-y-auto" ActionButton={actionButton}>
       {body}
     </Modal>
   );

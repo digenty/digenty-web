@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckDouble, BankCard } from "@digenty/icons";
 import { cn } from "@/lib/utils";
 import { ComparisonTable } from "./ComparisonTable";
-import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, PLAN_PRICES, STUDENT_TIER_RANGES, StudentTier } from "./type";
+import { BILLING_CYCLE_TO_PLAN_TYPE, BillingCycle, STUDENT_TIER_RANGES, StudentTier } from "./type";
 import { useGetCurrentSubscription, useGetPlans } from "@/hooks/queryHooks/useSubscription";
 import { PlanResponseDto } from "@/api/subscription";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
@@ -100,7 +100,6 @@ export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
     if (!plans) return [];
     const planType = BILLING_CYCLE_TO_PLAN_TYPE[billingCycle];
     const matched = plans?.data?.filter((plan: PlanResponseDto) => plan.planType === planType && tierMatchesPlan(studentTier, plan));
-    console.log(plans);
 
     const byName = new Map<string, PlanResponseDto>();
     for (const plan of matched) {
@@ -112,10 +111,8 @@ export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
     return Array.from(byName.values());
   }, [plans, billingCycle, studentTier]);
 
-  const staticPrices = PLAN_PRICES[studentTier][billingCycle];
-  const starterPrice = filteredPlans.find(p => p.name.toLowerCase().includes("starter"))?.pricePerStudent ?? staticPrices.starter;
-  const standardPrice = filteredPlans.find(p => p.name.toLowerCase().includes("standard"))?.pricePerStudent ?? staticPrices.standard;
-  const advancedPrice = filteredPlans.find(p => p.name.toLowerCase().includes("advanced"))?.pricePerStudent ?? staticPrices.advanced;
+  const starterPlan = filteredPlans.find(p => p.name.toLowerCase().includes("starter"));
+  const standardPlan = filteredPlans.find(p => p.name.toLowerCase().includes("standard"));
 
   const goToSubscribe = (planName: string) => router.push(buildSubscribeHref(planName, billingCycle));
 
@@ -135,12 +132,7 @@ export const PlansView = ({ showNoSubscriptionBanner }: PlansViewProps) => {
         <div className="self-center">
           <BillingCycleTabs value={billingCycle} onChange={setBillingCycle} />
         </div>
-        <ComparisonTable
-          starterPrice={starterPrice}
-          standardPrice={standardPrice}
-          advancedPrice={advancedPrice}
-          onSubscribe={plan => goToSubscribe(plan)}
-        />
+        <ComparisonTable starterPlan={starterPlan} standardPlan={standardPlan} onSubscribe={plan => goToSubscribe(plan)} />
       </div>
     </div>
   );

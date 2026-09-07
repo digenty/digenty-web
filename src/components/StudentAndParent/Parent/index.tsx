@@ -16,6 +16,7 @@ import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetClasses } from "@/hooks/queryHooks/useClass";
 import { useDeleteParents, useExportParents, useGetParents } from "@/hooks/queryHooks/useParent";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
@@ -35,7 +36,9 @@ import { canManageStudentParentRecords } from "@/lib/permissions/students-and-pa
 export const ParentsTable = () => {
   const router = useRouter();
   const isMobile = useIsMobile();
-  const { branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
+  const { permissions, branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
+  const canManage = canManageStudentParentRecords(permissions);
+  const tableColumns = canManage ? parentColumns : parentColumns.filter(column => column.id !== "actions");
   const userBranchIds = useMemo(() => branchIds ?? [], [branchIds]);
   const hasFullAccess = isMain || isAdmin || (adminBranchIds?.length ?? 0) > 0;
   const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
@@ -58,6 +61,7 @@ export const ParentsTable = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const [filter, setFilter] = useState<{
     branchSelected?: Branch;
+    classSelected?: ClassType;
   }>({});
 
   const effectiveBranchId = filter?.branchSelected?.id ?? restrictedBranchId;
@@ -77,6 +81,7 @@ export const ParentsTable = () => {
   const parents = data?.pages.flatMap(page => page.content) ?? [];
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
+  const { data: classes, isPending: loadingClasses } = useGetClasses();
 
   const exportBranches = useMemo(() => {
     if (!branches || !isBranchRestricted) return branches;
@@ -266,6 +271,8 @@ export const ParentsTable = () => {
           onFilterChange={handleFilterChange}
           branches={branches}
           loadingBranches={loadingBranches}
+          classes={classes}
+          loadingClasses={loadingClasses}
           totalParents={data?.pages[0].totalElements}
         />
 
@@ -325,13 +332,15 @@ export const ParentsTable = () => {
               <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
               <span>Export</span>
             </Button>
-            <Button
-              onClick={() => router.push(`student-and-parent-record/upload-parents`)}
-              className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
-            >
-              <Import fill="var(--color-icon-default-muted)" className="size-4" />
-              <span>Import</span>
-            </Button>
+            <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+              <Button
+                onClick={() => router.push(`student-and-parent-record/upload-parents`)}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
+              >
+                <Import fill="var(--color-icon-default-muted)" className="size-4" />
+                <span>Import</span>
+              </Button>
+            </PermissionCheck>
           </div>
         </MobileDrawer>
       )}
@@ -386,7 +395,7 @@ export const ParentsTable = () => {
         <div>
           <div className="hidden md:block">
             <DataTable
-              columns={parentColumns}
+              columns={tableColumns}
               data={dataForDesktop}
               totalCount={data?.pages[0].totalElements}
               page={page}

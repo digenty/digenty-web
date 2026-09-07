@@ -55,7 +55,7 @@ const AddFeeToClass = () => {
   const arms: { armId: number; armName: string }[] = useMemo(() => {
     const raw: { id: number; name: string }[] = Array.isArray(armsResp)
       ? armsResp
-      : ((armsResp as { data?: unknown[] })?.data ?? (armsResp as { content?: unknown[] })?.content ?? []) as { id: number; name: string }[];
+      : (((armsResp as { data?: unknown[] })?.data ?? (armsResp as { content?: unknown[] })?.content ?? []) as { id: number; name: string }[]);
     return raw.map(a => ({ armId: a.id, armName: a.name }));
   }, [armsResp]);
 

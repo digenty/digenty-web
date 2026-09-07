@@ -47,6 +47,8 @@ export const AdmissionNumberSetup = ({
   const { data: admissionResponse } = useGetAdmissionNumberDetails();
   const admission = admissionResponse?.data ?? admissionResponse?.[0];
 
+  const currentYear = String(new Date().getFullYear());
+
   const { mutate: addAdmissionNumber } = useAddmissionNumber();
   const { mutate: updateAdmissionNumber } = useUpdateAdmissionNumber();
 
@@ -54,7 +56,7 @@ export const AdmissionNumberSetup = ({
     enableReinitialize: true,
     initialValues: {
       prefix: admission?.prefix ?? "",
-      numberFormat: admission?.numberFormat ?? "",
+      numberFormat: currentYear,
       startingNumber: admission?.startingNumber ? String(admission.startingNumber) : "1",
       padding: admission?.padding ? String(admission.padding) : "",
       includeClassOfEntry: admission?.includeClassOfEntry !== undefined ? String(admission.includeClassOfEntry) : "",
@@ -123,12 +125,12 @@ export const AdmissionNumberSetup = ({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               className="bg-bg-input-soft! text-text-default rounded-md border-none text-sm"
-              placeholder={new Date().getFullYear().toString()}
+              placeholder="e.g. 2026"
             />
             {formik.touched.numberFormat && formik.errors.numberFormat && (
               <p className="text-text-destructive text-xs">{formik.errors.numberFormat}</p>
             )}
-            <div className="text-text-muted text-xs">Use tokens: PREFIX, YEAR, MONTH, SESSION, SEQ</div>
+            <div className="text-text-muted text-xs">Defaults to the current year and refreshes automatically every new year</div>
           </div>
 
           <div className="flex flex-col gap-2">

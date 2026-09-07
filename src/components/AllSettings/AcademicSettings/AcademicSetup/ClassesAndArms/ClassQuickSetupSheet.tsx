@@ -723,9 +723,9 @@ export const ClassQuickSetupSheet = ({
                 Arms<small className="text-text-destructive text-xs">*</small>
               </div>
               <span className="text-text-subtle text-sm">
-                Arms let you split a class or department into smaller groups while still keeping them under the same level &mdash; parallel
-                sections of the same class. Name them however your school does: letters (A, B), colours (Gold, Silver), numbers (1, 2), or
-                anything else your structure uses. At least one arm is required.
+                Arms let you split a class or department into smaller groups while still keeping them under the same level &mdash; parallel sections
+                of the same class. Name them however your school does: letters (A, B), colours (Gold, Silver), numbers (1, 2), or anything else your
+                structure uses. At least one arm is required.
               </span>
             </div>
             <LevelItemsSection

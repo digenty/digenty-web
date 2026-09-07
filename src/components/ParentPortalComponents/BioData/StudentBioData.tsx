@@ -26,14 +26,14 @@ const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data:
             {/* {student?.data.lastName} */}
           </p>
         </div>
-        <Button
+        {/* <Button
           size="sm"
           onClick={onEdit}
           className="text-text-default border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex items-center gap-1.5 rounded-full border font-medium"
         >
           <Pencil className="size-3" />
           Edit <span className="hidden md:block">Biodata</span>
-        </Button>
+        </Button> */}
       </div>
 
       <div className="bg-bg-card w-full rounded-lg">
@@ -150,8 +150,9 @@ export const StudentBioData = ({ selectedStudentId }: StudentBioDataProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const { data: parentData } = useGetMyParentProfile();
   const linkedStudent = parentData?.data?.linkedStudents?.find((s: Parent["linkedStudents"][number]) => s.id === selectedStudentId);
-  const { data: studentData, isLoading, isError } = useGetStudent(linkedStudent?.id);
+  const { data: studentData, isLoading, isError, error } = useGetStudent(linkedStudent?.id);
   const student = studentData;
+  const errorMessage = (error as { message?: string } | null)?.message ?? "This is our problem, we are looking into it so as to serve you better";
 
   return (
     <div>
@@ -159,11 +160,7 @@ export const StudentBioData = ({ selectedStudentId }: StudentBioDataProps) => {
 
       {!isLoading && isError && (
         <div className="flex h-screen items-center justify-center">
-          <ErrorComponent
-            title="Could not get Student's details"
-            description="This is our problem, we are looking into it so as to serve you better"
-            buttonText="Go to the Home page"
-          />
+          <ErrorComponent title="Could not get Student's details" description={errorMessage} buttonText="Go to the Home page" />
         </div>
       )}
 

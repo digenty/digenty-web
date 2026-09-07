@@ -49,13 +49,13 @@ import { canViewStock } from "@/lib/permissions/stock";
 import { canViewSettings } from "@/lib/permissions/settings";
 import { canViewCommunication } from "@/lib/permissions/communication";
 import { canViewPortalCustomization } from "@/lib/permissions/portal-customization";
-import { canViewPortalOverview } from "@/lib/permissions/portal-overview";
 import { canViewDomain } from "@/lib/permissions/domain";
 import { useQueryClient } from "@tanstack/react-query";
 import { SetupGuideProgress } from "./SetupGuideProgress";
 import { canViewCBT } from "@/lib/permissions/cbt";
 import { getSessionToken } from "@/app/actions/auth";
 import { canViewAdmissionManagement } from "@/lib/permissions/admission-management";
+import { canViewDashboard } from "@/lib/permissions/dashboard";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -64,7 +64,7 @@ export const Sidebar = () => {
     {
       title: "",
       menu: [
-        ...(canViewPortalOverview(user?.permissions)
+        ...(canViewDashboard(user?.permissions)
           ? [
               {
                 title: "Dashboard",
@@ -215,25 +215,25 @@ export const Sidebar = () => {
                   ]
                 : []),
 
-              // ...(canViewDomain(user?.permissions)
-              //   ? [
-              //       {
-              //         title: "Domain",
-              //         url: "domain",
-              //         icon: Global,
-              //       },
-              //     ]
-              //   : []),
+              ...(canViewDomain(user?.permissions)
+                ? [
+                    {
+                      title: "Domain",
+                      url: "domain",
+                      icon: Global,
+                    },
+                  ]
+                : []),
 
-              // ...(canViewPortalCustomization(user?.permissions)
-              //   ? [
-              //       {
-              //         title: "Website Customization",
-              //         url: "website-customization",
-              //         icon: ColorFilter,
-              //       },
-              //     ]
-              //   : []),
+              ...(canViewPortalCustomization(user?.permissions)
+                ? [
+                    {
+                      title: "Website Customization",
+                      url: "website-customization",
+                      icon: ColorFilter,
+                    },
+                  ]
+                : []),
             ],
           },
         ]

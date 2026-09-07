@@ -1,5 +1,10 @@
+import { ManageAccessGate } from "@/components/StudentAndParent/ManageAccessGate";
 import { AddStudent } from "@/components/StudentAndParent/StudentMutation/AddStudent";
 
 export default function page() {
-  return <AddStudent />;
+  return (
+    <ManageAccessGate>
+      <AddStudent />
+    </ManageAccessGate>
+  );
 }

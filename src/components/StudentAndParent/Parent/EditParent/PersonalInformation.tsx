@@ -27,9 +27,7 @@ export const PersonalInformation = ({ formik, data }: { formik: FormikProps<Pare
   const { data: branches, isPending: loadingBranches } = useGetBranches();
 
   const visibleBranches =
-    branches && isBranchRestricted
-      ? { data: branches.data.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) }
-      : branches;
+    branches && isBranchRestricted ? { data: branches.data.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) } : branches;
 
   useEffect(() => {
     const fetchData = async () => {

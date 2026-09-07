@@ -128,7 +128,10 @@ export const ParentSidebar = () => {
               {isSidebarOpen && <p className="text-text-subtle text-sm leading-5 font-medium">Sign out</p>}
             </nav>
             {isSidebarOpen ? (
-              <div className="bg-bg-subtle border-border-default ml-[-5] flex h-13 w-61 max-w-full items-center gap-3 rounded-full border p-3">
+              <div
+                onClick={() => router.push("/parents/parent-setting")}
+                className="bg-bg-subtle border-border-default ml-[-5] flex h-13 w-61 max-w-full cursor-pointer items-center gap-3 rounded-full border p-3"
+              >
                 <Avatar url={profile?.image || undefined} />
                 <div className="flex flex-col gap-1">
                   <div className="text-text-default text-sm font-medium">{fullName || "—"}</div>
@@ -207,7 +210,10 @@ export const ParentSidebar = () => {
                   <Logout fill="var(--color-icon-default-subtle)" />
                   <p className="text-sm leading-5 font-medium">Sign out</p>
                 </nav>
-                <div className="bg-bg-subtle border-border-default flex h-13 w-61 max-w-full items-center gap-3 rounded-full border p-3">
+                <div
+                  onClick={() => router.push("/parents/parent-setting")}
+                  className="bg-bg-subtle border-border-default flex h-13 w-61 max-w-full cursor-pointer items-center gap-3 rounded-full border p-3"
+                >
                   <Avatar url={profile?.image || undefined} />
                   <div className="flex flex-col gap-1">
                     <div className="text-text-default text-sm font-medium">{fullName || "—"}</div>

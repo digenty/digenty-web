@@ -4,7 +4,7 @@ import { Branch, Term } from "@/api/types";
 import { useGetDashboard } from "@/hooks/queryHooks/useDashboard";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { getFirstAccessibleStaffRoute } from "@/lib/permissions/navigation";
-import { canViewPortalOverview } from "@/lib/permissions/portal-overview";
+import { canViewDashboard } from "@/lib/permissions/dashboard";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Alerts } from "../Alert";
@@ -18,7 +18,7 @@ import { QuickActions } from "./QuickActions";
 export default function Dashboard() {
   const router = useRouter();
   const { isUserLoading, ...user } = useLoggedInUser();
-  const hasAccess = canViewPortalOverview(user.permissions);
+  const hasAccess = canViewDashboard(user.permissions);
 
   // The dashboard is the "/" landing route, so it can't point a locked-out user back to "/staff/"
   // like other modules do — send them to the first module they actually have access to instead.

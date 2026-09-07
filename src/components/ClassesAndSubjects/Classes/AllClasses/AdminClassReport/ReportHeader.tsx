@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { MoreHorizontalIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { StudentRow } from "../../ClassOverview/ClassReport/students";
 import { ApproveModal } from "../AllClassesModal";
@@ -106,6 +107,9 @@ export const ReportHeader = ({
   };
 
   const activeRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+  const classId = pathname.split("/")[4];
+  const armId = pathname.split("/")[6];
 
   useEffect(() => {
     if (isMobile && activeFilter !== "spreadsheet" && activeFilter !== "promotion" && activeRef.current) {
@@ -115,7 +119,7 @@ export const ReportHeader = ({
 
   useBreadcrumb([
     { label: "All Classes", url: "/staff/classes-and-subjects" },
-    { label: classArmName, url: "" },
+    { label: classArmName, url: `/staff/classes-and-subjects/all-classes/${classId}/arm/${armId}` },
     { label: "Class Report", url: "" },
   ]);
 

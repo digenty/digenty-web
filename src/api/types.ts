@@ -336,6 +336,21 @@ export interface TeacherInputRecord {
   classTeacherComment: string | null;
 }
 
+// Proposed batch counterpart to GET /teacher-input/student/{studentId}/arm/{armId} — returns every
+// student's current development ratings for the arm in one call, instead of one request per student.
+export interface ArmTeacherInputStudentReport {
+  studentId: number;
+  studentName: string;
+  developments: StudentDevelopment[];
+  classTeacherComment: string | null;
+}
+
+export interface ArmTeacherInputResponse {
+  armId: number;
+  ratingLegend: RatingLegendEntry[];
+  studentReports: ArmTeacherInputStudentReport[];
+}
+
 export interface StudentReport {
   schoolName: string;
   sessionName: string;

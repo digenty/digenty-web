@@ -1,3 +1,5 @@
+"use client";
+
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { PageEmptyState } from "../Error/PageEmptyState";
 import { Skeleton } from "../ui/skeleton";

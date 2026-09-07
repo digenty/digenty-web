@@ -177,8 +177,11 @@ export const NotificationPanel = () => {
   const { mutate: markRead } = useMarkNotificationRead();
   const { mutate: markAllRead, isPending: isMarkingAll } = useMarkAllNotificationsRead();
 
-  const notifications = data?.data?.notifications ?? [];
-  const unreadCount = data?.data?.unreadCount ?? 0;
+  const branchNotifications = data ? Object.values(data) : [];
+  const notifications = branchNotifications
+    .flatMap(branch => branch?.notifications ?? [])
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const unreadCount = branchNotifications.reduce((sum, branch) => sum + (branch?.unreadCount ?? 0), 0);
 
   const triggerButton = (
     <Button variant="ghost" className="relative p-0!" onClick={() => isMobile && setOpen(true)}>

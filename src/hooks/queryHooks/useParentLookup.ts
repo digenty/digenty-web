@@ -1,12 +1,26 @@
-import { getParentPortalArms, getParentPortalBranches, getParentPortalClasses, getParentPortalTerms } from "@/api/parent-lookup";
+import {
+  getActiveParentPortalTerm,
+  getParentPortalArms,
+  getParentPortalBranches,
+  getParentPortalClasses,
+  getParentPortalTerms,
+} from "@/api/parent-lookup";
 import { parentLookupKeys } from "@/queries/parent-lookup";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetParentPortalTerms = (schoolId?: number, academicSessionId?: number) => {
+export const useGetActiveParentPortalTerm = () => {
   return useQuery({
-    queryKey: parentLookupKeys.terms(schoolId, academicSessionId),
-    queryFn: () => getParentPortalTerms(schoolId!, academicSessionId),
-    enabled: !!schoolId,
+    queryKey: parentLookupKeys.activeTerm(),
+    queryFn: getActiveParentPortalTerm,
+    retry: false,
+  });
+};
+
+export const useGetParentPortalTerms = (academicSessionId?: number) => {
+  return useQuery({
+    queryKey: parentLookupKeys.terms(academicSessionId),
+    queryFn: () => getParentPortalTerms(academicSessionId!),
+    enabled: !!academicSessionId,
     retry: false,
   });
 };

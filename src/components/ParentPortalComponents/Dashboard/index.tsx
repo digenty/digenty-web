@@ -18,7 +18,8 @@ export const Overview = () => {
   const user = useLoggedInUser();
   const { selectedStudentId } = useStudentFilterStore();
 
-  const { data: overview, isLoading, isError } = useGetStudentOverview(selectedStudentId);
+  const { data: overview, isLoading, isError, error } = useGetStudentOverview(selectedStudentId);
+  const errorMessage = (error as { message?: string } | null)?.message ?? "This is our problem, we are looking into it so as to serve you better";
 
   const welcomeName = overview?.parentName || user?.name || "";
 
@@ -38,7 +39,7 @@ export const Overview = () => {
         <PageEmptyState title="No Student Selected" description="Select a student above to view their overview" buttonText="Refresh" url="" />
       ) : isError ? (
         <div className="flex items-center justify-center p-10">
-          <ErrorComponent title="Could not load student overview" description="This is our problem, we are looking into it so as to serve you better" />
+          <ErrorComponent title="Could not load student overview" description={errorMessage} />
         </div>
       ) : (
         <>
@@ -56,7 +57,7 @@ export const Overview = () => {
                 <div className="text-text-default text-lg font-semibold">₦{(overview?.outstandingBalance ?? 0).toLocaleString()}</div>
               )}
               <Button
-                onClick={() => router.push("/parents/parent-fees/fees-to-pay")}
+                onClick={() => router.push("/parents/parent-fees")}
                 className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default w-full rounded-full"
               >
                 Pay now <ArrowRight />
@@ -73,7 +74,9 @@ export const Overview = () => {
               {isLoading ? (
                 <Skeleton className="bg-bg-input-soft h-7 w-48 rounded-md" />
               ) : (
-                <div className="text-text-default text-lg font-semibold">{overview?.termName ? `${overview.termName} Result Available` : "Result"}</div>
+                <div className="text-text-default text-lg font-semibold">
+                  {overview?.termName ? `${overview.termName} Result Available` : "Result"}
+                </div>
               )}
               <Button
                 onClick={() => router.push("/parents/academic-record")}

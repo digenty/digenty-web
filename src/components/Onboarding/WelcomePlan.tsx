@@ -11,10 +11,7 @@ interface WelcomePlanProps {
 export const WelcomePlan = ({ onUpgrade, onFinish }: WelcomePlanProps) => {
   return (
     <div className="flex flex-col items-center gap-6 py-6 text-center">
-      <div
-        className="animate-in fade-in-0 zoom-in-95 flex flex-col items-center gap-3 duration-700"
-        style={{ animationFillMode: "both" }}
-      >
+      <div className="animate-in fade-in-0 zoom-in-95 flex flex-col items-center gap-3 duration-700" style={{ animationFillMode: "both" }}>
         <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex size-12 items-center justify-center rounded-full border">
           <RocketFill fill="var(--color-icon-default)" className="size-6" />
         </div>
@@ -34,10 +31,7 @@ export const WelcomePlan = ({ onUpgrade, onFinish }: WelcomePlanProps) => {
         </div>
         <div className="text-text-muted text-xs">Upgrade to unlock more students, branches, and features for your school.</div>
 
-        <Button
-          onClick={onUpgrade}
-          className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! mt-2 border-none"
-        >
+        <Button onClick={onUpgrade} className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! mt-2 border-none">
           Upgrade
         </Button>
       </div>

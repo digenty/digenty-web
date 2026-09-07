@@ -103,7 +103,9 @@ export const AdmissionCyclesManagement = () => {
                             cycle.status === "ACTIVE" ? "bg-bg-badge-green text-bg-basic-green-strong" : "bg-bg-state-soft text-text-muted",
                           )}
                         >
-                          <span className={cn("size-1.5 shrink-0 rounded-full", cycle.status === "ACTIVE" ? "bg-green-500" : "bg-icon-default-muted")} />
+                          <span
+                            className={cn("size-1.5 shrink-0 rounded-full", cycle.status === "ACTIVE" ? "bg-green-500" : "bg-icon-default-muted")}
+                          />
                           {cycle.status === "ACTIVE" ? "Active" : "Closed"}
                         </span>
                       </TableCell>

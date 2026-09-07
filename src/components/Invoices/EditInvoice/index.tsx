@@ -76,7 +76,8 @@ export const EditInvoice = () => {
             router.push(`/staff/invoices/${invoiceId}`);
           },
           onError: (error: unknown) => {
-            const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
+            const description =
+              error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
             toast({ title: "Failed to update invoice", description, type: "error" });
           },
         },
@@ -100,8 +101,7 @@ export const EditInvoice = () => {
       note: inv.note ?? "",
       showAccountDetails: inv.showAccountDetails ?? false,
       // A DRAFT invoice has no settable payment status via this form — default the tab selection to Unpaid.
-      paymentStatus:
-        inv.status === "PAID" || inv.status === "PARTIALLY_PAID" || inv.status === "UNPAID" ? inv.status : ("UNPAID" as const),
+      paymentStatus: inv.status === "PAID" || inv.status === "PARTIALLY_PAID" || inv.status === "UNPAID" ? inv.status : ("UNPAID" as const),
       paymentMethod: "BANK_TRANSFER_TERMINAL",
       amount: "",
       transactionDate: null,

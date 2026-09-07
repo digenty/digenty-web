@@ -113,12 +113,7 @@ export const OnboardingStepsModal = ({ open, setOpen, apiSteps }: OnboardingStep
 
   if (isMobile) {
     return (
-      <MobileDrawer
-        open={open}
-        setIsOpen={setOpen}
-        showCloseButton={areRequiredStepsCompleted}
-        className="flex max-h-170 flex-col overflow-y-hidden"
-      >
+      <MobileDrawer open={open} setIsOpen={setOpen} showCloseButton={areRequiredStepsCompleted} className="flex max-h-170 flex-col overflow-y-hidden">
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{content}</div>
       </MobileDrawer>
     );

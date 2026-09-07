@@ -13,8 +13,10 @@ const installmentsSchema = yup.array().when("paymentMode", {
       )
       .min(2, "An instalment schedule needs at least 2 instalments")
       .max(12, "An instalment schedule can have at most 12 instalments")
-      .test("sums-to-100", "Instalment percentages must add up to 100", rows =>
-        Math.round((rows ?? []).reduce((sum, r) => sum + Number(r?.percentage || 0), 0) * 100) === 10000,
+      .test(
+        "sums-to-100",
+        "Instalment percentages must add up to 100",
+        rows => Math.round((rows ?? []).reduce((sum, r) => sum + Number(r?.percentage || 0), 0) * 100) === 10000,
       )
       .test("ascending-dates", "Instalment due dates must be in ascending order and cannot repeat", rows => {
         if (!rows || rows.length < 2) return true;

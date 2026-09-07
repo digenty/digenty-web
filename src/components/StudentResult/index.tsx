@@ -1,6 +1,5 @@
 import { Edit } from "@digenty/icons";
-import { StudentReport, SubjectReport } from "@/api/types";
-import { cn } from "@/lib/utils";
+import { SkillRating, StudentReport, SubjectReport } from "@/api/types";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -63,6 +62,26 @@ export const columns = (headers: string[]): ColumnDef<Result>[] => [
   },
 ];
 
+export type DevelopmentResult = Record<string, string>;
+
+// One column per skill and a single row (this student's ratings), laid out horizontally like the academic
+// report's subject/CA table instead of a skill-per-row list.
+export const developmentColumns = (skills: SkillRating[]): ColumnDef<DevelopmentResult>[] =>
+  skills.map((skill, index) => {
+    const columnId = skill.skillId ? String(skill.skillId) : `skill-${index}`;
+    return {
+      id: columnId,
+      accessorFn: (row: DevelopmentResult) => row[columnId],
+      header: () => (
+        <div className="text-text-muted flex justify-center text-center text-xs font-medium md:text-sm">{skill.skillName ?? "Skill"}</div>
+      ),
+      cell: ({ row }: { row: Row<DevelopmentResult> }) => (
+        <span className="text-text-default flex justify-center text-xs font-normal capitalize md:text-sm">{row.original[columnId]}</span>
+      ),
+      size: 160,
+    };
+  });
+
 export const StudentResult = ({
   studentReport,
   termSelected,
@@ -109,6 +128,14 @@ export const StudentResult = ({
       ? studentReport.subjectReports[0].assessments.map(assessment => assessment.assessmentName)
       : ["Total", "Grade", "Remark"];
 
+  const developmentSkills = studentReport.developments.flatMap(category => category.skills);
+  const developmentRow = developmentSkills.reduce<DevelopmentResult>((acc, skill, index) => {
+    const columnId = skill.skillId ? String(skill.skillId) : `skill-${index}`;
+    const label = studentReport.ratingLegend.find(entry => entry.value === skill.rating)?.label;
+    acc[columnId] = label ?? "--";
+    return acc;
+  }, {});
+
   return (
     <div
       id="student-report"
@@ -137,26 +164,26 @@ export const StudentResult = ({
         )}
       </div>
 
-      <div className="flex gap-6 px-4 py-5">
-        <div className="w-1/2 space-y-2">
+      <div className="flex flex-col gap-5 px-4 py-5">
+        <div className="w-full space-y-2">
           <h3 className="text-bg-basic-red-accent text-sm font-semibold">ATTENDANCE</h3>
           <div className="text-text-subtle border-border-default border text-xs font-medium md:text-sm">
             <div className="border-border-default flex justify-between border-b px-2">
-              <div className="line-clamp-1 w-3/4 flex-1 truncate py-2">
+              <div className="line-clamp-1 flex-1 truncate py-2">
                 <span className="hidden lg:inline">No. of Times </span>
                 <span>School Opened:</span>
               </div>
               <div className="border-border-default w-1/4 border-l py-2 pl-2 text-center">{studentReport.totalSchoolDays}</div>
             </div>
             <div className="border-border-default flex justify-between border-b px-2">
-              <div className="line-clamp-1 w-3/4 flex-1 truncate py-2">
+              <div className="line-clamp-1 flex-1 truncate py-2">
                 <span className="hidden lg:inline">No. of </span>
                 <span>Times Present:</span>
               </div>
               <div className="border-border-default w-1/4 border-l py-2 pl-2 text-center">{studentReport.totalPresent}</div>
             </div>
             <div className="flex justify-between px-2">
-              <div className="line-clamp-1 w-3/4 flex-1 truncate py-2">
+              <div className="line-clamp-1 flex-1 truncate py-2">
                 <span className="hidden lg:inline">No. of </span>
                 <span>Times Absent:</span>
               </div>
@@ -165,30 +192,27 @@ export const StudentResult = ({
           </div>
         </div>
 
-        <div className="w-1/2 space-y-2">
+        <div className="w-full space-y-2">
           <h3 className="text-bg-basic-red-accent text-sm font-semibold md:text-sm">DEVELOPMENT</h3>
-          <div className="text-text-subtle border-border-default border text-xs font-medium md:text-sm">
-            {studentReport.developments.length === 0 ? (
-              <div className="flex justify-between px-2">
-                <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">--</div>
-              </div>
-            ) : (
-              studentReport.developments.map((category, categoryIndex) =>
-                category.skills.map((skill, skillIndex) => {
-                  const isLast = categoryIndex === studentReport.developments.length - 1 && skillIndex === category.skills.length - 1;
-                  const label = studentReport.ratingLegend.find(entry => entry.value === skill.rating)?.label;
-                  return (
-                    <div key={skill.skillId} className={cn("flex justify-between px-2", !isLast && "border-border-default border-b")}>
-                      <div className="line-clamp-1 w-3/5 flex-1 truncate py-2">{skill.skillName ?? category.categoryName}</div>
-                      <div className="border-border-default line-clamp-1 w-2/5 truncate border-l py-2 pl-2 text-center capitalize">
-                        {label ?? "--"}
-                      </div>
-                    </div>
-                  );
-                }),
-              )
-            )}
-          </div>
+          {developmentSkills.length === 0 ? (
+            <div className="text-text-subtle border-border-default border px-2 py-2 text-xs font-medium md:text-sm">--</div>
+          ) : (
+            <DataTable
+              columns={developmentColumns(developmentSkills)}
+              data={[developmentRow]}
+              totalCount={1}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={1}
+              fullBorder
+              showPagination={false}
+              classNames={{
+                tableWrapper: "rounded-none",
+                tableHeadCell: "px-2",
+                tableBodyCell: "px-0",
+              }}
+            />
+          )}
         </div>
       </div>
 

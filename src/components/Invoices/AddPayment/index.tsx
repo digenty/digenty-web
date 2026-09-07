@@ -268,7 +268,9 @@ export const AddPAyment = () => {
           {invoiceItems.length > 0 && (
             <div className="space-y-2">
               <Label className="text-text-default tex-sm font-medium">Allocation Breakdown</Label>
-              <p className="text-text-muted text-xs">Which fee lines is this payment for? Defaults to each line&apos;s full amount — adjust as needed.</p>
+              <p className="text-text-muted text-xs">
+                Which fee lines is this payment for? Defaults to each line&apos;s full amount — adjust as needed.
+              </p>
               <div className="border-border-default flex flex-col gap-2 rounded-md border p-3">
                 {invoiceItems.map(item => (
                   <div key={item.id} className="flex items-center justify-between gap-3">
@@ -290,7 +292,12 @@ export const AddPAyment = () => {
                   const amount = Number(formik.values.amount) || 0;
                   const overAllocated = allocatedTotal > amount + 0.001;
                   return (
-                    <div className={cn("border-border-default flex items-center justify-between border-t pt-2 text-sm", overAllocated && "text-text-destructive")}>
+                    <div
+                      className={cn(
+                        "border-border-default flex items-center justify-between border-t pt-2 text-sm",
+                        overAllocated && "text-text-destructive",
+                      )}
+                    >
                       <span>Allocated</span>
                       <span className="font-medium">
                         ₦{allocatedTotal.toLocaleString()} {overAllocated && "— exceeds the amount above"}
