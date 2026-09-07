@@ -61,7 +61,7 @@ const VerifyOtpStep = ({ onVerified }: { onVerified: () => void }) => {
 
   const { mutate: verifyOtp, isPending } = useVerifyChangePasswordOtp();
   const { mutate: sendOtp, isPending: isResending } = useSendChangePasswordOtp();
-  const { formatted, restart, isExpired } = useOtpCountdown(3 * 60);
+  const { formatted, restart, isExpired } = useOtpCountdown(9 * 60);
 
   useEffect(() => {
     restart();
