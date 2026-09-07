@@ -49,7 +49,6 @@ import { canViewStock } from "@/lib/permissions/stock";
 import { canViewSettings } from "@/lib/permissions/settings";
 import { canViewCommunication } from "@/lib/permissions/communication";
 import { canViewPortalCustomization } from "@/lib/permissions/portal-customization";
-import { canViewPortalOverview } from "@/lib/permissions/portal-overview";
 import { canViewDomain } from "@/lib/permissions/domain";
 import { useQueryClient } from "@tanstack/react-query";
 import { SetupGuideProgress } from "./SetupGuideProgress";

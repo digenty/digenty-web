@@ -22,7 +22,7 @@ export const VerifyCode = () => {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
   const { mutate: verifyOtp, isPending } = useVerifyOtp();
   const { mutate: sendOtp, isPending: isResending } = useForgetPassword();
-  const { formatted, restart, isExpired } = useOtpCountdown(3 * 60);
+  const { formatted, restart, isExpired } = useOtpCountdown(9 * 60);
   useEffect(() => {
     if (!email) router.push("/auth/staff");
 
