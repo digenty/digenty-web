@@ -2,10 +2,12 @@
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useSetCycleGlobalFees } from "@/hooks/queryHooks/useAdmission";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { AddFill, Bill, BookOpen, DeleteBin, Information } from "@digenty/icons";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -115,13 +117,15 @@ export const SetGlobalFeesModal = ({ open, setOpen, cycleId, branchId }: Props) 
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-3">
               <p className="text-text-default text-sm font-semibold">Entrance Subjects</p>
-              <Button
-                onClick={() => setIsAddSubjectOpen(true)}
-                className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 shrink-0 items-center gap-1 border text-xs font-medium transition-colors"
-              >
-                <AddFill fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
-                Add Subjects
-              </Button>
+              <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+                <Button
+                  onClick={() => setIsAddSubjectOpen(true)}
+                  className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 shrink-0 items-center gap-1 border text-xs font-medium transition-colors"
+                >
+                  <AddFill fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
+                  Add Subjects
+                </Button>
+              </PermissionCheck>
             </div>
 
             {subjects.length === 0 ? (
@@ -138,14 +142,16 @@ export const SetGlobalFeesModal = ({ open, setOpen, cycleId, branchId }: Props) 
                       <span className="text-text-default text-sm font-medium">{subject.name}</span>
                       <span className="text-text-muted text-xs">· Max {subject.maxScore}</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeSubject(subject.id)}
-                      className="text-text-muted hover:text-text-destructive shrink-0 cursor-pointer transition-colors"
-                      aria-label={`Remove ${subject.name}`}
-                    >
-                      <DeleteBin fill="currentColor" className="size-4" />
-                    </button>
+                    <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+                      <button
+                        type="button"
+                        onClick={() => removeSubject(subject.id)}
+                        className="text-text-muted hover:text-text-destructive shrink-0 cursor-pointer transition-colors"
+                        aria-label={`Remove ${subject.name}`}
+                      >
+                        <DeleteBin fill="currentColor" className="size-4" />
+                      </button>
+                    </PermissionCheck>
                   </div>
                 ))}
               </div>
@@ -165,13 +171,15 @@ export const SetGlobalFeesModal = ({ open, setOpen, cycleId, branchId }: Props) 
   );
 
   const submitButton = (
-    <Button
-      onClick={handleApply}
-      disabled={isPending}
-      className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-    >
-      {isPending ? "Applying..." : "Apply to All Levels"}
-    </Button>
+    <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+      <Button
+        onClick={handleApply}
+        disabled={isPending}
+        className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
+      >
+        {isPending ? "Applying..." : "Apply to All Levels"}
+      </Button>
+    </PermissionCheck>
   );
 
   const cancelButton = (

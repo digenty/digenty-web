@@ -4,6 +4,8 @@ import { BillingHistoryDto, SubscriptionStatus } from "@/api/subscription";
 import { DataTable } from "@/components/DataTable";
 import { AddFill, AlertFill, Group, ListCheck, VipDiamond } from "@digenty/icons";
 import { Modal } from "@/components/Modal";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { paymentStatus } from "@/components/Status";
 import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
@@ -284,47 +286,55 @@ export const SubscriptionDashboard = () => {
               {isActive && (
                 <>
                   <div className="flex items-center gap-3">
-                    <Button
-                      asChild
-                      variant="ghost"
-                      className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-7 flex-1 rounded-md text-xs font-medium"
-                    >
-                      <Link href="/staff/settings/subscription/add-students">
-                        <AddFill fill="var(--color-icon-default-subtle)" className="size-3" />
-                        Add Students
-                      </Link>
-                    </Button>
-                    <Button
-                      asChild
-                      variant="ghost"
-                      className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 flex-1 rounded-md text-xs font-medium"
-                    >
-                      <Link href="/staff/settings/subscription/upgrade">
-                        <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
-                        Upgrade Plan
-                      </Link>
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-subtle h-7 flex-1 rounded-md text-xs font-medium"
+                      >
+                        <Link href="/staff/settings/subscription/add-students">
+                          <AddFill fill="var(--color-icon-default-subtle)" className="size-3" />
+                          Add Students
+                        </Link>
+                      </Button>
+                    </PermissionCheck>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 flex-1 rounded-md text-xs font-medium"
+                      >
+                        <Link href="/staff/settings/subscription/upgrade">
+                          <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
+                          Upgrade Plan
+                        </Link>
+                      </Button>
+                    </PermissionCheck>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setCancelOpen(true)}
-                    className="text-text-destructive hover:text-text-destructive/80 w-fit cursor-pointer text-xs font-medium transition-colors"
-                  >
-                    Cancel Subscription
-                  </button>
+                  <PermissionCheck permissionUtility={canManageSettings}>
+                    <button
+                      type="button"
+                      onClick={() => setCancelOpen(true)}
+                      className="text-text-destructive hover:text-text-destructive/80 w-fit cursor-pointer text-xs font-medium transition-colors"
+                    >
+                      Cancel Subscription
+                    </button>
+                  </PermissionCheck>
                 </>
               )}
 
               {isInactive && (
-                <Button
-                  variant="ghost"
-                  onClick={handleRenew}
-                  disabled={isRenewing}
-                  className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 w-full rounded-md text-xs font-medium"
-                >
-                  <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
-                  {isRenewing ? "Redirecting…" : "Renew Plan"}
-                </Button>
+                <PermissionCheck permissionUtility={canManageSettings}>
+                  <Button
+                    variant="ghost"
+                    onClick={handleRenew}
+                    disabled={isRenewing}
+                    className="bg-bg-state-soft hover:bg-bg-state-soft-hover! text-text-informative h-7 w-full rounded-md text-xs font-medium"
+                  >
+                    <VipDiamond fill="var(--color-icon-informative)" className="h-3.5 w-3.5" />
+                    {isRenewing ? "Redirecting…" : "Renew Plan"}
+                  </Button>
+                </PermissionCheck>
               )}
             </>
           )

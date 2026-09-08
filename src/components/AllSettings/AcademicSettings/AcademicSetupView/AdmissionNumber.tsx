@@ -3,6 +3,7 @@
 import { Edit } from "@digenty/icons";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetAdmissionNumberDetails, useUpdateAdmissionNumber } from "@/hooks/queryHooks/useAdmisssion";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
@@ -134,13 +136,15 @@ export const AdmissionNumberSetupDone = () => {
                 <div className="text-text-default text-xl font-semibold">Admission Number</div>
 
                 {!isEditing ? (
-                  <Button
-                    type="button"
-                    onClick={handleEdit}
-                    className="bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md border p-2"
-                  >
-                    <Edit fill="var(--color-icon-default-muted)" /> Edit
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageSettings}>
+                    <Button
+                      type="button"
+                      onClick={handleEdit}
+                      className="bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md border p-2"
+                    >
+                      <Edit fill="var(--color-icon-default-muted)" /> Edit
+                    </Button>
+                  </PermissionCheck>
                 ) : null}
               </div>
 
@@ -274,15 +278,17 @@ export const AdmissionNumberSetupDone = () => {
           <Button type="button" onClick={handleCancel} disabled={isSaving} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
           </Button>
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={isSaving}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7! rounded-md"
-          >
-            {isSaving && <Spinner className="text-text-white-default" />}
-            Save changes
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button
+              type="button"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-7! rounded-md"
+            >
+              {isSaving && <Spinner className="text-text-white-default" />}
+              Save changes
+            </Button>
+          </PermissionCheck>
         </div>
       )}
     </div>

@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetStockCategories } from "@/hooks/queryHooks/useStock";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { canDeleteStock, canManageStock } from "@/lib/permissions/stock";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 
 import { AddNewCategoryModal, CategoryItem, DeleteCategoryModal, EditCategoryModal } from "./StockCategoriesModals";
 
@@ -54,12 +56,14 @@ export const StockCategories = () => {
 
           <div className="flex items-center justify-between">
             <div className="text-text-default text-xl font-semibold">Categories</div>
-            <Button
-              onClick={() => setOpenAddCategory(true)}
-              className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary-hover! h-8! text-sm"
-            >
-              <AddFill fill="var(--color-icon-white-default)" /> Add Category
-            </Button>
+            <PermissionCheck permissionUtility={canManageStock}>
+              <Button
+                onClick={() => setOpenAddCategory(true)}
+                className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary-hover! h-8! text-sm"
+              >
+                <AddFill fill="var(--color-icon-white-default)" /> Add Category
+              </Button>
+            </PermissionCheck>
           </div>
           <SearchInput
             value={search}
@@ -85,16 +89,20 @@ export const StockCategories = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-4">
-                    <Button onClick={() => setDeletingCategory({ id: cat.id, name: cat.name })}>
-                      <DeleteBin fill="var(--color-icon-default)" />
-                    </Button>
+                    <PermissionCheck permissionUtility={canDeleteStock}>
+                      <Button onClick={() => setDeletingCategory({ id: cat.id, name: cat.name })}>
+                        <DeleteBin fill="var(--color-icon-default)" />
+                      </Button>
+                    </PermissionCheck>
 
-                    <Button
-                      onClick={() => setEditingCategory({ id: cat.id, name: cat.name })}
-                      className="hover:bg-bg-state-secondary-hover! rounded-md p-1"
-                    >
-                      <Edit fill="var(--color-icon-default)" />
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageStock}>
+                      <Button
+                        onClick={() => setEditingCategory({ id: cat.id, name: cat.name })}
+                        className="hover:bg-bg-state-secondary-hover! rounded-md p-1"
+                      >
+                        <Edit fill="var(--color-icon-default)" />
+                      </Button>
+                    </PermissionCheck>
                   </div>
                 </div>
               ))}

@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
 import StatusBadge from "@/components/StatusBadge";
 import { NotifyBranchHead } from "./NotifyBranchHead";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 const RenderOptions = ({ row }: { row: Row<AllBranchesTableProps> }) => {
   const [open, setOpen] = useState(false);
@@ -31,24 +33,28 @@ const RenderOptions = ({ row }: { row: Row<AllBranchesTableProps> }) => {
             <EyeIcon className="text-icon-default-subtle size-4" />
             <span>View branch</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={e => {
-              e.preventDefault();
-              setOpen(false);
-              setNotifyOpen(true);
-            }}
-            className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
-          >
-            <Notification2 fill="var(--color-icon-default-subtle)" className="size-4" />
-            <span>Notify branch head</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
-            onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${row.original.branchId}/manage-edits`)}
-          >
-            <Key fill="var(--color-icon-default-subtle)" className="size-4" />
-            <span>Manage edit requests</span>
-          </DropdownMenuItem>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <DropdownMenuItem
+              onSelect={e => {
+                e.preventDefault();
+                setOpen(false);
+                setNotifyOpen(true);
+              }}
+              className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
+            >
+              <Notification2 fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Notify branch head</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <DropdownMenuItem
+              className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
+              onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${row.original.branchId}/manage-edits`)}
+            >
+              <Key fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Manage edit requests</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
         </DropdownMenuContent>
       </DropdownMenu>
 

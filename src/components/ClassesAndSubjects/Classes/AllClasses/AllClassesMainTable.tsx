@@ -21,6 +21,8 @@ import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { ClassLevel } from "@/api/types";
 import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 interface AllClassesMainTableProps_Component {
   data: AllClassesMainTableProps[];
@@ -207,35 +209,41 @@ export const AllClassesMainTable = ({
                   <span className="text-text-default text-sm font-medium">View Class</span>
                 </div>
               </Button>
-              <Button
-                onClick={() => setOpenApproveModalMobile(true)}
-                // disabled={row.original.status === "NOT_SUBMITTED" || row.original.status === "APPROVED" }
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  onClick={() => setOpenApproveModalMobile(true)}
+                  // disabled={row.original.status === "NOT_SUBMITTED" || row.original.status === "APPROVED" }
 
-                className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
-              >
-                <div className="flex items-center gap-1">
-                  <CheckboxCircle fill="var(--color-icon-default-muted)" className="size-4" />
-                  <span className="text-text-default text-sm font-medium">Approve Submission</span>
-                </div>
-              </Button>
-              <Button
-                onClick={() => setOpenNotifyModalMobile(true)}
-                className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
-              >
-                <div className="flex items-center gap-1">
-                  <Notification fill="var(--color-icon-default-muted)" className="size-4" />
-                  <span className="text-text-default text-sm font-medium">Notify Class Teacher</span>
-                </div>
-              </Button>
-              <Button
-                onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
-                className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
-              >
-                <div className="flex items-center gap-1">
-                  <Key fill="var(--color-icon-default-muted)" className="size-4" />
-                  <span className="text-text-default text-sm font-medium">Manage Edit Requests</span>
-                </div>
-              </Button>
+                  className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
+                >
+                  <div className="flex items-center gap-1">
+                    <CheckboxCircle fill="var(--color-icon-default-muted)" className="size-4" />
+                    <span className="text-text-default text-sm font-medium">Approve Submission</span>
+                  </div>
+                </Button>
+              </PermissionCheck>
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  onClick={() => setOpenNotifyModalMobile(true)}
+                  className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
+                >
+                  <div className="flex items-center gap-1">
+                    <Notification fill="var(--color-icon-default-muted)" className="size-4" />
+                    <span className="text-text-default text-sm font-medium">Notify Class Teacher</span>
+                  </div>
+                </Button>
+              </PermissionCheck>
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
+                  className="border-border-darker bg-bg-state-secondary flex h-8! justify-center rounded-md border px-3.5 py-2"
+                >
+                  <div className="flex items-center gap-1">
+                    <Key fill="var(--color-icon-default-muted)" className="size-4" />
+                    <span className="text-text-default text-sm font-medium">Manage Edit Requests</span>
+                  </div>
+                </Button>
+              </PermissionCheck>
             </div>
           </MobileDrawer>
         )}

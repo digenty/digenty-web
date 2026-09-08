@@ -7,6 +7,8 @@ import { Subject } from ".";
 import { Avatar } from "@/components/Avatar";
 import { useClassesStore } from "@/store/classes";
 import { usePathname, useRouter } from "next/navigation";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export const ClassOverviewCard = ({ subject, classId }: { subject: Subject; classId: number }) => {
   const { setOpenNotifyTeacher } = useClassesStore();
@@ -49,13 +51,15 @@ export const ClassOverviewCard = ({ subject, classId }: { subject: Subject; clas
       </div>
 
       <div className="flex justify-between gap-4 px-3 py-2">
-        <Button
-          className="border-border-darker bg-bg-state-secondary text-text-default h-8! flex-1 rounded-md border px-1.5! font-medium"
-          onClick={() => setOpenNotifyTeacher(true)}
-        >
-          <Notification2 fill="var(--color-icon-default-muted)" className="size-4" />
-          <span className="text-text-default">Notify Teacher</span>
-        </Button>
+        <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+          <Button
+            className="border-border-darker bg-bg-state-secondary text-text-default h-8! flex-1 rounded-md border px-1.5! font-medium"
+            onClick={() => setOpenNotifyTeacher(true)}
+          >
+            <Notification2 fill="var(--color-icon-default-muted)" className="size-4" />
+            <span className="text-text-default">Notify Teacher</span>
+          </Button>
+        </PermissionCheck>
 
         <Button
           className="border-border-darker bg-bg-state-secondary text-text-default h-8! flex-1 rounded-md border px-1.5! font-medium"

@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 
 import { DataTable } from "@/components/DataTable";
 import { Button } from "@/components/ui/button";
+import { canManageStock } from "@/lib/permissions/stock";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 
 import { StocksQuantityManagementColumns } from "./Columns";
 import { StockDetailsAdjustQtyModal } from "./StockDetailsAdjustQtyModal";
@@ -97,14 +99,16 @@ export const StockDetailsManagement = ({ stock }: Props) => {
               <div className="text-text-muted text-sm">Current Quantity</div>
               <div className="text-text-default text-2xl font-semibold">{currentQty}</div>
             </div>
-            <Button
-              onClick={() => setAdjustQty(true)}
-              disabled={!stock?.id}
-              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8!"
-            >
-              <ArrowUpDown fill="var(--color-icon-white-default)" />
-              Adjust Quantity
-            </Button>
+            <PermissionCheck permissionUtility={canManageStock}>
+              <Button
+                onClick={() => setAdjustQty(true)}
+                disabled={!stock?.id}
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8!"
+              >
+                <ArrowUpDown fill="var(--color-icon-white-default)" />
+                Adjust Quantity
+              </Button>
+            </PermissionCheck>
           </div>
 
           <div className="hidden md:block">

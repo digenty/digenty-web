@@ -4,6 +4,8 @@ import { ShareBox } from "@digenty/icons";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export const ClassSubjectHeader = ({ onExport }: { onExport?: () => void }) => {
   const params = useSearchParams();
@@ -24,13 +26,15 @@ export const ClassSubjectHeader = ({ onExport }: { onExport?: () => void }) => {
         </div>
 
         <div className="w-full px-4 pt-2 md:w-auto md:px-8 md:pt-0">
-          <Button
-            onClick={onExport}
-            className="border-border-darker bg-bg-state-secondary text-text-default h-8! w-full rounded-md border px-2! text-sm font-medium"
-          >
-            <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
-            Export
-          </Button>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <Button
+              onClick={onExport}
+              className="border-border-darker bg-bg-state-secondary text-text-default h-8! w-full rounded-md border px-2! text-sm font-medium"
+            >
+              <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
+              Export
+            </Button>
+          </PermissionCheck>
         </div>
       </div>
     </>

@@ -14,6 +14,8 @@ import { InvoiceOverviewTableColumns } from "./Column";
 import { formatInvoiceStatus, formatNaira, InvoicesOverviewTableProps } from "./types";
 import { toast } from "@/components/Toast";
 import { useDeleteInvoice, useSendInvoiceReminder } from "@/hooks/queryHooks/useInvoice";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteInvoices, canManageInvoices } from "@/lib/permissions/invoices";
 
 type InvoiceOverviewTableTableProps = {
   invoices: InvoicesOverviewTableProps[];
@@ -111,22 +113,26 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
                         <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Invoice
                       </div>
 
-                      <div
-                        role="button"
-                        onClick={() => router.push(`/staff/invoices/edit-invoice?id=${invoice.invoiceId}`)}
-                        className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                      >
-                        <BallPen fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Invoice
-                      </div>
+                      <PermissionCheck permissionUtility={canManageInvoices}>
+                        <div
+                          role="button"
+                          onClick={() => router.push(`/staff/invoices/edit-invoice?id=${invoice.invoiceId}`)}
+                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                        >
+                          <BallPen fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Invoice
+                        </div>
+                      </PermissionCheck>
 
-                      <div
-                        role="button"
-                        onClick={() => router.push(`/staff/invoices/add-payment?invoiceId=${invoice.invoiceId}`)}
-                        className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                      >
-                        <BallPen fill="var(--color-icon-default-subtle)" className="size-4" />
-                        <span>Record payment</span>
-                      </div>
+                      <PermissionCheck permissionUtility={canManageInvoices}>
+                        <div
+                          role="button"
+                          onClick={() => router.push(`/staff/invoices/add-payment?invoiceId=${invoice.invoiceId}`)}
+                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                        >
+                          <BallPen fill="var(--color-icon-default-subtle)" className="size-4" />
+                          <span>Record payment</span>
+                        </div>
+                      </PermissionCheck>
 
                       <div
                         role="button"
@@ -137,14 +143,16 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
                         <span>{sendingReminder ? "Sending..." : "Send reminder"}</span>
                       </div>
 
-                      <div
-                        role="button"
-                        onClick={() => handleDelete(invoice.invoiceId)}
-                        className="hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600"
-                      >
-                        <Trash2 className="size-4" />
-                        <span>{deletingInvoice ? "Deleting..." : "Delete invoice"}</span>
-                      </div>
+                      <PermissionCheck permissionUtility={canDeleteInvoices}>
+                        <div
+                          role="button"
+                          onClick={() => handleDelete(invoice.invoiceId)}
+                          className="hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600"
+                        >
+                          <Trash2 className="size-4" />
+                          <span>{deletingInvoice ? "Deleting..." : "Delete invoice"}</span>
+                        </div>
+                      </PermissionCheck>
                     </div>
                   </div>
                 </MobileDrawer>

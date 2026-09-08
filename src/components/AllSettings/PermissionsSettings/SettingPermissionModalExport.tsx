@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 
 type PermissionModalProps = {
   open: boolean;
@@ -83,9 +85,11 @@ export const SettingPermissionModalExport = ({
                   <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-2 py-1 text-sm font-medium">Cancel</Button>
                 </DrawerClose>
 
-                <Button className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm">
-                  <ShareBox fill="var(--color-icon-white-default)" /> Export Staff
-                </Button>
+                <PermissionCheck permissionUtility={canManageSettings}>
+                  <Button className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm">
+                    <ShareBox fill="var(--color-icon-white-default)" /> Export Staff
+                  </Button>
+                </PermissionCheck>
               </div>
             </DrawerFooter>
           </MobileDrawer>
@@ -102,9 +106,11 @@ export const SettingPermissionModalExport = ({
               </span>
             }
             ActionButton={
-              <Button className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm">
-                <ShareBox fill="var(--color-icon-white-default)" /> Export Staff
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm">
+                  <ShareBox fill="var(--color-icon-white-default)" /> Export Staff
+                </Button>
+              </PermissionCheck>
             }
           >
             <div className="flex w-full flex-col gap-4 px-6 py-4">

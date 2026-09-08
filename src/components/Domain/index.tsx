@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, Globe } from "lucide-react";
 import { toast } from "sonner";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,6 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useDomainPurchase, useDomainPurchases, usePurchaseAndConnectDomain } from "@/hooks/queryHooks/useDomain";
 import { DomainPurchaseDto, DomainPurchaseType } from "@/api/domain";
+import { canManageDomain } from "@/lib/permissions/domain";
 import { DOMAIN_FAILURE_COPY, DOMAIN_STATUS_CONFIG, isDomainPurchaseFailed, isDomainPurchaseInFlight, isDomainPurchaseLive } from "@/queries/domain";
 import { getApiErrorCode, getApiErrorDetails, getApiErrorMessage } from "@/lib/apiError";
 import { cn } from "@/lib/utils";
@@ -86,9 +88,11 @@ const DomainProgressCard = ({ purchase, onStartOver }: { purchase: DomainPurchas
         </div>
 
         {(live || failure?.allowRetry) && (
-          <Button variant="outline" className="border-border-default! h-8 shrink-0 px-4 text-xs" onClick={onStartOver}>
-            {live ? "Change domain" : "Try a different domain"}
-          </Button>
+          <PermissionCheck permissionUtility={canManageDomain}>
+            <Button variant="outline" className="border-border-default! h-8 shrink-0 px-4 text-xs" onClick={onStartOver}>
+              {live ? "Change domain" : "Try a different domain"}
+            </Button>
+          </PermissionCheck>
         )}
       </div>
 
@@ -181,14 +185,16 @@ const DomainConnectForm = ({ onPurchased }: { onPurchased: (purchase: DomainPurc
           {mode === "PURCHASE" && (
             <p className="text-text-muted text-xs">Root domains only (yourschool.com). Use &ldquo;connect existing&rdquo; for a subdomain.</p>
           )}
-          <Button
-            disabled={!isValid || isPending}
-            onClick={handleSubmit}
-            className="bg-bg-state-primary! text-text-white-default! hover:bg-bg-state-primary-hover! mt-1 h-9"
-          >
-            {isPending && <Spinner className="size-3" />}
-            {mode === "PURCHASE" ? "Buy & connect" : "Connect domain"}
-          </Button>
+          <PermissionCheck permissionUtility={canManageDomain}>
+            <Button
+              disabled={!isValid || isPending}
+              onClick={handleSubmit}
+              className="bg-bg-state-primary! text-text-white-default! hover:bg-bg-state-primary-hover! mt-1 h-9"
+            >
+              {isPending && <Spinner className="size-3" />}
+              {mode === "PURCHASE" ? "Buy & connect" : "Connect domain"}
+            </Button>
+          </PermissionCheck>
         </div>
       </div>
     </div>

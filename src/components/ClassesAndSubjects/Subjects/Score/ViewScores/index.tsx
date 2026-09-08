@@ -26,6 +26,8 @@ import { DevelopmentPreview } from "../DevelopmentPreview";
 import { useArmDevelopmentData } from "../DevelopmentPreview/useArmDevelopmentData";
 import { viewScoreColumns } from "./Columns";
 import { MobileCard } from "./MobileCard";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export type StudentResult = {
   studentId: number;
@@ -195,24 +197,28 @@ export const ViewScore = () => {
 
             <div className="border-border-default overflow-x-auto border-t px-4 py-2 md:border-none md:p-0">
               <div className="flex items-center gap-2 md:gap-1">
-                <Button
-                  disabled={isError || isLoadingScores || studentsScores.length === 0}
-                  onClick={handleExport}
-                  size="sm"
-                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-22 items-center gap-1 border text-sm"
-                >
-                  <ShareBox fill="var(--color-icon-default-muted)" /> Export
-                </Button>
-
-                {user && !user.isMain && !user.isAdmin && (
+                <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
                   <Button
                     disabled={isError || isLoadingScores || studentsScores.length === 0}
-                    onClick={() => setOpenRequest(true)}
+                    onClick={handleExport}
                     size="sm"
-                    className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm"
+                    className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-22 items-center gap-1 border text-sm"
                   >
-                    <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
+                    <ShareBox fill="var(--color-icon-default-muted)" /> Export
                   </Button>
+                </PermissionCheck>
+
+                {user && !user.isMain && !user.isAdmin && (
+                  <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                    <Button
+                      disabled={isError || isLoadingScores || studentsScores.length === 0}
+                      onClick={() => setOpenRequest(true)}
+                      size="sm"
+                      className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm"
+                    >
+                      <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
+                    </Button>
+                  </PermissionCheck>
                 )}
               </div>
             </div>

@@ -4,6 +4,7 @@ import { BookFill, BookOpen, Edit, GitMergeFill, GraduationCapFill, School } fro
 import { Branch, BranchWithClassLevels, ClassInLevelDetails, ClassLevel } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,7 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { ClassesAndArms } from "../AcademicSetup/ClassesAndArms";
@@ -216,12 +218,14 @@ export const AcademicDoneClassAndArms = () => {
             <div className="mb-5 flex w-full items-start justify-between">
               <div className="text-text-default text-xl font-semibold">Classes & Arms</div>
 
-              <Button
-                onClick={() => setIsEditing(true)}
-                className="bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md border p-2"
-              >
-                <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md border p-2"
+                >
+                  <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
+                </Button>
+              </PermissionCheck>
             </div>
 
             <div className="mb-5 flex w-full items-center gap-3">

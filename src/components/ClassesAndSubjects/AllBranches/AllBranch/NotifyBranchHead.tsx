@@ -14,6 +14,8 @@ import { useNotifyBranchHead } from "@/hooks/queryHooks/useNotification";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { notifyBranchHeadSchema } from "@/schema/notification";
 import { useFormik } from "formik";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 type NotifyBranchHeadProps = {
   open: boolean;
@@ -95,14 +97,16 @@ export const NotifyBranchHead = ({ open, setOpen, branchHeadId }: NotifyBranchHe
           className="block"
           title="Send Notification"
           ActionButton={
-            <Button
-              onClick={() => formik.handleSubmit()}
-              disabled={isPending || !formik.isValid || !formik.dirty}
-              className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
-            >
-              {isPending && <Spinner className="text-text-white-default" />}
-              Notify
-            </Button>
+            <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+              <Button
+                onClick={() => formik.handleSubmit()}
+                disabled={isPending || !formik.isValid || !formik.dirty}
+                className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
+              >
+                {isPending && <Spinner className="text-text-white-default" />}
+                Notify
+              </Button>
+            </PermissionCheck>
           }
         >
           <div className="flex flex-col gap-5 px-5 py-4">
@@ -123,14 +127,16 @@ export const NotifyBranchHead = ({ open, setOpen, branchHeadId }: NotifyBranchHe
                 <Button className="bg-bg-state-soft text-text-subtle h-7 rounded-md! px-2 py-2 text-sm font-medium">Cancel</Button>
               </DrawerClose>
 
-              <Button
-                onClick={() => formik.handleSubmit()}
-                disabled={isPending || !formik.isValid || !formik.dirty}
-                className="bg-bg-state-primary text-text-white-default h-7 rounded-md! px-2 text-sm tracking-[0.1rem]"
-              >
-                {isPending && <Spinner className="text-text-white-default" />}
-                <span>Notify</span>
-              </Button>
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  onClick={() => formik.handleSubmit()}
+                  disabled={isPending || !formik.isValid || !formik.dirty}
+                  className="bg-bg-state-primary text-text-white-default h-7 rounded-md! px-2 text-sm tracking-[0.1rem]"
+                >
+                  {isPending && <Spinner className="text-text-white-default" />}
+                  <span>Notify</span>
+                </Button>
+              </PermissionCheck>
             </div>
           </DrawerFooter>
         </MobileDrawer>

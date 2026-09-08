@@ -3,10 +3,12 @@
 import { CycleResponse } from "@/api/admission";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useGetAdmissionCycles } from "@/hooks/queryHooks/useAdmission";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { cn } from "@/lib/utils";
 import { useBreadcrumbStore } from "@/store/breadcrumb";
 import { FileList3, Settings4 } from "@digenty/icons";
@@ -39,12 +41,14 @@ export const AdmissionCyclesManagement = () => {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
         <h2 className="text-text-default text-xl font-semibold">Admission Cycles Management</h2>
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex w-fit items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium"
-        >
-          + Create New Cycle
-        </Button>
+        <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex w-fit items-center gap-1.5 rounded-md px-4 py-2 text-sm font-medium"
+          >
+            + Create New Cycle
+          </Button>
+        </PermissionCheck>
       </div>
 
       <div className="flex flex-col gap-4">

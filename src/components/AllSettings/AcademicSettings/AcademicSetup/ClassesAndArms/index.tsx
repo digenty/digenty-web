@@ -4,6 +4,7 @@ import { BookFill, BookOpen, DeleteBin, Edit, GitMergeFill, GraduationCapFill, L
 import { Branch, BranchWithClassLevels, ClassInLevel, ClassInLevelDetails, ClassLevel } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
@@ -132,24 +134,28 @@ function ClassesResponsiveTabs({
                 <div className="flex items-center justify-between px-5 py-2">
                   <div className="text-text-default text-sm font-medium capitalize">{clss.className} </div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      onClick={() => {
-                        setOpenDelete(true);
-                        setClassId(clss.classId);
-                      }}
-                      className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
-                    >
-                      <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setSheetOpen(true);
-                        setClassId(clss.classId);
-                      }}
-                      className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2"
-                    >
-                      <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        onClick={() => {
+                          setOpenDelete(true);
+                          setClassId(clss.classId);
+                        }}
+                        className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
+                      >
+                        <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
+                      </Button>
+                    </PermissionCheck>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        onClick={() => {
+                          setSheetOpen(true);
+                          setClassId(clss.classId);
+                        }}
+                        className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2"
+                      >
+                        <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
+                      </Button>
+                    </PermissionCheck>
                   </div>
                 </div>
                 <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-6">
@@ -213,24 +219,28 @@ function ClassesResponsiveTabs({
                 <div className="flex items-center justify-between px-5 py-2">
                   <div className="text-text-default text-sm font-medium">{clss.className} </div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      onClick={() => {
-                        setOpenDelete(true);
-                        setClassId(clss.classId);
-                      }}
-                      className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
-                    >
-                      <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setSheetOpen(true);
-                        setClassId(clss.classId);
-                      }}
-                      className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2"
-                    >
-                      <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        onClick={() => {
+                          setOpenDelete(true);
+                          setClassId(clss.classId);
+                        }}
+                        className="bg-bg-state-secondary! hover:bg-bg-none! flex h-7! w-7! items-center justify-center rounded-md p-2"
+                      >
+                        <DeleteBin fill="var(--color-icon-destructive)" className="bg-bg-" />
+                      </Button>
+                    </PermissionCheck>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        onClick={() => {
+                          setSheetOpen(true);
+                          setClassId(clss.classId);
+                        }}
+                        className="bg-bg-state-secondary! hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md p-2"
+                      >
+                        <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
+                      </Button>
+                    </PermissionCheck>
                   </div>
                 </div>
                 <div className="bg-bg-card border-border-darker flex flex-col gap-4 rounded-md border p-2 md:px-5 md:py-2">
@@ -521,19 +531,23 @@ export const ClassesAndArms = ({
                     <AddClassModal open={addClassOpen} setOpen={setAddClassOpen} level={activeLevel} nextClassNumber={nextClassNumber} />
                   )}
                   {hasClasses ? (
-                    <Button
-                      onClick={() => setAddClassOpen(true)}
-                      className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
-                    >
-                      + Add Class
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        onClick={() => setAddClassOpen(true)}
+                        className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
+                      >
+                        + Add Class
+                      </Button>
+                    </PermissionCheck>
                   ) : (
-                    <Button
-                      onClick={() => setSheetOpen(true)}
-                      className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
-                    >
-                      <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        onClick={() => setSheetOpen(true)}
+                        className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
+                      >
+                        <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
+                      </Button>
+                    </PermissionCheck>
                   )}
                 </>
               )}

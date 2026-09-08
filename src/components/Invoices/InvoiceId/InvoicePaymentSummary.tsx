@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { formatNaira } from "@/components/Invoices/types";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageInvoices } from "@/lib/permissions/invoices";
 
 type InvoicePaymentSummaryProps = {
   invoiceId?: number;
@@ -56,13 +58,15 @@ export const InvoicePaymentSummary = ({
       </div>
 
       <div className="mt-10">
-        <Button
-          onClick={() => router.push(`/staff/invoices/add-payment?invoiceId=${invoiceId}`)}
-          className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default mt-6 flex w-full items-center gap-1.5"
-        >
-          <AddFill fill="var(--color-icon-white-default)" />
-          Add Payment
-        </Button>
+        <PermissionCheck permissionUtility={canManageInvoices}>
+          <Button
+            onClick={() => router.push(`/staff/invoices/add-payment?invoiceId=${invoiceId}`)}
+            className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default mt-6 flex w-full items-center gap-1.5"
+          >
+            <AddFill fill="var(--color-icon-white-default)" />
+            Add Payment
+          </Button>
+        </PermissionCheck>
       </div>
     </div>
   );

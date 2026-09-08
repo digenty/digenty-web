@@ -15,6 +15,8 @@ import React, { useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import type { ClassType } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteFees, canManageFees } from "@/lib/permissions/fees";
 
 export const ClassFeeDetail = () => {
   const router = useRouter();
@@ -65,13 +67,15 @@ export const ClassFeeDetail = () => {
         <div className="mb-4 flex flex-col justify-between gap-4 md:mb-9 md:flex-row">
           <div className="text-text-default text-xl font-semibold">{className}</div>
           <div className="flex flex-wrap gap-2">
-            <Button
-              onClick={() => router.push(`/staff/fees/add-fee-to-class?classId=${classId}&className=${encodeURIComponent(className)}`)}
-              className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! h-8! border font-medium shadow-sm!"
-            >
-              <AddFill fill="var(--color-icon-default-muted)" />
-              Add Fee To This Class
-            </Button>
+            <PermissionCheck permissionUtility={canManageFees}>
+              <Button
+                onClick={() => router.push(`/staff/fees/add-fee-to-class?classId=${classId}&className=${encodeURIComponent(className)}`)}
+                className="bg-bg-state-secondary! border-border-darker text-text-default hover:bg-bg-state-secondary-hover! h-8! border font-medium shadow-sm!"
+              >
+                <AddFill fill="var(--color-icon-default-muted)" />
+                Add Fee To This Class
+              </Button>
+            </PermissionCheck>
             {/* {loadingArms ? (
               <Skeleton className="bg-bg-input-soft h-8 w-40 rounded-md" />
             ) : (
@@ -118,11 +122,13 @@ export const ClassFeeDetail = () => {
                 </div>
                 <div className="flex items-center gap-7">
                   <div className="text-text-default text-base font-semibold">₦{itm.amount.toLocaleString()}</div>
-                  <DeleteBin
-                    onClick={() => !deleting && handleDelete(itm.feeItemId)}
-                    fill="var(--color-icon-default-subtle)"
-                    className="cursor-pointer"
-                  />
+                  <PermissionCheck permissionUtility={canDeleteFees}>
+                    <DeleteBin
+                      onClick={() => !deleting && handleDelete(itm.feeItemId)}
+                      fill="var(--color-icon-default-subtle)"
+                      className="cursor-pointer"
+                    />
+                  </PermissionCheck>
                 </div>
               </div>
             ))}

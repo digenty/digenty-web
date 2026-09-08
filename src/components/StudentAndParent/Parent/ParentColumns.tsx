@@ -3,6 +3,7 @@
 import { DeleteBin, Edit } from "@digenty/icons";
 import { Parent } from "@/api/types";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { ContactDetail } from "@/components/StudentAndParent/ContactDetail";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
@@ -122,13 +123,21 @@ export const parentColumns: ColumnDef<Parent>[] = [
   {
     accessorKey: "phoneNumber",
     header: () => <div className="text-text-muted text-sm font-medium">Phone Number</div>,
-    cell: ({ row }) => <span className="text-text-default cursor-pointer text-sm font-normal">{row.original.phoneNumber}</span>,
+    cell: ({ row }) => (
+      <span className="text-text-default cursor-pointer text-sm font-normal">
+        <ContactDetail value={row.original.phoneNumber} />
+      </span>
+    ),
     size: 150,
   },
   {
     accessorKey: "emailAddress",
     header: () => <div className="text-text-muted text-sm font-medium">Email Address</div>,
-    cell: ({ row }) => <span className="text-text-muted cursor-pointer text-sm font-normal">{row.original.email}</span>,
+    cell: ({ row }) => (
+      <span className="text-text-muted cursor-pointer text-sm font-normal">
+        <ContactDetail value={row.original.email} />
+      </span>
+    ),
     size: 150,
   },
 

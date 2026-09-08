@@ -2,6 +2,8 @@ import { Edit } from "@digenty/icons";
 import { Term } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -184,12 +186,14 @@ export const Submission = () => {
         <div className="flex items-center justify-between">
           <div className="text-text-default text-xl font-semibold">Submission Deadline</div>
           {!isLoading && hasExistingDeadlines && !isEditing && (
-            <Button
-              onClick={() => setIsEditing(true)}
-              className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-default h-8 border"
-            >
-              <Edit fill="var(--color-icon-default-muted)" /> Edit
-            </Button>
+            <PermissionCheck permissionUtility={canManageSettings}>
+              <Button
+                onClick={() => setIsEditing(true)}
+                className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-default h-8 border"
+              >
+                <Edit fill="var(--color-icon-default-muted)" /> Edit
+              </Button>
+            </PermissionCheck>
           )}
         </div>
 
@@ -205,15 +209,17 @@ export const Submission = () => {
           <div className="flex items-center justify-center">
             <div className="flex flex-col items-center justify-center gap-3 py-20">
               <div className="text-text-muted text-sm">No submission deadlines have been set yet.</div>
-              <Button
-                onClick={() => {
-                  setHasOpenedForm(true);
-                  setIsEditing(true);
-                }}
-                className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-8! rounded-md px-4"
-              >
-                Set Up Submission Deadlines
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button
+                  onClick={() => {
+                    setHasOpenedForm(true);
+                    setIsEditing(true);
+                  }}
+                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-8! rounded-md px-4"
+                >
+                  Set Up Submission Deadlines
+                </Button>
+              </PermissionCheck>
             </div>
           </div>
         )}

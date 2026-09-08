@@ -3,8 +3,10 @@
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { ConfigureRequirements } from "@/components/AdmissionManagement/SetupConfiguration/ConfigureRequirements";
 import { BackButton } from "@/components/BackButton";
+import { ManageAccessGate } from "@/components/ModulePermissionsWrapper/ManageAccessGate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetLevelClasses } from "@/hooks/queryHooks/useAdmission";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { useBreadcrumbStore } from "@/store/breadcrumb";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
@@ -63,18 +65,20 @@ export default function ClassConfigPage() {
   }
 
   return (
-    <div className="p-3 md:p-6">
-      <div className="pb-3 md:hidden">
-        <BackButton />
+    <ManageAccessGate permissionUtility={canManageAdmissionManagement} redirectTo="/staff/admission-management">
+      <div className="p-3 md:p-6">
+        <div className="pb-3 md:hidden">
+          <BackButton />
+        </div>
+        <ConfigureRequirements
+          scope="class"
+          name={klass?.className ?? "Class"}
+          cycleId={cycleId}
+          levelId={levelId}
+          classId={classId}
+          branchId={branchId}
+        />
       </div>
-      <ConfigureRequirements
-        scope="class"
-        name={klass?.className ?? "Class"}
-        cycleId={cycleId}
-        levelId={levelId}
-        classId={classId}
-        branchId={branchId}
-      />
-    </div>
+    </ManageAccessGate>
   );
 }

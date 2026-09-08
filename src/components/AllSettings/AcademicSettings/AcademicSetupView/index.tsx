@@ -3,9 +3,11 @@
 import { AddFill, ArrowRightCircleFill, ViewTimelineT } from "@digenty/icons";
 import { AcademicSession } from "@/api/types";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -63,12 +65,14 @@ export const AcademicSetupView = () => {
           <div className="">
             <div className="bg-bg-subtle border-border-darker w-full border-b">
               <div className="flex items-center justify-start! gap-2 p-4 md:justify-end">
-                <Button
-                  onClick={() => router.push("/staff/settings/academic/academic-setup?step=school-structure")}
-                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-8! rounded-md text-sm md:ml-auto"
-                >
-                  <AddFill fill="var(--color-icon-white-default)" className="size-3" /> New Session
-                </Button>
+                <PermissionCheck permissionUtility={canManageSettings}>
+                  <Button
+                    onClick={() => router.push("/staff/settings/academic/academic-setup?step=school-structure")}
+                    className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-8! rounded-md text-sm md:ml-auto"
+                  >
+                    <AddFill fill="var(--color-icon-white-default)" className="size-3" /> New Session
+                  </Button>
+                </PermissionCheck>
               </div>
             </div>
             <div className="w-full min-w-0">

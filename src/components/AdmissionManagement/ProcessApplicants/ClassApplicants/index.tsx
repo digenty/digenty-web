@@ -2,12 +2,14 @@
 
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { DataTable } from "@/components/DataTable";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBulkUpdateApplicantStatus, useGetApplicantsByClass, useGetCycleApplicants } from "@/hooks/queryHooks/useAdmission";
 import useDebounce from "@/hooks/useDebounce";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { CheckIcon, ListFilterIcon, XIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -156,22 +158,26 @@ export const ClassApplicants = () => {
         {selectedIds.length > 0 && (
           <div className="ml-auto flex items-center gap-2">
             <span className="text-text-muted text-xs">{selectedIds.length} selected</span>
-            <Button
-              onClick={() => handleBulk("Admitted")}
-              disabled={bulkUpdating}
-              className="bg-bg-badge-green text-bg-basic-green-strong flex h-8 items-center gap-1.5 rounded-md border border-green-200 px-3 text-sm font-medium disabled:opacity-50"
-            >
-              <CheckIcon className="size-3.5" />
-              Admit
-            </Button>
-            <Button
-              onClick={() => handleBulk("Rejected")}
-              disabled={bulkUpdating}
-              className="bg-bg-badge-red text-bg-basic-red-strong flex h-8 items-center gap-1.5 rounded-md border border-red-200 px-3 text-sm font-medium disabled:opacity-50"
-            >
-              <XIcon className="size-3.5" />
-              Reject
-            </Button>
+            <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+              <Button
+                onClick={() => handleBulk("Admitted")}
+                disabled={bulkUpdating}
+                className="bg-bg-badge-green text-bg-basic-green-strong flex h-8 items-center gap-1.5 rounded-md border border-green-200 px-3 text-sm font-medium disabled:opacity-50"
+              >
+                <CheckIcon className="size-3.5" />
+                Admit
+              </Button>
+            </PermissionCheck>
+            <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+              <Button
+                onClick={() => handleBulk("Rejected")}
+                disabled={bulkUpdating}
+                className="bg-bg-badge-red text-bg-basic-red-strong flex h-8 items-center gap-1.5 rounded-md border border-red-200 px-3 text-sm font-medium disabled:opacity-50"
+              >
+                <XIcon className="size-3.5" />
+                Reject
+              </Button>
+            </PermissionCheck>
           </div>
         )}
       </div>

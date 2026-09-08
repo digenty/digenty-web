@@ -1,5 +1,6 @@
 import { Building, Flag, Mail, Map, PhoneFill, User } from "@digenty/icons";
 import { Parent } from "@/api/types";
+import { ContactDetail } from "@/components/StudentAndParent/ContactDetail";
 
 import { Phone } from "lucide-react";
 
@@ -10,9 +11,14 @@ export const Biodata = ({ parent }: { parent: Parent }) => {
     { bio: "Address", detail: parent.address, icon: <Map fill="var(--color-icon-default-muted)" /> },
     { bio: "Nationality", detail: parent.nationality, icon: <Flag fill="var(--color-icon-default-muted)" /> },
     { bio: "State of Origin", detail: parent.stateOfOrigin, icon: <Flag fill="var(--color-icon-default-muted)" /> },
-    { bio: "Email Address", detail: parent.email, icon: <Mail fill="var(--color-icon-default-muted)" /> },
-    { bio: "Primary Phone Number", detail: parent.phoneNumber, icon: <Phone size={16} /> },
-    { bio: "Secondary Phone Number", detail: parent.secondaryPhoneNumber, icon: <PhoneFill fill="var(--color-icon-default-muted)" /> },
+    { bio: "Email Address", detail: parent.email, icon: <Mail fill="var(--color-icon-default-muted)" />, sensitive: true },
+    { bio: "Primary Phone Number", detail: parent.phoneNumber, icon: <Phone size={16} />, sensitive: true },
+    {
+      bio: "Secondary Phone Number",
+      detail: parent.secondaryPhoneNumber,
+      icon: <PhoneFill fill="var(--color-icon-default-muted)" />,
+      sensitive: true,
+    },
   ];
 
   return (
@@ -24,7 +30,9 @@ export const Biodata = ({ parent }: { parent: Parent }) => {
               {item.icon}
               <span className="text-text-muted truncate text-sm font-medium">{item.bio}</span>
             </div>
-            <span className="text-text-default max-w-2/4 truncate text-right text-sm font-medium capitalize">{item.detail || "--"}</span>
+            <span className="text-text-default max-w-2/4 truncate text-right text-sm font-medium capitalize">
+              {item.sensitive ? <ContactDetail value={item.detail} /> : item.detail || "--"}
+            </span>
           </div>
         );
       })}

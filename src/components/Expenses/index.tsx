@@ -17,7 +17,7 @@ import { ExpenseSummary, extractExpenseRecord, formatNaira } from "./types";
 import { useExpenseFilters } from "./useExpenseFilters";
 
 export const ExpensesMain = () => {
-  const { filters, setFilters, page, setPage } = useExpenseFilters();
+  const { filters, setFilters, page, setPage, isBranchRestricted, userBranchIds } = useExpenseFilters();
 
   useBreadcrumb([{ label: "Expenses", url: "/staff/expense" }]);
 
@@ -38,7 +38,7 @@ export const ExpensesMain = () => {
   return (
     <ModulePermissionsWrapper permissionUtility={canViewExpenses}>
       <div className="flex flex-col gap-6 p-4 md:p-8">
-        <ExpensesHeader filters={filters} setFilters={setFilters} />
+        <ExpensesHeader filters={filters} setFilters={setFilters} isBranchRestricted={isBranchRestricted} userBranchIds={userBranchIds} />
 
         <div className="grid w-full grid-cols-2 gap-3 lg:grid-cols-3">
           <OverviewCard

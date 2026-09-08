@@ -1,23 +1,29 @@
 "use client";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Skeleton } from "../ui/skeleton";
 
-// Redirects to the Student & Parent Record list when the staff only has view
-// access — blocks direct-URL access to add/edit/upload routes, not just the
-// buttons that link to them.
-export const ManageAccessGate = ({ children }: { children: React.ReactNode }) => {
+// Redirects to `redirectTo` when the staff only has view access — blocks direct-URL
+// access to add/edit/upload routes, not just the buttons that link to them.
+export const ManageAccessGate = ({
+  permissionUtility,
+  redirectTo,
+  children,
+}: {
+  permissionUtility: (permissions: string[] | undefined) => boolean;
+  redirectTo: string;
+  children: React.ReactNode;
+}) => {
   const router = useRouter();
   const { permissions, isUserLoading } = useLoggedInUser();
-  const canManage = canManageStudentParentRecords(permissions);
+  const canManage = permissionUtility(permissions);
 
   useEffect(() => {
     if (!isUserLoading && permissions && !canManage) {
-      router.replace("/staff/student-and-parent-record");
+      router.replace(redirectTo);
     }
-  }, [isUserLoading, permissions, canManage, router]);
+  }, [isUserLoading, permissions, canManage, router, redirectTo]);
 
   if (isUserLoading || !permissions) {
     return (

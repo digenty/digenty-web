@@ -25,7 +25,7 @@ type InvoiceFilter = {
 };
 
 export const Invoices = () => {
-  const { schoolId } = useLoggedInUser();
+  const { schoolId, branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -35,16 +35,31 @@ export const Invoices = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [filter, setFilter] = useState<InvoiceFilter>({});
 
-  const { data: branches, isPending: loadingBranches } = useGetBranches();
-  const { data: classes, isPending: loadingClasses } = useGetClasses(filter.branchSelected?.id);
+  // A staff member with no branch-admin/main access is restricted to their own assigned
+  // branch(es) — they shouldn't default to, or be able to pick, another branch's invoices.
+  const userBranchIds = useMemo(() => branchIds ?? [], [branchIds]);
+  const hasFullAccess = isMain || isAdmin || (adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
+  const restrictedBranchId = isBranchRestricted ? userBranchIds[0] : undefined;
+
+  const { data: allBranches, isPending: loadingBranches } = useGetBranches();
+  const branches = useMemo(() => {
+    if (!allBranches || !isBranchRestricted) return allBranches;
+    return { data: allBranches.data.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) };
+  }, [allBranches, isBranchRestricted, userBranchIds]);
+
+  const effectiveBranchId = filter.branchSelected?.id ?? restrictedBranchId;
+
+  const { data: classes, isPending: loadingClasses } = useGetClasses(effectiveBranchId);
   const { data: terms, isPending: loadingTerms } = useGetTerms(schoolId);
 
   useEffect(() => {
     if (!filter.branchSelected && branches?.data?.length) {
-      const first: BranchWithClassLevels = branches.data[0];
+      const own = restrictedBranchId ? branches.data.find((b: BranchWithClassLevels) => b.branch.id === restrictedBranchId) : undefined;
+      const first: BranchWithClassLevels = own ?? branches.data[0];
       setFilter(prev => ({ ...prev, branchSelected: first.branch }));
     }
-  }, [branches, filter.branchSelected]);
+  }, [branches, filter.branchSelected, restrictedBranchId]);
 
   const onFilterChange = (key: keyof InvoiceFilter, value: Branch | ClassType | Term | undefined) => {
     setPage(1);
@@ -66,7 +81,7 @@ export const Invoices = () => {
     error: invoicesErrorObj,
     refetch: refetchInvoices,
   } = useGetInvoices({
-    branchId: filter.branchSelected?.id,
+    branchId: effectiveBranchId,
     classId: filter.classSelected?.id,
     termId: filter.termSelected?.termId,
     page: 0,
@@ -151,7 +166,7 @@ export const Invoices = () => {
             setStatusFilter={setStatusFilter}
             branches={branches}
             terms={terms}
-            currentBranchId={filter.branchSelected?.id}
+            currentBranchId={effectiveBranchId}
           />
 
           {loadingInvoices && <Skeleton className="bg-bg-input-soft! h-screen w-full" />}

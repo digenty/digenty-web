@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { ChevronDownIcon } from "lucide-react";
 import { BookOpen, DeleteBin } from "@digenty/icons";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { canManageWebsiteCustomization } from "@/lib/permissions/website-customization";
 import { cn } from "@/lib/utils";
 import { AddButton, Field, INPUT_CLASS } from "../common";
 import { useWebsiteCustomization } from "../context";
@@ -32,9 +34,11 @@ const NewsItemRow = ({
         <span className="text-text-default truncate text-sm font-medium">{item.title || "News Item Name"}</span>
         <div className="flex items-center gap-2">
           {!disabled && (
-            <button type="button" onClick={onRemove} aria-label="Remove news item" className="cursor-pointer">
-              <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-            </button>
+            <PermissionCheck permissionUtility={canManageWebsiteCustomization}>
+              <button type="button" onClick={onRemove} aria-label="Remove news item" className="cursor-pointer">
+                <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+              </button>
+            </PermissionCheck>
           )}
           <button type="button" onClick={() => setOpen(prev => !prev)} aria-label="Toggle news item" className="cursor-pointer">
             <ChevronDownIcon className={cn("text-icon-default-muted size-4 transition-transform", open && "rotate-180")} />

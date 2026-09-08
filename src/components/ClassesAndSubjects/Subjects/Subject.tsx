@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import RequestEdit from "../RequestEditAccess";
 import { SubjectProps } from "./types";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export default function Subject({ subjectName, classes, subjectId }: SubjectProps) {
   const [openRequest, setOpenRequest] = useState<boolean>(false);
@@ -59,16 +61,18 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
 
                     {cl.reportStatus === "SUBMITTED" ? (
                       <div className="flex gap-2 md:items-center md:justify-between md:gap-1">
-                        <Button
-                          onClick={() => {
-                            setArmId(cl.armId);
-                            setClassId(cl.classId);
-                            handleOpen();
-                          }}
-                          className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! shadow-light h-7 w-44 rounded-md border px-2 py-1 text-sm font-medium"
-                        >
-                          <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
-                        </Button>
+                        <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                          <Button
+                            onClick={() => {
+                              setArmId(cl.armId);
+                              setClassId(cl.classId);
+                              handleOpen();
+                            }}
+                            className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! shadow-light h-7 w-44 rounded-md border px-2 py-1 text-sm font-medium"
+                          >
+                            <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
+                          </Button>
+                        </PermissionCheck>
                         <Button
                           onClick={() =>
                             router.push(

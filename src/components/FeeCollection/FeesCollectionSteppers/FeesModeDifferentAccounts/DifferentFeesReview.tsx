@@ -16,6 +16,8 @@ import { EditAccountSheet } from "../EditAccountSheet";
 import { FeesSetupFormValues } from "../index";
 import { BranchWithClassLevels } from "@/api/types";
 import { FeeRouteResponseDto } from "@/api/fee";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageFeeCollection } from "@/lib/permissions/fee-collection";
 
 type FlowType = "oneAccount" | "differentAccounts";
 
@@ -51,13 +53,15 @@ export const DifferentFeesReview = ({ selected, onSelect }: { selected: FlowType
               <div className="text-text-default text-md font-semibold">Branch collection</div>
               <div className="text-text-muted text-sm font-normal">Different account per branch</div>
             </div>
-            <Button
-              type="button"
-              onClick={() => setOpenMode(true)}
-              className="border-border-darker bg-bg-state-secondary! text-text-default flex h-8! w-fit items-center gap-4 rounded-md border text-sm font-medium"
-            >
-              <Edit fill="var(--color-icon-default-muted)" /> Change Mode
-            </Button>
+            <PermissionCheck permissionUtility={canManageFeeCollection}>
+              <Button
+                type="button"
+                onClick={() => setOpenMode(true)}
+                className="border-border-darker bg-bg-state-secondary! text-text-default flex h-8! w-fit items-center gap-4 rounded-md border text-sm font-medium"
+              >
+                <Edit fill="var(--color-icon-default-muted)" /> Change Mode
+              </Button>
+            </PermissionCheck>
 
             {!isMobile && (
               <Modal open={openMode} setOpen={setOpenMode} title="Choose mode" ActionButton={null}>
@@ -111,9 +115,11 @@ export const DifferentFeesReview = ({ selected, onSelect }: { selected: FlowType
                       {acc.bankName} • {acc.accountNumber}
                     </div>
                   </div>
-                  <Button type="button" onClick={() => setEditingBranchId(acc.branchId ?? null)} className="hover:bg-bg-none! bg-none">
-                    <Edit fill="var(--color-icon-default-muted)" />
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageFeeCollection}>
+                    <Button type="button" onClick={() => setEditingBranchId(acc.branchId ?? null)} className="hover:bg-bg-none! bg-none">
+                      <Edit fill="var(--color-icon-default-muted)" />
+                    </Button>
+                  </PermissionCheck>
                 </div>
               );
             })
@@ -180,9 +186,11 @@ const BranchRoutingReview = ({ branchId }: { branchId: number }) => {
               {route.bankAccountNumber} — {route.bankAccountName}
             </div>
           </div>
-          <Button type="button" className="hover:bg-bg-none! bg-none">
-            <Edit fill="var(--color-icon-default-muted)" />
-          </Button>
+          <PermissionCheck permissionUtility={canManageFeeCollection}>
+            <Button type="button" className="hover:bg-bg-none! bg-none">
+              <Edit fill="var(--color-icon-default-muted)" />
+            </Button>
+          </PermissionCheck>
         </div>
       ))}
     </div>

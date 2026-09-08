@@ -3,6 +3,8 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { EyeIcon, MoreHorizontalIcon } from "lucide-react";
 import { useState } from "react";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteExpenses, canManageExpenses } from "@/lib/permissions/expenses";
 import { cn } from "@/lib/utils";
 import { Avatar } from "../Avatar";
 import { payMethod } from "../Invoices/paymentMethods";
@@ -86,29 +88,33 @@ const RenderOptions = ({
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View expense</span>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={evt => {
-            evt.stopPropagation();
-            onEdit?.(row);
-          }}
-          className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
-        >
-          <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Edit expense</span>
-        </DropdownMenuItem>
+        <PermissionCheck permissionUtility={canManageExpenses}>
+          <DropdownMenuItem
+            onClick={evt => {
+              evt.stopPropagation();
+              onEdit?.(row);
+            }}
+            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
+          >
+            <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
+            <span>Edit expense</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
 
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-        <DropdownMenuItem
-          onClick={evt => {
-            evt.stopPropagation();
-            onDelete?.(row);
-          }}
-          className="cursor-pointer gap-2.5 px-3"
-        >
-          <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-          <span className="text-icon-destructive">Delete expense</span>
-        </DropdownMenuItem>
+        <PermissionCheck permissionUtility={canDeleteExpenses}>
+          <DropdownMenuItem
+            onClick={evt => {
+              evt.stopPropagation();
+              onDelete?.(row);
+            }}
+            className="cursor-pointer gap-2.5 px-3"
+          >
+            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+            <span className="text-icon-destructive">Delete expense</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
       </DropdownMenuContent>
     </DropdownMenu>
   );

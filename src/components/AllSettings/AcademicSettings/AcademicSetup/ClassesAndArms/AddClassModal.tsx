@@ -1,11 +1,13 @@
 import { ClassLevel } from "@/api/types";
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { useCreateClass } from "@/hooks/queryHooks/useClass";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageSettings } from "@/lib/permissions/settings";
 
 export const AddClassModal = ({
   open,
@@ -56,14 +58,16 @@ export const AddClassModal = ({
         >
           Cancel
         </Button>
-        <Button
-          onClick={handleCreate}
-          disabled={isPending}
-          className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default hover:text-text-white-default! h-7 border-none px-3 text-sm"
-        >
-          {isPending && <Spinner className="text-text-white-default size-3" />}
-          Add Class
-        </Button>
+        <PermissionCheck permissionUtility={canManageSettings}>
+          <Button
+            onClick={handleCreate}
+            disabled={isPending}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default hover:text-text-white-default! h-7 border-none px-3 text-sm"
+          >
+            {isPending && <Spinner className="text-text-white-default size-3" />}
+            Add Class
+          </Button>
+        </PermissionCheck>
       </div>
     </div>
   );

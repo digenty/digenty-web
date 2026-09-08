@@ -13,6 +13,8 @@ import { toast } from "sonner";
 
 import { useDeleteFeeGroup, useDuplicateFeeGroup } from "@/hooks/queryHooks/useFee";
 import { FeeGroupProp } from "./feeGroupType";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteFees, canManageFees } from "@/lib/permissions/fees";
 
 const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
   const [open, setOpen] = useState(false);
@@ -89,16 +91,18 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
             <EyeIcon className="text-icon-default-subtle size-4" />
             <span>View fee group</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
-            onClick={() => {
-              setOpen(false);
-              router.push(`/staff/fees/fee-group/${feeGroupId}/edit`);
-            }}
-          >
-            <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
-            <span>Edit fee group</span>
-          </DropdownMenuItem>
+          <PermissionCheck permissionUtility={canManageFees}>
+            <DropdownMenuItem
+              className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
+              onClick={() => {
+                setOpen(false);
+                router.push(`/staff/fees/fee-group/${feeGroupId}/edit`);
+              }}
+            >
+              <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Edit fee group</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
           <DropdownMenuItem
             className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
             disabled={duplicating}
@@ -117,16 +121,18 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
             <span>{duplicating ? "Duplicating..." : "Duplicate fee group"}</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator className="border-border-default bg-border-default" />
-          <DropdownMenuItem
-            className="gap-2.5 px-3"
-            onClick={() => {
-              setOpen(false);
-              setDeleteOpen(true);
-            }}
-          >
-            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-            <span className="text-icon-destructive">Delete fee group</span>
-          </DropdownMenuItem>
+          <PermissionCheck permissionUtility={canDeleteFees}>
+            <DropdownMenuItem
+              className="gap-2.5 px-3"
+              onClick={() => {
+                setOpen(false);
+                setDeleteOpen(true);
+              }}
+            >
+              <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+              <span className="text-icon-destructive">Delete fee group</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

@@ -9,6 +9,8 @@ import { useState } from "react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useGetStockCategories } from "@/hooks/queryHooks/useStock";
 import { StockStatus } from "@/api/stock";
+import { canManageStock } from "@/lib/permissions/stock";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 
 import { MobileDrawer } from "../MobileDrawer";
 import { SearchInput } from "../SearchInput";
@@ -129,21 +131,25 @@ export const StocksSearchAndFilter = ({ search, setSearch, statusFilter, setStat
             <Filter className="size-4" fill="var(--color-icon-default-muted)" />
           </Button>
 
-          <Button
-            onClick={() => setOpenExport(true)}
-            className="border-border-darker text-text-default hidden h-8 items-center rounded-md border px-2.5 text-sm font-medium md:flex"
-          >
-            <ShareBox fill="var(--color-icon-default-muted)" /> Export
-          </Button>
+          <PermissionCheck permissionUtility={canManageStock}>
+            <Button
+              onClick={() => setOpenExport(true)}
+              className="border-border-darker text-text-default hidden h-8 items-center rounded-md border px-2.5 text-sm font-medium md:flex"
+            >
+              <ShareBox fill="var(--color-icon-default-muted)" /> Export
+            </Button>
+          </PermissionCheck>
 
           <div className="flex items-center gap-1">
-            <Button
-              onClick={() => router.push("/staff/stock/add-stock")}
-              className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
-            >
-              <Plus className="text-texticon-white-default size-4" />
-              Add Stock
-            </Button>
+            <PermissionCheck permissionUtility={canManageStock}>
+              <Button
+                onClick={() => router.push("/staff/stock/add-stock")}
+                className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
+              >
+                <Plus className="text-texticon-white-default size-4" />
+                Add Stock
+              </Button>
+            </PermissionCheck>
 
             <Button
               onClick={() => setIsOpen(true)}
@@ -157,12 +163,14 @@ export const StocksSearchAndFilter = ({ search, setSearch, statusFilter, setStat
         {isOpen && (
           <MobileDrawer open={isOpen} setIsOpen={setIsOpen} title="Actions">
             <div className="flex w-full flex-col gap-4 px-3 py-4">
-              <div className="flex flex-col items-center gap-2" onClick={() => setOpenExport(true)}>
-                <div className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
-                  <ShareBox className="size-4" fill="var(--color-icon-default-muted)" />
-                  Export
+              <PermissionCheck permissionUtility={canManageStock}>
+                <div className="flex flex-col items-center gap-2" onClick={() => setOpenExport(true)}>
+                  <div className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
+                    <ShareBox className="size-4" fill="var(--color-icon-default-muted)" />
+                    Export
+                  </div>
                 </div>
-              </div>
+              </PermissionCheck>
             </div>
           </MobileDrawer>
         )}

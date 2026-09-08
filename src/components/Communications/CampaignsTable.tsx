@@ -9,7 +9,10 @@ import { CampaignChannel, CampaignResponseDto, CampaignStatus } from "@/api/camp
 import { toast } from "@/components/Toast";
 import { useDeleteCampaign, useDuplicateCampaign, useGetCampaigns, useResendCampaign } from "@/hooks/queryHooks/useCampaign";
 import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteCommunication, canManageCommunication } from "@/lib/permissions/communication";
 import { DataTable } from "../DataTable";
 import { ErrorComponent } from "../Error/ErrorComponent";
 import { MobileDrawer } from "../MobileDrawer";
@@ -45,7 +48,22 @@ export const CampaignsTable = ({ search, status, channel, termId, page, onPageCh
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
 
-  const { data, isLoading, isError, refetch } = useGetCampaigns({ page, pageSize: PAGE_SIZE, search: search || undefined, status, channel, termId });
+  // A staff member with no branch-admin/main access is restricted to their own assigned
+  // branch(es) — they shouldn't see campaigns targeted at another branch.
+  const { branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
+  const hasFullAccess = isMain || isAdmin || (adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && (branchIds?.length ?? 0) > 0;
+  const restrictedBranchId = isBranchRestricted ? branchIds?.[0] : undefined;
+
+  const { data, isLoading, isError, refetch } = useGetCampaigns({
+    page,
+    pageSize: PAGE_SIZE,
+    search: search || undefined,
+    status,
+    channel,
+    termId,
+    branchId: restrictedBranchId,
+  });
   const deleteMutation = useDeleteCampaign();
   const duplicateMutation = useDuplicateCampaign();
   const resendMutation = useResendCampaign();
@@ -225,24 +243,28 @@ export const CampaignsTable = ({ search, status, channel, termId, page, onPageCh
             >
               <Eye className="size-4" /> View campaign
             </div>
-            <div
-              role="button"
-              onClick={() => activeCampaign && router.push(`/staff/communications/${activeCampaign.id}/edit`)}
-              className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-            >
-              <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit campaign
-            </div>
-            <div
-              role="button"
-              onClick={() => {
-                const campaign = activeCampaign;
-                setActiveCampaign(null);
-                if (campaign) handleDuplicate(campaign);
-              }}
-              className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm"
-            >
-              <FileCopy fill="var(--color-icon-default-subtle)" className="size-4" /> Duplicate
-            </div>
+            <PermissionCheck permissionUtility={canManageCommunication}>
+              <div
+                role="button"
+                onClick={() => activeCampaign && router.push(`/staff/communications/${activeCampaign.id}/edit`)}
+                className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+              >
+                <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit campaign
+              </div>
+            </PermissionCheck>
+            <PermissionCheck permissionUtility={canManageCommunication}>
+              <div
+                role="button"
+                onClick={() => {
+                  const campaign = activeCampaign;
+                  setActiveCampaign(null);
+                  if (campaign) handleDuplicate(campaign);
+                }}
+                className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm"
+              >
+                <FileCopy fill="var(--color-icon-default-subtle)" className="size-4" /> Duplicate
+              </div>
+            </PermissionCheck>
             <div
               role="button"
               onClick={() => {
@@ -254,18 +276,20 @@ export const CampaignsTable = ({ search, status, channel, termId, page, onPageCh
             >
               <ArrowGoBack fill="var(--color-icon-default-subtle)" className="size-4" /> Resend
             </div>
-            <div
-              role="button"
-              onClick={() => {
-                const campaign = activeCampaign;
-                setActiveCampaign(null);
-                setCampaignToDelete(campaign);
-                setDeleteOpen(true);
-              }}
-              className="hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600"
-            >
-              <DeleteBin fill="var(--color-icon-destructive)" className="size-4" /> Delete campaign
-            </div>
+            <PermissionCheck permissionUtility={canDeleteCommunication}>
+              <div
+                role="button"
+                onClick={() => {
+                  const campaign = activeCampaign;
+                  setActiveCampaign(null);
+                  setCampaignToDelete(campaign);
+                  setDeleteOpen(true);
+                }}
+                className="hover:bg-bg-muted border-border-darker flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600"
+              >
+                <DeleteBin fill="var(--color-icon-destructive)" className="size-4" /> Delete campaign
+              </div>
+            </PermissionCheck>
           </div>
         </MobileDrawer>
       </div>

@@ -13,6 +13,8 @@ import { getStatusBadge } from "@/components/Status";
 import { useRouter } from "next/navigation";
 import { useDeleteFeeItem, useDuplicateFeeItem } from "@/hooks/queryHooks/useFee";
 import { toast } from "sonner";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteFees, canManageFees } from "@/lib/permissions/fees";
 
 const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
   const [open, setOpen] = useState(false);
@@ -58,29 +60,33 @@ const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View fee item</span>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={evt => {
-            evt.stopPropagation();
-            router.push(`/staff/fees/fee-item/${id}/edit`);
-          }}
-          className="hover:bg-bg-state-soft-hover! gap-2.5 px-3"
-        >
-          <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Edit fee item</span>
-        </DropdownMenuItem>
+        <PermissionCheck permissionUtility={canManageFees}>
+          <DropdownMenuItem
+            onClick={evt => {
+              evt.stopPropagation();
+              router.push(`/staff/fees/fee-item/${id}/edit`);
+            }}
+            className="hover:bg-bg-state-soft-hover! gap-2.5 px-3"
+          >
+            <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
+            <span>Edit fee item</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
         <DropdownMenuItem onClick={handleDuplicate} disabled={duplicating} className="hover:bg-bg-state-soft-hover! gap-2.5 px-3">
           <FileCopy fill="var(--color-icon-default-subtle)" className="size-4" />
           <span>{duplicating ? "Duplicating..." : "Duplicate fee item"}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
-        <DropdownMenuItem
-          onClick={handleDelete}
-          disabled={deleting}
-          className="hover:bg-bg-state-destructive-hover! hover:text-text-white-default! gap-2.5 px-3"
-        >
-          <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-          <span className="text-icon-destructive">{deleting ? "Deleting..." : "Delete fee item"}</span>
-        </DropdownMenuItem>
+        <PermissionCheck permissionUtility={canDeleteFees}>
+          <DropdownMenuItem
+            onClick={handleDelete}
+            disabled={deleting}
+            className="hover:bg-bg-state-destructive-hover! hover:text-text-white-default! gap-2.5 px-3"
+          >
+            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+            <span className="text-icon-destructive">{deleting ? "Deleting..." : "Delete fee item"}</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
       </DropdownMenuContent>
     </DropdownMenu>
   );

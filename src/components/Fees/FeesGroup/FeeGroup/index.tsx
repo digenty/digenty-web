@@ -12,6 +12,8 @@ import React, { useEffect } from "react";
 import { toast } from "sonner";
 import type { FeeGroupDetailResponse } from "@/api/fee";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteFees, canManageFees } from "@/lib/permissions/fees";
 
 export const FeeGroup = () => {
   const router = useRouter();
@@ -88,20 +90,24 @@ export const FeeGroup = () => {
             {group.branchName && <div className="text-text-subtle mt-1 text-sm">{group.branchName}</div>}
           </div>
           <div className="flex gap-2">
-            <Button
-              onClick={() => router.push(`/staff/fees/fee-group/${id}/edit`)}
-              className="bg-bg-state-secondary! border-border-darker hover:bg-bg-state-secondary-hover! text-text-default h-8! border shadow-sm!"
-            >
-              <Edit fill="var(--color-icon-default)" className="size-4" />
-              Edit
-            </Button>
-            <Button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-bg-state-secondary! border-border-darker hover:bg-bg-state-secondary-hover! h-8! w-8! border shadow-sm!"
-            >
-              <DeleteBin fill="var(--color-bg-state-destructive)" className="size-4" />
-            </Button>
+            <PermissionCheck permissionUtility={canManageFees}>
+              <Button
+                onClick={() => router.push(`/staff/fees/fee-group/${id}/edit`)}
+                className="bg-bg-state-secondary! border-border-darker hover:bg-bg-state-secondary-hover! text-text-default h-8! border shadow-sm!"
+              >
+                <Edit fill="var(--color-icon-default)" className="size-4" />
+                Edit
+              </Button>
+            </PermissionCheck>
+            <PermissionCheck permissionUtility={canDeleteFees}>
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-bg-state-secondary! border-border-darker hover:bg-bg-state-secondary-hover! h-8! w-8! border shadow-sm!"
+              >
+                <DeleteBin fill="var(--color-bg-state-destructive)" className="size-4" />
+              </Button>
+            </PermissionCheck>
           </div>
         </div>
 

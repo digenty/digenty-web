@@ -4,6 +4,7 @@ import { Avatar } from "@/components/Avatar";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { ContactDetail } from "@/components/StudentAndParent/ContactDetail";
 import { Button } from "@/components/ui/button";
 import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { useParentStore } from "@/store/useParentStore";
@@ -84,7 +85,9 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{parent.phoneNumber}</p>
+          <p className="text-text-default">
+            <ContactDetail value={parent.phoneNumber} />
+          </p>
         </Button>
       </div>
 
@@ -94,7 +97,9 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
         </div>
 
         <Button variant="ghost">
-          <p className="text-text-default">{parent.email}</p>
+          <p className="text-text-default">
+            <ContactDetail value={parent.email} />
+          </p>
         </Button>
       </div>
 

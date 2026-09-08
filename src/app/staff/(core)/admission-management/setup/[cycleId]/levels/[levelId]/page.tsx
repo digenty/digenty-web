@@ -3,8 +3,10 @@
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { ConfigureRequirements } from "@/components/AdmissionManagement/SetupConfiguration/ConfigureRequirements";
 import { BackButton } from "@/components/BackButton";
+import { ManageAccessGate } from "@/components/ModulePermissionsWrapper/ManageAccessGate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetCycleLevels } from "@/hooks/queryHooks/useAdmission";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { useBreadcrumbStore } from "@/store/breadcrumb";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
@@ -62,11 +64,13 @@ export default function LevelConfigPage() {
   }
 
   return (
-    <div className="p-3 md:p-6">
-      <div className="pb-3 md:hidden">
-        <BackButton />
+    <ManageAccessGate permissionUtility={canManageAdmissionManagement} redirectTo="/staff/admission-management">
+      <div className="p-3 md:p-6">
+        <div className="pb-3 md:hidden">
+          <BackButton />
+        </div>
+        <ConfigureRequirements scope="level" name={level?.levelName ?? "Level"} cycleId={cycleId} levelId={levelId} branchId={branchId} />
       </div>
-      <ConfigureRequirements scope="level" name={level?.levelName ?? "Level"} cycleId={cycleId} levelId={levelId} branchId={branchId} />
-    </div>
+    </ManageAccessGate>
   );
 }

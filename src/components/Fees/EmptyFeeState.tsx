@@ -4,6 +4,8 @@ import { AddFill, QuickReferenceAll } from "@digenty/icons";
 import { Button } from "../ui/button";
 
 import { useRouter } from "next/navigation";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageFees } from "@/lib/permissions/fees";
 
 export const EmptyFeeState = ({ title, description, buttonText, url }: { title: string; description: string; buttonText: string; url?: string }) => {
   const router = useRouter();
@@ -13,13 +15,15 @@ export const EmptyFeeState = ({ title, description, buttonText, url }: { title: 
         <QuickReferenceAll />
         <p className="text-text-default text-lg font-medium">{title}</p>
         <p className="text-text-muted text-center text-xs font-normal">{description}</p>
-        <Button
-          onClick={() => router.push(url ?? "/staff/fees/add")}
-          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2"
-        >
-          <AddFill fill="var(--color-icon-white-default)" />
-          {buttonText}
-        </Button>
+        <PermissionCheck permissionUtility={canManageFees}>
+          <Button
+            onClick={() => router.push(url ?? "/staff/fees/add")}
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2"
+          >
+            <AddFill fill="var(--color-icon-white-default)" />
+            {buttonText}
+          </Button>
+        </PermissionCheck>
       </div>
     </div>
   );

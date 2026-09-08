@@ -1,6 +1,8 @@
 import { Edit } from "@digenty/icons";
 import { DateRangePicker } from "@/components/DatePicker";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
@@ -18,9 +20,11 @@ export const EditSubmissions = () => {
       <div className="flex w-full flex-col gap-6">
         <div className="flex justify-between">
           <div className="text-text-default text-xl font-semibold">Submission Deadline</div>
-          <Button className="text-text-default border-border-darker rounded-md border">
-            <Edit fill="var(--color-icon-default-muted)" /> Edit
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button className="text-text-default border-border-darker rounded-md border">
+              <Edit fill="var(--color-icon-default-muted)" /> Edit
+            </Button>
+          </PermissionCheck>
         </div>
         <div className="bg-bg-card border-border-darker w-full rounded-md border p-4 md:p-6">
           <div className="text-text-default text-md mb-4 font-semibold">First Term</div>

@@ -11,6 +11,8 @@ import { useFormikContext } from "formik";
 import { useGetFeeRoutes } from "@/hooks/queryHooks/useFee";
 import { FeesSetupFormValues } from "../index";
 import React, { useState } from "react";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageFeeCollection } from "@/lib/permissions/fee-collection";
 
 type FlowType = "oneAccount" | "differentAccounts";
 
@@ -43,13 +45,15 @@ export const OneAccountReview = ({ selected, onSelect }: Props) => {
             <div className="text-text-default text-md font-semibold">Branch collection</div>
             <div className="text-text-muted text-sm font-normal">Single account for all branches</div>
           </div>
-          <Button
-            type="button"
-            onClick={() => setOpenMode(true)}
-            className="border-border-darker bg-bg-state-secondary! text-text-default flex h-8! w-fit items-center gap-4 rounded-md border text-sm font-medium"
-          >
-            <Edit fill="var(--color-icon-default-muted)" /> Change Mode
-          </Button>
+          <PermissionCheck permissionUtility={canManageFeeCollection}>
+            <Button
+              type="button"
+              onClick={() => setOpenMode(true)}
+              className="border-border-darker bg-bg-state-secondary! text-text-default flex h-8! w-fit items-center gap-4 rounded-md border text-sm font-medium"
+            >
+              <Edit fill="var(--color-icon-default-muted)" /> Change Mode
+            </Button>
+          </PermissionCheck>
 
           {!isMobile && (
             <Modal open={openMode} setOpen={setOpenMode} title="Choose mode" ActionButton={null}>
@@ -97,9 +101,11 @@ export const OneAccountReview = ({ selected, onSelect }: Props) => {
                   {account.bankName} • {account.accountNumber}
                 </div>
               </div>
-              <Button type="button" onClick={() => setEditAccountOpen(true)} className="hover:bg-bg-none! bg-none">
-                <Edit fill="var(--color-icon-default-muted)" />
-              </Button>
+              <PermissionCheck permissionUtility={canManageFeeCollection}>
+                <Button type="button" onClick={() => setEditAccountOpen(true)} className="hover:bg-bg-none! bg-none">
+                  <Edit fill="var(--color-icon-default-muted)" />
+                </Button>
+              </PermissionCheck>
             </div>
 
             <EditAccountSheet

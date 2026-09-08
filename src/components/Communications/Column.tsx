@@ -10,6 +10,8 @@ import { CampaignResponseDto } from "@/api/campaign";
 import { toast } from "@/components/Toast";
 import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteCommunication, canManageCommunication } from "@/lib/permissions/communication";
 import { Checkbox } from "../ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
@@ -87,28 +89,32 @@ const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
             <span>View campaign</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={evt => {
-              evt.stopPropagation();
-              router.push(`/staff/communications/${id}/edit`);
-            }}
-            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
-          >
-            <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
-            <span>Edit campaign</span>
-          </DropdownMenuItem>
+          <PermissionCheck permissionUtility={canManageCommunication}>
+            <DropdownMenuItem
+              onClick={evt => {
+                evt.stopPropagation();
+                router.push(`/staff/communications/${id}/edit`);
+              }}
+              className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
+            >
+              <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Edit campaign</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
 
-          <DropdownMenuItem
-            onClick={evt => {
-              evt.stopPropagation();
-              setOpen(false);
-              handleDuplicate();
-            }}
-            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
-          >
-            <FileCopy fill="var(--color-icon-default-subtle)" className="size-4" />
-            <span>Duplicate</span>
-          </DropdownMenuItem>
+          <PermissionCheck permissionUtility={canManageCommunication}>
+            <DropdownMenuItem
+              onClick={evt => {
+                evt.stopPropagation();
+                setOpen(false);
+                handleDuplicate();
+              }}
+              className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
+            >
+              <FileCopy fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Duplicate</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
 
           <DropdownMenuItem
             onClick={evt => {
@@ -124,17 +130,19 @@ const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
 
           <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-          <DropdownMenuItem
-            onClick={evt => {
-              evt.stopPropagation();
-              setOpen(false);
-              setDeleteOpen(true);
-            }}
-            className="cursor-pointer gap-2.5 px-3"
-          >
-            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-            <span className="text-icon-destructive">Delete campaign</span>
-          </DropdownMenuItem>
+          <PermissionCheck permissionUtility={canDeleteCommunication}>
+            <DropdownMenuItem
+              onClick={evt => {
+                evt.stopPropagation();
+                setOpen(false);
+                setDeleteOpen(true);
+              }}
+              className="cursor-pointer gap-2.5 px-3"
+            >
+              <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+              <span className="text-icon-destructive">Delete campaign</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
         </DropdownMenuContent>
       </DropdownMenu>
 

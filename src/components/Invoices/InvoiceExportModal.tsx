@@ -15,6 +15,8 @@ import { DrawerClose, DrawerFooter } from "../ui/drawer";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { formatInvoiceStatus, InvoicesOverviewTableProps } from "./types";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageInvoices } from "@/lib/permissions/invoices";
 
 type InvoiceModalProps = {
   open: boolean;
@@ -88,14 +90,16 @@ export const InvoiceExportModal = ({ open, setOpen, branches, terms, initialBran
   };
 
   const exportButton = (
-    <Button
-      onClick={handleExport}
-      disabled={isFetching || exportInvoices.length === 0}
-      className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm disabled:opacity-50"
-    >
-      <ShareBox fill="var(--color-icon-white-default)" />
-      {isFetching ? "Loading..." : "Export Invoice"}
-    </Button>
+    <PermissionCheck permissionUtility={canManageInvoices}>
+      <Button
+        onClick={handleExport}
+        disabled={isFetching || exportInvoices.length === 0}
+        className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm disabled:opacity-50"
+      >
+        <ShareBox fill="var(--color-icon-white-default)" />
+        {isFetching ? "Loading..." : "Export Invoice"}
+      </Button>
+    </PermissionCheck>
   );
 
   const filterContent = (

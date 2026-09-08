@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { canManageWebsiteCustomization } from "@/lib/permissions/website-customization";
 import { cn } from "@/lib/utils";
 import { useWebsiteCustomization, WebsiteCustomizationProvider } from "./context";
 import { LivePreview } from "./preview/LivePreview";
@@ -89,20 +91,24 @@ const WebsiteCustomizationInner = () => {
             )}
 
             {hasData && (
-              <Button
-                onClick={publish}
-                disabled={isPublishing || isLoading || isEditing}
-                className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-9! rounded-md border text-sm font-medium shadow-xs"
-              >
-                {isPublishing && <Spinner className="size-3" />}
-                {live ? "Unpublish" : "Publish"}
-              </Button>
+              <PermissionCheck permissionUtility={canManageWebsiteCustomization}>
+                <Button
+                  onClick={publish}
+                  disabled={isPublishing || isLoading || isEditing}
+                  className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-9! rounded-md border text-sm font-medium shadow-xs"
+                >
+                  {isPublishing && <Spinner className="size-3" />}
+                  {live ? "Unpublish" : "Publish"}
+                </Button>
+              </PermissionCheck>
             )}
 
             {hasData && !isEditing ? (
-              <Button onClick={startEdit} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-9!">
-                Edit
-              </Button>
+              <PermissionCheck permissionUtility={canManageWebsiteCustomization}>
+                <Button onClick={startEdit} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-9!">
+                  Edit
+                </Button>
+              </PermissionCheck>
             ) : (
               <>
                 {hasData && (
@@ -114,14 +120,16 @@ const WebsiteCustomizationInner = () => {
                     Cancel
                   </Button>
                 )}
-                <Button
-                  onClick={save}
-                  disabled={isSaving || isLoading}
-                  className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-9!"
-                >
-                  {isSaving && <Spinner className="text-text-white-default size-3" />}
-                  Save
-                </Button>
+                <PermissionCheck permissionUtility={canManageWebsiteCustomization}>
+                  <Button
+                    onClick={save}
+                    disabled={isSaving || isLoading}
+                    className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-9!"
+                  >
+                    {isSaving && <Spinner className="text-text-white-default size-3" />}
+                    Save
+                  </Button>
+                </PermissionCheck>
               </>
             )}
           </div>

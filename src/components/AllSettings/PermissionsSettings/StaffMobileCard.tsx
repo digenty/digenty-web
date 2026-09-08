@@ -5,6 +5,8 @@ import { Avatar } from "@/components/Avatar";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { getStatusBadge, staffStatusBadge } from "@/components/Status";
 import { Button } from "@/components/ui/button";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { Ellipsis, ShieldUser } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -38,33 +40,35 @@ export const StaffMobileCard = ({ staff }: { staff: Staff }) => {
               >
                 <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Staff
               </div>
-              <div
-                role="button"
-                onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staff.staffId}`)}
-                className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-              >
-                <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Staff
-              </div>
-
-              <div
-                onClick={() => {
-                  setStaffToMakeAdmin(staff);
-                  setOpenMakeBranchAdmin(true);
-                  setIsOpen(false);
-                }}
-                className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-              >
-                <ShieldUser className="text-icon-default-subtle size-4" /> Make Branch Admin
-              </div>
-
-              {staff.status !== "INACTIVE" && (
+              <PermissionCheck permissionUtility={canManageSettings}>
                 <div
-                  onClick={handleDeactivate}
-                  className="hover:bg-bg-muted border-border-darker text-text-destructive flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                  role="button"
+                  onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staff.staffId}`)}
+                  className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                 >
-                  <UserForbid fill="var(--color-icon-destructive)" className="size-4" /> Deactivate Staff
+                  <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Staff
                 </div>
-              )}
+
+                <div
+                  onClick={() => {
+                    setStaffToMakeAdmin(staff);
+                    setOpenMakeBranchAdmin(true);
+                    setIsOpen(false);
+                  }}
+                  className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                >
+                  <ShieldUser className="text-icon-default-subtle size-4" /> Make Branch Admin
+                </div>
+
+                {staff.status !== "INACTIVE" && (
+                  <div
+                    onClick={handleDeactivate}
+                    className="hover:bg-bg-muted border-border-darker text-text-destructive flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                  >
+                    <UserForbid fill="var(--color-icon-destructive)" className="size-4" /> Deactivate Staff
+                  </div>
+                )}
+              </PermissionCheck>
             </div>
           </div>
         </MobileDrawer>
