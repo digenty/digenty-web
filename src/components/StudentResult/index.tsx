@@ -1,5 +1,5 @@
 import { Edit } from "@digenty/icons";
-import { SkillRating, StudentReport, SubjectReport } from "@/api/types";
+import { StudentReport, SubjectReport } from "@/api/types";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -62,25 +62,27 @@ export const columns = (headers: string[]): ColumnDef<Result>[] => [
   },
 ];
 
-export type DevelopmentResult = Record<string, string>;
+export type DevelopmentResult = { skill: string; rating: string };
 
-// One column per skill and a single row (this student's ratings), laid out horizontally like the academic
-// report's subject/CA table instead of a skill-per-row list.
-export const developmentColumns = (skills: SkillRating[]): ColumnDef<DevelopmentResult>[] =>
-  skills.map((skill, index) => {
-    const columnId = skill.skillId ? String(skill.skillId) : `skill-${index}`;
-    return {
-      id: columnId,
-      accessorFn: (row: DevelopmentResult) => row[columnId],
-      header: () => (
-        <div className="text-text-muted flex justify-center text-center text-xs font-medium md:text-sm">{skill.skillName ?? "Skill"}</div>
-      ),
-      cell: ({ row }: { row: Row<DevelopmentResult> }) => (
-        <span className="text-text-default flex justify-center text-xs font-normal capitalize md:text-sm">{row.original[columnId]}</span>
-      ),
-      size: 160,
-    };
-  });
+// One row per skill (skill name + rating), laid out vertically underneath the academic report table.
+export const developmentColumns = (): ColumnDef<DevelopmentResult>[] => [
+  {
+    accessorKey: "skill",
+    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Skill</div>,
+    cell: ({ row }: { row: Row<DevelopmentResult> }) => (
+      <span className="text-text-default flex justify-center text-xs font-normal md:text-sm">{row.original.skill}</span>
+    ),
+    size: 340,
+  },
+  {
+    accessorKey: "rating",
+    header: () => <div className="text-text-muted flex justify-center text-xs font-medium md:text-sm">Rating</div>,
+    cell: ({ row }: { row: Row<DevelopmentResult> }) => (
+      <span className="text-text-default flex justify-center text-xs font-normal capitalize md:text-sm">{row.original.rating}</span>
+    ),
+    size: 200,
+  },
+];
 
 export const StudentResult = ({
   studentReport,
@@ -129,12 +131,14 @@ export const StudentResult = ({
       : ["Total", "Grade", "Remark"];
 
   const developmentSkills = studentReport.developments.flatMap(category => category.skills);
-  const developmentRow = developmentSkills.reduce<DevelopmentResult>((acc, skill, index) => {
-    const columnId = skill.skillId ? String(skill.skillId) : `skill-${index}`;
-    const label = studentReport.ratingLegend.find(entry => entry.value === skill.rating)?.label;
-    acc[columnId] = label ?? "--";
-    return acc;
-  }, {});
+  const developmentRows: DevelopmentResult[] = developmentSkills.map(skill => ({
+    skill: skill.skillName ?? "Skill",
+    rating: studentReport.ratingLegend.find(entry => entry.value === skill.rating)?.label ?? "--",
+  }));
+  const ratingScale = [...studentReport.ratingLegend]
+    .sort((a, b) => b.value - a.value)
+    .map(entry => `${entry.value} – ${entry.label}`)
+    .join(" | ");
 
   return (
     <div
@@ -191,29 +195,6 @@ export const StudentResult = ({
             </div>
           </div>
         </div>
-
-        <div className="w-full space-y-2">
-          <h3 className="text-bg-basic-red-accent text-sm font-semibold md:text-sm">DEVELOPMENT</h3>
-          {developmentSkills.length === 0 ? (
-            <div className="text-text-subtle border-border-default border px-2 py-2 text-xs font-medium md:text-sm">--</div>
-          ) : (
-            <DataTable
-              columns={developmentColumns(developmentSkills)}
-              data={[developmentRow]}
-              totalCount={1}
-              page={page}
-              setCurrentPage={setPage}
-              pageSize={1}
-              fullBorder
-              showPagination={false}
-              classNames={{
-                tableWrapper: "rounded-none",
-                tableHeadCell: "px-2",
-                tableBodyCell: "px-0",
-              }}
-            />
-          )}
-        </div>
       </div>
 
       <div className="bg-bg-subtle border-border-default flex flex-col border-t p-4">
@@ -246,25 +227,51 @@ export const StudentResult = ({
             <ErrorComponent title="No Academic Record" description="No academic record for this term" />
           </div>
         )}
+      </div>
 
-        <div className="text-text-default mt-4 flex flex-col gap-4 text-sm font-normal">
-          <div className="">
-            <span>OVERALL PERCENTAGE:</span> <span className="font-medium">{studentReport.overallPercentage.toFixed(0)}%</span>
-          </div>
-          <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
-            <span className="text-text-subtle">Class Teacher&apos;s Comment: </span>{" "}
-            <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{studentReport.classTeacherComment ?? "--"}</span>
-          </div>
-          <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
-            <span className="text-text-subtle">Principal&apos;s Comment:</span>{" "}
-            <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{studentReport.principalComment ?? "--"}</span>
-          </div>
-          <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
-            <span className="text-text-subtle">Next Term Begins:</span>{" "}
-            <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">
-              {studentReport.nextTermBegins ? format(studentReport.nextTermBegins, "d MMMM, yyyy") : "--"}
-            </span>
-          </div>
+      <div className="flex flex-col gap-2 px-4 py-5">
+        <h3 className="text-bg-basic-red-accent text-sm font-semibold md:text-sm">DEVELOPMENT</h3>
+        {developmentSkills.length === 0 ? (
+          <div className="text-text-subtle border-border-default border px-2 py-2 text-xs font-medium md:text-sm">--</div>
+        ) : (
+          <>
+            <p className="text-text-subtle text-xs font-normal md:text-sm">Rating Scale: {ratingScale}</p>
+            <DataTable
+              columns={developmentColumns()}
+              data={developmentRows}
+              totalCount={developmentRows.length}
+              page={page}
+              setCurrentPage={setPage}
+              pageSize={developmentRows.length}
+              fullBorder
+              showPagination={false}
+              classNames={{
+                tableWrapper: "rounded-none",
+                tableHeadCell: "px-2",
+                tableBodyCell: "px-0",
+              }}
+            />
+          </>
+        )}
+      </div>
+
+      <div className="text-text-default flex flex-col gap-4 px-4 pb-5 text-sm font-normal">
+        <div className="">
+          <span>OVERALL PERCENTAGE:</span> <span className="font-medium">{studentReport.overallPercentage.toFixed(0)}%</span>
+        </div>
+        <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
+          <span className="text-text-subtle">Class Teacher&apos;s Comment: </span>{" "}
+          <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{studentReport.classTeacherComment ?? "--"}</span>
+        </div>
+        <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
+          <span className="text-text-subtle">Principal&apos;s Comment:</span>{" "}
+          <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{studentReport.principalComment ?? "--"}</span>
+        </div>
+        <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
+          <span className="text-text-subtle">Next Term Begins:</span>{" "}
+          <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">
+            {studentReport.nextTermBegins ? format(studentReport.nextTermBegins, "d MMMM, yyyy") : "--"}
+          </span>
         </div>
       </div>
       <EditTeacherInputModal open={isEditModalOpen} setIsOpen={setIsEditModalOpen} studentId={studentReport?.studentId} armId={armId} />

@@ -1,7 +1,9 @@
 "use client";
 
 import { DeleteBin, Phone } from "@digenty/icons";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Input } from "@/components/ui/input";
+import { canManageWebsiteCustomization } from "@/lib/permissions/website-customization";
 import { AddButton, Field, INPUT_CLASS } from "../common";
 import { useWebsiteCustomization } from "../context";
 import { SectionCard } from "../SectionCard";
@@ -9,9 +11,11 @@ import { uid } from "../defaults";
 import { ContactLine } from "../types";
 
 const RemoveLabelButton = ({ onClick }: { onClick: () => void }) => (
-  <button type="button" onClick={onClick} aria-label="Remove field" className="cursor-pointer">
-    <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" />
-  </button>
+  <PermissionCheck permissionUtility={canManageWebsiteCustomization}>
+    <button type="button" onClick={onClick} aria-label="Remove field" className="cursor-pointer">
+      <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" />
+    </button>
+  </PermissionCheck>
 );
 
 export const ContactSection = () => {

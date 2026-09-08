@@ -4,8 +4,10 @@ import { useRef, useState } from "react";
 import { DeleteBin, ImageCircleFill } from "@digenty/icons";
 import { uploadWebsiteImage } from "@/api/website";
 import { toast } from "@/components/Toast";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { canManageWebsiteCustomization } from "@/lib/permissions/website-customization";
 import { cn } from "@/lib/utils";
 import { SquareIconButton } from "./common";
 
@@ -73,7 +75,7 @@ export const ImageUploadRow = ({
       </div>
 
       {!disabled && (
-        <>
+        <PermissionCheck permissionUtility={canManageWebsiteCustomization}>
           <Button
             onClick={open}
             disabled={isUploading}
@@ -86,7 +88,7 @@ export const ImageUploadRow = ({
           <SquareIconButton onClick={() => onChange("")} aria-label="Remove image">
             <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" />
           </SquareIconButton>
-        </>
+        </PermissionCheck>
       )}
 
       <span className="text-text-muted text-xs">{hint}</span>
@@ -128,15 +130,17 @@ export const ImageDropBox = ({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={value} alt="Gallery item" className="absolute inset-0 size-full object-cover" />
           {!disabled && (
-            <span
-              onClick={e => {
-                e.stopPropagation();
-                onChange("");
-              }}
-              className="bg-bg-overlay absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-md opacity-0 transition-opacity group-hover:opacity-100"
-            >
-              <DeleteBin fill="var(--color-icon-white-default)" className="size-3.5" />
-            </span>
+            <PermissionCheck permissionUtility={canManageWebsiteCustomization}>
+              <span
+                onClick={e => {
+                  e.stopPropagation();
+                  onChange("");
+                }}
+                className="bg-bg-overlay absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-md opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <DeleteBin fill="var(--color-icon-white-default)" className="size-3.5" />
+              </span>
+            </PermissionCheck>
           )}
         </>
       ) : isUploading ? (

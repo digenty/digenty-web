@@ -3,12 +3,14 @@
 import { CycleResponse, LevelSummaryDto } from "@/api/admission";
 import { BranchWithClassLevels } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useGetCycleLevels, useSetCycleBranchSpecific } from "@/hooks/queryHooks/useAdmission";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { cn } from "@/lib/utils";
 import { Bill, CheckboxCircleFill, Edit, Eye, Settings4 } from "@digenty/icons";
 import { useState } from "react";
@@ -48,20 +50,24 @@ export const AdmissionCycleSetup = ({ cycle, onConfigureLevel, onViewClasses }: 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-text-default text-xl font-semibold">{cycle.name}</h2>
         <div className="flex items-center gap-2">
-          <Button
-            onClick={() => setIsGlobalFeesOpen(true)}
-            className="border-border-darker text-text-default hover:bg-bg-state-secondary-hover! bg-bg-state-secondary! flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
-          >
-            <Bill fill="var(--color-icon-default-subtle)" className="size-4 shrink-0" />
-            Set Global Fees
-          </Button>
-          <Button
-            onClick={() => setIsEditCycleOpen(true)}
-            className="border-border-darker text-text-default hover:bg-bg-state-secondary-hover! bg-bg-state-secondary! flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
-          >
-            <Edit fill="var(--color-icon-default-subtle)" className="size-4 shrink-0" />
-            Edit Cycle Details
-          </Button>
+          <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+            <Button
+              onClick={() => setIsGlobalFeesOpen(true)}
+              className="border-border-darker text-text-default hover:bg-bg-state-secondary-hover! bg-bg-state-secondary! flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
+            >
+              <Bill fill="var(--color-icon-default-subtle)" className="size-4 shrink-0" />
+              Set Global Fees
+            </Button>
+          </PermissionCheck>
+          <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+            <Button
+              onClick={() => setIsEditCycleOpen(true)}
+              className="border-border-darker text-text-default hover:bg-bg-state-secondary-hover! bg-bg-state-secondary! flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
+            >
+              <Edit fill="var(--color-icon-default-subtle)" className="size-4 shrink-0" />
+              Edit Cycle Details
+            </Button>
+          </PermissionCheck>
         </div>
       </div>
 

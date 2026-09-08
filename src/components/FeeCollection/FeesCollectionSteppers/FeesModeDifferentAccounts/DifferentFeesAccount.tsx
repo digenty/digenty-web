@@ -18,6 +18,8 @@ import { BranchWithClassLevels } from "@/api/types";
 import { FeesSetupFormValues } from "../index";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { useGetAccountDetails, useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageFeeCollection } from "@/lib/permissions/fee-collection";
 
 type PoolAccount = {
   bankCode: string;
@@ -323,14 +325,16 @@ export const AddAccountSheet = ({ bankOptions, onAdd }: AddAccountSheetProps) =>
 
   return (
     <div>
-      <div
-        onClick={() => setSheetOpen(true)}
-        role="button"
-        className="hover:bg-bg-input-soft border-border-default text-text-default flex cursor-pointer items-center justify-center gap-1.5 border-t py-2 text-sm"
-      >
-        {/* <PlusIcon className="text-icon-default-muted size-4" /> */}
-        <AddFill fill="var(--color-icon-default-muted)" className="size-4" /> Add new account
-      </div>
+      <PermissionCheck permissionUtility={canManageFeeCollection}>
+        <div
+          onClick={() => setSheetOpen(true)}
+          role="button"
+          className="hover:bg-bg-input-soft border-border-default text-text-default flex cursor-pointer items-center justify-center gap-1.5 border-t py-2 text-sm"
+        >
+          {/* <PlusIcon className="text-icon-default-muted size-4" /> */}
+          <AddFill fill="var(--color-icon-default-muted)" className="size-4" /> Add new account
+        </div>
+      </PermissionCheck>
 
       {!isMobile && (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>

@@ -22,7 +22,7 @@ export const CategoryExpenses = () => {
   const params = useParams();
   const categoryId = Number(params?.id);
 
-  const { filters, setFilters, page, setPage } = useExpenseFilters({ categoryId: categoryId || undefined });
+  const { filters, setFilters, page, setPage, isBranchRestricted, userBranchIds } = useExpenseFilters({ categoryId: categoryId || undefined });
 
   const { data: categoryResp } = useGetExpenseCategoryById(categoryId || undefined);
   const category = useMemo(() => extractExpenseRecord<ExpenseCategoryItem>(categoryResp), [categoryResp]);
@@ -58,6 +58,8 @@ export const CategoryExpenses = () => {
           filters={filters}
           setFilters={setFilters}
           showCategoriesLink={false}
+          isBranchRestricted={isBranchRestricted}
+          userBranchIds={userBranchIds}
           titleAdornment={
             <Badge className="border-border-default bg-bg-badge-lime text-bg-basic-lime-strong rounded-md border text-xs font-medium">
               {expenseCount} Expenses

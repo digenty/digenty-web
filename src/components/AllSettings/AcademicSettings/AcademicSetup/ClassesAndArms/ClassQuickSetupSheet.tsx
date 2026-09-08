@@ -1,6 +1,7 @@
 import { ArmDetails, ClassLevel, DepartmentWithSubjects } from "@/api/types";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import {
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
 import { useAddSubject, useDeleteSubject, useGetAllSubjects, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { cn } from "@/lib/utils";
 import { armKeys } from "@/queries/arm";
 import { departmentKeys } from "@/queries/department";
@@ -89,14 +91,16 @@ const LevelItemsSection = ({
           className="text-text-default h-7! w-full rounded-md border-none text-sm font-normal"
         />
         {inputValue.trim() && (
-          <Button
-            type="button"
-            onClick={handleAdd}
-            disabled={isAdding}
-            className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! shrink-0 rounded-md px-2 text-xs"
-          >
-            {isAdding ? <Spinner className="text-text-white-default size-3" /> : "Add"}
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button
+              type="button"
+              onClick={handleAdd}
+              disabled={isAdding}
+              className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! shrink-0 rounded-md px-2 text-xs"
+            >
+              {isAdding ? <Spinner className="text-text-white-default size-3" /> : "Add"}
+            </Button>
+          </PermissionCheck>
         )}
       </div>
 
@@ -104,14 +108,16 @@ const LevelItemsSection = ({
         <div className="flex flex-wrap gap-2">
           {existingItems.map(name => (
             <div key={name} className="bg-bg-state-primary/10 border-border-default flex items-center gap-3 rounded-md border px-1.5 py-0.5">
-              <button
-                type="button"
-                onClick={() => onDelete(name)}
-                disabled={deletingName === name}
-                className="text-text-destructive shrink-0 cursor-pointer transition-colors disabled:opacity-50"
-              >
-                {deletingName === name ? <Spinner className="text-text-muted size-3" /> : <X size={11} />}
-              </button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <button
+                  type="button"
+                  onClick={() => onDelete(name)}
+                  disabled={deletingName === name}
+                  className="text-text-destructive shrink-0 cursor-pointer transition-colors disabled:opacity-50"
+                >
+                  {deletingName === name ? <Spinner className="text-text-muted size-3" /> : <X size={11} />}
+                </button>
+              </PermissionCheck>
               <span className="text-text-default text-xs capitalize">{name.toLowerCase()}</span>
             </div>
           ))}
@@ -128,15 +134,16 @@ const LevelItemsSection = ({
           <span className="text-text-muted text-xs">Suggestions — click to add</span>
           <div className="flex flex-wrap gap-2">
             {globalOptions.map(name => (
-              <button
-                key={name}
-                type="button"
-                onClick={() => onAdd([name])}
-                disabled={isAdding || !!deletingName}
-                className="border-border-default text-text-default hover:bg-bg-state-soft cursor-pointer rounded-md border px-1.5 py-0.5 text-xs capitalize transition-colors disabled:opacity-50"
-              >
-                {name.toLowerCase()}
-              </button>
+              <PermissionCheck key={name} permissionUtility={canManageSettings}>
+                <button
+                  type="button"
+                  onClick={() => onAdd([name])}
+                  disabled={isAdding || !!deletingName}
+                  className="border-border-default text-text-default hover:bg-bg-state-soft cursor-pointer rounded-md border px-1.5 py-0.5 text-xs capitalize transition-colors disabled:opacity-50"
+                >
+                  {name.toLowerCase()}
+                </button>
+              </PermissionCheck>
             ))}
           </div>
         </div>
@@ -608,15 +615,17 @@ export const ClassQuickSetupSheet = ({
           </div>
         </div>
 
-        <Button
-          disabled={!formik.dirty || isPending}
-          type="button"
-          onClick={() => formik.handleSubmit()}
-          className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 self-end rounded-sm px-2 py-1"
-        >
-          {isPending && <Spinner className="text-text-white-default" />}
-          Save
-        </Button>
+        <PermissionCheck permissionUtility={canManageSettings}>
+          <Button
+            disabled={!formik.dirty || isPending}
+            type="button"
+            onClick={() => formik.handleSubmit()}
+            className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 self-end rounded-sm px-2 py-1"
+          >
+            {isPending && <Spinner className="text-text-white-default" />}
+            Save
+          </Button>
+        </PermissionCheck>
       </div>
 
       {!isLevelDetailsSaved && (
@@ -641,27 +650,29 @@ export const ClassQuickSetupSheet = ({
                   can offer different sets of subjects or focus areas.
                 </div>
               </div>
-              <Toggle
-                withBorder={false}
-                checked={departmentsEnabled}
-                onChange={e => {
-                  const enable = (e.target as HTMLInputElement).checked;
-                  setDepartmentsEnabled(enable);
-                  toggleDepartment(
-                    { levelId: level.id, enable },
-                    {
-                      onError: (error: unknown) => {
-                        setDepartmentsEnabled(!enable);
-                        toast({
-                          title: "Failed to update departments",
-                          description: (error as { message?: string })?.message || "Could not update department setting",
-                          type: "error",
-                        });
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Toggle
+                  withBorder={false}
+                  checked={departmentsEnabled}
+                  onChange={e => {
+                    const enable = (e.target as HTMLInputElement).checked;
+                    setDepartmentsEnabled(enable);
+                    toggleDepartment(
+                      { levelId: level.id, enable },
+                      {
+                        onError: (error: unknown) => {
+                          setDepartmentsEnabled(!enable);
+                          toast({
+                            title: "Failed to update departments",
+                            description: (error as { message?: string })?.message || "Could not update department setting",
+                            type: "error",
+                          });
+                        },
                       },
-                    },
-                  );
-                }}
-              />
+                    );
+                  }}
+                />
+              </PermissionCheck>
             </div>
             {departmentsEnabled && (
               <>

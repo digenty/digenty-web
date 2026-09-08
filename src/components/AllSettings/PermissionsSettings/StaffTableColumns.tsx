@@ -5,6 +5,8 @@ import { Avatar } from "@/components/Avatar";
 import { getStatusBadge, staffStatusBadge } from "@/components/Status";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { formatRelativeDate } from "@/lib/utils";
 import { useStaffStore } from "@/store/staff";
 import { ColumnDef, Row } from "@tanstack/react-table";
@@ -40,32 +42,34 @@ const RenderOptions = (row: Row<Staff>) => {
           <span>Edit staff</span>
         </DropdownMenuItem> */}
 
-        <DropdownMenuSeparator className="border-border-default bg-border-default" />
+        <PermissionCheck permissionUtility={canManageSettings}>
+          <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-        <DropdownMenuItem
-          onClick={evt => {
-            evt.stopPropagation();
-            setStaffToMakeAdmin(row.original);
-            setOpenMakeBranchAdmin(true);
-          }}
-          className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
-        >
-          <ShieldUser className="text-icon-default-subtle size-4" />
-          <span>Make Branch Admin</span>
-        </DropdownMenuItem>
-
-        {row.original.status !== "INACTIVE" && (
           <DropdownMenuItem
-            onClick={() => {
-              setOpenDeactivation(true);
-              setStaffIdToDeactivate(row.original.staffId);
+            onClick={evt => {
+              evt.stopPropagation();
+              setStaffToMakeAdmin(row.original);
+              setOpenMakeBranchAdmin(true);
             }}
-            className="cursor-pointer gap-2.5 px-3"
+            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
           >
-            <UserForbid fill="var(--color-icon-destructive)" className="size-4" />
-            <span className="text-icon-destructive">Deactivate staff</span>
+            <ShieldUser className="text-icon-default-subtle size-4" />
+            <span>Make Branch Admin</span>
           </DropdownMenuItem>
-        )}
+
+          {row.original.status !== "INACTIVE" && (
+            <DropdownMenuItem
+              onClick={() => {
+                setOpenDeactivation(true);
+                setStaffIdToDeactivate(row.original.staffId);
+              }}
+              className="cursor-pointer gap-2.5 px-3"
+            >
+              <UserForbid fill="var(--color-icon-destructive)" className="size-4" />
+              <span className="text-icon-destructive">Deactivate staff</span>
+            </DropdownMenuItem>
+          )}
+        </PermissionCheck>
       </DropdownMenuContent>
     </DropdownMenu>
   );

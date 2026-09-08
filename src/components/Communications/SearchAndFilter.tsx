@@ -7,7 +7,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { CampaignChannel, CampaignStatus } from "@/api/campaign";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageCommunication } from "@/lib/permissions/communication";
 import { cn } from "@/lib/utils";
 
 import { MobileDrawer } from "../MobileDrawer";
@@ -123,13 +125,15 @@ export const SearchAndFilter = ({ search, onSearchChange, status, onStatusChange
           <Filter className="size-4" fill="var(--color-icon-default-muted)" />
         </Button>
 
-        <Button
-          onClick={() => router.push("/staff/communications/new")}
-          className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 items-center gap-1 rounded-md px-3"
-        >
-          <Plus className="text-texticon-white-default size-4" />
-          New Campaign
-        </Button>
+        <PermissionCheck permissionUtility={canManageCommunication}>
+          <Button
+            onClick={() => router.push("/staff/communications/new")}
+            className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 items-center gap-1 rounded-md px-3"
+          >
+            <Plus className="text-texticon-white-default size-4" />
+            New Campaign
+          </Button>
+        </PermissionCheck>
       </div>
 
       {isMobile && (

@@ -5,6 +5,7 @@ import { AcademicSession, Level, NewBranchForm, Term } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
 import { useAddLevel, useDeleteLevel } from "@/hooks/queryHooks/useLevel";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { getAcademicYears } from "@/lib/utils";
 import { LEVELS } from "@/store/classes";
 import { format, parseISO } from "date-fns";
@@ -83,15 +85,17 @@ const BranchLevelSelector = ({ level, branchLevels, isBusy, onToggle, onSaveLeve
 
       {hasChanges && (
         <div className="mt-3 flex justify-end">
-          <Button
-            type="button"
-            disabled={isBusy}
-            onClick={() => onSaveLevels(level, toAdd, toRemove)}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
-          >
-            {isBusy && <Spinner className="text-text-white-default size-3" />}
-            Save Levels
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button
+              type="button"
+              disabled={isBusy}
+              onClick={() => onSaveLevels(level, toAdd, toRemove)}
+              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
+            >
+              {isBusy && <Spinner className="text-text-white-default size-3" />}
+              Save Levels
+            </Button>
+          </PermissionCheck>
         </div>
       )}
     </div>
@@ -342,13 +346,15 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
         <div className="flex items-center justify-between">
           <div className="text-text-default text-lg font-semibold">Academic Session & Term</div>
           {!isEditing && (
-            <Button
-              type="button"
-              onClick={handleEdit}
-              className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle border-border-darker flex h-7 items-center gap-1.5 border text-sm"
-            >
-              <Edit2 className="h-3.5 w-3.5" /> Edit
-            </Button>
+            <PermissionCheck permissionUtility={canManageSettings}>
+              <Button
+                type="button"
+                onClick={handleEdit}
+                className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle border-border-darker flex h-7 items-center gap-1.5 border text-sm"
+              >
+                <Edit2 className="h-3.5 w-3.5" /> Edit
+              </Button>
+            </PermissionCheck>
           )}
         </div>
 
@@ -565,15 +571,17 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
                   >
                     Cancel
                   </Button>
-                  <Button
-                    type="button"
-                    onClick={() => handleAddBranch(branch.id)}
-                    disabled={branch.isSubmitting}
-                    className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
-                  >
-                    {branch.isSubmitting && <Spinner className="text-text-white-default size-3" />}
-                    Add
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageSettings}>
+                    <Button
+                      type="button"
+                      onClick={() => handleAddBranch(branch.id)}
+                      disabled={branch.isSubmitting}
+                      className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
+                    >
+                      {branch.isSubmitting && <Spinner className="text-text-white-default size-3" />}
+                      Add
+                    </Button>
+                  </PermissionCheck>
                 </div>
               </div>
             ))}
@@ -581,13 +589,15 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
         )}
 
         {isEditing && (
-          <Button
-            type="button"
-            onClick={() => setNewBranches(prev => [...prev, emptyNewBranch()])}
-            className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit text-sm"
-          >
-            <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Branch
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button
+              type="button"
+              onClick={() => setNewBranches(prev => [...prev, emptyNewBranch()])}
+              className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit text-sm"
+            >
+              <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Branch
+            </Button>
+          </PermissionCheck>
         )}
       </div>
 
@@ -596,14 +606,16 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
           <Button onClick={handleCancel} disabled={isBusy} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={isBusy}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
-          >
-            {isSaving && <Spinner className="text-text-white-default size-4" />}
-            Save changes
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button
+              onClick={handleSave}
+              disabled={isBusy}
+              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
+            >
+              {isSaving && <Spinner className="text-text-white-default size-4" />}
+              Save changes
+            </Button>
+          </PermissionCheck>
         </div>
       )}
     </div>

@@ -4,6 +4,7 @@ import { AddFill, DeleteBin2, Settings4 } from "@digenty/icons";
 import { AssessmentType } from "@/api/types";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle }
 import { useAddAssessmentDefault, useGetAssessmentDefault } from "@/hooks/queryHooks/useAssessment";
 import { useAddGradingDefault } from "@/hooks/queryHooks/useGrading";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { cn } from "@/lib/utils";
 import { schoolDefaultSchema, schoolDefaultUpdateSchema } from "@/schema/academic";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -158,20 +160,24 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
                           />
                           <span className="text-text-muted w-3">%</span>
                         </div>
-                        <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit">
-                          <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-                        </Button>
+                        <PermissionCheck permissionUtility={canManageSettings}>
+                          <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit">
+                            <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                          </Button>
+                        </PermissionCheck>
                       </div>
                     ))}
                   </div>
                   <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <Button
-                      type="button"
-                      className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm"
-                      onClick={() => push(emptyAssessmentRow())}
-                    >
-                      <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Continuous Assessment
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        type="button"
+                        className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm"
+                        onClick={() => push(emptyAssessmentRow())}
+                      >
+                        <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Continuous Assessment
+                      </Button>
+                    </PermissionCheck>
                     <div className="flex items-center gap-2">
                       <span className="text-text-subtle text-sm">Total Weight</span>
                       <span className={cn("text-sm font-medium", isOverWeight ? "text-text-destructive" : "text-text-default")}>{totalWeight}%</span>
@@ -265,22 +271,30 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
                             className="bg-bg-input-soft! placeholder:text-text-muted/30 text-text-default h-9! w-full border-none text-sm"
                             placeholder="Excellent"
                           />
-                          <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! h-8 w-8 p-0">
-                            <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-                          </Button>
+                          <PermissionCheck permissionUtility={canManageSettings}>
+                            <Button
+                              type="button"
+                              onClick={() => remove(index)}
+                              className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! h-8 w-8 p-0"
+                            >
+                              <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                            </Button>
+                          </PermissionCheck>
                         </div>
                       </div>
                     </div>
                   ))}
                   <div>
                     <div className="pt-4">
-                      <Button
-                        type="button"
-                        className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm"
-                        onClick={() => push(emptyGradeRow())}
-                      >
-                        <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Grade Row
-                      </Button>
+                      <PermissionCheck permissionUtility={canManageSettings}>
+                        <Button
+                          type="button"
+                          className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm"
+                          onClick={() => push(emptyGradeRow())}
+                        >
+                          <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Grade Row
+                        </Button>
+                      </PermissionCheck>
                     </div>
                   </div>
                 </div>
@@ -294,14 +308,16 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
 
   return (
     <div>
-      <Button
-        type="button"
-        onClick={() => setSheetOpen(true)}
-        className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm"
-      >
-        <Settings4 fill="var(--color-icon-default-muted)" />
-        Set for all levels
-      </Button>
+      <PermissionCheck permissionUtility={canManageSettings}>
+        <Button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm"
+        >
+          <Settings4 fill="var(--color-icon-default-muted)" />
+          Set for all levels
+        </Button>
+      </PermissionCheck>
 
       {!isMobile && (
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -322,14 +338,16 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
                     Close
                   </Button>
                 </SheetClose>
-                <Button
-                  type="button"
-                  onClick={() => formik.submitForm()}
-                  disabled={isOverWeight}
-                  className="bg-bg-state-primary! text-text-white-default hover:bg-bg-state-primary-hover! h-7 px-3"
-                >
-                  Apply to all levels
-                </Button>
+                <PermissionCheck permissionUtility={canManageSettings}>
+                  <Button
+                    type="button"
+                    onClick={() => formik.submitForm()}
+                    disabled={isOverWeight}
+                    className="bg-bg-state-primary! text-text-white-default hover:bg-bg-state-primary-hover! h-7 px-3"
+                  >
+                    Apply to all levels
+                  </Button>
+                </PermissionCheck>
               </div>
             </SheetFooter>
           </SheetContent>
@@ -347,14 +365,16 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
                   Close
                 </Button>
               </SheetClose>
-              <Button
-                type="button"
-                onClick={() => formik.submitForm()}
-                disabled={isOverWeight}
-                className="bg-bg-state-primary! text-text-white-default hover:bg-bg-state-primary-hover! h-7 px-3"
-              >
-                Apply to all levels
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button
+                  type="button"
+                  onClick={() => formik.submitForm()}
+                  disabled={isOverWeight}
+                  className="bg-bg-state-primary! text-text-white-default hover:bg-bg-state-primary-hover! h-7 px-3"
+                >
+                  Apply to all levels
+                </Button>
+              </PermissionCheck>
             </div>
           </SheetFooter>
         </MobileDrawer>

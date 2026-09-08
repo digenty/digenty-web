@@ -1,6 +1,4 @@
-import { CampaignDetail } from "@/components/Communications/CampaignDetail";
-import { Spinner } from "@/components/ui/spinner";
-import { Suspense } from "react";
+import { CampaignDetailGate } from "@/components/Communications/CampaignDetail/CampaignDetailGate";
 
 export default async function CampaignDetailPage({
   params,
@@ -12,15 +10,5 @@ export default async function CampaignDetailPage({
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   const paymentReference = sp.reference ?? sp.trxref ?? null;
 
-  return (
-    <Suspense
-      fallback={
-        <div className="flex h-screen items-center justify-center">
-          <Spinner className="size-16" />
-        </div>
-      }
-    >
-      <CampaignDetail id={id} paymentReference={paymentReference} />
-    </Suspense>
-  );
+  return <CampaignDetailGate id={id} paymentReference={paymentReference} />;
 }

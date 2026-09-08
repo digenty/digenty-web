@@ -19,6 +19,8 @@ import { useGetAllBanks, useUpdateFeeCollectionBankAccount, useUpdateFeeCollecti
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { SearchInput } from "../SearchInput";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageFeeCollection } from "@/lib/permissions/fee-collection";
 
 const AVATAR_COLORS = ["bg-orange-400", "bg-blue-500", "bg-green-500", "bg-purple-500", "bg-pink-500", "bg-teal-500"];
 
@@ -87,12 +89,14 @@ export const ConfiguredView = ({ config }: Props) => {
               {config.mode === "BRANCH_ACCOUNTS" ? "Different accounts for each branch" : "Single account for all branches"}
             </div>
           </div>
-          <Button
-            onClick={() => setModeOpen(true)}
-            className="border-border-default bg-bg-state-secondary! text-text-default flex h-8! w-fit items-center gap-1.5 rounded-md border text-sm"
-          >
-            <Edit fill="var(--color-icon-default-muted)" /> Change Mode
-          </Button>
+          <PermissionCheck permissionUtility={canManageFeeCollection}>
+            <Button
+              onClick={() => setModeOpen(true)}
+              className="border-border-default bg-bg-state-secondary! text-text-default flex h-8! w-fit items-center gap-1.5 rounded-md border text-sm"
+            >
+              <Edit fill="var(--color-icon-default-muted)" /> Change Mode
+            </Button>
+          </PermissionCheck>
         </div>
 
         {config.mode === "SINGLE_ACCOUNT" && config.defaultAccount && (
@@ -230,12 +234,14 @@ const BranchAccountRow = ({ label, account, onEdit }: { label: string; account: 
         </div>
       </div>
     </div>
-    <Button
-      onClick={onEdit}
-      className="border-border-default bg-bg-state-secondary! text-text-default flex h-7! items-center gap-1 rounded-md border text-xs"
-    >
-      <Edit fill="var(--color-icon-default-muted)" /> Edit
-    </Button>
+    <PermissionCheck permissionUtility={canManageFeeCollection}>
+      <Button
+        onClick={onEdit}
+        className="border-border-default bg-bg-state-secondary! text-text-default flex h-7! items-center gap-1 rounded-md border text-xs"
+      >
+        <Edit fill="var(--color-icon-default-muted)" /> Edit
+      </Button>
+    </PermissionCheck>
   </div>
 );
 

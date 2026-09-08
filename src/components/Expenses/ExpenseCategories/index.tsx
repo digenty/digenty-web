@@ -7,12 +7,13 @@ import { useMemo, useState } from "react";
 
 import { BackLink } from "@/components/BackLink";
 import { ModulePermissionsWrapper } from "@/components/ModulePermissionsWrapper";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetExpenseCategories } from "@/hooks/queryHooks/useExpense";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { canViewExpenses } from "@/lib/permissions/expenses";
+import { canDeleteExpenses, canManageExpenses, canViewExpenses } from "@/lib/permissions/expenses";
 
 import { ExpenseCategoryItem, extractExpenseList } from "../types";
 import { AddExpenseCategoryModal, DeleteExpenseCategoryModal, EditExpenseCategoryModal } from "./ExpenseCategoriesModals";
@@ -60,12 +61,14 @@ export const ExpenseCategories = () => {
 
           <div className="flex items-center justify-between">
             <div className="text-text-default text-xl font-semibold">Categories</div>
-            <Button
-              onClick={() => setOpenAddCategory(true)}
-              className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary-hover! h-8! gap-1 text-sm"
-            >
-              <Plus className="text-texticon-white-default size-4" /> Add Category
-            </Button>
+            <PermissionCheck permissionUtility={canManageExpenses}>
+              <Button
+                onClick={() => setOpenAddCategory(true)}
+                className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary-hover! h-8! gap-1 text-sm"
+              >
+                <Plus className="text-texticon-white-default size-4" /> Add Category
+              </Button>
+            </PermissionCheck>
           </div>
 
           <SearchInput
@@ -98,25 +101,29 @@ export const ExpenseCategories = () => {
                     </div>
 
                     <div className="flex items-center gap-4">
-                      <Button
-                        onClick={evt => {
-                          evt.stopPropagation();
-                          setDeletingCategory(category);
-                        }}
-                        className="hover:bg-bg-state-secondary-hover! rounded-md p-1"
-                      >
-                        <DeleteBin fill="var(--color-icon-default)" />
-                      </Button>
+                      <PermissionCheck permissionUtility={canDeleteExpenses}>
+                        <Button
+                          onClick={evt => {
+                            evt.stopPropagation();
+                            setDeletingCategory(category);
+                          }}
+                          className="hover:bg-bg-state-secondary-hover! rounded-md p-1"
+                        >
+                          <DeleteBin fill="var(--color-icon-default)" />
+                        </Button>
+                      </PermissionCheck>
 
-                      <Button
-                        onClick={evt => {
-                          evt.stopPropagation();
-                          setEditingCategory(category);
-                        }}
-                        className="hover:bg-bg-state-secondary-hover! rounded-md p-1"
-                      >
-                        <Edit fill="var(--color-icon-default)" />
-                      </Button>
+                      <PermissionCheck permissionUtility={canManageExpenses}>
+                        <Button
+                          onClick={evt => {
+                            evt.stopPropagation();
+                            setEditingCategory(category);
+                          }}
+                          className="hover:bg-bg-state-secondary-hover! rounded-md p-1"
+                        >
+                          <Edit fill="var(--color-icon-default)" />
+                        </Button>
+                      </PermissionCheck>
                     </div>
                   </div>
                 );

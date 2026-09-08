@@ -15,6 +15,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { useDeleteRole, useGetRoles } from "@/hooks/queryHooks/useRole";
 import useDebounce from "@/hooks/useDebounce";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -155,13 +157,15 @@ export const RolesAndPermissions = () => {
           }}
         />
 
-        <Button
-          onClick={() => router.push("/staff/settings/permissions/add-role")}
-          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8! self-start"
-        >
-          <PlusIcon className="text-icon-white-default size-4" />
-          Add Role{" "}
-        </Button>
+        <PermissionCheck permissionUtility={canManageSettings}>
+          <Button
+            onClick={() => router.push("/staff/settings/permissions/add-role")}
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8! self-start"
+          >
+            <PlusIcon className="text-icon-white-default size-4" />
+            Add Role{" "}
+          </Button>
+        </PermissionCheck>
       </div>
 
       {isError && (
@@ -196,23 +200,25 @@ export const RolesAndPermissions = () => {
                   {role.totalUsers} User{role.totalUsers !== 1 ? "s" : ""}
                 </div>
               </div>
-              <div className="flex items-center">
-                <Button
-                  onClick={() => {
-                    setRoleId(role.roleId);
-                    setDeleteModal(true);
-                  }}
-                  className="hover:bg-bg-none! border-none bg-none!"
-                >
-                  <DeleteBin fill="var(--color-icon-default-muted)" />
-                </Button>
-                <Button
-                  onClick={() => router.push(`/staff/settings/permissions/edit-role/${role.roleId}`)}
-                  className="hover:bg-bg-none! border-none bg-none!"
-                >
-                  <Edit fill="var(--color-icon-default-muted)" />
-                </Button>
-              </div>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <div className="flex items-center">
+                  <Button
+                    onClick={() => {
+                      setRoleId(role.roleId);
+                      setDeleteModal(true);
+                    }}
+                    className="hover:bg-bg-none! border-none bg-none!"
+                  >
+                    <DeleteBin fill="var(--color-icon-default-muted)" />
+                  </Button>
+                  <Button
+                    onClick={() => router.push(`/staff/settings/permissions/edit-role/${role.roleId}`)}
+                    className="hover:bg-bg-none! border-none bg-none!"
+                  >
+                    <Edit fill="var(--color-icon-default-muted)" />
+                  </Button>
+                </div>
+              </PermissionCheck>
             </div>
           ))}
         </div>

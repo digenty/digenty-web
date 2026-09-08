@@ -16,6 +16,8 @@ import { createManageEditTableColumns } from "./Columns";
 import { ManageEditMobileCard } from "./ManageEditMobileCard";
 import { ManageEditModal } from "./ManageEditModal";
 import { toast } from "@/components/Toast";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export const ManageEditRequest = () => {
   const params = useParams();
@@ -218,24 +220,28 @@ export const ManageEditRequest = () => {
             </span>
             <div className="bg-border-default h-6 w-px" />
             <div className="flex items-center gap-1">
-              <Button
-                onClick={handleApproveAll}
-                disabled={bulkAction !== null}
-                size="sm"
-                className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 rounded-md border shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isApprovingBulk ? <Spinner className="" /> : <span className="text-bg-basic-green-accent font-semibold">✓</span>}
-                <span>Approve All</span>
-              </Button>
-              <Button
-                onClick={handleRejectAll}
-                disabled={bulkAction !== null}
-                size="sm"
-                className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 border disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <span className="text-bg-basic-red-accent text-sm font-semibold">✕</span>
-                <span>{bulkAction === "reject" ? "Rejecting..." : "Reject All"}</span>
-              </Button>
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  onClick={handleApproveAll}
+                  disabled={bulkAction !== null}
+                  size="sm"
+                  className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 rounded-md border shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isApprovingBulk ? <Spinner className="" /> : <span className="text-bg-basic-green-accent font-semibold">✓</span>}
+                  <span>Approve All</span>
+                </Button>
+              </PermissionCheck>
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  onClick={handleRejectAll}
+                  disabled={bulkAction !== null}
+                  size="sm"
+                  className="border-border-default text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 items-center gap-1.5 border disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span className="text-bg-basic-red-accent text-sm font-semibold">✕</span>
+                  <span>{bulkAction === "reject" ? "Rejecting..." : "Reject All"}</span>
+                </Button>
+              </PermissionCheck>
             </div>
           </div>
         )}

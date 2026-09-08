@@ -5,6 +5,7 @@ import { BranchWithClassLevels, LevelType, NewBranchForm, SchoolStructurePayload
 import { DateRangePicker } from "@/components/DatePicker";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { WizardStepFooter } from "../WizardStepFooter";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { getAcademicYears } from "@/lib/utils";
 import { schoolStructureSchema } from "@/schema/academic";
 import { LEVELS } from "@/store/classes";
@@ -436,15 +438,17 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
 
                       {hasLevelChanges && (
                         <div className="mt-3 flex justify-end">
-                          <Button
-                            type="button"
-                            disabled={isBusyWithLevels}
-                            onClick={() => handleSaveBranchLevels(branch, levelsToAdd, levelsToRemove)}
-                            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
-                          >
-                            {isBusyWithLevels && <Spinner className="text-text-white-default size-3" />}
-                            Save Levels
-                          </Button>
+                          <PermissionCheck permissionUtility={canManageSettings}>
+                            <Button
+                              type="button"
+                              disabled={isBusyWithLevels}
+                              onClick={() => handleSaveBranchLevels(branch, levelsToAdd, levelsToRemove)}
+                              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
+                            >
+                              {isBusyWithLevels && <Spinner className="text-text-white-default size-3" />}
+                              Save Levels
+                            </Button>
+                          </PermissionCheck>
                         </div>
                       )}
                     </div>
@@ -509,28 +513,32 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
                   >
                     Cancel
                   </Button>
-                  <Button
-                    type="button"
-                    className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
-                    onClick={() => handleAddBranch(branch.id)}
-                    disabled={branch.isSubmitting}
-                  >
-                    {branch.isSubmitting && <Spinner className="text-text-white-default size-3" />}
-                    Add
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageSettings}>
+                    <Button
+                      type="button"
+                      className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! w-fit"
+                      onClick={() => handleAddBranch(branch.id)}
+                      disabled={branch.isSubmitting}
+                    >
+                      {branch.isSubmitting && <Spinner className="text-text-white-default size-3" />}
+                      Add
+                    </Button>
+                  </PermissionCheck>
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        <Button
-          type="button"
-          className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit text-sm"
-          onClick={() => setNewBranches(prev => [...prev, emptyNewBranch()])}
-        >
-          <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Branch
-        </Button>
+        <PermissionCheck permissionUtility={canManageSettings}>
+          <Button
+            type="button"
+            className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit text-sm"
+            onClick={() => setNewBranches(prev => [...prev, emptyNewBranch()])}
+          >
+            <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Branch
+          </Button>
+        </PermissionCheck>
       </div>
 
       <WizardStepFooter

@@ -2,9 +2,11 @@
 
 import { Calendar, ListCheck } from "@digenty/icons";
 import { toast } from "@/components/Toast";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Spinner } from "@/components/ui/spinner";
 import { useMarkAllAttendance, useMarkAttendance } from "@/hooks/queryHooks/useAttendance";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { canManageAttendance } from "@/lib/permissions/attendance";
 import { format } from "date-fns";
 import { CheckIcon, XIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -115,23 +117,27 @@ export const ClassAttendanceHeader = ({
         <h2 className="text-text-default line-clamp-1 text-lg font-semibold md:text-xl">{classArmName.toUpperCase()}</h2>
 
         <div className="hidden gap-1 lg:flex">
-          <Button
-            disabled={markingAll}
-            onClick={() => handleMarkAllAttendance(true)}
-            className="bg-bg-state-soft text-text-subtle flex h-8! items-center gap-2"
-          >
-            {markingAll && isAllPresent ? <Spinner /> : <CheckIcon className="text-icon-default-muted size-4" />}
-            <span className="text-text-default text-sm font-medium">Mark All Present</span>
-          </Button>
+          <PermissionCheck permissionUtility={canManageAttendance}>
+            <Button
+              disabled={markingAll}
+              onClick={() => handleMarkAllAttendance(true)}
+              className="bg-bg-state-soft text-text-subtle flex h-8! items-center gap-2"
+            >
+              {markingAll && isAllPresent ? <Spinner /> : <CheckIcon className="text-icon-default-muted size-4" />}
+              <span className="text-text-default text-sm font-medium">Mark All Present</span>
+            </Button>
+          </PermissionCheck>
 
-          <Button
-            disabled={markingAll}
-            onClick={() => handleMarkAllAttendance(false)}
-            className="bg-bg-state-soft text-text-subtle flex h-8! items-center gap-2"
-          >
-            {markingAll && !isAllPresent ? <Spinner /> : <XIcon className="text-icon-default-muted size-4" />}
-            <span className="text-text-default text-sm font-medium">Mark All Absent</span>
-          </Button>
+          <PermissionCheck permissionUtility={canManageAttendance}>
+            <Button
+              disabled={markingAll}
+              onClick={() => handleMarkAllAttendance(false)}
+              className="bg-bg-state-soft text-text-subtle flex h-8! items-center gap-2"
+            >
+              {markingAll && !isAllPresent ? <Spinner /> : <XIcon className="text-icon-default-muted size-4" />}
+              <span className="text-text-default text-sm font-medium">Mark All Absent</span>
+            </Button>
+          </PermissionCheck>
         </div>
       </div>
 
@@ -173,27 +179,37 @@ export const ClassAttendanceHeader = ({
             </SelectContent>
           </Select>
 
-          <Button
-            onClick={handleSaveAttendance}
-            disabled={saving}
-            className="bg-bg-state-primary text-text-white-default! hover:bg-bg-state-primary-hover! flex h-8! items-center gap-2"
-          >
-            {saving && <Spinner className="text-text-white-default" />}
-            <span className="text-sm font-medium">Save</span>
-          </Button>
+          <PermissionCheck permissionUtility={canManageAttendance}>
+            <Button
+              onClick={handleSaveAttendance}
+              disabled={saving}
+              className="bg-bg-state-primary text-text-white-default! hover:bg-bg-state-primary-hover! flex h-8! items-center gap-2"
+            >
+              {saving && <Spinner className="text-text-white-default" />}
+              <span className="text-sm font-medium">Save</span>
+            </Button>
+          </PermissionCheck>
         </div>
       </div>
 
       <div className="border-border-default hide-scrollbar flex w-screen gap-2 overflow-x-auto border-t px-4 pt-2 lg:hidden lg:px-8">
-        <Button disabled={markingAll} onClick={() => handleMarkAllAttendance(true)} className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
-          {markingAll && isAllPresent ? <Spinner /> : <CheckIcon className="text-icon-default-muted size-4" />}
-          <span className="text-text-subtle text-sm font-medium">Mark All Present</span>
-        </Button>
+        <PermissionCheck permissionUtility={canManageAttendance}>
+          <Button disabled={markingAll} onClick={() => handleMarkAllAttendance(true)} className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
+            {markingAll && isAllPresent ? <Spinner /> : <CheckIcon className="text-icon-default-muted size-4" />}
+            <span className="text-text-subtle text-sm font-medium">Mark All Present</span>
+          </Button>
+        </PermissionCheck>
 
-        <Button disabled={markingAll} onClick={() => handleMarkAllAttendance(false)} className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!">
-          {markingAll && !isAllPresent ? <Spinner /> : <XIcon className="text-icon-default-muted size-4" />}
-          <span className="text-text-subtle text-sm font-medium">Mark All Absent</span>
-        </Button>
+        <PermissionCheck permissionUtility={canManageAttendance}>
+          <Button
+            disabled={markingAll}
+            onClick={() => handleMarkAllAttendance(false)}
+            className="bg-bg-state-soft flex h-8! items-center gap-2 px-5!"
+          >
+            {markingAll && !isAllPresent ? <Spinner /> : <XIcon className="text-icon-default-muted size-4" />}
+            <span className="text-text-subtle text-sm font-medium">Mark All Absent</span>
+          </Button>
+        </PermissionCheck>
       </div>
     </div>
   );

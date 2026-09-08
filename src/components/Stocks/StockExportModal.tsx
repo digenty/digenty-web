@@ -11,6 +11,8 @@ import { useGetStockByCategory, useGetStockByStatus, useGetStockCategories, useS
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { exportToCSV } from "@/lib/export-utils";
+import { canManageStock } from "@/lib/permissions/stock";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 
 import { MobileDrawer } from "../MobileDrawer";
 import { Modal } from "../Modal";
@@ -53,10 +55,17 @@ const extractList = (resp: unknown): StockListItem[] => {
 export const StockExportModal = ({ open, setOpen }: InvoiceModalProps) => {
   const isMobile = useIsMobile();
   const user = useLoggedInUser();
-  const defaultBranchId = user.branchIds?.[0];
+
+  // A staff member with no branch-admin/main access is restricted to their own assigned
+  // branch(es) — they shouldn't default to, or be able to export, another branch's stock.
+  const userBranchIds = useMemo(() => user.branchIds ?? [], [user.branchIds]);
+  const hasFullAccess = user.isMain || user.isAdmin || (user.adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
+  const defaultBranchId = isBranchRestricted ? userBranchIds[0] : undefined;
 
   const { data: branchesResp } = useGetBranches();
-  const branches = ((branchesResp?.data ?? []) as BranchWithClassLevels[]).map(b => b.branch);
+  const allBranches = ((branchesResp?.data ?? []) as BranchWithClassLevels[]).map(b => b.branch);
+  const branches = isBranchRestricted ? allBranches.filter(b => userBranchIds.includes(b.id)) : allBranches;
 
   const { data: categoriesResp } = useGetStockCategories(0, 100);
   const categories: CategoryOption[] = useMemo(() => {
@@ -116,14 +125,16 @@ export const StockExportModal = ({ open, setOpen }: InvoiceModalProps) => {
   };
 
   const exportButton = (
-    <Button
-      type="button"
-      onClick={handleExport}
-      disabled={isFetching || stocks.length === 0}
-      className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
-    >
-      <ShareBox fill="var(--color-icon-white-default)" /> Export Stock
-    </Button>
+    <PermissionCheck permissionUtility={canManageStock}>
+      <Button
+        type="button"
+        onClick={handleExport}
+        disabled={isFetching || stocks.length === 0}
+        className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
+      >
+        <ShareBox fill="var(--color-icon-white-default)" /> Export Stock
+      </Button>
+    </PermissionCheck>
   );
 
   const body = (

@@ -3,7 +3,9 @@
 import { AddFill, BookOpen, DeleteBin2, Edit, Information, School } from "@digenty/icons";
 import React, { useEffect, useState } from "react";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 
 import { Input } from "@/components/ui/input";
@@ -196,12 +198,14 @@ export const AcademicAssAndGradeSetupDone = () => {
             <div className="mb-5 flex w-full items-start justify-between">
               <div className="text-text-default text-xl font-semibold">Assessment & Grading</div>
 
-              <Button
-                onClick={() => setIsEditing(true)}
-                className="bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md border p-2"
-              >
-                <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md border p-2"
+                >
+                  <Edit fill="var(--color-icon-default-muted)" className="bg-bg-" /> Edit
+                </Button>
+              </PermissionCheck>
             </div>
 
             <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent mb-5 flex items-start gap-2 rounded-md border p-3">

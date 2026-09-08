@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { useClassesStore } from "@/store/classes";
 import { useGetPaymentHistory } from "@/hooks/queryHooks/useInvoice";
 import { DeletePaymentModal, PaymentDetailsModal } from "./InvoiceIdModals";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteInvoices, canManageInvoices } from "@/lib/permissions/invoices";
 
 type BreakdownTableProps = {
   items: invoiceBreakdownType[];
@@ -160,17 +162,21 @@ export const InvoiceIdPaymentHistoryTable = ({ invoiceId }: { invoiceId?: string
                 <EyeIcon className="text-icon-default-muted size-4" />
                 <span className="text-text-default text-sm">View payment</span>
               </div>
-              <div className="border-border-darker bg-bg-state-secondary flex items-center justify-center gap-1 rounded-md border px-2.5 py-1.5">
-                <Edit fill="var(--color-icon-default-muted)" className="size-4" />
-                <span className="text-text-default text-sm">Edit payment</span>
-              </div>
-              <div
-                className="border-border-darker bg-bg-state-secondary flex items-center justify-center gap-1 rounded-md border px-2.5 py-1.5"
-                onClick={() => setDeletePayment(true)}
-              >
-                <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-                <span className="text-icon-destructive text-sm">Delete payment</span>
-              </div>
+              <PermissionCheck permissionUtility={canManageInvoices}>
+                <div className="border-border-darker bg-bg-state-secondary flex items-center justify-center gap-1 rounded-md border px-2.5 py-1.5">
+                  <Edit fill="var(--color-icon-default-muted)" className="size-4" />
+                  <span className="text-text-default text-sm">Edit payment</span>
+                </div>
+              </PermissionCheck>
+              <PermissionCheck permissionUtility={canDeleteInvoices}>
+                <div
+                  className="border-border-darker bg-bg-state-secondary flex items-center justify-center gap-1 rounded-md border px-2.5 py-1.5"
+                  onClick={() => setDeletePayment(true)}
+                >
+                  <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+                  <span className="text-icon-destructive text-sm">Delete payment</span>
+                </div>
+              </PermissionCheck>
             </div>
           </MobileDrawer>
         )}

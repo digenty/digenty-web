@@ -21,6 +21,8 @@ import { StudentRow } from "../../ClassOverview/ClassReport/students";
 import { ApproveModal } from "../AllClassesModal";
 import { ReturnModal } from "./ClassReportModal";
 import { toast } from "@/components/Toast";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export const ReportHeader = ({
   termSelected,
@@ -197,9 +199,11 @@ export const ReportHeader = ({
                 </>
               ) : (
                 <>
-                  <Button className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-22! items-center gap-1 rounded-md border text-sm font-medium md:flex">
-                    <ShareBox fill="var(--color-icon-default-muted)" /> Export
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                    <Button className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-22! items-center gap-1 rounded-md border text-sm font-medium md:flex">
+                      <ShareBox fill="var(--color-icon-default-muted)" /> Export
+                    </Button>
+                  </PermissionCheck>
                   {(reportStatus === "PENDING_APPROVAL" || reportStatus === "APPROVED" || reportStatus === "EDIT_REQUEST") && (
                     <Button
                       onClick={() => setOpenReturn(true)}
@@ -209,13 +213,15 @@ export const ReportHeader = ({
                     </Button>
                   )}
                   {reportStatus !== "APPROVED" && (
-                    <Button
-                      onClick={() => setOpenApprove(true)}
-                      className="bg-bg-state-primary hover:bg-bg-state-primary/90! border-border-default text-text-white-default flex h-8 w-39.5 items-center gap-1 rounded-md border text-sm font-medium md:w-36.5"
-                    >
-                      <Approve fill="var(--color-icon-white-default)" />
-                      Approve Result
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                      <Button
+                        onClick={() => setOpenApprove(true)}
+                        className="bg-bg-state-primary hover:bg-bg-state-primary/90! border-border-default text-text-white-default flex h-8 w-39.5 items-center gap-1 rounded-md border text-sm font-medium md:w-36.5"
+                      >
+                        <Approve fill="var(--color-icon-white-default)" />
+                        Approve Result
+                      </Button>
+                    </PermissionCheck>
                   )}
                 </>
               )}
@@ -228,9 +234,11 @@ export const ReportHeader = ({
                   <MoreHorizontalIcon className="text-icon-default-muted size-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
-                  <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3 py-0.5" onClick={onExport}>
-                    <ShareBox fill="var(--color-icon-default-muted)" /> Export
-                  </DropdownMenuItem>
+                  <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                    <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3 py-0.5" onClick={onExport}>
+                      <ShareBox fill="var(--color-icon-default-muted)" /> Export
+                    </DropdownMenuItem>
+                  </PermissionCheck>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

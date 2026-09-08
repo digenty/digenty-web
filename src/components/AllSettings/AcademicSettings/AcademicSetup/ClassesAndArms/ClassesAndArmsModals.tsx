@@ -2,6 +2,7 @@ import { AlertFill } from "@digenty/icons";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,6 +10,7 @@ import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
 import { useDeleteClass } from "@/hooks/queryHooks/useClass";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageSettings } from "@/lib/permissions/settings";
 import React, { useState } from "react";
 
 interface DeleteClassProps {
@@ -43,14 +45,16 @@ export const DeleteClass = ({ setOpenDeleteModal, open, classId }: DeleteClassPr
   };
 
   const deleteButton = (
-    <Button
-      disabled={!confirmed}
-      onClick={handleDelete}
-      className="bg-bg-state-destructive! hover:bg-bg-state-destructive-hover! text-text-white-default! disabled:bg-bg-state-destructive-hover! h-7! cursor-pointer disabled:cursor-not-allowed"
-    >
-      {isPending && <Spinner className="text-text-white-default size-4" />}
-      Delete Class
-    </Button>
+    <PermissionCheck permissionUtility={canManageSettings}>
+      <Button
+        disabled={!confirmed}
+        onClick={handleDelete}
+        className="bg-bg-state-destructive! hover:bg-bg-state-destructive-hover! text-text-white-default! disabled:bg-bg-state-destructive-hover! h-7! cursor-pointer disabled:cursor-not-allowed"
+      >
+        {isPending && <Spinner className="text-text-white-default size-4" />}
+        Delete Class
+      </Button>
+    </PermissionCheck>
   );
 
   return (

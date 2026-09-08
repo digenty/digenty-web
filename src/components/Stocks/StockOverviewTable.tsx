@@ -8,6 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useDeleteStock, useGetStockByCategory, useGetStockByStatus, useSearchStocks } from "@/hooks/queryHooks/useStock";
 import { StockStatus } from "@/api/stock";
+import { canDeleteStock, canManageStock } from "@/lib/permissions/stock";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "../Toast";
 
 import { DataTable } from "../DataTable";
@@ -177,23 +179,27 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
                         >
                           <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View stock
                         </div>
-                        <div
-                          role="button"
-                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                        >
-                          <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit stock
-                        </div>
-                        <div
-                          role="button"
-                          onClick={() => {
-                            setStockToDelete(stock);
-                            setDrawerStock(null);
-                          }}
-                          className="text-text-destructive hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                        >
-                          <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-                          <span>Delete stock</span>
-                        </div>
+                        <PermissionCheck permissionUtility={canManageStock}>
+                          <div
+                            role="button"
+                            className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                          >
+                            <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit stock
+                          </div>
+                        </PermissionCheck>
+                        <PermissionCheck permissionUtility={canDeleteStock}>
+                          <div
+                            role="button"
+                            onClick={() => {
+                              setStockToDelete(stock);
+                              setDrawerStock(null);
+                            }}
+                            className="text-text-destructive hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                          >
+                            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+                            <span>Delete stock</span>
+                          </div>
+                        </PermissionCheck>
                       </div>
                     </div>
                   </MobileDrawer>

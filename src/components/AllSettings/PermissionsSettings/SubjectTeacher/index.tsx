@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import Image from "next/image";
 
 import { StaffProps } from "../Staffs";
@@ -52,14 +54,16 @@ export const SubjectTeachers = () => {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="text-text-default text-xl font-semibold">Subject Teacher</div>
 
-          <div className="flex gap-2">
-            <Button className="border-border-darker text-text-default hidden h-8 items-center rounded-md border px-2.5 text-sm font-medium md:flex">
-              <DeleteBin fill="var(--color-icon-default-muted)" /> Delete
-            </Button>
-            <Button className="border-border-darker text-text-default hidden h-8 items-center rounded-md border px-2.5 text-sm font-medium md:flex">
-              <Edit fill="var(--color-icon-default-muted)" /> Edit
-            </Button>
-          </div>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <div className="flex gap-2">
+              <Button className="border-border-darker text-text-default hidden h-8 items-center rounded-md border px-2.5 text-sm font-medium md:flex">
+                <DeleteBin fill="var(--color-icon-default-muted)" /> Delete
+              </Button>
+              <Button className="border-border-darker text-text-default hidden h-8 items-center rounded-md border px-2.5 text-sm font-medium md:flex">
+                <Edit fill="var(--color-icon-default-muted)" /> Edit
+              </Button>
+            </div>
+          </PermissionCheck>
         </div>
         {/*  */}
         <div className="flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between md:gap-0">
@@ -91,21 +95,25 @@ export const SubjectTeachers = () => {
               <Image src="/staff/icons/open-filter-modal.svg" alt="filter icon" width={20} height={20} />
             </Button>
 
-            <Button
-              onClick={() => setOpenExport(true)}
-              className="border-border-darker text-text-default hidden h-8 items-center rounded-md border px-2.5 text-sm font-medium md:flex"
-            >
-              <ShareBox fill="var(--color-icon-default-muted)" /> Export
-            </Button>
+            <PermissionCheck permissionUtility={canManageSettings}>
+              <Button
+                onClick={() => setOpenExport(true)}
+                className="border-border-darker text-text-default hidden h-8 items-center rounded-md border px-2.5 text-sm font-medium md:flex"
+              >
+                <ShareBox fill="var(--color-icon-default-muted)" /> Export
+              </Button>
+            </PermissionCheck>
 
             <div className="flex items-center gap-1">
-              <Button
-                onClick={() => router.push("/staff/settings/permissions/add-staff")}
-                className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
-              >
-                <PlusIcon className="text-icon-white-default size-4" />
-                Add Staff
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button
+                  onClick={() => router.push("/staff/settings/permissions/add-staff")}
+                  className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
+                >
+                  <PlusIcon className="text-icon-white-default size-4" />
+                  Add Staff
+                </Button>
+              </PermissionCheck>
 
               <Button
                 onClick={() => setOpenAction(true)}
@@ -119,12 +127,14 @@ export const SubjectTeachers = () => {
           {openAction && (
             <MobileDrawer open={openAction} setIsOpen={setOpenAction} title="Actions">
               <div className="flex w-full flex-col gap-4 px-3 py-4">
-                <div className="flex flex-col items-center gap-2" onClick={() => setOpenExport(true)}>
-                  <div className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
-                    <ShareBox className="size-4" fill="var(--color-icon-default-muted)" />
-                    Export
+                <PermissionCheck permissionUtility={canManageSettings}>
+                  <div className="flex flex-col items-center gap-2" onClick={() => setOpenExport(true)}>
+                    <div className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
+                      <ShareBox className="size-4" fill="var(--color-icon-default-muted)" />
+                      Export
+                    </div>
                   </div>
-                </div>
+                </PermissionCheck>
               </div>
             </MobileDrawer>
           )}

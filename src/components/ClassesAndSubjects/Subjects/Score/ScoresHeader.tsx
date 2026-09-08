@@ -8,6 +8,8 @@ import SubmitScoreModal from "./SubmitScoreModal";
 
 import RequestEdit from "../../RequestEditAccess";
 import { Spinner } from "@/components/ui/spinner";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export default function ScoresHeader({
   onSubmit,
@@ -60,14 +62,16 @@ export default function ScoresHeader({
 
           <div className="border-border-default overflow-x-auto border-t px-4 py-2 md:border-none md:p-0">
             <div className="flex items-center gap-2 md:gap-1">
-              <Button
-                disabled={isError}
-                onClick={onExport}
-                size="sm"
-                className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-22 items-center gap-1 border text-sm"
-              >
-                <ShareBox fill="var(--color-icon-default-muted)" /> Export
-              </Button>
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  disabled={isError}
+                  onClick={onExport}
+                  size="sm"
+                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-22 items-center gap-1 border text-sm"
+                >
+                  <ShareBox fill="var(--color-icon-default-muted)" /> Export
+                </Button>
+              </PermissionCheck>
 
               {(status === "NOT_SUBMITTED" || status === "IN_PROGRESS" || status === "APPROVED_EDIT_ACCESS") && (
                 <div className="flex items-center gap-2 md:gap-1">
@@ -94,14 +98,16 @@ export default function ScoresHeader({
               )}
 
               {status === "SUBMITTED" && (
-                <Button
-                  disabled={isError}
-                  size="sm"
-                  onClick={() => setOpenRequest(true)}
-                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm"
-                >
-                  <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
-                </Button>
+                <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                  <Button
+                    disabled={isError}
+                    size="sm"
+                    onClick={() => setOpenRequest(true)}
+                    className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm"
+                  >
+                    <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
+                  </Button>
+                </PermissionCheck>
               )}
 
               {status === "REQUESTED_EDIT_ACCESS" && (

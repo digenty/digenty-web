@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useGetExpenseCategories } from "@/hooks/queryHooks/useExpense";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageExpenses } from "@/lib/permissions/expenses";
 
 import { ExpenseExportModal } from "./ExpenseExportModal";
 import { ExpenseCategoryItem, extractExpenseList } from "./types";
@@ -99,21 +101,25 @@ export const ExpensesSearchAndFilter = ({ filters, setFilters, showCategoryFilte
             </Button>
           )}
 
-          <Button
-            onClick={() => setOpenExport(true)}
-            className="border-border-darker text-text-default hidden h-8 items-center rounded-md border px-2.5 text-sm font-medium md:flex"
-          >
-            <ShareBox fill="var(--color-icon-default-muted)" /> Export
-          </Button>
+          <PermissionCheck permissionUtility={canManageExpenses}>
+            <Button
+              onClick={() => setOpenExport(true)}
+              className="border-border-darker text-text-default hidden h-8 items-center rounded-md border px-2.5 text-sm font-medium md:flex"
+            >
+              <ShareBox fill="var(--color-icon-default-muted)" /> Export
+            </Button>
+          </PermissionCheck>
 
           <div className="flex items-center gap-1">
-            <Button
-              onClick={() => router.push("/staff/expense/add-expense")}
-              className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 items-center gap-1 rounded-md px-2.5"
-            >
-              <Plus className="text-texticon-white-default size-4" />
-              Add Expense
-            </Button>
+            <PermissionCheck permissionUtility={canManageExpenses}>
+              <Button
+                onClick={() => router.push("/staff/expense/add-expense")}
+                className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 items-center gap-1 rounded-md px-2.5"
+              >
+                <Plus className="text-texticon-white-default size-4" />
+                Add Expense
+              </Button>
+            </PermissionCheck>
 
             <Button
               onClick={() => setOpenActions(true)}
@@ -127,17 +133,19 @@ export const ExpensesSearchAndFilter = ({ filters, setFilters, showCategoryFilte
         {openActions && (
           <MobileDrawer open={openActions} setIsOpen={setOpenActions} title="Actions">
             <div className="flex w-full flex-col gap-4 px-3 py-4">
-              <div
-                role="button"
-                onClick={() => {
-                  setOpenActions(false);
-                  setOpenExport(true);
-                }}
-                className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-              >
-                <ShareBox className="size-4" fill="var(--color-icon-default-muted)" />
-                Export
-              </div>
+              <PermissionCheck permissionUtility={canManageExpenses}>
+                <div
+                  role="button"
+                  onClick={() => {
+                    setOpenActions(false);
+                    setOpenExport(true);
+                  }}
+                  className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                >
+                  <ShareBox className="size-4" fill="var(--color-icon-default-muted)" />
+                  Export
+                </div>
+              </PermissionCheck>
             </div>
           </MobileDrawer>
         )}

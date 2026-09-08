@@ -16,6 +16,8 @@ import { SearchInput } from "../SearchInput";
 import { Modal } from "../Modal";
 import { Badge } from "../ui/badge";
 import { PlusIcon } from "lucide-react";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageFees } from "@/lib/permissions/fees";
 
 const ExportModalContent = ({
   showBranchFilter,
@@ -324,20 +326,24 @@ export const FeesHeader = ({
 
         <div className="flex gap-2">
           {showExport && (
-            <Button
-              onClick={() => setIsOpen(true)}
-              className="bg-bg-state-secondary! border-border-default hover:bg-bg-state-secondary-hover! text-text-default h-7 rounded-md border text-sm font-normal md:h-8"
-            >
-              <ShareBox fill="var(--color-icon-default-muted)" /> Export
-            </Button>
+            <PermissionCheck permissionUtility={canManageFees}>
+              <Button
+                onClick={() => setIsOpen(true)}
+                className="bg-bg-state-secondary! border-border-default hover:bg-bg-state-secondary-hover! text-text-default h-7 rounded-md border text-sm font-normal md:h-8"
+              >
+                <ShareBox fill="var(--color-icon-default-muted)" /> Export
+              </Button>
+            </PermissionCheck>
           )}
 
-          <Button
-            onClick={onAddClick}
-            className="text-tex-white-default bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 rounded-md text-sm md:h-8"
-          >
-            <PlusIcon className="text-icon-white-default" /> {addButttonText}
-          </Button>
+          <PermissionCheck permissionUtility={canManageFees}>
+            <Button
+              onClick={onAddClick}
+              className="text-tex-white-default bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 rounded-md text-sm md:h-8"
+            >
+              <PlusIcon className="text-icon-white-default" /> {addButttonText}
+            </Button>
+          </PermissionCheck>
         </div>
       </div>
     </div>

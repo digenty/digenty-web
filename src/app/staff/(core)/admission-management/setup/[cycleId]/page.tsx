@@ -3,8 +3,10 @@
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { AdmissionCycleSetup } from "@/components/AdmissionManagement/AdmissionCycleSetup";
 import { BackButton } from "@/components/BackButton";
+import { ModulePermissionsWrapper } from "@/components/ModulePermissionsWrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetAdmissionCycle } from "@/hooks/queryHooks/useAdmission";
+import { canViewAdmissionManagement } from "@/lib/permissions/admission-management";
 import { useBreadcrumbStore } from "@/store/breadcrumb";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -27,54 +29,60 @@ export default function CycleSetupPage() {
 
   if (isPending) {
     return (
-      <div className="flex flex-col gap-6 p-3 md:p-6">
-        <div className="md:hidden">
-          <BackButton />
+      <ModulePermissionsWrapper permissionUtility={canViewAdmissionManagement}>
+        <div className="flex flex-col gap-6 p-3 md:p-6">
+          <div className="md:hidden">
+            <BackButton />
+          </div>
+          <Skeleton className="h-8 w-48" />
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-36 w-full rounded-xl" />
+            ))}
+          </div>
         </div>
-        <Skeleton className="h-8 w-48" />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-36 w-full rounded-xl" />
-          ))}
-        </div>
-      </div>
+      </ModulePermissionsWrapper>
     );
   }
 
   if (isError || !cycle) {
     return (
-      <div className="flex flex-col gap-4 p-3 md:p-6">
-        <div className="md:hidden">
-          <BackButton />
+      <ModulePermissionsWrapper permissionUtility={canViewAdmissionManagement}>
+        <div className="flex flex-col gap-4 p-3 md:p-6">
+          <div className="md:hidden">
+            <BackButton />
+          </div>
+          <div className="flex justify-center py-16">
+            <ErrorComponent
+              title="Couldn't load cycle"
+              description="Something went wrong while loading this admission cycle. Please try again."
+              buttonText="Retry"
+              onClick={() => refetch()}
+            />
+          </div>
         </div>
-        <div className="flex justify-center py-16">
-          <ErrorComponent
-            title="Couldn't load cycle"
-            description="Something went wrong while loading this admission cycle. Please try again."
-            buttonText="Retry"
-            onClick={() => refetch()}
-          />
-        </div>
-      </div>
+      </ModulePermissionsWrapper>
     );
   }
 
   const buildQuery = (branchId?: number) => (branchId ? `?branchId=${branchId}` : "");
 
   return (
-    <div className="p-3 md:p-6">
-      <div className="pb-3 md:hidden">
-        <BackButton />
+    <ModulePermissionsWrapper permissionUtility={canViewAdmissionManagement}>
+      <div className="p-3 md:p-6">
+        <div className="pb-3 md:hidden">
+          <BackButton />
+        </div>
+        <AdmissionCycleSetup
+          cycle={cycle}
+          onConfigureLevel={(level, branchId) =>
+            router.push(`/staff/admission-management/setup/${cycleId}/levels/${level.classLevelId}${buildQuery(branchId)}`)
+          }
+          onViewClasses={(level, branchId) =>
+            router.push(`/staff/admission-management/setup/${cycleId}/levels/${level.classLevelId}/classes${buildQuery(branchId)}`)
+          }
+        />
       </div>
-      <AdmissionCycleSetup
-        cycle={cycle}
-        onConfigureLevel={(level, branchId) =>
-          router.push(`/staff/admission-management/setup/${cycleId}/levels/${level.classLevelId}${buildQuery(branchId)}`)
-        }
-        onViewClasses={(level, branchId) =>
-          router.push(`/staff/admission-management/setup/${cycleId}/levels/${level.classLevelId}/classes${buildQuery(branchId)}`)
-        }
-      />
-    </div>
+    </ModulePermissionsWrapper>
   );
 }

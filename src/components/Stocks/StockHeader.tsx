@@ -18,12 +18,16 @@ import { Label } from "../ui/label";
 type Props = {
   branchId?: number;
   setBranchId: (id: number | undefined) => void;
+  /** A branch-restricted staff member can only ever view their own branch(es). */
+  isBranchRestricted?: boolean;
+  userBranchIds?: number[];
 };
 
-export const StockHeader = ({ branchId, setBranchId }: Props) => {
+export const StockHeader = ({ branchId, setBranchId, isBranchRestricted = false, userBranchIds = [] }: Props) => {
   const router = useRouter();
   const { data: branchesResp } = useGetBranches();
-  const branches = ((branchesResp?.data ?? []) as BranchWithClassLevels[]).map(b => b.branch);
+  const allBranches = ((branchesResp?.data ?? []) as BranchWithClassLevels[]).map(b => b.branch);
+  const branches = isBranchRestricted ? allBranches.filter(b => userBranchIds.includes(b.id)) : allBranches;
 
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 

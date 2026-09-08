@@ -3,11 +3,13 @@
 import { DateRangePicker } from "@/components/DatePicker";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useCreateAdmissionCycle } from "@/hooks/queryHooks/useAdmission";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { AdmissonNewCycleSchema } from "@/schema/admission";
 import { useFormik } from "formik";
 import { toast } from "sonner";
@@ -111,13 +113,15 @@ export const CreateCycleModal = ({ open, setOpen, onSuccess }: Props) => {
   );
 
   const submitButton = (
-    <Button
-      onClick={() => formik.handleSubmit()}
-      disabled={isPending}
-      className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-    >
-      {isPending ? "Adding..." : "Add Admission Cycle"}
-    </Button>
+    <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+      <Button
+        onClick={() => formik.handleSubmit()}
+        disabled={isPending}
+        className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
+      >
+        {isPending ? "Adding..." : "Add Admission Cycle"}
+      </Button>
+    </PermissionCheck>
   );
 
   const cancelButton = (

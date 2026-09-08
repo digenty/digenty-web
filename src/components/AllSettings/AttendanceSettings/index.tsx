@@ -3,6 +3,8 @@
 import { Edit } from "@digenty/icons";
 import { ClassLevel } from "@/api/types";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -148,9 +150,11 @@ export const AttendanceSettings = () => {
         <div className="flex justify-between">
           <div className="text-text-default text-xl font-semibold">Attendance Settings</div>
           {!isLoadingLevels && !isLevelsError && levels.length > 0 && activeLevel && !isLoadingSettings && !isEditing && (
-            <Button onClick={() => setIsEditing(true)} className="text-text-default border-border-darker h-8! rounded-md border">
-              <Edit fill="var(--color-icon-default-muted)" /> Edit
-            </Button>
+            <PermissionCheck permissionUtility={canManageSettings}>
+              <Button onClick={() => setIsEditing(true)} className="text-text-default border-border-darker h-8! rounded-md border">
+                <Edit fill="var(--color-icon-default-muted)" /> Edit
+              </Button>
+            </PermissionCheck>
           )}
         </div>
 
