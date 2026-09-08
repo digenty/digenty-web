@@ -18,6 +18,8 @@ import {
 import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 
 import { BackLink } from "@/components/BackLink";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteCommunication, canManageCommunication } from "@/lib/permissions/communication";
 import { Button } from "../../ui/button";
 import { DeleteCampaignModal } from "../DeleteCampaignModal";
 import { extractPaymentUrl } from "../types";
@@ -123,13 +125,15 @@ export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) =>
         <h1 className="text-text-default text-xl font-semibold">{campaign.title}</h1>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            aria-label="Delete campaign"
-            onClick={() => setDeleteOpen(true)}
-            className="bg-bg-state-secondary border-border-darker text-text-default flex size-8 items-center justify-center border p-0"
-          >
-            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-          </Button>
+          <PermissionCheck permissionUtility={canDeleteCommunication}>
+            <Button
+              aria-label="Delete campaign"
+              onClick={() => setDeleteOpen(true)}
+              className="bg-bg-state-secondary border-border-darker text-text-default flex size-8 items-center justify-center border p-0"
+            >
+              <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+            </Button>
+          </PermissionCheck>
 
           {campaign.status === "PENDING_PAYMENT" && !campaign.paid && (
             <Button
@@ -160,21 +164,25 @@ export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) =>
             <ArrowGoBack fill="var(--color-icon-default-muted)" className="size-4" />
             Resend
           </Button>
-          <Button
-            onClick={handleDuplicate}
-            disabled={duplicateMutation.isPending}
-            className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium"
-          >
-            <FileCopy fill="var(--color-icon-default-muted)" className="size-4" />
-            Duplicate
-          </Button>
-          <Button
-            onClick={() => router.push(`/staff/communications/${campaign.id}/edit`)}
-            className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium"
-          >
-            <Edit fill="var(--color-icon-default-muted)" className="size-4" />
-            Edit
-          </Button>
+          <PermissionCheck permissionUtility={canManageCommunication}>
+            <Button
+              onClick={handleDuplicate}
+              disabled={duplicateMutation.isPending}
+              className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium"
+            >
+              <FileCopy fill="var(--color-icon-default-muted)" className="size-4" />
+              Duplicate
+            </Button>
+          </PermissionCheck>
+          <PermissionCheck permissionUtility={canManageCommunication}>
+            <Button
+              onClick={() => router.push(`/staff/communications/${campaign.id}/edit`)}
+              className="bg-bg-state-secondary text-text-default border-border-darker flex h-8 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium"
+            >
+              <Edit fill="var(--color-icon-default-muted)" className="size-4" />
+              Edit
+            </Button>
+          </PermissionCheck>
         </div>
       </div>
 

@@ -2,10 +2,12 @@
 
 import { ClassSummaryDto, LevelSummaryDto } from "@/api/admission";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetLevelClasses } from "@/hooks/queryHooks/useAdmission";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Edit, Settings4 } from "@digenty/icons";
 import { useRouter } from "next/navigation";
@@ -49,13 +51,15 @@ export const LevelClasses = ({ cycleId, level, branchId }: Props) => {
           </div>
         </div>
 
-        <Button
-          onClick={() => router.push(`${baseUrl}${buildQuery(branchId)}`)}
-          className="border-border-darker text-text-default hover:bg-bg-state-secondary-hover! bg-bg-state-secondary! flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
-        >
-          <Edit fill="var(--color-icon-default-subtle)" className="size-4 shrink-0" />
-          {configured ? "Edit Level Settings" : "Configure Level"}
-        </Button>
+        <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+          <Button
+            onClick={() => router.push(`${baseUrl}${buildQuery(branchId)}`)}
+            className="border-border-darker text-text-default hover:bg-bg-state-secondary-hover! bg-bg-state-secondary! flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium"
+          >
+            <Edit fill="var(--color-icon-default-subtle)" className="size-4 shrink-0" />
+            {configured ? "Edit Level Settings" : "Configure Level"}
+          </Button>
+        </PermissionCheck>
       </div>
 
       <div className="flex flex-col gap-4">
@@ -65,12 +69,14 @@ export const LevelClasses = ({ cycleId, level, branchId }: Props) => {
           <div className="border-border-default flex flex-col items-center gap-3 rounded-xl border border-dashed py-12">
             <p className="text-text-default text-sm font-medium">This level hasn&apos;t been configured yet</p>
             <p className="text-text-muted text-xs">Configure the level requirements before managing its classes.</p>
-            <Button
-              onClick={() => router.push(`${baseUrl}${buildQuery(branchId)}`)}
-              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default mt-1 rounded-md px-4 py-2 text-sm font-medium"
-            >
-              Configure Level
-            </Button>
+            <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+              <Button
+                onClick={() => router.push(`${baseUrl}${buildQuery(branchId)}`)}
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default mt-1 rounded-md px-4 py-2 text-sm font-medium"
+              >
+                Configure Level
+              </Button>
+            </PermissionCheck>
           </div>
         ) : isPending ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -108,13 +114,15 @@ export const LevelClasses = ({ cycleId, level, branchId }: Props) => {
                   </Badge>
                 </div>
 
-                <Button
-                  onClick={() => router.push(`${baseUrl}/classes/${klass.classId}${buildQuery(branchId)}`)}
-                  className="border-border-darker bg-bg-state-secondary! text-text-default hover:bg-bg-state-secondary-hover! flex w-full items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium"
-                >
-                  <Settings4 fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
-                  Configure Class
-                </Button>
+                <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+                  <Button
+                    onClick={() => router.push(`${baseUrl}/classes/${klass.classId}${buildQuery(branchId)}`)}
+                    className="border-border-darker bg-bg-state-secondary! text-text-default hover:bg-bg-state-secondary-hover! flex w-full items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium"
+                  >
+                    <Settings4 fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
+                    Configure Class
+                  </Button>
+                </PermissionCheck>
               </div>
             ))}
           </div>

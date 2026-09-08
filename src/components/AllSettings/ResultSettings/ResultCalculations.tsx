@@ -1,6 +1,8 @@
 import { Edit } from "@digenty/icons";
 import { LevelType, SchoolGrading } from "@/api/types";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { RoundedCheckbox } from "@/components/RoundedCheckbox";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
@@ -255,9 +257,11 @@ const LevelForm = ({
           <div className="flex justify-between">
             <div className="text-text-default text-xl font-semibold">Result Calculation</div>
             {existingRecord && !isEditing && (
-              <Button onClick={onEdit} className="text-text-default border-border-darker h-8! rounded-md border">
-                <Edit fill="var(--color-icon-default-muted)" /> Edit
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button onClick={onEdit} className="text-text-default border-border-darker h-8! rounded-md border">
+                  <Edit fill="var(--color-icon-default-muted)" /> Edit
+                </Button>
+              </PermissionCheck>
             )}
           </div>
 

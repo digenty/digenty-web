@@ -7,6 +7,8 @@ import React, { useRef, useState } from "react";
 
 import { uploadImage } from "@/app/actions/upload-image";
 import { Avatar } from "@/components/Avatar";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
 import { Button } from "@/components/ui/button";
@@ -190,9 +192,14 @@ export const InvoiceSetting = () => {
           <div className="mb-8 flex items-center justify-between">
             <div className="text-text-default text-lg font-semibold">Invoice Settings</div>
             {!isEditing && (
-              <Button onClick={() => setIsEditing(true)} className="bg-bg-state-secondary! border-border-darker text-text-default rounded-md border">
-                <Edit fill="var(--color-icon-default-muted)" /> Edit
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-bg-state-secondary! border-border-darker text-text-default rounded-md border"
+                >
+                  <Edit fill="var(--color-icon-default-muted)" /> Edit
+                </Button>
+              </PermissionCheck>
             )}
           </div>
 
@@ -215,14 +222,16 @@ export const InvoiceSetting = () => {
               )}
 
               {isEditing && (
-                <Button
-                  onClick={handleUploadClick}
-                  disabled={isUploading}
-                  className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
-                >
-                  {isUploading && <Spinner className="mr-1 size-4" />}
-                  {isUploading ? "Uploading..." : "Upload"}
-                </Button>
+                <PermissionCheck permissionUtility={canManageSettings}>
+                  <Button
+                    onClick={handleUploadClick}
+                    disabled={isUploading}
+                    className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
+                  >
+                    {isUploading && <Spinner className="mr-1 size-4" />}
+                    {isUploading ? "Uploading..." : "Upload"}
+                  </Button>
+                </PermissionCheck>
               )}
               <div className="text-text-muted text-xs">JPG or PNG. 1MB Max.</div>
             </div>

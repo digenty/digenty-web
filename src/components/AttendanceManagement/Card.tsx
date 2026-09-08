@@ -9,6 +9,8 @@ import { useCreateAttendanceSheet } from "@/hooks/queryHooks/useAttendance";
 import { useGetAttendanceSettingsByLevel } from "@/hooks/queryHooks/useAttendanceSettings";
 import { toast } from "../Toast";
 import { Spinner } from "../ui/spinner";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageAttendance } from "@/lib/permissions/attendance";
 
 interface CardProps {
   classname: string;
@@ -99,14 +101,16 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
       </div>
 
       <div className="flex items-center gap-2">
-        <Button
-          onClick={createSheet}
-          className="border-border-darker bg-bg-state-secondary text-text-default flex h-7 flex-1 items-center justify-center gap-2 rounded-md border p-2"
-        >
-          {isPending && <Spinner />}
-          <span className="text-sm font-medium">{viewLabel}</span>
-          <ArrowOpenRight fill="var(--color-icon-default-muted)" className="size-3" />
-        </Button>
+        <PermissionCheck permissionUtility={canManageAttendance}>
+          <Button
+            onClick={createSheet}
+            className="border-border-darker bg-bg-state-secondary text-text-default flex h-7 flex-1 items-center justify-center gap-2 rounded-md border p-2"
+          >
+            {isPending && <Spinner />}
+            <span className="text-sm font-medium">{viewLabel}</span>
+            <ArrowOpenRight fill="var(--color-icon-default-muted)" className="size-3" />
+          </Button>
+        </PermissionCheck>
 
         <Button
           onClick={viewTermSheet}

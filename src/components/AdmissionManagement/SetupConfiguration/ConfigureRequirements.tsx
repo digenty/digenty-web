@@ -2,6 +2,7 @@
 
 import { ClassConfigRequest, LevelConfigRequest, SubjectEntry } from "@/api/admission";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +15,7 @@ import {
   useUpdateClassConfig,
   useUpdateLevelConfig,
 } from "@/hooks/queryHooks/useAdmission";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { AddFill, ArrowLeft, Bill, BookOpen, DeleteBin, FileList3, Settings4 } from "@digenty/icons";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
@@ -181,13 +183,15 @@ export const ConfigureRequirements = ({ scope, name, cycleId, levelId, classId, 
         </div>
 
         {!isPending && !isError && (
-          <Button
-            onClick={() => formik.handleSubmit()}
-            disabled={saving}
-            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-          >
-            {saving ? "Saving..." : isFirstTimeConfig ? "Configure Requirements" : "Save Requirements"}
-          </Button>
+          <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+            <Button
+              onClick={() => formik.handleSubmit()}
+              disabled={saving}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
+            >
+              {saving ? "Saving..." : isFirstTimeConfig ? "Configure Requirements" : "Save Requirements"}
+            </Button>
+          </PermissionCheck>
         )}
       </div>
 
@@ -247,27 +251,31 @@ export const ConfigureRequirements = ({ scope, name, cycleId, levelId, classId, 
                   <FileList3 fill={iconFill} className="size-4 shrink-0" />
                   <p className="text-text-default text-sm font-semibold">Required Documents</p>
                 </div>
-                <Button
-                  onClick={() => setIsAddingDocument(true)}
-                  className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 shrink-0 items-center gap-1 border text-xs font-medium transition-colors"
-                >
-                  <AddFill fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
-                  Add Required Document
-                </Button>
+                <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+                  <Button
+                    onClick={() => setIsAddingDocument(true)}
+                    className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex h-7 shrink-0 items-center gap-1 border text-xs font-medium transition-colors"
+                  >
+                    <AddFill fill="var(--color-icon-default-subtle)" className="size-3.5 shrink-0" />
+                    Add Required Document
+                  </Button>
+                </PermissionCheck>
               </div>
 
               <div className="flex flex-col gap-2">
                 {formik.values.documents.map((doc, index) => (
                   <div key={`${doc}-${index}`} className="bg-bg-input-soft flex items-center justify-between gap-3 rounded-lg px-3 py-2.5">
                     <span className="text-text-default text-sm">{doc}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeDocument(index)}
-                      className="text-text-muted hover:text-text-destructive shrink-0 cursor-pointer transition-colors"
-                      aria-label={`Remove ${doc}`}
-                    >
-                      <DeleteBin fill="currentColor" className="size-4" />
-                    </button>
+                    <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+                      <button
+                        type="button"
+                        onClick={() => removeDocument(index)}
+                        className="text-text-muted hover:text-text-destructive shrink-0 cursor-pointer transition-colors"
+                        aria-label={`Remove ${doc}`}
+                      >
+                        <DeleteBin fill="currentColor" className="size-4" />
+                      </button>
+                    </PermissionCheck>
                   </div>
                 ))}
 

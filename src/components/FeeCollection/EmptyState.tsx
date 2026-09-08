@@ -6,6 +6,8 @@ import { Button } from "../ui/button";
 
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageFeeCollection } from "@/lib/permissions/fee-collection";
 
 export const EmptyFeesCollectionState = () => {
   const router = useRouter();
@@ -18,12 +20,14 @@ export const EmptyFeesCollectionState = () => {
         <div className="text-text-muted text-xs font-normal">
           Get started by connecting your primary collection account. You can configure advanced options later.
         </div>
-        <Button
-          onClick={() => router.push("/staff/fee-collection/fees-setup")}
-          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md text-sm"
-        >
-          Set up Fee collection
-        </Button>
+        <PermissionCheck permissionUtility={canManageFeeCollection}>
+          <Button
+            onClick={() => router.push("/staff/fee-collection/fees-setup")}
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md text-sm"
+          >
+            Set up Fee collection
+          </Button>
+        </PermissionCheck>
       </div>
     </div>
   );

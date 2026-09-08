@@ -8,6 +8,8 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
 import { useDeleteInvoice, useDownloadInvoicePdf } from "@/hooks/queryHooks/useInvoice";
 import { toast } from "@/components/Toast";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteInvoices, canManageInvoices } from "@/lib/permissions/invoices";
 
 type InvoiceIdHeaderProps = {
   invoiceNumber?: string;
@@ -77,21 +79,25 @@ export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, urlInvoiceId, loadin
           </>
         ) : (
           <>
-            <Button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! flex h-8 w-22! items-center gap-1 px-2.5! py-1.5!"
-            >
-              {deleting ? <Spinner className="text-text-white-default size-4" /> : <DeleteBin fill="var(--color-icon-white-default)" />}
-              {deleting ? "Deleting..." : "Delete"}
-            </Button>
-            <Button
-              onClick={() => router.push(`/staff/invoices/edit-invoice?id=${invoiceId}`)}
-              className="bg-bg-state-secondary border-border-darker text-text-default hover:bg-bg-state-secondary-hover! flex h-8 w-30.5 items-center gap-1 border"
-            >
-              <Edit fill="var(--color-icon-default-muted)" />
-              Edit Invoice
-            </Button>
+            <PermissionCheck permissionUtility={canDeleteInvoices}>
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! flex h-8 w-22! items-center gap-1 px-2.5! py-1.5!"
+              >
+                {deleting ? <Spinner className="text-text-white-default size-4" /> : <DeleteBin fill="var(--color-icon-white-default)" />}
+                {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </PermissionCheck>
+            <PermissionCheck permissionUtility={canManageInvoices}>
+              <Button
+                onClick={() => router.push(`/staff/invoices/edit-invoice?id=${invoiceId}`)}
+                className="bg-bg-state-secondary border-border-darker text-text-default hover:bg-bg-state-secondary-hover! flex h-8 w-30.5 items-center gap-1 border"
+              >
+                <Edit fill="var(--color-icon-default-muted)" />
+                Edit Invoice
+              </Button>
+            </PermissionCheck>
             <Button
               onClick={handleDownloadPdf}
               disabled={downloadingPdf || !urlInvoiceId}

@@ -1,5 +1,6 @@
 import { Building, Calendar, FirstAidKit, Flag, Mail, Map, PhoneFill, RedPacket, User } from "@digenty/icons";
 import { Student } from "@/api/types";
+import { ContactDetail } from "@/components/StudentAndParent/ContactDetail";
 
 import { getYearDifference } from "@/lib/utils";
 import { Phone } from "lucide-react";
@@ -24,9 +25,14 @@ export const Biodata = ({ student }: { student: Student }) => {
     { bio: "Nationality", detail: student.nationality, icon: <Flag fill="var(--color-icon-default-muted)" /> },
     { bio: "State of Origin", detail: student.stateOfOrigin, icon: <Flag fill="var(--color-icon-default-muted)" /> },
     { bio: "Address", detail: student.address, icon: <Map fill="var(--color-icon-default-muted)" /> },
-    { bio: "Email Address", detail: student.email, icon: <Mail fill="var(--color-icon-default-muted)" /> },
-    { bio: "Primary Phone Number", detail: student.phoneNumber, icon: <Phone size={16} /> },
-    { bio: "Secondary Phone Number", detail: student.secondaryPhoneNumber, icon: <PhoneFill fill="var(--color-icon-default-muted)" /> },
+    { bio: "Email Address", detail: student.email, icon: <Mail fill="var(--color-icon-default-muted)" />, sensitive: true },
+    { bio: "Primary Phone Number", detail: student.phoneNumber, icon: <Phone size={16} />, sensitive: true },
+    {
+      bio: "Secondary Phone Number",
+      detail: student.secondaryPhoneNumber,
+      icon: <PhoneFill fill="var(--color-icon-default-muted)" />,
+      sensitive: true,
+    },
   ];
 
   return (
@@ -38,7 +44,9 @@ export const Biodata = ({ student }: { student: Student }) => {
               {item.icon}
               <span className="text-text-muted text-sm font-medium">{item.bio}</span>
             </div>
-            <span className="text-text-default max-w-1/3 truncate text-right text-sm font-medium capitalize">{item.detail || "--"}</span>
+            <span className="text-text-default max-w-1/3 truncate text-right text-sm font-medium capitalize">
+              {item.sensitive ? <ContactDetail value={item.detail} /> : item.detail || "--"}
+            </span>
           </div>
         );
       })}

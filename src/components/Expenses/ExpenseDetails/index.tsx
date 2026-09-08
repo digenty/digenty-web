@@ -8,11 +8,12 @@ import { ReactNode, useMemo, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { BackLink } from "@/components/BackLink";
 import { ModulePermissionsWrapper } from "@/components/ModulePermissionsWrapper";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetExpenseById } from "@/hooks/queryHooks/useExpense";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { canViewExpenses } from "@/lib/permissions/expenses";
+import { canDeleteExpenses, canManageExpenses, canViewExpenses } from "@/lib/permissions/expenses";
 
 import { ExpenseCategoryBadge, PaymentMethodCell } from "../Columns";
 import { DeleteExpenseModal } from "../DeleteExpenseModal";
@@ -100,18 +101,22 @@ const ExpenseDetailsContent = () => {
           </div>
 
           <div className="border-border-default flex items-center gap-3 border-t pt-4 md:border-none md:p-0">
-            <Button
-              onClick={() => setConfirmDelete(true)}
-              className="border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-8! rounded-md border"
-            >
-              <DeleteBin fill="var(--color-icon-destructive)" />
-            </Button>
-            <Button
-              onClick={() => expense?.id && router.push(`/staff/expense/add-expense?id=${expense.id}`)}
-              className="border-border-darker text-text-default bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-8! rounded-md border text-sm font-medium"
-            >
-              <Edit fill="var(--color-icon-default)" /> Edit Expense
-            </Button>
+            <PermissionCheck permissionUtility={canDeleteExpenses}>
+              <Button
+                onClick={() => setConfirmDelete(true)}
+                className="border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-8! rounded-md border"
+              >
+                <DeleteBin fill="var(--color-icon-destructive)" />
+              </Button>
+            </PermissionCheck>
+            <PermissionCheck permissionUtility={canManageExpenses}>
+              <Button
+                onClick={() => expense?.id && router.push(`/staff/expense/add-expense?id=${expense.id}`)}
+                className="border-border-darker text-text-default bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-8! rounded-md border text-sm font-medium"
+              >
+                <Edit fill="var(--color-icon-default)" /> Edit Expense
+              </Button>
+            </PermissionCheck>
           </div>
         </div>
 

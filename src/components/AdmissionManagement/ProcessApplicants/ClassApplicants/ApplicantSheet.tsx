@@ -3,6 +3,7 @@
 import { ApplicantStatus, getApplicantDocument } from "@/api/admission";
 import { Avatar } from "@/components/Avatar";
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetApplicantDetail, useGetApplicantScores, useSaveApplicantScores, useUpdateApplicantStatus } from "@/hooks/queryHooks/useAdmission";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { CheckIcon, EyeIcon, FileIcon, XIcon } from "lucide-react";
@@ -216,46 +218,50 @@ const ScoresStatusTab = ({ cycleId, applicantId }: { cycleId: number; applicantI
           </p>
         </div>
 
-        <Button
-          onClick={handleSaveScores}
-          disabled={saving}
-          className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default w-full rounded-md text-sm font-medium disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Save Scores"}
-        </Button>
+        <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+          <Button
+            onClick={handleSaveScores}
+            disabled={saving}
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default w-full rounded-md text-sm font-medium disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Save Scores"}
+          </Button>
+        </PermissionCheck>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <p className="text-text-default text-sm font-semibold">Update Status</p>
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            onClick={() => handleStatus("ADMITTED")}
-            disabled={updatingStatus}
-            className={cn(
-              "flex items-center gap-1.5 rounded-full border text-sm font-medium disabled:opacity-50",
-              status === "ADMITTED"
-                ? "bg-bg-badge-green text-bg-basic-green-strong border-green-200"
-                : "bg-bg-state-secondary border-border-darker text-text-default hover:bg-bg-state-secondary-hover!",
-            )}
-          >
-            <CheckIcon className="size-3.5" />
-            Admitted
-          </Button>
-          <Button
-            onClick={() => handleStatus("REJECTED")}
-            disabled={updatingStatus}
-            className={cn(
-              "flex items-center gap-1.5 rounded-full border text-sm font-medium disabled:opacity-50",
-              status === "REJECTED"
-                ? "bg-bg-badge-red text-bg-basic-red-strong border-red-200"
-                : "bg-bg-state-secondary border-border-darker text-text-default hover:bg-bg-state-secondary-hover!",
-            )}
-          >
-            <XIcon className="size-3.5" />
-            Rejected
-          </Button>
+      <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+        <div className="flex flex-col gap-3">
+          <p className="text-text-default text-sm font-semibold">Update Status</p>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              onClick={() => handleStatus("ADMITTED")}
+              disabled={updatingStatus}
+              className={cn(
+                "flex items-center gap-1.5 rounded-full border text-sm font-medium disabled:opacity-50",
+                status === "ADMITTED"
+                  ? "bg-bg-badge-green text-bg-basic-green-strong border-green-200"
+                  : "bg-bg-state-secondary border-border-darker text-text-default hover:bg-bg-state-secondary-hover!",
+              )}
+            >
+              <CheckIcon className="size-3.5" />
+              Admitted
+            </Button>
+            <Button
+              onClick={() => handleStatus("REJECTED")}
+              disabled={updatingStatus}
+              className={cn(
+                "flex items-center gap-1.5 rounded-full border text-sm font-medium disabled:opacity-50",
+                status === "REJECTED"
+                  ? "bg-bg-badge-red text-bg-basic-red-strong border-red-200"
+                  : "bg-bg-state-secondary border-border-darker text-text-default hover:bg-bg-state-secondary-hover!",
+              )}
+            >
+              <XIcon className="size-3.5" />
+              Rejected
+            </Button>
+          </div>
         </div>
-      </div>
+      </PermissionCheck>
     </div>
   );
 };

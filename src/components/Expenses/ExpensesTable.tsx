@@ -10,10 +10,12 @@ import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSearchExpenses } from "@/hooks/queryHooks/useExpense";
+import { canDeleteExpenses, canManageExpenses } from "@/lib/permissions/expenses";
 
 import { buildExpensesOverviewTableColumns, ExpenseCategoryBadge } from "./Columns";
 import { DeleteExpenseModal } from "./DeleteExpenseModal";
@@ -145,24 +147,28 @@ export const ExpensesTable = ({ filters, page, setPage, showCategory = true, sho
                         >
                           <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View expense
                         </div>
-                        <div
-                          role="button"
-                          onClick={() => goToEdit(expense.id)}
-                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                        >
-                          <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit expense
-                        </div>
-                        <div
-                          role="button"
-                          onClick={() => {
-                            setExpenseToDelete(expense);
-                            setDrawerExpense(null);
-                          }}
-                          className="text-text-destructive hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                        >
-                          <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-                          <span>Delete expense</span>
-                        </div>
+                        <PermissionCheck permissionUtility={canManageExpenses}>
+                          <div
+                            role="button"
+                            onClick={() => goToEdit(expense.id)}
+                            className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                          >
+                            <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit expense
+                          </div>
+                        </PermissionCheck>
+                        <PermissionCheck permissionUtility={canDeleteExpenses}>
+                          <div
+                            role="button"
+                            onClick={() => {
+                              setExpenseToDelete(expense);
+                              setDrawerExpense(null);
+                            }}
+                            className="text-text-destructive hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                          >
+                            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+                            <span>Delete expense</span>
+                          </div>
+                        </PermissionCheck>
                       </div>
                     </div>
                   </MobileDrawer>

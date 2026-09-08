@@ -1,5 +1,7 @@
 import { Edit } from "@digenty/icons";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { Toggle } from "@/components/Toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +14,12 @@ export const SettingsStocks = () => {
       <div className="flex w-full flex-col gap-6">
         <div className="flex items-center justify-between">
           <div className="text-text-default text-xl font-semibold">Stock Settings</div>
-          <Button className="border-border-darker bg-bg-state-secondary text-text-default h-7! rounded-md border">
-            <Edit fill="var(--color-icon-default-muted)" />
-            Edit
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button className="border-border-darker bg-bg-state-secondary text-text-default h-7! rounded-md border">
+              <Edit fill="var(--color-icon-default-muted)" />
+              Edit
+            </Button>
+          </PermissionCheck>
         </div>
         <div className="flex flex-col gap-2">
           <Label className="text-text-default text-sm font-medium"></Label>

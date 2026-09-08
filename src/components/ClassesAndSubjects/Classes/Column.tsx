@@ -14,6 +14,8 @@ import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
 import { ApproveModal, EditModal, NotifyTeacherModal } from "./AllClasses/AllClassesModal";
 import { AllClassesMainTableProps, ClassProps } from "./types";
 import { toast } from "@/components/Toast";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => {
   const router = useRouter();
@@ -78,32 +80,38 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
             <Eye fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>View class</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={row.original.status === "NOT_SUBMITTED" || row.original.status === "APPROVED"}
-            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
-            onClick={() => setOpenApproveModal(true)}
-          >
-            <CheckboxCircle fill="var(--color-icon-default-subtle)" className="size-4" />
-            <span>Approve submission</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
-            onSelect={e => {
-              e.preventDefault();
-              setOpen(false);
-              setOpenNotifyModal(true);
-            }}
-          >
-            <Notification fill="var(--color-icon-default-subtle)" className="size-4" />
-            <span>Notify class teacher</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
-            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
-          >
-            <Key fill="var(--color-icon-default-subtle)" className="size-4" />
-            <span className="">Manage edit requests</span>
-          </DropdownMenuItem>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <DropdownMenuItem
+              disabled={row.original.status === "NOT_SUBMITTED" || row.original.status === "APPROVED"}
+              className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+              onClick={() => setOpenApproveModal(true)}
+            >
+              <CheckboxCircle fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Approve submission</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <DropdownMenuItem
+              className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+              onSelect={e => {
+                e.preventDefault();
+                setOpen(false);
+                setOpenNotifyModal(true);
+              }}
+            >
+              <Notification fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Notify class teacher</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <DropdownMenuItem
+              onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${branchId}/manage-edits`)}
+              className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3"
+            >
+              <Key fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span className="">Manage edit requests</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

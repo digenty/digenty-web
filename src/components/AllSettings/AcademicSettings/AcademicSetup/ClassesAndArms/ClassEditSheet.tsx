@@ -2,6 +2,7 @@ import { CloseFill } from "@digenty/icons";
 import { ArmDetails, ClassLevel, DepartmentWithSubjects } from "@/api/types";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ import { armKeys } from "@/queries/arm";
 import { departmentKeys } from "@/queries/department";
 import { subjectKeys } from "@/queries/subject";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useFormik } from "formik";
@@ -127,15 +129,17 @@ const DepartmentSubjectsSection = ({
           className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
           placeholder={`Add subjects to ${dept.name.toLowerCase()}`}
         />
-        <Button
-          type="button"
-          className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-          onClick={() => addSubject(subjectInput)}
-          disabled={isSaving || isLoading || isDeleting}
-        >
-          {(isSaving || isLoading) && <Spinner className="text-text-white-default size-3" />}
-          Add
-        </Button>
+        <PermissionCheck permissionUtility={canManageSettings}>
+          <Button
+            type="button"
+            className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+            onClick={() => addSubject(subjectInput)}
+            disabled={isSaving || isLoading || isDeleting}
+          >
+            {(isSaving || isLoading) && <Spinner className="text-text-white-default size-3" />}
+            Add
+          </Button>
+        </PermissionCheck>
       </div>
       <div className="flex flex-wrap items-center gap-1">
         {subjects.map(subject => (
@@ -144,21 +148,23 @@ const DepartmentSubjectsSection = ({
             className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
           >
             <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>
-            <button
-              type="button"
-              disabled={deletingSubject === subject || isDeleting}
-              className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-              onClick={e => {
-                e.preventDefault();
-                removeSubject(subject);
-              }}
-            >
-              {deletingSubject === subject ? (
-                <Spinner className="text-text-subtle size-2" />
-              ) : (
-                <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
-              )}
-            </button>
+            <PermissionCheck permissionUtility={canManageSettings}>
+              <button
+                type="button"
+                disabled={deletingSubject === subject || isDeleting}
+                className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
+                onClick={e => {
+                  e.preventDefault();
+                  removeSubject(subject);
+                }}
+              >
+                {deletingSubject === subject ? (
+                  <Spinner className="text-text-subtle size-2" />
+                ) : (
+                  <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
+                )}
+              </button>
+            </PermissionCheck>
           </Badge>
         ))}
       </div>
@@ -519,14 +525,16 @@ export const ClassEditSheet = ({
                       }}
                       className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
                     />
-                    <Button
-                      type="button"
-                      onClick={() => addDepartment(formik.values.department)}
-                      className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                    >
-                      {isAddingDepartment && <Spinner className="text-text-white-default size-3" />}
-                      Add
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        type="button"
+                        onClick={() => addDepartment(formik.values.department)}
+                        className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+                      >
+                        {isAddingDepartment && <Spinner className="text-text-white-default size-3" />}
+                        Add
+                      </Button>
+                    </PermissionCheck>
                   </div>
                   <div className="flex flex-wrap items-center gap-1">
                     {departments.map(department => (
@@ -535,21 +543,23 @@ export const ClassEditSheet = ({
                         className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                       >
                         <span className="text-text-subtle text-xs capitalize">{department?.toLowerCase()}</span>
-                        <button
-                          type="button"
-                          disabled={deletingDepartmentName === department}
-                          className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-                          onClick={e => {
-                            e.preventDefault();
-                            removeDepartment(department);
-                          }}
-                        >
-                          {deletingDepartmentName === department ? (
-                            <Spinner className="text-text-subtle size-2" />
-                          ) : (
-                            <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
-                          )}
-                        </button>
+                        <PermissionCheck permissionUtility={canManageSettings}>
+                          <button
+                            type="button"
+                            disabled={deletingDepartmentName === department}
+                            className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
+                            onClick={e => {
+                              e.preventDefault();
+                              removeDepartment(department);
+                            }}
+                          >
+                            {deletingDepartmentName === department ? (
+                              <Spinner className="text-text-subtle size-2" />
+                            ) : (
+                              <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
+                            )}
+                          </button>
+                        </PermissionCheck>
                       </Badge>
                     ))}
                   </div>
@@ -599,14 +609,16 @@ export const ClassEditSheet = ({
                   className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
                 />
 
-                <Button
-                  type="button"
-                  onClick={() => addSubject(formik.values.subject)}
-                  className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                >
-                  {isAddingSubject && <Spinner className="text-text-white-default size-3" />}
-                  Add
-                </Button>
+                <PermissionCheck permissionUtility={canManageSettings}>
+                  <Button
+                    type="button"
+                    onClick={() => addSubject(formik.values.subject)}
+                    className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+                  >
+                    {isAddingSubject && <Spinner className="text-text-white-default size-3" />}
+                    Add
+                  </Button>
+                </PermissionCheck>
               </div>
 
               <div className="flex flex-wrap gap-1">
@@ -617,21 +629,23 @@ export const ClassEditSheet = ({
                     className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                   >
                     <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
-                    <button
-                      type="button"
-                      className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-                      disabled={deletingSubjectName === subject}
-                      onClick={e => {
-                        e.preventDefault();
-                        removeSubject(subject);
-                      }}
-                    >
-                      {deletingSubjectName === subject ? (
-                        <Spinner className="text-text-subtle size-2" />
-                      ) : (
-                        <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
-                      )}
-                    </button>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <button
+                        type="button"
+                        className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
+                        disabled={deletingSubjectName === subject}
+                        onClick={e => {
+                          e.preventDefault();
+                          removeSubject(subject);
+                        }}
+                      >
+                        {deletingSubjectName === subject ? (
+                          <Spinner className="text-text-subtle size-2" />
+                        ) : (
+                          <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
+                        )}
+                      </button>
+                    </PermissionCheck>
                   </Badge>
                 ))}
                 <div className="text-text-muted mt-1 text-xs">
@@ -678,14 +692,16 @@ export const ClassEditSheet = ({
                     className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
                   />
 
-                  <Button
-                    type="button"
-                    onClick={() => addArm(formik.values.arm)}
-                    className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                  >
-                    {isAddingArm && <Spinner className="text-text-white-default size-3" />}
-                    Add
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageSettings}>
+                    <Button
+                      type="button"
+                      onClick={() => addArm(formik.values.arm)}
+                      className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
+                    >
+                      {isAddingArm && <Spinner className="text-text-white-default size-3" />}
+                      Add
+                    </Button>
+                  </PermissionCheck>
                 </div>
 
                 <div className="flex flex-wrap gap-1">
@@ -696,21 +712,23 @@ export const ClassEditSheet = ({
                       className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
                     >
                       <span className="text-text-subtle text-xs capitalize">{arm.toLowerCase()}</span>{" "}
-                      <button
-                        type="button"
-                        className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-                        disabled={deletingArmName === arm}
-                        onClick={e => {
-                          e.preventDefault();
-                          removeArm(arm);
-                        }}
-                      >
-                        {deletingArmName === arm ? (
-                          <Spinner className="text-text-subtle size-2" />
-                        ) : (
-                          <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
-                        )}
-                      </button>
+                      <PermissionCheck permissionUtility={canManageSettings}>
+                        <button
+                          type="button"
+                          className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
+                          disabled={deletingArmName === arm}
+                          onClick={e => {
+                            e.preventDefault();
+                            removeArm(arm);
+                          }}
+                        >
+                          {deletingArmName === arm ? (
+                            <Spinner className="text-text-subtle size-2" />
+                          ) : (
+                            <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
+                          )}
+                        </button>
+                      </PermissionCheck>
                     </Badge>
                   ))}
                   <div className="text-text-muted mt-1 text-xs">
@@ -755,14 +773,16 @@ export const ClassEditSheet = ({
                       Close
                     </Button>
                   </SheetClose>
-                  <Button
-                    type="button"
-                    onClick={() => formik.handleSubmit()}
-                    className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
-                  >
-                    {(isPending || isUpdatingClass) && <Spinner className="text-text-white-default" />}
-                    Save
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageSettings}>
+                    <Button
+                      type="button"
+                      onClick={() => formik.handleSubmit()}
+                      className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
+                    >
+                      {(isPending || isUpdatingClass) && <Spinner className="text-text-white-default" />}
+                      Save
+                    </Button>
+                  </PermissionCheck>
                 </div>
               </SheetFooter>
             </SheetContent>

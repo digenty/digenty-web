@@ -8,6 +8,8 @@ import { Checkbox } from "../ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { stockStatus } from "../Status";
 import { StockListItem } from "./types";
+import { canDeleteStock, canManageStock } from "@/lib/permissions/stock";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 
 const STATUS_LABELS: Record<string, string> = {
   IN_STOCK: "In Stock",
@@ -43,29 +45,33 @@ const RenderOptions = ({
           <EyeIcon className="text-icon-default-subtle size-4" />
           <span>View stock</span>
         </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={evt => {
-            evt.stopPropagation();
-            onEdit?.(row);
-          }}
-          className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3"
-        >
-          <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Edit stock</span>
-        </DropdownMenuItem>
+        <PermissionCheck permissionUtility={canManageStock}>
+          <DropdownMenuItem
+            onClick={evt => {
+              evt.stopPropagation();
+              onEdit?.(row);
+            }}
+            className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3"
+          >
+            <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
+            <span>Edit stock</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
 
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-        <DropdownMenuItem
-          onClick={evt => {
-            evt.stopPropagation();
-            onDelete?.(row);
-          }}
-          className="gap-2.5 px-3"
-        >
-          <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-          <span className="text-icon-destructive">Delete stock</span>
-        </DropdownMenuItem>
+        <PermissionCheck permissionUtility={canDeleteStock}>
+          <DropdownMenuItem
+            onClick={evt => {
+              evt.stopPropagation();
+              onDelete?.(row);
+            }}
+            className="gap-2.5 px-3"
+          >
+            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+            <span className="text-icon-destructive">Delete stock</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
       </DropdownMenuContent>
     </DropdownMenu>
   );

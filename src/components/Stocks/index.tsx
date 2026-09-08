@@ -12,10 +12,16 @@ import { useGetStockByStatus } from "@/hooks/queryHooks/useStock";
 
 export const StockMain = () => {
   const user = useLoggedInUser();
-  const defaultBranchId = useMemo(() => user.branchIds?.[0], [user.branchIds]);
+
+  // A staff member with no branch-admin/main access is restricted to their own assigned
+  // branch(es) — they shouldn't default to, or be able to switch to, another branch's stock.
+  const userBranchIds = useMemo(() => user.branchIds ?? [], [user.branchIds]);
+  const hasFullAccess = user.isMain || user.isAdmin || (user.adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
+  const restrictedBranchId = isBranchRestricted ? userBranchIds[0] : undefined;
 
   const [branchId, setBranchId] = useState<number | undefined>(undefined);
-  const effectiveBranchId = branchId ?? defaultBranchId;
+  const effectiveBranchId = branchId ?? restrictedBranchId;
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StockStatus | undefined>(undefined);
@@ -42,7 +48,7 @@ export const StockMain = () => {
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-8">
-      <StockHeader branchId={effectiveBranchId} setBranchId={setBranchId} />
+      <StockHeader branchId={effectiveBranchId} setBranchId={setBranchId} isBranchRestricted={isBranchRestricted} userBranchIds={userBranchIds} />
 
       <div className="grid w-full grid-cols-2 gap-3 lg:grid-cols-3">
         <div>

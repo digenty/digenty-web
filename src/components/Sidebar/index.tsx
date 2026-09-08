@@ -48,7 +48,7 @@ import { canViewInvoices } from "@/lib/permissions/invoices";
 import { canViewStock } from "@/lib/permissions/stock";
 import { canViewSettings } from "@/lib/permissions/settings";
 import { canViewCommunication } from "@/lib/permissions/communication";
-import { canViewPortalCustomization } from "@/lib/permissions/portal-customization";
+import { canViewWebsiteCustomization } from "@/lib/permissions/website-customization";
 import { canViewDomain } from "@/lib/permissions/domain";
 import { useQueryClient } from "@tanstack/react-query";
 import { SetupGuideProgress } from "./SetupGuideProgress";
@@ -128,7 +128,7 @@ export const Sidebar = () => {
 
     ...(canViewFeeCollection(user?.permissions) ||
     // canViewFinanceReport(user?.permissions) ||
-     canViewExpenses(user?.permissions) ||
+    canViewExpenses(user?.permissions) ||
     canViewFees(user?.permissions) ||
     canViewInvoices(user?.permissions) ||
     canViewStock(user?.permissions)
@@ -200,7 +200,7 @@ export const Sidebar = () => {
         ]
       : []),
 
-    ...(canViewCommunication(user?.permissions) || canViewPortalCustomization(user?.permissions) || canViewDomain(user?.permissions)
+    ...(canViewCommunication(user?.permissions) || canViewWebsiteCustomization(user?.permissions) || canViewDomain(user?.permissions)
       ? [
           {
             title: "Communication & Portal",
@@ -225,7 +225,7 @@ export const Sidebar = () => {
                   ]
                 : []),
 
-              ...(canViewPortalCustomization(user?.permissions)
+              ...(canViewWebsiteCustomization(user?.permissions)
                 ? [
                     {
                       title: "Website Customization",

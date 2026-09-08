@@ -1,6 +1,8 @@
 import { AddFill, DeleteBin2, Edit } from "@digenty/icons";
 import { ClassLevel, PrincipalsComment } from "@/api/types";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,12 +78,14 @@ const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoading, hasE
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-text-default text-xl font-semibold">Principal&apos;s Comment</h2>
           {!isEditing && (
-            <Button
-              onClick={() => setIsEditing(true)}
-              className="bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md border px-1! py-2"
-            >
-              <Edit fill="var(--color-icon-default-muted)" /> Edit
-            </Button>
+            <PermissionCheck permissionUtility={canManageSettings}>
+              <Button
+                onClick={() => setIsEditing(true)}
+                className="bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default flex h-7! items-center justify-center rounded-md border px-1! py-2"
+              >
+                <Edit fill="var(--color-icon-default-muted)" /> Edit
+              </Button>
+            </PermissionCheck>
           )}
         </div>
         <div className="text-text-default text-md font-semibold">Principal&apos;s Comment Automation</div>
@@ -140,13 +144,15 @@ const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoading, hasE
                   {isEditing && (
                     <div className="flex flex-col gap-2">
                       <span className="invisible">-</span>
-                      <Button
-                        onClick={() => removeRow(String(row.id))}
-                        disabled={deletingId === String(row.id)}
-                        className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit rounded-md text-sm"
-                      >
-                        {deletingId === String(row.id) ? <Spinner className="size-4" /> : <DeleteBin2 fill="var(--color-icon-default-subtle)" />}
-                      </Button>
+                      <PermissionCheck permissionUtility={canManageSettings}>
+                        <Button
+                          onClick={() => removeRow(String(row.id))}
+                          disabled={deletingId === String(row.id)}
+                          className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit rounded-md text-sm"
+                        >
+                          {deletingId === String(row.id) ? <Spinner className="size-4" /> : <DeleteBin2 fill="var(--color-icon-default-subtle)" />}
+                        </Button>
+                      </PermissionCheck>
                     </div>
                   )}
                 </div>
@@ -155,9 +161,11 @@ const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoading, hasE
         </div>
 
         {isEditing && !hasExistingData && (
-          <Button className="text-text-subtle hover:bg-bg-none! mt-2 w-fit rounded-md bg-none! text-xs" onClick={addRow}>
-            <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Row
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button className="text-text-subtle hover:bg-bg-none! mt-2 w-fit rounded-md bg-none! text-xs" onClick={addRow}>
+              <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Row
+            </Button>
+          </PermissionCheck>
         )}
       </div>
     </div>

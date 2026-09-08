@@ -17,6 +17,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { formatRelativeDate } from "@/lib/utils";
 import { notifyBranchHeadSchema } from "@/schema/notification";
 import { useFormik } from "formik";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 type NotifyModalProps = {
   openNotifyModal: boolean;
@@ -115,14 +117,16 @@ export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal, classT
               <DrawerClose asChild>
                 <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
               </DrawerClose>
-              <Button
-                onClick={() => formik.handleSubmit()}
-                disabled={isPending || !formik.isValid || !formik.dirty}
-                className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
-              >
-                {isPending && <Spinner className="text-text-white-default" />}
-                Notify
-              </Button>
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  onClick={() => formik.handleSubmit()}
+                  disabled={isPending || !formik.isValid || !formik.dirty}
+                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
+                >
+                  {isPending && <Spinner className="text-text-white-default" />}
+                  Notify
+                </Button>
+              </PermissionCheck>
             </div>
           </DrawerFooter>
         </MobileDrawer>
@@ -132,14 +136,16 @@ export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal, classT
           setOpen={handleClose}
           title="Send Notification"
           ActionButton={
-            <Button
-              onClick={() => formik.handleSubmit()}
-              disabled={isPending || !formik.isValid || !formik.dirty}
-              className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
-            >
-              {isPending && <Spinner className="text-text-white-default" />}
-              Notify
-            </Button>
+            <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+              <Button
+                onClick={() => formik.handleSubmit()}
+                disabled={isPending || !formik.isValid || !formik.dirty}
+                className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
+              >
+                {isPending && <Spinner className="text-text-white-default" />}
+                Notify
+              </Button>
+            </PermissionCheck>
           }
         >
           <div className="flex flex-col gap-5 px-6 py-4">
@@ -177,13 +183,15 @@ export const ApproveModal = ({ openApproveModal, setOpenApproveModal, classArmNa
                 <DrawerClose asChild>
                   <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
                 </DrawerClose>
-                <Button
-                  onClick={onConfirm}
-                  disabled={isSubmitting}
-                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
-                >
-                  {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
-                </Button>
+                <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                  <Button
+                    onClick={onConfirm}
+                    disabled={isSubmitting}
+                    className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
+                  >
+                    {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
+                  </Button>
+                </PermissionCheck>
               </DialogFooter>
             </div>
           </MobileDrawer>
@@ -196,13 +204,15 @@ export const ApproveModal = ({ openApproveModal, setOpenApproveModal, classArmNa
           className="hidden md:block"
           title="Approve Class Results"
           ActionButton={
-            <Button
-              onClick={onConfirm}
-              disabled={isSubmitting}
-              className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
-            >
-              {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
-            </Button>
+            <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+              <Button
+                onClick={onConfirm}
+                disabled={isSubmitting}
+                className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
+              >
+                {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
+              </Button>
+            </PermissionCheck>
           }
         >
           <div className="flex flex-col gap-5 px-6 py-4">
@@ -319,20 +329,24 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
           </div>
           <div className="border-border-default border-t">
             <DialogFooter className="flex justify-between px-6 py-4">
-              <Button
-                disabled={isSubmitting}
-                onClick={() => handleConfirm(false)}
-                className="bg-bg-state-destructive text-text-white-default h-7! rounded-md! px-4 py-2 text-sm font-medium"
-              >
-                Reject Access
-              </Button>
-              <Button
-                disabled={isSubmitting}
-                onClick={() => handleConfirm(true)}
-                className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! min-w-28 rounded-md px-2 py-1 text-sm"
-              >
-                {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
-              </Button>
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  disabled={isSubmitting}
+                  onClick={() => handleConfirm(false)}
+                  className="bg-bg-state-destructive text-text-white-default h-7! rounded-md! px-4 py-2 text-sm font-medium"
+                >
+                  Reject Access
+                </Button>
+              </PermissionCheck>
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  disabled={isSubmitting}
+                  onClick={() => handleConfirm(true)}
+                  className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! min-w-28 rounded-md px-2 py-1 text-sm"
+                >
+                  {isSubmitting ? <Spinner className="size-4" /> : "Approve Results"}
+                </Button>
+              </PermissionCheck>
             </DialogFooter>
           </div>
         </MobileDrawer>
@@ -343,22 +357,26 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
         className="hidden md:block"
         title="Manage edit access request"
         cancelButton={
-          <Button
-            disabled={isSubmitting}
-            onClick={() => handleConfirm(false)}
-            className="bg-bg-state-destructive text-text-white-default h-7! rounded-md! px-4 py-2 text-sm font-medium"
-          >
-            Reject Access
-          </Button>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <Button
+              disabled={isSubmitting}
+              onClick={() => handleConfirm(false)}
+              className="bg-bg-state-destructive text-text-white-default h-7! rounded-md! px-4 py-2 text-sm font-medium"
+            >
+              Reject Access
+            </Button>
+          </PermissionCheck>
         }
         ActionButton={
-          <Button
-            disabled={isSubmitting}
-            onClick={() => handleConfirm(true)}
-            className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! min-w-28 rounded-md px-2 py-1 text-sm"
-          >
-            {isSubmitting ? <Spinner className="size-4" /> : "Approve Access"}
-          </Button>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <Button
+              disabled={isSubmitting}
+              onClick={() => handleConfirm(true)}
+              className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! min-w-28 rounded-md px-2 py-1 text-sm"
+            >
+              {isSubmitting ? <Spinner className="size-4" /> : "Approve Access"}
+            </Button>
+          </PermissionCheck>
         }
       >
         <DialogDescription className="text-text-subtle gap-5 px-6 py-4 text-sm font-normal">

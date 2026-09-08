@@ -43,6 +43,8 @@ import { Arm, ClassTeacherArm, StaffBranch } from "@/api/types";
 import { DeactivateStaffModal } from "./DeactivateStaffModal";
 
 import { getStatusBadge } from "@/components/Status";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 
 const permissionIcons = {
   "Student & Parent Records": Group,
@@ -161,23 +163,25 @@ export const StaffDetails = () => {
                 </div>
 
                 <div className="hide-scrollbar flex items-center gap-1 overflow-x-auto md:w-auto md:overflow-x-hidden">
-                  {data.data.status !== "INACTIVE" && (
+                  <PermissionCheck permissionUtility={canManageSettings}>
+                    {data.data.status !== "INACTIVE" && (
+                      <Button
+                        onClick={() => {
+                          setOpenDeactivation(true);
+                          setStaffIdToDeactivate(data.data.staffId);
+                        }}
+                        className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
+                      >
+                        <UserForbid fill="var(--color-icon-default-muted)" className="size-4" /> Deactivate
+                      </Button>
+                    )}
                     <Button
-                      onClick={() => {
-                        setOpenDeactivation(true);
-                        setStaffIdToDeactivate(data.data.staffId);
-                      }}
+                      onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staffId}`)}
                       className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
                     >
-                      <UserForbid fill="var(--color-icon-default-muted)" className="size-4" /> Deactivate
+                      <Edit fill="var(--color-icon-default-muted)" className="size-4" /> Edit Staff
                     </Button>
-                  )}
-                  <Button
-                    onClick={() => router.push(`/staff/settings/permissions/edit-staff/${staffId}`)}
-                    className="bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! text-text-default border-border-darker rounded-md border"
-                  >
-                    <Edit fill="var(--color-icon-default-muted)" className="size-4" /> Edit Staff
-                  </Button>
+                  </PermissionCheck>
                 </div>
               </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { AddFill, BookOpen, DeleteBin2, Loader2Fill, School } from "@digenty/icons";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAddAssessment, useUpdateAssessmentForLevel } from "@/hooks/queryHooks/useAssessment";
 import { useAddGrading, useGetGradingsByLevel, useUpdateGradingsForLevel } from "@/hooks/queryHooks/useGrading";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 import React, { useEffect, useState } from "react";
@@ -146,20 +148,24 @@ const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, b
                       />
                       <span className="text-text-muted w-3">%</span>
                     </div>
-                    <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit">
-                      <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit">
+                        <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                      </Button>
+                    </PermissionCheck>
                   </div>
                 ))}
               </div>
               <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <Button
-                  type="button"
-                  className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm"
-                  onClick={() => push(emptyAssessmentRow())}
-                >
-                  <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Continuous Assessment
-                </Button>
+                <PermissionCheck permissionUtility={canManageSettings}>
+                  <Button
+                    type="button"
+                    className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm"
+                    onClick={() => push(emptyAssessmentRow())}
+                  >
+                    <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Continuous Assessment
+                  </Button>
+                </PermissionCheck>
                 <div className="flex items-center gap-2">
                   <span className="text-text-subtle text-sm">Total Weight</span>
                   <span className={cn("text-sm font-medium", isOverWeight ? "text-text-destructive" : "text-text-default")}>{totalWeight}%</span>
@@ -171,9 +177,11 @@ const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, b
         </FieldArray>
       </div>
       <div className="flex justify-end py-3">
-        <Button onClick={submitAssessment} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!">
-          {hasExistingAssessment ? "Update" : "Save"}
-        </Button>
+        <PermissionCheck permissionUtility={canManageSettings}>
+          <Button onClick={submitAssessment} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!">
+            {hasExistingAssessment ? "Update" : "Save"}
+          </Button>
+        </PermissionCheck>
       </div>
     </div>
   );
@@ -321,18 +329,22 @@ const GradingFields = ({ values, handleChange, handleBlur, level, branchId, bran
                         className="bg-bg-input-soft! placeholder:text-text-muted/30 text-text-default h-9! w-full border-none text-sm"
                         placeholder="Excellent"
                       />
-                      <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! h-8 w-8 p-0">
-                        <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-                      </Button>
+                      <PermissionCheck permissionUtility={canManageSettings}>
+                        <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! h-8 w-8 p-0">
+                          <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                        </Button>
+                      </PermissionCheck>
                     </div>
                   </div>
                 </div>
               ))}
               <div>
                 <div className="pt-4">
-                  <Button type="button" className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm" onClick={() => push(emptyGradeRow())}>
-                    <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Grade Row
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageSettings}>
+                    <Button type="button" className="text-text-subtle hover:bg-bg-none! w-fit bg-none! text-sm" onClick={() => push(emptyGradeRow())}>
+                      <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Grade Row
+                    </Button>
+                  </PermissionCheck>
                 </div>
               </div>
             </div>
@@ -340,10 +352,16 @@ const GradingFields = ({ values, handleChange, handleBlur, level, branchId, bran
         </FieldArray>
       </div>
       <div className="flex justify-end py-3">
-        <Button type="button" onClick={submitGrading} className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!">
-          {isAddingGrading && <Spinner className="text-text-white-default size-3" />}
-          {hasExistingGradings ? "Update" : "Save"}
-        </Button>
+        <PermissionCheck permissionUtility={canManageSettings}>
+          <Button
+            type="button"
+            onClick={submitGrading}
+            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
+          >
+            {isAddingGrading && <Spinner className="text-text-white-default size-3" />}
+            {hasExistingGradings ? "Update" : "Save"}
+          </Button>
+        </PermissionCheck>
       </div>
     </div>
   );

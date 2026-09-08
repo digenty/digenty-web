@@ -4,6 +4,7 @@ import { AddFill, DeleteBin2, Edit, Information } from "@digenty/icons";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { ClassLevel, DevelopmentCategory, DevelopmentSkill } from "@/api/types";
 
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ import {
   useUpdateLevelSkills,
 } from "@/hooks/queryHooks/useDevelopmentSettings";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -103,13 +105,15 @@ const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: num
                     value={editingName}
                     onChange={e => setEditingName(e.target.value)}
                   />
-                  <Button
-                    onClick={() => handleUpdate(category.categoryId)}
-                    disabled={isUpdating}
-                    className="bg-bg-state-primary! text-text-white-default! h-8! rounded-md"
-                  >
-                    {isUpdating && <Spinner className="size-3" />} Save
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageSettings}>
+                    <Button
+                      onClick={() => handleUpdate(category.categoryId)}
+                      disabled={isUpdating}
+                      className="bg-bg-state-primary! text-text-white-default! h-8! rounded-md"
+                    >
+                      {isUpdating && <Spinner className="size-3" />} Save
+                    </Button>
+                  </PermissionCheck>
                   <Button onClick={() => setEditingId(null)} className="bg-bg-state-soft! text-text-subtle h-8! rounded-md">
                     Cancel
                   </Button>
@@ -119,26 +123,30 @@ const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: num
                   <span className="text-text-default flex-1 text-sm">{category.categoryName}</span>
                   {canEdit && (
                     <>
-                      <Button
-                        onClick={() => {
-                          setEditingId(category.categoryId);
-                          setEditingName(category.categoryName);
-                        }}
-                        className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
-                      >
-                        <Edit fill="var(--color-icon-default-subtle)" />
-                      </Button>
-                      <Button
-                        onClick={() => handleDelete(category.categoryId)}
-                        disabled={isDeleting && deletingId === category.categoryId}
-                        className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
-                      >
-                        {isDeleting && deletingId === category.categoryId ? (
-                          <Spinner className="size-4" />
-                        ) : (
-                          <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-                        )}
-                      </Button>
+                      <PermissionCheck permissionUtility={canManageSettings}>
+                        <Button
+                          onClick={() => {
+                            setEditingId(category.categoryId);
+                            setEditingName(category.categoryName);
+                          }}
+                          className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
+                        >
+                          <Edit fill="var(--color-icon-default-subtle)" />
+                        </Button>
+                      </PermissionCheck>
+                      <PermissionCheck permissionUtility={canManageSettings}>
+                        <Button
+                          onClick={() => handleDelete(category.categoryId)}
+                          disabled={isDeleting && deletingId === category.categoryId}
+                          className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
+                        >
+                          {isDeleting && deletingId === category.categoryId ? (
+                            <Spinner className="size-4" />
+                          ) : (
+                            <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                          )}
+                        </Button>
+                      </PermissionCheck>
                     </>
                   )}
                 </>
@@ -154,13 +162,15 @@ const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: num
               value={newName}
               onChange={e => setNewName(e.target.value)}
             />
-            <Button
-              onClick={handleAdd}
-              disabled={isAdding || !newName.trim() || !levelId}
-              className="text-text-subtle hover:bg-bg-none! rounded-md bg-none! text-xs"
-            >
-              {isAdding ? <Spinner className="size-3" /> : <AddFill fill="var(--color-icon-default-muted)" className="size-3" />} Add
-            </Button>
+            <PermissionCheck permissionUtility={canManageSettings}>
+              <Button
+                onClick={handleAdd}
+                disabled={isAdding || !newName.trim() || !levelId}
+                className="text-text-subtle hover:bg-bg-none! rounded-md bg-none! text-xs"
+              >
+                {isAdding ? <Spinner className="size-3" /> : <AddFill fill="var(--color-icon-default-muted)" className="size-3" />} Add
+              </Button>
+            </PermissionCheck>
           </div>
         )}
       </div>
@@ -292,9 +302,11 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
         {isEditing && <span className="text-text-muted text-xs">Save or cancel before switching category</span>}
 
         {canEdit && !isEditing && (
-          <Button onClick={() => setIsEditing(true)} className="text-text-default border-border-darker h-8! rounded-md border">
-            <Edit fill="var(--color-icon-default-muted)" /> Edit
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button onClick={() => setIsEditing(true)} className="text-text-default border-border-darker h-8! rounded-md border">
+              <Edit fill="var(--color-icon-default-muted)" /> Edit
+            </Button>
+          </PermissionCheck>
         )}
       </div>
 
@@ -329,21 +341,25 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
                 onChange={e => updateSkillName(skill.key, e.target.value)}
               />
               {isEditing && (
-                <Button
-                  onClick={() => requestRemove(skill)}
-                  className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
-                >
-                  <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-                </Button>
+                <PermissionCheck permissionUtility={canManageSettings}>
+                  <Button
+                    onClick={() => requestRemove(skill)}
+                    className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
+                  >
+                    <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                  </Button>
+                </PermissionCheck>
               )}
             </div>
           ))
         )}
 
         {isEditing && (
-          <Button onClick={addSkill} className="text-text-subtle hover:bg-bg-none! mt-1 w-fit rounded-md bg-none! text-xs">
-            <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Skill
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button onClick={addSkill} className="text-text-subtle hover:bg-bg-none! mt-1 w-fit rounded-md bg-none! text-xs">
+              <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Skill
+            </Button>
+          </PermissionCheck>
         )}
       </div>
 
@@ -369,14 +385,16 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
           <Button onClick={handleCancel} disabled={isPending} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={isPending}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
-          >
-            {isPending && <Spinner className="text-text-white-default size-4" />}
-            Save changes
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button
+              onClick={handleSave}
+              disabled={isPending}
+              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
+            >
+              {isPending && <Spinner className="text-text-white-default size-4" />}
+              Save changes
+            </Button>
+          </PermissionCheck>
         </div>
       )}
     </div>
@@ -449,23 +467,25 @@ export const DevelopmentSettings = ({
     <div className="mx-auto flex w-full flex-col gap-8 pb-12 md:max-w-171">
       <div className="flex items-start justify-between">
         <div className="text-text-default text-xl font-semibold">Development Skills</div>
-        <Button
-          onClick={() => setIsEditing(prev => !prev)}
-          className={cn(
-            "flex h-7! items-center justify-center rounded-md border p-2",
-            isEditing
-              ? "bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! border-transparent"
-              : "bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default",
-          )}
-        >
-          {isEditing ? (
-            "Done"
-          ) : (
-            <>
-              <Edit fill="var(--color-icon-default-muted)" /> Edit
-            </>
-          )}
-        </Button>
+        <PermissionCheck permissionUtility={canManageSettings}>
+          <Button
+            onClick={() => setIsEditing(prev => !prev)}
+            className={cn(
+              "flex h-7! items-center justify-center rounded-md border p-2",
+              isEditing
+                ? "bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! border-transparent"
+                : "bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default",
+            )}
+          >
+            {isEditing ? (
+              "Done"
+            ) : (
+              <>
+                <Edit fill="var(--color-icon-default-muted)" /> Edit
+              </>
+            )}
+          </Button>
+        </PermissionCheck>
       </div>
 
       <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex items-start gap-2 rounded-md border p-3">

@@ -1,6 +1,8 @@
 "use client";
 
 import { Cash, DeleteBin, Edit, Flag, LightBulb, Mail, Map, Phone, School, Timee, User } from "@digenty/icons";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -223,14 +225,16 @@ export const General = () => {
             aria-label="Upload school logo"
           />
           <Avatar className="border-border-default size-10 border" url={logoUrl || "/images/profile-picture.png"} />
-          <Button
-            onClick={handleUploadClick}
-            disabled={isUploading}
-            className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
-          >
-            {isUploading && <Spinner className="size-3" />}
-            Upload
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button
+              onClick={handleUploadClick}
+              disabled={isUploading}
+              className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
+            >
+              {isUploading && <Spinner className="size-3" />}
+              Upload
+            </Button>
+          </PermissionCheck>
           <div className="text-text-muted text-xs">JPG or PNG. 1MB Max.</div>
         </div>
 
@@ -244,12 +248,14 @@ export const General = () => {
                 </div>
                 <div className="text-text-muted text-sm">{firstName || lastName ? `${firstName} ${lastName}`.trim() : "—-"}</div>
               </div>
-              <Button
-                onClick={() => setEdit("editName")}
-                className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
-              >
-                <Edit fill="var(--color-icon-default-muted)" /> Edit
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button
+                  onClick={() => setEdit("editName")}
+                  className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
+                >
+                  <Edit fill="var(--color-icon-default-muted)" /> Edit
+                </Button>
+              </PermissionCheck>
             </div>
 
             {edit === "editName" && (
@@ -300,12 +306,14 @@ export const General = () => {
                 </div>
                 <div className="text-text-muted text-sm">{schoolName || "—-"}</div>
               </div>
-              <Button
-                onClick={() => setEdit("editSchoolName")}
-                className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
-              >
-                <Edit fill="var(--color-icon-default-muted)" /> Edit
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button
+                  onClick={() => setEdit("editSchoolName")}
+                  className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
+                >
+                  <Edit fill="var(--color-icon-default-muted)" /> Edit
+                </Button>
+              </PermissionCheck>
             </div>
             {edit === "editSchoolName" && (
               <div className="flex flex-col gap-4">
@@ -346,12 +354,14 @@ export const General = () => {
                 </div>
                 <div className="text-text-muted text-sm">{motto || "-—"}</div>
               </div>
-              <Button
-                onClick={() => setEdit("motto")}
-                className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
-              >
-                <Edit fill="var(--color-icon-default-muted)" /> Edit
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button
+                  onClick={() => setEdit("motto")}
+                  className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
+                >
+                  <Edit fill="var(--color-icon-default-muted)" /> Edit
+                </Button>
+              </PermissionCheck>
             </div>
             {edit === "motto" && (
               <div className="mt-4 flex flex-col gap-4">
@@ -392,12 +402,14 @@ export const General = () => {
                 </div>
                 <div className="text-text-muted text-sm">{phoneNumber || "-—"}</div>
               </div>
-              <Button
-                onClick={() => setEdit("editPhoneNum")}
-                className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
-              >
-                <Edit fill="var(--color-icon-default-muted)" /> Edit
-              </Button>
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <Button
+                  onClick={() => setEdit("editPhoneNum")}
+                  className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
+                >
+                  <Edit fill="var(--color-icon-default-muted)" /> Edit
+                </Button>
+              </PermissionCheck>
             </div>
             {edit === "editPhoneNum" && (
               <div className="mt-4 flex flex-col gap-4">
@@ -527,17 +539,19 @@ export const General = () => {
                         <div className="text-text-muted text-sm">{branch.address || "—-"}</div>
                       </div>
                     </div>
-                    <Button
-                      onClick={() => {
-                        setActiveBranchId(branch.id);
-                        setBranchName(branch.name || "");
-                        setBranchAddress(branch.address ?? "");
-                        setEdit("editBranch");
-                      }}
-                      className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
-                    >
-                      <Edit fill="var(--color-icon-default-muted)" /> Edit
-                    </Button>
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        onClick={() => {
+                          setActiveBranchId(branch.id);
+                          setBranchName(branch.name || "");
+                          setBranchAddress(branch.address ?? "");
+                          setEdit("editBranch");
+                        }}
+                        className="text-text-default border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-7! rounded-md border text-sm font-medium shadow"
+                      >
+                        <Edit fill="var(--color-icon-default-muted)" /> Edit
+                      </Button>
+                    </PermissionCheck>
                   </div>
 
                   {edit === "editBranch" && activeBranchId === branch.id && (
@@ -546,12 +560,14 @@ export const General = () => {
                         <Badge className="border-border-default bg-bg-badge-default! text-text-subtle w-20! rounded-md border p-1 text-xs">
                           Branch {index + 1}
                         </Badge>
-                        <Button
-                          onClick={resetBranchForm}
-                          className="bg-bg-state-ghost! hover:bg-bg-state-ghost-hover! text-text-default flex items-center gap-1 border-none text-xs font-medium"
-                        >
-                          <DeleteBin fill="var(--color-icon-default-muted)" /> Delete Branch
-                        </Button>
+                        <PermissionCheck permissionUtility={canManageSettings}>
+                          <Button
+                            onClick={resetBranchForm}
+                            className="bg-bg-state-ghost! hover:bg-bg-state-ghost-hover! text-text-default flex items-center gap-1 border-none text-xs font-medium"
+                          >
+                            <DeleteBin fill="var(--color-icon-default-muted)" /> Delete Branch
+                          </Button>
+                        </PermissionCheck>
                       </div>
                       <div className="flex flex-col gap-2">
                         <Label className="text-text-default flex items-center gap-2 text-sm font-medium">
@@ -639,17 +655,19 @@ export const General = () => {
             </div>
           )}
 
-          <Button
-            className="bg-bg-state-soft text-text-default mt-4 h-8! self-start"
-            onClick={() => {
-              setActiveBranchId(null);
-              setBranchName("");
-              setBranchAddress("");
-              setEdit("newBranch");
-            }}
-          >
-            <PlusIcon className="text-icon-default-muted size-4" /> Add Branch
-          </Button>
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button
+              className="bg-bg-state-soft text-text-default mt-4 h-8! self-start"
+              onClick={() => {
+                setActiveBranchId(null);
+                setBranchName("");
+                setBranchAddress("");
+                setEdit("newBranch");
+              }}
+            >
+              <PlusIcon className="text-icon-default-muted size-4" /> Add Branch
+            </Button>
+          </PermissionCheck>
         </div>
       </div>
     </div>

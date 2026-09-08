@@ -7,6 +7,8 @@ import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatRelativeDate } from "@/lib/utils";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 const RenderOptions = ({
   row,
@@ -17,27 +19,31 @@ const RenderOptions = ({
 }) => {
   return (
     <div className="flex gap-2">
-      <Button
-        onClick={e => {
-          e.stopPropagation();
-          openModal(row.original, "rejected");
-        }}
-        className="bg-bg-state-secondary border-border-default flex h-7 w-20 items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors"
-      >
-        <span className="text-text-destructive text-xs font-semibold">✕</span>
-        <span className="text-text-default">Reject</span>
-      </Button>
+      <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+        <Button
+          onClick={e => {
+            e.stopPropagation();
+            openModal(row.original, "rejected");
+          }}
+          className="bg-bg-state-secondary border-border-default flex h-7 w-20 items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors"
+        >
+          <span className="text-text-destructive text-xs font-semibold">✕</span>
+          <span className="text-text-default">Reject</span>
+        </Button>
+      </PermissionCheck>
 
-      <Button
-        onClick={e => {
-          e.stopPropagation();
-          openModal(row.original, "accepted");
-        }}
-        className="bg-bg-state-secondary border-border-default flex h-7 w-fit items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors"
-      >
-        <span className="text-text-success text-xs font-semibold">✓</span>
-        <span className="text-text-default">Approve</span>
-      </Button>
+      <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+        <Button
+          onClick={e => {
+            e.stopPropagation();
+            openModal(row.original, "accepted");
+          }}
+          className="bg-bg-state-secondary border-border-default flex h-7 w-fit items-center gap-1 rounded-md border px-3 py-1.5 text-sm transition-colors"
+        >
+          <span className="text-text-success text-xs font-semibold">✓</span>
+          <span className="text-text-default">Approve</span>
+        </Button>
+      </PermissionCheck>
     </div>
   );
 };

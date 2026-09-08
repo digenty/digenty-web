@@ -12,6 +12,8 @@ import { Modal } from "@/components/Modal";
 import { useRouter } from "next/navigation";
 import { useDeleteFee } from "@/hooks/queryHooks/useFee";
 import { toast } from "sonner";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteFees } from "@/lib/permissions/fees";
 
 const RenderOptions = ({ row }: { row: Row<ClassFeeTypes> }) => {
   const [open, setOpen] = useState(false);
@@ -78,17 +80,19 @@ const RenderOptions = ({ row }: { row: Row<ClassFeeTypes> }) => {
             <span>View class fee</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator className="border-border-default bg-border-default" />
-          <DropdownMenuItem
-            onClick={evt => {
-              evt.stopPropagation();
-              setOpen(false);
-              setDeleteOpen(true);
-            }}
-            className="gap-2.5 px-3"
-          >
-            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-            <span className="text-icon-destructive">Delete class fee</span>
-          </DropdownMenuItem>
+          <PermissionCheck permissionUtility={canDeleteFees}>
+            <DropdownMenuItem
+              onClick={evt => {
+                evt.stopPropagation();
+                setOpen(false);
+                setDeleteOpen(true);
+              }}
+              className="gap-2.5 px-3"
+            >
+              <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+              <span className="text-icon-destructive">Delete class fee</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

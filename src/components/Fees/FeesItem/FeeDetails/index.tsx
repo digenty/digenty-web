@@ -16,6 +16,8 @@ import { useDuplicateFeeItem } from "@/hooks/queryHooks/useFee";
 import { EmptyFeeState } from "../../EmptyFeeState";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteFees, canManageFees } from "@/lib/permissions/fees";
 
 export const FeeItemDetail = () => {
   const router = useRouter();
@@ -134,14 +136,16 @@ export const FeeItemDetail = () => {
               <SendPlaneFill fill="var(--color-icon-white-default)" />
               {publishing ? "Publishing..." : "Publish Fee"}
             </Button>
-            <Button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-bg-state-destructive! hover:bg-bg-state-destructive-hover! text-text-white-default h-8! rounded-md"
-            >
-              <DeleteBin fill="var(--color-icon-white-default)" />
-              {deleting ? "Deleting..." : "Delete"}
-            </Button>
+            <PermissionCheck permissionUtility={canDeleteFees}>
+              <Button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-bg-state-destructive! hover:bg-bg-state-destructive-hover! text-text-white-default h-8! rounded-md"
+              >
+                <DeleteBin fill="var(--color-icon-white-default)" />
+                {deleting ? "Deleting..." : "Delete"}
+              </Button>
+            </PermissionCheck>
             <Button
               disabled={duplicating}
               className="text-text-default bg-bg-state-default hover:bg-bg-state-default-hover border-border-darker h-8! rounded-md border"
@@ -157,12 +161,14 @@ export const FeeItemDetail = () => {
             >
               <Copy className="size-4" /> {duplicating ? "Duplicating..." : "Duplicate"}
             </Button>
-            <Button
-              className="text-text-default bg-bg-state-default hover:bg-bg-state-default-hover border-border-darker h-8! rounded-md border"
-              onClick={() => router.push(`/staff/fees/fee-item/${id}/edit`)}
-            >
-              <Edit fill="var(--color-icon-default)" /> Edit Fee
-            </Button>
+            <PermissionCheck permissionUtility={canManageFees}>
+              <Button
+                className="text-text-default bg-bg-state-default hover:bg-bg-state-default-hover border-border-darker h-8! rounded-md border"
+                onClick={() => router.push(`/staff/fees/fee-item/${id}/edit`)}
+              >
+                <Edit fill="var(--color-icon-default)" /> Edit Fee
+              </Button>
+            </PermissionCheck>
           </div>
         </div>
 

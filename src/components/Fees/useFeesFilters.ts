@@ -19,22 +19,43 @@ const branchLabel = (b: BranchWithClassLevels) => b.branch.name ?? `Branch ${b.b
  * conditions when sessionName arrives after termList.
  */
 export const useFeesFilters = () => {
-  const { schoolId } = useLoggedInUser();
+  const { schoolId, branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
   const { data: branchesResp, isPending: loadingBranches } = useGetBranches();
   const { data: termsResp, isPending: loadingTerms } = useGetTerms(schoolId);
   const { data: sessions } = useGetSessions();
 
-  const branchList: BranchWithClassLevels[] = useMemo(() => branchesResp?.data ?? [], [branchesResp]);
+  // A staff member with no branch-admin/main access is restricted to their own assigned
+  // branch(es) — they shouldn't be able to select, or default to, another branch's fees.
+  const userBranchIds = useMemo(() => branchIds ?? [], [branchIds]);
+  const hasFullAccess = isMain || isAdmin || (adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
+
+  const branchList: BranchWithClassLevels[] = useMemo(() => {
+    const all: BranchWithClassLevels[] = branchesResp?.data ?? [];
+    return isBranchRestricted ? all.filter(b => userBranchIds.includes(b.branch.id)) : all;
+  }, [branchesResp, isBranchRestricted, userBranchIds]);
   const termList: Term[] = useMemo(() => termsResp?.data?.terms ?? [], [termsResp]);
   const sessionName: string = termsResp?.data?.academicSessionName ?? "";
   const sessionId: number | undefined = useMemo(() => (Array.isArray(sessions) ? sessions.find(s => s.isActive)?.id : undefined), [sessions]);
 
   const termLabel = useCallback((t: Term) => `${sessionName} ${t.term.toLowerCase()}`.trim(), [sessionName]);
 
-  const branchOptions = useMemo(() => [ALL_BRANCHES, ...branchList.map(branchLabel)], [branchList]);
+  const branchOptions = useMemo(
+    () => (isBranchRestricted ? branchList.map(branchLabel) : [ALL_BRANCHES, ...branchList.map(branchLabel)]),
+    [branchList, isBranchRestricted],
+  );
   const termOptions = useMemo(() => [ALL_TERMS, ...termList.map(termLabel)], [termList, termLabel]);
 
   const [branchSelected, setBranchSelected] = useState(ALL_BRANCHES);
+  const restrictedBranchId = isBranchRestricted ? userBranchIds[0] : undefined;
+
+  // Once the restricted staff member's own branch resolves, select it by name so the
+  // dropdown reflects it (the branchId memo below already scopes data before this runs).
+  useEffect(() => {
+    if (branchSelected !== ALL_BRANCHES || !restrictedBranchId || branchList.length === 0) return;
+    const own = branchList.find(b => b.branch.id === restrictedBranchId);
+    if (own) setBranchSelected(branchLabel(own));
+  }, [restrictedBranchId, branchList, branchSelected]);
   // Store the termId instead of a label string to avoid label-mismatch when
   // sessionName arrives asynchronously after termList.
   const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
@@ -67,9 +88,9 @@ export const useFeesFilters = () => {
   );
 
   const branchId = useMemo(() => {
-    if (branchSelected === ALL_BRANCHES) return undefined;
+    if (branchSelected === ALL_BRANCHES) return restrictedBranchId;
     return branchList.find(b => branchLabel(b) === branchSelected)?.branch.id;
-  }, [branchSelected, branchList]);
+  }, [branchSelected, branchList, restrictedBranchId]);
 
   const selectedTerm = useMemo(() => termList.find(t => t.termId === selectedTermId), [termList, selectedTermId]);
   const termId = selectedTerm?.termId;

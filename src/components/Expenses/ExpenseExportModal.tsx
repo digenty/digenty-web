@@ -7,6 +7,7 @@ import { BranchWithClassLevels, Term } from "@/api/types";
 import { DateRangePicker } from "@/components/DatePicker";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { exportToCSV } from "@/lib/export-utils";
+import { canManageExpenses } from "@/lib/permissions/expenses";
 
 import { payMethod } from "../Invoices/paymentMethods";
 import {
@@ -43,8 +45,16 @@ export const ExpenseExportModal = ({ open, setOpen }: Props) => {
   const isMobile = useIsMobile();
   const user = useLoggedInUser();
 
+  // A staff member with no branch-admin/main access is restricted to their own assigned
+  // branch(es) — they shouldn't default to, or be able to export, another branch's expenses.
+  const userBranchIds = useMemo(() => user.branchIds ?? [], [user.branchIds]);
+  const hasFullAccess = user.isMain || user.isAdmin || (user.adminBranchIds?.length ?? 0) > 0;
+  const isBranchRestricted = !hasFullAccess && userBranchIds.length > 0;
+  const restrictedBranchId = isBranchRestricted ? userBranchIds[0] : undefined;
+
   const { data: branchesResp } = useGetBranches();
-  const branches = ((branchesResp?.data ?? []) as BranchWithClassLevels[]).map(branch => branch.branch);
+  const allBranches = ((branchesResp?.data ?? []) as BranchWithClassLevels[]).map(branch => branch.branch);
+  const branches = isBranchRestricted ? allBranches.filter(branch => userBranchIds.includes(branch.id)) : allBranches;
 
   const { data: categoriesResp } = useGetExpenseCategories(0, 100);
   const categories = useMemo(() => extractExpenseList<ExpenseCategoryItem>(categoriesResp).items, [categoriesResp]);
@@ -53,7 +63,8 @@ export const ExpenseExportModal = ({ open, setOpen }: Props) => {
   const terms: Term[] = termsResp?.data?.terms ?? [];
   const activeSession: string | undefined = termsResp?.data?.academicSessionName;
 
-  const [branchId, setBranchId] = useState<number | undefined>(undefined);
+  const [branchIdSelection, setBranchId] = useState<number | undefined>(undefined);
+  const branchId = branchIdSelection ?? restrictedBranchId;
   const [categoryId, setCategoryId] = useState<number | undefined>(undefined);
   const [termId, setTermId] = useState<number | undefined>(undefined);
   const [from, setFrom] = useState<Date | undefined>(undefined);
@@ -100,14 +111,16 @@ export const ExpenseExportModal = ({ open, setOpen }: Props) => {
   };
 
   const exportButton = (
-    <Button
-      type="button"
-      onClick={handleExport}
-      disabled={query.isFetching || expenses.length === 0}
-      className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
-    >
-      <ShareBox fill="var(--color-icon-white-default)" /> Export Expenses
-    </Button>
+    <PermissionCheck permissionUtility={canManageExpenses}>
+      <Button
+        type="button"
+        onClick={handleExport}
+        disabled={query.isFetching || expenses.length === 0}
+        className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
+      >
+        <ShareBox fill="var(--color-icon-white-default)" /> Export Expenses
+      </Button>
+    </PermissionCheck>
   );
 
   const body = (
@@ -123,9 +136,11 @@ export const ExpenseExportModal = ({ open, setOpen }: Props) => {
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-bg-default border-border-default">
-            <SelectItem value="ALL" className="text-text-default text-sm">
-              All Branches
-            </SelectItem>
+            {!isBranchRestricted && (
+              <SelectItem value="ALL" className="text-text-default text-sm">
+                All Branches
+              </SelectItem>
+            )}
             {branches.map(branch => (
               <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm">
                 {branch.name ?? `Branch ${branch.id}`}

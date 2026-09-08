@@ -10,6 +10,8 @@ import { getBadge } from "../StudentAndParent/Students/StudentProfile/StudentInv
 import { toast } from "@/components/Toast";
 import { useSendInvoiceReminder, useDeleteInvoice } from "@/hooks/queryHooks/useInvoice";
 import { useRouter } from "next/navigation";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteInvoices, canManageInvoices } from "@/lib/permissions/invoices";
 
 const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
   const router = useRouter();
@@ -54,27 +56,31 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
           <span>View invoice</span>
         </DropdownMenuItem>
 
-        <DropdownMenuItem
-          onClick={evt => {
-            evt.stopPropagation();
-            router.push(`/staff/invoices/edit-invoice?id=${row.original.invoiceId}`);
-          }}
-          className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3"
-        >
-          <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Edit invoice</span>
-        </DropdownMenuItem>
+        <PermissionCheck permissionUtility={canManageInvoices}>
+          <DropdownMenuItem
+            onClick={evt => {
+              evt.stopPropagation();
+              router.push(`/staff/invoices/edit-invoice?id=${row.original.invoiceId}`);
+            }}
+            className="hover:bg-bg-state-ghost-hover! gap-2.5 px-3"
+          >
+            <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
+            <span>Edit invoice</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
 
-        <DropdownMenuItem
-          onClick={evt => {
-            evt.stopPropagation();
-            router.push(`/staff/invoices/add-payment?invoiceId=${row.original.invoiceId}`);
-          }}
-          className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
-        >
-          <BallPen fill="var(--color-icon-default-subtle)" className="size-4" />
-          <span>Record payment</span>
-        </DropdownMenuItem>
+        <PermissionCheck permissionUtility={canManageInvoices}>
+          <DropdownMenuItem
+            onClick={evt => {
+              evt.stopPropagation();
+              router.push(`/staff/invoices/add-payment?invoiceId=${row.original.invoiceId}`);
+            }}
+            className="hover:bg-bg-state-ghost-hover! cursor-pointer gap-2.5 px-3"
+          >
+            <BallPen fill="var(--color-icon-default-subtle)" className="size-4" />
+            <span>Record payment</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
 
         <DropdownMenuItem
           disabled={sendingReminder}
@@ -85,19 +91,21 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
           <span>{sendingReminder ? "Sending..." : "Send reminder"}</span>
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator className="border-border-default bg-border-default" />
+        <PermissionCheck permissionUtility={canDeleteInvoices}>
+          <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-        <DropdownMenuItem
-          disabled={deletingInvoice}
-          onClick={evt => {
-            evt.stopPropagation();
-            handleDelete(row.original.invoiceId);
-          }}
-          className="cursor-pointer gap-2.5 px-3"
-        >
-          <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-          <span className="text-icon-destructive">{deletingInvoice ? "Deleting..." : "Delete invoice"}</span>
-        </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={deletingInvoice}
+            onClick={evt => {
+              evt.stopPropagation();
+              handleDelete(row.original.invoiceId);
+            }}
+            className="cursor-pointer gap-2.5 px-3"
+          >
+            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+            <span className="text-icon-destructive">{deletingInvoice ? "Deleting..." : "Delete invoice"}</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
       </DropdownMenuContent>
     </DropdownMenu>
   );

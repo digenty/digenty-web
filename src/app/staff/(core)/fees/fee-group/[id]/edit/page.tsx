@@ -1,10 +1,16 @@
+"use client";
+
 import { EditFeeGroup } from "@/components/Fees/FeesGroup/FeeGroup/EditFeeGroup";
+import { ManageAccessGate } from "@/components/ModulePermissionsWrapper/ManageAccessGate";
+import { canManageFees } from "@/lib/permissions/fees";
 
 const EditFeeGroupPage = () => {
   return (
-    <div>
-      <EditFeeGroup />
-    </div>
+    <ManageAccessGate permissionUtility={canManageFees} redirectTo="/staff/fees">
+      <div>
+        <EditFeeGroup />
+      </div>
+    </ManageAccessGate>
   );
 };
 

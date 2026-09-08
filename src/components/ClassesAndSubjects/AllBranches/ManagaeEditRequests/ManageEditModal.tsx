@@ -10,6 +10,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { formatRelativeDate } from "@/lib/utils";
 import { Clock3 } from "lucide-react";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 interface ManageEditModalProps {
   open: boolean;
@@ -34,23 +36,27 @@ export const ManageEditModal = ({ open, closeModal, selectedRequest, pendingActi
             ActionButton={
               <div>
                 {pendingAction === "rejected" ? (
-                  <Button
-                    onClick={() => handleConfirm("rejected")}
-                    disabled={isSubmitting}
-                    className="bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {isSubmitting && <Spinner />}
-                    Reject Access
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                    <Button
+                      onClick={() => handleConfirm("rejected")}
+                      disabled={isSubmitting}
+                      className="bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isSubmitting && <Spinner />}
+                      Reject Access
+                    </Button>
+                  </PermissionCheck>
                 ) : (
-                  <Button
-                    onClick={() => handleConfirm("accepted")}
-                    disabled={isSubmitting}
-                    className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {isSubmitting && <Spinner />}
-                    Approve Access
-                  </Button>
+                  <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                    <Button
+                      onClick={() => handleConfirm("accepted")}
+                      disabled={isSubmitting}
+                      className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isSubmitting && <Spinner />}
+                      Approve Access
+                    </Button>
+                  </PermissionCheck>
                 )}
               </div>
             }
@@ -170,23 +176,27 @@ export const ManageEditModal = ({ open, closeModal, selectedRequest, pendingActi
 
             <DrawerFooter className="border-border-default border-t">
               <div className="flex justify-between">
-                <Button
-                  onClick={() => handleConfirm("rejected")}
-                  disabled={isSubmitting}
-                  className="bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isSubmitting && <Spinner />}
-                  Reject Access
-                </Button>
+                <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                  <Button
+                    onClick={() => handleConfirm("rejected")}
+                    disabled={isSubmitting}
+                    className="bg-bg-state-destructive text-text-white-default hover:bg-bg-state-destructive-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isSubmitting && <Spinner />}
+                    Reject Access
+                  </Button>
+                </PermissionCheck>
 
-                <Button
-                  onClick={() => handleConfirm("accepted")}
-                  disabled={isSubmitting}
-                  className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isSubmitting && <Spinner />}
-                  Approve Access
-                </Button>
+                <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                  <Button
+                    onClick={() => handleConfirm("accepted")}
+                    disabled={isSubmitting}
+                    className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 w-fit text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isSubmitting && <Spinner />}
+                    Approve Access
+                  </Button>
+                </PermissionCheck>
               </div>
             </DrawerFooter>
           </MobileDrawer>

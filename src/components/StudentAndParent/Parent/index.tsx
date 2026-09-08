@@ -289,13 +289,15 @@ export const ParentsTable = () => {
           />
 
           <div className="flex items-center justify-between gap-1">
-            <Button
-              onClick={() => setOpenExportFilter(true)}
-              className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
-            >
-              <ShareBox fill="var(--color-icon-default-muted)" className="size-[15px]" />
-              <span className="text-text-default font-medium">Export</span>
-            </Button>
+            <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+              <Button
+                onClick={() => setOpenExportFilter(true)}
+                className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
+              >
+                <ShareBox fill="var(--color-icon-default-muted)" className="size-[15px]" />
+                <span className="text-text-default font-medium">Export</span>
+              </Button>
+            </PermissionCheck>
 
             <PermissionCheck permissionUtility={canManageStudentParentRecords}>
               <Button
@@ -325,13 +327,15 @@ export const ParentsTable = () => {
       {isActionsOpen && (
         <MobileDrawer open={isActionsOpen} setIsOpen={setIsActionsOpen} title="Actions">
           <div className="flex flex-col gap-2 px-3 py-4">
-            <Button
-              onClick={() => setOpenExportFilter(true)}
-              className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
-            >
-              <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
-              <span>Export</span>
-            </Button>
+            <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+              <Button
+                onClick={() => setOpenExportFilter(true)}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
+              >
+                <ShareBox fill="var(--color-icon-default-muted)" className="size-4" />
+                <span>Export</span>
+              </Button>
+            </PermissionCheck>
             <PermissionCheck permissionUtility={canManageStudentParentRecords}>
               <Button
                 onClick={() => router.push(`student-and-parent-record/upload-parents`)}

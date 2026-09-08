@@ -10,6 +10,8 @@ import { invoiceBreakdownType, paymentHistoryType } from "./invoiceIdTypes";
 
 import { useClassesStore } from "@/store/classes";
 import { DeletePaymentModal, PaymentDetailsModal } from "./InvoiceIdModals";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteInvoices, canManageInvoices } from "@/lib/permissions/invoices";
 
 const RenderOptions = (row: Row<paymentHistoryType>) => {
   console.log(row);
@@ -28,16 +30,20 @@ const RenderOptions = (row: Row<paymentHistoryType>) => {
             <EyeIcon className="text-icon-default-subtle size-4" />
             <span>View payment</span>
           </DropdownMenuItem>
-          <DropdownMenuItem className="gap-2.5 px-3">
-            <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
-            <span>Edit payment</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="border-border-default bg-border-default" />
+          <PermissionCheck permissionUtility={canManageInvoices}>
+            <DropdownMenuItem className="gap-2.5 px-3">
+              <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Edit payment</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
+          <PermissionCheck permissionUtility={canDeleteInvoices}>
+            <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-          <DropdownMenuItem className="gap-2.5 px-3" onClick={() => setDeletePayment(true)}>
-            <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
-            <span className="text-icon-destructive">Delete payment</span>
-          </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2.5 px-3" onClick={() => setDeletePayment(true)}>
+              <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
+              <span className="text-icon-destructive">Delete payment</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

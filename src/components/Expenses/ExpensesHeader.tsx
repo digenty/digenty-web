@@ -25,15 +25,27 @@ type Props = {
   /** Rendered next to the title on the category detail page, where the title carries a count badge. */
   titleAdornment?: React.ReactNode;
   showCategoriesLink?: boolean;
+  /** A branch-restricted staff member can only ever filter within their own branch(es). */
+  isBranchRestricted?: boolean;
+  userBranchIds?: number[];
 };
 
-export const ExpensesHeader = ({ title = "Overview", filters, setFilters, titleAdornment, showCategoriesLink = true }: Props) => {
+export const ExpensesHeader = ({
+  title = "Overview",
+  filters,
+  setFilters,
+  titleAdornment,
+  showCategoriesLink = true,
+  isBranchRestricted = false,
+  userBranchIds = [],
+}: Props) => {
   const router = useRouter();
   const user = useLoggedInUser();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const { data: branchesResp } = useGetBranches();
-  const branches = ((branchesResp?.data ?? []) as BranchWithClassLevels[]).map(branch => branch.branch);
+  const allBranches = ((branchesResp?.data ?? []) as BranchWithClassLevels[]).map(branch => branch.branch);
+  const branches = isBranchRestricted ? allBranches.filter(branch => userBranchIds.includes(branch.id)) : allBranches;
 
   const { data: termsResp } = useGetTerms(user.schoolId);
   const terms: Term[] = termsResp?.data?.terms ?? [];
@@ -74,9 +86,11 @@ export const ExpensesHeader = ({ title = "Overview", filters, setFilters, titleA
               <span className="text-text-default text-sm font-medium">{selectedBranch?.name ?? "All Branches"}</span>
             </SelectTrigger>
             <SelectContent className="bg-bg-card border-border-default">
-              <SelectItem value="ALL" className="text-text-default text-sm font-medium">
-                All Branches
-              </SelectItem>
+              {!isBranchRestricted && (
+                <SelectItem value="ALL" className="text-text-default text-sm font-medium">
+                  All Branches
+                </SelectItem>
+              )}
               {branches.map(branch => (
                 <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm font-medium">
                   {branch.name ?? `Branch ${branch.id}`}
@@ -126,9 +140,11 @@ export const ExpensesHeader = ({ title = "Overview", filters, setFilters, titleA
                 <span className="text-text-default text-sm">{selectedBranch?.name ?? "All Branches"}</span>
               </SelectTrigger>
               <SelectContent className="bg-bg-default border-border-default">
-                <SelectItem value="ALL" className="text-text-default text-sm">
-                  All Branches
-                </SelectItem>
+                {!isBranchRestricted && (
+                  <SelectItem value="ALL" className="text-text-default text-sm">
+                    All Branches
+                  </SelectItem>
+                )}
                 {branches.map(branch => (
                   <SelectItem key={branch.id} value={String(branch.id)} className="text-text-default text-sm">
                     {branch.name ?? `Branch ${branch.id}`}

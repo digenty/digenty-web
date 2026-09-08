@@ -12,6 +12,8 @@ import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { EditModal, NotifyTeacherModal } from "../AllClassesModal";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export const ClassHeader = ({
   isLoading,
@@ -70,13 +72,15 @@ export const ClassHeader = ({
             {isLoading || classData.length == 0 ? (
               <Skeleton className="bg-bg-input-soft h-8 w-40" />
             ) : (
-              <Button
-                onClick={() => setOpenNotify(true)}
-                className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-46"
-              >
-                <Notification fill="var(--color-icon-default-muted)" />
-                Notify Class Teacher
-              </Button>
+              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                <Button
+                  onClick={() => setOpenNotify(true)}
+                  className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-46"
+                >
+                  <Notification fill="var(--color-icon-default-muted)" />
+                  Notify Class Teacher
+                </Button>
+              </PermissionCheck>
             )}
             {isLoading || classData.length == 0 ? (
               <Skeleton className="bg-bg-input-soft h-8 w-40" />

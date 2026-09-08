@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useDeleteStock } from "@/hooks/queryHooks/useStock";
+import { canDeleteStock, canManageStock } from "@/lib/permissions/stock";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 
 import { StockDetailResponse } from "./type";
 
@@ -84,18 +86,22 @@ export const StockDetailHeader = ({ stock }: Props) => {
         </div>
 
         <div className="border-border-default flex items-center gap-3 border-t pt-4 md:border-none md:p-0">
-          <Button
-            onClick={() => setConfirmDelete(true)}
-            className="border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-8! rounded-md border"
-          >
-            <DeleteBin fill="var(--color-icon-destructive)" />
-          </Button>
-          <Button
-            onClick={() => stock?.id && router.push(`/staff/stock/add-stock?id=${stock.id}`)}
-            className="border-border-darker text-text-default bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-8! rounded-md border text-sm font-medium"
-          >
-            <Edit fill="var(--color-icon-default)" /> Edit Stock
-          </Button>
+          <PermissionCheck permissionUtility={canDeleteStock}>
+            <Button
+              onClick={() => setConfirmDelete(true)}
+              className="border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-8! rounded-md border"
+            >
+              <DeleteBin fill="var(--color-icon-destructive)" />
+            </Button>
+          </PermissionCheck>
+          <PermissionCheck permissionUtility={canManageStock}>
+            <Button
+              onClick={() => stock?.id && router.push(`/staff/stock/add-stock?id=${stock.id}`)}
+              className="border-border-darker text-text-default bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-8! rounded-md border text-sm font-medium"
+            >
+              <Edit fill="var(--color-icon-default)" /> Edit Stock
+            </Button>
+          </PermissionCheck>
         </div>
       </div>
     </>

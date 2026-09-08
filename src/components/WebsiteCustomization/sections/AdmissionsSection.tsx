@@ -1,9 +1,11 @@
 "use client";
 
 import { DeleteBin, GraduationCap } from "@digenty/icons";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { canManageWebsiteCustomization } from "@/lib/permissions/website-customization";
 import { cn } from "@/lib/utils";
 import { AddButton, Field, INPUT_CLASS, SquareIconButton } from "../common";
 import { useWebsiteCustomization } from "../context";
@@ -90,9 +92,11 @@ export const AdmissionsSection = () => {
                 disabled={disabled}
               />
               {!disabled && (
-                <SquareIconButton onClick={() => updateClasses(admissions.classes.filter(r => r.id !== row.id))} aria-label="Remove class">
-                  <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" />
-                </SquareIconButton>
+                <PermissionCheck permissionUtility={canManageWebsiteCustomization}>
+                  <SquareIconButton onClick={() => updateClasses(admissions.classes.filter(r => r.id !== row.id))} aria-label="Remove class">
+                    <DeleteBin fill="var(--color-icon-default-muted)" className="size-4" />
+                  </SquareIconButton>
+                </PermissionCheck>
               )}
             </div>
           ))}

@@ -1,11 +1,17 @@
+"use client";
+
 import { SettingsStocks } from "@/components/AllSettings/SettingStock";
+import { ModulePermissionsWrapper } from "@/components/ModulePermissionsWrapper";
+import { canViewSettings } from "@/lib/permissions/settings";
 import React from "react";
 
 const SettingStockPage = () => {
   return (
-    <div>
-      <SettingsStocks />
-    </div>
+    <ModulePermissionsWrapper permissionUtility={canViewSettings}>
+      <div>
+        <SettingsStocks />
+      </div>
+    </ModulePermissionsWrapper>
   );
 };
 

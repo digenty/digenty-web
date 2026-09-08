@@ -2,12 +2,14 @@
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetAllSubjects } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { canManageAdmissionManagement } from "@/lib/permissions/admission-management";
 import { useState } from "react";
 
 export interface ExamSubject {
@@ -117,13 +119,15 @@ export const AddExamSubjectModal = ({ open, setOpen, onAdd }: Props) => {
   );
 
   const submitButton = (
-    <Button
-      onClick={handleSubmit}
-      disabled={!canSubmit}
-      className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
-    >
-      Add Exam Subject
-    </Button>
+    <PermissionCheck permissionUtility={canManageAdmissionManagement}>
+      <Button
+        onClick={handleSubmit}
+        disabled={!canSubmit}
+        className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
+      >
+        Add Exam Subject
+      </Button>
+    </PermissionCheck>
   );
 
   const cancelButton = (

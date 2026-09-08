@@ -13,7 +13,7 @@ import { BranchWithClassLevels } from "@/api/types";
 import { uploadImage } from "@/app/actions/upload-image";
 import { BackButton } from "@/components/BackButton";
 import { DateRangePicker } from "@/components/DatePicker";
-import { ModulePermissionsWrapper } from "@/components/ModulePermissionsWrapper";
+import { ManageAccessGate } from "@/components/ModulePermissionsWrapper/ManageAccessGate";
 import { payMethod } from "@/components/Invoices/paymentMethods";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
@@ -528,7 +528,7 @@ const AddExpenseForm = () => {
 };
 
 export const AddExpense = () => (
-  <ModulePermissionsWrapper permissionUtility={canManageExpenses}>
+  <ManageAccessGate permissionUtility={canManageExpenses} redirectTo="/staff/expense">
     <AddExpenseForm />
-  </ModulePermissionsWrapper>
+  </ManageAccessGate>
 );

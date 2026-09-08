@@ -6,7 +6,7 @@ import { canViewDomain } from "./domain";
 import { canViewFeeCollection } from "./fee-collection";
 import { canViewFees } from "./fees";
 import { canViewInvoices } from "./invoices";
-import { canViewPortalCustomization } from "./portal-customization";
+import { canViewWebsiteCustomization } from "./website-customization";
 import { canViewStock } from "./stock";
 import { canViewStudentParentRecords } from "./students-and-parents";
 
@@ -22,7 +22,7 @@ const STAFF_ROUTES_BY_PRIORITY: { canView: (permissions: string[] | undefined) =
   { canView: canViewFeeCollection, url: "fee-collection" },
   { canView: canViewCommunication, url: "communications" },
   { canView: canViewDomain, url: "domain" },
-  { canView: canViewPortalCustomization, url: "website-customization" },
+  { canView: canViewWebsiteCustomization, url: "website-customization" },
 ];
 
 // Profile has no permission gate, so it's a safe landing spot when a user can't view any module.
