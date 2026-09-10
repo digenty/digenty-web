@@ -17,6 +17,7 @@ import { LinkedStudents } from "./LinkedStudents";
 import { LinkStudents } from "./LinkStudents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "../../ProfilePicture";
+import { SendLoginDetailsModal } from "../SendLoginDetailsModal";
 import { Gender, Relationship } from "@/types";
 
 export const AddParent = () => {
@@ -27,6 +28,9 @@ export const AddParent = () => {
 
   const [avatar, setAvatar] = useState<string>();
   const [step, setStep] = useState(1);
+  // Set once the parent is created - the parent is registered but has not been sent
+  // their login details yet, so we ask whether to send them now.
+  const [addedParent, setAddedParent] = useState<{ id?: number; branchId?: number } | null>(null);
 
   useBreadcrumb([
     { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
@@ -62,12 +66,19 @@ export const AddParent = () => {
         },
         {
           onSuccess: data => {
+            // The create response is being reshaped backend-side (parentId/message), so fall
+            // back to the submitted values for the name.
+            const firstName = data.data?.firstName ?? values.firstName;
+            const lastName = data.data?.lastName ?? values.lastName;
             toast({
-              title: `Successfully added ${data.data.firstName} ${data.data.lastName}`,
-              description: data.message,
+              title: `Successfully added ${firstName} ${lastName}`,
+              description: data.data?.message ?? data.message,
               type: "success",
             });
-            router.back();
+            setAddedParent({
+              id: data.data?.parentId ?? data.data?.id,
+              branchId: data.data?.branchId ?? values.branchId ?? undefined,
+            });
           },
           onError: error => {
             applyConflictFieldError(error, formik.setFieldError);
@@ -136,8 +147,26 @@ export const AddParent = () => {
 
   const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
 
+  const goToParentsTab = () => router.push("/staff/student-and-parent-record?tab=Parents");
+
   return (
     <div className="flex h-screen flex-col">
+      {addedParent && (
+        <SendLoginDetailsModal
+          open={!!addedParent}
+          setOpen={isOpen => {
+            if (!isOpen) setAddedParent(null);
+          }}
+          branchId={addedParent.branchId}
+          parentIds={addedParent.id ? [addedParent.id] : undefined}
+          title="Send Login Details?"
+          description="This parent has been registered but has not been emailed yet. Send their login details now, or send them later from the Parents tab."
+          laterLabel="Send later"
+          onLater={goToParentsTab}
+          onDone={goToParentsTab}
+        />
+      )}
+
       {open && <LinkStudents selectedStudents={selectedStudents} setSelectedStudents={setSelectedStudents} open={open} setOpen={setOpen} />}
 
       <div className="px-4 pt-3 md:hidden">

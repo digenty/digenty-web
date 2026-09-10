@@ -1,4 +1,15 @@
-import { addStaff, deactivateStaff, deleteStaff, getStaff, getStaffDetails, makeBranchAdminStaff, updateStaff } from "@/api/staff";
+import {
+  addStaff,
+  commitStaffsUpload,
+  deactivateStaff,
+  deleteStaff,
+  downloadStaffUploadTemplate,
+  getStaff,
+  getStaffDetails,
+  makeBranchAdminStaff,
+  updateStaff,
+  validateStaffsUpload,
+} from "@/api/staff";
 import { staffKeys } from "@/queries/staff";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -63,5 +74,30 @@ export const useMakeBranchAdminStaff = () => {
   return useMutation({
     mutationKey: staffKeys.makeBranchAdminStaff,
     mutationFn: makeBranchAdminStaff,
+  });
+};
+
+export const useValidateStaffsUpload = ({ branchId }: { branchId?: number }) => {
+  return useMutation({
+    mutationKey: staffKeys.staffsValidateUpload,
+    mutationFn: ({ file }: { file: File }) => validateStaffsUpload({ file, branchId: branchId! }),
+  });
+};
+
+export const useCommitStaffsUpload = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: staffKeys.staffsCommitUpload,
+    mutationFn: ({ batchId }: { batchId: string }) => commitStaffsUpload({ batchId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [staffKeys.staffs] });
+    },
+  });
+};
+
+export const useDownloadStaffUploadTemplate = () => {
+  return useMutation({
+    mutationKey: staffKeys.downloadStaffUploadTemplate,
+    mutationFn: downloadStaffUploadTemplate,
   });
 };

@@ -10,4 +10,6 @@ export const parentKeys = {
   parentsCommitUpload: ["parentsCommitUpload"] as const,
   exportParents: ["exportParents"] as const,
   deleteParents: ["deleteParents"] as const,
+  sendParentInvites: ["sendParentInvites"] as const,
+  parentInviteStatus: (branchId?: number) => ["parentInviteStatus", branchId] as const,
 };

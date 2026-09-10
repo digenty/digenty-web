@@ -1,5 +1,5 @@
 "use client";
-import { DeleteBin, Import, ShareBox, WarningIcon } from "@digenty/icons";
+import { DeleteBin, Import, Mail, ShareBox, WarningIcon } from "@digenty/icons";
 import { Arm, Branch, BranchWithClassLevels, ClassType, Department, Parent } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
@@ -32,6 +32,7 @@ import { parentColumns } from "./ParentColumns";
 import { ParentsMobileCard } from "./ParentMobileCard";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
+import { SendLoginDetailsModal } from "./SendLoginDetailsModal";
 
 export const ParentsTable = () => {
   const router = useRouter();
@@ -53,6 +54,7 @@ export const ParentsTable = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [openExportFilter, setOpenExportFilter] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [openSendLoginDetails, setOpenSendLoginDetails] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Parent[]>([]);
   const pageSize = 25;
@@ -197,6 +199,17 @@ export const ParentsTable = () => {
         </Modal>
       )}
 
+      {openSendLoginDetails && (
+        <SendLoginDetailsModal
+          open={openSendLoginDetails}
+          setOpen={setOpenSendLoginDetails}
+          branchId={effectiveBranchId}
+          requireConfirmation
+          laterLabel="Cancel"
+          description="Parents do not receive their login details automatically. Send them to every parent in this branch who has not received theirs yet."
+        />
+      )}
+
       {/* Delete open modal */}
       <Modal
         open={openDelete}
@@ -301,6 +314,14 @@ export const ParentsTable = () => {
 
             <PermissionCheck permissionUtility={canManageStudentParentRecords}>
               <Button
+                onClick={() => setOpenSendLoginDetails(true)}
+                className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
+              >
+                <Mail fill="var(--color-icon-default-muted)" className="size-[15px]" />
+                <span className="text-text-default font-medium">Send Login Details</span>
+              </Button>
+
+              <Button
                 onClick={() => router.push(`student-and-parent-record/upload-parents`)}
                 className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
               >
@@ -343,6 +364,18 @@ export const ParentsTable = () => {
               >
                 <Import fill="var(--color-icon-default-muted)" className="size-4" />
                 <span>Import</span>
+              </Button>
+            </PermissionCheck>
+            <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+              <Button
+                onClick={() => {
+                  setIsActionsOpen(false);
+                  setOpenSendLoginDetails(true);
+                }}
+                className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
+              >
+                <Mail fill="var(--color-icon-default-muted)" className="size-4" />
+                <span>Send Login Details</span>
               </Button>
             </PermissionCheck>
           </div>

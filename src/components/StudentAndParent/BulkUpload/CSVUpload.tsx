@@ -12,13 +12,21 @@ import { Label } from "@/components/ui/label";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Branch, BranchWithClassLevels } from "@/api/types";
+import { downloadStaffUploadTemplate } from "@/api/staff";
+import Link from "next/link";
 
 export type ValidationError = {
   row: number;
   errors: string[];
 };
 
-const maxFileSize = 40 * 1024 * 1024;
+type Entity = "Students" | "Parents" | "Staff";
+
+const maxFileSizeByEntity: Record<Entity, number> = {
+  Students: 40 * 1024 * 1024,
+  Parents: 40 * 1024 * 1024,
+  Staff: 25 * 1024 * 1024,
+};
 const sizeQuotient = 1024 * 1024;
 
 export const CSVUpload = ({
@@ -30,7 +38,7 @@ export const CSVUpload = ({
   branchSelected,
   setBranchSelected,
 }: {
-  entity: "Students" | "Parents";
+  entity: Entity;
   file: File | null;
   setFile: (file: File | null) => void;
   setErrors?: Dispatch<SetStateAction<ValidationError[]>>;
@@ -38,17 +46,30 @@ export const CSVUpload = ({
   branchSelected: Branch | null;
   setBranchSelected: (branch: Branch | null) => void;
 }) => {
-  useBreadcrumb([
-    { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
-    { label: entity, url: `/staff/student-and-parent-record?tab=${entity}` },
-    { label: "CSV Upload", url: "" },
-  ]);
+  const maxFileSize = maxFileSizeByEntity[entity];
+
+  useBreadcrumb(
+    entity === "Staff"
+      ? [
+          { label: "Settings", url: "/staff/settings" },
+          { label: "Permissions", url: "/staff/settings/permissions" },
+          { label: "Staff", url: "/staff/settings/permissions?tab=staff" },
+          { label: "CSV Upload", url: "" },
+        ]
+      : [
+          { label: "Student & Parent Record", url: "/staff/student-and-parent-record" },
+          { label: entity, url: `/staff/student-and-parent-record?tab=${entity}` },
+          { label: "CSV Upload", url: "" },
+        ],
+  );
 
   const { data: branches, isPending: loadingBranches } = useGetBranches();
 
   const handleCSVDownload = () => {
     if (entity === "Students") {
       window.location.href = `/templates/student-upload-template.csv`;
+    } else if (entity === "Staff") {
+      window.location.href = `/templates/staff-upload-template.csv`;
     } else {
       window.location.href = `/templates/parent-upload-template.csv`;
     }
@@ -56,6 +77,11 @@ export const CSVUpload = ({
   const [fileError, setFileError] = useState<string | null>(null);
 
   const handleXSLXDownload = async () => {
+    if (entity === "Staff") {
+      await downloadStaffUploadTemplate();
+      return;
+    }
+
     const res = await fetch(`/api/upload-template?entity=${entity}`);
     const blob = await res.blob();
 
@@ -91,7 +117,7 @@ export const CSVUpload = ({
         }
       });
     },
-    [fileError, handleValidation, setFile],
+    [fileError, handleValidation, setFile, maxFileSize],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -166,7 +192,7 @@ export const CSVUpload = ({
             </span>
           )}
         </div>
-        <p className="text-text-muted text-xs">Maximum of 40MB</p>
+        <p className="text-text-muted text-xs">Maximum of {maxFileSize / sizeQuotient}MB</p>
 
         <input id="file-upload" type="file" className="hidden" {...getInputProps()} />
       </div>
@@ -202,10 +228,18 @@ export const CSVUpload = ({
           <div>
             <h3 className="text-text-default text-base font-semibold">Download CSV or XLSX Template</h3>
             <p className="text-text-subtle text-xs">You can download the attached example and use them as a starting point for your file</p>
-            <p className="text-text-subtle text-xs">
-              The <span className="font-medium">gender</span> column only accepts <span className="font-medium">MALE</span> or{" "}
-              <span className="font-medium">FEMALE</span> in uppercase.
-            </p>
+            {entity === "Staff" ? (
+              <p className="text-text-subtle text-xs">
+                The <span className="font-medium">Gender</span> column accepts <span className="font-medium">Male</span>,{" "}
+                <span className="font-medium">Female</span>, <span className="font-medium">M</span> or{" "}
+                <span className="font-medium">F</span>.
+              </p>
+            ) : (
+              <p className="text-text-subtle text-xs">
+                The <span className="font-medium">gender</span> column only accepts <span className="font-medium">MALE</span> or{" "}
+                <span className="font-medium">FEMALE</span> in uppercase.
+              </p>
+            )}
           </div>
         </div>
 
@@ -234,6 +268,19 @@ export const CSVUpload = ({
           <Information fill="var(--color-icon-informative)" className="size-6" />
           <p className="text-text-subtle text-xs">
             For a smoother import, make sure parent records are uploaded first so students can be linked automatically.
+          </p>
+        </div>
+      )}
+
+      {entity === "Staff" && (
+        <div className="bg-bg-badge-blue border-border-default shadow-light flex items-center gap-2.5 rounded-md border px-3 py-2.5">
+          <Information fill="var(--color-icon-informative)" className="size-6" />
+          <p className="text-text-subtle text-xs">
+            The <span className="font-medium">Role</span> column must match a role that already exists for your school.{" "}
+            <Link href="/staff/settings/permissions?tab=roles-and-permissions" className="text-text-informative font-medium">
+              Set up roles under Settings → Roles
+            </Link>{" "}
+            before uploading.
           </p>
         </div>
       )}

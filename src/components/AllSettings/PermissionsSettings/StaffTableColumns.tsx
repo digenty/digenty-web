@@ -45,7 +45,7 @@ const RenderOptions = (row: Row<Staff>) => {
         <PermissionCheck permissionUtility={canManageSettings}>
           <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             onClick={evt => {
               evt.stopPropagation();
               setStaffToMakeAdmin(row.original);
@@ -55,7 +55,7 @@ const RenderOptions = (row: Row<Staff>) => {
           >
             <ShieldUser className="text-icon-default-subtle size-4" />
             <span>Make Branch Admin</span>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
 
           {row.original.status !== "INACTIVE" && (
             <DropdownMenuItem

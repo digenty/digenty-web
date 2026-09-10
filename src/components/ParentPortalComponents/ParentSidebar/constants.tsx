@@ -1,4 +1,4 @@
-import { BillFill, BookOpenFill, DashboardHorizontalFill, Settings4Fill } from "@digenty/icons";
+import { BillFill, BookFill, BookOpenFill, DashboardHorizontalFill, Settings4Fill } from "@digenty/icons";
 
 export const parentNav = [
   {
@@ -18,6 +18,16 @@ export const parentNav = [
         title: "Fees",
         url: "parents/parent-fees",
         icon: BillFill,
+      },
+    ],
+  },
+  {
+    title: "",
+    menu: [
+      {
+        title: "Daily Diary",
+        url: "parents/daily-diary",
+        icon: BookFill,
       },
     ],
   },

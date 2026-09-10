@@ -1,4 +1,5 @@
 import { AddStaffPayload, UpdateStaffPayload } from "@/components/AllSettings/types";
+import { CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
@@ -89,6 +90,55 @@ export const makeBranchAdminStaff = async (payload: { staffId: number; branchIds
   try {
     const { data } = await api.put("/staffs/branch-admin", payload);
     return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const validateStaffsUpload = async ({ file, branchId }: { file: File; branchId: number }): Promise<ValidateUploadResponse> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  try {
+    const { data } = await api.post(`/staffs/upload/validate/${branchId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const commitStaffsUpload = async ({ batchId }: { batchId: string }): Promise<CommitUploadResponse> => {
+  try {
+    const { data } = await api.post(`/staffs/upload/${batchId}/commit`);
+    return data.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const downloadStaffUploadTemplate = async () => {
+  try {
+    const res = await api.get("/staffs/upload/template", { responseType: "blob" });
+
+    const blob = new Blob([res.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = "staff_bulk_upload_template.xlsx";
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
   } catch (error: unknown) {
     if (isAxiosError(error)) {
       throw error.response?.data;

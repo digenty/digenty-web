@@ -16,7 +16,7 @@ const formatColLabel = (col: string) =>
     .trim()
     .replace(/^./, c => c.toUpperCase());
 
-export const UploadPreview = ({ entity, validateResponse }: { entity: "Students" | "Parents"; validateResponse: ValidateUploadResponse }) => {
+export const UploadPreview = ({ entity, validateResponse }: { entity: "Students" | "Parents" | "Staff"; validateResponse: ValidateUploadResponse }) => {
   const { summary, validRows, invalidRows, columns } = validateResponse;
   const hasFailures = invalidRows.length > 0;
   const [activeTab, setActiveTab] = useState<Tab>(hasFailures ? "failed" : "ready");
