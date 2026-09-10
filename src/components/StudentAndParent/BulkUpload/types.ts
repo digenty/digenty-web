@@ -81,3 +81,17 @@ export type ParentUploadType = {
   secondaryPhoneNumber: string;
   branch: string;
 };
+
+export type StaffUploadType = {
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  gender: Gender;
+  address: string;
+  nationality: string;
+  stateOfOrigin: string;
+  secondaryPhoneNumber: string;
+};

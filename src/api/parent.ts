@@ -185,3 +185,54 @@ export const editParent = async (payload: ParentInputType & { id: number }) => {
     throw error;
   }
 };
+
+// Parent portal invites. Creating a parent no longer emails their login details —
+// the school sends them on demand, per branch, through these endpoints.
+export type SendParentInvitesPayload = {
+  branchId: number;
+  // Destructive: reissues a new password for parents who were already invited,
+  // which stops their current one from working. Keep behind its own confirmation.
+  resend?: boolean;
+  // Restricts the send to these parent ids. Omit for the whole branch.
+  parentIds?: number[];
+};
+
+export type SendParentInvitesResponse = {
+  targeted: number;
+  skippedNoContact: number;
+  message: string;
+};
+
+export type ParentInviteStatus = {
+  totalActive: number;
+  invited: number;
+  pending: number;
+};
+
+export const sendParentInvites = async ({ branchId, resend, parentIds }: SendParentInvitesPayload): Promise<SendParentInvitesResponse> => {
+  try {
+    const { data } = await api.post("/parents/invites", {
+      branchId,
+      ...(resend ? { resend: true } : {}),
+      ...(parentIds?.length ? { parentIds } : {}),
+    });
+    return data.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const getParentInviteStatus = async (branchId: number): Promise<ParentInviteStatus> => {
+  try {
+    const { data } = await api.get(`/parents/invites/status?branchId=${branchId}`);
+    return data.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

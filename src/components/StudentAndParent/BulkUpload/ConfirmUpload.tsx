@@ -13,7 +13,7 @@ export const ConfirmUpload = ({
   subtitle,
   bannerText,
 }: {
-  entity: "Students" | "Parents";
+  entity: "Students" | "Parents" | "Staff";
   errors: ValidationError[];
   validCount: number;
   downloadErrorReport: () => void;

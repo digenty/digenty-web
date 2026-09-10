@@ -2,6 +2,7 @@
 import {
   BankCard,
   Bill,
+  BookOpen,
   CalendarCheck,
   ColorFilter,
   DoorOpen,
@@ -40,6 +41,7 @@ import { Button } from "../ui/button";
 import { NavigationType } from "./types";
 import { canViewClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 import { canViewAttendance } from "@/lib/permissions/attendance";
+import { canViewDailyDiary } from "@/lib/permissions/daily-diary";
 import { canViewFinanceReport } from "@/lib/permissions/finance-report";
 import { canViewFeeCollection } from "@/lib/permissions/fee-collection";
 import { canViewExpenses } from "@/lib/permissions/expenses";
@@ -113,6 +115,16 @@ export const Sidebar = () => {
               },
             ]
           : []),
+
+        // ...(canViewDailyDiary(user?.permissions)
+        //   ? [
+        //       {
+        //         title: "Daily Diary",
+        //         url: "daily-diary",
+        //         icon: BookOpen,
+        //       },
+        //     ]
+        //   : []),
 
         ...(canViewAdmissionManagement(user?.permissions)
           ? [

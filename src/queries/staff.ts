@@ -6,4 +6,7 @@ export const staffKeys = {
   deactivateStaff: ["deactivateStaff"] as const,
   updateStaff: ["updateStaff"] as const,
   makeBranchAdminStaff: ["makeBranchAdminStaff"] as const,
+  staffsValidateUpload: ["staffsValidateUpload"] as const,
+  staffsCommitUpload: ["staffsCommitUpload"] as const,
+  downloadStaffUploadTemplate: ["downloadStaffUploadTemplate"] as const,
 };

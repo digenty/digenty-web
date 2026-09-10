@@ -7,7 +7,9 @@ import {
   exportParents,
   getMyParentProfile,
   getParent,
+  getParentInviteStatus,
   getParents,
+  sendParentInvites,
   uploadParents,
   validateParentsUpload,
 } from "@/api/parent";
@@ -75,6 +77,30 @@ export const useCommitParentsUpload = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
     },
+  });
+};
+
+export const useSendParentInvites = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: parentKeys.sendParentInvites,
+    mutationFn: sendParentInvites,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: parentKeys.parentInviteStatus(variables.branchId) });
+    },
+  });
+};
+
+// Branch totals for the invites screen: how many parents already have their login
+// details and how many the next send would target.
+export const useParentInviteStatus = ({ branchId, enabled, refetchInterval }: { branchId?: number; enabled?: boolean; refetchInterval?: number }) => {
+  return useQuery({
+    queryKey: parentKeys.parentInviteStatus(branchId),
+    queryFn: () => getParentInviteStatus(branchId!),
+    enabled: !!branchId && enabled !== false,
+    retry: false,
+    staleTime: 0,
+    ...(refetchInterval ? { refetchInterval } : {}),
   });
 };
 

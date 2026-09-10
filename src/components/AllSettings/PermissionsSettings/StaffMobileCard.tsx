@@ -49,7 +49,7 @@ export const StaffMobileCard = ({ staff }: { staff: Staff }) => {
                   <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit Staff
                 </div>
 
-                <div
+                {/* <div
                   onClick={() => {
                     setStaffToMakeAdmin(staff);
                     setOpenMakeBranchAdmin(true);
@@ -58,7 +58,7 @@ export const StaffMobileCard = ({ staff }: { staff: Staff }) => {
                   className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
                 >
                   <ShieldUser className="text-icon-default-subtle size-4" /> Make Branch Admin
-                </div>
+                </div> */}
 
                 {staff.status !== "INACTIVE" && (
                   <div
