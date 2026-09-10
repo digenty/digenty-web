@@ -2,6 +2,14 @@ import { CheckboxCircleFill, Loader2Fill } from "@digenty/icons";
 import { cn } from "@/lib/utils";
 import { Step } from "./types";
 
+// Tailwind only emits classes it can see literally, so `grid-cols-${n}` never ships.
+const gridColsByStepCount: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+};
+
 export const CSVUploadProgress = ({
   className,
   currentStep,
@@ -17,7 +25,7 @@ export const CSVUploadProgress = ({
     <div
       className={cn(
         "bg-bg-card border-border-default grid w-full items-center rounded-md border p-3 md:px-5 md:py-4",
-        `grid-cols-${steps.length}`,
+        gridColsByStepCount[steps.length] ?? "grid-cols-2",
         className,
       )}
     >

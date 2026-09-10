@@ -1,4 +1,4 @@
-import { ShareBox } from "@digenty/icons";
+import { Import, ShareBox } from "@digenty/icons";
 import { Branch, BranchWithClassLevels, Staff } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
@@ -168,6 +168,16 @@ export const Staffs = () => {
             </Button>
           </PermissionCheck>
 
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button
+              onClick={() => router.push("/staff/settings/permissions/upload-staff")}
+              className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
+            >
+              <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />
+              <span className="text-text-default font-medium">Import</span>
+            </Button>
+          </PermissionCheck>
+
           <div className="flex items-center gap-1">
             <PermissionCheck permissionUtility={canManageSettings}>
               <Button
@@ -196,6 +206,15 @@ export const Staffs = () => {
                   <div className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
                     <ShareBox className="size-4" fill="var(--color-icon-default-muted)" />
                     Export
+                  </div>
+                </div>
+              </PermissionCheck>
+
+              <PermissionCheck permissionUtility={canManageSettings}>
+                <div className="flex flex-col items-center gap-2" onClick={() => router.push("/staff/settings/permissions/upload-staff")}>
+                  <div className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm">
+                    <Import className="size-4" fill="var(--color-icon-default-muted)" />
+                    Import
                   </div>
                 </div>
               </PermissionCheck>

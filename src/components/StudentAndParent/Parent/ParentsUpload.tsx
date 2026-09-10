@@ -16,13 +16,20 @@ import { BulkUploadResult, ParentUploadType, Step } from "../BulkUpload/types";
 import * as XLSX from "xlsx";
 import { Branch } from "@/api/types";
 import { Spinner } from "@/components/ui/spinner";
+import { SendLoginDetailsStep } from "./SendLoginDetailsStep";
 
 const REQUIRED_HEADERS = ["firstName", "lastName", "middleName", "gender", "address", "nationality", "stateOfOrigin", "phoneNumber"];
 
 const steps: Step[] = [
   { id: 1, label: "Upload Parents", completed: false },
   { id: 2, label: "Confirm & Upload", completed: false },
+  { id: 3, label: "Send Login Details", completed: false },
 ];
+
+// The step that runs the import. The step after it asks whether to send login details.
+const CONFIRM_STEP = 2;
+const SEND_STEP = 3;
+const PARENTS_TAB_URL = "/staff/student-and-parent-record?tab=Parents";
 
 export const ParentsUpload = () => {
   const router = useRouter();
@@ -33,18 +40,23 @@ export const ParentsUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
   const [uploadResult, setUploadResult] = useState<{ uploaded: number; errors: ValidationError[] } | null>(null);
+  const [importedCount, setImportedCount] = useState(0);
 
   const { mutate, isPending } = useUploadParents({ branchId: branchSelected?.id });
 
-  const goToNext = () => {
-    // Check if the previous step is completed, then add step to completed steps array
-    setCompletedSteps(completedSteps => [...completedSteps, currentStep]);
+  const goToSendStep = () => {
+    setCompletedSteps(completedSteps => (completedSteps.includes(CONFIRM_STEP) ? completedSteps : [...completedSteps, CONFIRM_STEP]));
+    setCurrentStep(SEND_STEP);
+  };
 
-    if (currentStep < steps.length) {
+  const goToNext = () => {
+    if (currentStep < CONFIRM_STEP) {
+      setCompletedSteps(completedSteps => [...completedSteps, currentStep]);
       setCurrentStep(currentStep + 1);
+      return;
     }
 
-    if (currentStep === steps.length) {
+    if (currentStep === CONFIRM_STEP) {
       mutate(
         {
           file,
@@ -56,6 +68,8 @@ export const ParentsUpload = () => {
             const failed = result.failed ?? duplicateCount;
             const uploaded = result.uploaded ?? 0;
             const hasRowErrors = Array.isArray(result.errors) && result.errors.length > 0;
+
+            setImportedCount(uploaded);
 
             if (failed > 0 && hasRowErrors) {
               setUploadResult({ uploaded, errors: parseServerRowErrors(result.errors ?? []) });
@@ -76,7 +90,9 @@ export const ParentsUpload = () => {
               type: failed > 0 ? "warning" : "success",
             });
             setFile(null);
-            router.push("/staff/student-and-parent-record?tab=Parents");
+            // Parents are registered but not emailed - the next step asks whether to
+            // send their login details now.
+            goToSendStep();
           },
           onError: error => {
             toast({
@@ -100,7 +116,7 @@ export const ParentsUpload = () => {
       setCompletedSteps([]);
       return;
     }
-    if (currentStep === steps.length) {
+    if (currentStep === CONFIRM_STEP) {
       setCurrentStep(currentStep - 1);
     } else {
       router.back();
@@ -227,11 +243,18 @@ export const ParentsUpload = () => {
     <section className="flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-150 space-y-4 md:space-y-6">
         <div className="md:hidden">
-          <BackLink href="/staff/student-and-parent-record?tab=Parents" />
+          <BackLink href={PARENTS_TAB_URL} />
         </div>
         <CSVUploadProgress currentStep={currentStep} steps={steps} className="w-full" completedSteps={completedSteps} />
 
-        {uploadResult ? (
+        {currentStep === SEND_STEP ? (
+          <SendLoginDetailsStep
+            branchId={branchSelected?.id}
+            branchName={branchSelected?.name ?? undefined}
+            importedCount={importedCount}
+            onLater={() => router.push(PARENTS_TAB_URL)}
+          />
+        ) : uploadResult ? (
           <ConfirmUpload
             entity="Parents"
             errors={uploadResult.errors}
@@ -241,7 +264,7 @@ export const ParentsUpload = () => {
             subtitle="Here's what happened during the import."
             bannerText={`${uploadResult.errors.length} row(s) had errors and were not imported.`}
           />
-        ) : currentStep === steps.length ? (
+        ) : currentStep === CONFIRM_STEP ? (
           <ConfirmUpload entity="Parents" errors={errors} validCount={validRows.length} downloadErrorReport={downloadErrorReport} />
         ) : (
           <CSVUpload
@@ -255,29 +278,33 @@ export const ParentsUpload = () => {
           />
         )}
 
-        <div className="border-border-default mt-10 flex w-full justify-between border-t py-4">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            className="bg-bg-state-soft! hover:bg-bg-state-soft! text-text-subtle hover:text-text-subtle h-7 border-none px-2 py-1 text-sm font-medium"
-          >
-            {uploadResult ? "Upload Another File" : currentStep === steps.length ? "Back" : "Cancel"}
-          </Button>
+        {currentStep !== SEND_STEP && (
+          <div className="border-border-default mt-10 flex w-full justify-between border-t py-4">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              className="bg-bg-state-soft! hover:bg-bg-state-soft! text-text-subtle hover:text-text-subtle h-7 border-none px-2 py-1 text-sm font-medium"
+            >
+              {uploadResult ? "Upload Another File" : currentStep === CONFIRM_STEP ? "Back" : "Cancel"}
+            </Button>
 
-          <Button
-            disabled={
-              !uploadResult &&
-              ((file === null && currentStep === 1) ||
-                (currentStep === steps.length && (errors.length > 0 || validRows.length === 0)) ||
-                !branchSelected)
-            }
-            onClick={uploadResult ? () => router.push("/staff/student-and-parent-record?tab=Parents") : goToNext}
-            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
-          >
-            {isPending && currentStep === steps.length && <Spinner className="text-text-white-default" />}
-            <span className="text-sm font-medium">{uploadResult ? "Done" : currentStep === steps.length ? "Confirm & Import" : "Continue"}</span>
-          </Button>
-        </div>
+            <Button
+              disabled={
+                !uploadResult &&
+                ((file === null && currentStep === 1) ||
+                  (currentStep === CONFIRM_STEP && (errors.length > 0 || validRows.length === 0)) ||
+                  !branchSelected)
+              }
+              onClick={uploadResult ? (uploadResult.uploaded > 0 ? goToSendStep : () => router.push(PARENTS_TAB_URL)) : goToNext}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
+            >
+              {isPending && currentStep === CONFIRM_STEP && <Spinner className="text-text-white-default" />}
+              <span className="text-sm font-medium">
+                {uploadResult ? (uploadResult.uploaded > 0 ? "Continue" : "Done") : currentStep === CONFIRM_STEP ? "Confirm & Import" : "Continue"}
+              </span>
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );
