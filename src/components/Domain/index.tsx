@@ -17,6 +17,11 @@ import { getApiErrorCode, getApiErrorDetails, getApiErrorMessage } from "@/lib/a
 import { cn } from "@/lib/utils";
 
 const DOMAIN_REGEX = /^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/;
+// The backend only registers .com.ng domains — locking the suffix on the buy path surfaces that
+// before a school fills in a name and gets rejected by the 400. Connecting an existing domain has
+// no such restriction, so that path stays free-text.
+const DOMAIN_LABEL_REGEX = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/;
+const PURCHASE_TLD = ".com.ng";
 
 const SCHOOL_PROFILE_FIELD_LABELS: Record<string, string> = {
   "school.address": "school address",
@@ -43,7 +48,7 @@ const DnsRecordsTable = ({ records }: { records: DomainPurchaseDto["requiredDnsR
 );
 
 const DomainProgressCard = ({ purchase, onStartOver }: { purchase: DomainPurchaseDto; onStartOver: () => void }) => {
-  const { data } = useDomainPurchase(purchase.purchaseId);
+  const { data, isStalled } = useDomainPurchase(purchase.purchaseId);
   const current = data ?? purchase;
   const statusConfig = DOMAIN_STATUS_CONFIG[current.status];
   const failure = DOMAIN_FAILURE_COPY[current.status];
@@ -104,27 +109,32 @@ const DomainProgressCard = ({ purchase, onStartOver }: { purchase: DomainPurchas
         </div>
       )}
 
-      {inFlight && <p className="text-text-hint text-xs">This can take a few minutes, occasionally longer — this page updates on its own.</p>}
+      {inFlight && isStalled && <p className="text-text-hint text-xs">This is still in progress — we&apos;ll email you when it&apos;s ready.</p>}
     </div>
   );
 };
 
 const DomainConnectForm = ({ onPurchased }: { onPurchased: (purchase: DomainPurchaseDto) => void }) => {
   const [mode, setMode] = useState<DomainPurchaseType>("PURCHASE");
-  const [domainName, setDomainName] = useState("");
+  const [purchaseLabel, setPurchaseLabel] = useState("");
+  const [connectDomain, setConnectDomain] = useState("");
   const { mutate: purchaseAndConnect, isPending } = usePurchaseAndConnectDomain();
 
-  const trimmed = domainName.trim().toLowerCase();
-  const isValid = DOMAIN_REGEX.test(trimmed);
+  const trimmedLabel = purchaseLabel.trim().toLowerCase();
+  const trimmedConnect = connectDomain.trim().toLowerCase();
+  const domainName = mode === "PURCHASE" ? `${trimmedLabel}${PURCHASE_TLD}` : trimmedConnect;
+  const isValid = mode === "PURCHASE" ? DOMAIN_LABEL_REGEX.test(trimmedLabel) : DOMAIN_REGEX.test(trimmedConnect);
 
   const handleSubmit = () => {
     if (!isValid) return;
 
     purchaseAndConnect(
-      { domainName: trimmed, purchaseType: mode, years: mode === "PURCHASE" ? 1 : undefined },
+      { domainName, purchaseType: mode, years: mode === "PURCHASE" ? 1 : undefined },
       {
         onSuccess: purchase => {
-          toast.success(mode === "PURCHASE" ? "Domain purchase started" : "Domain connection started");
+          toast.success(mode === "PURCHASE" ? "Domain purchase started" : "Domain connection started", {
+            description: "Setting up a domain usually takes up to 2 hours.",
+          });
           onPurchased(purchase);
         },
         onError: (error: unknown) => {
@@ -176,14 +186,25 @@ const DomainConnectForm = ({ onPurchased }: { onPurchased: (purchase: DomainPurc
         <p className="text-text-subtle text-xs">Every great idea starts with a name!</p>
         <p className="text-text-default text-base font-semibold">{mode === "PURCHASE" ? "Search up a domain" : "Enter the domain you already own"}</p>
         <div className="flex w-full max-w-100 flex-col gap-2">
-          <Input
-            value={domainName}
-            onChange={e => setDomainName(e.target.value)}
-            placeholder={mode === "PURCHASE" ? "e.g. yourschool.com" : "e.g. www.yourschool.com"}
-          />
-          {domainName.trim().length > 0 && !isValid && <p className="text-text-danger text-xs">Enter a valid domain, e.g. yourschool.com</p>}
-          {mode === "PURCHASE" && (
-            <p className="text-text-muted text-xs">Root domains only (yourschool.com). Use &ldquo;connect existing&rdquo; for a subdomain.</p>
+          {mode === "PURCHASE" ? (
+            <>
+              <div className="border-input focus-within:border-ring focus-within:ring-border-highlight flex h-9 w-full items-stretch overflow-hidden rounded-md border shadow-xs transition-[color,box-shadow] focus-within:ring-2 focus-within:ring-offset-2">
+                <Input
+                  value={purchaseLabel}
+                  onChange={e => setPurchaseLabel(e.target.value)}
+                  placeholder="yourschool"
+                  className="h-full flex-1 rounded-none border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+                <span className="bg-bg-input-soft text-text-muted flex items-center border-l px-3 text-sm">{PURCHASE_TLD}</span>
+              </div>
+              {trimmedLabel.length > 0 && !isValid && <p className="text-text-danger text-xs">Enter a valid domain name, e.g. yourschool</p>}
+              <p className="text-text-muted text-xs">We can only register {PURCHASE_TLD} domains right now. Already own one? Connect it instead.</p>
+            </>
+          ) : (
+            <>
+              <Input value={connectDomain} onChange={e => setConnectDomain(e.target.value)} placeholder="e.g. www.yourschool.com" />
+              {trimmedConnect.length > 0 && !isValid && <p className="text-text-danger text-xs">Enter a valid domain, e.g. yourschool.com</p>}
+            </>
           )}
           <PermissionCheck permissionUtility={canManageDomain}>
             <Button

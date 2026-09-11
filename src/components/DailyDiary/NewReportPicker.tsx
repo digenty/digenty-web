@@ -38,9 +38,8 @@ export const NewReportPicker = () => {
     <div className="flex flex-col">
       <div className="border-border-default bg-bg-default flex items-center gap-3 border-b px-4 py-3 md:px-8">
         <Button
-          variant="outline"
           onClick={() => router.push("/staff/daily-diary")}
-          className="border-border-darker text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md"
+          className="border-border-default text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md border"
         >
           <ArrowLeft fill="var(--color-icon-default)" className="size-4" />
           Back
@@ -50,7 +49,7 @@ export const NewReportPicker = () => {
 
       <div className="flex flex-col gap-5 px-4 pt-5 pb-10 md:px-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative w-full sm:max-w-71">
+          <div className="bg-bg-input-soft! relative w-full rounded-md sm:max-w-71">
             <SearchIcon fill="var(--color-icon-default-muted)" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
             <Input
               value={search}
@@ -65,7 +64,7 @@ export const NewReportPicker = () => {
             value={date}
             onChange={event => setDate(event.target.value)}
             aria-label="Report date"
-            className="border-border-default h-9 w-full text-[13px] sm:w-44"
+            className="border-border-default! bg-bg-default! h-9 w-full border text-[13px] sm:w-44"
           />
         </div>
 
