@@ -169,9 +169,8 @@ export const ComposeDailyReport = ({ armId, date }: { armId: number; date?: stri
       <div className="border-border-default bg-bg-default sticky top-0 z-10 flex flex-col gap-3 border-b px-4 py-3 md:flex-row md:items-center md:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Button
-            variant="outline"
             onClick={() => router.push("/staff/daily-diary")}
-            className="border-border-darker text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md"
+            className="border-border-default text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md border"
           >
             <ArrowLeft fill="var(--color-icon-default)" className="size-4" />
             Back
@@ -185,18 +184,12 @@ export const ComposeDailyReport = ({ armId, date }: { armId: number; date?: stri
 
         <div className="flex flex-wrap items-center gap-2">
           <Button
-            variant="outline"
             onClick={() => router.push(`/staff/daily-diary/${armId}/preview?date=${reportDate}`)}
-            className="border-border-darker text-text-default bg-bg-card h-8 rounded-md"
+            className="border-border-default text-text-default bg-bg-card h-8 rounded-md border"
           >
             Preview as parent
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleSaveDraft}
-            disabled={busy}
-            className="border-border-darker text-text-default bg-bg-card h-8 rounded-md"
-          >
+          <Button onClick={handleSaveDraft} disabled={busy} className="border-border-default text-text-default bg-bg-card h-8 rounded-md border">
             {saving ? "Saving…" : "Save draft"}
           </Button>
           <Button

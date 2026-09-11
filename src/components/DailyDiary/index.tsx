@@ -90,7 +90,7 @@ export const DailyDiary = () => {
           ))}
         </div>
 
-        <div className="relative w-full lg:max-w-71">
+        <div className="bg-bg-input-soft! relative w-full rounded-md lg:max-w-71">
           <SearchIcon fill="var(--color-icon-default-muted)" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <Input
             value={search}
@@ -106,9 +106,8 @@ export const DailyDiary = () => {
         <div className="flex flex-wrap items-center gap-2">
           <PermissionCheck permissionUtility={canManageDiarySettings}>
             <Button
-              variant="outline"
               onClick={() => router.push("/staff/daily-diary/settings")}
-              className="border-border-darker text-text-default bg-bg-card h-8 rounded-md"
+              className="border-border-default text-text-default bg-bg-state-secondary! hover:bg-bg-state-secondary! h-8 rounded-md border py-1"
             >
               Report settings
             </Button>
