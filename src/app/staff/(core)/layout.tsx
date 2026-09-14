@@ -15,24 +15,23 @@ export default async function CoreLayout({
   // A user with no schoolId yet has nothing for the dashboard shell to query — Sidebar, Header,
   // and {children} all fire school-scoped requests (dashboard, branches, profile) on mount with
   // no guard, which used to race the "create school" submission and trip a backend transaction
-  // rollback. Render only the onboarding flow until a school actually exists.
-  if (showOnboarding) {
-    return (
-      <div className="bg-bg-default fixed inset-0 overflow-hidden leading-5">
-        <SessionRefresher />
-        <OnboardingFlow user={user} />
-      </div>
-    );
-  }
-
+  // rollback. Skip them until a school actually exists.
+  //
+  // Deliberately a single return with the chrome toggled inline, not an early-return branch:
+  // `showOnboarding` flips false mid-flow (right after the onboarding wizard's branch-creation
+  // step, before its own Welcome Plan step has shown), and any Server Action call — even one
+  // that doesn't redirect — triggers Next.js to re-render this layout. An early-return branch
+  // returns a structurally different tree on that re-render, which unmounts OnboardingFlow (and
+  // the wizard it's mid-way through) instead of just re-rendering it. Keeping OnboardingFlow at
+  // the same position in one tree lets it survive that transition.
   return (
     <div className="bg-bg-default fixed inset-0 flex overflow-hidden leading-5">
       <SessionRefresher />
-      <Sidebar />
+      {!showOnboarding && <Sidebar />}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <Header />
+        {!showOnboarding && <Header />}
         <div className="flex-1 overflow-y-auto">
-          {children}
+          {!showOnboarding && children}
           <OnboardingFlow user={user} />
         </div>
       </div>

@@ -10,7 +10,6 @@ import {
   getParentInviteStatus,
   getParents,
   sendParentInvites,
-  uploadParents,
   validateParentsUpload,
 } from "@/api/parent";
 import { parentKeys } from "@/queries/parent";
@@ -48,17 +47,6 @@ export const useGetParents = ({ limit, branchId, search, enabled }: { limit: num
       return lastPage.number + 1;
     },
     enabled: enabled !== false,
-  });
-};
-
-export const useUploadParents = ({ branchId }: { branchId?: number }) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationKey: parentKeys.parentsUpload,
-    mutationFn: ({ file }: { file: File | null }) => uploadParents({ file, branchId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
-    },
   });
 };
 

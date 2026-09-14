@@ -217,7 +217,13 @@ export const AcademicAssAndGradeSetupDone = () => {
             </div>
 
             <div className="border-border-default mb-5 flex w-full items-center gap-3">
-              <BranchTabSwitch activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
+              <BranchTabSwitch
+                activeBranch={activeBranch}
+                setActiveBranch={branch => {
+                  setActiveBranch(branch);
+                  setActiveLevel(null);
+                }}
+              />
             </div>
 
             <div className="border-border-default mb-5 flex w-full items-center gap-3">

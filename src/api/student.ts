@@ -1,8 +1,7 @@
-import { getSessionToken } from "@/app/actions/auth";
 import { StudentInputType, StudentsStatus } from "@/components/StudentAndParent/types";
-import { BulkUploadResult, CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
+import { CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
 import api from "@/lib/axios/axios-auth";
-import axios, { isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 
 export const addStudent = async (payload: StudentInputType) => {
   try {
@@ -55,33 +54,6 @@ export const getStudents = async ({
       throw error.response?.data;
     }
     throw error;
-  }
-};
-
-export const uploadStudents = async ({
-  file,
-  branchId,
-}: {
-  file: File | null;
-  branchId?: number;
-}): Promise<{ success: boolean; code: number; message: string; data: BulkUploadResult; timestamp: string } | undefined> => {
-  if (file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    const { token } = await getSessionToken();
-    try {
-      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/students/upload/${branchId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return data;
-    } catch (error: unknown) {
-      if (isAxiosError(error)) {
-        throw error.response?.data;
-      }
-      throw error;
-    }
   }
 };
 

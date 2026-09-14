@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { XIcon } from "lucide-react";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -33,16 +33,12 @@ export const CSVUpload = ({
   entity,
   file,
   setFile,
-  setErrors,
-  handleValidation,
   branchSelected,
   setBranchSelected,
 }: {
   entity: Entity;
   file: File | null;
   setFile: (file: File | null) => void;
-  setErrors?: Dispatch<SetStateAction<ValidationError[]>>;
-  handleValidation?: (file: File, filetype: string) => void;
   branchSelected: Branch | null;
   setBranchSelected: (branch: Branch | null) => void;
 }) => {
@@ -109,15 +105,12 @@ export const CSVUpload = ({
           return;
         }
 
-        const extension = file.name.split(".").pop()?.toLowerCase() || "";
-
         if (!fileError) {
           setFile(file);
-          handleValidation?.(file, extension);
         }
       });
     },
-    [fileError, handleValidation, setFile, maxFileSize],
+    [fileError, setFile, maxFileSize],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -132,7 +125,6 @@ export const CSVUpload = ({
 
   const clearFile = () => {
     setFile(null);
-    setErrors?.([]);
     setFileError(null);
   };
 
@@ -231,8 +223,7 @@ export const CSVUpload = ({
             {entity === "Staff" ? (
               <p className="text-text-subtle text-xs">
                 The <span className="font-medium">Gender</span> column accepts <span className="font-medium">Male</span>,{" "}
-                <span className="font-medium">Female</span>, <span className="font-medium">M</span> or{" "}
-                <span className="font-medium">F</span>.
+                <span className="font-medium">Female</span>, <span className="font-medium">M</span> or <span className="font-medium">F</span>.
               </p>
             ) : (
               <p className="text-text-subtle text-xs">
