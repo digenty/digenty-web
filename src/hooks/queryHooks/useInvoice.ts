@@ -7,6 +7,7 @@ import {
   createInvoiceSettings,
   CreateInvoiceSettingsPayload,
   deleteInvoice,
+  deleteInvoices,
   downloadInvoicePdf,
   getInvoiceDetail,
   getInvoicesByBranch,
@@ -151,6 +152,16 @@ export const useDeleteInvoice = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (invoiceId: string) => deleteInvoice(invoiceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
+    },
+  });
+};
+
+export const useDeleteInvoices = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (invoiceIds: string[]) => deleteInvoices(invoiceIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
     },

@@ -590,7 +590,9 @@ const LevelTabsContainer = ({ levels, activeLevel, setActiveLevel, branchId, bra
       </div>
 
       <div className="flex w-full items-center justify-center pt-10">
-        <LevelFormPanel level={activeLevel} branchId={branchId} branchSpecific={branchSpecific} />
+        {/* Remount on level change: LevelFormPanel mirrors query data into local Formik state via
+            an effect, which otherwise flashes the previous level's values until it re-runs. */}
+        <LevelFormPanel key={activeLevel?.id ?? "none"} level={activeLevel} branchId={branchId} branchSpecific={branchSpecific} />
       </div>
     </div>
   );

@@ -315,6 +315,14 @@ export const deleteInvoice = async (invoiceId: string) => {
   }
 };
 
+// There is no bulk-delete endpoint, so this fires one delete per id and reports which
+// ones failed rather than letting a single rejection sink the whole selection.
+export const deleteInvoices = async (invoiceIds: string[]) => {
+  const results = await Promise.allSettled(invoiceIds.map(invoiceId => deleteInvoice(invoiceId)));
+  const failed = invoiceIds.filter((_, index) => results[index].status === "rejected");
+  return { requested: invoiceIds.length, deleted: invoiceIds.length - failed.length, failed };
+};
+
 export const addPayment = async (invoiceId: string, payload: AddPaymentPayload) => {
   try {
     const { data } = await api.post(`/invoices/${invoiceId}/payments`, payload);

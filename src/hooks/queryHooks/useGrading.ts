@@ -9,6 +9,7 @@ import {
   updateGradingsForLevel,
 } from "@/api/grading";
 import { gradingKeys } from "@/queries/grading";
+import { levelKeys } from "@/queries/level";
 import { scoresKey } from "@/queries/score";
 import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -35,6 +36,9 @@ export const useAddGradingDefault = () => {
     mutationFn: addGradingDefault,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [gradingKeys.getGradingsByLevel] });
+      // The read-only settings view fetches gradings under this separate key (src/hooks/queryHooks/useLevel.ts) —
+      // without invalidating it too, saved changes only show up once that level's cache happens to go stale.
+      queryClient.invalidateQueries({ queryKey: [levelKeys.levelGradings] });
       queryClient.invalidateQueries({ queryKey: [gradingKeys.getClassGrading] });
       queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
       queryClient.invalidateQueries({ queryKey: [scoresKey.getScore] });
@@ -49,6 +53,7 @@ export const useAddGrading = () => {
     mutationFn: addGrading,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [gradingKeys.getGradingsByLevel] });
+      queryClient.invalidateQueries({ queryKey: [levelKeys.levelGradings] });
       queryClient.invalidateQueries({ queryKey: [gradingKeys.getClassGrading] });
       queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
       queryClient.invalidateQueries({ queryKey: [scoresKey.getScore] });
@@ -63,6 +68,7 @@ export const useUpdateGradingsForLevel = () => {
     mutationFn: updateGradingsForLevel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [gradingKeys.getGradingsByLevel] });
+      queryClient.invalidateQueries({ queryKey: [levelKeys.levelGradings] });
       queryClient.invalidateQueries({ queryKey: [gradingKeys.getClassGrading] });
       queryClient.invalidateQueries({ queryKey: [subjectKeys.studentsBySubjectClass] });
       queryClient.invalidateQueries({ queryKey: [scoresKey.getScore] });

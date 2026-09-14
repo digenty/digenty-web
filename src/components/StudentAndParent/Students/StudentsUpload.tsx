@@ -10,6 +10,7 @@ import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
 import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
 import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
 import { Step, UploadInvalidRow, ValidateUploadResponse } from "../BulkUpload/types";
+import { getUploadErrorMessage, isBatchExpired } from "../BulkUpload/uploadErrors";
 import { Branch } from "@/api/types";
 
 const steps: Step[] = [
@@ -57,7 +58,7 @@ export const StudentsUpload = () => {
           },
           onError: error => {
             toast({
-              title: error.message ?? "Could not validate file",
+              title: getUploadErrorMessage(error, "Could not validate file"),
               description: "Check that the file matches the template and try again.",
               type: "error",
             });
@@ -95,8 +96,21 @@ export const StudentsUpload = () => {
           router.push("/staff/student-and-parent-record?tab=Students");
         },
         onError: error => {
+          if (isBatchExpired(error)) {
+            toast({
+              title: "This import session expired",
+              description: "Re-upload the file to try again.",
+              type: "warning",
+            });
+            setValidation(null);
+            setFile(null);
+            setCompletedSteps([]);
+            setCurrentStep(1);
+            return;
+          }
+
           toast({
-            title: error.message ?? "Something went wrong",
+            title: getUploadErrorMessage(error, "Something went wrong"),
             description: "Could not upload students",
             type: "error",
           });

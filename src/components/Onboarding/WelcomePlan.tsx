@@ -26,13 +26,11 @@ export const WelcomePlan = ({ onUpgrade, onFinish }: WelcomePlanProps) => {
         className="animate-in fade-in-0 slide-in-from-bottom-2 border-border-default bg-bg-card-subtle mx-auto flex w-full max-w-sm flex-col items-center gap-2 rounded-lg border p-4 delay-300 duration-700"
         style={{ animationFillMode: "both" }}
       >
-        <div className="text-text-default text-sm font-medium">
-          You&apos;re currently on the <span className="font-semibold">Free plan</span>
-        </div>
-        <div className="text-text-muted text-xs">Upgrade to unlock more students, branches, and features for your school.</div>
+        <div className="text-text-default text-sm font-medium">Your school doesn&apos;t have a plan yet</div>
+        <div className="text-text-muted text-xs">Choose a plan to unlock students, branches, and features for your school.</div>
 
         <Button onClick={onUpgrade} className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! mt-2 border-none">
-          Upgrade
+          Choose a Plan
         </Button>
       </div>
 

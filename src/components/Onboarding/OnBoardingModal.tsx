@@ -1,7 +1,7 @@
 "use client";
 
 import { LogoMark } from "@digenty/icons";
-import { createSession, deleteSession } from "@/app/actions/auth";
+import { deleteSession, refreshSessionToken } from "@/app/actions/auth";
 import { useReAutheticateUser } from "@/hooks/queryHooks/useAuth";
 import { useAddBranch } from "@/hooks/queryHooks/useBranch";
 import { useAddSchool } from "@/hooks/queryHooks/useSchool";
@@ -61,10 +61,9 @@ const defaultBranchValues: BranchFormValues = {
 const OnboardingModal = ({ initialShow, onClose }: OnboardingModalProps) => {
   const router = useRouter();
 
-  // Kept as local state rather than a `?step=` URL param: createSession() below
-  // does a hard server-side redirect to bare `/staff` once the school+branch are
-  // created, which would wipe any step query param before this wizard's own
-  // navigation ever gets a chance to render it.
+  // Kept as local state rather than a `?step=` URL param, since a query param would
+  // survive a hard navigation and imply the wizard should resume it after a redirect
+  // — it shouldn't; this wizard drives its own navigation once the user finishes it.
   const [step, setStep] = useState(1);
 
   const [showModal, setShowModal] = useState(initialShow);
@@ -184,9 +183,11 @@ const OnboardingModal = ({ initialShow, onClose }: OnboardingModalProps) => {
             onError: () => {
               deleteSession();
             },
-            onSuccess: data => {
+            onSuccess: async data => {
               // clearDrafts();
-              createSession(data.data.token, "SCHOOL_STAFF");
+              // createSession() would redirect immediately, unmounting this wizard before the
+              // user ever sees the Welcome Plan step — just update the cookie in place instead.
+              await refreshSessionToken(data.data.token);
               toast({ title: "Branch(es) created successfully", type: "success" });
               setStep(3);
             },
