@@ -368,24 +368,22 @@ export const AddPAyment = () => {
         </div>
       </div>
 
-      <div className="border-border-default bg-bg-default fixed bottom-0 w-screen overflow-hidden border-t p-4">
-        <div className="flex items-center justify-center">
-          <div className="relative flex w-full justify-between md:ml-[-65] md:max-w-150">
-            <Button
-              onClick={() => router.push(`/staff/invoices/${invoiceId}`)}
-              className="bg-bg-state-soft text-text-subtle h-7 w-18 rounded-md px-2.5 py-1.5 text-sm"
-            >
-              Close
-            </Button>
-            <Button
-              onClick={() => formik.handleSubmit()}
-              disabled={isPending || Object.values(allocations).reduce((sum, v) => sum + (v || 0), 0) > (Number(formik.values.amount) || 0) + 0.001}
-              className="bg-bg-state-primary hover:bg-bg-state-primary-hover/90! text-text-white-default h-7 rounded-md px-2.5 py-1.5 text-sm"
-            >
-              {isPending && <Spinner className="text-text-white-default mr-1 size-4" />}
-              Add Payment
-            </Button>
-          </div>
+      <div className="border-border-default bg-bg-default sticky bottom-0 flex w-full items-center justify-center border-t p-4">
+        <div className="flex w-full items-center justify-between md:max-w-150">
+          <Button
+            onClick={() => router.push(`/staff/invoices/${invoiceId}`)}
+            className="bg-bg-state-soft text-text-subtle h-7 w-18 rounded-md px-2.5 py-1.5 text-sm"
+          >
+            Close
+          </Button>
+          <Button
+            onClick={() => formik.handleSubmit()}
+            disabled={isPending || Object.values(allocations).reduce((sum, v) => sum + (v || 0), 0) > (Number(formik.values.amount) || 0) + 0.001}
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover/90! text-text-white-default h-7 rounded-md px-2.5 py-1.5 text-sm"
+          >
+            {isPending && <Spinner className="text-text-white-default mr-1 size-4" />}
+            Add Payment
+          </Button>
         </div>
       </div>
     </div>

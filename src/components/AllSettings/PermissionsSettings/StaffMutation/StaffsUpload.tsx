@@ -4,6 +4,7 @@ import { CSVUpload, ValidationError } from "@/components/StudentAndParent/BulkUp
 import { ConfirmUpload } from "@/components/StudentAndParent/BulkUpload/ConfirmUpload";
 import { CSVUploadProgress } from "@/components/StudentAndParent/BulkUpload/CSVUploadProgress";
 import { Step, UploadInvalidRow, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
+import { getUploadErrorMessage, isBatchExpired } from "@/components/StudentAndParent/BulkUpload/uploadErrors";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -26,15 +27,6 @@ const mapInvalidRows = (rows: UploadInvalidRow[] = []): ValidationError[] =>
     row: row.rowNumber,
     errors: row.errors.map(error => (error.field ? `${error.field}: ${error.message}` : error.message)),
   }));
-
-type UploadErrorEnvelope = { error?: { code?: string; message?: string }; message?: string };
-
-const getUploadErrorMessage = (error: unknown, fallback: string) => {
-  const envelope = error as UploadErrorEnvelope;
-  return envelope?.error?.message ?? envelope?.message ?? fallback;
-};
-
-const isBatchExpired = (error: unknown) => (error as UploadErrorEnvelope)?.error?.code === "BATCH_EXPIRED";
 
 export const StaffsUpload = () => {
   const router = useRouter();

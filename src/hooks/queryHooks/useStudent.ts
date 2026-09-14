@@ -13,7 +13,6 @@ import {
   getStudentsDistribution,
   getTeacherInputByStudentArm,
   submitArmTeacherInput,
-  uploadStudents,
   validateStudentsUpload,
   withdrawStudents,
 } from "@/api/student";
@@ -73,18 +72,6 @@ export const useGetStudents = ({
     getNextPageParam: lastPage => {
       if (lastPage.last) return undefined;
       return lastPage.number + 1;
-    },
-  });
-};
-
-export const useUploadStudents = ({ branchId }: { branchId?: number }) => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationKey: studentKeys.studentsUpload,
-    mutationFn: ({ file }: { file: File | null }) => uploadStudents({ file, branchId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
-      queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
     },
   });
 };

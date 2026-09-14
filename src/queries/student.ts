@@ -4,7 +4,6 @@ export const studentKeys = {
   addStudent: ["addStudent"] as const,
   addStudentByParent: ["addStudentByParent"] as const,
   editStudent: ["editStudent"] as const,
-  studentsUpload: ["studentsUpload"] as const,
   studentsValidateUpload: ["studentsValidateUpload"] as const,
   studentsCommitUpload: ["studentsCommitUpload"] as const,
   studentsDistributionByBranch: ["studentsDistributionByBranch"] as const,

@@ -1,5 +1,5 @@
 import { ParentInputType } from "@/components/StudentAndParent/types";
-import { BulkUploadResult, CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
+import { CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
@@ -48,33 +48,6 @@ export const getParents = async ({
       throw error.response?.data;
     }
     throw error;
-  }
-};
-
-export const uploadParents = async ({
-  file,
-  branchId,
-}: {
-  file: File | null;
-  branchId?: number;
-}): Promise<
-  | { success: boolean; code: number; message: string; data: Partial<BulkUploadResult> & { duplicateEmails?: unknown[] }; timestamp: string }
-  | undefined
-> => {
-  if (file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    try {
-      const { data } = await api.post(`/parents/upload/${branchId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      return data;
-    } catch (error: unknown) {
-      if (isAxiosError(error)) {
-        throw error.response?.data;
-      }
-      throw error;
-    }
   }
 };
 

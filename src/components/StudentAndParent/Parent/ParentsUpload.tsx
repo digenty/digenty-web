@@ -2,23 +2,17 @@
 import { BackLink } from "@/components/BackLink";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
-import { useUploadParents } from "@/hooks/queryHooks/useParent";
-import { parentUploadSchema } from "@/schema/parent";
+import { Spinner } from "@/components/ui/spinner";
+import { useCommitParentsUpload, useValidateParentsUpload } from "@/hooks/queryHooks/useParent";
 import { useRouter } from "next/navigation";
-import Papa from "papaparse";
 import { useState } from "react";
-import * as yup from "yup";
 import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
 import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
 import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
-import { parseServerRowErrors } from "../BulkUpload/parseServerRowErrors";
-import { BulkUploadResult, ParentUploadType, Step } from "../BulkUpload/types";
-import * as XLSX from "xlsx";
+import { Step, UploadInvalidRow, ValidateUploadResponse } from "../BulkUpload/types";
+import { getUploadErrorMessage, isBatchExpired } from "../BulkUpload/uploadErrors";
 import { Branch } from "@/api/types";
-import { Spinner } from "@/components/ui/spinner";
 import { SendLoginDetailsStep } from "./SendLoginDetailsStep";
-
-const REQUIRED_HEADERS = ["firstName", "lastName", "middleName", "gender", "address", "nationality", "stateOfOrigin", "phoneNumber"];
 
 const steps: Step[] = [
   { id: 1, label: "Upload Parents", completed: false },
@@ -31,18 +25,35 @@ const CONFIRM_STEP = 2;
 const SEND_STEP = 3;
 const PARENTS_TAB_URL = "/staff/student-and-parent-record?tab=Parents";
 
+const mapInvalidRows = (rows: UploadInvalidRow[] = []): ValidationError[] =>
+  rows.map(row => ({
+    row: row.rowNumber,
+    errors: row.errors.map(error => (error.field ? `${error.field}: ${error.message}` : error.message)),
+  }));
+
 export const ParentsUpload = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const [errors, setErrors] = useState<ValidationError[]>([]);
-  const [validRows, setValidRows] = useState<Record<string, unknown>[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
+  const [validation, setValidation] = useState<ValidateUploadResponse | null>(null);
   const [uploadResult, setUploadResult] = useState<{ uploaded: number; errors: ValidationError[] } | null>(null);
   const [importedCount, setImportedCount] = useState(0);
 
-  const { mutate, isPending } = useUploadParents({ branchId: branchSelected?.id });
+  const { mutate: validateUpload, isPending: isValidating } = useValidateParentsUpload({ branchId: branchSelected?.id });
+  const { mutate: commitUpload, isPending: isCommitting } = useCommitParentsUpload();
+
+  const validationErrors = mapInvalidRows(validation?.invalidRows);
+  const validCount = validation?.summary?.valid ?? 0;
+  // Parents are all-or-nothing: commit is refused outright if any row is invalid, so the
+  // import button only opens up once the file is entirely clean.
+  const hasInvalidRows = validationErrors.length > 0;
+
+  const handleFileChange = (nextFile: File | null) => {
+    setFile(nextFile);
+    setValidation(null);
+  };
 
   const goToSendStep = () => {
     setCompletedSteps(completedSteps => (completedSteps.includes(CONFIRM_STEP) ? completedSteps : [...completedSteps, CONFIRM_STEP]));
@@ -50,44 +61,56 @@ export const ParentsUpload = () => {
   };
 
   const goToNext = () => {
-    if (currentStep < CONFIRM_STEP) {
-      setCompletedSteps(completedSteps => [...completedSteps, currentStep]);
-      setCurrentStep(currentStep + 1);
+    if (currentStep === 1) {
+      if (!file || !branchSelected) return;
+
+      validateUpload(
+        { file },
+        {
+          onSuccess: response => {
+            setValidation(response);
+            setCompletedSteps(prev => [...prev, 1]);
+            setCurrentStep(CONFIRM_STEP);
+          },
+          onError: error => {
+            toast({
+              title: getUploadErrorMessage(error, "Could not validate file"),
+              description: "Check that the file matches the template and try again.",
+              type: "error",
+            });
+          },
+        },
+      );
       return;
     }
 
     if (currentStep === CONFIRM_STEP) {
-      mutate(
-        {
-          file,
-        },
-        {
-          onSuccess: response => {
-            const result: Partial<BulkUploadResult> & { duplicateEmails?: unknown[] } = response?.data ?? {};
-            const duplicateCount = Array.isArray(result.duplicateEmails) ? result.duplicateEmails.length : 0;
-            const failed = result.failed ?? duplicateCount;
-            const uploaded = result.uploaded ?? 0;
-            const hasRowErrors = Array.isArray(result.errors) && result.errors.length > 0;
+      if (!validation) return;
 
-            setImportedCount(uploaded);
+      commitUpload(
+        { batchId: validation.batchId },
+        {
+          onSuccess: result => {
+            const imported = result?.summary?.imported ?? 0;
+            const failed = result?.summary?.failed ?? 0;
 
-            if (failed > 0 && hasRowErrors) {
-              setUploadResult({ uploaded, errors: parseServerRowErrors(result.errors ?? []) });
+            setImportedCount(imported);
+
+            if (failed > 0) {
+              // Rows that were valid at validate time but lost a race before commit.
+              setUploadResult({ uploaded: imported, errors: mapInvalidRows(result.failedRows) });
               toast({
-                title: `${uploaded} of ${uploaded + failed} parent(s) imported`,
-                description: `${failed} row(s) had errors and were skipped — see the breakdown below.`,
-                type: uploaded === 0 ? "error" : "warning",
+                title: `${imported} of ${imported + failed} parent(s) imported`,
+                description: `${failed} row(s) failed on import — see the breakdown below.`,
+                type: imported === 0 ? "error" : "warning",
               });
               return;
             }
 
             toast({
-              title: `Successfully uploaded ${failed > 0 ? "some" : "all"} parents`,
-              description:
-                failed > 0
-                  ? `${failed} parent(s) were not uploaded because their email or phone number is already in use.`
-                  : (result.message ?? "Success"),
-              type: failed > 0 ? "warning" : "success",
+              title: "Successfully uploaded parents",
+              description: result?.message ?? "Success",
+              type: "success",
             });
             setFile(null);
             // Parents are registered but not emailed - the next step asks whether to
@@ -95,8 +118,21 @@ export const ParentsUpload = () => {
             goToSendStep();
           },
           onError: error => {
+            if (isBatchExpired(error)) {
+              toast({
+                title: "This import session expired",
+                description: "Re-upload the file to try again.",
+                type: "warning",
+              });
+              setValidation(null);
+              setFile(null);
+              setCompletedSteps([]);
+              setCurrentStep(1);
+              return;
+            }
+
             toast({
-              title: error.message ?? "Something went wrong",
+              title: getUploadErrorMessage(error, "Something went wrong"),
               description: "Could not upload parents",
               type: "error",
             });
@@ -110,124 +146,27 @@ export const ParentsUpload = () => {
     if (uploadResult) {
       setUploadResult(null);
       setFile(null);
-      setErrors([]);
-      setValidRows([]);
+      setValidation(null);
       setCurrentStep(1);
       setCompletedSteps([]);
       return;
     }
     if (currentStep === CONFIRM_STEP) {
+      setValidation(null);
       setCurrentStep(currentStep - 1);
     } else {
       router.back();
     }
   };
 
-  const parseXLSX = async (file: File) => {
-    const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer);
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-    const json = XLSX.utils.sheet_to_json<ParentUploadType>(sheet, {
-      defval: "",
-    });
-
-    processXlsxRows(json);
-  };
-
-  const processXlsxRows = async (data: ParentUploadType[]) => {
-    if (!data.length) {
-      setErrors([{ row: 0, errors: ["The File is empty. Please add some data to the file"] }]);
-      return;
-    }
-
-    // Header validation
-    const headers = Object.keys(data[0]);
-    const missingHeaders = REQUIRED_HEADERS.filter(h => !headers.includes(h));
-
-    if (missingHeaders.length) {
-      setErrors([
-        {
-          row: 0,
-          errors: [`Missing headers: ${missingHeaders.join(", ")}`],
-        },
-      ]);
-      return;
-    }
-
-    const validRows: Record<string, unknown>[] = [];
-    const rowErrors: {
-      row: number;
-      errors: string[];
-    }[] = [];
-
-    data.forEach((row, index) => {
-      try {
-        const validated = parentUploadSchema.validateSync(row, {
-          abortEarly: true,
-        });
-        validRows.push(validated);
-      } catch (err) {
-        if (err instanceof yup.ValidationError) {
-          rowErrors.push({
-            row: index + 2, // Excel row number
-            errors: [err.message],
-          });
-        }
-      }
-    });
-
-    setValidRows(validRows);
-    setErrors(rowErrors);
-  };
-
-  const validateFile = (fileToValidate: File, type: string) => {
-    if (type === "xlsx") {
-      parseXLSX(fileToValidate);
-      return;
-    }
-    Papa.parse(fileToValidate, {
-      header: true,
-      complete: async results => {
-        const rowErrors: ValidationError[] = [];
-        const validData: Record<string, unknown>[] = [];
-
-        for (let i = 0; i < results.data.length; i++) {
-          const row = results.data[i];
-
-          try {
-            const validatedRow = await parentUploadSchema.validate(row, {
-              abortEarly: false,
-            });
-
-            validData.push(validatedRow);
-          } catch (err) {
-            if (err instanceof yup.ValidationError) {
-              rowErrors.push({
-                row: i + 2, // header row = 1
-                errors: err.errors,
-              });
-            }
-          }
-        }
-
-        setErrors(rowErrors);
-        setValidRows(validData);
-      },
-    });
-  };
-
   const downloadErrorReport = () => {
-    const reportErrors = uploadResult ? uploadResult.errors : errors;
+    const reportErrors = uploadResult ? uploadResult.errors : validationErrors;
     const headers = ["Row", "Errors"];
 
-    // 2. CSV rows
     const rows = reportErrors.map(item => [item.row, item.errors.join(" | ")]);
 
-    // 3. Build CSV string
     const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
 
-    // 4. Create blob & download
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
@@ -265,17 +204,19 @@ export const ParentsUpload = () => {
             bannerText={`${uploadResult.errors.length} row(s) had errors and were not imported.`}
           />
         ) : currentStep === CONFIRM_STEP ? (
-          <ConfirmUpload entity="Parents" errors={errors} validCount={validRows.length} downloadErrorReport={downloadErrorReport} />
-        ) : (
-          <CSVUpload
-            branchSelected={branchSelected}
-            setBranchSelected={setBranchSelected}
-            file={file}
-            setFile={setFile}
+          <ConfirmUpload
             entity="Parents"
-            setErrors={setErrors}
-            handleValidation={validateFile}
+            errors={validationErrors}
+            validCount={validCount}
+            downloadErrorReport={downloadErrorReport}
+            bannerText={
+              hasInvalidRows
+                ? `${validationErrors.length} row(s) have errors. Fix them and re-upload — nothing will be imported until then.`
+                : undefined
+            }
           />
+        ) : (
+          <CSVUpload branchSelected={branchSelected} setBranchSelected={setBranchSelected} file={file} setFile={handleFileChange} entity="Parents" />
         )}
 
         {currentStep !== SEND_STEP && (
@@ -291,14 +232,13 @@ export const ParentsUpload = () => {
             <Button
               disabled={
                 !uploadResult &&
-                ((file === null && currentStep === 1) ||
-                  (currentStep === CONFIRM_STEP && (errors.length > 0 || validRows.length === 0)) ||
-                  !branchSelected)
+                ((currentStep === 1 && (file === null || !branchSelected || isValidating)) ||
+                  (currentStep === CONFIRM_STEP && (validCount === 0 || hasInvalidRows || isCommitting)))
               }
               onClick={uploadResult ? (uploadResult.uploaded > 0 ? goToSendStep : () => router.push(PARENTS_TAB_URL)) : goToNext}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
             >
-              {isPending && currentStep === CONFIRM_STEP && <Spinner className="text-text-white-default" />}
+              {(isValidating || isCommitting) && <Spinner className="text-text-white-default" />}
               <span className="text-sm font-medium">
                 {uploadResult ? (uploadResult.uploaded > 0 ? "Continue" : "Done") : currentStep === CONFIRM_STEP ? "Confirm & Import" : "Continue"}
               </span>
