@@ -255,12 +255,23 @@ export const CSVUpload = ({
       </div>
 
       {entity === "Students" && (
-        <div className="bg-bg-badge-blue border-border-default shadow-light flex items-center gap-2.5 rounded-md border px-3 py-2.5">
-          <Information fill="var(--color-icon-informative)" className="size-6" />
-          <p className="text-text-subtle text-xs">
-            For a smoother import, make sure parent records are uploaded first so students can be linked automatically.
-          </p>
-        </div>
+        <>
+          <div className="bg-bg-badge-blue border-border-default shadow-light flex items-center gap-2.5 rounded-md border px-3 py-2.5">
+            <Information fill="var(--color-icon-informative)" className="size-6" />
+            <p className="text-text-subtle text-xs">
+              For a smoother import, make sure parent records are uploaded first so students can be linked automatically.
+            </p>
+          </div>
+
+          <div className="bg-bg-badge-blue border-border-default shadow-light flex items-center gap-2.5 rounded-md border px-3 py-2.5">
+            <Information fill="var(--color-icon-informative)" className="size-6" />
+            <p className="text-text-subtle text-xs">
+              The <span className="font-medium">dob</span> column reads dates <span className="font-medium">day first</span> (e.g.{" "}
+              <span className="font-medium">14/05/2010</span> is 14 May, never the 5th of the 14th month). Dates that don&apos;t exist, like 31
+              February, are rejected rather than adjusted.
+            </p>
+          </div>
+        </>
       )}
 
       {entity === "Staff" && (

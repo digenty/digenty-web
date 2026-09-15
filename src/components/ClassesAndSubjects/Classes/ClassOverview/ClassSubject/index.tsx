@@ -7,24 +7,29 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetGradingsForClass } from "@/hooks/queryHooks/useGrading";
 import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ClassSubjectHeader } from "./ClassSubjectHeader";
 import { exportToCSV } from "@/lib/export-utils";
 import { ClassPermissionWrapper } from "../../ClassPermissionWrapper";
 
 export const SubjectByClass = () => {
-  useBreadcrumb([
-    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
-    { label: "Classes", url: `/staff/classes-and-subjects` },
-    { label: "My Class", url: "/staff/classes-and-subjects" },
-    { label: "View Score", url: "" },
-  ]);
-
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const classId = pathname.split("/")[9];
   const subjectId = pathname.split("/")[7];
   const armId = pathname.split("/")[5];
+  const classArmName = searchParams.get("classArmName");
+
+  useBreadcrumb([
+    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+    { label: "Classes", url: `/staff/classes-and-subjects` },
+    {
+      label: "My Class",
+      url: `/staff/classes-and-subjects/classes/overview/${armId}${classArmName ? `?classArmName=${classArmName}` : ""}`,
+    },
+    { label: "View Score", url: "" },
+  ]);
 
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
 
