@@ -120,8 +120,14 @@ export const ReportHeader = ({
   }, [activeFilter, isMobile]);
 
   useBreadcrumb([
-    { label: "All Classes", url: "/staff/classes-and-subjects" },
-    { label: classArmName, url: `/staff/classes-and-subjects/all-classes/${classId}/arm/${armId}` },
+    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+    { label: "All Classes", url: "/staff/classes-and-subjects/all-classes" },
+    {
+      label: classArmName,
+      // classArmName is required for the class page to render its title — without it here,
+      // navigating back via this crumb lands on the right class but shows a blank name.
+      url: `/staff/classes-and-subjects/all-classes/${classId}/arm/${armId}?classArmName=${classArmName.replaceAll(" ", "-")}`,
+    },
     { label: "Class Report", url: "" },
   ]);
 

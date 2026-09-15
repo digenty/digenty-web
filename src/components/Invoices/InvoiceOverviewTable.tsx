@@ -76,11 +76,17 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
 
   const handleBulkDelete = () => {
     const invoiceIds = selectedRows.map(row => row.invoiceId);
+    const invoiceNumberById = new Map(selectedRows.map(row => [row.invoiceId, row.invoiceNumber]));
+
     deleteInvoices(invoiceIds, {
       onSuccess: result => {
+        const failedDescription = result.failed
+          .map(f => `${invoiceNumberById.get(String(f.invoiceId)) ?? `#${f.invoiceId}`}: ${f.reason}`)
+          .join("; ");
+
         toast({
           title: result.failed.length > 0 ? `Deleted ${result.deleted} of ${result.requested} invoice(s)` : "Invoices deleted",
-          description: result.failed.length > 0 ? "Some invoices could not be deleted. Please try again." : undefined,
+          description: result.failed.length > 0 ? failedDescription : undefined,
           type: result.failed.length === 0 ? "success" : result.deleted === 0 ? "error" : "warning",
         });
         closeBulkDelete(false);
@@ -103,7 +109,9 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
             <span>Selected Item{selectedRows.length !== 1 && "s"}</span>
           </div>
 
-          <PermissionCheck permissionUtility={canDeleteInvoices}>
+          {/* The bulk-delete endpoint is guarded by manage_invoices, not delete_invoices —
+              delete_invoices is admin-only and would 403 every bursar using this button. */}
+          <PermissionCheck permissionUtility={canManageInvoices}>
             <Button
               onClick={() => setOpenBulkDelete(true)}
               className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
@@ -152,7 +160,10 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
 
           <div className="bg-bg-basic-orange-subtle border-border-default text-text-subtle shadow-light flex items-center gap-3 rounded-sm border px-2.5 py-2.5 text-sm font-normal">
             <WarningIcon />
-            <p>Deleting will remove these invoices and their payment records. This cannot be undone.</p>
+            <p>
+              Invoices with recorded payments, or auto-generated from a fee, cannot be deleted this way — those will be skipped. Everything else is
+              removed permanently.
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
