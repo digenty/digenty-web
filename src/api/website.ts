@@ -1,7 +1,6 @@
 import api from "@/lib/axios/axios-auth";
 import apiPublic from "@/lib/axios/axios-public";
-import axios, { isAxiosError } from "axios";
-import { getSessionToken } from "@/app/actions/auth";
+import { isAxiosError } from "axios";
 
 export type HeroLayoutApi = "FULL_IMAGE_BACKGROUND" | "TEXT_SIDE_IMAGE";
 
@@ -187,15 +186,15 @@ export const publishWebsite = async (live: boolean): Promise<WebsiteConfigDto> =
   }
 };
 
-// Multipart upload bypasses the shared `api` instance (which forces JSON content-type).
 export const uploadWebsiteImage = async (file: File, type?: string): Promise<ImageUploadResponse> => {
   const formData = new FormData();
   formData.append("file", file);
-  const { token } = await getSessionToken();
 
   try {
-    const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/website/images${type ? `?type=${type}` : ""}`, formData, {
-      headers: { Authorization: `Bearer ${token}` },
+    // Override the instance's default JSON content-type so axios leaves the FormData body
+    // alone instead of JSON-stringifying it, letting the browser set the multipart boundary.
+    const { data } = await api.post(`/website/images${type ? `?type=${type}` : ""}`, formData, {
+      headers: { "Content-Type": undefined },
     });
     return data.data ?? data;
   } catch (error: unknown) {
