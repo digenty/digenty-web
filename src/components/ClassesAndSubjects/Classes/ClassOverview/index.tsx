@@ -24,7 +24,7 @@ export interface Subject {
 export const ClassOverview = () => {
   useBreadcrumb([
     { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
-    { label: "Classes", url: `/staff/classes-and-subjects` },
+    { label: "My Classes", url: "/staff/classes-and-subjects?tab=classes" },
     { label: "My Class", url: "" },
   ]);
 

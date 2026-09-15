@@ -73,8 +73,8 @@ export const ViewScore = () => {
   const activeDevelopmentCategory = developmentCategories.find(category => category.categoryName === activeScoreTab);
 
   useBreadcrumb([
-    { label: "Classes & Subjects", url: "/staff/classes-and-subjects" },
-    { label: "Subjects", url: "/staff/classes-and-subjects?tab=Subjects" },
+    { label: "Classes and Subjects", url: "/staff/classes-and-subjects" },
+    { label: "My Subjects", url: "/staff/classes-and-subjects?tab=subjects" },
     { label: "View Scores", url: "" },
   ]);
 

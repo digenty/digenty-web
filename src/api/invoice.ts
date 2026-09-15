@@ -315,12 +315,25 @@ export const deleteInvoice = async (invoiceId: string) => {
   }
 };
 
-// There is no bulk-delete endpoint, so this fires one delete per id and reports which
-// ones failed rather than letting a single rejection sink the whole selection.
-export const deleteInvoices = async (invoiceIds: string[]) => {
-  const results = await Promise.allSettled(invoiceIds.map(invoiceId => deleteInvoice(invoiceId)));
-  const failed = invoiceIds.filter((_, index) => results[index].status === "rejected");
-  return { requested: invoiceIds.length, deleted: invoiceIds.length - failed.length, failed };
+export type DeleteInvoicesResult = {
+  requested: number;
+  deleted: number;
+  // invoiceId comes back as a number — the API is numeric-id throughout, unlike the
+  // string ids this app otherwise passes around for invoices.
+  failed: { invoiceId: number; reason: string }[];
+  message: string;
+};
+
+// Each id is deleted in its own transaction server-side, so one failure never costs the
+// rest their delete — per-id outcomes come back in `failed`, not a single pass/fail.
+export const deleteInvoices = async (invoiceIds: string[]): Promise<DeleteInvoicesResult> => {
+  try {
+    const { data } = await api.delete(`/invoices/${invoiceIds.join(",")}`);
+    return data.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
 };
 
 export const addPayment = async (invoiceId: string, payload: AddPaymentPayload) => {

@@ -4,7 +4,7 @@ import { CSVUpload, ValidationError } from "@/components/StudentAndParent/BulkUp
 import { ConfirmUpload } from "@/components/StudentAndParent/BulkUpload/ConfirmUpload";
 import { CSVUploadProgress } from "@/components/StudentAndParent/BulkUpload/CSVUploadProgress";
 import { Step, UploadInvalidRow, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
-import { getUploadErrorMessage, isBatchExpired } from "@/components/StudentAndParent/BulkUpload/uploadErrors";
+import { getUploadErrorMessage, isBatchExpired, isUnknownHeaders } from "@/components/StudentAndParent/BulkUpload/uploadErrors";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -67,6 +67,14 @@ export const StaffsUpload = () => {
             setCurrentStep(3);
           },
           onError: error => {
+            if (isUnknownHeaders(error)) {
+              toast({
+                title: "Unrecognised column headers",
+                description: getUploadErrorMessage(error, "Rename or remove the unrecognised column(s), then upload again."),
+                type: "error",
+              });
+              return;
+            }
             toast({
               title: getUploadErrorMessage(error, "Could not validate file"),
               description: "Check that the file matches the template and try again.",

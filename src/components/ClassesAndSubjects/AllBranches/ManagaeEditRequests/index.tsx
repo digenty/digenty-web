@@ -29,8 +29,12 @@ export const ManageEditRequest = () => {
       url: "/staff/classes-and-subjects",
     },
     {
+      label: "All Branches",
+      url: "/staff/classes-and-subjects/all-branches",
+    },
+    {
       label: "All Classes",
-      url: `/staff/classes-and-subjects/all-classes`,
+      url: `/staff/classes-and-subjects/all-branches/${branchId}/all-classes`,
     },
     {
       label: "Manage Edit Requests",

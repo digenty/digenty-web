@@ -10,7 +10,7 @@ import { ConfirmUpload } from "../BulkUpload/ConfirmUpload";
 import { CSVUpload, ValidationError } from "../BulkUpload/CSVUpload";
 import { CSVUploadProgress } from "../BulkUpload/CSVUploadProgress";
 import { Step, UploadInvalidRow, ValidateUploadResponse } from "../BulkUpload/types";
-import { getUploadErrorMessage, isBatchExpired } from "../BulkUpload/uploadErrors";
+import { getUploadErrorMessage, isBatchExpired, isUnknownHeaders } from "../BulkUpload/uploadErrors";
 import { Branch } from "@/api/types";
 import { SendLoginDetailsStep } from "./SendLoginDetailsStep";
 
@@ -73,6 +73,14 @@ export const ParentsUpload = () => {
             setCurrentStep(CONFIRM_STEP);
           },
           onError: error => {
+            if (isUnknownHeaders(error)) {
+              toast({
+                title: "Unrecognised column headers",
+                description: getUploadErrorMessage(error, "Rename or remove the unrecognised column(s), then upload again."),
+                type: "error",
+              });
+              return;
+            }
             toast({
               title: getUploadErrorMessage(error, "Could not validate file"),
               description: "Check that the file matches the template and try again.",
