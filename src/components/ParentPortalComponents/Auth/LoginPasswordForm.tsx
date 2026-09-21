@@ -10,6 +10,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useLogin } from "@/hooks/queryHooks/useAuth";
 import { cn } from "@/lib/utils";
 import { authSchema } from "@/schema/auth";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import Link from "next/link";
@@ -21,6 +22,7 @@ export const LoginPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const { mutate, isPending } = useLogin();
+  const queryClient = useQueryClient();
   const [legalModal, setLegalModal] = useState<{ open: boolean; title: string; content: string }>({
     open: false,
     title: "",
@@ -56,6 +58,10 @@ export const LoginPasswordForm = () => {
             } catch (e) {
               console.error("School lookup failed", e);
             }
+            // Drop any session-user data cached from a previous session in this tab (e.g. the
+            // one that just expired) so the new token's data is fetched fresh instead of the
+            // old, now-invalid `exp` being read for an instant before the refetch lands.
+            queryClient.removeQueries({ queryKey: ["session-user"] });
             createSession(data.data.token, "PARENT");
           },
           onError: error => {

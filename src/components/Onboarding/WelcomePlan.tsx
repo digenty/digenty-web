@@ -34,14 +34,14 @@ export const WelcomePlan = ({ onUpgrade, onFinish }: WelcomePlanProps) => {
         </Button>
       </div>
 
-      <button
+      {/* <button
         type="button"
         onClick={onFinish}
         className="text-text-muted hover:text-text-default animate-in fade-in-0 text-xs font-medium underline-offset-4 delay-500 duration-700 hover:underline"
         style={{ animationFillMode: "both" }}
       >
         Maybe later, take me to my dashboard
-      </button>
+      </button> */}
     </div>
   );
 };
