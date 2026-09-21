@@ -11,6 +11,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useSendChangePasswordOtp } from "@/hooks/queryHooks/useAuth";
 import { useGetSecuritySettings, useLogoutAllSessions } from "@/hooks/queryHooks/useSecurity";
 import { ActiveSession } from "@/api/security";
+import { useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { ChangePasswordDialog } from "./ChangePasswordDialog";
@@ -37,6 +38,7 @@ export const SecuritySettings = () => {
     { label: "Security", url: "/staff/settings/security" },
   ]);
 
+  const queryClient = useQueryClient();
   const { data, isPending: isLoading } = useGetSecuritySettings();
   const { mutate: sendOtp, isPending: isSendingOtp } = useSendChangePasswordOtp();
   const { mutate: logoutAll, isPending: isLoggingOutAll } = useLogoutAllSessions();
@@ -64,6 +66,7 @@ export const SecuritySettings = () => {
     logoutAll(undefined, {
       onSuccess: async () => {
         toast({ title: "Signed out", description: "You have been logged out of all sessions", type: "success" });
+        queryClient.clear();
         await deleteSession();
       },
       onError: error => {

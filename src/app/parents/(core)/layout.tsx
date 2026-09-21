@@ -1,9 +1,11 @@
 import { ParentHeader } from "@/components/ParentPortalComponents/ParentHeader";
 import { ParentSidebar } from "@/components/ParentPortalComponents/ParentSidebar";
+import { SessionExpiryWatcher } from "@/components/SessionExpiryWatcher";
 
 export default function ParentOnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-bg-default fixed inset-0 flex overflow-hidden leading-5">
+      <SessionExpiryWatcher redirectTo="/auth/parents/login" />
       <ParentSidebar />
       <div className="flex min-h-0 flex-1 flex-col">
         <ParentHeader />
