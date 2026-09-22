@@ -116,15 +116,15 @@ export const Sidebar = () => {
             ]
           : []),
 
-        // ...(canViewDailyDiary(user?.permissions)
-        //   ? [
-        //       {
-        //         title: "Daily Diary",
-        //         url: "daily-diary",
-        //         icon: BookOpen,
-        //       },
-        //     ]
-        //   : []),
+        ...(canViewDailyDiary(user?.permissions)
+          ? [
+              {
+                title: "Daily Diary",
+                url: "daily-diary",
+                icon: BookOpen,
+              },
+            ]
+          : []),
 
         ...(canViewAdmissionManagement(user?.permissions)
           ? [
