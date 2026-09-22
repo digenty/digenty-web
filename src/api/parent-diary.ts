@@ -1,4 +1,4 @@
-import { DiaryEntryType, SnapshotFieldKey, WeeklyGlance, WeeklyLearningAreaRow } from "@/api/diary";
+import { DiaryEntryType, Paginated, SnapshotFieldKey, WeeklyGlance, WeeklyLearningAreaRow } from "@/api/diary";
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
@@ -160,7 +160,7 @@ const buildQuery = (params: Record<string, string | number | undefined | null>) 
 
 /* ------------------------------- Daily reports ---------------------------- */
 
-export const getParentDiaryReports = async (params: ParentDiaryListParams): Promise<ParentDiaryReportSummary[]> => {
+export const getParentDiaryReports = async (params: ParentDiaryListParams): Promise<Paginated<ParentDiaryReportSummary>> => {
   try {
     const { data } = await api.get(`${BASE}/reports${buildQuery({ ...params })}`);
     return data?.data ?? data;
@@ -243,7 +243,7 @@ export const downloadParentReportPdf = async (reportId: number, studentId: numbe
 
 /* ------------------------------ Weekly reports ---------------------------- */
 
-export const getParentWeeklyReports = async (params: ParentDiaryListParams): Promise<ParentWeeklyReportSummary[]> => {
+export const getParentWeeklyReports = async (params: ParentDiaryListParams): Promise<Paginated<ParentWeeklyReportSummary>> => {
   try {
     const { data } = await api.get(`${BASE}/weekly${buildQuery({ ...params })}`);
     return data?.data ?? data;
