@@ -4,56 +4,47 @@ import { DiaryEntry, DiaryEntryType } from "@/api/diary";
 import { cn } from "@/lib/utils";
 import { DIARY_ENTRY_TYPE_CONFIG } from "@/queries/diary";
 
-/* ------------------------------ Date helpers ------------------------------ */
-
 const safeDate = (value: string | number | Date | null | undefined) => {
   if (!value) return null;
   const date = new Date(value);
   return isNaN(date.getTime()) ? null : date;
 };
 
-/** "Friday, 12 September 2025" */
 export const formatLongDate = (value: string | null | undefined) => {
   const date = safeDate(value);
   if (!date) return "—";
   return date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 };
 
-/** "Friday, 12 September" */
 export const formatDayAndMonth = (value: string | null | undefined) => {
   const date = safeDate(value);
   if (!date) return "—";
   return date.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
 };
 
-/** "Mon, 15 Sep" */
 export const formatShortDate = (value: string | null | undefined) => {
   const date = safeDate(value);
   if (!date) return "—";
   return date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 };
 
-/** "8:42 AM" */
 export const formatTime = (value: string | null | undefined) => {
   const date = safeDate(value);
   if (!date) return "—";
   return date.toLocaleTimeString("en-GB", { hour: "numeric", minute: "2-digit", hour12: true });
 };
 
-/** "12 Sep 2025, 8:42 AM" */
 export const formatDateTime = (value: string | null | undefined) => {
   const date = safeDate(value);
   if (!date) return "—";
   return `${date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}, ${formatTime(value)}`;
 };
 
-/** YYYY-MM-DD in local time, which is what the API expects for report dates. */
 export const toISODate = (date: Date) => {
   const offset = date.getTimezoneOffset();
   return new Date(date.getTime() - offset * 60 * 1000).toISOString().slice(0, 10);
 };
 
-/** Monday of the week containing `date`. */
 export const startOfWeek = (date: Date) => {
   const result = new Date(date);
   const day = result.getDay();
@@ -63,16 +54,13 @@ export const startOfWeek = (date: Date) => {
   return result;
 };
 
-/* --------------------------------- Badges --------------------------------- */
-
 type DotBadgeProps = {
   label: string;
-  /** Tailwind background class for the 6px status dot. */
+
   dot?: string;
   className?: string;
 };
 
-/** The dot-plus-label pill used across every diary surface. */
 export const DotBadge = ({ label, dot, className }: DotBadgeProps) => (
   <span
     className={cn(
@@ -91,11 +79,7 @@ export const EntryTypeBadge = ({ type, dueDate }: { type: DiaryEntryType; dueDat
   return <DotBadge label={label} dot={config.dot} className={config.badge} />;
 };
 
-/* ------------------------------- Entry sorting ---------------------------- */
-
 export const sortEntries = <T extends Pick<DiaryEntry, "position">>(entries: T[]) => [...entries].sort((a, b) => a.position - b.position);
-
-/* -------------------------------- Stat cards ------------------------------ */
 
 export type StatSwatch = "blue" | "green" | "amber" | "pink";
 
@@ -106,17 +90,28 @@ const SWATCH: Record<StatSwatch, string> = {
   pink: "border-border-pink bg-bg-badge-pink",
 };
 
-export const StatCard = ({ label, value, swatch }: { label: string; value: string; swatch: StatSwatch }) => (
-  <div className="border-border-darker bg-bg-card flex flex-1 flex-col gap-4 rounded border p-4 md:p-6">
+const ICON_SWATCH: Record<StatSwatch, string> = {
+  blue: "bg-bg-basic-blue-subtle border-bg-basic-blue-accent",
+  green: "bg-bg-basic-green-subtle border-bg-basic-green-accent",
+  amber: "bg-bg-basic-amber-subtle border-bg-basic-amber-accent",
+  pink: "bg-bg-basic-pink-subtle border-bg-basic-pink-accent",
+};
+
+export const StatCard = ({ label, value, swatch, Icon }: { label: string; value: string; swatch: StatSwatch; Icon?: () => React.ReactNode }) => (
+  <div className="border-border-default bg-bg-card flex flex-1 flex-col gap-4 rounded border p-4 md:p-6">
     <div className="flex items-center gap-2">
-      <span className={cn("size-[17px] shrink-0 rounded-sm border", SWATCH[swatch])} aria-hidden />
+      {Icon ? (
+        <div className={cn("flex size-6 shrink-0 items-center justify-center rounded-xs border p-1", ICON_SWATCH[swatch])}>
+          <Icon />
+        </div>
+      ) : (
+        <span className={cn("size-[17px] shrink-0 rounded-sm border", SWATCH[swatch])} aria-hidden />
+      )}
       <p className="text-text-muted text-xs leading-4 font-medium">{label}</p>
     </div>
     <p className="text-text-default text-2xl leading-8 font-medium">{value}</p>
   </div>
 );
-
-/* --------------------------------- Progress ------------------------------- */
 
 export const ProgressBar = ({ value, total, tone = "bg-bg-basic-green-accent" }: { value: number; total: number; tone?: string }) => {
   const percent = total > 0 ? Math.min(100, Math.round((value / total) * 100)) : 0;
@@ -133,8 +128,6 @@ export const ProgressBar = ({ value, total, tone = "bg-bg-basic-green-accent" }:
   );
 };
 
-/* ---------------------------------- Cards --------------------------------- */
-
 export const DiaryCard = ({ className, children }: { className?: string; children: React.ReactNode }) => (
   <div className={cn("border-border-default bg-bg-card w-full overflow-hidden rounded-lg border", className)}>{children}</div>
 );
@@ -148,7 +141,5 @@ export const DiaryCardHeader = ({ title, description, action }: { title: string;
     {action}
   </div>
 );
-
-/* --------------------------------- Errors --------------------------------- */
 
 export const getDiaryErrorMessage = (error: unknown) => (error as { message?: string })?.message ?? "Please try again.";

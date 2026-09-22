@@ -8,7 +8,7 @@ import { PermissionCheck } from "@/components/ModulePermissionsWrapper/Permissio
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useExportDailyReportPdf, useGetDailyReport, useGetDailyReportStats, useRemindUnsignedParents } from "@/hooks/queryHooks/useDiary";
+import { useGetDailyReport, useGetDailyReportStats, useRemindUnsignedParents } from "@/hooks/queryHooks/useDiary";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { canManageDailyDiary } from "@/lib/permissions/daily-diary";
 
@@ -23,7 +23,6 @@ export const PublishedReport = ({ armId, reportId }: { armId: number; reportId: 
   const { data: report, isPending, isError, error, refetch } = useGetDailyReport(reportId);
   const { data: stats, isPending: loadingStats } = useGetDailyReportStats(reportId);
   const { mutate: remind, isPending: reminding } = useRemindUnsignedParents();
-  const { mutate: exportPdf, isPending: exporting } = useExportDailyReportPdf();
 
   useBreadcrumb([
     { label: "Daily Diary", url: "/staff/daily-diary" },
@@ -36,15 +35,6 @@ export const PublishedReport = ({ armId, reportId }: { armId: number; reportId: 
     remind(reportId, {
       onSuccess: result => toast({ title: "Reminders sent", description: `${result?.remindedCount ?? unsigned} parents reminded.`, type: "success" }),
       onError: err => toast({ title: "Could not send reminders", description: getDiaryErrorMessage(err), type: "error" }),
-    });
-
-  const handleExport = () =>
-    exportPdf(reportId, {
-      onSuccess: result => {
-        if (result?.url) window.open(result.url, "_blank", "noopener,noreferrer");
-        else toast({ title: "Export started", description: "You will be notified when the file is ready.", type: "info" });
-      },
-      onError: err => toast({ title: "Could not export report", description: getDiaryErrorMessage(err), type: "error" }),
     });
 
   if (isPending) {
@@ -93,14 +83,6 @@ export const PublishedReport = ({ armId, reportId }: { armId: number; reportId: 
         <div className="flex-1" />
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={handleExport}
-            disabled={exporting}
-            className="border-border-darker text-text-default bg-bg-card h-8 rounded-md"
-          >
-            {exporting ? "Preparing…" : "Export PDF"}
-          </Button>
           <PermissionCheck permissionUtility={canManageDailyDiary}>
             {unsigned > 0 && (
               <Button

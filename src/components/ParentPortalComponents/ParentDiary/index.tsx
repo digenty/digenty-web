@@ -41,7 +41,8 @@ export const ParentDiary = () => {
   const weeklyQuery = useGetParentWeeklyReports(activeTab === "Weekly reports" ? params : {});
   const homeworkQuery = useGetParentHomework(activeTab === "Homework" ? selectedStudentId : undefined);
 
-  const reports = dailyQuery.data ?? [];
+  const reports = dailyQuery.data?.content ?? [];
+  const weeklyReports = weeklyQuery.data?.content ?? [];
   const dueHomework = (homeworkQuery.data ?? []).filter(item => !item.completedAt);
   const awaiting = reports.find(report => report.status === "AWAITING_SIGNATURE");
 
@@ -181,11 +182,11 @@ export const ParentDiary = () => {
                 buttonText="Try again"
                 onClick={() => weeklyQuery.refetch()}
               />
-            ) : (weeklyQuery.data ?? []).length === 0 ? (
+            ) : weeklyReports.length === 0 ? (
               <ErrorComponent title="No weekly reports yet" description="Weekly reports are published at the end of each school week." />
             ) : (
               <div className="flex flex-col gap-4">
-                {(weeklyQuery.data ?? []).map(week => (
+                {weeklyReports.map(week => (
                   <div
                     key={week.weeklyReportId}
                     className="border-border-default bg-bg-sidebar-subtle flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center"

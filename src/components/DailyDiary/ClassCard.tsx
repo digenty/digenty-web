@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ClassDiarySummary, WeeklyClassDiarySummary } from "@/api/diary";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
+import { useGetAttendanceSettingsByLevel } from "@/hooks/queryHooks/useAttendanceSettings";
 import { canManageDailyDiary } from "@/lib/permissions/daily-diary";
 import { DAILY_REPORT_STATUS_CONFIG, WEEKLY_REPORT_STATUS_CONFIG } from "@/queries/diary";
 
@@ -31,10 +32,11 @@ const CardTitle = ({ item }: { item: ClassDiarySummary }) => (
   </div>
 );
 
-/** Daily-tab class card: publish state, parent sign-off progress and the primary action. */
 export const ClassCard = ({ item }: { item: ClassDiarySummary }) => {
   const router = useRouter();
   const config = DAILY_REPORT_STATUS_CONFIG[item.status];
+  const { data: attendanceSettings } = useGetAttendanceSettingsByLevel(item.levelId);
+  const takesTwoSessions = (attendanceSettings?.data?.sessionsPerDay ?? 1) === 2;
 
   const statusLabel = item.status === "PUBLISHED" && item.publishedAt ? `Published ${formatTime(item.publishedAt)}` : config.label;
 
@@ -49,7 +51,8 @@ export const ClassCard = ({ item }: { item: ClassDiarySummary }) => {
 
   const isPublished = item.status === "PUBLISHED";
   const openReport = () => router.push(`/staff/daily-diary/${item.armId}/report/${item.reportId}`);
-  const writeReport = () => router.push(`/staff/daily-diary/${item.armId}/compose`);
+
+  const writeReport = () => router.push(`/staff/daily-diary/${item.armId}/compose${takesTwoSessions ? "?session=MORNING" : ""}`);
 
   return (
     <CardShell>
@@ -84,7 +87,6 @@ export const ClassCard = ({ item }: { item: ClassDiarySummary }) => {
   );
 };
 
-/** Weekly-tab class card: approval state instead of parent sign-off. */
 export const WeeklyClassCard = ({ item }: { item: WeeklyClassDiarySummary }) => {
   const router = useRouter();
   const config = item.weeklyStatus ? WEEKLY_REPORT_STATUS_CONFIG[item.weeklyStatus] : null;
@@ -113,10 +115,10 @@ export const WeeklyClassCard = ({ item }: { item: WeeklyClassDiarySummary }) => 
 
       <Button
         onClick={() => router.push(`/staff/daily-diary/${item.armId}/weekly`)}
-        variant={item.weeklyStatus ? "outline" : "default"}
+        // variant={item.weeklyStatus ? "outline" : "default"}
         className={
           item.weeklyStatus
-            ? "border-border-darker text-text-default bg-bg-card w-full rounded-md"
+            ? "border-border-default text-text-default bg-bg-card w-full rounded-md border"
             : "bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default w-full rounded-md"
         }
       >

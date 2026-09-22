@@ -11,12 +11,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { useExportTermDiaryPdf, useGetDiarySettings, useUpdateDiarySettings } from "@/hooks/queryHooks/useDiary";
-import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useGetDiarySettings, useUpdateDiarySettings } from "@/hooks/queryHooks/useDiary";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
-import { Term } from "@/api/types";
 
 import { DiaryCard, DiaryCardHeader, DotBadge, getDiaryErrorMessage } from "../shared";
 
@@ -53,16 +50,10 @@ const SettingsSkeleton = () => (
 
 export const DiarySettings = () => {
   const router = useRouter();
-  const user = useLoggedInUser();
   const [editingTemplate, setEditingTemplate] = useState<DiaryTemplate["section"] | null>(null);
 
   const { data: settings, isPending, isError, error, refetch } = useGetDiarySettings();
-  const { data: termsData } = useGetTerms(user.schoolId);
   const { mutate: update, isPending: saving } = useUpdateDiarySettings();
-  const { mutate: exportTerm, isPending: exporting } = useExportTermDiaryPdf();
-
-  const activeTerm: Term | undefined = (termsData?.data?.terms ?? []).find((term: Term) => term.isActiveTerm);
-  const sessionName: string = termsData?.data?.academicSessionName ?? "";
 
   useBreadcrumb([
     { label: "Daily Diary", url: "/staff/daily-diary" },
@@ -106,9 +97,8 @@ export const DiarySettings = () => {
     <div className="flex flex-col">
       <div className="border-border-default bg-bg-default flex items-center gap-3 border-b px-4 py-3 md:px-8">
         <Button
-          variant="outline"
           onClick={() => router.push("/staff/daily-diary")}
-          className="border-border-darker text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md"
+          className="border-border-default text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md border"
         >
           <ArrowLeft fill="var(--color-icon-default)" className="size-4" />
           Back
@@ -184,9 +174,8 @@ export const DiarySettings = () => {
                   )}
 
                   <Button
-                    variant="outline"
                     onClick={() => setEditingTemplate(isEditing ? null : template.section)}
-                    className="border-border-darker text-text-default bg-bg-card w-full rounded-md"
+                    className="border-border-default text-text-default bg-bg-card w-full rounded-md border"
                   >
                     {isEditing ? "Done" : "Edit template"}
                   </Button>
@@ -276,9 +265,8 @@ export const DiarySettings = () => {
                   className="bg-bg-card"
                 />
                 <Button
-                  variant="outline"
                   onClick={() => router.push("/staff/settings/permissions")}
-                  className="border-border-darker text-text-default bg-bg-card h-8 rounded-md"
+                  className="border-border-default text-text-default bg-bg-card h-8 rounded-md border"
                 >
                   Change
                 </Button>
@@ -317,27 +305,8 @@ export const DiarySettings = () => {
           {settings.termPdfExportEnabled && (
             <SettingRow
               title="Export now"
-              description="Generated in the background — you get a notification when the file is ready."
-              control={
-                <Button
-                  variant="outline"
-                  disabled={exporting || !activeTerm}
-                  onClick={() =>
-                    activeTerm &&
-                    exportTerm(
-                      { termId: activeTerm.termId },
-                      {
-                        onSuccess: () =>
-                          toast({ title: "Export started", description: "You will be notified when the file is ready.", type: "info" }),
-                        onError: err => toast({ title: "Could not start export", description: getDiaryErrorMessage(err), type: "error" }),
-                      },
-                    )
-                  }
-                  className="border-border-darker text-text-default bg-bg-card h-8 rounded-md"
-                >
-                  {exporting ? "Starting…" : activeTerm ? `Export ${sessionName} ${activeTerm.term.toLowerCase()} term` : "No active term"}
-                </Button>
-              }
+              description="Coming soon — the export tool is still being built. This will generate in the background once it ships."
+              control={<DotBadge label="Coming soon" dot="bg-bg-basic-gray-accent" className="bg-bg-card" />}
             />
           )}
           <SettingRow
