@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { DailyReportDetail, DiaryEntryPayload, PupilNote, SaveDailyReportPayload, SnapshotValues } from "@/api/diary";
+import { AttendanceSession } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
@@ -28,11 +29,14 @@ const ComposeSkeleton = () => (
   </div>
 );
 
-export const ComposeDailyReport = ({ armId, date }: { armId: number; date?: string }) => {
+export const ComposeDailyReport = ({ armId, date, session: initialSession }: { armId: number; date?: string; session?: AttendanceSession }) => {
   const router = useRouter();
   const user = useLoggedInUser();
 
   const reportDate = date ?? toISODate(new Date());
+  // Undefined for a class whose level takes one register a day. Set for a two-session level,
+  // where the diary keys a separate report to each of the morning and afternoon registers.
+  const [session, setSession] = useState<AttendanceSession | undefined>(initialSession);
 
   const [report, setReport] = useState<DailyReportDetail | null>(null);
   const [entries, setEntries] = useState<DiaryEntryPayload[]>([]);
@@ -59,12 +63,19 @@ export const ComposeDailyReport = ({ armId, date }: { armId: number; date?: stri
     });
   };
 
-  // The composer is reached straight from the class card, so open (or create) the draft on mount.
+  // The composer is reached straight from the class card, so open (or create) the draft on mount,
+  // and again whenever the Morning/Afternoon toggle switches which session's report is being edited.
   useEffect(() => {
     if (!armId) return;
-    openReport({ armId, date: reportDate }, { onSuccess: hydrate });
+    openReport({ armId, date: reportDate, session }, { onSuccess: hydrate });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [armId, reportDate]);
+  }, [armId, reportDate, session]);
+
+  const switchSession = (next: AttendanceSession) => {
+    if (next === session) return;
+    setSession(next);
+    router.replace(`/staff/daily-diary/${armId}/compose?${new URLSearchParams({ date: reportDate, session: next })}`);
+  };
 
   useBreadcrumb([
     { label: "Daily Diary", url: "/staff/daily-diary" },
@@ -154,7 +165,7 @@ export const ComposeDailyReport = ({ armId, date }: { armId: number; date?: stri
           buttonText="Try again"
           onClick={() => {
             resetOpen();
-            openReport({ armId, date: reportDate }, { onSuccess: hydrate });
+            openReport({ armId, date: reportDate, session }, { onSuccess: hydrate });
           }}
         />
       </div>
@@ -162,7 +173,8 @@ export const ComposeDailyReport = ({ armId, date }: { armId: number; date?: stri
   }
 
   const statusConfig = DAILY_REPORT_STATUS_CONFIG[report.status];
-  const busy = saving || publishing;
+  // Includes opening so a session switch's re-fetch can't be raced by Save/Publish acting on stale form state.
+  const busy = saving || publishing || opening;
 
   return (
     <div className="flex flex-col">
@@ -204,10 +216,32 @@ export const ComposeDailyReport = ({ armId, date }: { armId: number; date?: stri
 
       <div className="flex flex-col gap-5 px-4 pt-5 pb-10 md:px-8 md:pb-12">
         <div className="border-border-blue bg-bg-badge-blue flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border px-4 py-3">
+          {session && (
+            <>
+              <div className="bg-bg-state-soft flex w-fit shrink-0 items-center rounded-md p-[3px]">
+                {(["MORNING", "AFTERNOON"] as const).map(option => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => switchSession(option)}
+                    disabled={busy}
+                    className={`rounded px-2.5 py-1 text-xs leading-4 font-medium transition-colors ${
+                      session === option ? "border-border-default bg-bg-card text-text-default border" : "text-text-muted hover:text-text-default"
+                    }`}
+                  >
+                    {option === "MORNING" ? "Morning" : "Afternoon"}
+                  </button>
+                ))}
+              </div>
+              <span className="text-text-muted text-[13px]">•</span>
+            </>
+          )}
           <p className="text-text-default text-[13px] leading-[18px] font-medium">{formatLongDate(report.date)}</p>
           <span className="text-text-muted text-[13px]">•</span>
           <p className="text-text-muted text-[13px] leading-[18px]">
-            Attendance pulled from register: {report.attendancePresent} present, {report.attendanceAbsent} absent
+            {report.attendancePresent === null || report.attendanceAbsent === null
+              ? "Register has not been taken for this class yet"
+              : `Attendance pulled from register: ${report.attendancePresent} present, ${report.attendanceAbsent} absent`}
           </p>
           <div className="hidden flex-1 lg:block" />
           <p className="text-text-default text-xs leading-4 font-medium">Goes to {report.recipientCount} parents</p>

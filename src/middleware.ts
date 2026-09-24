@@ -18,7 +18,7 @@ function getSubdomain(host: string): string | null {
 // Hosts that belong to the platform itself, never a school's connected custom domain — even
 // though /public/website/resolve would technically resolve a *.axisbydigenty.com host too, that
 // pattern is already owned by the parent-onboarding subdomain flow above (getSubdomain). Custom-
-// domain website resolution below only applies to hosts outside this set.
+// domain detection below only applies to hosts outside this set.
 function isOwnPlatformHost(hostname: string): boolean {
   return (
     hostname === "localhost" ||
@@ -33,16 +33,16 @@ function isOwnPlatformHost(hostname: string): boolean {
 // Unauthenticated host -> slug lookup for a school's connected custom domain. Plain fetch (not
 // the axios-public client) since middleware runs on the Edge runtime. A 404 or network failure
 // both mean "not a recognized school domain" — fall through to normal app routing either way.
-async function resolveCustomDomainSlug(host: string): Promise<{ slug: string; live: boolean } | null> {
+// Used only to detect *that* a host is connected — the slug itself is resolved again client-side
+// (setSchoolFromHost, same as the *.axisbydigenty.com subdomain flow) once the parent app loads.
+async function isConnectedSchoolDomain(host: string): Promise<boolean> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/public/website/resolve?host=${encodeURIComponent(host)}`, {
       next: { revalidate: 300 },
     });
-    if (!res.ok) return null;
-    const body = await res.json();
-    return body.data ?? body ?? null;
+    return res.ok;
   } catch {
-    return null;
+    return false;
   }
 }
 
@@ -53,16 +53,11 @@ export default async function middleware(req: NextRequest) {
   const host = req.headers.get("host") ?? req.nextUrl.host;
   const hostname = host.split(":")[0];
 
-  // A school's own connected domain (e.g. unilag.com) — resolve and serve the public website.
-  // Runs before everything else below: this traffic has nothing to do with the staff/parent app.
-  if (!isOwnPlatformHost(hostname)) {
-    const resolution = await resolveCustomDomainSlug(host);
-    if (resolution) {
-      url.pathname = resolution.live ? `/site/${resolution.slug}` : "/site/coming-soon";
-      return NextResponse.rewrite(url);
-    }
-    // Unresolved — no school owns this host. Fall through to normal app routing below.
-  }
+  // A school's own connected custom domain (e.g. unilag.com) is parent-portal-only — it never
+  // serves the staff app. Folded into isParentPortalHost below so it gets identical treatment to
+  // a *.axisbydigenty.com subdomain; the school itself is resolved again client-side
+  // (setSchoolFromHost, same as the subdomain flow) once the parent app loads.
+  const isCustomSchoolDomain = !isOwnPlatformHost(hostname) && (await isConnectedSchoolDomain(host));
 
   // Temporarily disabled finance routes
   // const disabledRoutes = [
@@ -80,7 +75,9 @@ export default async function middleware(req: NextRequest) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
-  const isSubdomainPortal = !!getSubdomain(host);
+  // True for a *.axisbydigenty.com parent subdomain or a school's connected custom domain —
+  // either way, this host serves the parent portal only, never the staff app.
+  const isParentPortalHost = !!getSubdomain(host) || isCustomSchoolDomain;
 
   //include all routes that you want to be accessed without auth
   const authRoutes = [
@@ -98,16 +95,21 @@ export default async function middleware(req: NextRequest) {
     // Real parent-portal subdomains (e.g. greenwood.axisbydigenty.com) still land on the
     // parent portal by default. Bare hosts (localhost, digenty-web.vercel.app) default to
     // staff — users must manually navigate to /auth/parents/login for the parent portal.
-    if (isSubdomainPortal) {
+    if (isParentPortalHost) {
       const target = token ? "/parents" : "/auth/parents/login";
       return NextResponse.redirect(new URL(target, req.nextUrl));
     }
     return NextResponse.redirect(new URL("/auth/staff", req.nextUrl));
   }
 
+  // A parent-portal-only host (subdomain or connected custom domain) never serves the staff app.
+  if (isParentPortalHost && (path.startsWith("/staff") || path.startsWith("/auth/staff"))) {
+    return NextResponse.redirect(new URL(token ? "/parents" : "/auth/parents/login", req.nextUrl));
+  }
+
   //   If user is logged in and tries to visit auth routes
   if (token && isAuthRoute) {
-    const target = isSubdomainPortal || path.startsWith("/auth/parent") ? "/parents" : "/staff/";
+    const target = isParentPortalHost || path.startsWith("/auth/parent") ? "/parents" : "/staff/";
     return NextResponse.redirect(new URL(target, req.nextUrl));
   }
 

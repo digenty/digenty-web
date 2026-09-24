@@ -15,6 +15,7 @@ import { useChangePassword, useOtpCountdown, useSendChangePasswordOtp, useVerify
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { changePasswordSchema } from "@/schema/auth";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -321,9 +322,11 @@ const ChangePasswordStep = ({ onSuccess }: { onSuccess: () => void }) => {
 
 const SuccessStep = () => {
   const [isPending, setIsPending] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleBackToLogin = async () => {
     setIsPending(true);
+    queryClient.clear();
     await deleteSession();
   };
 

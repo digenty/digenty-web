@@ -4,10 +4,12 @@ import { ArrowLeft, SearchIcon } from "@digenty/icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ClassDiarySummary } from "@/api/diary";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetAttendanceSettingsByLevel } from "@/hooks/queryHooks/useAttendanceSettings";
 import { useGetDiaryClasses } from "@/hooks/queryHooks/useDiary";
 import useDebounce from "@/hooks/useDebounce";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
@@ -15,6 +17,32 @@ import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { DAILY_REPORT_STATUS_CONFIG } from "@/queries/diary";
 
 import { DiaryCard, DotBadge, formatLongDate, toISODate } from "./shared";
+
+/** Two-session levels default into the morning report — the composer's own toggle switches to the afternoon one. */
+const ClassRow = ({ item, date, showTopBorder }: { item: ClassDiarySummary; date: string; showTopBorder: boolean }) => {
+  const router = useRouter();
+  const config = DAILY_REPORT_STATUS_CONFIG[item.status];
+  const { data: attendanceSettings } = useGetAttendanceSettingsByLevel(item.levelId);
+  const takesTwoSessions = (attendanceSettings?.data?.sessionsPerDay ?? 1) === 2;
+
+  return (
+    <button
+      type="button"
+      onClick={() => router.push(`/staff/daily-diary/${item.armId}/compose?date=${date}${takesTwoSessions ? "&session=MORNING" : ""}`)}
+      className={`hover:bg-bg-state-soft flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors ${
+        showTopBorder ? "border-border-default border-t" : ""
+      }`}
+    >
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <p className="text-text-default truncate text-[13px] leading-[18px] font-medium">{item.armName}</p>
+        <p className="text-text-muted truncate text-xs leading-4">
+          {[item.teacherName, item.branchName, `${item.pupilCount} pupils`].filter(Boolean).join(" • ")}
+        </p>
+      </div>
+      <DotBadge label={config.label} dot={config.dot} className={config.badge} />
+    </button>
+  );
+};
 
 /** "+ New daily report" lands here: pick the class, then the composer opens today's draft. */
 export const NewReportPicker = () => {
@@ -31,7 +59,7 @@ export const NewReportPicker = () => {
     { label: "New daily report", url: "/staff/daily-diary/new" },
   ]);
 
-  const { data, isPending, isError, refetch } = useGetDiaryClasses({ branchId, date, search: debouncedSearch }, !!branchId);
+  const { data, isPending, isError, refetch } = useGetDiaryClasses({ branchId, date, search: debouncedSearch });
   const classes = data?.content ?? [];
 
   return (
@@ -92,27 +120,9 @@ export const NewReportPicker = () => {
           />
         ) : (
           <DiaryCard>
-            {classes.map((item, index) => {
-              const config = DAILY_REPORT_STATUS_CONFIG[item.status];
-              return (
-                <button
-                  key={item.armId}
-                  type="button"
-                  onClick={() => router.push(`/staff/daily-diary/${item.armId}/compose?date=${date}`)}
-                  className={`hover:bg-bg-state-soft flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors ${
-                    index > 0 ? "border-border-default border-t" : ""
-                  }`}
-                >
-                  <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                    <p className="text-text-default truncate text-[13px] leading-[18px] font-medium">{item.armName}</p>
-                    <p className="text-text-muted truncate text-xs leading-4">
-                      {[item.teacherName, item.branchName, `${item.pupilCount} pupils`].filter(Boolean).join(" • ")}
-                    </p>
-                  </div>
-                  <DotBadge label={config.label} dot={config.dot} className={config.badge} />
-                </button>
-              );
-            })}
+            {classes.map((item, index) => (
+              <ClassRow key={item.armId} item={item} date={date} showTopBorder={index > 0} />
+            ))}
           </DiaryCard>
         )}
       </div>

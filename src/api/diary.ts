@@ -1,4 +1,4 @@
-import { LevelType } from "@/api/types";
+import { AttendanceSession, LevelType } from "@/api/types";
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
 
@@ -106,8 +106,9 @@ export type DailyReportDetail = {
   pupilNoteCount: number;
   pupilCount: number;
   recipientCount: number;
-  attendancePresent: number;
-  attendanceAbsent: number;
+  /** Null when no register was taken for this arm and date - distinct from "0 present". */
+  attendancePresent: number | null;
+  attendanceAbsent: number | null;
   requireAcknowledgement: boolean;
   requestComment: boolean;
   sendPushSms: boolean;
@@ -273,7 +274,8 @@ export type DiarySettingsPayload = Partial<
   snapshotFields?: { key: SnapshotFieldKey; enabled: boolean }[];
 };
 
-export type OpenDailyReportRequest = { armId: number; date: string };
+/** Only required for a level with two attendance sessions a day - see AttendanceLevelSettings.sessionsPerDay. */
+export type OpenDailyReportRequest = { armId: number; date: string; session?: AttendanceSession };
 
 export type SaveDailyReportPayload = {
   entries: DiaryEntryPayload[];
@@ -314,7 +316,7 @@ export type Paginated<T> = {
   content: T[];
   totalElements: number;
   totalPages: number;
-  page: number;
+  number: number;
   size: number;
 };
 

@@ -9,5 +9,5 @@ export default async function ComposeDailyReportPage({
 }) {
   const [{ armId }, sp] = await Promise.all([params, searchParams]);
 
-  return <ComposeReportGate armId={armId} date={sp.date} />;
+  return <ComposeReportGate armId={armId} date={sp.date} session={sp.session} />;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchIcon } from "@digenty/icons";
+import { BarChartIcon, GraduationCapFill, SearchIcon, SendPlaneFill, TimeFill } from "@digenty/icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -56,7 +56,7 @@ export const DailyDiary = () => {
 
   return (
     <div className="flex flex-col gap-6 px-4 pt-4 pb-10 md:px-8 md:pt-6 md:pb-12">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h1 className="text-text-default text-xl leading-7 font-semibold">Daily Diary</h1>
         <DiaryFilters branchId={branchId} onBranchChange={setBranchId} termId={termId} onTermChange={setTermId} />
       </div>
@@ -66,10 +66,30 @@ export const DailyDiary = () => {
           Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="bg-bg-input-soft h-28 flex-1 rounded" />)
         ) : (
           <>
-            <StatCard label="Classes" value={String(overview.classCount)} swatch="blue" />
-            <StatCard label="Reports published today" value={`${overview.publishedToday} / ${overview.classCount}`} swatch="green" />
-            <StatCard label="Awaiting parent sign-off" value={String(overview.awaitingSignature)} swatch="amber" />
-            <StatCard label="Parent response rate · 7d" value={`${overview.parentResponseRate}%`} swatch="pink" />
+            <StatCard
+              label="Classes"
+              value={String(overview.classCount)}
+              swatch="blue"
+              Icon={() => <GraduationCapFill fill="var(--color-icon-default)" />}
+            />
+            <StatCard
+              label="Reports published today"
+              value={`${overview.publishedToday} / ${overview.classCount}`}
+              swatch="green"
+              Icon={() => <SendPlaneFill fill="var(--color-icon-default)" />}
+            />
+            <StatCard
+              label="Awaiting parent sign-off"
+              value={String(overview.awaitingSignature)}
+              swatch="amber"
+              Icon={() => <TimeFill fill="var(--color-icon-default)" />}
+            />
+            <StatCard
+              label="Parent response rate · 7d"
+              value={`${overview.parentResponseRate}%`}
+              swatch="pink"
+              Icon={() => <BarChartIcon fill="var(--color-icon-default)" />}
+            />
           </>
         )}
       </div>

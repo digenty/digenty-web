@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { getSessionData } from "../../actions/auth";
 import { OnboardingFlow } from "@/components/Onboarding/OnboardingFlow";
 import { SessionRefresher } from "@/components/SessionRefresher";
+import { SessionExpiryWatcher } from "@/components/SessionExpiryWatcher";
 
 export default async function CoreLayout({
   children,
@@ -27,6 +28,7 @@ export default async function CoreLayout({
   return (
     <div className="bg-bg-default fixed inset-0 flex overflow-hidden leading-5">
       <SessionRefresher />
+      <SessionExpiryWatcher />
       {!showOnboarding && <Sidebar />}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {!showOnboarding && <Header />}
