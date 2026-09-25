@@ -9,19 +9,25 @@ import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader } from "@/com
 import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useGetFeeItems, useGetFeeRoutes, useUpdateFeeRoute, useCreateFeeRoute } from "@/hooks/queryHooks/useFee";
-import { useGetFeeCollectionBankAccounts } from "@/hooks/queryHooks/useFeeCollection";
+import { useCreateSubAccount, useGetAllBanks, useGetFeeCollectionBankAccounts } from "@/hooks/queryHooks/useFeeCollection";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { BankAccountInfo } from "@/api/fee-collection";
+import { BranchWithClassLevels } from "@/api/types";
 import { FeeItemDetail, FeeRouteResponseDto } from "@/api/fee";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { toast } from "sonner";
+import { AddAccountSheet, PoolAccount } from "../AddAccountSheet";
 
 export const OneFeesRouting = () => {
   const [query, setQuery] = useState("");
   const { data: feeItems = [], isLoading, isError } = useGetFeeItems();
   const { data: routes = [] } = useGetFeeRoutes();
+  const { data: branchesData } = useGetBranches();
+  const branches: BranchWithClassLevels[] = branchesData?.data ?? [];
+  const mainBranchId = branches[0]?.branch?.id ?? 0;
 
   const getRoute = (feeClassId: number) => routes.find(r => r.feeClassId === feeClassId);
 
@@ -87,7 +93,7 @@ export const OneFeesRouting = () => {
                     {route ? `${route.bankAccountNumber} — ${route.bankAccountName}` : "Default account"}
                   </div>
                 </div>
-                <RoutingSheet feeItem={item} existingRoute={route} />
+                <RoutingSheet feeItem={item} existingRoute={route} branchId={mainBranchId} />
               </div>
             );
           })}
@@ -100,18 +106,45 @@ export const OneFeesRouting = () => {
 interface RoutingSheetProps {
   feeItem: FeeItemDetail;
   existingRoute?: FeeRouteResponseDto;
-  branchId?: number;
+  branchId: number;
 }
 
-export const RoutingSheet = ({ feeItem, existingRoute, branchId = 0 }: RoutingSheetProps) => {
+export const RoutingSheet = ({ feeItem, existingRoute, branchId }: RoutingSheetProps) => {
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(existingRoute ? null : null);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(null);
   const isMobile = useIsMobile();
 
-  const { data: accounts = [], isLoading: loadingAccounts } = useGetFeeCollectionBankAccounts();
+  const { data: accounts = [], isLoading: loadingAccounts, refetch: refetchAccounts } = useGetFeeCollectionBankAccounts();
+  const { data: bankOptions = [] } = useGetAllBanks();
   const { mutate: updateRoute, isPending: updating } = useUpdateFeeRoute();
   const { mutate: createRoute, isPending: creating } = useCreateFeeRoute();
+  const { mutate: addSubAccount, isPending: addingAccount } = useCreateSubAccount();
   const isPending = updating || creating;
+
+  // Pre-select the fee's currently-routed account once the account list has loaded — routes
+  // only carry the account's number/name, not its id, so match on account number.
+  useEffect(() => {
+    if (!existingRoute || accounts.length === 0) return;
+    const match = accounts.find(a => a.accountNumber === existingRoute.bankAccountNumber);
+    if (match) setSelectedAccountId(match.id);
+  }, [existingRoute, accounts]);
+
+  const handleAddAccount = (acc: PoolAccount) => {
+    addSubAccount(
+      { branchId, bankCode: acc.bankCode, accountNumber: acc.accountNumber, accountName: acc.accountName },
+      {
+        onSuccess: async () => {
+          toast.success("Account added");
+          const { data: refreshed = [] } = await refetchAccounts();
+          const created = refreshed.find(a => a.accountNumber === acc.accountNumber);
+          if (created) setSelectedAccountId(created.id);
+        },
+        onError: (err: unknown) => {
+          toast.error((err as { message?: string })?.message ?? "Failed to add account");
+        },
+      },
+    );
+  };
 
   const handleSave = () => {
     if (!selectedAccountId) return;
@@ -150,8 +183,6 @@ export const RoutingSheet = ({ feeItem, existingRoute, branchId = 0 }: RoutingSh
         <div className="flex justify-center py-4">
           <Spinner className="size-6" />
         </div>
-      ) : accounts.length === 0 ? (
-        <div className="text-text-muted py-4 text-center text-sm">No collection accounts found. Complete fee collection setup first.</div>
       ) : (
         accounts.map((acc: BankAccountInfo) => (
           <div
@@ -172,6 +203,8 @@ export const RoutingSheet = ({ feeItem, existingRoute, branchId = 0 }: RoutingSh
           </div>
         ))
       )}
+
+      {!loadingAccounts && <AddAccountSheet bankOptions={bankOptions} onAdd={handleAddAccount} isPending={addingAccount} />}
     </div>
   );
 

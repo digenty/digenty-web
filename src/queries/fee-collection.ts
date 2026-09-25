@@ -5,4 +5,5 @@ export const feeCollectionKeys = {
   setupFeeCollection: ["setupFeeCollection"] as const,
   updateBankAccount: ["updateFeeCollectionBankAccount"] as const,
   updateMode: ["updateFeeCollectionMode"] as const,
+  createSubAccount: ["createFeeCollectionSubAccount"] as const,
 };

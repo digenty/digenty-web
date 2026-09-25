@@ -4,6 +4,7 @@ import { Edit, GroupWorkT } from "@digenty/icons";
 import { Tabs } from "@/components/Tabs";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
+import { toast } from "sonner";
 import { FeesMode } from "../FeesMode";
 import { SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -12,10 +13,12 @@ import { Modal } from "@/components/Modal";
 import { useFormikContext } from "formik";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetFeeRoutesByBranch } from "@/hooks/queryHooks/useFee";
+import { useGetFeeCollectionSetupStatus, useUpdateFeeCollectionBankAccount } from "@/hooks/queryHooks/useFeeCollection";
 import { EditAccountSheet } from "../EditAccountSheet";
+import { RoutingSheet } from "../FeesModeOneAccount/OneFeesRouting";
 import { FeesSetupFormValues } from "../index";
 import { BranchWithClassLevels } from "@/api/types";
-import { FeeRouteResponseDto } from "@/api/fee";
+import { FeeItemDetail, FeeRouteResponseDto } from "@/api/fee";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageFeeCollection } from "@/lib/permissions/fee-collection";
 
@@ -28,6 +31,8 @@ export const DifferentFeesReview = ({ selected, onSelect }: { selected: FlowType
   const { values, setFieldValue } = useFormikContext<FeesSetupFormValues>();
   const { data: branchesData } = useGetBranches();
   const branches: BranchWithClassLevels[] = branchesData?.data ?? [];
+  const { data: setupStatus } = useGetFeeCollectionSetupStatus();
+  const { mutate: updateAccount } = useUpdateFeeCollectionBankAccount();
 
   const handleSelect = (value: FlowType) => {
     onSelect(value);
@@ -41,6 +46,16 @@ export const DifferentFeesReview = ({ selected, onSelect }: { selected: FlowType
       "branchAccounts",
       values.branchAccounts.map(a => (a.branchId === editingBranchId ? { ...a, ...updated } : a)),
     );
+    const accountId = setupStatus?.branchAccounts?.find(b => b.branchId === editingBranchId)?.account.id;
+    if (accountId) {
+      updateAccount(
+        { accountId, payload: updated },
+        {
+          onSuccess: () => toast.success("Account updated"),
+          onError: (err: unknown) => toast.error((err as { message?: string })?.message ?? "Failed to update account"),
+        },
+      );
+    }
     setEditingBranchId(null);
   };
 
@@ -178,21 +193,33 @@ const BranchRoutingReview = ({ branchId }: { branchId: number }) => {
 
   return (
     <div className="mt-4 flex flex-col gap-3">
-      {routes.map((route: FeeRouteResponseDto) => (
-        <div key={route.id} className="border-border-darker flex justify-between gap-3 rounded-md border p-4">
-          <div className="flex flex-col gap-1">
-            <div className="text-text-default text-sm font-medium">{route.feeClassName}</div>
-            <div className="text-text-muted text-xs font-medium">
-              {route.bankAccountNumber} — {route.bankAccountName}
+      {routes.map((route: FeeRouteResponseDto) => {
+        const syntheticFeeItem: FeeItemDetail = {
+          feeItemId: route.feeClassId,
+          feeClassId: route.feeClassId,
+          feeName: route.feeClassName,
+          amount: 0,
+          quantity: 1,
+          required: false,
+          allowPartPayment: false,
+          minimumPartPayment: 0,
+          paymentMode: "FULL",
+        };
+
+        return (
+          <div key={route.id} className="border-border-darker flex justify-between gap-3 rounded-md border p-4">
+            <div className="flex flex-col gap-1">
+              <div className="text-text-default text-sm font-medium">{route.feeClassName}</div>
+              <div className="text-text-muted text-xs font-medium">
+                {route.bankAccountNumber} — {route.bankAccountName}
+              </div>
             </div>
+            <PermissionCheck permissionUtility={canManageFeeCollection}>
+              <RoutingSheet feeItem={syntheticFeeItem} existingRoute={route} branchId={branchId} />
+            </PermissionCheck>
           </div>
-          <PermissionCheck permissionUtility={canManageFeeCollection}>
-            <Button type="button" className="hover:bg-bg-none! bg-none">
-              <Edit fill="var(--color-icon-default-muted)" />
-            </Button>
-          </PermissionCheck>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

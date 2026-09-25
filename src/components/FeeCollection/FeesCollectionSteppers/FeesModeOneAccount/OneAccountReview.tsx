@@ -9,8 +9,10 @@ import { EditAccountSheet } from "../EditAccountSheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useFormikContext } from "formik";
 import { useGetFeeRoutes } from "@/hooks/queryHooks/useFee";
+import { useGetFeeCollectionSetupStatus, useUpdateFeeCollectionBankAccount } from "@/hooks/queryHooks/useFeeCollection";
 import { FeesSetupFormValues } from "../index";
 import React, { useState } from "react";
+import { toast } from "sonner";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageFeeCollection } from "@/lib/permissions/fee-collection";
 
@@ -27,6 +29,8 @@ export const OneAccountReview = ({ selected, onSelect }: Props) => {
   const isMobile = useIsMobile();
   const { values, setFieldValue } = useFormikContext<FeesSetupFormValues>();
   const { data: routes = [] } = useGetFeeRoutes();
+  const { data: setupStatus } = useGetFeeCollectionSetupStatus();
+  const { mutate: updateAccount } = useUpdateFeeCollectionBankAccount();
 
   const account = values.branchAccounts[0];
   const customRoutes = routes.filter(r => !r.isDefault).length;
@@ -114,6 +118,16 @@ export const OneAccountReview = ({ selected, onSelect }: Props) => {
               initial={{ bankCode: account.bankCode, bankName: account.bankName, accountNumber: account.accountNumber }}
               onSave={updated => {
                 setFieldValue("branchAccounts", [{ ...account, ...updated }]);
+                const accountId = setupStatus?.defaultAccount?.id;
+                if (accountId) {
+                  updateAccount(
+                    { accountId, payload: updated },
+                    {
+                      onSuccess: () => toast.success("Account updated"),
+                      onError: (err: unknown) => toast.error((err as { message?: string })?.message ?? "Failed to update account"),
+                    },
+                  );
+                }
               }}
               title="Edit Collection Account"
             />

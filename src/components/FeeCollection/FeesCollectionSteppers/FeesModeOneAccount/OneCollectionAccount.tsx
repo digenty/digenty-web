@@ -15,17 +15,31 @@ export const OneCollectionAccount = () => {
   const account: BranchAccountDto = values.branchAccounts[0] ?? { bankName: "", bankCode: "", accountNumber: "", isDefault: true };
   const { data: bankOptions = [] } = useGetAllBanks();
   const [bankSearch, setBankSearch] = useState("");
-  const { mutate: lookupAccount, data: accountNameData, isPending: isLoadingName, reset: resetLookup } = useGetAccountDetails();
+  const {
+    mutate: lookupAccount,
+    data: accountNameData,
+    isPending: isLoadingName,
+    isError: isLookupError,
+    reset: resetLookup,
+  } = useGetAccountDetails();
 
   const filteredBanks = bankOptions.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()));
 
   useEffect(() => {
+    setFieldValue("accountVerified", false);
     if (account.bankCode && account.accountNumber.length === 10) {
       lookupAccount({ accountNumber: account.accountNumber, bankCode: account.bankCode });
     } else {
       resetLookup();
     }
-  }, [account.bankCode, account.accountNumber, lookupAccount, resetLookup]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account.bankCode, account.accountNumber]);
+
+  useEffect(() => {
+    if (accountNameData?.accountName) {
+      setFieldValue("accountVerified", true);
+    }
+  }, [accountNameData, setFieldValue]);
 
   const updateAccount = (patch: Partial<BranchAccountDto>) => {
     const next = [{ ...account, ...patch, isDefault: true }];
@@ -86,6 +100,17 @@ export const OneCollectionAccount = () => {
                 <Avatar className="size-4" />
                 <span className="text-text-default text-xs font-medium">{accountNameData.accountName}</span>
               </>
+            ) : isLookupError ? (
+              <div className="flex w-full items-center justify-between">
+                <span className="text-text-destructive text-xs">Couldn&apos;t verify account. Please try again.</span>
+                <button
+                  type="button"
+                  onClick={() => lookupAccount({ accountNumber: account.accountNumber, bankCode: account.bankCode })}
+                  className="text-text-informative text-xs font-medium underline"
+                >
+                  Retry
+                </button>
+              </div>
             ) : (
               <span className="text-text-destructive text-xs">Account not found</span>
             )}
