@@ -370,6 +370,7 @@ export interface StudentReport {
   overallPercentage: number;
   classTeacherComment: string | null;
   principalComment: string | null;
+  principalCommentTitle: string;
   nextTermBegins: string;
 }
 
@@ -721,8 +722,11 @@ export interface TermDeadlineState {
   autoLockAfterDeadline: boolean;
 }
 
+export type CommentAuthorTitle = "PRINCIPAL" | "HEAD_MASTER" | "HEAD_MISTRESS" | "HEAD_OF_SCHOOL" | "HEAD_TEACHER";
+
 export interface PrincaleCommentPayload {
   levelId?: number;
+  authorTitle?: CommentAuthorTitle;
   rows: {
     minPercentage: number;
     maxPercentage: number;
@@ -796,6 +800,7 @@ export interface TermDeadlineState {
 
 export interface PrincaleCommentPayload {
   levelId?: number;
+  authorTitle?: CommentAuthorTitle;
   rows: {
     minPercentage: number;
     maxPercentage: number;
@@ -902,6 +907,13 @@ export interface PrincipalsComment {
   levelId: number;
   maxPercentage: number;
   minPercentage: number;
+}
+
+export interface PrincipalCommentByLevel {
+  levelId: number;
+  authorTitle: CommentAuthorTitle;
+  commentLabel: string;
+  rows: PrincipalsComment[];
 }
 
 export interface Arm {
@@ -1017,6 +1029,7 @@ export interface AssignedArm {
 }
 export interface UpdatePrincipaleCommentPayload {
   levelId: number;
+  authorTitle?: CommentAuthorTitle;
   rows: {
     commentId: number;
     minPercentage: number;

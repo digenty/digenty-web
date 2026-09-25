@@ -1,6 +1,7 @@
 import api from "@/lib/axios/axios-auth";
 import {
   PrincaleCommentPayload,
+  PrincipalCommentByLevel,
   ResultCalculationPayload,
   ResultSubmissionPayload,
   UpdatePrincipaleCommentPayload,
@@ -68,7 +69,7 @@ export const getPrincipalComment = async () => {
   }
 };
 
-export const getPrincipalCommentByLevel = async (levelId?: number) => {
+export const getPrincipalCommentByLevel = async (levelId?: number): Promise<{ data: PrincipalCommentByLevel }> => {
   try {
     const { data } = await api.get(`/result-settings/principal-comment/level/${levelId}`);
     return data;

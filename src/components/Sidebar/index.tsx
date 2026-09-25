@@ -24,6 +24,7 @@ import {
   Wallet,
 } from "@digenty/icons";
 import { deleteSession } from "@/app/actions/auth";
+import { unregisterPush } from "@/lib/push";
 import { Sheet, SheetContent, SheetHeader, SheetOverlay, SheetTitle } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
@@ -287,7 +288,8 @@ export const Sidebar = () => {
     document.documentElement.style.setProperty("--sidebar-w", isSidebarOpen ? "17.25rem" : "4rem");
   }, [isSidebarOpen]);
 
-  const logout = () => {
+  const logout = async () => {
+    await unregisterPush();
     queryClient.clear();
     deleteSession();
   };

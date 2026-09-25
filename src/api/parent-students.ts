@@ -48,6 +48,7 @@ export interface StudentReportCardResponse {
   overallPercentage: number;
   classTeacherComment: string;
   principalComment: string;
+  principalCommentTitle: string;
   nextTermBegins: string;
 }
 
