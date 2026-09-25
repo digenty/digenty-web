@@ -1,37 +1,42 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { AddFill } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { useGetAccountDetails, useGetAllBanks } from "@/hooks/queryHooks/useFeeCollection";
+import { Label } from "@/components/ui/label";
+import React, { useEffect, useState } from "react";
 
-interface AccountDraft {
+import { BankOption } from "@/api/fee-collection";
+import { useGetAccountDetails } from "@/hooks/queryHooks/useFeeCollection";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageFeeCollection } from "@/lib/permissions/fee-collection";
+
+export type PoolAccount = {
   bankCode: string;
   bankName: string;
   accountNumber: string;
+  accountName: string;
+};
+
+interface AddAccountSheetProps {
+  bankOptions: BankOption[];
+  onAdd: (acc: PoolAccount) => void;
+  isPending?: boolean;
+  triggerLabel?: string;
 }
 
-interface Props {
-  open: boolean;
-  onClose: () => void;
-  initial: AccountDraft;
-  onSave: (updated: AccountDraft) => void;
-  title?: string;
-}
-
-export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit Account" }: Props) => {
-  const isMobile = useIsMobile();
-  const [bankCode, setBankCode] = useState(initial.bankCode);
+export const AddAccountSheet = ({ bankOptions, onAdd, isPending = false, triggerLabel = "Add new account" }: AddAccountSheetProps) => {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [bankCode, setBankCode] = useState("");
   const [bankSearch, setBankSearch] = useState("");
-  const [accountNumber, setAccountNumber] = useState(initial.accountNumber);
-  const { data: bankOptions = [] } = useGetAllBanks();
+  const [accountNumber, setAccountNumber] = useState("");
+  const isMobile = useIsMobile();
   const {
     mutate: lookupAccount,
     data: accountNameData,
@@ -39,25 +44,12 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
     isError: isLookupError,
     reset: resetLookup,
   } = useGetAccountDetails();
-  const isFirstOpen = useRef(true);
 
   const filteredBanks = bankOptions.filter(b => b.name.toLowerCase().includes(bankSearch.toLowerCase()));
-
-  // Sync when the sheet is opened for a different account
-  useEffect(() => {
-    if (open) {
-      setBankCode(initial.bankCode);
-      setBankSearch("");
-      setAccountNumber(initial.accountNumber);
-      isFirstOpen.current = true;
-    }
-  }, [open, initial.bankCode, initial.accountNumber]);
+  const bankName = bankOptions.find(b => b.code === bankCode)?.name ?? "";
+  const canSave = !!bankCode && accountNumber.length === 10 && !!accountNameData?.accountName;
 
   useEffect(() => {
-    if (isFirstOpen.current) {
-      isFirstOpen.current = false;
-      return;
-    }
     if (bankCode && accountNumber.length === 10) {
       lookupAccount({ accountNumber, bankCode });
     } else {
@@ -65,13 +57,14 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
     }
   }, [bankCode, accountNumber, lookupAccount, resetLookup]);
 
-  const bankName = bankOptions.find(b => b.code === bankCode)?.name ?? initial.bankName;
-  const canSave = !!bankCode && accountNumber.length === 10 && !!accountNameData?.accountName;
-
   const handleSave = () => {
     if (!canSave) return;
-    onSave({ bankCode, bankName, accountNumber });
-    onClose();
+    onAdd({ bankCode, bankName, accountNumber, accountName: accountNameData!.accountName });
+    setBankCode("");
+    setBankSearch("");
+    setAccountNumber("");
+    resetLookup();
+    setSheetOpen(false);
   };
 
   const form = (
@@ -102,7 +95,6 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
           </SelectContent>
         </Select>
       </div>
-
       <div className="flex flex-col gap-2">
         <Label className="text-text-default text-sm font-medium">Account Number</Label>
         <Input
@@ -114,27 +106,27 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
           placeholder="Enter 10-digit account number"
         />
         {bankCode && accountNumber.length === 10 && (
-          <div className="bg-bg-input-soft flex w-full items-center gap-2 rounded-md p-2">
+          <div className="bg-bg-input-soft mt-2 flex w-full items-center gap-2 rounded-md p-2">
             {isLoadingName ? (
-              <span className="text-text-muted text-sm">Verifying account…</span>
+              <span className="text-text-muted text-xs">Verifying account…</span>
             ) : accountNameData?.accountName ? (
               <>
                 <Avatar className="size-4" />
-                <span className="text-text-default text-sm font-medium">{accountNameData.accountName}</span>
+                <span className="text-text-default text-xs font-medium">{accountNameData.accountName}</span>
               </>
             ) : isLookupError ? (
               <div className="flex w-full items-center justify-between">
-                <span className="text-sm text-red-500">Couldn&apos;t verify account. Please try again.</span>
+                <span className="text-text-destructive text-xs">Couldn&apos;t verify account. Please try again.</span>
                 <button
                   type="button"
                   onClick={() => lookupAccount({ accountNumber, bankCode })}
-                  className="text-text-informative text-sm font-medium underline"
+                  className="text-text-informative text-xs font-medium underline"
                 >
                   Retry
                 </button>
               </div>
             ) : (
-              <span className="text-sm text-red-500">Account not found</span>
+              <span className="text-text-destructive text-xs">Account not found</span>
             )}
           </div>
         )}
@@ -142,13 +134,12 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
     </div>
   );
 
-  const footer = (
-    <div className="flex w-full items-center justify-between">
+  const footer = (isMobileLayout: boolean) => (
+    <div className={`flex w-full items-center justify-between ${isMobileLayout ? "" : "pb-8"}`}>
       <SheetClose asChild>
         <Button
           type="button"
           variant="outline"
-          onClick={onClose}
           className="bg-bg-state-soft! text-text-subtle hover:text-text-subtle! rounde-sm h-7 w-17 border-none px-2 py-1"
         >
           Cancel
@@ -156,33 +147,45 @@ export const EditAccountSheet = ({ open, onClose, initial, onSave, title = "Edit
       </SheetClose>
       <Button
         type="button"
-        disabled={!canSave}
+        disabled={!canSave || isPending}
         onClick={handleSave}
         className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 items-center gap-1 rounded-sm px-2 py-1 disabled:opacity-50"
       >
-        Save
+        {isPending ? "Adding..." : "Add Account"}
       </Button>
     </div>
   );
 
-  if (!isMobile) {
-    return (
-      <Sheet open={open} onOpenChange={v => !v && onClose()}>
-        <SheetContent className="bg-bg-card border-border-default my-4 mr-4 overflow-y-auto rounded-md border md:min-w-130">
-          <SheetHeader className="border-border-darker bg-bg-card-subtle rounded-t-md border-b px-4 py-3">
-            <div className="text-text-default text-md font-semibold">{title}</div>
-          </SheetHeader>
-          {form}
-          <SheetFooter className="border-border-default bg-bg-card absolute bottom-0 w-full border-t px-6 pt-4 pb-8">{footer}</SheetFooter>
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
   return (
-    <MobileDrawer open={open} setIsOpen={v => !v && onClose()} title={title}>
-      {form}
-      <SheetFooter className="border-border-default bg-bg-card border-t px-4 py-3">{footer}</SheetFooter>
-    </MobileDrawer>
+    <div>
+      <PermissionCheck permissionUtility={canManageFeeCollection}>
+        <div
+          onClick={() => setSheetOpen(true)}
+          role="button"
+          className="hover:bg-bg-input-soft border-border-default text-text-default flex cursor-pointer items-center justify-center gap-1.5 border-t py-2 text-sm"
+        >
+          <AddFill fill="var(--color-icon-default-muted)" className="size-4" /> {triggerLabel}
+        </div>
+      </PermissionCheck>
+
+      {!isMobile && (
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetContent className="bg-bg-card border-border-default my-4 mr-4 overflow-y-auto rounded-md border md:min-w-130">
+            <SheetHeader className="border-border-darker bg-bg-card-subtle rounded-t-md border-b px-4 py-3">
+              <div className="text-text-default text-md font-semibold">Add New Account</div>
+            </SheetHeader>
+            {form}
+            <SheetFooter className="border-border-default bg-bg-card absolute bottom-0 w-full border-t px-6 py-4">{footer(false)}</SheetFooter>
+          </SheetContent>
+        </Sheet>
+      )}
+
+      {isMobile && (
+        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title="Add New Account">
+          {form}
+          <SheetFooter className="border-border-default bg-bg-card border-t px-4 py-3">{footer(true)}</SheetFooter>
+        </MobileDrawer>
+      )}
+    </div>
   );
 };

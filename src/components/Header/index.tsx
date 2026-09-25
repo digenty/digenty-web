@@ -1,5 +1,6 @@
 "use client";
 import { Menu2 } from "@digenty/icons";
+import { RefreshCw } from "lucide-react";
 import { useSidebarStore } from "@/store";
 import Image from "next/image";
 import { Avatar } from "../Avatar";
@@ -36,6 +37,10 @@ export const Header = () => {
       </div>
 
       <div className="flex items-center gap-4">
+        <Button variant="ghost" className="p-0!" onClick={() => window.location.reload()} aria-label="Refresh page">
+          <RefreshCw className="text-icon-default-subtle size-5" />
+        </Button>
+
         <NotificationPanel />
 
         <div onClick={() => router.push("/staff/profile")} className="border-border-darker cursor-pointer rounded-full">

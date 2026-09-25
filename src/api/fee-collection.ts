@@ -76,6 +76,14 @@ export interface AccountDetailsResponse {
   bankId: number;
 }
 
+export interface CreateSubAccountDto {
+  branchId: number;
+  bankCode: string;
+  accountNumber: string;
+  accountName?: string;
+  description?: string;
+}
+
 export const setupFeeCollection = async (payload: FeeCollectionSetupDto) => {
   try {
     const { data } = await api.post<Record<string, string>>(`/api/fee-collection/setup`, payload);
@@ -149,12 +157,24 @@ export const getAllBanks = async (): Promise<BankOption[]> => {
 
 export const getAccountDetails = async (payload: { accountNumber: string; bankCode: string }): Promise<AccountDetailsResponse> => {
   try {
-    const { data } = await api.post<{ data: { account_name: string; account_number: string; bank_id: number } }>(`/banks/account/details`, payload);
+    const { data } = await api.post<{
+      data: { account_name?: string; accountName?: string; account_number?: string; accountNumber?: string; bank_id?: number; bankId?: number };
+    }>(`/banks/account/details`, payload);
     return {
-      accountName: data.data.account_name,
-      accountNumber: data.data.account_number,
-      bankId: data.data.bank_id,
+      accountName: data.data.account_name ?? data.data.accountName ?? "",
+      accountNumber: data.data.account_number ?? data.data.accountNumber ?? "",
+      bankId: data.data.bank_id ?? data.data.bankId ?? 0,
     };
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const createSubAccount = async (payload: CreateSubAccountDto) => {
+  try {
+    const { data } = await api.post(`/banks/account/create`, payload);
+    return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

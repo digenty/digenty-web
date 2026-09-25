@@ -12,11 +12,12 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Modal } from "@/components/Modal";
 import { EditAccountSheet } from "@/components/FeeCollection/FeesCollectionSteppers/EditAccountSheet";
 import { RoutingSheet } from "@/components/FeeCollection/FeesCollectionSteppers/FeesModeOneAccount/OneFeesRouting";
-import { BankAccountInfo, FeeCollectionConfigResponse, FeeCollectionMode, FeeRouteInfo } from "@/api/fee-collection";
-import { FeeItemDetail } from "@/api/fee";
+import { BankAccountInfo, FeeCollectionConfigResponse, FeeCollectionMode } from "@/api/fee-collection";
+import { FeeItemDetail, FeeRouteResponseDto } from "@/api/fee";
 import { BranchWithClassLevels } from "@/api/types";
 import { useGetAllBanks, useUpdateFeeCollectionBankAccount, useUpdateFeeCollectionMode } from "@/hooks/queryHooks/useFeeCollection";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetFeeRoutes, useGetFeeRoutesByBranch } from "@/hooks/queryHooks/useFee";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { SearchInput } from "../SearchInput";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
@@ -60,8 +61,12 @@ export const ConfiguredView = ({ config }: Props) => {
   const firstBranchId = branches[0]?.branch?.id ?? 0;
   const routingBranchId = config.mode === "BRANCH_ACCOUNTS" ? (selectedBranchId ?? firstBranchId) : firstBranchId;
 
-  const allRoutes: FeeRouteInfo[] = config.feeRoutes ?? [];
-  const filteredRoutes = allRoutes.filter(r => r.feeName.toLowerCase().includes(routeSearch.toLowerCase()));
+  // Sourced live (not from config.feeRoutes) because that summary doesn't carry the route's id,
+  // which RoutingSheet needs to update an existing route instead of creating a duplicate.
+  const { data: allSchoolRoutes = [] } = useGetFeeRoutes();
+  const { data: branchRoutes = [] } = useGetFeeRoutesByBranch(routingBranchId);
+  const allRoutes: FeeRouteResponseDto[] = config.mode === "BRANCH_ACCOUNTS" ? branchRoutes : allSchoolRoutes;
+  const filteredRoutes = allRoutes.filter(r => r.feeClassName.toLowerCase().includes(routeSearch.toLowerCase()));
   const hasFeeStats = (config.totalFees ?? 0) > 0;
 
   // Branch collection rows: for BRANCH_ACCOUNTS with empty branchAccounts, show defaultAccount
@@ -183,7 +188,7 @@ export const ConfiguredView = ({ config }: Props) => {
           <>
             <div className="divide-border-default divide-y">
               {filteredRoutes.map(route => (
-                <FeeRouteRow key={route.feeClassId} route={route} branchId={routingBranchId} />
+                <FeeRouteRow key={route.id} route={route} branchId={routingBranchId} />
               ))}
             </div>
             <div className="border-border-default bg-bg-muted flex items-center gap-2 border-t px-4 py-3">
@@ -245,11 +250,11 @@ const BranchAccountRow = ({ label, account, onEdit }: { label: string; account: 
   </div>
 );
 
-const FeeRouteRow = ({ route, branchId }: { route: FeeRouteInfo; branchId: number }) => {
+const FeeRouteRow = ({ route, branchId }: { route: FeeRouteResponseDto; branchId: number }) => {
   const syntheticFeeItem: FeeItemDetail = {
     feeItemId: route.feeClassId,
     feeClassId: route.feeClassId,
-    feeName: route.feeName,
+    feeName: route.feeClassName,
     amount: 0,
     quantity: 1,
     required: false,
@@ -261,7 +266,7 @@ const FeeRouteRow = ({ route, branchId }: { route: FeeRouteInfo; branchId: numbe
   return (
     <div className="flex items-center justify-between px-4 py-3">
       <div className="flex flex-col gap-0.5">
-        <div className="text-text-default text-sm font-medium">{route.feeName}</div>
+        <div className="text-text-default text-sm font-medium">{route.feeClassName}</div>
         <div className="text-text-muted flex items-center gap-1.5 text-xs">
           {route.isDefault ? (
             <>
@@ -270,15 +275,15 @@ const FeeRouteRow = ({ route, branchId }: { route: FeeRouteInfo; branchId: numbe
             </>
           ) : (
             <>
-              <span className={`${nameColor(route.account.accountName)} inline-block h-3 w-3 rounded-full`} />
+              <span className={`${nameColor(route.bankAccountName)} inline-block h-3 w-3 rounded-full`} />
               <span>
-                {route.account.accountNumber} • {route.account.accountName}
+                {route.bankAccountNumber} • {route.bankAccountName}
               </span>
             </>
           )}
         </div>
       </div>
-      <RoutingSheet feeItem={syntheticFeeItem} branchId={branchId} />
+      <RoutingSheet feeItem={syntheticFeeItem} existingRoute={route} branchId={branchId} />
     </div>
   );
 };

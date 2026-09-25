@@ -1,4 +1,5 @@
 import {
+  createSubAccount,
   getAllBanks,
   getAccountDetails,
   getBankAccounts,
@@ -6,6 +7,7 @@ import {
   setupFeeCollection,
   updateBankAccount,
   updateMode,
+  CreateSubAccountDto,
   UpdateBankAccountDto,
 } from "@/api/fee-collection";
 import { feeCollectionKeys } from "@/queries/fee-collection";
@@ -74,6 +76,18 @@ export const useUpdateFeeCollectionMode = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: feeCollectionKeys.setupStatus });
       queryClient.invalidateQueries({ queryKey: feeCollectionKeys.bankAccounts });
+    },
+  });
+};
+
+export const useCreateSubAccount = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: feeCollectionKeys.createSubAccount,
+    mutationFn: (payload: CreateSubAccountDto) => createSubAccount(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feeCollectionKeys.bankAccounts });
+      queryClient.invalidateQueries({ queryKey: feeCollectionKeys.setupStatus });
     },
   });
 };

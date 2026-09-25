@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckboxCircleFill, Information, Loader2Fill } from "@digenty/icons";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useFormik, FormikProvider } from "formik";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -16,18 +16,23 @@ import { DifferentFeesAccount } from "./FeesModeDifferentAccounts/DifferentFeesA
 import { DifferentFeesRounting } from "./FeesModeDifferentAccounts/DifferentFeesRounting";
 import { DifferentFeesReview } from "./FeesModeDifferentAccounts/DifferentFeesReview";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { useSetupFeeCollection } from "@/hooks/queryHooks/useFeeCollection";
+import {
+  useGetAllBanks,
+  useGetFeeCollectionSetupStatus,
+  useSetupFeeCollection,
+  useUpdateFeeCollectionBankAccount,
+} from "@/hooks/queryHooks/useFeeCollection";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { BranchAccountDto, FeeCollectionMode, FeeRouteDto } from "@/api/fee-collection";
 import { BranchWithClassLevels } from "@/api/types";
 import { FEE_COLLECTION_STEPS, useFeeCollectionStep } from "./FeesCollectionSteps";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { Spinner } from "@/components/ui/spinner";
 
 export type FeesSetupFormValues = {
   mode: FeeCollectionMode | "";
   branchAccounts: BranchAccountDto[];
   feeRoutes: FeeRouteDto[];
+  accountVerified: boolean;
 };
 
 function isAccountFilled(acc: BranchAccountDto | undefined): boolean {
@@ -39,38 +44,57 @@ export const FeesSetup = () => {
   const { activeStep, goToStep } = useFeeCollectionStep();
   useBreadcrumb([{ label: "Fee Collection", url: "/staff/fee-collection" }]);
 
-  const { mutate: setupFeeCollection, isPending } = useSetupFeeCollection();
+  const { mutateAsync: setupFeeCollection } = useSetupFeeCollection();
+  const { mutateAsync: updateBankAccount } = useUpdateFeeCollectionBankAccount();
+  const { data: setupStatus, refetch: refetchSetupStatus } = useGetFeeCollectionSetupStatus();
+  const { data: bankOptions = [] } = useGetAllBanks();
   const { data: branchesData } = useGetBranches();
   const branches: BranchWithClassLevels[] = useMemo(() => branchesData?.data ?? [], [branchesData?.data]);
+
+  const [isPersisting, setIsPersisting] = useState(false);
+  const hasPersistedSetup = !!setupStatus?.mode;
 
   const formik = useFormik<FeesSetupFormValues>({
     initialValues: {
       mode: "",
       branchAccounts: [],
       feeRoutes: [],
+      accountVerified: false,
     },
     validateOnChange: false,
-    onSubmit: values => {
-      if (!values.mode) return;
-      setupFeeCollection(
-        {
-          mode: values.mode,
-          branchAccounts: values.branchAccounts,
-          feeRoutes: values.feeRoutes.length ? values.feeRoutes : undefined,
-        },
-        {
-          onSuccess: () => {
-            toast.success("Fee collection setup complete");
-            router.push("/staff/fee-collection");
-          },
-          onError: (err: unknown) => {
-            const msg = (err as { message?: string })?.message ?? "Failed to set up fee collection";
-            toast.error(msg);
-          },
-        },
-      );
-    },
+    onSubmit: () => {},
   });
+
+  // If the school already has a fee collection setup (e.g. arriving via a deep link like
+  // ?step=fee-routing from the configured view), hydrate mode/accounts so the right flow renders
+  // instead of a blank step.
+  const hydratedRef = useRef(false);
+  useEffect(() => {
+    if (hydratedRef.current || !setupStatus?.mode || formik.values.mode) return;
+    hydratedRef.current = true;
+
+    const resolveBankCode = (bankName: string) => bankOptions.find(b => b.name === bankName)?.code ?? "";
+
+    const branchAccounts: BranchAccountDto[] =
+      setupStatus.mode === "SINGLE_ACCOUNT" && setupStatus.defaultAccount
+        ? [
+            {
+              bankName: setupStatus.defaultAccount.bankName,
+              bankCode: resolveBankCode(setupStatus.defaultAccount.bankName),
+              accountNumber: setupStatus.defaultAccount.accountNumber,
+              isDefault: true,
+            },
+          ]
+        : (setupStatus.branchAccounts ?? []).map(b => ({
+            branchId: b.branchId,
+            bankName: b.account.bankName,
+            bankCode: resolveBankCode(b.account.bankName),
+            accountNumber: b.account.accountNumber,
+          }));
+
+    formik.setValues({ mode: setupStatus.mode, branchAccounts, feeRoutes: [], accountVerified: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setupStatus, bankOptions]);
 
   const flow: "oneAccount" | "differentAccounts" | null =
     formik.values.mode === "SINGLE_ACCOUNT" ? "oneAccount" : formik.values.mode === "BRANCH_ACCOUNTS" ? "differentAccounts" : null;
@@ -80,6 +104,45 @@ export const FeesSetup = () => {
     formik.setFieldValue("mode", mode);
     formik.setFieldValue("branchAccounts", []);
     formik.setFieldValue("feeRoutes", []);
+    formik.setFieldValue("accountVerified", false);
+  };
+
+  // Persists the account-setup step to the backend as soon as it's completed (rather than waiting
+  // until the final review step). Without this, the Fee Routing step has no real bank accounts to
+  // route fees to, since it queries the backend directly.
+  const persistOrSync = async (): Promise<boolean> => {
+    if (!formik.values.mode) return false;
+    try {
+      const modeChanged = hasPersistedSetup && formik.values.mode !== setupStatus!.mode;
+      if (!hasPersistedSetup || modeChanged) {
+        await setupFeeCollection({ mode: formik.values.mode, branchAccounts: formik.values.branchAccounts });
+      } else if (formik.values.mode === "SINGLE_ACCOUNT") {
+        const acc = formik.values.branchAccounts[0];
+        const existing = setupStatus!.defaultAccount;
+        if (acc && existing && (acc.accountNumber !== existing.accountNumber || acc.bankName !== existing.bankName)) {
+          await updateBankAccount({
+            accountId: existing.id,
+            payload: { bankName: acc.bankName, bankCode: acc.bankCode, accountNumber: acc.accountNumber },
+          });
+        }
+      } else {
+        for (const acc of formik.values.branchAccounts) {
+          const existing = setupStatus!.branchAccounts?.find(b => b.branchId === acc.branchId);
+          if (existing && (acc.accountNumber !== existing.account.accountNumber || acc.bankName !== existing.account.bankName)) {
+            await updateBankAccount({
+              accountId: existing.account.id,
+              payload: { bankName: acc.bankName, bankCode: acc.bankCode, accountNumber: acc.accountNumber },
+            });
+          }
+        }
+      }
+      await refetchSetupStatus();
+      return true;
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message ?? "Failed to save fee collection setup";
+      toast.error(msg);
+      return false;
+    }
   };
 
   // Per-step validity — controls whether Continue is enabled
@@ -87,19 +150,41 @@ export const FeesSetup = () => {
     if (activeStep === -1) return !!flow;
     if (activeStep === 0) {
       if (flow === "oneAccount") {
-        return isAccountFilled(formik.values.branchAccounts[0]);
+        return isAccountFilled(formik.values.branchAccounts[0]) && formik.values.accountVerified;
       }
       if (flow === "differentAccounts") {
-        return branches.length > 0 && formik.values.branchAccounts.some(isAccountFilled);
+        return (
+          branches.length > 0 &&
+          branches.every(({ branch }) => formik.values.branchAccounts.some(a => a.branchId === branch.id && isAccountFilled(a)))
+        );
       }
       return false;
     }
     return true;
-  }, [activeStep, flow, formik.values.branchAccounts, branches]);
+  }, [activeStep, flow, formik.values.branchAccounts, formik.values.accountVerified, branches]);
 
   const next = () => goToStep(Math.min(activeStep + 1, 3));
   const prev = () => goToStep(Math.max(activeStep - 1, -1));
   const isFinal = activeStep === 3;
+
+  const handleContinue = async () => {
+    if (activeStep === 0) {
+      setIsPersisting(true);
+      const ok = await persistOrSync();
+      setIsPersisting(false);
+      if (!ok) return;
+    }
+    next();
+  };
+
+  const handleFinish = async () => {
+    setIsPersisting(true);
+    const ok = await persistOrSync();
+    setIsPersisting(false);
+    if (!ok) return;
+    toast.success("Fee collection setup complete");
+    router.push("/staff/fee-collection");
+  };
 
   const renderStepIndicator = (index: number) => {
     // routing-decision (step 1) maps to the same indicator slot as routing (index 2)
@@ -202,7 +287,6 @@ export const FeesSetup = () => {
               )}
             </div>
 
-            {/* add impor */}
             {/* Nav buttons */}
             <div className="border-border-default border-t">
               <div className="flex justify-between p-6">
@@ -220,20 +304,20 @@ export const FeesSetup = () => {
                   (isFinal ? (
                     <Button
                       type="button"
-                      disabled={isPending}
-                      onClick={() => formik.submitForm()}
+                      disabled={isPersisting}
+                      onClick={handleFinish}
                       className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-9! rounded-md text-sm"
                     >
-                      {isPending ? <Spinner className="text-text-white-default" /> : "Finish Setup"}
+                      {isPersisting ? <Spinner className="text-text-white-default" /> : "Finish Setup"}
                     </Button>
                   ) : (
                     <Button
                       type="button"
-                      onClick={next}
-                      disabled={!isCurrentStepValid}
+                      onClick={handleContinue}
+                      disabled={!isCurrentStepValid || isPersisting}
                       className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-9! rounded-md text-sm disabled:opacity-50"
                     >
-                      Continue
+                      {isPersisting && activeStep === 0 ? <Spinner className="text-text-white-default" /> : "Continue"}
                     </Button>
                   ))}
               </div>
