@@ -73,7 +73,10 @@ export const useVerifySubscription = (reference: string) => {
     queryFn: () => verifySubscription(reference),
     enabled: !!reference,
     staleTime: Infinity,
-    retry: false,
+    // Right after the Paystack redirect the webhook may not have landed yet, so the first
+    // verify call can fail transiently - retry a few times instead of forcing a manual reload.
+    retry: 3,
+    retryDelay: attempt => Math.min(1500 * 2 ** attempt, 8000),
   });
 
   useEffect(() => {
