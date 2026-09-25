@@ -1,6 +1,7 @@
 "use client";
 
 import { useGetOnboardingProgress, useGetSchoolDetails } from "@/hooks/queryHooks/useSchool";
+import { useGetCurrentSubscription } from "@/hooks/queryHooks/useSubscription";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { useOnboardingStore } from "@/store";
@@ -21,8 +22,11 @@ interface OnboardingStepsModalProps {
 export const OnboardingStepsModal = ({ open, setOpen, apiSteps }: OnboardingStepsModalProps) => {
   const isMobile = useIsMobile();
   const { data } = useGetSchoolDetails();
+  const { data: subscription } = useGetCurrentSubscription();
   const router = useRouter();
   const { steps } = useOnboardingStore();
+
+  const hasActiveSubscription = subscription?.data?.status === "ACTIVE";
 
   const mergedSteps = steps.map(storeStep => {
     const apiStep = apiSteps.find((step: OnboardingStepsType) => step.stepNumber === storeStep.id);
@@ -110,6 +114,8 @@ export const OnboardingStepsModal = ({ open, setOpen, apiSteps }: OnboardingStep
       </div>
     </div>
   );
+
+  if (!hasActiveSubscription) return null;
 
   if (isMobile) {
     return (

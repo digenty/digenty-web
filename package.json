@@ -37,6 +37,7 @@
     "date-fns": "^4.1.0",
     "eslint-config-prettier": "^10.1.8",
     "exceljs": "^4.4.0",
+    "firebase": "^12.19.0",
     "formik": "^2.4.9",
     "html2canvas": "^1.4.1",
     "husky": "^9.1.7",

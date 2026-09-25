@@ -1,5 +1,5 @@
 import { AddFill, DeleteBin2, Edit } from "@digenty/icons";
-import { ClassLevel, PrincipalsComment } from "@/api/types";
+import { ClassLevel, CommentAuthorTitle, PrincipalsComment } from "@/api/types";
 
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageSettings } from "@/lib/permissions/settings";
@@ -29,6 +29,26 @@ const defaultRow = (): CommentRow => ({
   comment: "",
 });
 
+const AUTHOR_TITLE_LABELS: Record<CommentAuthorTitle, string> = {
+  PRINCIPAL: "Principal",
+  HEAD_MASTER: "Head Master",
+  HEAD_MISTRESS: "Head Mistress",
+  HEAD_OF_SCHOOL: "Head of School",
+  HEAD_TEACHER: "Head Teacher",
+};
+
+const AUTHOR_TITLE_OPTIONS: { value: CommentAuthorTitle; label: string }[] = (
+  Object.keys(AUTHOR_TITLE_LABELS) as CommentAuthorTitle[]
+).map(value => ({ value, label: AUTHOR_TITLE_LABELS[value] }));
+
+const COMMENT_LABELS: Record<CommentAuthorTitle, string> = {
+  PRINCIPAL: "Principal's Comment",
+  HEAD_MASTER: "Head Master's Comment",
+  HEAD_MISTRESS: "Head Mistress's Comment",
+  HEAD_OF_SCHOOL: "Head of School's Comment",
+  HEAD_TEACHER: "Head Teacher's Comment",
+};
+
 interface CommentSetupProps {
   rows: CommentRow[];
   onChange: (rows: CommentRow[]) => void;
@@ -36,6 +56,9 @@ interface CommentSetupProps {
   setIsEditing: (editing: boolean) => void;
   isLoading: boolean;
   hasExistingData: boolean;
+  authorTitle: CommentAuthorTitle;
+  onAuthorTitleChange: (title: CommentAuthorTitle) => void;
+  commentLabel: string;
 }
 interface PercentInputProps {
   value: string;
@@ -44,7 +67,17 @@ interface PercentInputProps {
   onChange: (v: string) => void;
 }
 
-const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoading, hasExistingData }: CommentSetupProps) => {
+const CommentSetup = ({
+  rows,
+  onChange,
+  isEditing,
+  setIsEditing,
+  isLoading,
+  hasExistingData,
+  authorTitle,
+  onAuthorTitleChange,
+  commentLabel,
+}: CommentSetupProps) => {
   const { mutate: deleteComment, isPending: isDeleting } = useDeletePrincipalComment();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -76,7 +109,7 @@ const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoading, hasE
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-text-default text-xl font-semibold">Principal&apos;s Comment</h2>
+          <h2 className="text-text-default text-xl font-semibold">{commentLabel}</h2>
           {!isEditing && (
             <PermissionCheck permissionUtility={canManageSettings}>
               <Button
@@ -88,13 +121,33 @@ const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoading, hasE
             </PermissionCheck>
           )}
         </div>
-        <div className="text-text-default text-md font-semibold">Principal&apos;s Comment Automation</div>
-        <div className="text-text-muted text-sm">Auto-generate principal comments based on student average scores.</div>
+        <div className="text-text-default text-md font-semibold">{commentLabel} Automation</div>
+        <div className="text-text-muted text-sm">
+          Auto-generate {AUTHOR_TITLE_LABELS[authorTitle].toLowerCase()} comments based on student average scores.
+        </div>
       </div>
 
       <div className="bg-bg-card border-border-default rounded-md border p-4 md:px-5 md:py-6">
         <div className="flex flex-col gap-4">
           {isLoading && <Skeleton className="h-40 w-full" />}
+
+          {!isLoading && (
+            <div className="flex flex-col gap-2 md:w-64">
+              <Label className="text-text-muted text-sm font-medium">Comment Author Title</Label>
+              <Select value={authorTitle} onValueChange={value => onAuthorTitleChange(value as CommentAuthorTitle)} disabled={!isEditing}>
+                <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-sm font-normal">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-bg-default border-border-default">
+                  {AUTHOR_TITLE_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value} className="text-text-default text-sm">
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {!isLoading && rows.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-2 py-8">
@@ -204,6 +257,7 @@ export const PrincipalComment = () => {
 
   const [activeLevel, setActiveLevel] = useState<ClassLevel>();
   const [levelRowsState, setLevelRowsState] = useState<LevelRowsState>({});
+  const [levelTitleState, setLevelTitleState] = useState<Record<string, CommentAuthorTitle>>({});
   const [isEditing, setIsEditing] = useState(false);
 
   const isMobile = useIsMobile();
@@ -230,6 +284,8 @@ export const PrincipalComment = () => {
     () => {
       if (isLoadingComments || !activeLevel?.levelName) return;
 
+      setLevelTitleState(prev => ({ ...prev, [activeLevel.levelName]: principalComments?.data?.authorTitle ?? "PRINCIPAL" }));
+
       if (hasExistingData) {
         const mapped = existingRows.map((row: PrincipalsComment) => ({
           id: String(row.id),
@@ -251,6 +307,9 @@ export const PrincipalComment = () => {
   const getRows = () => levelRowsState[activeLevel?.levelName ?? ""] ?? [];
   const setRows = (rows: CommentRow[]) => setLevelRowsState(prev => ({ ...prev, [activeLevel?.levelName ?? ""]: rows }));
 
+  const getTitle = () => levelTitleState[activeLevel?.levelName ?? ""] ?? "PRINCIPAL";
+  const setTitle = (title: CommentAuthorTitle) => setLevelTitleState(prev => ({ ...prev, [activeLevel?.levelName ?? ""]: title }));
+
   const handleSave = () => {
     const rows = getRows();
     const validationError = validateRows(rows);
@@ -263,6 +322,7 @@ export const PrincipalComment = () => {
       updateComment(
         {
           levelId: activeLevel!.id,
+          authorTitle: getTitle(),
           rows: rows.map(row => ({
             commentId: Number(row.id),
             minPercentage: Number(row.minPercentage),
@@ -282,6 +342,7 @@ export const PrincipalComment = () => {
       addComment(
         {
           levelId: activeLevel?.id,
+          authorTitle: getTitle(),
           rows: rows.map(row => ({
             minPercentage: Number(row.minPercentage),
             maxPercentage: Number(row.maxPercentage),
@@ -300,6 +361,10 @@ export const PrincipalComment = () => {
   };
 
   const handleCancel = () => {
+    if (activeLevel?.levelName) {
+      setTitle(principalComments?.data?.authorTitle ?? "PRINCIPAL");
+    }
+
     if (hasExistingData && activeLevel?.levelName) {
       const mapped = existingRows.map((row: PrincipalsComment) => ({
         id: String(row.id),
@@ -318,6 +383,9 @@ export const PrincipalComment = () => {
   const commentSetupProps = {
     rows: getRows(),
     onChange: setRows,
+    authorTitle: getTitle(),
+    onAuthorTitleChange: setTitle,
+    commentLabel: COMMENT_LABELS[getTitle()],
     isEditing,
     setIsEditing,
     isLoading: isLoadingComments,
@@ -327,7 +395,7 @@ export const PrincipalComment = () => {
   if (isMobile) {
     return (
       <div className="mt-4 w-full">
-        <div className="mb-20 px-4">
+        <div className="px-4">
           {isLoadingLevels && <Skeleton className="bg-bg-input-soft h-8 w-full rounded-3xl" />}
           {!isLoadingLevels && levels.length > 0 && (
             <>
@@ -353,7 +421,7 @@ export const PrincipalComment = () => {
         </div>
 
         {isEditing && (
-          <div className="border-border-default bg-bg-default fixed right-0 bottom-0 w-full border-t">
+          <div className="border-border-default bg-bg-default sticky bottom-0 z-10 w-full border-t">
             <div className="flex items-center justify-between px-4 py-4">
               <Button onClick={handleCancel} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
                 Cancel
@@ -415,7 +483,7 @@ export const PrincipalComment = () => {
       </div>
 
       {isEditing && (
-        <div className="border-border-default bg-bg-default absolute bottom-0 flex w-full justify-between border-t px-4 py-3 md:px-36">
+        <div className="border-border-default bg-bg-default sticky bottom-0 z-10 flex w-full justify-between border-t px-4 py-3 md:px-8">
           <Button onClick={handleCancel} disabled={isPending} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
           </Button>

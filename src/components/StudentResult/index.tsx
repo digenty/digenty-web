@@ -264,7 +264,7 @@ export const StudentResult = ({
           <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{studentReport.classTeacherComment ?? "--"}</span>
         </div>
         <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
-          <span className="text-text-subtle">Principal&apos;s Comment:</span>{" "}
+          <span className="text-text-subtle">{studentReport.principalCommentTitle ?? "Principal's Comment"}:</span>{" "}
           <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{studentReport.principalComment ?? "--"}</span>
         </div>
         <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
