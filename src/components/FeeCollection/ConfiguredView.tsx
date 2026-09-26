@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Modal } from "@/components/Modal";
+import { MobileDrawer } from "@/components/MobileDrawer";
+import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { EditAccountSheet } from "@/components/FeeCollection/FeesCollectionSteppers/EditAccountSheet";
 import { RoutingSheet } from "@/components/FeeCollection/FeesCollectionSteppers/FeesModeOneAccount/OneFeesRouting";
 import { BankAccountInfo, FeeCollectionConfigResponse, FeeCollectionMode } from "@/api/fee-collection";
@@ -57,26 +60,21 @@ export const ConfiguredView = ({ config }: Props) => {
   const { data: branchesData } = useGetBranches();
   const branches: BranchWithClassLevels[] = branchesData?.data ?? [];
 
-  // Real branch ID to use in fee route payloads — never send 0
+
   const firstBranchId = branches[0]?.branch?.id ?? 0;
   const routingBranchId = config.mode === "BRANCH_ACCOUNTS" ? (selectedBranchId ?? firstBranchId) : firstBranchId;
 
-  // Sourced live (not from config.feeRoutes) because that summary doesn't carry the route's id,
-  // which RoutingSheet needs to update an existing route instead of creating a duplicate.
-  const { data: allSchoolRoutes = [] } = useGetFeeRoutes();
+   const { data: allSchoolRoutes = [] } = useGetFeeRoutes();
   const { data: branchRoutes = [] } = useGetFeeRoutesByBranch(routingBranchId);
   const allRoutes: FeeRouteResponseDto[] = config.mode === "BRANCH_ACCOUNTS" ? branchRoutes : allSchoolRoutes;
   const filteredRoutes = allRoutes.filter(r => r.feeClassName.toLowerCase().includes(routeSearch.toLowerCase()));
   const hasFeeStats = (config.totalFees ?? 0) > 0;
-
-  // Branch collection rows: for BRANCH_ACCOUNTS with empty branchAccounts, show defaultAccount
-  const branchAccountsToShow =
+ const branchAccountsToShow =
     config.mode === "BRANCH_ACCOUNTS" && (config.branchAccounts?.length ?? 0) === 0 && config.defaultAccount
       ? [{ branchId: 0, branchName: "All branches", account: config.defaultAccount }]
       : (config.branchAccounts ?? []);
 
-  // Fee routing tabs: prefer config.branchAccounts; fall back to fetched branches
-  const routingBranchTabs =
+      const routingBranchTabs =
     config.mode === "BRANCH_ACCOUNTS"
       ? (config.branchAccounts?.length ?? 0) > 0
         ? config.branchAccounts!.map(b => ({ id: b.branchId, name: b.branchName }))
@@ -289,6 +287,7 @@ const FeeRouteRow = ({ route, branchId }: { route: FeeRouteResponseDto; branchId
 };
 
 const ChangeModeModal = ({ open, setOpen, currentMode }: { open: boolean; setOpen: (b: boolean) => void; currentMode: FeeCollectionMode }) => {
+  const isMobile = useIsMobile();
   const [mode, setMode] = useState<FeeCollectionMode>(currentMode);
   const { mutate: updateMode, isPending } = useUpdateFeeCollectionMode();
 
@@ -311,6 +310,45 @@ const ChangeModeModal = ({ open, setOpen, currentMode }: { open: boolean; setOpe
     );
   };
 
+  const modeSelect = (
+    <div className="flex flex-col gap-3 p-6">
+      <Label className="text-text-default text-sm font-medium">Mode</Label>
+      <Select value={mode} onValueChange={v => setMode(v as FeeCollectionMode)}>
+        <SelectTrigger className="bg-bg-input-soft! text-text-default w-full rounded-md border-none">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent className="bg-bg-card text-text-default border-none!">
+          <SelectGroup>
+            <SelectItem value="SINGLE_ACCOUNT">Single account for all branches</SelectItem>
+            <SelectItem value="BRANCH_ACCOUNTS">Different account per branch</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <MobileDrawer open={open} setIsOpen={setOpen} title="Change Mode">
+        {modeSelect}
+        <DrawerFooter className="border-border-default border-t">
+          <div className="flex items-center justify-between">
+            <DrawerClose asChild>
+              <Button className="bg-bg-state-soft text-text-subtle h-7! rounded-md! px-4 text-sm font-medium">Cancel</Button>
+            </DrawerClose>
+            <Button
+              onClick={handleSave}
+              disabled={isPending}
+              className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7! items-center gap-1 rounded-md px-3"
+            >
+              {isPending ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        </DrawerFooter>
+      </MobileDrawer>
+    );
+  }
+
   return (
     <Modal
       open={open}
@@ -326,20 +364,7 @@ const ChangeModeModal = ({ open, setOpen, currentMode }: { open: boolean; setOpe
         </Button>
       }
     >
-      <div className="flex flex-col gap-3 p-6">
-        <Label className="text-text-default text-sm font-medium">Mode</Label>
-        <Select value={mode} onValueChange={v => setMode(v as FeeCollectionMode)}>
-          <SelectTrigger className="bg-bg-input-soft! text-text-default w-full rounded-md border-none">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-bg-card text-text-default border-none!">
-            <SelectGroup>
-              <SelectItem value="SINGLE_ACCOUNT">Single account for all branches</SelectItem>
-              <SelectItem value="BRANCH_ACCOUNTS">Different account per branch</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
+      {modeSelect}
     </Modal>
   );
 };
