@@ -16,7 +16,8 @@ export const PaymentVerify = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const invoiceId = Number(searchParams.get("invoiceId")) || undefined;
+  const rawInvoiceId = searchParams.get("invoiceId");
+  const invoiceId = rawInvoiceId !== null && rawInvoiceId !== "" ? Number(rawInvoiceId) : undefined;
   const hasSettled = useRef(false);
   const [timedOut, setTimedOut] = useState(false);
 

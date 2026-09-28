@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, SearchIcon } from "@digenty/icons";
+import { ArrowLeftS, SearchIcon } from "@digenty/icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -69,7 +69,7 @@ export const NewReportPicker = () => {
           onClick={() => router.push("/staff/daily-diary")}
           className="border-border-default text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md border"
         >
-          <ArrowLeft fill="var(--color-icon-default)" className="size-4" />
+          <ArrowLeftS fill="var(--color-icon-default)" className="size-4" />
           Back
         </Button>
         <h1 className="text-text-default truncate text-lg leading-7 font-semibold">New daily report</h1>

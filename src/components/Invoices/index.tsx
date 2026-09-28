@@ -73,7 +73,6 @@ export const Invoices = () => {
     setPage(1);
   }, [statusFilter]);
 
-  // Fetch all invoices at once so search and status can filter client-side
   const {
     data,
     isFetching: loadingInvoices,
@@ -84,8 +83,10 @@ export const Invoices = () => {
     branchId: effectiveBranchId,
     classId: filter.classSelected?.id,
     termId: filter.termSelected?.termId,
-    page: 0,
-    size: 1000,
+    page: page - 1,
+    size: pageSize,
+    search: debouncedSearch || undefined,
+    status: statusFilter || undefined,
   });
 
   const invoicesErrorMessage = (invoicesErrorObj as { message?: string } | null)?.message ?? "We couldn't load your invoices. Please try again.";
@@ -98,18 +99,8 @@ export const Invoices = () => {
   }, [invoicesError]);
 
   const invoiceData = (data as { data: InvoicesResponse } | undefined)?.data;
-  const allInvoices = invoiceData?.invoices ?? [];
-
-  const filteredInvoices = useMemo(() => {
-    const q = debouncedSearch.toLowerCase();
-    return allInvoices.filter(inv => {
-      const matchesSearch = !q || inv.studentName.toLowerCase().includes(q) || (inv.invoiceId ?? "").toLowerCase().includes(q);
-      const matchesStatus = !statusFilter || inv.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [allInvoices, debouncedSearch, statusFilter]);
-
-  const paginatedInvoices = filteredInvoices.slice((page - 1) * pageSize, page * pageSize);
+  const invoices = invoiceData?.invoices ?? [];
+  const totalCount = invoiceData?.totalElements ?? invoices.length;
 
   return (
     <div>
@@ -184,12 +175,12 @@ export const Invoices = () => {
 
           {!invoicesError && !loadingInvoices && (
             <InvoiceOverviewTable
-              invoices={paginatedInvoices}
+              invoices={invoices}
               loading={loadingInvoices}
               page={page}
               setPage={setPage}
               pageSize={pageSize}
-              totalCount={filteredInvoices.length}
+              totalCount={totalCount}
             />
           )}
         </div>

@@ -54,7 +54,7 @@ export const Overview = () => {
               {isLoading ? (
                 <Skeleton className="bg-bg-input-soft h-7 w-32 rounded-md" />
               ) : (
-                <div className="text-text-default text-lg font-semibold">₦{(overview?.outstandingBalance ?? 0).toLocaleString()}</div>
+                <div className="text-text-default text-lg font-semibold">₦{Math.max(0, overview?.outstandingBalance ?? 0).toLocaleString()}</div>
               )}
               <Button
                 onClick={() => router.push("/parents/parent-fees")}
