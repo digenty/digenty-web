@@ -118,7 +118,7 @@ export const WeeklyClassCard = ({ item }: { item: WeeklyClassDiarySummary }) => 
         // variant={item.weeklyStatus ? "outline" : "default"}
         className={
           item.weeklyStatus
-            ? "border-border-default text-text-default bg-bg-card w-full rounded-md border"
+            ? "border-border-default! text-text-default bg-bg-card w-full rounded-md border! outline-0!"
             : "bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default w-full rounded-md"
         }
       >

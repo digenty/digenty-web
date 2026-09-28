@@ -253,6 +253,8 @@ export interface FeeItemDetailResponse {
   feeItemId: number;
   feeName: string;
   active: boolean;
+  published?: boolean;
+  publishedAt?: string;
   termId: number;
   term: FeeTermType;
   termLabel: string;

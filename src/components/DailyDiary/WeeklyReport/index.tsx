@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "@digenty/icons";
+import { ArrowLeftS } from "@digenty/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -148,11 +148,10 @@ export const WeeklyReport = ({ armId, weekStart }: { armId: number; weekStart?: 
       <div className="border-border-default bg-bg-default sticky top-0 z-10 flex flex-col gap-3 border-b px-4 py-3 md:flex-row md:items-center md:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Button
-            variant="outline"
             onClick={() => router.push("/staff/daily-diary")}
-            className="border-border-darker text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md"
+            className="border-border-default text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md border"
           >
-            <ArrowLeft fill="var(--color-icon-default)" className="size-4" />
+            <ArrowLeftS fill="var(--color-icon-default)" className="size-4" />
             Back
           </Button>
           <h1 className="text-text-default truncate text-lg leading-7 font-semibold">Weekly report · {report.armName}</h1>
@@ -162,22 +161,16 @@ export const WeeklyReport = ({ armId, weekStart }: { armId: number; weekStart?: 
         <div className="flex-1" />
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
+          {/* <Button
             onClick={() => router.push(`/staff/daily-diary/${armId}/weekly/preview?weekStart=${week}`)}
-            className="border-border-darker text-text-default bg-bg-card h-8 rounded-md"
+            className="border-border-default text-text-default bg-bg-card h-8 rounded-md border"
           >
             Preview as parent
-          </Button>
+          </Button> */}
 
           {isEditable && (
             <PermissionCheck permissionUtility={canManageDailyDiary}>
-              <Button
-                variant="outline"
-                onClick={handleSave}
-                disabled={busy}
-                className="border-border-darker text-text-default bg-bg-card h-8 rounded-md"
-              >
+              <Button onClick={handleSave} disabled={busy} className="border-border-default text-text-default bg-bg-card h-8 rounded-md border">
                 {saving ? "Saving…" : "Save draft"}
               </Button>
               <Button

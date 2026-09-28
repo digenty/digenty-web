@@ -95,7 +95,7 @@ export const ParentFees = () => {
       </div>
 
       {activeTab === "Fees Breakdown" && <FeesBreakdown termId={termSelected?.id} />}
-      {activeTab === "Payment History" && <PaymentHistory />}
+      {activeTab === "Payment History" && <PaymentHistory termId={termSelected?.id} />}
     </div>
   );
 };

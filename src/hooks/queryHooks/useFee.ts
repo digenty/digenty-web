@@ -106,7 +106,8 @@ export const usePublishFee = () => {
     mutationFn: (id: number) => publishFee(id),
     onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: feeKeys.fees });
-      queryClient.invalidateQueries({ queryKey: feeKeys.feeById(id) });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeItemById(id) });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeItems() });
     },
   });
 };

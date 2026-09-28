@@ -1,9 +1,10 @@
 "use client";
 
-import { ArrowLeft } from "@digenty/icons";
+import { ArrowLeftS } from "@digenty/icons";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
 import { DiaryCard, DiaryCardHeader, DotBadge, formatDateTime, formatShortDate, getDiaryErrorMessage } from "@/components/DailyDiary/shared";
 import { LearningAreasTable } from "@/components/DailyDiary/WeeklyReport/LearningAreasTable";
@@ -93,11 +94,10 @@ export const ParentWeeklyReport = ({ weeklyReportId }: { weeklyReportId: number 
     <div className="flex w-full flex-col gap-5 p-4 md:p-8">
       <div className="flex items-center gap-3">
         <Button
-          variant="outline"
           onClick={() => router.push("/parents/daily-diary")}
-          className="border-border-darker text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-full"
+          className="border-border-default text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-full border"
         >
-          <ArrowLeft fill="var(--color-icon-default)" className="size-4" />
+          <ArrowLeftS fill="var(--color-icon-default)" className="size-4" />
           Back to diary
         </Button>
         <h1 className="text-text-default truncate text-lg font-semibold">
@@ -220,22 +220,17 @@ export const ParentWeeklyReport = ({ weeklyReportId }: { weeklyReportId: number 
                 {commenting ? "Sending…" : "Send comment"}
               </Button>
               <Button
-                variant="outline"
                 onClick={() => {
                   setAddingComment(false);
                   setComment("");
                 }}
-                className="border-border-darker text-text-default bg-bg-card rounded-full px-3.5"
+                className="border-border-default text-text-default bg-bg-card rounded-full border px-3.5"
               >
                 Cancel
               </Button>
             </>
           ) : (
-            <Button
-              variant="outline"
-              onClick={() => setAddingComment(true)}
-              className="border-border-darker text-text-default bg-bg-card rounded-full px-3.5"
-            >
+            <Button onClick={() => setAddingComment(true)} className={cn("text-text-default bg-bg-card rounded-full px-3.5")}>
               {report.comment ? "Add another comment" : "Add a comment"}
             </Button>
           )}

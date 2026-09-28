@@ -45,15 +45,12 @@ export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, urlInvoiceId, loadin
   const handleDownloadPdf = () => {
     if (!urlInvoiceId) return;
     downloadPdf(urlInvoiceId, {
-      onSuccess: blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${invoiceNumber ?? "invoice"}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+      onSuccess: url => {
+        if (!url) {
+          toast({ title: "Failed to generate PDF", description: "Please try again in a moment.", type: "error" });
+          return;
+        }
+        window.open(url, "_blank", "noopener,noreferrer");
       },
       onError: (error: unknown) => {
         const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;

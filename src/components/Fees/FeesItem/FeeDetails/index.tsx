@@ -8,9 +8,9 @@ import { useGetFeeItemById, useDeleteFeeItem, usePublishFee } from "@/hooks/quer
 import { BackLink } from "@/components/BackLink";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Copy, Building2 } from "lucide-react";
+import { Copy, Building2, Check } from "lucide-react";
 import type { FeeItemDetailResponse } from "@/api/fee";
 import { useDuplicateFeeItem } from "@/hooks/queryHooks/useFee";
 import { EmptyFeeState } from "../../EmptyFeeState";
@@ -36,6 +36,8 @@ export const FeeItemDetail = () => {
   }, [isError]);
 
   const { mutate: publishFee, isPending: publishing } = usePublishFee();
+  const [justPublished, setJustPublished] = useState(false);
+  const isPublished = item?.published === true || justPublished;
 
   const handlePublish = () => {
     if (!item?.feeItemId) return;
@@ -48,6 +50,7 @@ export const FeeItemDetail = () => {
             description: data.armsSkipped?.length ? `Skipped: ${data.armsSkipped.join(", ")}` : undefined,
           });
         }
+        setJustPublished(true);
       },
       onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to publish fee"),
     });
@@ -130,11 +133,15 @@ export const FeeItemDetail = () => {
           <div className="flex items-center gap-2">
             <Button
               onClick={handlePublish}
-              disabled={publishing}
-              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8! rounded-md font-medium disabled:opacity-40"
+              disabled={publishing || isPublished}
+              className={
+                isPublished
+                  ? "bg-bg-basic-green-accent text-text-white-default h-8! rounded-md font-medium disabled:opacity-100"
+                  : "bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8! rounded-md font-medium disabled:opacity-40"
+              }
             >
-              <SendPlaneFill fill="var(--color-icon-white-default)" />
-              {publishing ? "Publishing..." : "Publish Fee"}
+              {isPublished ? <Check className="size-4" /> : <SendPlaneFill fill="var(--color-icon-white-default)" />}
+              {isPublished ? "Published" : publishing ? "Publishing..." : "Publish Fee"}
             </Button>
             <PermissionCheck permissionUtility={canDeleteFees}>
               <Button

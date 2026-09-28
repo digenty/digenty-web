@@ -156,11 +156,11 @@ export const ParentDiary = () => {
                         </p>
                         <Button
                           onClick={() => openDaily(report.reportId)}
-                          variant={needsSignature ? "default" : "outline"}
+                          // variant={needsSignature ? "default" : "outline"}
                           className={
                             needsSignature
                               ? "bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default shrink-0 rounded-full px-3.5"
-                              : "border-border-darker text-text-default bg-bg-card shrink-0 rounded-full px-3.5"
+                              : "border-border-default text-text-default bg-bg-card shrink-0 rounded-full border px-3.5"
                           }
                         >
                           {needsSignature ? "Open & sign" : "View"}

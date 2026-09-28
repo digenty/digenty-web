@@ -51,13 +51,49 @@ export const exportToPDF = async (elementId: string, filename: string, ignoreCla
     ignoreElements: el => el.classList.contains(ignoreClass),
   });
 
-  const imgData = canvas.toDataURL("image/png");
+  // JPEG instead of PNG: a rendered document canvas at scale 2 produces a multi-megabyte PNG
+  // (some viewers, especially on mobile, fail to open a resulting PDF that large), while JPEG
+  // at high quality is visually lossless for this content and a fraction of the size.
+  const imgData = canvas.toDataURL("image/jpeg", 0.92);
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "px",
     format: [canvas.width / 2, canvas.height / 2],
+    compress: true,
   });
 
-  pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
+  pdf.addImage(imgData, "JPEG", 0, 0, canvas.width / 2, canvas.height / 2);
   pdf.save(filename);
+};
+
+/**
+ * Exports a DOM element to a PNG image and triggers a browser download.
+ * The image is sized to the element's full content, so nothing gets cropped or paginated.
+ *
+ * @param elementId - The ID of the DOM element to capture
+ * @param filename - The name of the file to be saved (e.g., "invoice.png")
+ */
+export const exportToImage = async (elementId: string, filename: string, ignoreClass = "pdf-ignore") => {
+  const element = document.getElementById(elementId);
+  if (!element) {
+    console.error(`Element with id ${elementId} not found`);
+    return;
+  }
+
+  const { default: html2canvas } = await import("html2canvas");
+
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    ignoreElements: el => el.classList.contains(ignoreClass),
+  });
+
+  const link = document.createElement("a");
+  link.download = filename;
+  link.href = canvas.toDataURL("image/png");
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };

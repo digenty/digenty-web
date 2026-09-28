@@ -380,10 +380,11 @@ export const getPaymentById = async (invoiceId: string, paymentId: string) => {
   }
 };
 
-export const downloadInvoicePdf = async (invoiceId: string) => {
+export const downloadInvoicePdf = async (invoiceId: string): Promise<string> => {
   try {
-    const response = await api.post(`/invoices/${invoiceId}/pdf`, {}, { responseType: "blob" });
-    return response.data as Blob;
+    // This endpoint returns JSON with a hosted file URL, not a PDF byte stream.
+    const { data } = await api.post(`/invoices/${invoiceId}/pdf`);
+    return data?.data?.url ?? "";
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "@digenty/icons";
+import { ArrowLeftS } from "@digenty/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -184,7 +184,7 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
             onClick={() => router.push("/staff/daily-diary")}
             className="border-border-default text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md border"
           >
-            <ArrowLeft fill="var(--color-icon-default)" className="size-4" />
+            <ArrowLeftS fill="var(--color-icon-default)" className="size-4" />
             Back
           </Button>
           <h1 className="text-text-default truncate text-lg leading-7 font-semibold">{report.armName}</h1>
