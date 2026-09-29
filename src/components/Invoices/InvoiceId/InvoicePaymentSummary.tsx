@@ -32,6 +32,8 @@ export const InvoicePaymentSummary = ({
     return <Skeleton className="bg-bg-input-soft h-80 w-full lg:w-1/4" />;
   }
 
+  const isFullyPaid = (outstandingBalance ?? 0) <= 0;
+
   return (
     <div className="border-border-default flex w-full flex-col border p-6 lg:w-1/4">
       <div>
@@ -61,10 +63,11 @@ export const InvoicePaymentSummary = ({
         <PermissionCheck permissionUtility={canManageInvoices}>
           <Button
             onClick={() => router.push(`/staff/invoices/add-payment?invoiceId=${invoiceId}`)}
-            className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default mt-6 flex w-full items-center gap-1.5"
+            disabled={isFullyPaid}
+            className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default mt-6 flex w-full items-center gap-1.5 disabled:opacity-50"
           >
             <AddFill fill="var(--color-icon-white-default)" />
-            Add Payment
+            {isFullyPaid ? "Fully Paid" : "Add Payment"}
           </Button>
         </PermissionCheck>
       </div>

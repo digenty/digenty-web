@@ -13,7 +13,7 @@ import { ExpenseCategoryBadge } from "./Columns";
 import { ExpensesHeader } from "./ExpensesHeader";
 import { ExpensesSearchAndFilter } from "./ExpensesSearchAndFilter";
 import { ExpensesTable } from "./ExpensesTable";
-import { ExpenseSummary, extractExpenseRecord, formatNaira } from "./types";
+import { extractExpenseSummary, formatNaira } from "./types";
 import { useExpenseFilters } from "./useExpenseFilters";
 
 export const ExpensesMain = () => {
@@ -27,10 +27,7 @@ export const ExpensesMain = () => {
     termId: filters.termId,
   });
 
-  const summary = useMemo(
-    () => extractExpenseRecord<ExpenseSummary & { id?: number }>(summaryResp) ?? (summaryResp as ExpenseSummary) ?? {},
-    [summaryResp],
-  );
+  const summary = useMemo(() => extractExpenseSummary(summaryResp), [summaryResp]);
 
   const totalAmount = summary?.totalAmount ?? summary?.totalExpenses ?? 0;
   const expenseCount = summary?.expenseCount ?? summary?.totalCount ?? 0;

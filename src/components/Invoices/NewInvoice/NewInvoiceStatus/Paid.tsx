@@ -15,6 +15,10 @@ import { cn } from "@/lib/utils";
 import { FormikProps } from "formik";
 import type { InvoiceFormValues } from "../index";
 import { useState } from "react";
+import { useQueries } from "@tanstack/react-query";
+import { getStudent } from "@/api/student";
+import { studentKeys } from "@/queries/student";
+import { Student } from "@/api/types";
 
 const PAY_METHODS = [
   { label: "Bank Transfer - Terminal", value: "BANK_TRANSFER_TERMINAL", icon: Bank },
@@ -29,6 +33,24 @@ export const Paid = ({ formik }: Props) => {
   const [calendarOpen, setCalendarOpen] = useState(false);
   const { values, errors, touched, setFieldValue, setFieldTouched } = formik;
   const selectedMethod = PAY_METHODS.find(m => m.value === values.paymentMethod) ?? PAY_METHODS[0];
+
+  const studentRecipients = values.billTo.filter(r => r.type === "student");
+  const studentQueries = useQueries({
+    queries: studentRecipients.map(r => ({
+      queryKey: [studentKeys.getStudent, r.id],
+      queryFn: () => getStudent(r.id),
+      enabled: !!r.id,
+    })),
+  });
+  const linkedParents = Array.from(
+    new Map(
+      studentQueries
+        .map(q => (q.data as { data: Student } | undefined)?.data)
+        .filter((student): student is Student => !!student)
+        .flatMap(student => student.linkedParents ?? [])
+        .map(parent => [parent.id, parent] as const),
+    ).values(),
+  );
 
   return (
     <div className="mt-6 flex w-full flex-col gap-6">
@@ -150,26 +172,42 @@ export const Paid = ({ formik }: Props) => {
         </Popover>
       </div>
 
-      {/* Paid By — API not ready yet */}
+      {/* Paid By */}
       <div className="border-border-default w-full border-b pb-6">
-        <Select>
-          <Label className="text-text-default mb-2 text-sm font-medium">
-            Paid By <span className="text-text-destructive">*</span>
-          </Label>
-          <SelectTrigger className="bg-bg-input-soft! hover:bg-bg-input-soft! text-text-default w-full border-none">
+        <Label className="text-text-default mb-2 text-sm font-medium">
+          Paid By <span className="text-text-destructive">*</span>
+        </Label>
+        <Select
+          value={values.paidById ? String(values.paidById) : ""}
+          onValueChange={value => {
+            setFieldValue("paidById", Number(value));
+            setFieldTouched("paidById", true);
+          }}
+        >
+          <SelectTrigger
+            className={cn(
+              "bg-bg-input-soft! hover:bg-bg-input-soft! text-text-default w-full border-none",
+              errors.paidById && touched.paidById && "border-border-destructive border",
+            )}
+          >
             <SelectValue placeholder="Select payer" />
           </SelectTrigger>
           <SelectContent className="bg-bg-card border-border-default text-text-default border">
             <SelectGroup>
-              <SelectItem value="1">
-                <Avatar className="size-4" /> <span>Damilare John</span>
-              </SelectItem>
-              <SelectItem value="2">
-                <Avatar className="size-4" /> <span>Damilare John</span>
-              </SelectItem>
+              {studentRecipients.map(student => (
+                <SelectItem key={`student-${student.id}`} value={String(student.id)}>
+                  <Avatar className="size-4" url={student.avatar ?? undefined} /> <span>{student.name}</span>
+                </SelectItem>
+              ))}
+              {linkedParents.map(parent => (
+                <SelectItem key={`parent-${parent.id}`} value={String(parent.id)}>
+                  <Avatar className="size-4" url={parent.image ?? undefined} /> <span>{parent.fullName}</span>
+                </SelectItem>
+              ))}
             </SelectGroup>
           </SelectContent>
         </Select>
+        {touched.paidById && errors.paidById && <p className="text-text-destructive text-xs font-light">{errors.paidById as string}</p>}
       </div>
 
       <NoteEditor value={values.note} onChange={v => setFieldValue("note", v)} />

@@ -16,6 +16,11 @@ export const newInvoiceSchema = yup.object({
     then: s => s.required("Amount is required").test("gt0", "Amount must be greater than 0", v => Number(v) > 0),
     otherwise: s => s,
   }),
+  paidById: yup.number().when("paymentStatus", {
+    is: (v: string) => v !== "UNPAID",
+    then: s => s.min(1, "Please select who paid").required("Please select who paid"),
+    otherwise: s => s,
+  }),
 });
 
 export const editInvoiceSchema = yup.object({

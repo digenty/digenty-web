@@ -62,6 +62,7 @@ export interface PayFeeRequest {
 }
 
 export interface InvoiceLineItem {
+  studentFeeItemId: number;
   name: string;
   amount: number;
   amountPaid: number;
@@ -125,10 +126,16 @@ export const getPayFeesData = async (studentId: number, termId?: number): Promis
   }
 };
 
-export const recordPayment = async (studentId: number, payload: PayFeeRequest) => {
+export interface RecordPaymentResponse {
+  message: string;
+  paymentId: number;
+  status: "PENDING_REVIEW";
+}
+
+export const recordPayment = async (studentId: number, payload: PayFeeRequest): Promise<RecordPaymentResponse> => {
   try {
     const { data } = await api.post(`/parent/portal/fees/${studentId}/pay`, payload);
-    return data;
+    return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
@@ -148,7 +155,7 @@ export const getInvoice = async (studentId: number, termId?: number): Promise<In
   }
 };
 
-export type PaymentHistoryMethod = "ONLINE" | "BANK_TRANSFER" | "CASH" | "POS" | "CHEQUE";
+export type PaymentHistoryMethod = "ONLINE" | "BANK_TRANSFER" | "BANK_TRANSFER_TERMINAL" | "CASH" | "POS" | "CHEQUE";
 export type PaymentHistoryStatus = "SUCCESSFUL" | "PENDING_REVIEW" | "APPROVED" | "REJECTED" | "FAILED";
 
 export interface PaymentHistoryFeeItem {

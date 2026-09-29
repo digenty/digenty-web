@@ -246,8 +246,12 @@ export const PayInvoice = () => {
         paymentProofUrl: proofOfPaymentUrl,
       },
       {
-        onSuccess: () => {
-          toast.success("Payment recorded successfully");
+        onSuccess: data => {
+          // Payments made this way are reviewed by staff before they're credited — the
+          // balance won't move yet, so don't imply it's been settled.
+          toast.success(data.message || "Payment submitted for review", {
+            description: "The school will confirm your payment before it's reflected in your balance.",
+          });
           setCheckedRequired(new Set());
           setCheckedOptional(new Set());
           setAmounts({});

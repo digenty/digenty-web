@@ -66,6 +66,15 @@ export const extractExpenseRecord = <T extends { id?: number }>(resp: unknown): 
   return null;
 };
 
+// The summary aggregate has no `id` field, so it can't use the `extractExpenseRecord` heuristic
+// above (which needs one to tell a wrapped record from the envelope itself) — presence of `data`
+// as an object is enough here since only one shape actually has that key.
+export const extractExpenseSummary = (resp: unknown): ExpenseSummary => {
+  if (!resp || typeof resp !== "object") return {};
+  const r = resp as { data?: ExpenseSummary } & ExpenseSummary;
+  return r.data && typeof r.data === "object" ? r.data : r;
+};
+
 export const expenseTitleOf = (expense?: ExpenseListItem | null) => expense?.title ?? expense?.name ?? "";
 
 export const expenseCategoryNameOf = (expense?: ExpenseListItem | null) => expense?.categoryName ?? expense?.category?.name ?? "";
