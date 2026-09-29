@@ -12,7 +12,7 @@ import { useGetFeeOverview, useGetInvoice, useGetPayFeesData } from "@/hooks/que
 import { useInitiatePayment } from "@/hooks/queryHooks/usePayment";
 import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 import { useStudentFilterStore } from "@/store/parent";
-import { InvoiceLineItem, InvoiceStatus, PendingFeeItem } from "@/api/parent-fees";
+import { InvoiceStatus, PendingFeeItem } from "@/api/parent-fees";
 import { InstallmentSchedule } from "@/components/ParentPortalComponents/ParentFees/InstallmentSchedule";
 import { exportToImage } from "@/lib/export-utils";
 import { AlertFill, Bank, BankCard, CheckboxCircleFill, Download2, FileCopy } from "@digenty/icons";
@@ -20,17 +20,8 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-// The invoice doesn't carry a studentFeeItemId, so we pair its line items with the pay-data
-// records by name; when a name repeats, match items in order instead of always the first one.
-const matchPendingFeesByName = (invoiceItems: InvoiceLineItem[], pendingItems: PendingFeeItem[]): (PendingFeeItem | undefined)[] => {
-  const byName = new Map<string, PendingFeeItem[]>();
-  for (const item of pendingItems) {
-    const bucket = byName.get(item.name);
-    if (bucket) bucket.push(item);
-    else byName.set(item.name, [item]);
-  }
-  return invoiceItems.map(fee => byName.get(fee.name)?.shift());
-};
+const byFeeItemId = (pendingItems: PendingFeeItem[]): Map<number, PendingFeeItem> =>
+  new Map(pendingItems.map(item => [item.studentFeeItemId, item]));
 
 const invoiceStatusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
   PAID: { label: "Paid", className: "bg-bg-badge-green text-bg-basic-green-strong" },
@@ -173,8 +164,8 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   const totalFees = (overview?.totalPaid ?? 0) + outstandingAmount;
   const status = invoice ? invoiceStatusConfig[invoice.status] : null;
   const isPaid = invoice?.status === "PAID";
-  const matchedRequiredFees = matchPendingFeesByName(invoice?.requiredFees ?? [], payFeesData?.requiredFees ?? []);
-  const matchedOptionalFees = matchPendingFeesByName(invoice?.optionalFees ?? [], payFeesData?.optionalFees ?? []);
+  const pendingRequiredById = byFeeItemId(payFeesData?.requiredFees ?? []);
+  const pendingOptionalById = byFeeItemId(payFeesData?.optionalFees ?? []);
 
   return (
     <div className="flex flex-col gap-5 md:gap-10">
@@ -261,11 +252,14 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
               </div>
 
               <div className="flex flex-col gap-2">
-                {invoice.requiredFees.map((fee, index) => {
+                {invoice.requiredFees.map(fee => {
                   const progressPercentage = fee.amount ? Math.min((fee.amountPaid / fee.amount) * 100, 100) : 0;
-                  const pendingFee = matchedRequiredFees[index];
+                  const pendingFee = pendingRequiredById.get(fee.studentFeeItemId);
                   return (
-                    <div key={`${fee.name}-${index}`} className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4">
+                    <div
+                      key={fee.studentFeeItemId}
+                      className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4"
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {!isPaid && pendingFee && pendingFee.balance > 0 && (
@@ -314,11 +308,11 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                 {invoice.optionalFees.map((fee, index) => {
                   const progressPercentage = fee.amount ? Math.min((fee.amountPaid / fee.amount) * 100, 100) : 0;
                   const isOpen = openIndex === index;
-                  const pendingFee = matchedOptionalFees[index];
+                  const pendingFee = pendingOptionalById.get(fee.studentFeeItemId);
 
                   return (
                     <div
-                      key={`${fee.name}-${index}`}
+                      key={fee.studentFeeItemId}
                       className="border-border-default flex w-full cursor-pointer flex-col gap-3 rounded-sm border p-4"
                       onClick={() => setOpenIndex(isOpen ? null : index)}
                     >

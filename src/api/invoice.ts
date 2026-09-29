@@ -108,6 +108,10 @@ export type PaymentHistoryEntry = {
   status: "SUCCESSFUL" | "PENDING" | "FAILED";
   addedBy?: string;
   note?: string;
+  proofUrl?: string | null;
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  reviewNote?: string | null;
 };
 
 export type PaymentHistoryResponse = {
@@ -438,6 +442,87 @@ export const updateInvoiceSettings = async (invoiceId: number, payload: UpdateIn
   try {
     const { data } = await api.put(`/invoice-settings/${invoiceId}`, payload);
     return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export type PendingPaymentFeeItem = {
+  studentFeeItemId: number;
+  name: string;
+  amount: number;
+};
+
+export type PendingPaymentEntry = {
+  paymentId: number;
+  invoiceId: number;
+  invoiceNumber: string;
+  studentId: number;
+  studentName: string;
+  studentAvatar: string | null;
+  branchId: number;
+  termId: number;
+  date: string;
+  submittedAt: string;
+  amount: number;
+  method: PaymentMethod;
+  paidBy: { id: number; name: string; avatar: string | null };
+  proofUrl: string;
+  note: string | null;
+  feeItems: PendingPaymentFeeItem[];
+};
+
+export type PendingPaymentsResponse = {
+  content: PendingPaymentEntry[];
+  totalElements: number;
+  totalAmount: number;
+  page: number;
+  size: number;
+};
+
+export type PendingPaymentsParams = {
+  branchId?: number;
+  termId?: number;
+  search?: string;
+  page?: number;
+  size?: number;
+};
+
+export const getPendingPayments = async ({
+  branchId,
+  termId,
+  search,
+  page = 0,
+  size = 10,
+}: PendingPaymentsParams = {}): Promise<PendingPaymentsResponse> => {
+  try {
+    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    if (branchId) params.append("branchId", String(branchId));
+    if (termId) params.append("termId", String(termId));
+    if (search) params.append("search", search);
+    const { data } = await api.get(`/invoices/payments/pending?${params.toString()}`);
+    return data?.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const approvePendingPayment = async (invoiceId: number, paymentId: number, note?: string) => {
+  try {
+    const { data } = await api.post(`/invoices/${invoiceId}/payments/${paymentId}/approve`, note ? { note } : {});
+    return data?.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const rejectPendingPayment = async (invoiceId: number, paymentId: number, note: string) => {
+  try {
+    const { data } = await api.post(`/invoices/${invoiceId}/payments/${paymentId}/reject`, { note });
+    return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

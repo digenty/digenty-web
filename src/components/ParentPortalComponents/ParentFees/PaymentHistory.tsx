@@ -23,6 +23,7 @@ const statusConfig: Record<PaymentHistoryStatus, { label: string; className: str
 const methodLabels: Record<PaymentHistoryMethod, string> = {
   ONLINE: "Online Payment",
   BANK_TRANSFER: "Bank Transfer",
+  BANK_TRANSFER_TERMINAL: "Bank Transfer (Terminal)",
   CASH: "Cash",
   POS: "POS",
   CHEQUE: "Cheque",

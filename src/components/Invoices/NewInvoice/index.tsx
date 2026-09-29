@@ -30,6 +30,7 @@ export type InvoiceFormValues = {
   paymentMethod: string;
   amount: string;
   transactionDate: Date | null;
+  paidById: number;
 };
 
 const buildPayload = (values: InvoiceFormValues) => ({
@@ -49,7 +50,7 @@ const buildPayload = (values: InvoiceFormValues) => ({
     payment: {
       method: values.paymentMethod,
       terminalTransactionId: null,
-      paidById: 0,
+      paidById: values.paidById,
       amount: Number(values.amount),
       transactionDate: values.transactionDate?.toISOString() ?? new Date().toISOString(),
     },
@@ -79,6 +80,7 @@ export const NewInvoice = () => {
       paymentMethod: "BANK_TRANSFER_TERMINAL",
       amount: "",
       transactionDate: null,
+      paidById: 0,
     },
     validationSchema: newInvoiceSchema,
     onSubmit: values => {

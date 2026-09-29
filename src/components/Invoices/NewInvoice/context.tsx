@@ -16,4 +16,5 @@ export type InvoiceFormValues = {
   paymentMethod: string;
   amount: string;
   transactionDate: Date | null;
+  paidById: number;
 };

@@ -15,7 +15,7 @@ import { canViewExpenses } from "@/lib/permissions/expenses";
 import { ExpensesHeader } from "../ExpensesHeader";
 import { ExpensesSearchAndFilter } from "../ExpensesSearchAndFilter";
 import { ExpensesTable } from "../ExpensesTable";
-import { ExpenseCategoryItem, ExpenseSummary, extractExpenseRecord, formatNaira } from "../types";
+import { ExpenseCategoryItem, extractExpenseRecord, extractExpenseSummary, formatNaira } from "../types";
 import { useExpenseFilters } from "../useExpenseFilters";
 
 export const CategoryExpenses = () => {
@@ -32,10 +32,7 @@ export const CategoryExpenses = () => {
     termId: filters.termId,
     categoryId: categoryId || undefined,
   });
-  const summary = useMemo(
-    () => extractExpenseRecord<ExpenseSummary & { id?: number }>(summaryResp) ?? (summaryResp as ExpenseSummary) ?? {},
-    [summaryResp],
-  );
+  const summary = useMemo(() => extractExpenseSummary(summaryResp), [summaryResp]);
 
   const categoryName = category?.name ?? "Category";
   const expenseCount = summary?.expenseCount ?? summary?.totalCount ?? category?.expenseCount ?? category?.totalExpenses ?? 0;
