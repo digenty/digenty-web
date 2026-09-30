@@ -77,24 +77,19 @@ export const AcademicRecord = () => {
       </div>
 
       {!selectedStudentId && (
-        <PageEmptyState title="No Student Selected" description="Select a student above to view their academic record" buttonText="Refresh" url="" />
+        <PageEmptyState title="No Student Selected" description="Select a student above to view their academic record" />
       )}
 
       {selectedStudentId && loadingStudentReport && <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />}
 
       {selectedStudentId && isErrorStudentReport && (
         <div className="flex h-screen items-center justify-center">
-          <ErrorComponent title="Could not get Student's report" description={studentReportErrorMessage} buttonText="Go to the Home page" />
+          <ErrorComponent title="Could not get Student's report" description={studentReportErrorMessage} />
         </div>
       )}
 
       {selectedStudentId && !loadingStudentReport && !isErrorStudentReport && !studentReportData && (
-        <PageEmptyState
-          title="Could not get Student's report"
-          description="No report available for student"
-          buttonText="Contact School Admin"
-          url=""
-        />
+        <PageEmptyState title="Could not get Student's report" description="No report available for student" />
       )}
 
       {selectedStudentId && !loadingStudentReport && !isErrorStudentReport && studentReportData && (
