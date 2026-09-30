@@ -36,7 +36,7 @@ export const Overview = () => {
       </div>
 
       {!selectedStudentId ? (
-        <PageEmptyState title="No Student Selected" description="Select a student above to view their overview" buttonText="Refresh" url="" />
+        <PageEmptyState title="No Student Selected" description="Select a student above to view their overview" />
       ) : isError ? (
         <div className="flex items-center justify-center p-10">
           <ErrorComponent title="Could not load student overview" description={errorMessage} />

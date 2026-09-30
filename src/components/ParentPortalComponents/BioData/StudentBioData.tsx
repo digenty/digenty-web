@@ -160,7 +160,7 @@ export const StudentBioData = ({ selectedStudentId }: StudentBioDataProps) => {
 
       {!isLoading && isError && (
         <div className="flex h-screen items-center justify-center">
-          <ErrorComponent title="Could not get Student's details" description={errorMessage} buttonText="Go to the Home page" />
+          <ErrorComponent title="Could not get Student's details" description={errorMessage} />
         </div>
       )}
 

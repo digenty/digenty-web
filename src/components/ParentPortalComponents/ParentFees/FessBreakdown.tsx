@@ -118,7 +118,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   };
 
   if (!selectedStudentId) {
-    return <PageEmptyState title="No Student Selected" description="Select a student above to view their fees breakdown" buttonText="Refresh" />;
+    return <PageEmptyState title="No Student Selected" description="Select a student above to view their fees breakdown" />;
   }
 
   if (loadingOverview || loadingInvoice) {
@@ -148,12 +148,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
 
   if (!overview && !invoice) {
     return (
-      <PageEmptyState
-        title="No Fees Found"
-        description="There are no fees set up for this student yet"
-        buttonText="Contact School Admin"
-        url="/parents/parent-dashboard"
-      />
+      <PageEmptyState title="No Fees Found" description="There are no fees set up for this student yet" />
     );
   }
 
