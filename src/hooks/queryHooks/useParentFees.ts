@@ -1,6 +1,6 @@
-import { getFeeOverview, getInvoice, getPayFeesData, PayFeeRequest, recordPayment } from "@/api/parent-fees";
+import { getFeeOverview, getInvoice, getParentPaymentHistory, getPayFeesData, PayFeeRequest, recordPayment } from "@/api/parent-fees";
 import { parentFeesKeys } from "@/queries/parent-fees";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetFeeOverview = (studentId?: number, termId?: number) => {
   return useQuery({
@@ -29,6 +29,16 @@ export const useGetInvoice = (studentId?: number, termId?: number) => {
   });
 };
 
+export const useGetParentPaymentHistory = (studentId?: number, termId?: number, page = 0, size = 10) => {
+  return useQuery({
+    queryKey: parentFeesKeys.paymentHistory(studentId, termId, page, size),
+    queryFn: () => getParentPaymentHistory(studentId!, termId, page, size),
+    enabled: !!studentId,
+    retry: false,
+    placeholderData: keepPreviousData,
+  });
+};
+
 export const useRecordPayment = (studentId?: number) => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -37,6 +47,7 @@ export const useRecordPayment = (studentId?: number) => {
       queryClient.invalidateQueries({ queryKey: ["parentFeeOverview", studentId] });
       queryClient.invalidateQueries({ queryKey: ["parentPayFees", studentId] });
       queryClient.invalidateQueries({ queryKey: ["parentFeeInvoice", studentId] });
+      queryClient.invalidateQueries({ queryKey: ["parentPaymentHistory", studentId] });
     },
   });
 };

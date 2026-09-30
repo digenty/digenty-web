@@ -43,6 +43,7 @@ export const EditInvoice = () => {
       paymentMethod: "BANK_TRANSFER_TERMINAL",
       amount: "",
       transactionDate: null,
+      paidById: 0,
     },
     validationSchema: editInvoiceSchema,
     onSubmit: values => {
@@ -105,6 +106,7 @@ export const EditInvoice = () => {
       paymentMethod: "BANK_TRANSFER_TERMINAL",
       amount: "",
       transactionDate: null,
+      paidById: 0,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inv]);

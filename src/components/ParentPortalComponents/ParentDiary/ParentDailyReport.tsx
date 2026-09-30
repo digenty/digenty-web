@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, CheckboxCircleFill } from "@digenty/icons";
+import { ArrowLeftS, CheckboxCircleFill } from "@digenty/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -119,7 +119,7 @@ export const ParentDailyReport = ({ reportId }: { reportId: number }) => {
           onClick={() => router.push("/parents/daily-diary")}
           className="border-border-darker text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-full"
         >
-          <ArrowLeft fill="var(--color-icon-default)" className="size-4" />
+          <ArrowLeftS fill="var(--color-icon-default)" className="size-4" />
           Back to diary
         </Button>
         <h1 className="text-text-default truncate text-lg font-semibold">{formatDayAndMonth(report.date)}</h1>

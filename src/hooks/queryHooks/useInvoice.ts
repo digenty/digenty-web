@@ -1,6 +1,7 @@
 import {
   addPayment,
   AddPaymentPayload,
+  approvePendingPayment,
   createInvoice,
   createInvoiceDraft,
   CreateInvoicePayload,
@@ -16,6 +17,9 @@ import {
   getNextInvoiceNumber,
   getPaymentById,
   getPaymentHistory,
+  getPendingPayments,
+  PendingPaymentsParams,
+  rejectPendingPayment,
   sendInvoiceReminder,
   updateInvoice,
   UpdateInvoicePayload,
@@ -210,6 +214,42 @@ export const useUpdatePayment = (invoiceId?: string, paymentId?: string) => {
 //     },
 //   });
 // };
+
+export const useGetPendingPayments = (params: PendingPaymentsParams) => {
+  const { branchId, termId, search, page = 0, size = 10 } = params;
+  return useQuery({
+    queryKey: invoiceKeys.pendingPayments(branchId, termId, search, page, size),
+    queryFn: () => getPendingPayments({ branchId, termId, search, page, size }),
+    placeholderData: keepPreviousData,
+    retry: false,
+  });
+};
+
+export const useApprovePendingPayment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ invoiceId, paymentId, note }: { invoiceId: number; paymentId: number; note?: string }) =>
+      approvePendingPayment(invoiceId, paymentId, note),
+    onSuccess: (_data, { invoiceId }) => {
+      queryClient.invalidateQueries({ queryKey: ["invoices", "payments", "pending"] });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(String(invoiceId)) });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.paymentHistory(String(invoiceId)) });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
+    },
+  });
+};
+
+export const useRejectPendingPayment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ invoiceId, paymentId, note }: { invoiceId: number; paymentId: number; note: string }) =>
+      rejectPendingPayment(invoiceId, paymentId, note),
+    onSuccess: (_data, { invoiceId }) => {
+      queryClient.invalidateQueries({ queryKey: ["invoices", "payments", "pending"] });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.paymentHistory(String(invoiceId)) });
+    },
+  });
+};
 
 export const useUpdateInvoiceSettings = () => {
   const queryClient = useQueryClient();

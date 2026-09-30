@@ -59,6 +59,8 @@ import { canViewCBT } from "@/lib/permissions/cbt";
 import { getSessionToken } from "@/app/actions/auth";
 import { canViewAdmissionManagement } from "@/lib/permissions/admission-management";
 import { canViewDashboard } from "@/lib/permissions/dashboard";
+import { useGetCurrentSubscription } from "@/hooks/queryHooks/useSubscription";
+import { toast } from "@/components/Toast";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -274,6 +276,9 @@ export const Sidebar = () => {
   const [showLogo, setShowLogo] = useState(true);
   const { setIsSidebarOpen, isSidebarOpen, activeNav, setActiveNav } = useSidebarStore();
   const queryClient = useQueryClient();
+  const { data: currentSubscription } = useGetCurrentSubscription();
+  const planName = currentSubscription?.data?.planName?.toLowerCase() ?? "";
+  const isCbtAllowedPlan = planName.includes("advanced") || planName.includes("standard");
 
   useEffect(() => {
     const segments = pathname.split("/");
@@ -296,6 +301,10 @@ export const Sidebar = () => {
 
   const handleCBTClick = async (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!isCbtAllowedPlan) {
+      toast({ title: "Your current subscription plan does not include CBT", type: "error" });
+      return;
+    }
     // Open the tab synchronously (within the click gesture) so mobile browsers don't block it as a popup;
     // fill in the real URL once the token is fetched.
     const cbtWindow = window.open("", "_blank");

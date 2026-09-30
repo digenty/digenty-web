@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { AlertTriangle, CheckCircle2, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
@@ -28,6 +29,26 @@ const SCHOOL_PROFILE_FIELD_LABELS: Record<string, string> = {
   "school.phoneNumber": "school phone number",
   "school.name": "school name",
   "school.email": "school email",
+  "school.country": "school country",
+  "admin.firstName": "admin first name",
+  "admin.lastName": "admin last name",
+};
+
+// Registrant fields collected on this form; everything else in `details` lives on the school profile.
+type RegistrantField = "city" | "state" | "postcode";
+const REGISTRANT_FIELDS: RegistrantField[] = ["city", "state", "postcode"];
+const MAX_LENGTHS: Record<RegistrantField, number> = { city: 100, state: 100, postcode: 20 };
+
+// Every school is Nigerian for now; swap in the profile country here when that changes.
+const NIGERIAN_POSTCODE_REGEX = /^\d{6}$/;
+const GENERIC_POSTCODE_REGEX = /^[A-Za-z0-9][A-Za-z0-9 -]{1,9}$/;
+const isNigeria = (country?: string) => !country || country.trim().toLowerCase() === "nigeria";
+
+const getPostcodeError = (postcode: string, country?: string): string | undefined => {
+  const value = postcode.trim();
+  if (!value) return "Enter your postal code";
+  if (isNigeria(country)) return NIGERIAN_POSTCODE_REGEX.test(value) ? undefined : "Nigerian postal codes are exactly 6 digits";
+  return GENERIC_POSTCODE_REGEX.test(value) ? undefined : "Enter a valid postal code";
 };
 
 const DnsRecordsTable = ({ records }: { records: DomainPurchaseDto["requiredDnsRecords"] }) => (
@@ -118,18 +139,34 @@ const DomainConnectForm = ({ onPurchased }: { onPurchased: (purchase: DomainPurc
   const [mode, setMode] = useState<DomainPurchaseType>("PURCHASE");
   const [purchaseLabel, setPurchaseLabel] = useState("");
   const [connectDomain, setConnectDomain] = useState("");
+  const [registrant, setRegistrant] = useState<Record<RegistrantField, string>>({ city: "", state: "", postcode: "" });
+  const [serverErrors, setServerErrors] = useState<Partial<Record<RegistrantField, string>>>({});
   const { mutate: purchaseAndConnect, isPending } = usePurchaseAndConnectDomain();
+  const router = useRouter();
+
+  const isPurchase = mode === "PURCHASE";
+  const postcodeError = getPostcodeError(registrant.postcode);
+  const registrantValid = registrant.city.trim() !== "" && registrant.state.trim() !== "" && !postcodeError;
+
+  const updateRegistrant = (field: RegistrantField, value: string) => {
+    setRegistrant(prev => ({ ...prev, [field]: value }));
+    setServerErrors(prev => ({ ...prev, [field]: undefined }));
+  };
 
   const trimmedLabel = purchaseLabel.trim().toLowerCase();
   const trimmedConnect = connectDomain.trim().toLowerCase();
-  const domainName = mode === "PURCHASE" ? `${trimmedLabel}${PURCHASE_TLD}` : trimmedConnect;
-  const isValid = mode === "PURCHASE" ? DOMAIN_LABEL_REGEX.test(trimmedLabel) : DOMAIN_REGEX.test(trimmedConnect);
+  const domainName = isPurchase ? `${trimmedLabel}${PURCHASE_TLD}` : trimmedConnect;
+  const isValid = isPurchase ? DOMAIN_LABEL_REGEX.test(trimmedLabel) && registrantValid : DOMAIN_REGEX.test(trimmedConnect);
 
   const handleSubmit = () => {
     if (!isValid) return;
 
     purchaseAndConnect(
-      { domainName, purchaseType: mode, years: mode === "PURCHASE" ? 1 : undefined },
+      {
+        domainName,
+        purchaseType: mode,
+        ...(isPurchase && { years: 1, city: registrant.city.trim(), state: registrant.state.trim(), postcode: registrant.postcode.trim() }),
+      },
       {
         onSuccess: purchase => {
           toast.success(mode === "PURCHASE" ? "Domain purchase started" : "Domain connection started", {
@@ -144,13 +181,32 @@ const DomainConnectForm = ({ onPurchased }: { onPurchased: (purchase: DomainPurc
             toast.error("That domain is already taken.");
           } else if (code === "SUBSCRIPTION_REQUIRED") {
             toast.error("Your current plan doesn't include custom domains.");
+          } else if (code === "VALIDATION_ERROR" && details && typeof details === "object" && !Array.isArray(details)) {
+            // Bean Validation: details is { field: message }
+            const fieldErrors: Partial<Record<RegistrantField, string>> = {};
+            for (const [field, message] of Object.entries(details as Record<string, unknown>)) {
+              if ((REGISTRANT_FIELDS as string[]).includes(field)) fieldErrors[field as RegistrantField] = String(message);
+            }
+            if (Object.keys(fieldErrors).length > 0) setServerErrors(fieldErrors);
+            else toast.error(getApiErrorMessage(error, "Please check the details you entered."));
           } else if (Array.isArray(details) && details.length > 0) {
-            const missing = details
-              .map(field => (typeof field === "string" ? (SCHOOL_PROFILE_FIELD_LABELS[field] ?? field.split(".").pop()) : String(field)))
-              .join(", ");
-            toast.error(getApiErrorMessage(error, "Complete your school profile before buying a domain."), {
-              description: `Missing: ${missing}`,
-            });
+            // Key off each details entry, not the message: registrant fields are fixable here, school.* / admin.* are not.
+            const fields = details.map(String);
+            const inline = fields.filter(f => (REGISTRANT_FIELDS as string[]).includes(f));
+            const profile = fields.filter(f => !(REGISTRANT_FIELDS as string[]).includes(f));
+
+            if (inline.length > 0) {
+              setServerErrors(Object.fromEntries(inline.map(f => [f, "Check this value and try again"])));
+            }
+            if (profile.length > 0) {
+              const labels = profile.map(f => SCHOOL_PROFILE_FIELD_LABELS[f] ?? f.split(".").pop()).join(", ");
+              toast.error(getApiErrorMessage(error, "Complete your school profile before buying a domain."), {
+                description: `Update in your school profile: ${labels}`,
+                action: { label: "Open profile", onClick: () => router.push("/staff/settings/general") },
+              });
+            } else if (inline.length === 0) {
+              toast.error(getApiErrorMessage(error, "Could not connect that domain. Please try again."));
+            }
           } else {
             toast.error(getApiErrorMessage(error, "Could not connect that domain. Please try again."));
           }
@@ -199,6 +255,35 @@ const DomainConnectForm = ({ onPurchased }: { onPurchased: (purchase: DomainPurc
               </div>
               {trimmedLabel.length > 0 && !isValid && <p className="text-text-danger text-xs">Enter a valid domain name, e.g. yourschool</p>}
               <p className="text-text-muted text-xs">We can only register {PURCHASE_TLD} domains right now. Already own one? Connect it instead.</p>
+              <p className="text-text-muted mt-2 text-xs">
+                Registrant details go on the domain&apos;s public registration record, so use your school&apos;s real address.
+              </p>
+              {(
+                [
+                  { field: "city", label: "City / Town", placeholder: "e.g. Ikeja" },
+                  { field: "state", label: "State", placeholder: "e.g. Lagos" },
+                  { field: "postcode", label: "Postal code", placeholder: "6-digit postal code" },
+                ] satisfies { field: RegistrantField; label: string; placeholder: string }[]
+              ).map(({ field, label, placeholder }) => {
+                const clientError = field === "postcode" && registrant.postcode.trim() !== "" ? postcodeError : undefined;
+                const error = serverErrors[field] ?? clientError;
+                return (
+                  <div key={field} className="flex flex-col gap-1">
+                    <label htmlFor={`registrant-${field}`} className="text-text-default text-xs font-medium">
+                      {label}
+                    </label>
+                    <Input
+                      id={`registrant-${field}`}
+                      value={registrant[field]}
+                      maxLength={MAX_LENGTHS[field]}
+                      onChange={e => updateRegistrant(field, e.target.value)}
+                      placeholder={placeholder}
+                      aria-invalid={!!error}
+                    />
+                    {error && <p className="text-text-danger text-xs">{error}</p>}
+                  </div>
+                );
+              })}
             </>
           ) : (
             <>

@@ -6,7 +6,6 @@ import { X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
@@ -19,7 +18,7 @@ import { useGetActiveParentPortalTerm, useGetParentPortalTerms } from "@/hooks/q
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useStudentFilterStore } from "@/store/parent";
 import { PendingFeeItem } from "@/api/parent-fees";
-import { feeStatusConfig } from "@/components/ParentPortalComponents/feeStatus";
+import { InstallmentSchedule } from "@/components/ParentPortalComponents/ParentFees/InstallmentSchedule";
 import { TermLookup } from "@/api/parent-lookup";
 import { uploadImage } from "@/app/actions/upload-image";
 import { toast } from "sonner";
@@ -37,26 +36,16 @@ const ProgressBar = ({ paid, amount }: { paid: number; amount: number }) => {
   );
 };
 
-const InstallmentSchedule = ({ fee }: { fee: PendingFeeItem }) => {
-  if (!fee.installments || fee.installments.length === 0) return null;
-  return (
-    <div className="flex flex-col gap-1.5">
-      {fee.installments.map(inst => {
-        const status = feeStatusConfig[inst.status];
-        return (
-          <div key={inst.id} className="bg-bg-input-soft flex items-center justify-between rounded-md px-2.5 py-1.5">
-            <span className="text-text-muted text-xs">
-              Instalment {inst.sequence} · Due {inst.dueDate}
-            </span>
-            <div className="flex items-center gap-2">
-              <span className="text-text-default text-xs font-medium">₦{inst.amount.toLocaleString()}</span>
-              <Badge className={`${status?.className ?? ""} rounded-md text-[10px] font-medium`}>{status?.label ?? inst.status}</Badge>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
+/** Null when `amount` is payable for `fee`; otherwise the reason it isn't. Paying the full balance is always allowed. */
+const getAmountError = (fee: PendingFeeItem, amount: number): string | null => {
+  if (amount <= 0 || amount >= fee.balance) return null;
+  if (fee.payableAmounts && fee.payableAmounts.length > 0 && !fee.payableAmounts.includes(amount)) {
+    return `Allowed amounts: ${fee.payableAmounts.map(a => `₦${a.toLocaleString()}`).join(", ")}`;
+  }
+  if (fee.minimumPartPayment != null && amount < fee.minimumPartPayment) {
+    return `Minimum payment is ₦${fee.minimumPartPayment.toLocaleString()}`;
+  }
+  return null;
 };
 
 const FeeItemRow = ({
@@ -74,6 +63,7 @@ const FeeItemRow = ({
 }) => {
   const amountAfterPayment = fee.balance - amount;
   const settled = fee.payableAmounts !== null && fee.payableAmounts.length === 0;
+  const amountError = getAmountError(fee, amount);
 
   return (
     <div className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4">
@@ -107,7 +97,7 @@ const FeeItemRow = ({
               <Input
                 type="number"
                 value={amount || ""}
-                onChange={e => onAmountChange(fee.studentFeeItemId, Math.min(Number(e.target.value) || 0, fee.balance))}
+                onChange={e => onAmountChange(fee.studentFeeItemId, Math.max(0, Math.min(Number(e.target.value) || 0, fee.balance)))}
                 placeholder="0.00"
                 className="text-text-default h-5 border-none! bg-none p-0 text-sm"
               />
@@ -121,6 +111,8 @@ const FeeItemRow = ({
               Full Amount
             </Button>
           </div>
+
+          {amountError && <p className="text-text-destructive text-xs">{amountError}</p>}
 
           <div className="border-border-default rounded-md border">
             <div className="border-border-default flex items-center justify-between border-b p-4">
@@ -239,6 +231,7 @@ export const PayInvoice = () => {
   const selectedOptional = optionalFees.filter(f => checkedOptional.has(f.studentFeeItemId));
   const allSelected = [...selectedRequired, ...selectedOptional];
   const totalCost = allSelected.reduce((sum, f) => sum + (amounts[f.studentFeeItemId] ?? f.balance), 0);
+  const hasInvalidAmount = allSelected.some(f => getAmountError(f, amounts[f.studentFeeItemId] ?? f.balance) !== null);
 
   const handlePay = () => {
     if (!payFeesData || allSelected.length === 0 || !proofOfPaymentUrl) return;
@@ -253,8 +246,12 @@ export const PayInvoice = () => {
         paymentProofUrl: proofOfPaymentUrl,
       },
       {
-        onSuccess: () => {
-          toast.success("Payment recorded successfully");
+        onSuccess: data => {
+          // Payments made this way are reviewed by staff before they're credited — the
+          // balance won't move yet, so don't imply it's been settled.
+          toast.success(data.message || "Payment submitted for review", {
+            description: "The school will confirm your payment before it's reflected in your balance.",
+          });
           setCheckedRequired(new Set());
           setCheckedOptional(new Set());
           setAmounts({});
@@ -466,7 +463,7 @@ export const PayInvoice = () => {
 
                   <Button
                     onClick={handlePay}
-                    disabled={recordPayment.isPending || totalCost <= 0 || !proofOfPaymentUrl || uploadingProof}
+                    disabled={recordPayment.isPending || totalCost <= 0 || !proofOfPaymentUrl || uploadingProof || hasInvalidAmount}
                     className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default w-full"
                   >
                     {recordPayment.isPending ? "Processing..." : `Record Payment of ₦${totalCost.toLocaleString()}`}

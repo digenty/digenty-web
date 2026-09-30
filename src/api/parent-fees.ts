@@ -62,6 +62,7 @@ export interface PayFeeRequest {
 }
 
 export interface InvoiceLineItem {
+  studentFeeItemId: number;
   name: string;
   amount: number;
   amountPaid: number;
@@ -75,9 +76,15 @@ export interface InvoiceAccount {
   // bankCode: string;
 }
 
+export interface InvoiceSchool {
+  name: string;
+  logo: string | null;
+}
+
 export interface InvoiceResponse {
   invoiceId: number;
   invoiceNumber: string;
+  school?: InvoiceSchool;
   studentName: string;
   className: string;
   termName: string;
@@ -119,10 +126,16 @@ export const getPayFeesData = async (studentId: number, termId?: number): Promis
   }
 };
 
-export const recordPayment = async (studentId: number, payload: PayFeeRequest) => {
+export interface RecordPaymentResponse {
+  message: string;
+  paymentId: number;
+  status: "PENDING_REVIEW";
+}
+
+export const recordPayment = async (studentId: number, payload: PayFeeRequest): Promise<RecordPaymentResponse> => {
   try {
     const { data } = await api.post(`/parent/portal/fees/${studentId}/pay`, payload);
-    return data;
+    return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;
@@ -135,6 +148,53 @@ export const getInvoice = async (studentId: number, termId?: number): Promise<In
     if (termId) params.append("termId", String(termId));
     const qs = params.toString();
     const { data } = await api.get(`/parent/portal/fees/${studentId}/invoice${qs ? `?${qs}` : ""}`);
+    return data?.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export type PaymentHistoryMethod = "ONLINE" | "BANK_TRANSFER" | "BANK_TRANSFER_TERMINAL" | "CASH" | "POS" | "CHEQUE";
+export type PaymentHistoryStatus = "SUCCESSFUL" | "PENDING_REVIEW" | "APPROVED" | "REJECTED" | "FAILED";
+
+export interface PaymentHistoryFeeItem {
+  studentFeeItemId: number;
+  name: string;
+  amount: number;
+}
+
+export interface ParentPaymentHistoryEntry {
+  id: number;
+  date: string;
+  amount: number;
+  method: PaymentHistoryMethod;
+  status: PaymentHistoryStatus;
+  invoiceNumber: string;
+  feeItems: PaymentHistoryFeeItem[];
+  reference: string | null;
+  proofOfPaymentUrl: string | null;
+  reviewedBy: string | null;
+  note: string | null;
+}
+
+export interface ParentPaymentHistoryResponse {
+  content: ParentPaymentHistoryEntry[];
+  totalElements: number;
+  page: number;
+  size: number;
+}
+
+export const getParentPaymentHistory = async (
+  studentId: number,
+  termId?: number,
+  page = 0,
+  size = 10,
+): Promise<ParentPaymentHistoryResponse> => {
+  try {
+    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    if (termId) params.append("termId", String(termId));
+    const { data } = await api.get(`/parent/portal/fees/${studentId}/payments?${params.toString()}`);
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;

@@ -12,12 +12,16 @@ import { useGetFeeOverview, useGetInvoice, useGetPayFeesData } from "@/hooks/que
 import { useInitiatePayment } from "@/hooks/queryHooks/usePayment";
 import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 import { useStudentFilterStore } from "@/store/parent";
-import { InvoiceStatus } from "@/api/parent-fees";
-import { exportToPDF } from "@/lib/export-utils";
-import { AlertFill, Bank, BankCard, CheckboxCircleFill, Download2, FileCopy, LogoMark } from "@digenty/icons";
+import { InvoiceStatus, PendingFeeItem } from "@/api/parent-fees";
+import { InstallmentSchedule } from "@/components/ParentPortalComponents/ParentFees/InstallmentSchedule";
+import { exportToImage } from "@/lib/export-utils";
+import { AlertFill, Bank, BankCard, CheckboxCircleFill, Download2, FileCopy } from "@digenty/icons";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+
+const byFeeItemId = (pendingItems: PendingFeeItem[]): Map<number, PendingFeeItem> =>
+  new Map(pendingItems.map(item => [item.studentFeeItemId, item]));
 
 const invoiceStatusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
   PAID: { label: "Paid", className: "bg-bg-badge-green text-bg-basic-green-strong" },
@@ -102,10 +106,10 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   };
 
   const handleDownloadInvoice = async () => {
-    if (!invoice) return;
+    if (!invoice || invoice.status !== "PAID") return;
     setIsDownloading(true);
     try {
-      await exportToPDF("invoice-card", `Invoice_${invoice.invoiceNumber}.pdf`);
+      await exportToImage("invoice-card", `Invoice_${invoice.invoiceNumber}.png`);
     } catch {
       toast.error("Could not download invoice. Please try again.");
     } finally {
@@ -153,9 +157,15 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
     );
   }
 
-  const totalFees = (overview?.totalPaid ?? 0) + (overview?.outstandingAmount ?? 0);
+  // Backend can report a negative outstandingAmount for fully-paid, optional-only fee terms
+  // (its aggregate appears to omit optional fees from the "amount due" side while still
+  // counting them as paid). Floor it at 0 so a settled invoice never reads as still owing.
+  const outstandingAmount = Math.max(0, overview?.outstandingAmount ?? 0);
+  const totalFees = (overview?.totalPaid ?? 0) + outstandingAmount;
   const status = invoice ? invoiceStatusConfig[invoice.status] : null;
   const isPaid = invoice?.status === "PAID";
+  const pendingRequiredById = byFeeItemId(payFeesData?.requiredFees ?? []);
+  const pendingOptionalById = byFeeItemId(payFeesData?.optionalFees ?? []);
 
   return (
     <div className="flex flex-col gap-5 md:gap-10">
@@ -185,7 +195,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
               <AlertFill fill="var(--color-icon-default)" className="size-[10px]" />
             </div>
           )}
-          value={`₦${(overview?.outstandingAmount ?? 0).toLocaleString()}`}
+          value={`₦${outstandingAmount.toLocaleString()}`}
           className="col-span-2 md:col-span-1"
         />
       </div>
@@ -195,8 +205,12 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
           <div className="bg-bg-subtle border-border-default rounded-sm border p-1.5">
             <div id="invoice-card" className="border-border-default bg-bg-default flex flex-col gap-6 rounded-sm border p-5">
               <div className="text-text-default flex items-center justify-between">
-                <div className="flex items-center gap-1 text-lg font-bold">
-                  <LogoMark />
+                <div className="flex items-center gap-2 text-lg font-bold">
+                  {invoice.school?.logo && (
+                    // eslint-disable-next-line @next/next/no-img-element -- must be a plain <img> so html2canvas can capture it with useCORS
+                    <img src={invoice.school.logo} alt={invoice.school.name} crossOrigin="anonymous" className="size-8 rounded-xs object-contain" />
+                  )}
+                  {invoice.school?.name && <span>{invoice.school.name}</span>}
                 </div>
                 <div className="text-xl font-semibold">INVOICE</div>
               </div>
@@ -238,11 +252,14 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
               </div>
 
               <div className="flex flex-col gap-2">
-                {invoice.requiredFees.map((fee, index) => {
+                {invoice.requiredFees.map(fee => {
                   const progressPercentage = fee.amount ? Math.min((fee.amountPaid / fee.amount) * 100, 100) : 0;
-                  const pendingFee = payFeesData?.requiredFees.find(p => p.name === fee.name);
+                  const pendingFee = pendingRequiredById.get(fee.studentFeeItemId);
                   return (
-                    <div key={`${fee.name}-${index}`} className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4">
+                    <div
+                      key={fee.studentFeeItemId}
+                      className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4"
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {!isPaid && pendingFee && pendingFee.balance > 0 && (
@@ -253,6 +270,9 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                             />
                           )}
                           <div className="text-text-default text-sm">{fee.name}</div>
+                          {pendingFee?.paymentMode === "INSTALLMENT" && (
+                            <Badge className="bg-bg-badge-blue text-bg-basic-blue-strong rounded-md text-[10px] font-medium">Installment</Badge>
+                          )}
                         </div>
                         <div className="text-text-default text-sm">₦{fee.amount.toLocaleString()}</div>
                       </div>
@@ -267,6 +287,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                           style={{ width: `${progressPercentage}%` }}
                         />
                       </div>
+                      {pendingFee && <InstallmentSchedule fee={pendingFee} />}
                     </div>
                   );
                 })}
@@ -287,11 +308,11 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                 {invoice.optionalFees.map((fee, index) => {
                   const progressPercentage = fee.amount ? Math.min((fee.amountPaid / fee.amount) * 100, 100) : 0;
                   const isOpen = openIndex === index;
-                  const pendingFee = payFeesData?.optionalFees.find(p => p.name === fee.name);
+                  const pendingFee = pendingOptionalById.get(fee.studentFeeItemId);
 
                   return (
                     <div
-                      key={`${fee.name}-${index}`}
+                      key={fee.studentFeeItemId}
                       className="border-border-default flex w-full cursor-pointer flex-col gap-3 rounded-sm border p-4"
                       onClick={() => setOpenIndex(isOpen ? null : index)}
                     >
@@ -306,6 +327,9 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                             />
                           )}
                           <div className="text-text-default text-sm">{fee.name}</div>
+                          {pendingFee?.paymentMode === "INSTALLMENT" && (
+                            <Badge className="bg-bg-badge-blue text-bg-basic-blue-strong rounded-md text-[10px] font-medium">Installment</Badge>
+                          )}
                         </div>
                         <div className="text-text-default text-sm">₦{fee.amount.toLocaleString()}</div>
                       </div>
@@ -322,6 +346,11 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                               style={{ width: `${progressPercentage}%` }}
                             />
                           </div>
+                          {pendingFee && (
+                            <div onClick={e => e.stopPropagation()} className="cursor-default">
+                              <InstallmentSchedule fee={pendingFee} />
+                            </div>
+                          )}
                         </>
                       )}
                     </div>
@@ -405,7 +434,8 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
 
               <Button
                 onClick={handleDownloadInvoice}
-                disabled={isDownloading}
+                disabled={isDownloading || !isPaid}
+                title={isPaid ? undefined : "Available once the invoice is fully paid"}
                 className="pdf-ignore text-text-default border-border-default flex h-8 w-41 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium disabled:opacity-50"
               >
                 <Download2 fill="var(--color-icon-default-muted)" />

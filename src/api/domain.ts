@@ -53,6 +53,10 @@ export interface PurchaseAndConnectDomainPayload {
   years?: number;
   purchaseType?: DomainPurchaseType;
   manageDns?: boolean;
+  // Registrant contact for the public registration record — required by the backend for PURCHASE only.
+  city?: string;
+  state?: string;
+  postcode?: string;
 }
 
 export interface DomainCheckPayload {

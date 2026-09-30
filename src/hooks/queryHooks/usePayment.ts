@@ -20,7 +20,9 @@ export const useVerifyPaymentInvoice = (invoiceId?: number, maxAttempts = 12) =>
     refetchInterval: query => {
       const data = query.state.data as StudentInvoiceDto | undefined;
       if (isSettledStatus(data?.status)) return false;
-      if (query.state.dataUpdateCount >= maxAttempts) return false;
+      // dataUpdateCount alone only counts successful fetches — count errors too so a
+      // failing endpoint can't keep this polling forever.
+      if (query.state.dataUpdateCount + query.state.errorUpdateCount >= maxAttempts) return false;
       return 2500;
     },
   });
