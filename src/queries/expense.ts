@@ -22,6 +22,9 @@ export const expenseKeys = {
   editExpense: ["editExpense"] as const,
   deleteExpense: ["deleteExpense"] as const,
 
+  validateUpload: ["expensesValidateUpload"] as const,
+  commitUpload: ["expensesCommitUpload"] as const,
+
   createCategory: ["createExpenseCategory"] as const,
   editCategory: ["editExpenseCategory"] as const,
   deleteCategory: ["deleteExpenseCategory"] as const,

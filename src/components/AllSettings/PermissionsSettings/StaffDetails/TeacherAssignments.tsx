@@ -169,7 +169,13 @@ export const TeacherAssignments = ({
   };
 
   const handleToggleSubjectTeacher = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsSubjectTeacher(e.target.checked);
+    const checked = e.target.checked;
+    setIsSubjectTeacher(checked);
+    if (!checked) {
+      setClassSubjectMap([]);
+      setSelectedSubjects([]);
+      setSubjectArmsMap({});
+    }
   };
 
   const toggleArmSelection = (arm: Arm, className: string) => {
@@ -389,8 +395,8 @@ export const TeacherAssignments = ({
 
   const classSubjectMapWithArms = classSubjectMap.filter(c => c.arms.length > 0);
 
-  const isSubjectAssignDisabled =
-    isAssigningSubject || classSubjectMapWithArms.length === 0 || classSubjectMapWithArms.every(c => c.subjects.length === 0);
+  // Nothing selected is only a blocker for a first-time "Assign"; with existing assignments it means "remove them all".
+  const isSubjectAssignDisabled = classSubjectMapWithArms.length === 0 || classSubjectMapWithArms.every(c => c.subjects.length === 0);
 
   const isClassBusy = isAssigningClass || isUpdatingClass;
   const isSubjectBusy = isAssigningSubject || isUpdatingSubject;
@@ -580,16 +586,19 @@ export const TeacherAssignments = ({
                 </Button>
               </div> */}
 
-              <div className="flex justify-end">
-                <Button
-                  className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7! w-fit rounded-md px-4"
-                  onClick={handleAssignSubjectTeacher}
-                  disabled={isSubjectBusy || classSubjectMapWithArms.length === 0 || classSubjectMapWithArms.every(c => c.subjects.length === 0)}
-                >
-                  {isSubjectBusy && <Spinner className="text-text-white-default" />}
-                  {hasExistingSubjectAssignments ? "Update" : "Assign"}
-                </Button>
-              </div>
+            </div>
+          )}
+
+          {(isSubjectTeacher || hasExistingSubjectAssignments) && (
+            <div className="flex justify-end">
+              <Button
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7! w-fit rounded-md px-4"
+                onClick={handleAssignSubjectTeacher}
+                disabled={isSubjectBusy || (!hasExistingSubjectAssignments && isSubjectAssignDisabled)}
+              >
+                {isSubjectBusy && <Spinner className="text-text-white-default" />}
+                {hasExistingSubjectAssignments ? "Update" : "Assign"}
+              </Button>
             </div>
           )}
         </div>
