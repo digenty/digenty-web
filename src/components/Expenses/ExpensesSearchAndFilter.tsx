@@ -1,6 +1,6 @@
 "use client";
 
-import { Filter, ShareBox } from "@digenty/icons";
+import { Filter, Import, ShareBox } from "@digenty/icons";
 import { Ellipsis, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -110,6 +110,16 @@ export const ExpensesSearchAndFilter = ({ filters, setFilters, showCategoryFilte
             </Button>
           </PermissionCheck>
 
+          <PermissionCheck permissionUtility={canManageExpenses}>
+            <Button
+              onClick={() => router.push("/staff/expense/upload-expense")}
+              className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
+            >
+              <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />
+              <span className="text-text-default font-medium">Import</span>
+            </Button>
+          </PermissionCheck>
+
           <div className="flex items-center gap-1">
             <PermissionCheck permissionUtility={canManageExpenses}>
               <Button
@@ -144,6 +154,20 @@ export const ExpensesSearchAndFilter = ({ filters, setFilters, showCategoryFilte
                 >
                   <ShareBox className="size-4" fill="var(--color-icon-default-muted)" />
                   Export
+                </div>
+              </PermissionCheck>
+
+              <PermissionCheck permissionUtility={canManageExpenses}>
+                <div
+                  role="button"
+                  onClick={() => {
+                    setOpenActions(false);
+                    router.push("/staff/expense/upload-expense");
+                  }}
+                  className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                >
+                  <Import className="size-4" fill="var(--color-icon-default-muted)" />
+                  Import
                 </div>
               </PermissionCheck>
             </div>

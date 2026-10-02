@@ -1,0 +1,3 @@
+Title,Amount,Date,Payment Method,Category,Description,Recurring,Recurring Interval
+Generator diesel,45000,2026-09-15,Cash,Utilities,Diesel for the main generator,No,
+Internet subscription,30000,15/09/2026,Bank Transfer,Utilities,Monthly broadband plan,Yes,Monthly
