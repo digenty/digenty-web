@@ -1,5 +1,5 @@
 "use client";
-import { DeleteBin, Edit, FileCopy } from "@digenty/icons";
+import { DeleteBin, Edit, FileCopy, SendPlaneFill } from "@digenty/icons";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { FeeItemProp } from "./feeItemType";
 import { getStatusBadge } from "@/components/Status";
 import { useRouter } from "next/navigation";
-import { useDeleteFeeItem, useDuplicateFeeItem } from "@/hooks/queryHooks/useFee";
+import { useDeleteFeeItem, useDuplicateFeeItem, useGetFeeItemById, usePublishFee } from "@/hooks/queryHooks/useFee";
 import { toast } from "sonner";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canDeleteFees, canManageFees } from "@/lib/permissions/fees";
@@ -22,7 +22,30 @@ const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
   const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
   const { mutate: duplicateFeeItem, isPending: duplicating } = useDuplicateFeeItem();
 
+  const { mutate: publishFee, isPending: publishing } = usePublishFee();
+  const [justPublished, setJustPublished] = useState(false);
+
   const id = row.original.feeItemId;
+  // The list endpoint has no `published` flag, so read it from the detail endpoint once the menu is opened
+  const { data: detail, isLoading: checkingStatus } = useGetFeeItemById(id, open);
+  const isPublished = detail?.published === true || justPublished;
+
+  const handlePublish = (evt: React.MouseEvent) => {
+    evt.stopPropagation();
+    publishFee(id, {
+      onSuccess: data => {
+        const billedCount = data.studentsBilled != null ? ` — ${data.studentsBilled} student(s) billed` : "";
+        toast.success(`${data.message}${billedCount}`);
+        if (data.warning) {
+          toast.warning(data.warning, {
+            description: data.armsSkipped?.length ? `Skipped: ${data.armsSkipped.join(", ")}` : undefined,
+          });
+        }
+        setJustPublished(true);
+      },
+      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to publish fee"),
+    });
+  };
 
   const handleDuplicate = (evt: React.MouseEvent) => {
     evt.stopPropagation();
@@ -70,6 +93,16 @@ const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
           >
             <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Edit fee item</span>
+          </DropdownMenuItem>
+        </PermissionCheck>
+        <PermissionCheck permissionUtility={canManageFees}>
+          <DropdownMenuItem
+            onClick={handlePublish}
+            disabled={publishing || isPublished || checkingStatus}
+            className="hover:bg-bg-state-soft-hover! gap-2.5 px-3"
+          >
+            <SendPlaneFill fill="var(--color-icon-default-subtle)" className="size-4" />
+            <span>{isPublished ? "Published" : publishing ? "Publishing..." : "Publish fee item"}</span>
           </DropdownMenuItem>
         </PermissionCheck>
         <DropdownMenuItem onClick={handleDuplicate} disabled={duplicating} className="hover:bg-bg-state-soft-hover! gap-2.5 px-3">

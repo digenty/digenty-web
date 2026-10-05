@@ -4,7 +4,7 @@ import { Calendar, Filter, School, ShareBox } from "@digenty/icons";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { MobileDrawer } from "../MobileDrawer";
 import { Button } from "../ui/button";
@@ -90,6 +90,7 @@ type FeesHeaderProps = {
   onSearchChange?: (value: string) => void;
 
   onAddClick?: () => void;
+  searchActions?: ReactNode;
 };
 
 export const FeesHeader = ({
@@ -123,6 +124,7 @@ export const FeesHeader = ({
   onSearchChange,
 
   onAddClick,
+  searchActions,
 }: FeesHeaderProps) => {
   const isMobile = useIsMobile();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -316,13 +318,16 @@ export const FeesHeader = ({
       </div>
 
       <div className="mt-4 flex flex-col gap-3 md:mt-6 md:flex-row md:justify-between md:gap-2">
-        {showSearch && (
-          <SearchInput
-            className="bg-bg-input-soft! w-full rounded-md border-none md:w-71"
-            value={search}
-            onChange={e => onSearchChange?.(e.target.value)}
-          />
-        )}
+        <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center">
+          {showSearch && (
+            <SearchInput
+              className="bg-bg-input-soft! w-full rounded-md border-none md:w-71"
+              value={search}
+              onChange={e => onSearchChange?.(e.target.value)}
+            />
+          )}
+          {searchActions && <div className="flex items-center gap-2">{searchActions}</div>}
+        </div>
 
         <div className="flex gap-2">
           {showExport && (
