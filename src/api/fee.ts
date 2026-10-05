@@ -232,6 +232,7 @@ export interface FeeItemDetail {
   minimumPartPayment: number;
   paymentMode: FeePaymentMode;
   installments?: FeeInstallmentDetail[];
+  published?: boolean;
 }
 
 export interface AppliedClassEntry {
@@ -479,6 +480,22 @@ export const publishFee = async (id: number): Promise<PublishFeeResponse> => {
   }
 };
 
+export type BulkPublishFeeItemsResponse = {
+  published: number;
+  totalStudentsBilled: number;
+  failed: { feeItemId: number; reason: string }[];
+};
+
+export const bulkPublishFeeItems = async (feeItemIds: number[]): Promise<BulkPublishFeeItemsResponse> => {
+  try {
+    const { data } = await api.post("/fee/items/publish", { feeItemIds });
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
 export const getFeeItems = async (filter: FeeItemsFilter = {}): Promise<FeeItemDetail[]> => {
   try {
     const { branchId, termId, classId, armId, feeId, search } = filter;
@@ -577,6 +594,21 @@ export const duplicateFeeItem = async (id: number): Promise<{ feeItemId: number 
 export const deleteFeeItem = async (id: number) => {
   try {
     const { data } = await api.delete(`/fee/items/${id}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export type BulkDeleteFeeItemsResponse = {
+  deleted: number;
+  failed: { feeItemId: number; reason: string }[];
+};
+
+export const bulkDeleteFeeItems = async (feeItemIds: number[]): Promise<BulkDeleteFeeItemsResponse> => {
+  try {
+    const { data } = await api.delete("/fee/items", { data: { feeItemIds } });
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;

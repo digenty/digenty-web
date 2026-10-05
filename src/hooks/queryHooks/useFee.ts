@@ -24,6 +24,8 @@ import {
   getFeeRoutesByBranch,
   getFees,
   publishFee,
+  bulkPublishFeeItems,
+  bulkDeleteFeeItems,
   renameFeeClass,
   updateFeeGroup,
   updateFeeItem,
@@ -112,6 +114,17 @@ export const usePublishFee = () => {
   });
 };
 
+export const useBulkPublishFeeItems = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (feeItemIds: number[]) => bulkPublishFeeItems(feeItemIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feeKeys.fees });
+      queryClient.invalidateQueries({ queryKey: feeKeys.feeItems() });
+    },
+  });
+};
+
 export const useDeleteFee = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -131,11 +144,11 @@ export const useGetFeeItems = (filter: FeeItemsFilter = {}) => {
   });
 };
 
-export const useGetFeeItemById = (id: number) => {
+export const useGetFeeItemById = (id: number, enabled = true) => {
   return useQuery({
     queryKey: feeKeys.feeItemById(id),
     queryFn: () => getFeeItemById(id),
-    enabled: !!id,
+    enabled: !!id && enabled,
     retry: false,
   });
 };
@@ -180,6 +193,17 @@ export const useDeleteFeeItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteFeeItem(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feeItems"] });
+      queryClient.invalidateQueries({ queryKey: ["feeClassOverview"] });
+    },
+  });
+};
+
+export const useBulkDeleteFeeItems = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (feeItemIds: number[]) => bulkDeleteFeeItems(feeItemIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["feeItems"] });
       queryClient.invalidateQueries({ queryKey: ["feeClassOverview"] });
