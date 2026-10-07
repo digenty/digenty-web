@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDeactivateStaff, useGetStaffDetails } from "@/hooks/queryHooks/useStaff";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useStaffStore } from "@/store/staff";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -67,6 +68,8 @@ const permissionIcons = {
 
 export const StaffDetails = () => {
   const router = useRouter();
+  const loggedInUser = useLoggedInUser();
+  const canEditStaff = canManageSettings(loggedInUser?.permissions);
   const pathname = usePathname();
   const staffId = pathname.split("/")[5];
 
@@ -335,8 +338,10 @@ export const StaffDetails = () => {
             <div className="flex w-full items-center justify-center py-20 pb-40">
               <ErrorComponent
                 title="No Subject/Class Assignments"
-                description="Edit staff to update the teacher's assignments"
-                buttonText="Edit Staff"
+                description={
+                  canEditStaff ? "Edit staff to update the teacher's assignments" : "This staff member has no subject or class assignments yet"
+                }
+                buttonText={canEditStaff ? "Edit Staff" : undefined}
                 url={`/staff/settings/permissions/edit-staff/${staffId}`}
               />
             </div>

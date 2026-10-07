@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeftS } from "@digenty/icons";
+import { ArrowLeftS, Eye, Save, SendPlaneFill } from "@digenty/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -19,6 +19,7 @@ import { WEEKLY_REPORT_STATUS_CONFIG } from "@/queries/diary";
 
 import { DiaryCard, DiaryCardHeader, DotBadge, formatLongDate, formatShortDate, getDiaryErrorMessage, startOfWeek, toISODate } from "../shared";
 import { LearningAreasTable } from "./LearningAreasTable";
+import { WeeklyParentPreviewModal } from "./WeeklyParentPreviewModal";
 
 const GlanceTile = ({ label, value }: { label: string; value: string }) => (
   <div className="bg-bg-basic-gray-alpha-2 flex flex-1 flex-col gap-1 rounded-md p-3">
@@ -37,6 +38,7 @@ export const WeeklyReport = ({ armId, weekStart }: { armId: number; weekStart?: 
   const [areas, setAreas] = useState<WeeklyLearningAreaRow[]>([]);
   const [teacherComment, setTeacherComment] = useState("");
   const [nextWeekFocus, setNextWeekFocus] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const { mutate: openReport, isPending: opening, isError: openFailed, error: openError } = useOpenWeeklyReport();
   const { mutate: save, isPending: saving } = useSaveWeeklyReport();
@@ -161,23 +163,27 @@ export const WeeklyReport = ({ armId, weekStart }: { armId: number; weekStart?: 
         <div className="flex-1" />
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* <Button
-            onClick={() => router.push(`/staff/daily-diary/${armId}/weekly/preview?weekStart=${week}`)}
-            className="border-border-default text-text-default bg-bg-card h-8 rounded-md border"
-          >
+          <Button onClick={() => setPreviewOpen(true)} className="border-border-default text-text-default bg-bg-card h-8 gap-1.5 rounded-md border">
+            <Eye fill="var(--color-icon-default)" className="size-4" />
             Preview as parent
-          </Button> */}
+          </Button>
 
           {isEditable && (
             <PermissionCheck permissionUtility={canManageDailyDiary}>
-              <Button onClick={handleSave} disabled={busy} className="border-border-default text-text-default bg-bg-card h-8 rounded-md border">
+              <Button
+                onClick={handleSave}
+                disabled={busy}
+                className="border-border-default text-text-default bg-bg-card h-8 gap-1.5 rounded-md border"
+              >
+                <Save fill="var(--color-icon-default)" className="size-4" />
                 {saving ? "Saving…" : "Save draft"}
               </Button>
               <Button
                 onClick={handleSubmit}
                 disabled={busy}
-                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 rounded-md"
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 gap-1.5 rounded-md"
               >
+                <SendPlaneFill fill="var(--color-icon-white-default)" className="size-4" />
                 {submitting ? "Sending…" : report.approvalRequired ? "Send for approval" : "Publish to parents"}
               </Button>
             </PermissionCheck>
@@ -328,6 +334,21 @@ export const WeeklyReport = ({ armId, weekStart }: { armId: number; weekStart?: 
           </div>
         </div>
       </div>
+
+      <WeeklyParentPreviewModal
+        open={previewOpen}
+        setOpen={setPreviewOpen}
+        weekNumber={report.weekNumber}
+        weekStart={report.weekStart}
+        weekEnd={report.weekEnd}
+        teacherName={report.authorName ?? user.name ?? "Your teacher"}
+        teacherRole={report.authorRole ?? "Class teacher"}
+        armName={report.armName}
+        glance={report.glance}
+        areas={areas}
+        teacherComment={teacherComment}
+        nextWeekFocus={nextWeekFocus}
+      />
     </div>
   );
 };

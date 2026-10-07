@@ -105,7 +105,7 @@ export const EntriesTable = ({ entries, onChange, allowedTypes, disabled }: Prop
               aria-label={`Note for row ${index + 1}`}
               disabled={disabled}
               rows={2}
-              className="border-border-default min-h-9 resize-y text-[13px]"
+              className="border-border-default bg-bg-input-soft! min-h-9 w-full resize-y rounded-md border px-3 py-2 text-[13px] shadow-xs"
             />
             {renderTypeSelect(entry.type, type => update(index, { type }), `Type for row ${index + 1}`)}
             <Input
@@ -147,7 +147,7 @@ export const EntriesTable = ({ entries, onChange, allowedTypes, disabled }: Prop
             aria-label="New row note"
             disabled={disabled}
             rows={2}
-            className="border-border-default min-h-9 resize-y text-[13px]"
+            className="border-border-default bg-bg-input-soft! min-h-9 w-full resize-y rounded-md border px-3 py-2 text-[13px] shadow-xs"
           />
           {renderTypeSelect(draft.type, type => setDraft({ ...draft, type }), "New row type")}
           <Input
@@ -192,7 +192,7 @@ export const EntriesTable = ({ entries, onChange, allowedTypes, disabled }: Prop
               aria-label={`Note for row ${index + 1}`}
               disabled={disabled}
               rows={3}
-              className="border-border-default text-[13px]"
+              className="border-border-default bg-bg-input-soft! w-full rounded-md border px-3 py-2 text-[13px] shadow-xs"
             />
             <div className="flex gap-2">
               <div className="flex-1">{renderTypeSelect(entry.type, type => update(index, { type }), `Type for row ${index + 1}`)}</div>

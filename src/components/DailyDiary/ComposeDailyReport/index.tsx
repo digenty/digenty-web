@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeftS } from "@digenty/icons";
+import { ArrowLeftS, Eye, Save, SendPlaneFill } from "@digenty/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -17,6 +17,7 @@ import { DAILY_REPORT_STATUS_CONFIG } from "@/queries/diary";
 
 import { DotBadge, formatLongDate, formatTime, getDiaryErrorMessage, sortEntries, toISODate } from "../shared";
 import { EntriesTable } from "./EntriesTable";
+import { ParentPreviewModal } from "./ParentPreviewModal";
 import { PupilNotesCard } from "./PupilNotesCard";
 import { SignOffCard, SignOffOptions } from "./SignOffCard";
 import { SnapshotCard } from "./SnapshotCard";
@@ -44,6 +45,7 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
   const [applySnapshotToClass, setApplySnapshotToClass] = useState(true);
   const [pupilNotes, setPupilNotes] = useState<PupilNote[]>([]);
   const [signOff, setSignOff] = useState<SignOffOptions>({ requireAcknowledgement: true, requestComment: true, sendPushSms: false });
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const { data: settings } = useGetDiarySettings();
   const { mutate: openReport, isPending: opening, isError: openFailed, error: openError, reset: resetOpen } = useOpenDailyReport();
@@ -195,20 +197,24 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
         <div className="flex-1" />
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button
-            onClick={() => router.push(`/staff/daily-diary/${armId}/preview?date=${reportDate}`)}
-            className="border-border-default text-text-default bg-bg-card h-8 rounded-md border"
-          >
+          <Button onClick={() => setPreviewOpen(true)} className="border-border-default text-text-default bg-bg-card h-8 gap-1.5 rounded-md border">
+            <Eye fill="var(--color-icon-default)" className="size-4" />
             Preview as parent
           </Button>
-          <Button onClick={handleSaveDraft} disabled={busy} className="border-border-default text-text-default bg-bg-card h-8 rounded-md border">
+          <Button
+            onClick={handleSaveDraft}
+            disabled={busy}
+            className="border-border-default text-text-default bg-bg-card h-8 gap-1.5 rounded-md border"
+          >
+            <Save fill="var(--color-icon-default)" className="size-4" />
             {saving ? "Saving…" : "Save draft"}
           </Button>
           <Button
             onClick={handlePublish}
             disabled={busy}
-            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 rounded-md"
+            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 gap-1.5 rounded-md"
           >
+            <SendPlaneFill fill="var(--color-icon-white-default)" className="size-4" />
             {publishing ? "Publishing…" : "Publish to parents"}
           </Button>
         </div>
@@ -270,6 +276,20 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
           disabled={busy}
         />
       </div>
+
+      <ParentPreviewModal
+        open={previewOpen}
+        setOpen={setPreviewOpen}
+        date={report.date}
+        teacherName={user.name ?? "Your teacher"}
+        teacherRole="Class teacher"
+        armName={report.armName}
+        entries={sortEntries(entries)}
+        snapshotFields={snapshotFields}
+        snapshot={snapshot}
+        requireAcknowledgement={signOff.requireAcknowledgement}
+        requestComment={signOff.requestComment}
+      />
     </div>
   );
 };
