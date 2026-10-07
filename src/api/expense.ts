@@ -1,5 +1,6 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
+import type { CommitUploadResponse, ValidateUploadResponse } from "@/components/StudentAndParent/BulkUpload/types";
 import type { PaymentMethod } from "./invoice";
 
 export type RecurringInterval = "DAILY" | "WEEKLY" | "MONTHLY" | "QUARTERLY" | "YEARLY";
@@ -176,6 +177,30 @@ export const deleteExpenseCategory = async (expenseCategoryId: number) => {
   try {
     const { data } = await api.delete(`/expense/category/${expenseCategoryId}`);
     return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const validateExpensesUpload = async ({ file, branchId }: { file: File; branchId: number }): Promise<ValidateUploadResponse> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  try {
+    const { data } = await api.post(`/expenses/upload/validate/${branchId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const commitExpensesUpload = async ({ batchId }: { batchId: string }): Promise<CommitUploadResponse> => {
+  try {
+    const { data } = await api.post(`/expenses/upload/${batchId}/commit`);
+    return data.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
     throw error;

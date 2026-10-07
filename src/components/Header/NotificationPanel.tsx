@@ -1,7 +1,7 @@
 "use client";
 
 import { Calendar, CheckboxCircleFill, Key, Notification2 } from "@digenty/icons";
-import { Notification, NotificationType } from "@/api/notification";
+import { NotificationType } from "@/api/notification";
 import { useGetNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from "@/hooks/queryHooks/useNotification";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -50,6 +50,15 @@ const TYPE_CONFIG: Record<NotificationType, { icon: React.ElementType; bg: strin
   },
 };
 
+export type PanelNotification = {
+  id: number;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+};
+
 const relativeTime = (iso: string) => {
   try {
     return formatDistanceToNowStrict(new Date(iso), { addSuffix: true });
@@ -58,8 +67,8 @@ const relativeTime = (iso: string) => {
   }
 };
 
-const NotificationItem = ({ notification, onMarkRead }: { notification: Notification; onMarkRead: (id: number) => void }) => {
-  const config = TYPE_CONFIG[notification.type] ?? TYPE_CONFIG.SYSTEM;
+const NotificationItem = ({ notification, onMarkRead }: { notification: PanelNotification; onMarkRead: (id: number) => void }) => {
+  const config = TYPE_CONFIG[notification.type as NotificationType] ?? TYPE_CONFIG.SYSTEM;
   const { icon: Icon, bg, fill } = config;
 
   return (
@@ -102,7 +111,7 @@ const NotificationSkeleton = () => (
   </div>
 );
 
-const NotificationContent = ({
+export const NotificationContent = ({
   unreadCount,
   notifications,
   isLoading,
@@ -112,7 +121,7 @@ const NotificationContent = ({
   isMarkingAll,
 }: {
   unreadCount: number;
-  notifications: Notification[];
+  notifications: PanelNotification[];
   isLoading: boolean;
   isError: boolean;
   onMarkAllRead: () => void;

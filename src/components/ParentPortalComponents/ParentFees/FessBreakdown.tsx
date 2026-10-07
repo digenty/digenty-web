@@ -43,6 +43,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   const { data: payFeesData } = useGetPayFeesData(selectedStudentId, termId);
 
   const initiatePayment = useInitiatePayment();
+  const canDownload = invoice?.status === "PAID" || invoice?.status === "PARTIALLY_PAID";
 
   useEffect(() => {
     setSelectedFeeIds(new Set());
@@ -106,7 +107,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   };
 
   const handleDownloadInvoice = async () => {
-    if (!invoice || invoice.status !== "PAID") return;
+    if (!invoice || !canDownload) return;
     setIsDownloading(true);
     try {
       await exportToImage("invoice-card", `Invoice_${invoice.invoiceNumber}.png`);
@@ -118,7 +119,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   };
 
   if (!selectedStudentId) {
-    return <PageEmptyState title="No Student Selected" description="Select a student above to view their fees breakdown" buttonText="Refresh" />;
+    return <PageEmptyState title="No Student Selected" description="Select a student above to view their fees breakdown" />;
   }
 
   if (loadingOverview || loadingInvoice) {
@@ -148,12 +149,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
 
   if (!overview && !invoice) {
     return (
-      <PageEmptyState
-        title="No Fees Found"
-        description="There are no fees set up for this student yet"
-        buttonText="Contact School Admin"
-        url="/parents/parent-dashboard"
-      />
+      <PageEmptyState title="No Fees Found" description="There are no fees set up for this student yet" />
     );
   }
 
@@ -434,8 +430,8 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
 
               <Button
                 onClick={handleDownloadInvoice}
-                disabled={isDownloading || !isPaid}
-                title={isPaid ? undefined : "Available once the invoice is fully paid"}
+                disabled={isDownloading || !canDownload}
+                title={canDownload ? undefined : "Available once a payment has been made"}
                 className="pdf-ignore text-text-default border-border-default flex h-8 w-41 items-center gap-1 border px-2.5 py-1.5 text-sm font-medium disabled:opacity-50"
               >
                 <Download2 fill="var(--color-icon-default-muted)" />

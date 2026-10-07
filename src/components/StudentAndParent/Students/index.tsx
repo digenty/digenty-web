@@ -73,7 +73,7 @@ export const StudentsTable = () => {
     graduated: 0,
     withdrawn: 0,
   });
-  const pageSize = 15;
+  const pageSize = 30;
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);

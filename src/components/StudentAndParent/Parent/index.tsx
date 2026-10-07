@@ -57,7 +57,7 @@ export const ParentsTable = () => {
   const [openSendLoginDetails, setOpenSendLoginDetails] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Parent[]>([]);
-  const pageSize = 25;
+  const pageSize = 30;
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);

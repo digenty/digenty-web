@@ -8,4 +8,5 @@ export interface FeeItemProp {
   required: boolean;
   allowPartPayment: boolean;
   minimumPartPayment: number;
+  published?: boolean;
 }

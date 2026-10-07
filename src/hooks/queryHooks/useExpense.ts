@@ -1,5 +1,6 @@
 import {
   createExpense,
+  commitExpensesUpload,
   createExpenseCategory,
   deleteExpense,
   deleteExpenseCategory,
@@ -12,6 +13,7 @@ import {
   getExpenseSummary,
   searchExpenses,
   SearchExpensesParams,
+  validateExpensesUpload,
 } from "@/api/expense";
 import { expenseKeys } from "@/queries/expense";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -128,5 +130,21 @@ export const useDeleteExpenseCategory = () => {
       queryClient.invalidateQueries({ queryKey: ["expenseCategories"] });
       queryClient.invalidateQueries({ queryKey: expenseKeys.all });
     },
+  });
+};
+
+export const useValidateExpensesUpload = ({ branchId }: { branchId?: number }) => {
+  return useMutation({
+    mutationKey: expenseKeys.validateUpload,
+    mutationFn: ({ file }: { file: File }) => validateExpensesUpload({ file, branchId: branchId! }),
+  });
+};
+
+export const useCommitExpensesUpload = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: expenseKeys.commitUpload,
+    mutationFn: ({ batchId }: { batchId: string }) => commitExpensesUpload({ batchId }),
+    onSuccess: () => invalidateExpenseLists(queryClient),
   });
 };

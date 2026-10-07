@@ -1,4 +1,4 @@
-import { Edit, Eye, FileCopy } from "@digenty/icons";
+import { Edit, Eye, FileCopy, SendPlaneFill } from "@digenty/icons";
 import React, { useEffect, useState } from "react";
 import { FeesHeader } from "../FeesHeader";
 import { FeeItemProp } from "./feeItemType";
@@ -14,13 +14,24 @@ import { getStatusBadge } from "@/components/Status";
 
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useRouter } from "next/navigation";
-import { useDeleteFeeItem, useDuplicateFeeItem, useGetFeeItems } from "@/hooks/queryHooks/useFee";
+import {
+  useBulkDeleteFeeItems,
+  useBulkPublishFeeItems,
+  useDeleteFeeItem,
+  useDuplicateFeeItem,
+  useGetFeeItemById,
+  useGetFeeItems,
+  usePublishFee,
+} from "@/hooks/queryHooks/useFee";
 import { useFeesFilters } from "../useFeesFilters";
 import { exportToCSV } from "@/lib/export-utils";
 import { EmptyFeeState } from "../EmptyFeeState";
 import type { FeeItemDetail } from "@/api/fee";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { toast } from "sonner";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canDeleteFees, canManageFees } from "@/lib/permissions/fees";
+import { BulkFeeItemsModal } from "./BulkFeeItemsModal";
 
 export const FeesItem = () => {
   const router = useRouter();
@@ -55,13 +66,62 @@ export const FeesItem = () => {
   const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
   const { mutate: duplicateFeeItem, isPending: duplicating } = useDuplicateFeeItem();
 
+  const { mutate: bulkPublish, isPending: bulkPublishing } = useBulkPublishFeeItems();
+  const { mutate: bulkDelete, isPending: bulkDeleting } = useBulkDeleteFeeItems();
+  const [bulkMode, setBulkMode] = useState<"publish" | "delete" | null>(null);
+
+  const clearSelection = () => {
+    setRowSelection({});
+    setSelectedRows([]);
+  };
+
+  const handleBulkConfirm = () => {
+    const ids = selectedRows.map(r => r.feeItemId);
+    if (ids.length === 0 || !bulkMode) return;
+
+    if (bulkMode === "publish") {
+      bulkPublish(ids, {
+        onSuccess: result => {
+          const failed = result.failed ?? [];
+          const skippedNote = result.skipped ? `, ${result.skipped} already published` : "";
+          if (failed.length === 0) {
+            toast.success(`${result.published} fee item${result.published !== 1 ? "s" : ""} published${skippedNote}`);
+          } else {
+            toast.warning(`${result.published} published${skippedNote}, ${failed.length} failed: ${failed[0].reason}`);
+          }
+          setBulkMode(null);
+          clearSelection();
+        },
+        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to publish fee items"),
+      });
+      return;
+    }
+
+    bulkDelete(ids, {
+      onSuccess: result => {
+        const failed = result.failed ?? [];
+        if (failed.length === 0) {
+          toast.success(`${result.deleted} fee item${result.deleted !== 1 ? "s" : ""} deleted`);
+        } else {
+          toast.warning(`${result.deleted} deleted, ${failed.length} failed: ${failed[0].reason}`);
+        }
+        setBulkMode(null);
+        clearSelection();
+      },
+      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to delete fee items"),
+    });
+  };
+
   const handleExport = () => {
     const headers = ["S/N", "Fee Name", "Required", "Quantity", "Amount (₦)"];
     const rows = feesItems.map((item, i) => [i + 1, item.feeName, item.required ? "Required" : "Optional", item.quantity, item.amount]);
     exportToCSV(`FeeItems_${new Date().toISOString().slice(0, 10)}.csv`, headers, rows);
   };
 
-  const activeItem = feesItems.find(i => i.feeItemId === activeItemId);
+  const { mutate: publishSingle, isPending: publishingSingle } = usePublishFee();
+  // The list endpoint has no `published` flag, so read it from the detail endpoint once the mobile actions drawer opens
+  const { data: activeDetail, isLoading: checkingStatus } = useGetFeeItemById(activeItemId ?? 0, activeItemId !== null);
+  const activeIsPublished = activeDetail?.published === true;
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
@@ -81,6 +141,40 @@ export const FeesItem = () => {
         exportActionButton="Export Fees"
         exportCount={feesItems.length}
         onExportConfirm={handleExport}
+        searchActions={
+          selectedRows.length > 0 ? (
+            <>
+              <PermissionCheck permissionUtility={canManageFees}>
+                <Button
+                  onClick={() => setBulkMode("publish")}
+                  className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 rounded-md text-sm md:h-8"
+                >
+                  <SendPlaneFill fill="var(--color-icon-white-default)" />
+                  Publish ({selectedRows.length})
+                </Button>
+              </PermissionCheck>
+              <PermissionCheck permissionUtility={canDeleteFees}>
+                <Button
+                  onClick={() => setBulkMode("delete")}
+                  className="text-text-white-default bg-bg-state-destructive hover:bg-bg-state-destructive-hover! h-7 rounded-md text-sm md:h-8"
+                >
+                  <Trash2 className="size-4" />
+                  Delete ({selectedRows.length})
+                </Button>
+              </PermissionCheck>
+            </>
+          ) : null
+        }
+      />
+      <BulkFeeItemsModal
+        open={bulkMode !== null}
+        setOpen={open => {
+          if (!open) setBulkMode(null);
+        }}
+        mode={bulkMode ?? "publish"}
+        count={selectedRows.length}
+        isPending={bulkPublishing || bulkDeleting}
+        onConfirm={handleBulkConfirm}
       />
       {isPending && (
         <div className="flex flex-col gap-3">
@@ -196,6 +290,31 @@ export const FeesItem = () => {
                 >
                   <Edit className="size-4" fill="var(--color-icon-default-subtle)" /> Edit fee item
                 </button>
+                <PermissionCheck permissionUtility={canManageFees}>
+                  <button
+                    disabled={publishingSingle || activeIsPublished || checkingStatus}
+                    onClick={() => {
+                      if (!activeItemId) return;
+                      publishSingle(activeItemId, {
+                        onSuccess: data => {
+                          const billedCount = data.studentsBilled != null ? ` — ${data.studentsBilled} student(s) billed` : "";
+                          toast.success(`${data.message}${billedCount}`);
+                          if (data.warning) {
+                            toast.warning(data.warning, {
+                              description: data.armsSkipped?.length ? `Skipped: ${data.armsSkipped.join(", ")}` : undefined,
+                            });
+                          }
+                          setActiveItemId(null);
+                        },
+                        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to publish fee"),
+                      });
+                    }}
+                    className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm disabled:opacity-50"
+                  >
+                    <SendPlaneFill className="size-4" fill="var(--color-icon-default-subtle)" />
+                    {activeIsPublished ? "Published" : publishingSingle ? "Publishing..." : "Publish fee item"}
+                  </button>
+                </PermissionCheck>
                 <button
                   disabled={duplicating}
                   onClick={() => {
