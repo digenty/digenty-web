@@ -83,10 +83,11 @@ export const FeesItem = () => {
       bulkPublish(ids, {
         onSuccess: result => {
           const failed = result.failed ?? [];
+          const skippedNote = result.skipped ? `, ${result.skipped} already published` : "";
           if (failed.length === 0) {
-            toast.success(`${result.published} fee item${result.published !== 1 ? "s" : ""} published`);
+            toast.success(`${result.published} fee item${result.published !== 1 ? "s" : ""} published${skippedNote}`);
           } else {
-            toast.warning(`${result.published} published, ${failed.length} failed: ${failed[0].reason}`);
+            toast.warning(`${result.published} published${skippedNote}, ${failed.length} failed: ${failed[0].reason}`);
           }
           setBulkMode(null);
           clearSelection();

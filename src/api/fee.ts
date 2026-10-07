@@ -483,6 +483,8 @@ export const publishFee = async (id: number): Promise<PublishFeeResponse> => {
 export type BulkPublishFeeItemsResponse = {
   published: number;
   totalStudentsBilled: number;
+  /** Items that were already published; not billed again and not in `failed`. */
+  skipped?: number;
   failed: { feeItemId: number; reason: string }[];
 };
 
@@ -608,7 +610,7 @@ export type BulkDeleteFeeItemsResponse = {
 
 export const bulkDeleteFeeItems = async (feeItemIds: number[]): Promise<BulkDeleteFeeItemsResponse> => {
   try {
-    const { data } = await api.delete("/fee/items", { data: { feeItemIds } });
+    const { data } = await api.post("/fee/items/bulk-delete", { feeItemIds });
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
