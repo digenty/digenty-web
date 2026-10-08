@@ -6,6 +6,7 @@ import { BackButton } from "@/components/BackButton";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useIsMidtermEnabled } from "@/hooks/queryHooks/useMidterm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { MoreHorizontalIcon } from "lucide-react";
@@ -32,6 +33,7 @@ export const ClassHeader = ({
   const params = useSearchParams();
   const classArmName = params.get("classArmName") || "";
   const [openNotify, setOpenNotify] = useState(false);
+  const { enabled: midtermEnabled } = useIsMidtermEnabled(Number(armId));
   const [openEdit, setOpenEdit] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -82,6 +84,16 @@ export const ClassHeader = ({
                   Notify Class Teacher
                 </Button>
               </PermissionCheck>
+            )}
+            {midtermEnabled && (
+              <Button
+                onClick={() =>
+                  router.push(`/staff/classes-and-subjects/all-classes/${classId}/arm/${armId}/midterm-report?classArmName=${classArmName}`)
+                }
+                className="bg-bg-state-secondary border-border-default text-text-default w-fill flex h-8 items-center gap-1 rounded-md border text-sm font-medium md:w-40"
+              >
+                <FileList2 fill="var(--color-icon-default-muted)" /> Mid-term Report
+              </Button>
             )}
             {isLoading || classData.length == 0 ? (
               <Skeleton className="bg-bg-input-soft h-8 w-40" />

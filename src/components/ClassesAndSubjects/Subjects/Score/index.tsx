@@ -10,6 +10,7 @@ import { toast } from "@/components/Toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetGradingsForClass } from "@/hooks/queryHooks/useGrading";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
+import { useIsMidtermEnabled } from "@/hooks/queryHooks/useMidterm";
 import { useSubmitArmTeacherInput } from "@/hooks/queryHooks/useStudent";
 import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
 import { cn } from "@/lib/utils";
@@ -19,7 +20,10 @@ import { useState } from "react";
 import { SubjectReportPermissionWrapper } from "../SubjectReportPermissionWrapper";
 import { DevelopmentPreview } from "./DevelopmentPreview";
 import { useArmDevelopmentData } from "./DevelopmentPreview/useArmDevelopmentData";
+import { MidtermComments } from "./MidtermComments";
 import ScoresHeader from "./ScoresHeader";
+
+const MIDTERM_COMMENTS_TAB = "Mid-term Comments";
 
 export default function Score() {
   useBreadcrumb([
@@ -36,6 +40,7 @@ export default function Score() {
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
   const [activeScoreTab, setActiveScoreTab] = useState<string>("Standard");
   const [developmentEdits, setDevelopmentEdits] = useState<Record<string, string>>({});
+  const [midtermCommentEdits, setMidtermCommentEdits] = useState<Record<number, string>>({});
 
   const { data: studentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
   const { data: classGrading } = useGetGradingsForClass(Number(classId));
@@ -48,10 +53,13 @@ export default function Score() {
     categories: developmentCategories,
     ratingLegend: developmentRatingLegend,
     ratings: developmentServerRatings,
+    midtermComments: midtermServerComments,
   } = useArmDevelopmentData(Number(armId));
+  const { enabled: midtermEnabled } = useIsMidtermEnabled(Number(armId));
   // Local edits win over whatever was last saved, so an in-progress rating survives switching category tabs.
   const developmentRatings = { ...developmentServerRatings, ...developmentEdits };
-  const scoreTabs = ["Standard", ...developmentCategories.map(category => category.categoryName)];
+  const midtermComments = { ...midtermServerComments, ...midtermCommentEdits };
+  const scoreTabs = ["Standard", ...developmentCategories.map(category => category.categoryName), ...(midtermEnabled ? [MIDTERM_COMMENTS_TAB] : [])];
   const activeDevelopmentCategory = developmentCategories.find(category => category.categoryName === activeScoreTab);
 
   const assessmentHeader = Object.values((studentsData[0]?.assessmentScores ?? {}) as Record<string, Assessment>).map((assessment: Assessment) => ({
@@ -159,6 +167,27 @@ export default function Score() {
     );
   };
 
+  const handleSubmitMidtermComments = () => {
+    const studentReports = Object.entries(midtermCommentEdits).map(([studentId, midtermComment]) => ({
+      studentId: Number(studentId),
+      ratings: [],
+      midtermComment,
+    }));
+
+    submitDevelopment(
+      { armId: Number(armId), studentReports },
+      {
+        onSuccess: () => {
+          toast({ title: "Submitted", description: "Mid-term comments submitted successfully", type: "success" });
+          setMidtermCommentEdits({});
+        },
+        onError: error => {
+          toast({ title: "Could not submit", description: error?.message || "Failed to submit mid-term comments", type: "error" });
+        },
+      },
+    );
+  };
+
   return (
     <SubjectReportPermissionWrapper subjectId={Number(subjectId)} isLoading={isLoading} type="edit">
       <div className="flex w-full flex-col gap-5">
@@ -243,6 +272,18 @@ export default function Score() {
             editable={status === "IN_PROGRESS" || status === "NOT_SUBMITTED" || status === "APPROVED_EDIT_ACCESS"}
             onSubmit={handleSubmitDevelopment}
             isSubmitting={isSubmittingDevelopment}
+          />
+        )}
+
+        {activeScoreTab === MIDTERM_COMMENTS_TAB && midtermEnabled && !isLoading && !isError && studentsData.length > 0 && (
+          <MidtermComments
+            students={studentsData.map((s: ScoreType) => ({ studentId: s.studentId, studentName: s.studentName }))}
+            comments={midtermComments}
+            onCommentChange={(studentId, value) => setMidtermCommentEdits(prev => ({ ...prev, [studentId]: value }))}
+            editable={status === "IN_PROGRESS" || status === "NOT_SUBMITTED" || status === "APPROVED_EDIT_ACCESS"}
+            onSubmit={handleSubmitMidtermComments}
+            isSubmitting={isSubmittingDevelopment}
+            hasEdits={Object.keys(midtermCommentEdits).length > 0}
           />
         )}
       </div>

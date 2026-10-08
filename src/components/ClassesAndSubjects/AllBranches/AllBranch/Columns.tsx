@@ -1,5 +1,5 @@
 "use client";
-import { Key, Notification2 } from "@digenty/icons";
+import { EyeClose, Key, Notification2, ShareBox } from "@digenty/icons";
 import { useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ColumnDef, Row } from "@tanstack/react-table";
@@ -9,6 +9,7 @@ import { AllBranchesTableProps } from "./types";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
 import StatusBadge from "@/components/StatusBadge";
+import { MidtermPublishModal } from "./MidtermPublishModal";
 import { NotifyBranchHead } from "./NotifyBranchHead";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
@@ -16,6 +17,8 @@ import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subje
 const RenderOptions = ({ row }: { row: Row<AllBranchesTableProps> }) => {
   const [open, setOpen] = useState(false);
   const [notifyOpen, setNotifyOpen] = useState(false);
+  const [midtermMode, setMidtermMode] = useState<"publish" | "unpublish" | null>(null);
+  const [termMode, setTermMode] = useState<"publish" | "unpublish" | null>(null);
   const router = useRouter();
 
   return (
@@ -55,9 +58,80 @@ const RenderOptions = ({ row }: { row: Row<AllBranchesTableProps> }) => {
               <span>Manage edit requests</span>
             </DropdownMenuItem>
           </PermissionCheck>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <DropdownMenuItem
+              onSelect={e => {
+                e.preventDefault();
+                setOpen(false);
+                setTermMode("publish");
+              }}
+              className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
+            >
+              <ShareBox fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Publish term report</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <DropdownMenuItem
+              onSelect={e => {
+                e.preventDefault();
+                setOpen(false);
+                setTermMode("unpublish");
+              }}
+              className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
+            >
+              <EyeClose fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Unpublish term report</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <DropdownMenuItem
+              onSelect={e => {
+                e.preventDefault();
+                setOpen(false);
+                setMidtermMode("publish");
+              }}
+              className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
+            >
+              <ShareBox fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Publish mid-term report</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
+          <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+            <DropdownMenuItem
+              onSelect={e => {
+                e.preventDefault();
+                setOpen(false);
+                setMidtermMode("unpublish");
+              }}
+              className="hover:bg-bg-basic-gray-alpha-2! gap-2.5 px-3"
+            >
+              <EyeClose fill="var(--color-icon-default-subtle)" className="size-4" />
+              <span>Unpublish mid-term report</span>
+            </DropdownMenuItem>
+          </PermissionCheck>
         </DropdownMenuContent>
       </DropdownMenu>
 
+      {termMode && (
+        <MidtermPublishModal
+          open
+          setOpen={value => !value && setTermMode(null)}
+          branchId={row.original.branchId}
+          branchName={row.original.branchName}
+          mode={termMode}
+          report="term"
+        />
+      )}
+      {midtermMode && (
+        <MidtermPublishModal
+          open
+          setOpen={value => !value && setMidtermMode(null)}
+          branchId={row.original.branchId}
+          branchName={row.original.branchName}
+          mode={midtermMode}
+        />
+      )}
       <NotifyBranchHead open={notifyOpen} setOpen={setNotifyOpen} branchHeadId={row.original.branchHeadId} />
     </>
   );

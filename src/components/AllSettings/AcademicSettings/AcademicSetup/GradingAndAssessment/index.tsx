@@ -9,12 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAddAssessment, useUpdateAssessmentForLevel } from "@/hooks/queryHooks/useAssessment";
+import { useAddAssessment, useUpdateAssessmentForLevel, useUpdateMidtermAssessments } from "@/hooks/queryHooks/useAssessment";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAddGrading, useGetGradingsByLevel, useUpdateGradingsForLevel } from "@/hooks/queryHooks/useGrading";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { canManageSettings } from "@/lib/permissions/settings";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
-import { FieldArray, FormikProvider, useFormik } from "formik";
+import { FieldArray, FormikProvider, useFormik, useFormikContext } from "formik";
 import React, { useEffect, useState } from "react";
 import { GradingAndAssessmentSheet, LevelFormValues } from "./GradingAndAssessmentSheet";
 
@@ -43,9 +45,12 @@ export type GradingAndAssessmentHandle = {
 
 export type { LevelFormValues };
 
-const emptyAssessmentRow = (): AssessmentRow => ({ name: "", weight: "" });
+const emptyAssessmentRow = (): AssessmentRow => ({ name: "", weight: "", includeInMidterm: false });
 const emptyGradeRow = (): GradeRow => ({ grade: "", upperLimit: "", lowerLimit: "", remark: "" });
 const emptyFormValues = (): LevelFormValues => ({ assessments: [emptyAssessmentRow()], grades: [emptyGradeRow()] });
+
+// Errors come back unwrapped from the API with a message written to be shown as-is.
+const getErrorMessage = (error: unknown, fallback = "Something went wrong") => (error as { message?: string } | null)?.message || fallback;
 
 const getTotalWeight = (assessments: AssessmentRow[]) => assessments.reduce((sum, a) => sum + (parseFloat(a.weight) || 0), 0);
 
@@ -62,9 +67,34 @@ type AssessmentFieldsProps = {
 const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, branchSpecific, hasExistingAssessment }: AssessmentFieldsProps) => {
   const totalWeight = getTotalWeight(values.assessments);
   const isOverWeight = totalWeight > 100;
+  const { permissions } = useLoggedInUser();
+  const canManage = canManageSettings(permissions);
 
   const { mutateAsync: addAssessment } = useAddAssessment();
   const { mutate: updateAssessment } = useUpdateAssessmentForLevel();
+  const { mutate: updateMidterm } = useUpdateMidtermAssessments();
+  const { setFieldValue } = useFormikContext<LevelFormValues>();
+
+  // Flags a saved component on/off the mid-term report straight away. Unsaved rows just keep the value in the
+  // form and send it with the setup save, since they have no id for the PATCH yet.
+  const toggleMidterm = (index: number, checked: boolean) => {
+    const row = values.assessments[index];
+    setFieldValue(`assessments.${index}.includeInMidterm`, checked);
+    if (!row.id || !hasExistingAssessment) return;
+
+    updateMidterm(
+      { assessmentIds: [row.id], includeInMidterm: checked },
+      {
+        onSuccess: () => {
+          toast({ title: checked ? "Added to mid-term report" : "Removed from mid-term report", type: "success" });
+        },
+        onError: error => {
+          setFieldValue(`assessments.${index}.includeInMidterm`, !checked);
+          toast({ title: "Could not update mid-term report", description: getErrorMessage(error, "Please try again"), type: "error" });
+        },
+      },
+    );
+  };
 
   const submitAssessment = () => {
     const payload = {
@@ -72,9 +102,12 @@ const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, b
       levelType: level?.levelType,
       branchSpecific,
       assessments: values.assessments.map(assessment => ({
+        // id lets a rename keep the component's scores; new rows have none.
+        ...(assessment.id ? { id: assessment.id } : {}),
         name: assessment.name,
         weight: Number(assessment.weight),
         assessmentType: "CONTINUOUS_ASSESSMENT",
+        includeInMidterm: !!assessment.includeInMidterm,
       })),
     };
 
@@ -86,9 +119,10 @@ const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, b
             type: "success",
           });
         },
-        onError: () => {
+        onError: error => {
           toast({
             title: "Failed to update assessment",
+            description: getErrorMessage(error),
             type: "error",
           });
         },
@@ -101,9 +135,10 @@ const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, b
             type: "success",
           });
         },
-        onError: () => {
+        onError: error => {
           toast({
             title: "Failed to save assessment",
+            description: getErrorMessage(error),
             type: "error",
           });
         },
@@ -148,6 +183,15 @@ const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, b
                       />
                       <span className="text-text-muted w-3">%</span>
                     </div>
+                    <label className="text-text-subtle flex shrink-0 cursor-pointer items-center gap-1.5 text-xs">
+                      <Checkbox
+                        checked={!!values.assessments[index].includeInMidterm}
+                        onCheckedChange={checked => toggleMidterm(index, checked === true)}
+                        disabled={!canManage}
+                        aria-label="Include in mid-term report"
+                      />
+                      <span className="hidden md:inline">Mid-term</span>
+                    </label>
                     <PermissionCheck permissionUtility={canManageSettings}>
                       <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit">
                         <DeleteBin2 fill="var(--color-icon-default-subtle)" />
@@ -455,8 +499,10 @@ const LevelFormPanel = ({ level, branchId, branchSpecific }: { level: ClassLevel
       formik.setFieldValue(
         "assessments",
         assessmentsData.data.assessments.map((a: AssessmentType) => ({
+          id: a.id,
           name: a.name,
           weight: a.weight?.toString() || "",
+          includeInMidterm: !!a.includeInMidterm,
         })),
       );
       setHasExistingAssessment(true);

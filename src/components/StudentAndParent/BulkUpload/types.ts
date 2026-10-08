@@ -31,6 +31,8 @@ export type ValidateUploadResponse = {
   columns: string[];
   validRows: UploadValidRow[];
   invalidRows: UploadInvalidRow[];
+  /** Set when some rows are identical to an earlier one (they stay valid). */
+  notice?: string | null;
 };
 
 export type CommitUploadResponse = {
