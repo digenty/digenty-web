@@ -4,7 +4,7 @@ export const stockSchema = yup.object().shape({
   name: yup.string().trim().required("Item name is required"),
   description: yup.string().trim().required("Description is required"),
   categoryId: yup.number().typeError("Category is required").required("Category is required").min(1, "Category is required"),
-  imagePath: yup.string().trim().required("Image is required"),
+  imagePath: yup.string().trim(),
   stockUnitId: yup.number().typeError("Unit is required").required("Unit is required").min(1, "Unit is required"),
   quantity: yup.number().typeError("Quantity is required").required("Quantity is required").min(0, "Quantity must be 0 or more"),
   price: yup.number().typeError("Price is required").required("Price is required").min(0, "Price must be 0 or more"),

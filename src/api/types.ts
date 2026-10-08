@@ -334,6 +334,7 @@ export interface TeacherInputRecord {
   developments: StudentDevelopment[];
   ratingLegend: RatingLegendEntry[];
   classTeacherComment: string | null;
+  midtermComment?: string | null;
 }
 
 // Proposed batch counterpart to GET /teacher-input/student/{studentId}/arm/{armId} — returns every
@@ -343,6 +344,66 @@ export interface ArmTeacherInputStudentReport {
   studentName: string;
   developments: StudentDevelopment[];
   classTeacherComment: string | null;
+  midtermComment?: string | null;
+}
+
+export interface MidtermAssessmentScore {
+  assessmentId: number;
+  assessmentName: string;
+  /** null = not entered yet; render blank, never 0. */
+  score: number | null;
+  weight: number;
+}
+
+export interface MidtermSubjectReport {
+  subjectId: number;
+  subjectName: string;
+  assessments: MidtermAssessmentScore[];
+  subtotal: number | null;
+  maxScore: number;
+  percentage: number | null;
+  grade: string | null;
+  remark: string | null;
+  /** false = nothing entered for this subject; subtotal/percentage/grade/remark are null. */
+  scoresEntered: boolean;
+}
+
+export interface MidtermReport {
+  schoolName: string;
+  sessionName: string;
+  termName: string;
+  studentId: number;
+  studentName: string;
+  className: string;
+  asOf: string;
+  published: boolean;
+  totalSessions: number;
+  sessionsPresent: number;
+  sessionsAbsent: number;
+  sessionsPerDay: 1 | 2;
+  subjectReports: MidtermSubjectReport[];
+  overallPercentage: number | null;
+  classTeacherComment: string | null;
+}
+
+export interface MidtermClassOverviewRow {
+  studentId: number;
+  studentName: string;
+  subjectsWithScores: number;
+  totalSubjects: number;
+  overallPercentage: number | null;
+}
+
+export interface MidtermPublishPayload {
+  termId?: number;
+  /** Last day attendance is counted to (yyyy-MM-dd). Defaults to today. */
+  asOfDate?: string;
+}
+
+export interface MidtermPublishResponse {
+  message: string;
+  publishedCount: number;
+  asOfDate: string;
 }
 
 export interface ArmTeacherInputResponse {
@@ -482,25 +543,32 @@ export type SchoolStructurePayload = {
   }[];
 };
 
+export interface AssessmentPayloadItem {
+  name: string;
+  weight: number;
+  assessmentType: string;
+  /** New components default to false when omitted; existing ones keep their current value. */
+  includeInMidterm?: boolean;
+  /** Existing component this entry updates (from the setup GET). Send it so renames keep their scores. */
+  id?: number;
+}
+
 export interface AssessmentDefaultPayload {
   branchId?: number;
   branchSpecific?: boolean;
-  assessments: {
-    name: string;
-    weight: number;
-    assessmentType: string;
-  }[];
+  assessments: AssessmentPayloadItem[];
 }
 
 export interface AssessmentPayload {
   branchId?: number;
   branchSpecific?: boolean;
   levelType?: LevelType;
-  assessments: {
-    name: string;
-    weight: number;
-    assessmentType: string;
-  }[];
+  assessments: AssessmentPayloadItem[];
+}
+
+export interface MidtermAssessmentPayload {
+  assessmentIds: number[];
+  includeInMidterm: boolean;
 }
 
 export interface GradingDefaultPayload {
@@ -558,8 +626,10 @@ export interface LevelTab {
 }
 
 export interface AssessmentRow {
+  id?: number;
   name: string;
   weight: string;
+  includeInMidterm?: boolean;
 }
 export interface GradeRow {
   grade: string;
@@ -894,6 +964,7 @@ export interface AssessmentType {
   name: string;
   assessmentType: string;
   weight: number;
+  includeInMidterm?: boolean;
 }
 
 export interface AssessmentResponse {
