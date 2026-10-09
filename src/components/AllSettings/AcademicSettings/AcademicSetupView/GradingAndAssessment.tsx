@@ -9,6 +9,7 @@ import { canManageSettings } from "@/lib/permissions/settings";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -272,6 +273,10 @@ export const ClassAssessmentSetup = ({ levelId }: { levelId?: number }) => {
                     <Input className="text-text-default h-7! w-full border-none bg-none! p-0" value={asst.weight} readOnly type="number" />
                     <span className="text-text-muted">%</span>
                   </div>
+                  <label className="text-text-subtle flex shrink-0 items-center gap-1.5 text-xs">
+                    <Checkbox checked={!!asst.includeInMidterm} disabled aria-label="Included in mid-term report" />
+                    <span className="hidden md:inline">Mid-term</span>
+                  </label>
                 </div>
               ))
             ) : (

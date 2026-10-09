@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckboxCircle, Eye, Filter, Key, Notification } from "@digenty/icons";
+import { CheckboxCircle, Eye, Key, Notification } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
 import { DataTable } from "@/components/DataTable";
 
@@ -8,11 +8,11 @@ import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AllClassessTableMainColumns } from "../Column";
 import { AllClassesMainTableProps } from "../types";
 import { ApproveModal, NotifyTeacherModal } from "./AllClassesModal";
@@ -46,7 +46,6 @@ export const AllClassesMainTable = ({
   setSearchQuery,
 }: AllClassesMainTableProps_Component) => {
   const [page, setPage] = useState(1);
-  const [isLevelFilterOpen, setIsLevelFilterOpen] = useState(false);
   const [openMobileDrawer, setOpenMobilerDrawer] = useState(false);
   const [openNotifyModalMobile, setOpenNotifyModalMobile] = useState(false);
   const [openApproveModalMobile, setOpenApproveModalMobile] = useState(false);
@@ -58,6 +57,15 @@ export const AllClassesMainTable = ({
   const router = useRouter();
 
   const { data: levels, isLoading: loadingLevels } = useGetLevels(branchId);
+
+  const levelList: ClassLevel[] = useMemo(() => levels?.data?.[0]?.classLevels ?? [], [levels]);
+  const formatLevelName = (name: string) => name.replaceAll("_", " ").toLowerCase();
+
+  // Always show one level's classes: default to the first level, and re-pick when the branch changes its level list.
+  useEffect(() => {
+    if (levelList.length === 0) return;
+    if (!levelSelected || !levelList.some(level => level.id === levelSelected.id)) setLevelSelected(levelList[0]);
+  }, [levelList, levelSelected, setLevelSelected]);
 
   const { mutate: approveReport, isPending: isSubmitting } = useSubmitClassReport();
 
@@ -84,73 +92,53 @@ export const AllClassesMainTable = ({
             setSearchQuery(evt.target.value);
           }}
         />
-
-        {loadingLevels && !levels ? (
-          <Skeleton className="bg-bg-input-soft h-8 w-8 rounded-md md:w-20 md:rounded-full" />
-        ) : (
-          <DropdownMenu open={isLevelFilterOpen} onOpenChange={setIsLevelFilterOpen}>
-            <DropdownMenuTrigger asChild>
-              <div>
-                <Button className="text-text-muted border-border-darker bg-bg-state-secondary hidden h-8 w-fit min-w-20 items-center gap-1 rounded-full border border-dashed px-2.5 py-1.5 text-sm capitalize md:flex">
-                  <Filter fill="var(--color-icon-default-muted)" />
-                  {levelSelected ? levelSelected.levelName.replace("_", " ").toLowerCase() : "Level"}
-                </Button>
-                <div className="bg-bg-input-soft flex h-8 items-center gap-1 rounded-sm px-2.5 py-1.5 text-sm md:hidden">
-                  <Filter fill="var(--color-icon-default-muted)" />
-                </div>
-              </div>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent className="bg-bg-card border-border-default text-text-default hidden py-2.5 shadow-sm md:block">
-              {levels?.data[0].classLevels.map((level: ClassLevel) => (
-                <DropdownMenuItem
-                  key={level.levelName}
-                  onClick={() => {
-                    setLevelSelected(level);
-                  }}
-                >
-                  <span className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer! gap-2.5 px-3 capitalize">
-                    {level.levelName.replace("_", " ").toLowerCase()}
-                  </span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-
-        <MobileDrawer open={isLevelFilterOpen} setIsOpen={setIsLevelFilterOpen} title="Filter">
-          <div className="flex w-full flex-col gap-4 px-3 py-4">
-            {loadingLevels ? (
-              <Skeleton className="bg-bg-input-soft h-8 w-8 rounded-md md:w-20 md:rounded-full" />
-            ) : (
-              <div className="space-y-2">
-                {levels?.data[0].classLevels.map((level: ClassLevel) => (
-                  <p
-                    key={level.levelName}
-                    onClick={() => setLevelSelected(level)}
-                    className={`text-text-default cursor-pointer px-3 text-sm ${levelSelected?.levelName === level.levelName ? "font-semibold" : ""}`}
-                  >
-                    {level.levelName}
-                  </p>
-                ))}
-              </div>
-            )}
-          </div>
-          <DrawerFooter className="border-border-default border-t">
-            <div className="flex justify-between">
-              <DrawerClose asChild>
-                <Button className="bg-bg-state-soft text-text-subtle h-8! rounded-md! px-4 py-2 text-sm font-medium">Cancel</Button>
-              </DrawerClose>
-              <Button
-                className="bg-bg-state-primary text-text-white-default h-8! rounded-md! px-4 py-2 text-sm tracking-[0.1rem]"
-                onClick={() => setIsLevelFilterOpen(false)}
-              >
-                Apply
-              </Button>
-            </div>
-          </DrawerFooter>
-        </MobileDrawer>
       </div>
+
+      {loadingLevels && !levels ? (
+        <Skeleton className="bg-bg-input-soft mb-4 h-8 w-full rounded-md md:w-120 md:rounded-full" />
+      ) : (
+        levelList.length > 0 && (
+          <div className="mb-4">
+            <div className="md:hidden">
+              <Select
+                value={levelSelected ? String(levelSelected.id) : undefined}
+                onValueChange={value => setLevelSelected(levelList.find(level => String(level.id) === value) ?? null)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {levelList.map(level => (
+                    <SelectItem key={level.id} value={String(level.id)} className="bg-bg-card! capitalize">
+                      {formatLevelName(level.levelName)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="bg-bg-state-soft hide-scrollbar hidden w-fit max-w-full items-center gap-1.5 overflow-x-auto rounded-full p-1 md:flex">
+              {levelList.map(level => {
+                const isActive = levelSelected?.id === level.id;
+                return (
+                  <div
+                    key={level.id}
+                    onClick={() => setLevelSelected(level)}
+                    className={cn(
+                      "flex shrink-0 cursor-pointer items-center rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap capitalize transition-all duration-200",
+                      isActive
+                        ? "bg-bg-state-secondary text-text-default shadow-sm"
+                        : "text-text-muted hover:text-text-default hover:bg-bg-state-ghost-hover/50",
+                    )}
+                  >
+                    {formatLevelName(level.levelName)}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )
+      )}
 
       {isFetchingBranch && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
 
