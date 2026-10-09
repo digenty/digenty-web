@@ -95,10 +95,10 @@ export default function Score() {
         });
         closeModal(false);
       },
-      onError: () => {
+      onError: error => {
         toast({
           title: `Could not ${status === "SUBMITTED" ? "submit" : "save"}`,
-          description: `Failed to ${status === "SUBMITTED" ? "submit" : "save"} scores`,
+          description: error?.message || `Failed to ${status === "SUBMITTED" ? "submit" : "save"} scores`,
           type: "error",
         });
         closeModal(false);
@@ -160,8 +160,8 @@ export default function Score() {
           toast({ title: "Submitted", description: "Development ratings submitted successfully", type: "success" });
           setDevelopmentEdits({});
         },
-        onError: () => {
-          toast({ title: "Could not submit", description: "Failed to submit development ratings", type: "error" });
+        onError: error => {
+          toast({ title: "Could not submit", description: error?.message || "Failed to submit development ratings", type: "error" });
         },
       },
     );
@@ -193,16 +193,19 @@ export default function Score() {
       <div className="flex w-full flex-col gap-5">
         <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} onExport={handleExport} status={status} />
 
-        <div className="border-border-default hide-scrollbar flex w-full items-center overflow-x-auto overscroll-x-contain border-b px-4 [-webkit-overflow-scrolling:touch] md:px-8">
+        <div className="border-border-default hide-scrollbar flex w-full max-w-full min-w-0 items-center overflow-x-auto overscroll-x-contain border-b px-4 [-webkit-overflow-scrolling:touch] md:px-8">
           {scoreTabs.map(tab => {
             const isActive = activeScoreTab === tab;
             return (
               <div
                 role="button"
-                onClick={() => setActiveScoreTab(tab)}
+                onClick={e => {
+                  setActiveScoreTab(tab);
+                  e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                }}
                 key={tab}
                 className={cn(
-                  "cursor-pointer px-3 py-2.5 text-center whitespace-nowrap transition-all duration-150",
+                  "shrink-0 cursor-pointer px-3 py-2.5 text-center whitespace-nowrap transition-all duration-150",
                   isActive && "border-border-informative border-b-[1.5px]",
                 )}
               >
@@ -212,7 +215,8 @@ export default function Score() {
           })}
         </div>
 
-        {activeScoreTab === "Standard" && (
+        {/* Kept mounted (just hidden) on other tabs so unsaved score inputs aren't lost when switching tabs. */}
+        <div className={cn("flex flex-col gap-5", activeScoreTab !== "Standard" && "hidden")}>
           <>
             {!isLoading && isError && !studentsItem && (
               <div className="flex h-80 items-center justify-center pt-15">
@@ -260,7 +264,7 @@ export default function Score() {
               </div>
             )}
           </>
-        )}
+        </div>
 
         {activeDevelopmentCategory && !isLoading && !isError && studentsData.length > 0 && (
           <DevelopmentPreview

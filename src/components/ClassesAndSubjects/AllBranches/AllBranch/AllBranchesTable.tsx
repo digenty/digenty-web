@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Key, Notification2 } from "@digenty/icons";
+import { EyeClose, Eye, Key, Notification2, ShareBox } from "@digenty/icons";
 import { useState } from "react";
 import { AllBranchesTableProps } from "./types";
 
@@ -12,12 +12,25 @@ import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { SearchInput } from "@/components/SearchInput";
 import { NotifyBranchHead } from "./NotifyBranchHead";
+import { MidtermPublishModal } from "./MidtermPublishModal";
+import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 import StatusBadge from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Ellipsis } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { AllBranchDetailsColumns } from "./Columns";
+
+const actionClass =
+  "text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm";
+
+const publishActions = [
+  { report: "term", mode: "publish", label: "Publish Term Report", Icon: ShareBox },
+  { report: "term", mode: "unpublish", label: "Unpublish Term Report", Icon: EyeClose },
+  { report: "midterm", mode: "publish", label: "Publish Mid-term Report", Icon: ShareBox },
+  { report: "midterm", mode: "unpublish", label: "Unpublish Mid-term Report", Icon: EyeClose },
+] as const;
 
 export const AllBranchesTable = ({
   isFetching,
@@ -36,6 +49,8 @@ export const AllBranchesTable = ({
   const [rowSelection, setRowSelection] = useState({});
   const [visibleCount, setVisibleCount] = useState(3);
   const [isOpen, setIsOpen] = useState(false);
+  const [activeBranch, setActiveBranch] = useState<AllBranchesTableProps | null>(null);
+  const [publishAction, setPublishAction] = useState<{ report: "term" | "midterm"; mode: "publish" | "unpublish" } | null>(null);
   const [notifyBranchHeadId, setNotifyBranchHeadId] = useState<number | null>(null);
   const router = useRouter();
 
@@ -88,40 +103,15 @@ export const AllBranchesTable = ({
               <div key={item.branchId} className="border-border-default bg-bg-subtle rounded-md border">
                 <div className="flex h-[38px] items-center justify-between px-3 py-1.5">
                   <span className="text-text-default text-sm font-medium">{item.branchName}</span>
-                  <Button onClick={() => setIsOpen(true)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">
+                  <Button
+                    onClick={() => {
+                      setActiveBranch(item);
+                      setIsOpen(true);
+                    }}
+                    className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!"
+                  >
                     <Ellipsis className="size-5" />
                   </Button>
-                  <MobileDrawer open={isOpen} setIsOpen={setIsOpen} title="Actions">
-                    <div className="flex w-full flex-col gap-4 px-3 py-4">
-                      <div className="flex flex-col items-center gap-2">
-                        <div
-                          role="button"
-                          onClick={() => router.push("/staff/classes-and-subjects/all-classes")}
-                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                        >
-                          <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Branch
-                        </div>
-                        <div
-                          role="button"
-                          onClick={() => {
-                            setIsOpen(false);
-                            setNotifyBranchHeadId(item.branchHeadId);
-                          }}
-                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                        >
-                          <Notification2 className="size-4" fill="var(--color-icon-default-subtle)" /> Notify Branch Head
-                        </div>
-
-                        <div
-                          onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${item.branchId}/manage-edits`)}
-                          role="button"
-                          className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                        >
-                          <Key className="size-4" fill="var(--color-icon-default-subtle)" /> Manage Edit Requests
-                        </div>
-                      </div>
-                    </div>
-                  </MobileDrawer>
                 </div>
                 <div className="border-border-default flex justify-between border-t px-3 py-2 text-sm">
                   <span className="text-text-muted font-medium">Branch Head </span>
@@ -170,6 +160,66 @@ export const AllBranchesTable = ({
           })}
         </div>
       </div>
+
+      <MobileDrawer open={isOpen} setIsOpen={setIsOpen} title="Actions">
+        <div className="flex w-full flex-col gap-4 px-3 py-4">
+          <div className="flex flex-col items-center gap-2">
+            <div
+              role="button"
+              onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${activeBranch?.branchId}/all-classes`)}
+              className={actionClass}
+            >
+              <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View Branch
+            </div>
+            <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+              <div
+                role="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  setNotifyBranchHeadId(activeBranch?.branchHeadId ?? null);
+                }}
+                className={actionClass}
+              >
+                <Notification2 className="size-4" fill="var(--color-icon-default-subtle)" /> Notify Branch Head
+              </div>
+            </PermissionCheck>
+            <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+              <div
+                role="button"
+                onClick={() => router.push(`/staff/classes-and-subjects/all-branches/${activeBranch?.branchId}/manage-edits`)}
+                className={actionClass}
+              >
+                <Key className="size-4" fill="var(--color-icon-default-subtle)" /> Manage Edit Requests
+              </div>
+            </PermissionCheck>
+            {publishActions.map(action => (
+              <PermissionCheck key={`${action.report}-${action.mode}`} permissionUtility={canManageClassesAndSubjects}>
+                <div
+                  role="button"
+                  onClick={() => {
+                    setIsOpen(false);
+                    setPublishAction({ report: action.report, mode: action.mode });
+                  }}
+                  className={actionClass}
+                >
+                  <action.Icon className="size-4" fill="var(--color-icon-default-subtle)" /> {action.label}
+                </div>
+              </PermissionCheck>
+            ))}
+          </div>
+        </div>
+      </MobileDrawer>
+
+      {publishAction && activeBranch && (
+        <MidtermPublishModal
+          open
+          setOpen={value => !value && setPublishAction(null)}
+          branchId={activeBranch.branchId}
+          branchName={activeBranch.branchName}
+          mode={publishAction.mode}
+          report={publishAction.report}
+        />
+      )}
 
       {notifyBranchHeadId !== null && (
         <NotifyBranchHead
