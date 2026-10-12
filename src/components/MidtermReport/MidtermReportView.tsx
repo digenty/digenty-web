@@ -1,5 +1,8 @@
 import { MidtermReport } from "@/api/types";
 import { format } from "date-fns";
+import { useState } from "react";
+import { DataTable } from "../DataTable";
+import { DevelopmentResult, developmentColumns } from "../StudentResult";
 
 const formatDate = (value?: string | null) => {
   if (!value) return "--";
@@ -11,6 +14,17 @@ const formatDate = (value?: string | null) => {
 // blank (never 0), and a subject with scoresEntered: false reads "Not entered" across its total columns.
 export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
   const unit = report.sessionsPerDay === 2 ? "Sessions" : "Days";
+  const [page, setPage] = useState(1);
+  const developmentSkills = (report.developments ?? []).flatMap(category => category.skills);
+  const ratingLegend = report.ratingLegend ?? [];
+  const developmentRows: DevelopmentResult[] = developmentSkills.map(skill => ({
+    skill: skill.skillName ?? "Skill",
+    rating: ratingLegend.find(entry => entry.value === skill.rating)?.label ?? "--",
+  }));
+  const ratingScale = [...ratingLegend]
+    .sort((a, b) => b.value - a.value)
+    .map(entry => `${entry.value} – ${entry.label}`)
+    .join(" | ");
   const assessmentHeaders = report.subjectReports[0]?.assessments.map(a => ({ id: a.assessmentId, name: a.assessmentName, weight: a.weight })) ?? [];
 
   return (
@@ -114,6 +128,28 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
         )}
       </div>
 
+      {developmentSkills.length > 0 && (
+        <div className="border-border-default flex flex-col gap-2 border-t px-4 py-5">
+          <h3 className="text-bg-basic-red-accent text-sm font-semibold">DEVELOPMENT</h3>
+          {ratingScale && <p className="text-text-subtle text-xs font-normal md:text-sm">Rating Scale: {ratingScale}</p>}
+          <DataTable
+            columns={developmentColumns()}
+            data={developmentRows}
+            totalCount={developmentRows.length}
+            page={page}
+            setCurrentPage={setPage}
+            pageSize={developmentRows.length}
+            fullBorder
+            showPagination={false}
+            classNames={{
+              tableWrapper: "rounded-none",
+              tableHeadCell: "px-2",
+              tableBodyCell: "px-0",
+            }}
+          />
+        </div>
+      )}
+
       <div className="text-text-default flex flex-col gap-4 px-4 py-5 text-sm font-normal">
         <div>
           <span>OVERALL PERCENTAGE:</span>{" "}
@@ -122,6 +158,10 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
         <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
           <span className="text-text-subtle">Class Teacher&apos;s Mid-term Comment:</span>{" "}
           <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{report.classTeacherComment || "--"}</span>
+        </div>
+        <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
+          <span className="text-text-subtle">{report.principalCommentTitle ?? "Principal's Comment"}:</span>{" "}
+          <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{report.principalComment || "--"}</span>
         </div>
       </div>
     </div>
