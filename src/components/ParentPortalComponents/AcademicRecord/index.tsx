@@ -9,7 +9,10 @@ import { TermLookup } from "@/api/parent-lookup";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
+import { useGetParentMidtermReport } from "@/hooks/queryHooks/useMidterm";
 import { useGetActiveParentPortalTerm, useGetParentPortalTerms } from "@/hooks/queryHooks/useParentLookup";
+import { MidtermReportView } from "@/components/MidtermReport/MidtermReportView";
+import { cn } from "@/lib/utils";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useStudentFilterStore } from "@/store/parent";
 import { Calendar } from "@digenty/icons";
@@ -19,6 +22,7 @@ export const AcademicRecord = () => {
   const { selectedStudentId } = useStudentFilterStore();
 
   const [termSelected, setTermSelected] = useState<TermLookup | null>(null);
+  const [view, setView] = useState<"term" | "midterm">("term");
 
   const { data: activeTerm, isLoading: loadingActiveTerm } = useGetActiveParentPortalTerm();
   const { data: terms, isLoading: loadingTerms } = useGetParentPortalTerms(activeTerm?.academicSessionId);
@@ -28,6 +32,14 @@ export const AcademicRecord = () => {
     isError: isErrorStudentReport,
     error: studentReportError,
   } = useGetStudentAcademicRecord(selectedStudentId, termSelected?.id);
+  // Only fetched once the mid-term tab is opened. The API answers 400 until the school publishes it.
+  const {
+    data: midtermReport,
+    isLoading: loadingMidterm,
+    isError: isErrorMidterm,
+    error: midtermError,
+  } = useGetParentMidtermReport(view === "midterm" ? selectedStudentId : undefined, termSelected?.id);
+  const midtermErrorMessage = (midtermError as { message?: string } | null)?.message ?? "Mid-term report has not been published yet";
   const studentReportErrorMessage =
     (studentReportError as { message?: string } | null)?.message ?? "This is our problem, we are looking into it so as to serve you better";
   useEffect(() => {
@@ -45,6 +57,27 @@ export const AcademicRecord = () => {
         <div className="hidden md:block">
           <StudentFilter parentId={user?.id} />
         </div>
+      </div>
+
+      <div className="bg-bg-state-soft flex w-fit items-center gap-1 rounded-full p-0.5">
+        {(
+          [
+            { id: "term", label: "Term Report" },
+            { id: "midterm", label: "Mid-term Report" },
+          ] as const
+        ).map(tab => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setView(tab.id)}
+            className={cn(
+              "h-8 rounded-full px-4 text-sm font-medium whitespace-nowrap",
+              view === tab.id ? "bg-bg-state-secondary border-border-darker text-text-default border shadow-sm" : "text-text-muted",
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       <div className="flex items-center justify-between">
@@ -76,23 +109,29 @@ export const AcademicRecord = () => {
         )}
       </div>
 
-      {!selectedStudentId && (
-        <PageEmptyState title="No Student Selected" description="Select a student above to view their academic record" />
+      {!selectedStudentId && <PageEmptyState title="No Student Selected" description="Select a student above to view their academic record" />}
+
+      {view === "midterm" && selectedStudentId && (
+        <>
+          {loadingMidterm && <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />}
+          {isErrorMidterm && <PageEmptyState title="Mid-term report unavailable" description={midtermErrorMessage} />}
+          {midtermReport && <MidtermReportView report={midtermReport} />}
+        </>
       )}
 
-      {selectedStudentId && loadingStudentReport && <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />}
+      {view === "term" && selectedStudentId && loadingStudentReport && <Skeleton className="bg-bg-input-soft h-full w-full rounded-md" />}
 
-      {selectedStudentId && isErrorStudentReport && (
+      {view === "term" && selectedStudentId && isErrorStudentReport && (
         <div className="flex h-screen items-center justify-center">
           <ErrorComponent title="Could not get Student's report" description={studentReportErrorMessage} />
         </div>
       )}
 
-      {selectedStudentId && !loadingStudentReport && !isErrorStudentReport && !studentReportData && (
+      {view === "term" && selectedStudentId && !loadingStudentReport && !isErrorStudentReport && !studentReportData && (
         <PageEmptyState title="Could not get Student's report" description="No report available for student" />
       )}
 
-      {selectedStudentId && !loadingStudentReport && !isErrorStudentReport && studentReportData && (
+      {view === "term" && selectedStudentId && !loadingStudentReport && !isErrorStudentReport && studentReportData && (
         <StudentResult studentReport={studentReportData} termSelected={termSelected} />
       )}
     </div>

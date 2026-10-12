@@ -15,7 +15,7 @@ export interface CreateStockDto {
   name: string;
   description: string;
   categoryId: number;
-  imagePath: string;
+  imagePath?: string;
   stockUnitId: number;
   quantity: number;
   price: number;

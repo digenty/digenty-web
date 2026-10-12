@@ -201,6 +201,8 @@ export const addTeacherInput = async (payload: {
   armId: number;
   ratings: { skillId: number; rating: number }[];
   classTeacherComment: string;
+  /** Up to 1000 chars. Omit to leave the stored comment alone; send "" to clear it. */
+  midtermComment?: string;
 }) => {
   try {
     const { data } = await api.post("/teacher-input", payload);
@@ -249,6 +251,8 @@ export const submitArmTeacherInput = async (payload: {
     studentId: number;
     ratings: { skillId: number; rating: number }[];
     classTeacherComment?: string | null;
+    /** Null/missing leaves the stored comment alone; "" clears it. */
+    midtermComment?: string | null;
   }[];
 }) => {
   try {

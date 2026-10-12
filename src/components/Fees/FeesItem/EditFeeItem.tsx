@@ -24,6 +24,7 @@ interface EditFeeItemFormValues {
   name: string;
   quantity: number;
   required: boolean;
+  sendReminders: boolean;
   amount: number | "";
   setDifferentPricesPerClass: boolean;
   classArmAmounts: { armId: number; amount: number | ""; label: string }[];
@@ -71,6 +72,7 @@ export const EditFeeItem = () => {
         name: "",
         quantity: 1,
         required: false,
+        sendReminders: true,
         amount: "",
         setDifferentPricesPerClass: false,
         classArmAmounts: [],
@@ -93,6 +95,7 @@ export const EditFeeItem = () => {
       name: item.feeName,
       quantity: item.quantity,
       required: item.required,
+      sendReminders: item.sendReminders ?? true,
       amount: item.amount ?? (hasDifferentPrices ? "" : (item.minAmount ?? "")),
       setDifferentPricesPerClass: hasDifferentPrices,
       classArmAmounts,
@@ -131,6 +134,7 @@ export const EditFeeItem = () => {
           name: values.name.trim(),
           quantity: values.quantity,
           required: values.required,
+          sendReminders: values.sendReminders,
           paymentMode: values.paymentMode,
           installments: values.paymentMode === "INSTALLMENT" ? buildInstallmentsPayload(values.installments) : undefined,
           branchIds,
@@ -213,6 +217,16 @@ export const EditFeeItem = () => {
                   <Badge className="text-text-default border-border-default h-5! w-16! rounded-sm border">Optional</Badge>
                 )}
                 <Toggle checked={values.required} onChange={e => setFieldValue("required", e.target.checked)} className="border-none" />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <div className="flex max-w-fit items-center gap-2">
+                  <span className="text-text-default text-sm font-medium">Send payment reminders</span>
+                  <Toggle checked={values.sendReminders} onChange={e => setFieldValue("sendReminders", e.target.checked)} className="border-none" />
+                </div>
+                <span className="text-text-muted text-xs">
+                  Automatic reminders before, on and after the due date. Turning this off does not change amounts owed or overdue status.
+                </span>
               </div>
 
               {item && (

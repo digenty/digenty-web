@@ -93,7 +93,7 @@ export const AddStock = () => {
         } else {
           const { stockId: _id, branchId, ...rest } = values;
           void _id;
-          await createStock({ ...rest, branchIds: [branchId] } as CreateStockDto);
+          await createStock({ ...rest, imagePath: rest.imagePath || undefined, branchIds: [branchId] } as CreateStockDto);
           toast({ title: "Stock created successfully", type: "success" });
           router.push("/staff/stock");
         }
@@ -118,7 +118,7 @@ export const AddStock = () => {
     try {
       const { stockId: _id, branchId, ...rest } = formik.values;
       void _id;
-      await createStock({ ...rest, branchIds: [branchId] } as CreateStockDto);
+      await createStock({ ...rest, imagePath: rest.imagePath || undefined, branchIds: [branchId] } as CreateStockDto);
       toast({ title: "Stock created successfully", type: "success" });
       formik.resetForm();
     } catch (error) {
@@ -268,7 +268,7 @@ export const AddStock = () => {
 
           <div className="flex flex-col gap-2">
             <div className="text-text-default text-sm font-medium">
-              Stock Image <span className="text-text-destructive">*</span>
+              Stock Image <span className="text-text-muted text-xs font-normal">(optional)</span>
             </div>
             <label className="border-border-default flex cursor-pointer items-center justify-center rounded-sm border border-dashed px-6 py-8">
               <input type="file" accept="image/png,image/jpeg" className="hidden" onChange={handleImageChange} />

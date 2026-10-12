@@ -26,6 +26,11 @@ export const useArmDevelopmentData = (armId: number) => {
       });
     });
 
-    return { categories, ratingLegend, ratings, isLoading };
+    const midtermComments: Record<number, string> = {};
+    studentReports.forEach(report => {
+      if (report.midtermComment) midtermComments[report.studentId] = report.midtermComment;
+    });
+
+    return { categories, ratingLegend, ratings, midtermComments, isLoading };
   }, [data, isLoading]);
 };

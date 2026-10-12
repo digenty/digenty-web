@@ -268,6 +268,8 @@ export interface FeeItemDetailResponse {
   allowPartPayment: boolean;
   minimumPartPayment: number;
   paymentMode: FeePaymentMode;
+  /** Automatic due-date reminders (email and in-app). On by default. */
+  sendReminders?: boolean;
   installments?: FeeInstallmentDetail[];
   branches: { branchId: number; branchName: string }[];
   appliedClasses: AppliedClassGroup[];
@@ -559,6 +561,8 @@ export const createMultiBranchFeeItem = async (payload: MultiBranchFeeItemDto) =
 
 export interface UpdateFeeItemDto {
   name: string;
+  /** Omit to leave the setting unchanged. Can be changed even after parents have paid. */
+  sendReminders?: boolean;
   quantity?: number;
   required?: boolean;
   allowPartPayment?: boolean;

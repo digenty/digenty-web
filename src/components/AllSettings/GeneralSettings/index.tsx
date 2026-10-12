@@ -16,6 +16,7 @@ import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { PlusIcon } from "lucide-react";
 import React, { useEffect, useState, useRef } from "react";
 import { SchoolData } from "./types";
+import { DeleteBranchModal } from "./DeleteBranchModal";
 import { uploadImage } from "@/app/actions/upload-image";
 import { useGetCountries } from "@/hooks/queryHooks/useCountry";
 import { currencies } from "@/store/currenciesCode";
@@ -58,6 +59,7 @@ export const General = () => {
   const [branchAddress, setBranchAddress] = useState("");
   const [activeBranchId, setActiveBranchId] = useState<number | null>(null);
   const [branchList, setBranchList] = useState<Branch[]>([]);
+  const [deleteBranchOpen, setDeleteBranchOpen] = useState(false);
 
   const { data: schoolResponse } = useGetSchoolDetails();
   const { data: branchesResponse, isFetching: isLoadingBranch } = useGetBranches();
@@ -562,7 +564,7 @@ export const General = () => {
                         </Badge>
                         <PermissionCheck permissionUtility={canManageSettings}>
                           <Button
-                            onClick={resetBranchForm}
+                            onClick={() => setDeleteBranchOpen(true)}
                             className="bg-bg-state-ghost! hover:bg-bg-state-ghost-hover! text-text-default flex items-center gap-1 border-none text-xs font-medium"
                           >
                             <DeleteBin fill="var(--color-icon-default-muted)" /> Delete Branch
@@ -670,6 +672,17 @@ export const General = () => {
           </PermissionCheck>
         </div>
       </div>
+
+      <DeleteBranchModal
+        open={deleteBranchOpen}
+        setOpen={setDeleteBranchOpen}
+        branchId={activeBranchId}
+        branchName={branchList.find(branch => branch.id === activeBranchId)?.name ?? undefined}
+        onDeleted={() => {
+          setBranchList(list => list.filter(branch => branch.id !== activeBranchId));
+          resetBranchForm();
+        }}
+      />
     </div>
   );
 };

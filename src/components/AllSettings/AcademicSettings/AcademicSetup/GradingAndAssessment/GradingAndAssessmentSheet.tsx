@@ -8,6 +8,7 @@ import { PermissionCheck } from "@/components/ModulePermissionsWrapper/Permissio
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useAddAssessmentDefault, useGetAssessmentDefault } from "@/hooks/queryHooks/useAssessment";
@@ -20,7 +21,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 import { useEffect, useState } from "react";
 
-type AssessmentRow = { name: string; weight: string };
+type AssessmentRow = { id?: number; name: string; weight: string; includeInMidterm?: boolean };
 type GradeRow = { grade: string; upperLimit: string; lowerLimit: string; remark: string };
 
 export type LevelFormValues = {
@@ -28,7 +29,7 @@ export type LevelFormValues = {
   grades: GradeRow[];
 };
 
-const emptyAssessmentRow = (): AssessmentRow => ({ name: "", weight: "" });
+const emptyAssessmentRow = (): AssessmentRow => ({ name: "", weight: "", includeInMidterm: false });
 const emptyGradeRow = (): GradeRow => ({ grade: "", upperLimit: "", lowerLimit: "", remark: "" });
 const getTotalWeight = (assessments: AssessmentRow[]) => assessments.reduce((sum, a) => sum + (parseFloat(a.weight) || 0), 0);
 
@@ -54,9 +55,11 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
         branchId,
         branchSpecific,
         assessments: values.assessments.map(assessment => ({
+          ...(assessment.id ? { id: assessment.id } : {}),
           name: assessment.name,
           weight: Number(assessment.weight),
           assessmentType: "CONTINUOUS_ASSESSMENT",
+          includeInMidterm: !!assessment.includeInMidterm,
         })),
       };
 
@@ -85,11 +88,11 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
           });
         } else {
           if (assessmentRes.status === "rejected") {
-            const message = assessmentRes.reason instanceof Error ? assessmentRes.reason.message : "Failed to save assessment settings";
+            const message = (assessmentRes.reason as { message?: string } | null)?.message || "Failed to save assessment settings";
             toast({ title: "Assessment Save Failed", description: message, type: "error" });
           }
           if (gradingRes.status === "rejected") {
-            const message = gradingRes.reason instanceof Error ? gradingRes.reason.message : "Failed to save grading settings";
+            const message = (gradingRes.reason as { message?: string } | null)?.message || "Failed to save grading settings";
             toast({ title: "Grading Save Failed", description: message, type: "error" });
           }
         }
@@ -110,8 +113,10 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
       formik.setFieldValue(
         "assessments",
         assessments.map((a: AssessmentType) => ({
+          id: a.id,
           name: a.name,
           weight: a.weight?.toString() || "",
+          includeInMidterm: !!a.includeInMidterm,
         })),
       );
     }
@@ -160,6 +165,14 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
                           />
                           <span className="text-text-muted w-3">%</span>
                         </div>
+                        <label className="text-text-subtle flex shrink-0 cursor-pointer items-center gap-1.5 text-xs">
+                          <Checkbox
+                            checked={!!formik.values.assessments[index].includeInMidterm}
+                            onCheckedChange={checked => formik.setFieldValue(`assessments.${index}.includeInMidterm`, checked === true)}
+                            aria-label="Include in mid-term report"
+                          />
+                          <span className="hidden md:inline">Mid-term</span>
+                        </label>
                         <PermissionCheck permissionUtility={canManageSettings}>
                           <Button type="button" onClick={() => remove(index)} className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! w-fit">
                             <DeleteBin2 fill="var(--color-icon-default-subtle)" />

@@ -9,6 +9,7 @@ import { MobileDrawer } from "@/components/MobileDrawer";
 import { DrawerFooter, DrawerClose } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
+import { useIsMidtermEnabled } from "@/hooks/queryHooks/useMidterm";
 import { useAddTeacherInput, useGetTeacherInputByStudentArm } from "@/hooks/queryHooks/useStudent";
 import { useEffect, useState } from "react";
 import { Spinner } from "../ui/spinner";
@@ -88,14 +89,17 @@ export const EditTeacherInputModal = ({
   const { data: teacherInputData, isFetching: isLoadingTeacherInput } = useGetTeacherInputByStudentArm({ studentId, armId, enabled: open });
 
   const teacherInput = teacherInputData?.data;
+  const { enabled: midtermEnabled } = useIsMidtermEnabled(armId);
 
   const [ratings, setRatings] = useState<RatingsState>({});
   const [classTeacherComment, setClassTeacherComment] = useState("");
+  const [midtermComment, setMidtermComment] = useState("");
 
   useEffect(() => {
     if (open && teacherInput) {
       setRatings(buildInitialRatings(teacherInput.developments));
       setClassTeacherComment(teacherInput.classTeacherComment || "");
+      setMidtermComment(teacherInput.midtermComment || "");
     }
   }, [open, teacherInput]);
 
@@ -119,6 +123,8 @@ export const EditTeacherInputModal = ({
         armId,
         ratings: ratingsPayload,
         classTeacherComment,
+        // Only mid-term schools send it; omitting it leaves any stored comment alone.
+        ...(midtermEnabled ? { midtermComment } : {}),
       },
       {
         onSuccess: () => {
@@ -179,6 +185,22 @@ export const EditTeacherInputModal = ({
                     placeholder="Enter your comment"
                   />
                 </div>
+
+                {midtermEnabled && (
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="mobileMidtermComment" className="text-text-default text-sm font-medium">
+                      Mid-term Comment
+                    </Label>
+                    <Textarea
+                      id="mobileMidtermComment"
+                      value={midtermComment}
+                      maxLength={1000}
+                      onChange={e => setMidtermComment(e.target.value)}
+                      className="text-text-default border-border-default bg-bg-input-soft! focus:border-border-highlight! h-24 w-full resize-none rounded-lg border p-3 text-sm"
+                      placeholder="Enter your mid-term comment"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -242,6 +264,22 @@ export const EditTeacherInputModal = ({
                     placeholder="Enter your comment"
                   />
                 </div>
+
+                {midtermEnabled && (
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="midtermComment" className="text-text-default text-sm font-semibold">
+                      Mid-term Comment
+                    </Label>
+                    <Textarea
+                      id="midtermComment"
+                      value={midtermComment}
+                      maxLength={1000}
+                      onChange={e => setMidtermComment(e.target.value)}
+                      className="text-text-default border-border-default bg-bg-input-soft! focus:border-border-highlight! h-24 w-full resize-none rounded-lg border p-3 text-sm"
+                      placeholder="Enter your mid-term comment"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </Modal>

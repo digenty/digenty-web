@@ -60,9 +60,15 @@ export const useGetBranchesBySchool = (schoolId?: number) => {
   });
 };
 
-export const useDeleteBranch = (branchId: number) => {
+export const useDeleteBranch = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: branchKeys.delete,
-    mutationFn: () => deleteBranch(branchId),
+    mutationFn: (branchId: number) => deleteBranch(branchId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: branchKeys.branches });
+      queryClient.invalidateQueries({ queryKey: ["allbranches"] });
+    },
   });
 };

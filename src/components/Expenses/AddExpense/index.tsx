@@ -390,7 +390,7 @@ const AddExpenseForm = () => {
 
           <div className="flex flex-col gap-2">
             <Label className="text-text-default text-sm font-medium">
-              Receipt <span className="text-text-destructive">*</span>
+              Receipt <span className="text-text-muted text-xs font-normal">(optional)</span>
             </Label>
 
             <label className="border-border-default flex cursor-pointer items-center justify-center rounded-sm border border-dashed px-6 py-10">

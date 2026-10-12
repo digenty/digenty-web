@@ -92,8 +92,8 @@ export const ClassReportHeader = ({
             toast({ title: "Submitted", description: "Class report submitted successfully", type: "success" });
             setOpenModal(false);
           },
-          onError: () => {
-            toast({ title: "Failed to submit", description: "Failed to submit class report", type: "error" });
+          onError: error => {
+            toast({ title: "Failed to submit", description: error?.message || "Failed to submit class report", type: "error" });
           },
         },
       );
@@ -117,8 +117,8 @@ export const ClassReportHeader = ({
         toast({ title: "Success", description: "Promotions saved successfully", type: "success" });
         setOpenPromotionModal(false);
       },
-      onError: () => {
-        toast({ title: "Error", description: "Failed to save promotions", type: "error" });
+      onError: error => {
+        toast({ title: "Error", description: error?.message || "Failed to save promotions", type: "error" });
       },
     });
   };

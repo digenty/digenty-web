@@ -17,7 +17,7 @@ export const expenseSchema = yup.object().shape({
   categoryId: yup.number().typeError("Category is required").notRequired(),
   branchId: yup.number().typeError("Branch is required").notRequired(),
   paymentMethod: yup.string().oneOf(PAYMENT_METHODS, "Payment method is required").required("Payment method is required"),
-  receiptPath: yup.string().trim().required("Receipt is required"),
+  receiptPath: yup.string().trim(),
   recurring: yup.boolean(),
   recurringInterval,
 });

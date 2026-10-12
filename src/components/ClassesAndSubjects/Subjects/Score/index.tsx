@@ -10,6 +10,7 @@ import { toast } from "@/components/Toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetGradingsForClass } from "@/hooks/queryHooks/useGrading";
 import { useAddScore } from "@/hooks/queryHooks/useScore";
+import { useIsMidtermEnabled } from "@/hooks/queryHooks/useMidterm";
 import { useSubmitArmTeacherInput } from "@/hooks/queryHooks/useStudent";
 import { useGetSubjectStudents } from "@/hooks/queryHooks/useSubject";
 import { cn } from "@/lib/utils";
@@ -19,7 +20,10 @@ import { useState } from "react";
 import { SubjectReportPermissionWrapper } from "../SubjectReportPermissionWrapper";
 import { DevelopmentPreview } from "./DevelopmentPreview";
 import { useArmDevelopmentData } from "./DevelopmentPreview/useArmDevelopmentData";
+import { MidtermComments } from "./MidtermComments";
 import ScoresHeader from "./ScoresHeader";
+
+const MIDTERM_COMMENTS_TAB = "Mid-term Comments";
 
 export default function Score() {
   useBreadcrumb([
@@ -36,6 +40,7 @@ export default function Score() {
   const [updatedData, setUpdatedData] = useState<ScoreType[]>([]);
   const [activeScoreTab, setActiveScoreTab] = useState<string>("Standard");
   const [developmentEdits, setDevelopmentEdits] = useState<Record<string, string>>({});
+  const [midtermCommentEdits, setMidtermCommentEdits] = useState<Record<number, string>>({});
 
   const { data: studentsItem, isLoading, isError, error } = useGetSubjectStudents(Number(subjectId), Number(armId));
   const { data: classGrading } = useGetGradingsForClass(Number(classId));
@@ -48,10 +53,13 @@ export default function Score() {
     categories: developmentCategories,
     ratingLegend: developmentRatingLegend,
     ratings: developmentServerRatings,
+    midtermComments: midtermServerComments,
   } = useArmDevelopmentData(Number(armId));
+  const { enabled: midtermEnabled } = useIsMidtermEnabled(Number(armId));
   // Local edits win over whatever was last saved, so an in-progress rating survives switching category tabs.
   const developmentRatings = { ...developmentServerRatings, ...developmentEdits };
-  const scoreTabs = ["Standard", ...developmentCategories.map(category => category.categoryName)];
+  const midtermComments = { ...midtermServerComments, ...midtermCommentEdits };
+  const scoreTabs = ["Standard", ...developmentCategories.map(category => category.categoryName), ...(midtermEnabled ? [MIDTERM_COMMENTS_TAB] : [])];
   const activeDevelopmentCategory = developmentCategories.find(category => category.categoryName === activeScoreTab);
 
   const assessmentHeader = Object.values((studentsData[0]?.assessmentScores ?? {}) as Record<string, Assessment>).map((assessment: Assessment) => ({
@@ -87,10 +95,10 @@ export default function Score() {
         });
         closeModal(false);
       },
-      onError: () => {
+      onError: error => {
         toast({
           title: `Could not ${status === "SUBMITTED" ? "submit" : "save"}`,
-          description: `Failed to ${status === "SUBMITTED" ? "submit" : "save"} scores`,
+          description: error?.message || `Failed to ${status === "SUBMITTED" ? "submit" : "save"} scores`,
           type: "error",
         });
         closeModal(false);
@@ -152,8 +160,29 @@ export default function Score() {
           toast({ title: "Submitted", description: "Development ratings submitted successfully", type: "success" });
           setDevelopmentEdits({});
         },
-        onError: () => {
-          toast({ title: "Could not submit", description: "Failed to submit development ratings", type: "error" });
+        onError: error => {
+          toast({ title: "Could not submit", description: error?.message || "Failed to submit development ratings", type: "error" });
+        },
+      },
+    );
+  };
+
+  const handleSubmitMidtermComments = () => {
+    const studentReports = Object.entries(midtermCommentEdits).map(([studentId, midtermComment]) => ({
+      studentId: Number(studentId),
+      ratings: [],
+      midtermComment,
+    }));
+
+    submitDevelopment(
+      { armId: Number(armId), studentReports },
+      {
+        onSuccess: () => {
+          toast({ title: "Submitted", description: "Mid-term comments submitted successfully", type: "success" });
+          setMidtermCommentEdits({});
+        },
+        onError: error => {
+          toast({ title: "Could not submit", description: error?.message || "Failed to submit mid-term comments", type: "error" });
         },
       },
     );
@@ -164,16 +193,19 @@ export default function Score() {
       <div className="flex w-full flex-col gap-5">
         <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} onExport={handleExport} status={status} />
 
-        <div className="border-border-default hide-scrollbar flex w-full items-center overflow-x-auto overscroll-x-contain border-b px-4 [-webkit-overflow-scrolling:touch] md:px-8">
+        <div className="border-border-default hide-scrollbar flex w-full max-w-full min-w-0 items-center overflow-x-auto overscroll-x-contain border-b px-4 [-webkit-overflow-scrolling:touch] md:px-8">
           {scoreTabs.map(tab => {
             const isActive = activeScoreTab === tab;
             return (
               <div
                 role="button"
-                onClick={() => setActiveScoreTab(tab)}
+                onClick={e => {
+                  setActiveScoreTab(tab);
+                  e.currentTarget.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+                }}
                 key={tab}
                 className={cn(
-                  "cursor-pointer px-3 py-2.5 text-center whitespace-nowrap transition-all duration-150",
+                  "shrink-0 cursor-pointer px-3 py-2.5 text-center whitespace-nowrap transition-all duration-150",
                   isActive && "border-border-informative border-b-[1.5px]",
                 )}
               >
@@ -183,7 +215,8 @@ export default function Score() {
           })}
         </div>
 
-        {activeScoreTab === "Standard" && (
+        {/* Kept mounted (just hidden) on other tabs so unsaved score inputs aren't lost when switching tabs. */}
+        <div className={cn("flex flex-col gap-5", activeScoreTab !== "Standard" && "hidden")}>
           <>
             {!isLoading && isError && !studentsItem && (
               <div className="flex h-80 items-center justify-center pt-15">
@@ -231,7 +264,7 @@ export default function Score() {
               </div>
             )}
           </>
-        )}
+        </div>
 
         {activeDevelopmentCategory && !isLoading && !isError && studentsData.length > 0 && (
           <DevelopmentPreview
@@ -243,6 +276,18 @@ export default function Score() {
             editable={status === "IN_PROGRESS" || status === "NOT_SUBMITTED" || status === "APPROVED_EDIT_ACCESS"}
             onSubmit={handleSubmitDevelopment}
             isSubmitting={isSubmittingDevelopment}
+          />
+        )}
+
+        {activeScoreTab === MIDTERM_COMMENTS_TAB && midtermEnabled && !isLoading && !isError && studentsData.length > 0 && (
+          <MidtermComments
+            students={studentsData.map((s: ScoreType) => ({ studentId: s.studentId, studentName: s.studentName }))}
+            comments={midtermComments}
+            onCommentChange={(studentId, value) => setMidtermCommentEdits(prev => ({ ...prev, [studentId]: value }))}
+            editable={status === "IN_PROGRESS" || status === "NOT_SUBMITTED" || status === "APPROVED_EDIT_ACCESS"}
+            onSubmit={handleSubmitMidtermComments}
+            isSubmitting={isSubmittingDevelopment}
+            hasEdits={Object.keys(midtermCommentEdits).length > 0}
           />
         )}
       </div>

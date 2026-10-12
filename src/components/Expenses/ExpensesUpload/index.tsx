@@ -65,6 +65,7 @@ export const ExpensesUpload = () => {
         {
           onSuccess: response => {
             setValidation(response);
+            if (response.notice) toast({ title: "Heads up", description: response.notice, type: "warning" });
             setCompletedSteps(prev => [...prev, 2]);
             setCurrentStep(3);
           },
