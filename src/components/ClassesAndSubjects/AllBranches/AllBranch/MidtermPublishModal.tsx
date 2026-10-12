@@ -12,7 +12,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { usePublishMidtermReport, useUnpublishMidtermReport } from "@/hooks/queryHooks/useMidterm";
 import { usePublishBranchReports, useUnpublishBranchReports } from "@/hooks/queryHooks/useReportPublish";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { format } from "date-fns";
+import { useGetTerms } from "@/hooks/queryHooks/useTerm";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { Term } from "@/api/types";
 import { useState } from "react";
 
 type MidtermPublishModalProps = {
@@ -32,7 +34,12 @@ const errorMessage = (error: unknown, fallback: string) => (error as { message?:
 // neither action touches the other. Error messages from the API are written to be shown as they come.
 export const MidtermPublishModal = ({ open, setOpen, branchId, branchName, mode, termId, report = "midterm" }: MidtermPublishModalProps) => {
   const isMobile = useIsMobile();
-  const [asOfDate, setAsOfDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const user = useLoggedInUser();
+  const { data: terms } = useGetTerms(user?.schoolId);
+  const term: Term | undefined = terms?.data?.terms?.find((t: Term) => (termId ? t.termId === termId : t.isActiveTerm));
+  const minDate = term?.startDate?.slice(0, 10);
+  const maxDate = term?.endDate?.slice(0, 10);
+  const [asOfDate, setAsOfDate] = useState("");
   const { mutate: publish, isPending: isPublishing } = usePublishMidtermReport();
   const { mutate: unpublish, isPending: isUnpublishing } = useUnpublishMidtermReport();
 
@@ -71,8 +78,16 @@ export const MidtermPublishModal = ({ open, setOpen, branchId, branchName, mode,
     }
 
     if (isPublish) {
+      if (!asOfDate) {
+        toast({ title: "Mid-term end date required", description: "Select the day the mid-term ends.", type: "error" });
+        return;
+      }
+      if ((minDate && asOfDate < minDate) || (maxDate && asOfDate > maxDate)) {
+        toast({ title: "Date outside term", description: "The date must fall within the term.", type: "error" });
+        return;
+      }
       publish(
-        { branchId, termId, asOfDate: asOfDate || undefined },
+        { branchId, termId, asOfDate },
         {
           onSuccess: res => {
             const count = res?.data?.publishedCount;
@@ -122,16 +137,23 @@ export const MidtermPublishModal = ({ open, setOpen, branchId, branchName, mode,
       {isPublish && !isTerm && (
         <div className="space-y-2">
           <Label htmlFor="midterm-as-of" className="text-text-default text-sm font-medium">
-            Count attendance up to
+            Mid-term ends on <span className="text-text-destructive">*</span>
           </Label>
           <Input
             id="midterm-as-of"
             type="date"
+            required
+            min={minDate}
+            max={maxDate}
             value={asOfDate}
             onChange={e => setAsOfDate(e.target.value)}
             className="bg-bg-input-soft! text-text-default border-none text-sm font-normal"
           />
-          <p className="text-text-muted text-xs">Defaults to today. It cannot be before the start of the term.</p>
+          <p className="text-text-muted text-xs">
+            Attendance is counted from the start of the term to this date.
+            {minDate && maxDate ? ` Choose a date between ${minDate} and ${maxDate}.` : ""} Re-publishing with a new date updates the report without
+            notifying parents again.
+          </p>
         </div>
       )}
     </div>

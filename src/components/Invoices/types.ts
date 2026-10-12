@@ -8,9 +8,17 @@ export type InvoicesOverviewTableProps = {
 };
 
 export type InvoicesResponse = {
-  totalIssued: number;
-  totalPaid: number;
+  /** Required fee items only. */
+  totalRequiredIssued?: number;
+  totalRequiredPaid?: number;
+  /** Optional fee items only. */
+  totalOptionalIssued?: number;
+  totalOptionalPaid?: number;
   outstandingFees: number;
+  /** @deprecated Combined totals; used as the required totals until the backend sends the split fields. */
+  totalIssued?: number;
+  /** @deprecated See totalIssued. */
+  totalPaid?: number;
   invoices: InvoicesOverviewTableProps[];
   totalElements?: number;
 };

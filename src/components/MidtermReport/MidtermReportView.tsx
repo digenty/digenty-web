@@ -10,6 +10,7 @@ const formatDate = (value?: string | null) => {
 // Shared by the staff preview and the parent portal. Rules from the API contract: a CA without a score is
 // blank (never 0), and a subject with scoresEntered: false reads "Not entered" across its total columns.
 export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
+  const unit = report.sessionsPerDay === 2 ? "Sessions" : "Days";
   const assessmentHeaders = report.subjectReports[0]?.assessments.map(a => ({ id: a.assessmentId, name: a.assessmentName, weight: a.weight })) ?? [];
 
   return (
@@ -35,18 +36,20 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
 
       <div className="flex flex-col gap-5 px-4 py-5">
         <div className="w-full space-y-2">
-          <h3 className="text-bg-basic-red-accent text-sm font-semibold">ATTENDANCE</h3>
+          <h3 className="text-bg-basic-red-accent text-sm font-semibold">
+            ATTENDANCE <span className="text-text-muted font-normal normal-case">(as of {formatDate(report.asOf)})</span>
+          </h3>
           <div className="text-text-subtle border-border-default border text-xs font-medium md:text-sm">
             <div className="border-border-default flex justify-between border-b px-2">
-              <div className="flex-1 py-2">Sessions Held:</div>
+              <div className="flex-1 py-2">{unit} Held:</div>
               <div className="border-border-default w-1/4 border-l py-2 pl-2 text-center">{report.totalSessions}</div>
             </div>
             <div className="border-border-default flex justify-between border-b px-2">
-              <div className="flex-1 py-2">Sessions Present:</div>
+              <div className="flex-1 py-2">{unit} Present:</div>
               <div className="border-border-default w-1/4 border-l py-2 pl-2 text-center">{report.sessionsPresent}</div>
             </div>
             <div className="flex justify-between px-2">
-              <div className="flex-1 py-2">Sessions Absent:</div>
+              <div className="flex-1 py-2">{unit} Absent:</div>
               <div className="border-border-default w-1/4 border-l py-2 pl-2 text-center">{report.sessionsAbsent}</div>
             </div>
           </div>
