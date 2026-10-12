@@ -115,25 +115,45 @@ export const AllInvoices = () => {
         loadingTerms={loadingTerms}
       />
 
-      <div className="grid w-full grid-cols-2 gap-3 lg:grid-cols-3">
+      <div className="grid w-full grid-cols-2 gap-3 lg:grid-cols-5">
         <OverviewCard
-          title="Total Issued"
+          title="Required Issued"
           Icon={() => (
             <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex h-5 w-5 items-center justify-center rounded-xs border p-1">
               <FileList3Fill fill="var(--color-icon-default)" />
             </div>
           )}
-          value={formatNaira(invoiceData?.totalIssued)}
+          value={formatNaira(invoiceData?.totalRequiredIssued ?? invoiceData?.totalIssued)}
         />
 
         <OverviewCard
-          title="Total Paid"
+          title="Required Paid"
           Icon={() => (
             <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex h-5 w-5 items-center justify-center rounded-xs border p-1">
               <Approve fill="var(--color-icon-default)" />
             </div>
           )}
-          value={formatNaira(invoiceData?.totalPaid)}
+          value={formatNaira(invoiceData?.totalRequiredPaid ?? invoiceData?.totalPaid)}
+        />
+
+        <OverviewCard
+          title="Optional Issued"
+          Icon={() => (
+            <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex h-5 w-5 items-center justify-center rounded-xs border p-1">
+              <FileList3Fill fill="var(--color-icon-default)" />
+            </div>
+          )}
+          value={formatNaira(invoiceData?.totalOptionalIssued)}
+        />
+
+        <OverviewCard
+          title="Optional Paid"
+          Icon={() => (
+            <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex h-5 w-5 items-center justify-center rounded-xs border p-1">
+              <Approve fill="var(--color-icon-default)" />
+            </div>
+          )}
+          value={formatNaira(invoiceData?.totalOptionalPaid)}
         />
 
         <div className="col-span-2 lg:col-span-1">

@@ -396,8 +396,8 @@ export interface MidtermClassOverviewRow {
 
 export interface MidtermPublishPayload {
   termId?: number;
-  /** Last day attendance is counted to (yyyy-MM-dd). Defaults to today. */
-  asOfDate?: string;
+  /** Last day of the mid-term, attendance is counted to (yyyy-MM-dd). Required; must fall within the term. */
+  asOfDate: string;
 }
 
 export interface MidtermPublishResponse {
