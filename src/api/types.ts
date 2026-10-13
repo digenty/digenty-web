@@ -384,6 +384,10 @@ export interface MidtermReport {
   subjectReports: MidtermSubjectReport[];
   overallPercentage: number | null;
   classTeacherComment: string | null;
+  developments?: StudentDevelopment[];
+  ratingLegend?: RatingLegendEntry[];
+  principalComment?: string | null;
+  principalCommentTitle?: string | null;
 }
 
 export interface MidtermClassOverviewRow {
