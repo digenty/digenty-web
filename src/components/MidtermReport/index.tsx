@@ -13,9 +13,6 @@ import { MidtermReportView } from "./MidtermReportView";
 
 const errorMessage = (error: unknown, fallback: string) => (error as { message?: string } | null)?.message || fallback;
 
-// Staff side of the mid-term report: the class overview (flagging students whose scores are not all in) and a
-// per-student preview that works before anything is published. Publishing itself is per branch, so it lives on
-// the All Branches screen.
 export const MidtermReportScreen = () => {
   const { armId: armIdParam } = useParams<{ armId: string }>();
   const armId = Number(armIdParam);
