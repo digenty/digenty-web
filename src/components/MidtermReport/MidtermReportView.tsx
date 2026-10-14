@@ -48,7 +48,7 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
         </span>
       </div>
 
-      <div className="flex flex-col gap-5 px-4 py-5">
+      {/* <div className="flex flex-col gap-5 px-4 py-5">
         <div className="w-full space-y-2">
           <h3 className="text-bg-basic-red-accent text-sm font-semibold">
             ATTENDANCE <span className="text-text-muted font-normal normal-case">(as of {formatDate(report.asOf)})</span>
@@ -68,7 +68,7 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="bg-bg-subtle border-border-default flex flex-col border-t p-4">
         <h3 className="text-bg-basic-cyan-contrast text-center text-xs font-semibold md:text-sm">MID-TERM ACADEMIC REPORT</h3>
@@ -157,11 +157,11 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
         </div>
         <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
           <span className="text-text-subtle">Class Teacher&apos;s Mid-term Comment:</span>{" "}
-          <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{report.classTeacherComment || "--"}</span>
+          <span className="border-border-default block min-w-[150px] flex-1 border-b">{report.classTeacherComment?.trim() || "--"}</span>
         </div>
         <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
           <span className="text-text-subtle">{report.principalCommentTitle ?? "Principal's Comment"}:</span>{" "}
-          <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{report.principalComment || "--"}</span>
+          <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{report.principalComment?.toWellFormed() || "--"}</span>
         </div>
       </div>
     </div>
