@@ -1,5 +1,6 @@
 "use client";
 
+import { getRetryErrorProps } from "@/lib/apiError";
 import { useState } from "react";
 import { BillFill, QuickReferenceAll } from "@digenty/icons";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -141,7 +142,7 @@ export const PendingPayments = () => {
 
       {!loading && isError && (
         <div className="flex justify-center py-12">
-          <ErrorComponent title="Failed to load pending payments" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />
+          <ErrorComponent title="Failed to load pending payments" {...getRetryErrorProps(errorObj, errorMessage, () => refetch())} />
         </div>
       )}
 
@@ -154,15 +155,7 @@ export const PendingPayments = () => {
       )}
 
       {!loading && !isError && payments.length > 0 && (
-        <DataTable
-          columns={columns}
-          data={payments}
-          totalCount={totalCount}
-          page={page}
-          setCurrentPage={setPage}
-          pageSize={PAGE_SIZE}
-          border
-        />
+        <DataTable columns={columns} data={payments} totalCount={totalCount} page={page} setCurrentPage={setPage} pageSize={PAGE_SIZE} border />
       )}
 
       {approving && <ApprovePaymentModal payment={approving} open={!!approving} setOpen={open => !open && setApproving(null)} />}

@@ -108,38 +108,41 @@ export const EditStudent = () => {
       return errors;
     },
     enableReinitialize: true,
-    onSubmit: values => {
-      mutate(
-        {
-          ...values,
-          dateOfBirth: format(new Date(formik.values.dateOfBirth), "yyyy-MM-dd"),
-          tags,
-
-          linkedParents: selectedParents.map(parent => parent.id),
-          image: avatar,
-          studentId: Number(studentId),
-        },
-        {
-          onSuccess: data => {
-            toast({
-              title: `Successfully edited ${data.data.firstName} ${data.data.lastName}`,
-              description: data.message,
-              type: "success",
-            });
-            router.back();
-          },
-          onError: error => {
-            applyConflictFieldError(error, formik.setFieldError);
-            toast({
-              title: error.message ?? "Something went wrong",
-              description: "Could not edit student details",
-              type: "error",
-            });
-          },
-        },
-      );
-    },
+    onSubmit: values => sendRequest(values),
   });
+
+  // Sent without client-side validation gating, so the API decides what is missing and its message is toasted.
+  const sendRequest = (values: typeof formik.values) => {
+    mutate(
+      {
+        ...values,
+        dateOfBirth: values.dateOfBirth ? format(new Date(values.dateOfBirth), "yyyy-MM-dd") : values.dateOfBirth,
+        tags,
+
+        linkedParents: selectedParents.map(parent => parent.id),
+        image: avatar,
+        studentId: Number(studentId),
+      },
+      {
+        onSuccess: data => {
+          toast({
+            title: `Successfully edited ${data.data.firstName} ${data.data.lastName}`,
+            description: data.message,
+            type: "success",
+          });
+          router.back();
+        },
+        onError: error => {
+          applyConflictFieldError(error, formik.setFieldError);
+          toast({
+            title: error.message ?? "Something went wrong",
+            description: "Could not edit student details",
+            type: "error",
+          });
+        },
+      },
+    );
+  };
 
   useEffect(() => {
     if (data) {
@@ -178,7 +181,7 @@ export const EditStudent = () => {
     if (step < 3) {
       setStep(prev => prev + 1);
     } else {
-      formik.handleSubmit();
+      sendRequest(formik.values);
     }
   };
 
@@ -190,48 +193,7 @@ export const EditStudent = () => {
     }
   };
 
-  const isStepValid = (currentStep: number) => {
-    const { values, errors } = formik;
-    if (currentStep === 1) {
-      return (
-        !!values.firstName &&
-        !!values.lastName &&
-        !!values.gender &&
-        !!values.dateOfBirth &&
-        !!values.nationality &&
-        !!values.stateOfOrigin &&
-        !errors.firstName &&
-        !errors.lastName &&
-        !errors.gender &&
-        !errors.dateOfBirth &&
-        !errors.nationality &&
-        !errors.stateOfOrigin
-      );
-    }
-    if (currentStep === 2) {
-      return !!values.address && selectedParents.length > 0 && !errors.address;
-    }
-    if (currentStep === 3) {
-      return (
-        !!values.branchId &&
-        !!values.classId &&
-        !!values.armId &&
-        !!values.joinedSchoolTerm &&
-        !!values.joinedSchoolSession &&
-        !!values.admissionStatus &&
-        !errors.branchId &&
-        !errors.classId &&
-        !errors.armId &&
-        !errors.joinedSchoolTerm &&
-        !errors.joinedSchoolSession &&
-        !errors.admissionStatus
-      );
-    }
-    return false;
-  };
   console.log(formik.errors);
-
-  const isValid = Object.keys(formik.errors).length === 0 && selectedParents.length > 0;
 
   if (loadingStudent || !data) {
     return (
@@ -259,7 +221,14 @@ export const EditStudent = () => {
         </div>
       </div>
 
-      <form noValidate onSubmit={formik.handleSubmit} className="text-text-default flex-1 px-4 pt-4 md:px-30 md:pt-8 xl:px-70">
+      <form
+        noValidate
+        onSubmit={e => {
+          e.preventDefault();
+          sendRequest(formik.values);
+        }}
+        className="text-text-default flex-1 px-4 pt-4 md:px-30 md:pt-8 xl:px-70"
+      >
         <div className="block md:hidden">
           {step === 1 && (
             <div>
@@ -299,7 +268,7 @@ export const EditStudent = () => {
             </Button>
             <Button
               type="submit"
-              disabled={!isValid}
+              disabled={isPending}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default hidden h-7! md:flex"
             >
               {isPending && <Spinner className="text-text-white-default" />}
@@ -309,7 +278,7 @@ export const EditStudent = () => {
             <Button
               type="button"
               onClick={() => handleSteps()}
-              disabled={!isStepValid(step)}
+              disabled={isPending}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
             >
               {isPending && <Spinner className="text-text-white-default" />}

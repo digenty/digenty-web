@@ -159,10 +159,10 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
           <span className="text-text-subtle">Class Teacher&apos;s Mid-term Comment:</span>{" "}
           <span className="border-border-default block min-w-[150px] flex-1 border-b">{report.classTeacherComment?.trim() || "--"}</span>
         </div>
-        <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
+        {/* <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
           <span className="text-text-subtle">{report.principalCommentTitle ?? "Principal's Comment"}:</span>{" "}
           <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{report.principalComment?.toWellFormed() || "--"}</span>
-        </div>
+        </div> */}
       </div>
     </div>
   );

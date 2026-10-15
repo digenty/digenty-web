@@ -22,6 +22,7 @@ import { ClassReportFooter } from "@/components/ClassesAndSubjects/Classes/Class
 import { createColumns } from "@/components/ClassesAndSubjects/Classes/ClassOverview/ClassReport/SpreadsheetColumns";
 import { SpreadsheetMobileCard } from "@/components/ClassesAndSubjects/Classes/ClassOverview/ClassReport/SpreadsheetMobileCard";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 
 // export const exportToPDF = async (elementId: string, filename: string) => {
 //   const element = document.getElementById(elementId);
@@ -216,11 +217,7 @@ const ClassReport = () => {
       <div className="relative">
         {isErrorReport && (
           <div className="flex h-80 items-center justify-center">
-            <ErrorComponent
-              title="Could not get class report"
-              description={`${classReportError?.message || "This is our problem, we are looking into it so as to serve you better"}`}
-              buttonText="Go to the Home page"
-            />
+            <ErrorComponent title="Could not get class report" {...getErrorStateProps(classReportError)} />
           </div>
         )}
 
@@ -274,11 +271,7 @@ const ClassReport = () => {
                 <div>
                   {isErrorStudentReport ? (
                     <div className="flex items-center justify-center pt-24">
-                      <ErrorComponent
-                        title="Could not get Student's report"
-                        description={`${studentReportError?.message || "This is our problem, we are looking into it so as to serve you better"}`}
-                        buttonText="Go to the Home page"
-                      />
+                      <ErrorComponent title="Could not get Student's report" {...getErrorStateProps(studentReportError)} />
                     </div>
                   ) : loadingStudentReport && !studentReportData ? (
                     <div className="pt-6">

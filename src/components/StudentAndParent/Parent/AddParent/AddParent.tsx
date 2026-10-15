@@ -56,48 +56,51 @@ export const AddParent = () => {
       branchId: null,
     },
     validationSchema: parentSchema,
-    onSubmit: values => {
-      mutate(
-        {
-          ...values,
-          tags,
-          linkedStudents: selectedStudents.map(student => student.id),
-          image: avatar,
-        },
-        {
-          onSuccess: data => {
-            // The create response is being reshaped backend-side (parentId/message), so fall
-            // back to the submitted values for the name.
-            const firstName = data.data?.firstName ?? values.firstName;
-            const lastName = data.data?.lastName ?? values.lastName;
-            toast({
-              title: `Successfully added ${firstName} ${lastName}`,
-              description: data.data?.message ?? data.message,
-              type: "success",
-            });
-            setAddedParent({
-              id: data.data?.parentId ?? data.data?.id,
-              branchId: data.data?.branchId ?? values.branchId ?? undefined,
-            });
-          },
-          onError: error => {
-            applyConflictFieldError(error, formik.setFieldError);
-            toast({
-              title: error.message ?? "Something went wrong",
-              description: "Could not add parent",
-              type: "error",
-            });
-          },
-        },
-      );
-    },
+    onSubmit: values => sendRequest(values),
   });
+
+  // Sent without client-side validation gating, so the API decides what is missing and its message is toasted.
+  const sendRequest = (values: typeof formik.values) => {
+    mutate(
+      {
+        ...values,
+        tags,
+        linkedStudents: selectedStudents.map(student => student.id),
+        image: avatar,
+      },
+      {
+        onSuccess: data => {
+          // The create response is being reshaped backend-side (parentId/message), so fall
+          // back to the submitted values for the name.
+          const firstName = data.data?.firstName ?? values.firstName;
+          const lastName = data.data?.lastName ?? values.lastName;
+          toast({
+            title: `Successfully added ${firstName} ${lastName}`,
+            description: data.data?.message ?? data.message,
+            type: "success",
+          });
+          setAddedParent({
+            id: data.data?.parentId ?? data.data?.id,
+            branchId: data.data?.branchId ?? values.branchId ?? undefined,
+          });
+        },
+        onError: error => {
+          applyConflictFieldError(error, formik.setFieldError);
+          toast({
+            title: error.message ?? "Something went wrong",
+            description: "Could not add parent",
+            type: "error",
+          });
+        },
+      },
+    );
+  };
 
   const handleSteps = () => {
     if (step < 3) {
       setStep(prev => prev + 1);
     } else {
-      formik.handleSubmit();
+      sendRequest(formik.values);
     }
   };
 
@@ -108,44 +111,6 @@ export const AddParent = () => {
       router.push("/staff/student-and-parent-record?tab=Parents");
     }
   };
-
-  const isStepValid = (currentStep: number) => {
-    const { values, errors } = formik;
-    if (currentStep === 1) {
-      return (
-        !!values.firstName &&
-        !!values.lastName &&
-        !!values.gender &&
-        !!values.relationship &&
-        !!values.nationality &&
-        !!values.stateOfOrigin &&
-        !!values.branchId &&
-        !errors.branchId &&
-        !errors.firstName &&
-        !errors.lastName &&
-        !errors.gender &&
-        !errors.nationality &&
-        !errors.relationship &&
-        !errors.stateOfOrigin
-      );
-    }
-    if (currentStep === 2) {
-      return (
-        (!!values.email || !!values.phoneNumber) &&
-        !!values.address &&
-        !errors.email &&
-        !errors.phoneNumber &&
-        !errors.secondaryPhoneNumber &&
-        !errors.address
-      );
-    }
-    if (currentStep === 3) {
-      return true;
-    }
-    return false;
-  };
-
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
 
   const goToParentsTab = () => router.push("/staff/student-and-parent-record?tab=Parents");
 
@@ -182,7 +147,14 @@ export const AddParent = () => {
         </div>
       </div>
 
-      <form noValidate onSubmit={formik.handleSubmit} className="text-text-default flex-1 px-4 pt-4 md:px-30 md:pt-8 xl:px-70">
+      <form
+        noValidate
+        onSubmit={e => {
+          e.preventDefault();
+          sendRequest(formik.values);
+        }}
+        className="text-text-default flex-1 px-4 pt-4 md:px-30 md:pt-8 xl:px-70"
+      >
         <div className="block md:hidden">
           {step === 1 && (
             <div>
@@ -214,8 +186,8 @@ export const AddParent = () => {
             {step > 1 ? "Back" : "Cancel"}
           </Button>
           <Button
-            onClick={() => formik.handleSubmit()}
-            disabled={!isValid}
+            onClick={() => sendRequest(formik.values)}
+            disabled={isPending}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default hidden h-7! md:flex"
           >
             {isPending && <Spinner className="text-text-white-default" />}
@@ -225,7 +197,7 @@ export const AddParent = () => {
           <Button
             type="button"
             onClick={() => handleSteps()}
-            disabled={!isStepValid(step) && step === 3}
+            disabled={isPending}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default flex h-7! md:hidden"
           >
             {isPending && <Spinner className="text-text-white-default" />}

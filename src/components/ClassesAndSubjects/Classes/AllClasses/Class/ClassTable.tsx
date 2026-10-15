@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/Avatar";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Badge } from "@/components/ui/badge";
@@ -20,11 +21,13 @@ export const ClassTable = ({
   classData,
   isLoading,
   isError,
+  error,
   classId,
   armId,
   classArmName,
 }: {
   isError: boolean;
+  error?: unknown;
   isLoading: boolean;
   classData: [];
   classId: number;
@@ -42,11 +45,7 @@ export const ClassTable = ({
     <div className="px-4 py-3 md:px-8">
       {isError && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent
-            title="Could not get Subjects"
-            description="This is our problem, we are looking into it so as to serve you better"
-            buttonText="Go to the Home page"
-          />
+          <ErrorComponent title="Could not get Subjects" {...getErrorStateProps(error)} />
         </div>
       )}
 

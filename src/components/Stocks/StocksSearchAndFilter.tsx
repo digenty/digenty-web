@@ -1,5 +1,6 @@
 "use client";
 
+import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
 import { Filter, ShareBox } from "@digenty/icons";
 import { Ellipsis, Plus } from "lucide-react";
 import Image from "next/image";
@@ -41,6 +42,7 @@ type Props = {
 type StockCategoryOption = { id: number; name: string };
 
 export const StocksSearchAndFilter = ({ search, setSearch, statusFilter, setStatusFilter, categoryFilter, setCategoryFilter }: Props) => {
+  const hasActiveSubscription = useHasActiveSubscription();
   const isMobile = useIsMobile();
   const router = useRouter();
   const { data: categoriesResp } = useGetStockCategories(0, 100);
@@ -141,15 +143,17 @@ export const StocksSearchAndFilter = ({ search, setSearch, statusFilter, setStat
           </PermissionCheck>
 
           <div className="flex items-center gap-1">
-            <PermissionCheck permissionUtility={canManageStock}>
-              <Button
-                onClick={() => router.push("/staff/stock/add-stock")}
-                className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
-              >
-                <Plus className="text-texticon-white-default size-4" />
-                Add Stock
-              </Button>
-            </PermissionCheck>
+            {hasActiveSubscription && (
+              <PermissionCheck permissionUtility={canManageStock}>
+                <Button
+                  onClick={() => router.push("/staff/stock/add-stock")}
+                  className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
+                >
+                  <Plus className="text-texticon-white-default size-4" />
+                  Add Stock
+                </Button>
+              </PermissionCheck>
+            )}
 
             <Button
               onClick={() => setIsOpen(true)}

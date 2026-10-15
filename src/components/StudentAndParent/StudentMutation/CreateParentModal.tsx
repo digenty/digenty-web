@@ -37,30 +37,31 @@ export const CreateParentModal = ({ open, setOpen }: { open: boolean; setOpen: (
       branchId: null,
     },
     validationSchema: parentSchema,
-    onSubmit: values => {
-      mutate(
-        { ...values, tags: [], linkedStudents: [], image: avatar },
-        {
-          onSuccess: data => {
-            toast({
-              title: `Successfully added ${data.data.firstName} ${data.data.lastName}`,
-              description: data.message,
-              type: "success",
-            });
-            formik.resetForm();
-            setAvatar(undefined);
-            setOpen(false);
-          },
-          onError: error => {
-            applyConflictFieldError(error, formik.setFieldError);
-            toast({ title: error.message ?? "Something went wrong", description: "Could not add parent", type: "error" });
-          },
-        },
-      );
-    },
+    onSubmit: values => sendRequest(values),
   });
 
-  const isValid = Object.keys(formik.errors).length === 0 && Object.keys(formik.touched).length !== 0;
+  // Sent without client-side validation gating, so the API decides what is missing and its message is toasted.
+  const sendRequest = (values: typeof formik.values) => {
+    mutate(
+      { ...values, tags: [], linkedStudents: [], image: avatar },
+      {
+        onSuccess: data => {
+          toast({
+            title: `Successfully added ${data.data.firstName} ${data.data.lastName}`,
+            description: data.message,
+            type: "success",
+          });
+          formik.resetForm();
+          setAvatar(undefined);
+          setOpen(false);
+        },
+        onError: error => {
+          applyConflictFieldError(error, formik.setFieldError);
+          toast({ title: error.message ?? "Something went wrong", description: "Could not add parent", type: "error" });
+        },
+      },
+    );
+  };
 
   const body = (
     <div className="px-4 md:px-6">
@@ -72,8 +73,8 @@ export const CreateParentModal = ({ open, setOpen }: { open: boolean; setOpen: (
 
   const actionButton = (
     <Button
-      onClick={() => formik.handleSubmit()}
-      disabled={!isValid || isPending}
+      onClick={() => sendRequest(formik.values)}
+      disabled={isPending}
       className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-7 px-2 py-1"
     >
       {isPending && <Spinner className="text-text-white-default" />}

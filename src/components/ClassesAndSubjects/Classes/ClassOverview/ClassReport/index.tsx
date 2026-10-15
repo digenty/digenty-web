@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 import { StudentCumulative, Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 import { useGetStudentReport } from "@/hooks/queryHooks/useStudent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
@@ -276,11 +277,7 @@ export const ClassReport = () => {
 
         {isErrorReport && (
           <div className="flex h-80 items-center justify-center">
-            <ErrorComponent
-              title="Could not get class report"
-              description={`${reportError?.message || "This is our problem, we are looking into it so as to serve you better"}`}
-              buttonText="Go to the Home page"
-            />
+            <ErrorComponent title="Could not get class report" {...getErrorStateProps(reportError)} />
           </div>
         )}
 
@@ -328,11 +325,7 @@ export const ClassReport = () => {
               {activeFilter === "promotion" && (
                 <div className="hidden overflow-x-auto pt-8 pb-24 md:block">
                   {isErrorCumulativeReport ? (
-                    <ErrorComponent
-                      title="Could not get Student's report"
-                      description={cumulativeReportError?.message || "This is our problem, we are looking into it so as to serve you better"}
-                      // buttonText="Go to the Home page"
-                    />
+                    <ErrorComponent title="Could not get Student's report" {...getErrorStateProps(cumulativeReportError)} />
                   ) : !classCumulativeReportData || isLoadingCumulativeReport ? (
                     <Skeleton className="bg-bg-input-soft h-100 w-full" />
                   ) : (
@@ -352,11 +345,7 @@ export const ClassReport = () => {
                 <div>
                   {isErrorStudentReport ? (
                     <div className="flex items-center justify-center pt-24">
-                      <ErrorComponent
-                        title="Could not get Student's report"
-                        description={studentReportError?.message || "This is our problem, we are looking into it so as to serve you better"}
-                        // buttonText="Go to the Home page"
-                      />
+                      <ErrorComponent title="Could not get Student's report" {...getErrorStateProps(studentReportError)} />
                     </div>
                   ) : loadingStudentReport && !studentReportData ? (
                     <div className="pt-6">

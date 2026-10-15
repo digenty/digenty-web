@@ -1,5 +1,6 @@
 "use client";
 
+import { getRetryErrorProps } from "@/lib/apiError";
 import { AlertFill, Approve, FileList3Fill } from "@digenty/icons";
 import { Branch, BranchWithClassLevels, ClassType, Term } from "@/api/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
@@ -183,12 +184,19 @@ export const AllInvoices = () => {
 
       {!loadingInvoices && invoicesError && (
         <div className="flex justify-center py-12">
-          <ErrorComponent title="Failed to load invoices" description={invoicesErrorMessage} buttonText="Retry" onClick={() => refetchInvoices()} />
+          <ErrorComponent title="Failed to load invoices" {...getRetryErrorProps(invoicesErrorObj, invoicesErrorMessage, () => refetchInvoices())} />
         </div>
       )}
 
       {!invoicesError && !loadingInvoices && (
-        <InvoiceOverviewTable invoices={invoices} loading={loadingInvoices} page={page} setPage={setPage} pageSize={pageSize} totalCount={totalCount} />
+        <InvoiceOverviewTable
+          invoices={invoices}
+          loading={loadingInvoices}
+          page={page}
+          setPage={setPage}
+          pageSize={pageSize}
+          totalCount={totalCount}
+        />
       )}
     </div>
   );

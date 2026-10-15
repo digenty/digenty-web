@@ -1,5 +1,6 @@
 "use client";
 
+import { getErrorStateProps } from "@/lib/apiError";
 import { useGetInvoiceDetail } from "@/hooks/queryHooks/useInvoice";
 import { useParams } from "next/navigation";
 import { BackLink } from "@/components/BackLink";
@@ -27,9 +28,10 @@ export const InvoiceDetail = () => {
         </div>
         <PageEmptyState
           title="Failed to load invoice"
-          description={(error as { message?: string } | null)?.message ?? "We couldn't load this invoice. Please try again."}
-          buttonText="Back to Invoices"
-          url="/staff/invoices"
+          {...getErrorStateProps(error, "We couldn't load this invoice. Please try again.", {
+            buttonText: "Back to Invoices",
+            url: "/staff/invoices",
+          })}
         />
       </div>
     );

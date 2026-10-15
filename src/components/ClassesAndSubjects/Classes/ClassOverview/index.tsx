@@ -2,6 +2,7 @@
 import { BackButton } from "@/components/BackButton";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetClassTeachersInClass } from "@/hooks/queryHooks/useClass";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
@@ -36,7 +37,7 @@ export const ClassOverview = () => {
 
   const [page, setPage] = useState(1);
 
-  const { data, isFetching, isError } = useGetClassTeachersInClass(Number(armId));
+  const { data, isFetching, isError, error } = useGetClassTeachersInClass(Number(armId));
   const pageSize = data?.data?.pageable?.pageSize;
 
   const classTeachersData = data?.data?.data?.subjectReportResponseDtoList ?? [];
@@ -56,11 +57,7 @@ export const ClassOverview = () => {
 
         {isError && (
           <div className="flex h-80 items-center justify-center">
-            <ErrorComponent
-              title="Could not get Class Subjects"
-              description="This is our problem, we are looking into it so as to serve you better"
-              buttonText="Go to the Home page"
-            />
+            <ErrorComponent title="Could not get Class Subjects" {...getErrorStateProps(error)} />
           </div>
         )}
 

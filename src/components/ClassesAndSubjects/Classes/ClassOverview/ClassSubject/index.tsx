@@ -1,6 +1,7 @@
 "use client";
 import { Assessment, Grading } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import { ScoreType } from "@/components/ScoreViewBySubject/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -100,11 +101,7 @@ export const SubjectByClass = () => {
             {error.message === "No assessments configured for this class or branch" ? (
               <ErrorComponent title="Not Found" description={error.message} buttonText="Contact Admin" url="" />
             ) : (
-              <ErrorComponent
-                title="No Students"
-                description="This is our problem, we are looking into it so as to serve you better"
-                buttonText="Go to Home page"
-              />
+              <ErrorComponent title="No Students" {...getErrorStateProps(error)} />
             )}
           </div>
         )}

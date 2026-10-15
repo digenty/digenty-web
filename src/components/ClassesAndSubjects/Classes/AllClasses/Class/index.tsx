@@ -11,7 +11,7 @@ export default function Class() {
   const armId = pathname.split("/")[6];
   const classId = pathname.split("/")[4];
 
-  const { data, isLoading, isError } = useGetBranchTeachersClassSubjects(Number(armId));
+  const { data, isLoading, isError, error } = useGetBranchTeachersClassSubjects(Number(armId));
 
   const classData = data?.data?.data?.subjectReportResponseDtoList ?? [];
   const classTeacherName = data?.data?.data?.classTeacherName || "--";
@@ -29,6 +29,7 @@ export default function Class() {
         classData={classData}
         isLoading={isLoading}
         isError={isError}
+        error={error}
         armId={Number(armId)}
         classId={Number(classId)}
         classArmName={data?.data?.data?.classArmName || ""}

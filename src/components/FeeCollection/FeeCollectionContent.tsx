@@ -1,5 +1,6 @@
 "use client";
 
+import { getErrorStateProps } from "@/lib/apiError";
 import { EmptyFeesCollectionState } from "@/components/FeeCollection/EmptyState";
 import { ConfiguredView } from "@/components/FeeCollection/ConfiguredView";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
@@ -7,7 +8,7 @@ import { useGetFeeCollectionSetupStatus } from "@/hooks/queryHooks/useFeeCollect
 import { Skeleton } from "../ui/skeleton";
 
 export const FeeCollectionContent = () => {
-  const { data, isLoading, isError } = useGetFeeCollectionSetupStatus();
+  const { data, isLoading, isError, error } = useGetFeeCollectionSetupStatus();
   if (isLoading) {
     return <Skeleton className="bg-bg-input-soft m-2 h-100 w-full" />;
   }
@@ -16,9 +17,10 @@ export const FeeCollectionContent = () => {
     return (
       <PageEmptyState
         title="Something went wrong"
-        description="We could not load your fee collection setup. Please try again."
-        buttonText="Retry"
-        url="/staff/fee-collection"
+        {...getErrorStateProps(error, "We could not load your fee collection setup. Please try again.", {
+          buttonText: "Retry",
+          url: "/staff/fee-collection",
+        })}
       />
     );
   }

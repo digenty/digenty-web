@@ -1,5 +1,6 @@
 "use client";
 
+import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
 import { Calendar, Filter, School, ShareBox } from "@digenty/icons";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -126,6 +127,7 @@ export const FeesHeader = ({
   onAddClick,
   searchActions,
 }: FeesHeaderProps) => {
+  const hasActiveSubscription = useHasActiveSubscription();
   const isMobile = useIsMobile();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -341,14 +343,16 @@ export const FeesHeader = ({
             </PermissionCheck>
           )}
 
-          <PermissionCheck permissionUtility={canManageFees}>
-            <Button
-              onClick={onAddClick}
-              className="text-tex-white-default bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 rounded-md text-sm md:h-8"
-            >
-              <PlusIcon className="text-icon-white-default" /> {addButttonText}
-            </Button>
-          </PermissionCheck>
+          {hasActiveSubscription && (
+            <PermissionCheck permissionUtility={canManageFees}>
+              <Button
+                onClick={onAddClick}
+                className="text-tex-white-default bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary-hover! h-7 rounded-md text-sm md:h-8"
+              >
+                <PlusIcon className="text-icon-white-default" /> {addButttonText}
+              </Button>
+            </PermissionCheck>
+          )}
         </div>
       </div>
     </div>

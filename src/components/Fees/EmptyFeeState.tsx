@@ -1,5 +1,6 @@
 "use client";
 
+import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
 import { AddFill, QuickReferenceAll } from "@digenty/icons";
 import { Button } from "../ui/button";
 
@@ -8,6 +9,7 @@ import { PermissionCheck } from "@/components/ModulePermissionsWrapper/Permissio
 import { canManageFees } from "@/lib/permissions/fees";
 
 export const EmptyFeeState = ({ title, description, buttonText, url }: { title: string; description: string; buttonText: string; url?: string }) => {
+  const hasActiveSubscription = useHasActiveSubscription();
   const router = useRouter();
   return (
     <div className="flex min-h-screen place-content-center place-items-center items-center justify-center">
@@ -15,15 +17,17 @@ export const EmptyFeeState = ({ title, description, buttonText, url }: { title: 
         <QuickReferenceAll />
         <p className="text-text-default text-lg font-medium">{title}</p>
         <p className="text-text-muted text-center text-xs font-normal">{description}</p>
-        <PermissionCheck permissionUtility={canManageFees}>
-          <Button
-            onClick={() => router.push(url ?? "/staff/fees/add")}
-            className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2"
-          >
-            <AddFill fill="var(--color-icon-white-default)" />
-            {buttonText}
-          </Button>
-        </PermissionCheck>
+        {hasActiveSubscription && (
+          <PermissionCheck permissionUtility={canManageFees}>
+            <Button
+              onClick={() => router.push(url ?? "/staff/fees/add")}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default rounded-sm px-4 py-2"
+            >
+              <AddFill fill="var(--color-icon-white-default)" />
+              {buttonText}
+            </Button>
+          </PermissionCheck>
+        )}
       </div>
     </div>
   );
