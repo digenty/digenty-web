@@ -63,7 +63,7 @@ export const EditParent = () => {
   });
 
   // Sent without client-side validation gating, so the API decides what is missing and its message is toasted.
-  const sendRequest = (values: typeof formik.values) => {
+  const sendRequest = (values: ParentInputValues) => {
     mutate(
       {
         ...values,
