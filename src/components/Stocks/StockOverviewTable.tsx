@@ -1,5 +1,7 @@
 "use client";
 
+import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
+import { getRetryErrorProps } from "@/lib/apiError";
 import { DeleteBin, Edit, Eye } from "@digenty/icons";
 import { Ellipsis } from "lucide-react";
 import Image from "next/image";
@@ -43,6 +45,7 @@ const extractList = (resp: unknown): { items: StockListItem[]; total: number } =
 };
 
 export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFilter }: Props) => {
+  const hasActiveSubscription = useHasActiveSubscription();
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
@@ -130,7 +133,7 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
 
       {!isLoading && activeQuery.isError && (
         <div className="flex justify-center py-12">
-          <ErrorComponent title="Couldn't load stock" description={errorMessage} buttonText="Retry" onClick={() => activeQuery.refetch()} />
+          <ErrorComponent title="Couldn't load stock" {...getRetryErrorProps(activeQuery.error, errorMessage, () => activeQuery.refetch())} />
         </div>
       )}
 
@@ -139,8 +142,7 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
           <PageEmptyState
             title="No stocks found"
             description="Try adjusting your search or filter to find what you're looking for."
-            buttonText="Add stock"
-            url="/staff/stock/add-stock"
+            {...(hasActiveSubscription && { buttonText: "Add stock", url: "/staff/stock/add-stock" })}
           />
         </div>
       )}

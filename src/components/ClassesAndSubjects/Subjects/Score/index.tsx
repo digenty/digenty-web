@@ -4,6 +4,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 import { Assessment, Grading } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import { ScoreType, SubmitScorePayload } from "@/components/ScoreViewBySubject/types";
 import { toast } from "@/components/Toast";
@@ -224,11 +225,7 @@ export default function Score() {
                 {error.message === "No assessments configured for this class or branch" ? (
                   <ErrorComponent title="Not Found" description={error.message} buttonText="Contact Admin" url="" />
                 ) : (
-                  <ErrorComponent
-                    title="No Students"
-                    description={`${error.message || "This is our problem, we are looking into it so as to serve you better"}`}
-                    buttonText="Go to Home page"
-                  />
+                  <ErrorComponent title="No Students" {...getErrorStateProps(error)} />
                 )}
               </div>
             )}

@@ -18,6 +18,7 @@ import { AllClassesMainTableProps } from "../types";
 import { ApproveModal, NotifyTeacherModal } from "./AllClassesModal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { ClassLevel } from "@/api/types";
 import { useSubmitClassReport } from "@/hooks/queryHooks/useClass";
@@ -28,6 +29,7 @@ interface AllClassesMainTableProps_Component {
   data: AllClassesMainTableProps[];
   isFetchingBranch: boolean;
   isError: boolean;
+  error?: unknown;
   levelSelected: ClassLevel | null;
   setLevelSelected: (level: ClassLevel | null) => void;
   branchId: number;
@@ -39,6 +41,7 @@ export const AllClassesMainTable = ({
   data,
   isFetchingBranch,
   isError,
+  error,
   levelSelected,
   setLevelSelected,
   branchId,
@@ -144,11 +147,7 @@ export const AllClassesMainTable = ({
 
       {isError && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent
-            title="Could not get Branch Details"
-            description="This is our problem, we are looking into it so as to serve you better"
-            buttonText="Go to the Home page"
-          />
+          <ErrorComponent title="Could not get Branch Details" {...getErrorStateProps(error)} />
         </div>
       )}
 

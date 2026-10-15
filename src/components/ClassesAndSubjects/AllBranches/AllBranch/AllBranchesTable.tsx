@@ -7,6 +7,7 @@ import { AllBranchesTableProps } from "./types";
 import { Avatar } from "@/components/Avatar";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -38,12 +39,14 @@ export const AllBranchesTable = ({
   searchQuery,
   setSearchQuery,
   isError,
+  error,
 }: {
   allBranchList: AllBranchesTableProps[];
   isFetching: boolean;
   searchQuery: string;
   setSearchQuery: (value: string) => void;
   isError: boolean;
+  error?: unknown;
 }) => {
   const [page, setPage] = useState(1);
   const [rowSelection, setRowSelection] = useState({});
@@ -69,11 +72,7 @@ export const AllBranchesTable = ({
 
       {isError && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent
-            title="Could not get Branches"
-            description="This is our problem, we are looking into it so as to serve you better"
-            buttonText="Go to the Home page"
-          />
+          <ErrorComponent title="Could not get Branches" {...getErrorStateProps(error)} />
         </div>
       )}
 

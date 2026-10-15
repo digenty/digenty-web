@@ -5,6 +5,7 @@ import { Assessment, Term } from "@/api/types";
 import { BackButton } from "@/components/BackButton";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { ScoreType } from "@/components/ScoreViewBySubject/types";
@@ -61,7 +62,7 @@ export const ViewScore = () => {
   const pageSize = 15;
 
   const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
-  const { data: viewScoreData, isLoading: isLoadingScores, isError } = useViewScore(Number(subjectId), Number(armId), termSelected?.termId);
+  const { data: viewScoreData, isLoading: isLoadingScores, isError, error } = useViewScore(Number(subjectId), Number(armId), termSelected?.termId);
 
   const studentsScores: ScoreType[] = viewScoreData?.data?.response?.content ?? [];
   const {
@@ -249,11 +250,7 @@ export const ViewScore = () => {
         <>
           {isError && !isLoadingScores && !viewScoreData && (
             <div className="flex h-80 items-center justify-center">
-              <ErrorComponent
-                title="Could not get Students Scores"
-                description="This is our problem, we are looking into it so as to serve you better"
-                buttonText="Go to the Home page"
-              />
+              <ErrorComponent title="Could not get Students Scores" {...getErrorStateProps(error)} />
             </div>
           )}
 

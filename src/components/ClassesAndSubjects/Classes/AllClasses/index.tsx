@@ -180,6 +180,7 @@ export const AllClassesMain = () => {
         data={tableData}
         isFetchingBranch={isFetchingBranch}
         isError={isError}
+        error={error}
         levelSelected={levelSelected}
         setLevelSelected={setLevelSelected}
         branchId={activeBranchId!}

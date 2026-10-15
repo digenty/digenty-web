@@ -1,5 +1,6 @@
 "use client";
 
+import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
 import { Filter, Import, ShareBox } from "@digenty/icons";
 import { Ellipsis, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -28,6 +29,7 @@ type Props = {
 };
 
 export const ExpensesSearchAndFilter = ({ filters, setFilters, showCategoryFilter = true }: Props) => {
+  const hasActiveSubscription = useHasActiveSubscription();
   const router = useRouter();
   const isMobile = useIsMobile();
 
@@ -110,26 +112,30 @@ export const ExpensesSearchAndFilter = ({ filters, setFilters, showCategoryFilte
             </Button>
           </PermissionCheck>
 
-          <PermissionCheck permissionUtility={canManageExpenses}>
-            <Button
-              onClick={() => router.push("/staff/expense/upload-expense")}
-              className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
-            >
-              <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />
-              <span className="text-text-default font-medium">Import</span>
-            </Button>
-          </PermissionCheck>
-
-          <div className="flex items-center gap-1">
+          {hasActiveSubscription && (
             <PermissionCheck permissionUtility={canManageExpenses}>
               <Button
-                onClick={() => router.push("/staff/expense/add-expense")}
-                className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 items-center gap-1 rounded-md px-2.5"
+                onClick={() => router.push("/staff/expense/upload-expense")}
+                className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
               >
-                <Plus className="text-texticon-white-default size-4" />
-                Add Expense
+                <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />
+                <span className="text-text-default font-medium">Import</span>
               </Button>
             </PermissionCheck>
+          )}
+
+          <div className="flex items-center gap-1">
+            {hasActiveSubscription && (
+              <PermissionCheck permissionUtility={canManageExpenses}>
+                <Button
+                  onClick={() => router.push("/staff/expense/add-expense")}
+                  className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 items-center gap-1 rounded-md px-2.5"
+                >
+                  <Plus className="text-texticon-white-default size-4" />
+                  Add Expense
+                </Button>
+              </PermissionCheck>
+            )}
 
             <Button
               onClick={() => setOpenActions(true)}
@@ -157,19 +163,21 @@ export const ExpensesSearchAndFilter = ({ filters, setFilters, showCategoryFilte
                 </div>
               </PermissionCheck>
 
-              <PermissionCheck permissionUtility={canManageExpenses}>
-                <div
-                  role="button"
-                  onClick={() => {
-                    setOpenActions(false);
-                    router.push("/staff/expense/upload-expense");
-                  }}
-                  className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
-                >
-                  <Import className="size-4" fill="var(--color-icon-default-muted)" />
-                  Import
-                </div>
-              </PermissionCheck>
+              {hasActiveSubscription && (
+                <PermissionCheck permissionUtility={canManageExpenses}>
+                  <div
+                    role="button"
+                    onClick={() => {
+                      setOpenActions(false);
+                      router.push("/staff/expense/upload-expense");
+                    }}
+                    className="text-text-default hover:bg-bg-state-ghost-hover border-border-darker flex w-full items-center justify-center gap-2 rounded-md border p-2 text-sm"
+                  >
+                    <Import className="size-4" fill="var(--color-icon-default-muted)" />
+                    Import
+                  </div>
+                </PermissionCheck>
+              )}
             </div>
           </MobileDrawer>
         )}

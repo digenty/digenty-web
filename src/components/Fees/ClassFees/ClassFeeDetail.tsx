@@ -1,5 +1,6 @@
 "use client";
 
+import { getRetryErrorProps } from "@/lib/apiError";
 import { AddFill, DeleteBin } from "@digenty/icons";
 import { getStatusBadge } from "@/components/Status";
 import { Badge } from "@/components/ui/badge";
@@ -105,7 +106,7 @@ export const ClassFeeDetail = () => {
           </div>
         ) : isError ? (
           <div className="flex items-center justify-center py-20">
-            <ErrorComponent title="Could not load fees" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />
+            <ErrorComponent title="Could not load fees" {...getRetryErrorProps(error, errorMessage, () => refetch())} />
           </div>
         ) : items.length === 0 ? (
           <div className="text-text-muted flex items-center justify-center py-20 text-sm">No fees attached to this class yet.</div>

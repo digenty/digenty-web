@@ -1,5 +1,7 @@
 "use client";
 
+import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
+import { getRetryErrorProps } from "@/lib/apiError";
 import { DeleteBin, Edit, Eye } from "@digenty/icons";
 import { Ellipsis } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -41,6 +43,7 @@ type Props = {
 };
 
 export const ExpensesTable = ({ filters, page, setPage, showCategory = true, showBranch = true }: Props) => {
+  const hasActiveSubscription = useHasActiveSubscription();
   const router = useRouter();
 
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
@@ -102,7 +105,7 @@ export const ExpensesTable = ({ filters, page, setPage, showCategory = true, sho
 
       {!query.isLoading && query.isError && (
         <div className="flex justify-center py-12">
-          <ErrorComponent title="Couldn't load expenses" description={errorMessage} buttonText="Retry" onClick={() => query.refetch()} />
+          <ErrorComponent title="Couldn't load expenses" {...getRetryErrorProps(query.error, errorMessage, () => query.refetch())} />
         </div>
       )}
 
@@ -110,8 +113,7 @@ export const ExpensesTable = ({ filters, page, setPage, showCategory = true, sho
         <PageEmptyState
           title="No expenses found"
           description="Try adjusting your search or filter to find what you're looking for."
-          buttonText="Add expense"
-          url="/staff/expense/add-expense"
+          {...(hasActiveSubscription && { buttonText: "Add expense", url: "/staff/expense/add-expense" })}
         />
       )}
 

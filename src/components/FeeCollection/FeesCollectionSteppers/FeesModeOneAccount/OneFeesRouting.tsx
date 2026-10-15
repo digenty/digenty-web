@@ -1,5 +1,6 @@
 "use client";
 
+import { getErrorStateProps } from "@/lib/apiError";
 import { Edit } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -23,7 +24,7 @@ import { AddAccountSheet, PoolAccount } from "../AddAccountSheet";
 
 export const OneFeesRouting = () => {
   const [query, setQuery] = useState("");
-  const { data: feeItems = [], isLoading, isError } = useGetFeeItems();
+  const { data: feeItems = [], isLoading, isError, error } = useGetFeeItems();
   const { data: routes = [] } = useGetFeeRoutes();
   const { data: branchesData } = useGetBranches();
   const branches: BranchWithClassLevels[] = branchesData?.data ?? [];
@@ -46,9 +47,10 @@ export const OneFeesRouting = () => {
       <div className="flex h-60 items-center justify-center">
         <PageEmptyState
           title="Could not load fees"
-          description="There was a problem fetching your fees. Please try again."
-          buttonText="Retry"
-          url="/staff/fee-collection/fees-setup"
+          {...getErrorStateProps(error, "There was a problem fetching your fees. Please try again.", {
+            buttonText: "Retry",
+            url: "/staff/fee-collection/fees-setup",
+          })}
         />
       </div>
     );
