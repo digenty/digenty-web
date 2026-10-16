@@ -69,7 +69,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
                   <UserMinus fill="var(--color-icon-default-muted)" className="size-4" />
                   <span>Withdraw Student</span>
                 </Button>
-                <Button
+                {/* <Button
                   onClick={evt => {
                     evt.stopPropagation();
                     setOpenDelete(true);
@@ -79,7 +79,7 @@ export const MobileCard = ({ student }: { student: Student }) => {
                 >
                   <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
                   <span className="text-icon-destructive">Delete Student Profile</span>
-                </Button>
+                </Button> */}
               </PermissionCheck>
             </div>
           </MobileDrawer>

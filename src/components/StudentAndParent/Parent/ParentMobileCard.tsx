@@ -51,7 +51,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
                   <span>Edit Parent Profile</span>
                 </Button>
 
-                <Button
+                {/* <Button
                   onClick={() => {
                     setOpenDelete(true);
                     setParentIds([parent.id]);
@@ -60,7 +60,7 @@ export const ParentsMobileCard = ({ parent }: { parent: Parent }) => {
                 >
                   <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
                   <span className="text-icon-destructive">Delete Parent Profile</span>
-                </Button>
+                </Button> */}
               </PermissionCheck>
             </div>
           </MobileDrawer>

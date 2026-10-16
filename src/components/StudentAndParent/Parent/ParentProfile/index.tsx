@@ -122,7 +122,7 @@ export const ParentProfile = () => {
           </div>
 
           <div className="border-border-default md:p-none flex items-center gap-1 border-t pt-3 md:border-none">
-            <Tooltip
+            {/* <Tooltip
               description="Delete Parent"
               side="top"
               Trigger={
@@ -136,7 +136,7 @@ export const ParentProfile = () => {
                   {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
                 </Button>
               }
-            />
+            /> */}
 
             <Button
               onClick={() => router.push(`/staff/student-and-parent-record/parents/${parent.id}/edit`)}

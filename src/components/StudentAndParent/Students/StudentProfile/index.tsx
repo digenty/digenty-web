@@ -168,7 +168,7 @@ export const StudentProfile = () => {
               }
             />
 
-            <Tooltip
+            {/* <Tooltip
               description="Delete Student"
               side="top"
               Trigger={
@@ -182,7 +182,7 @@ export const StudentProfile = () => {
                   {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
                 </Button>
               }
-            />
+            /> */}
 
             <Button
               onClick={() => router.push(`/staff/student-and-parent-record/students/${student.id}/edit`)}
