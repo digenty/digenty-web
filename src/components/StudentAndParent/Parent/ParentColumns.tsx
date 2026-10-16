@@ -35,7 +35,7 @@ const RenderOptions = (row: Row<Parent>) => {
             <Edit fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Edit parent profile</span>
           </DropdownMenuItem>
-          <DropdownMenuSeparator className="border-border-default bg-border-default" />
+          {/* <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
           <DropdownMenuItem
             onClick={() => {
@@ -46,7 +46,7 @@ const RenderOptions = (row: Row<Parent>) => {
           >
             <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
             <span className="text-icon-destructive">Delete parent profile</span>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </PermissionCheck>
       </DropdownMenuContent>
     </DropdownMenu>

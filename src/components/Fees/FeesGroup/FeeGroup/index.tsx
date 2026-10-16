@@ -1,5 +1,6 @@
 "use client";
 
+import { getRetryErrorProps } from "@/lib/apiError";
 import { DeleteBin, Edit } from "@digenty/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -69,7 +70,7 @@ export const FeeGroup = () => {
           <BackLink href="/staff/fees?tab=Fee Groups" />
         </div>
         <div className="flex items-center justify-center py-20">
-          <ErrorComponent title="Could not load fee group" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />
+          <ErrorComponent title="Could not load fee group" {...getRetryErrorProps(error, errorMessage, () => refetch())} />
         </div>
       </div>
     );

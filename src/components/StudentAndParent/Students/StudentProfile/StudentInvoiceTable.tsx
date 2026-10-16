@@ -3,6 +3,7 @@ import { StudentInvoicesPage } from "@/api/invoice";
 import { Term } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps, isSubscriptionError } from "@/lib/apiError";
 import { formatInvoiceStatus, formatNaira } from "@/components/Invoices/types";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -207,7 +208,11 @@ export default function StudentInvoiceTable({ studentId }: { studentId?: number 
         </>
       ) : invoicesError ? (
         <div className="flex justify-center py-12">
-          <ErrorComponent title="Failed to load invoices" description={invoicesErrorMessage} buttonText="Retry" onClick={() => refetchInvoices()} />
+          {isSubscriptionError(invoicesErrorObj) ? (
+            <ErrorComponent title="Failed to load invoices" {...getErrorStateProps(invoicesErrorObj)} />
+          ) : (
+            <ErrorComponent title="Failed to load invoices" description={invoicesErrorMessage} buttonText="Retry" onClick={() => refetchInvoices()} />
+          )}
         </div>
       ) : invoices.length === 0 ? (
         <div className="flex items-center justify-center pt-25">

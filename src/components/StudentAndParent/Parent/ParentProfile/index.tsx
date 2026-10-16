@@ -24,6 +24,8 @@ import { Biodata } from "./Biodata";
 import { LinkedStudentsTable } from "./LinkedStudentsTable";
 import StatusBadge from "@/components/StatusBadge";
 import { Tooltip } from "@/components/Tooltip";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 
 export const ParentProfile = () => {
   const pathname = usePathname();
@@ -35,7 +37,7 @@ export const ParentProfile = () => {
 
   const [isChecked, setIsChecked] = useState(false);
 
-  const { data, isPending } = useGetParent(Number(parentId));
+  const { data, isPending, isError, error } = useGetParent(Number(parentId));
   const { mutate: deleteParents, isPending: deleting } = useDeleteParents(parentIds);
 
   useBreadcrumb([
@@ -66,6 +68,17 @@ export const ParentProfile = () => {
       },
     });
   };
+
+  if (isError) {
+    return (
+      <div className="base:px-20.5 mb-5 space-y-8 px-4 py-4">
+        <BackLink href="/staff/student-and-parent-record?tab=Parents" />
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent title="Could not get Parent" {...getErrorStateProps(error)} />
+        </div>
+      </div>
+    );
+  }
 
   if (!data || isPending) {
     return (
@@ -109,7 +122,7 @@ export const ParentProfile = () => {
           </div>
 
           <div className="border-border-default md:p-none flex items-center gap-1 border-t pt-3 md:border-none">
-            <Tooltip
+            {/* <Tooltip
               description="Delete Parent"
               side="top"
               Trigger={
@@ -123,7 +136,7 @@ export const ParentProfile = () => {
                   {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
                 </Button>
               }
-            />
+            /> */}
 
             <Button
               onClick={() => router.push(`/staff/student-and-parent-record/parents/${parent.id}/edit`)}

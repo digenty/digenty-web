@@ -1,5 +1,6 @@
 "use client";
 
+import { getRetryErrorProps } from "@/lib/apiError";
 import { Eye, FileList3Fill, GraduationCapFill } from "@digenty/icons";
 import React, { useEffect, useState } from "react";
 import { ClassFeeTypes } from "./classTypes";
@@ -157,7 +158,7 @@ export const ClassFees = () => {
 
       {!isPending && isError && (
         <div className="flex h-screen items-center justify-center">
-          <ErrorComponent title="Error" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />
+          <ErrorComponent title="Error" {...getRetryErrorProps(error, errorMessage, () => refetch())} />
         </div>
       )}
 

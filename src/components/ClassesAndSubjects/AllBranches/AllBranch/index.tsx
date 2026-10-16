@@ -4,6 +4,7 @@ import { Calendar, Filter } from "@digenty/icons";
 import { Term } from "@/api/types";
 import { BackButton } from "@/components/BackButton";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ export const AllBranches = () => {
 
   const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
 
-  const { data: allBranchList, isPending, isError, isFetching } = useGetAllBranchesDetails(termSelected?.termId, debouncedSearchQuery);
+  const { data: allBranchList, isPending, isError, error, isFetching } = useGetAllBranchesDetails(termSelected?.termId, debouncedSearchQuery);
 
   const filteredBranchReports = (allBranchList?.data?.branchReports ?? []).filter((branch: { branchName: string }) =>
     branch.branchName?.toLowerCase().includes(debouncedSearchQuery.trim().toLowerCase()),
@@ -138,7 +139,7 @@ export const AllBranches = () => {
 
       {isError && (
         <div className="flex items-center justify-center pt-20">
-          <ErrorComponent title="Error fetching all branches" description="This is our problem, we are looking into it so as to serve you better" />
+          <ErrorComponent title="Error fetching all branches" {...getErrorStateProps(error)} />
         </div>
       )}
 
@@ -160,6 +161,7 @@ export const AllBranches = () => {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           isError={isError}
+          error={error}
         />
       )}
     </div>

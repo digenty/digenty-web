@@ -54,7 +54,7 @@ const RenderOptions = (row: Row<Student>) => {
             <UserMinus fill="var(--color-icon-default-subtle)" className="size-4" />
             <span>Withdraw student</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
+          {/* <DropdownMenuItem
             onClick={() => {
               setOpenDelete(true);
               setStudentIdsToDelete([row.original.id]);
@@ -63,7 +63,7 @@ const RenderOptions = (row: Row<Student>) => {
           >
             <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
             <span className="text-icon-destructive">Delete student profile</span>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </PermissionCheck>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,5 +1,6 @@
 import { Term } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { StudentResult } from "@/components/StudentResult";
 import { Button } from "@/components/ui/button";
@@ -112,11 +113,7 @@ export default function StudentAcademicRecord({ studentId, armId }: { studentId:
 
       {isError && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent
-            title="Could not get Student's report"
-            description={`${error?.message || "This is our problem, we are looking into it so as to serve you better"}`}
-            buttonText="Go to the Home page"
-          />
+          <ErrorComponent title="Could not get Student's report" {...getErrorStateProps(error)} />
         </div>
       )}
       {loadingReport && <Skeleton className="bg-bg-input-soft h-100 w-full" />}

@@ -1,4 +1,5 @@
 "use client";
+import { getRetryErrorProps } from "@/lib/apiError";
 import { Edit, Eye, FileCopy } from "@digenty/icons";
 import React, { useEffect, useState } from "react";
 import { FeesHeader } from "../FeesHeader";
@@ -142,7 +143,7 @@ export const FeesGroup = () => {
         </div>
       )}
 
-      {!isPending && isError && <ErrorComponent title="Error" description={errorMessage} buttonText="Retry" onClick={() => refetch()} />}
+      {!isPending && isError && <ErrorComponent title="Error" {...getRetryErrorProps(error, errorMessage, () => refetch())} />}
 
       {!isPending && !isError && feesGroup.length === 0 && (
         <EmptyFeeState

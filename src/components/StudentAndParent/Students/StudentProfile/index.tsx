@@ -22,6 +22,8 @@ import { Spinner } from "../../../ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import StatusBadge from "@/components/StatusBadge";
 import { Tooltip } from "@/components/Tooltip";
+import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 
 export const StudentProfile = () => {
   const pathname = usePathname();
@@ -42,7 +44,7 @@ export const StudentProfile = () => {
 
   const [isChecked, setIsChecked] = useState(false);
 
-  const { data, isPending } = useGetStudent(Number(studentId));
+  const { data, isPending, isError, error } = useGetStudent(Number(studentId));
   const { mutate: withdrawStudents, isPending: withdrawing } = useWithdrawStudents(studentIdsToWithdraw);
   const { mutate: deleteStudents, isPending: deleting } = useDeleteStudents(studentIdsToDelete);
 
@@ -93,6 +95,17 @@ export const StudentProfile = () => {
       },
     });
   };
+
+  if (isError) {
+    return (
+      <div className="base:px-20.5 mb-5 space-y-8 px-4 py-4">
+        <BackLink href="/staff/student-and-parent-record?tab=Students" />
+        <div className="flex h-80 items-center justify-center">
+          <ErrorComponent title="Could not get Student" {...getErrorStateProps(error)} />
+        </div>
+      </div>
+    );
+  }
 
   if (!data || isPending) {
     return (
@@ -155,7 +168,7 @@ export const StudentProfile = () => {
               }
             />
 
-            <Tooltip
+            {/* <Tooltip
               description="Delete Student"
               side="top"
               Trigger={
@@ -169,7 +182,7 @@ export const StudentProfile = () => {
                   {deleting ? <Spinner /> : <DeleteBin fill="var(--color-icon-default-subtle)" className="size-4" />}
                 </Button>
               }
-            />
+            /> */}
 
             <Button
               onClick={() => router.push(`/staff/student-and-parent-record/students/${student.id}/edit`)}

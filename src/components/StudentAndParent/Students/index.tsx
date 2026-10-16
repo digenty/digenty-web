@@ -2,7 +2,9 @@
 import { GraduationCap, Import, ShareBox, UserFill, UserMinus, WarningIcon } from "@digenty/icons";
 import { Arm, Branch, BranchWithClassLevels, ClassType, Student } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
+import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
@@ -36,6 +38,7 @@ import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 
 export const StudentsTable = () => {
+  const hasActiveSubscription = useHasActiveSubscription();
   const router = useRouter();
   const isMobile = useIsMobile();
   const { permissions, branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
@@ -90,6 +93,7 @@ export const StudentsTable = () => {
     data,
     isPending: loadingStudents,
     isError,
+    error,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -448,21 +452,25 @@ export const StudentsTable = () => {
             </PermissionCheck>
 
             <PermissionCheck permissionUtility={canManageStudentParentRecords}>
-              <Button
-                onClick={() => router.push(`student-and-parent-record/upload-students`)}
-                className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
-              >
-                <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />
-                <span className="text-text-default font-medium">Import</span>
-              </Button>
+              {hasActiveSubscription && (
+                <>
+                  <Button
+                    onClick={() => router.push(`student-and-parent-record/upload-students`)}
+                    className="bg-bg-state-secondary border-border-darker shadow-light hidden h-8 gap-2 rounded-md border px-2.5! md:flex"
+                  >
+                    <Import fill="var(--color-icon-default-muted)" className="size-[15px]" />
+                    <span className="text-text-default font-medium">Import</span>
+                  </Button>
 
-              <Button
-                onClick={() => router.push("student-and-parent-record/add-student")}
-                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! shadow-xlight h-8 gap-2 rounded-md px-2.5!"
-              >
-                <PlusIcon className="text-icon-white-default size-4" />
-                <span className="text-text-white-default font-medium">Add Student</span>
-              </Button>
+                  <Button
+                    onClick={() => router.push("student-and-parent-record/add-student")}
+                    className="bg-bg-state-primary hover:bg-bg-state-primary-hover! shadow-xlight h-8 gap-2 rounded-md px-2.5!"
+                  >
+                    <PlusIcon className="text-icon-white-default size-4" />
+                    <span className="text-text-white-default font-medium">Add Student</span>
+                  </Button>
+                </>
+              )}
             </PermissionCheck>
 
             <Button onClick={() => setIsActionsOpen(true)} className="bg-bg-state-soft flex h-8 rounded-md px-2! md:hidden">
@@ -484,15 +492,17 @@ export const StudentsTable = () => {
                 <span>Export</span>
               </Button>
             </PermissionCheck>
-            <PermissionCheck permissionUtility={canManageStudentParentRecords}>
-              <Button
-                onClick={() => router.push(`student-and-parent-record/upload-students`)}
-                className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
-              >
-                <Import fill="var(--color-icon-default-muted)" className="size-4" />
-                <span>Import</span>
-              </Button>
-            </PermissionCheck>
+            {hasActiveSubscription && (
+              <PermissionCheck permissionUtility={canManageStudentParentRecords}>
+                <Button
+                  onClick={() => router.push(`student-and-parent-record/upload-students`)}
+                  className="bg-bg-state-secondary border-border-darker text-text-default h-8 justify-start gap-2 text-sm font-medium"
+                >
+                  <Import fill="var(--color-icon-default-muted)" className="size-4" />
+                  <span>Import</span>
+                </Button>
+              </PermissionCheck>
+            )}
           </div>
         </MobileDrawer>
       )}
@@ -531,11 +541,7 @@ export const StudentsTable = () => {
 
       {isError && (
         <div className="flex h-80 items-center justify-center">
-          <ErrorComponent
-            title="Could not get Students"
-            description="This is our problem, we are looking into it so as to serve you better"
-            buttonText="Go to the Home page"
-          />
+          <ErrorComponent title="Could not get Students" {...getErrorStateProps(error)} />
         </div>
       )}
       {loadingStudents && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
@@ -545,8 +551,7 @@ export const StudentsTable = () => {
           <ErrorComponent
             title="No Students"
             description="No student has been added yet"
-            buttonText="Add a student"
-            url="/staff/student-and-parent-record/add-student"
+            {...(hasActiveSubscription && { buttonText: "Add a student", url: "/staff/student-and-parent-record/add-student" })}
           />
         </div>
       )}

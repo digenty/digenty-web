@@ -4,6 +4,7 @@ import { EditRequestResponseTypes } from "@/api/types";
 import { BackButton } from "@/components/BackButton";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getErrorStateProps } from "@/lib/apiError";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -52,7 +53,7 @@ export const ManageEditRequest = () => {
   const [pendingAction, setPendingAction] = useState<"accepted" | "rejected" | null>(null);
   const [bulkAction, setBulkAction] = useState<"approve" | "reject" | null>(null);
 
-  const { data: requestList, isPending, isError } = useGetEditRequests(branchId, searchQuery);
+  const { data: requestList, isPending, isError, error } = useGetEditRequests(branchId, searchQuery);
   const { mutate: approveSingle, isPending: isApprovingSingle } = useApproveEditRequest();
   const { mutate: approveBulk, isPending: isApprovingBulk } = useApproveEditRequestBulk();
 
@@ -253,11 +254,7 @@ export const ManageEditRequest = () => {
         {isPending && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
         {isError && (
           <div className="flex h-80 items-center justify-center">
-            <ErrorComponent
-              title="Could not get Requests"
-              description="This is our problem, we are looking into it so as to serve you better"
-              buttonText="Go to the Home page"
-            />
+            <ErrorComponent title="Could not get Requests" {...getErrorStateProps(error)} />
           </div>
         )}
         {!isPending && !isError && filteredData.length === 0 && (

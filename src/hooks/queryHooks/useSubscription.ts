@@ -22,6 +22,11 @@ export const useGetCurrentSubscription = () => {
   });
 };
 
+export const useHasActiveSubscription = () => {
+  const { data } = useGetCurrentSubscription();
+  return data?.data?.status === "ACTIVE";
+};
+
 export const useGetActiveSubscription = () => {
   return useQuery({
     queryKey: subscriptionKeys.active,

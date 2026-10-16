@@ -59,36 +59,39 @@ export const EditParent = () => {
     },
     validationSchema: parentSchema,
     enableReinitialize: true,
-    onSubmit: values => {
-      mutate(
-        {
-          ...values,
-          tags,
-          linkedStudents: selectedStudents.map(student => student.id),
-          image: avatar,
-          id: Number(parentId),
-        },
-        {
-          onSuccess: data => {
-            toast({
-              title: `Successfully updated ${data.data.firstName} ${data.data.lastName}`,
-              description: data.message,
-              type: "success",
-            });
-            router.back();
-          },
-          onError: error => {
-            applyConflictFieldError(error, formik.setFieldError);
-            toast({
-              title: error.message ?? "Something went wrong",
-              description: "Could not update parent' details",
-              type: "error",
-            });
-          },
-        },
-      );
-    },
+    onSubmit: values => sendRequest(values),
   });
+
+  // Sent without client-side validation gating, so the API decides what is missing and its message is toasted.
+  const sendRequest = (values: ParentInputValues) => {
+    mutate(
+      {
+        ...values,
+        tags,
+        linkedStudents: selectedStudents.map(student => student.id),
+        image: avatar,
+        id: Number(parentId),
+      },
+      {
+        onSuccess: data => {
+          toast({
+            title: `Successfully updated ${data.data.firstName} ${data.data.lastName}`,
+            description: data.message,
+            type: "success",
+          });
+          router.back();
+        },
+        onError: error => {
+          applyConflictFieldError(error, formik.setFieldError);
+          toast({
+            title: error.message ?? "Something went wrong",
+            description: "Could not update parent' details",
+            type: "error",
+          });
+        },
+      },
+    );
+  };
 
   useEffect(() => {
     if (data) {
@@ -113,7 +116,7 @@ export const EditParent = () => {
     if (step < 3) {
       setStep(prev => prev + 1);
     } else {
-      formik.handleSubmit();
+      sendRequest(formik.values);
     }
   };
 
@@ -125,36 +128,6 @@ export const EditParent = () => {
     }
   };
 
-  const isStepValid = (currentStep: number) => {
-    const { values, errors } = formik;
-    if (currentStep === 1) {
-      return (
-        !!values.firstName &&
-        !!values.lastName &&
-        !!values.gender &&
-        !!values.relationship &&
-        !!values.nationality &&
-        !!values.stateOfOrigin &&
-        !!values.branchId &&
-        !errors.branchId &&
-        !errors.firstName &&
-        !errors.lastName &&
-        !errors.gender &&
-        !errors.nationality &&
-        !errors.relationship &&
-        !errors.stateOfOrigin
-      );
-    }
-    if (currentStep === 2) {
-      return (!!values.email || !!values.phoneNumber) && !!values.address && !errors.email && !errors.phoneNumber && !errors.address;
-    }
-    if (currentStep === 3) {
-      return true;
-    }
-    return false;
-  };
-
-  const isValid = Object.keys(formik.errors).length === 0;
   if (loadingParent || !data) {
     return (
       <div className="flex h-screen flex-col">
@@ -180,7 +153,14 @@ export const EditParent = () => {
         </div>
       </div>
 
-      <form noValidate onSubmit={formik.handleSubmit} className="text-text-default flex-1 px-4 pt-4 md:px-30 md:pt-8 xl:px-70">
+      <form
+        noValidate
+        onSubmit={e => {
+          e.preventDefault();
+          sendRequest(formik.values);
+        }}
+        className="text-text-default flex-1 px-4 pt-4 md:px-30 md:pt-8 xl:px-70"
+      >
         <div className="block md:hidden">
           {step === 1 && (
             <div>
@@ -212,8 +192,8 @@ export const EditParent = () => {
             {step > 1 ? "Back" : "Cancel"}
           </Button>
           <Button
-            onClick={() => formik.handleSubmit()}
-            disabled={!isValid}
+            onClick={() => sendRequest(formik.values)}
+            disabled={isPending}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default! hidden h-7! md:flex"
           >
             {isPending && <Spinner className="text-text-white-default" />}
@@ -223,7 +203,7 @@ export const EditParent = () => {
           <Button
             type="button"
             onClick={() => handleSteps()}
-            disabled={!isStepValid(step)}
+            disabled={isPending}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default! flex h-7! md:hidden"
           >
             {isPending && <Spinner className="text-text-white-default" />}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
 import { AlertFill, Check, CloseCircle, Draft, Filter, ShareBox } from "@digenty/icons";
 import { BranchWithClassLevels, Terms } from "@/api/types";
 import Image from "next/image";
@@ -48,6 +49,7 @@ export const InvoiceSearchAndExport = ({
   terms,
   currentBranchId,
 }: InvoiceSearchAndExportProps) => {
+  const hasActiveSubscription = useHasActiveSubscription();
   const isMobile = useIsMobile();
   const router = useRouter();
 
@@ -119,15 +121,17 @@ export const InvoiceSearchAndExport = ({
           </PermissionCheck>
 
           <div className="flex items-center gap-1">
-            <PermissionCheck permissionUtility={canManageInvoices}>
-              <Button
-                onClick={() => router.push("/staff/invoices/new-invoice")}
-                className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
-              >
-                <Plus className="text-texticon-white-default size-4" />
-                Add Invoice
-              </Button>
-            </PermissionCheck>
+            {hasActiveSubscription && (
+              <PermissionCheck permissionUtility={canManageInvoices}>
+                <Button
+                  onClick={() => router.push("/staff/invoices/new-invoice")}
+                  className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default flex h-8 w-31 items-center gap-1 rounded-md"
+                >
+                  <Plus className="text-texticon-white-default size-4" />
+                  Add Invoice
+                </Button>
+              </PermissionCheck>
+            )}
 
             <Button
               onClick={() => setIsOpen(true)}

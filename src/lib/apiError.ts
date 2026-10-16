@@ -28,6 +28,28 @@ export const getApiErrorMessage = (error: unknown, fallback: string): string => 
   return fallback;
 };
 
+export const SUBSCRIPTION_PATH = "/staff/settings/subscription";
+
+export const isSubscriptionError = (error: unknown): boolean =>
+  getApiErrorCode(error) === "SUBSCRIPTION_REQUIRED" || /subscription/i.test(getApiErrorMessage(error, ""));
+
+// Props for <ErrorComponent /> / <PageEmptyState />: the server's message as the description, and a
+// "Go to Subscription" button instead of the usual action when the failure is a missing subscription.
+export const getErrorStateProps = (
+  error: unknown,
+  fallbackDescription = "This is our problem, we are looking into it so as to serve you better",
+  action: { buttonText: string; url: string } = { buttonText: "Go to the Home page", url: "/staff/" },
+) => ({
+  description: getApiErrorMessage(error, fallbackDescription),
+  ...(isSubscriptionError(error) ? { buttonText: "Go to Subscription", url: SUBSCRIPTION_PATH } : action),
+});
+
+// Same, for error states whose normal action is a "Retry" callback.
+export const getRetryErrorProps = (error: unknown, fallbackDescription: string, retry: () => void) =>
+  isSubscriptionError(error)
+    ? { description: getApiErrorMessage(error, fallbackDescription), buttonText: "Go to Subscription", url: SUBSCRIPTION_PATH }
+    : { description: getApiErrorMessage(error, fallbackDescription), buttonText: "Retry", onClick: retry };
+
 export const getApiErrorDetails = (error: unknown): unknown => {
   if (error && typeof error === "object" && "details" in error) {
     return (error as ApiErrorBody).details;
