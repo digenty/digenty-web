@@ -5,6 +5,9 @@ import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";
 import { useGetCurrentSubscription } from "@/hooks/queryHooks/useSubscription";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { isSubscriptionError } from "@/lib/apiError";
+import { canManageSettings } from "@/lib/permissions/settings";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -14,12 +17,20 @@ export const SubscriptionGate = () => {
   const router = useRouter();
   const pathname = usePathname();
   const isMobile = useIsMobile();
-  const { data: subscription, isLoading, isError } = useGetCurrentSubscription();
+  const { isMain, isAdmin, permissions, isUserLoading } = useLoggedInUser();
+  const { data: subscription, isLoading, isError, error } = useGetCurrentSubscription();
   const [open, setOpen] = useState(false);
 
   const hasActiveSubscription = subscription?.data?.status === "ACTIVE";
   const isOnSubscriptionPage = pathname.startsWith(SUBSCRIPTION_PATH);
-  const shouldBlock = !isLoading && (isError || !hasActiveSubscription) && !isOnSubscriptionPage;
+  // Only school owners/admins can subscribe, so only they are prompted. Staff such as teachers can't
+  // act on it, and their request may fail or come back empty even when the school is subscribed.
+  const canSubscribe = !!isMain || !!isAdmin || canManageSettings(permissions);
+  // A failed request only counts as "no subscription" when the API says so (not found / subscription
+  // error); any other failure (network, permission) must not lock a subscribed school out.
+  const noSubscriptionError = isError && ((error as { status?: number } | null)?.status === 404 || isSubscriptionError(error));
+  const shouldBlock =
+    canSubscribe && !isUserLoading && !isLoading && (isError ? noSubscriptionError : !hasActiveSubscription) && !isOnSubscriptionPage;
 
   // Re-open on every navigation (and on first load) while there is no active subscription.
   useEffect(() => {
