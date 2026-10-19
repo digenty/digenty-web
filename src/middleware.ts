@@ -33,16 +33,16 @@ function isOwnPlatformHost(hostname: string): boolean {
 // Unauthenticated host -> slug lookup for a school's connected custom domain. Plain fetch (not
 // the axios-public client) since middleware runs on the Edge runtime. A 404 or network failure
 // both mean "not a recognized school domain" — fall through to normal app routing either way.
-// Used only to detect *that* a host is connected — the slug itself is resolved again client-side
-// (setSchoolFromHost, same as the *.axisbydigenty.com subdomain flow) once the parent app loads.
-async function isConnectedSchoolDomain(host: string): Promise<boolean> {
+async function resolveConnectedDomain(host: string): Promise<{ slug: string; live: boolean } | null> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/public/website/resolve?host=${encodeURIComponent(host)}`, {
-      next: { revalidate: 300 },
+      next: { revalidate: 60 },
     });
-    return res.ok;
+    if (!res.ok) return null;
+    const body = await res.json();
+    return body.data ?? body ?? null;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -53,11 +53,10 @@ export default async function middleware(req: NextRequest) {
   const host = req.headers.get("host") ?? req.nextUrl.host;
   const hostname = host.split(":")[0];
 
-  // A school's own connected custom domain (e.g. unilag.com) is parent-portal-only — it never
-  // serves the staff app. Folded into isParentPortalHost below so it gets identical treatment to
-  // a *.axisbydigenty.com subdomain; the school itself is resolved again client-side
-  // (setSchoolFromHost, same as the subdomain flow) once the parent app loads.
-  const isCustomSchoolDomain = !isOwnPlatformHost(hostname) && (await isConnectedSchoolDomain(host));
+  // A school's own connected custom domain (e.g. unilag.com). Its root serves the customized public
+  // website; every other path (parent auth, /parents) still works, and the staff app is blocked.
+  const resolution = !isOwnPlatformHost(hostname) ? await resolveConnectedDomain(host) : null;
+  const isCustomSchoolDomain = !!resolution;
 
   // Temporarily disabled finance routes
   // const disabledRoutes = [
@@ -90,6 +89,11 @@ export default async function middleware(req: NextRequest) {
   ];
 
   const isAuthRoute = authRoutes.includes(path);
+
+  if (path === "/" && resolution) {
+    url.pathname = resolution.live ? `/site/${resolution.slug}` : "/site/coming-soon";
+    return NextResponse.rewrite(url);
+  }
 
   if (path === "/") {
     // Real parent-portal subdomains (e.g. greenwood.axisbydigenty.com) still land on the
