@@ -15,7 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { cn } from "@/lib/utils";
-import { exportToCSV } from "@/lib/export-utils";
+import { exportToCSV, exportToImage, exportToPDF } from "@/lib/export-utils";
+import { toast } from "@/components/Toast";
 import { toOrdinal } from "@/components/ClassesAndSubjects/utils";
 
 import { ClassReportFooter } from "@/components/ClassesAndSubjects/Classes/ClassOverview/ClassReport/ClassReportFooter";
@@ -150,7 +151,7 @@ const ClassReport = () => {
     footerRef.current?.scrollBy?.({ left: 200, behavior: "smooth" });
   };
 
-  const handleExport = () => {
+  const handleExport = async (format: "pdf" | "png" = "pdf") => {
     if (activeFilter === "spreadsheet") {
       if (!transformedStudents.length) return;
       const firstStudent = transformedStudents[0];
@@ -192,9 +193,18 @@ const ClassReport = () => {
 
       exportToCSV(`ClassReport_Promotion_${classArmName}.csv`, headers, csvRows);
     } else {
-      // PDF Export for individual student
-      const studentName = studentReportData?.data?.studentName || "Student_Report";
-      // exportToPDF("student-report", `Report_${studentName.replaceAll(" ", "_")}.pdf`);
+      const studentName = (studentReportData?.data?.studentName || "Student_Report").replaceAll(" ", "_");
+      const baseName = `Report_${studentName}_${termSelected?.term ?? ""}`;
+      try {
+        if (format === "png") {
+          await exportToImage("student-report", `${baseName}.png`);
+        } else {
+          await exportToPDF("student-report", `${baseName}.pdf`);
+        }
+      } catch (error) {
+        console.error("Error exporting student report:", error);
+        toast({ title: "Export failed", description: "Could not export the report card. Please try again.", type: "error" });
+      }
     }
   };
 

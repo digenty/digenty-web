@@ -45,12 +45,13 @@ export const ReportHeader = ({
   students: StudentRow[];
   activeFilter: string;
   setActiveFilter: (filter: string) => void;
-  onExport?: () => void;
+  onExport?: (format?: "pdf" | "png") => void;
   classArmName: string;
   classArmReportId?: number;
   reportStatus?: "APPROVED" | "NOT_SUBMITTED" | "SUBMITTED" | "PENDING_APPROVAL" | "EDIT_REQUEST";
 }) => {
   const isMobile = useIsMobile();
+  const isStudentView = activeFilter !== "spreadsheet" && activeFilter !== "promotion";
 
   const [openApprove, setOpenApprove] = useState(false);
   const [openReturn, setOpenReturn] = useState(false);
@@ -206,9 +207,34 @@ export const ReportHeader = ({
               ) : (
                 <>
                   <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
-                    <Button className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-22! items-center gap-1 rounded-md border text-sm font-medium md:flex">
-                      <ShareBox fill="var(--color-icon-default-muted)" /> Export
-                    </Button>
+                    {isStudentView ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-22! cursor-pointer items-center justify-center gap-1 rounded-md border text-sm font-medium focus-visible:ring-0 focus-visible:outline-none md:flex">
+                          <ShareBox fill="var(--color-icon-default-muted)" /> Export
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
+                          <DropdownMenuItem
+                            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3 py-0.5"
+                            onClick={() => onExport?.("pdf")}
+                          >
+                            Export as PDF
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3 py-0.5"
+                            onClick={() => onExport?.("png")}
+                          >
+                            Export as PNG
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      <Button
+                        onClick={() => onExport?.()}
+                        className="bg-bg-state-secondary border-border-default text-text-default hidden h-8 w-22! items-center gap-1 rounded-md border text-sm font-medium md:flex"
+                      >
+                        <ShareBox fill="var(--color-icon-default-muted)" /> Export
+                      </Button>
+                    )}
                   </PermissionCheck>
                   {(reportStatus === "PENDING_APPROVAL" || reportStatus === "APPROVED" || reportStatus === "EDIT_REQUEST") && (
                     <Button
@@ -241,9 +267,26 @@ export const ReportHeader = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
                   <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
-                    <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3 py-0.5" onClick={onExport}>
-                      <ShareBox fill="var(--color-icon-default-muted)" /> Export
-                    </DropdownMenuItem>
+                    {isStudentView ? (
+                      <>
+                        <DropdownMenuItem
+                          className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3 py-0.5"
+                          onClick={() => onExport?.("pdf")}
+                        >
+                          <ShareBox fill="var(--color-icon-default-muted)" /> Export as PDF
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3 py-0.5"
+                          onClick={() => onExport?.("png")}
+                        >
+                          <ShareBox fill="var(--color-icon-default-muted)" /> Export as PNG
+                        </DropdownMenuItem>
+                      </>
+                    ) : (
+                      <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer gap-2.5 px-3 py-0.5" onClick={() => onExport?.()}>
+                        <ShareBox fill="var(--color-icon-default-muted)" /> Export
+                      </DropdownMenuItem>
+                    )}
                   </PermissionCheck>
                 </DropdownMenuContent>
               </DropdownMenu>

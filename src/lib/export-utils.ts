@@ -29,6 +29,32 @@ export const exportToCSV = (filename: string, headers: string[], rows: (string |
 };
 
 /**
+ * html2canvas options that make the capture render in light mode regardless of the user's OS theme.
+ * Dark mode is driven by a `prefers-color-scheme: dark` media block, so we drop those rules from the
+ * cloned document (the live page is untouched) and paint a white backdrop.
+ */
+const lightModeCaptureOptions = {
+  backgroundColor: "#ffffff",
+  onclone: (clonedDoc: Document) => {
+    clonedDoc.documentElement.classList.remove("dark");
+    Array.from(clonedDoc.styleSheets).forEach(sheet => {
+      let rules: CSSRuleList;
+      try {
+        rules = sheet.cssRules;
+      } catch {
+        return;
+      }
+      for (let i = rules.length - 1; i >= 0; i--) {
+        const rule = rules[i];
+        if (rule instanceof CSSMediaRule && /prefers-color-scheme:\s*dark/.test(rule.conditionText || rule.media.mediaText)) {
+          sheet.deleteRule(i);
+        }
+      }
+    });
+  },
+};
+
+/**
  * Exports a DOM element to a PDF file.
  *
  * @param elementId - The ID of the DOM element to capture
@@ -48,6 +74,7 @@ export const exportToPDF = async (elementId: string, filename: string, ignoreCla
     scale: 2,
     useCORS: true,
     logging: false,
+    ...lightModeCaptureOptions,
     ignoreElements: el => el.classList.contains(ignoreClass),
   });
 
@@ -86,6 +113,7 @@ export const exportToImage = async (elementId: string, filename: string, ignoreC
     scale: 2,
     useCORS: true,
     logging: false,
+    ...lightModeCaptureOptions,
     ignoreElements: el => el.classList.contains(ignoreClass),
   });
 

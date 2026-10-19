@@ -228,6 +228,8 @@ export const EditTeacherInputModal = ({
             open={open}
             setOpen={setIsOpen}
             title="Edit Teacher's Input"
+            className="max-h-[90vh] md:flex md:flex-col"
+            contentClassName="overflow-y-auto"
             cancelButton={
               <Button
                 variant="outline"

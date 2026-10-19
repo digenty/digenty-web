@@ -61,6 +61,7 @@ import { canViewAdmissionManagement } from "@/lib/permissions/admission-manageme
 import { canViewDashboard } from "@/lib/permissions/dashboard";
 import { useGetCurrentSubscription } from "@/hooks/queryHooks/useSubscription";
 import { toast } from "@/components/Toast";
+import { isSubscriptionError } from "@/lib/apiError";
 
 export const Sidebar = () => {
   const user: Partial<JWTPayload> = useLoggedInUser();
@@ -276,9 +277,15 @@ export const Sidebar = () => {
   const [showLogo, setShowLogo] = useState(true);
   const { setIsSidebarOpen, isSidebarOpen, activeNav, setActiveNav } = useSidebarStore();
   const queryClient = useQueryClient();
-  const { data: currentSubscription } = useGetCurrentSubscription();
+  const { data: currentSubscription, isError: isSubscriptionLookupError, error: subscriptionLookupError } = useGetCurrentSubscription();
   const planName = currentSubscription?.data?.planName?.toLowerCase() ?? "";
   const isCbtAllowedPlan = planName.includes("advanced") || planName.includes("standard");
+  // Staff without subscription access get a failed/empty lookup even when the school is subscribed, so an
+  // unknown plan must not be treated as "no CBT". Only block on a known plan, or when the API says there is no subscription.
+  const hasNoSubscription =
+    isSubscriptionLookupError &&
+    ((subscriptionLookupError as { status?: number } | null)?.status === 404 || isSubscriptionError(subscriptionLookupError));
+  const isCbtBlocked = planName ? !isCbtAllowedPlan : hasNoSubscription;
 
   useEffect(() => {
     const segments = pathname.split("/");
@@ -301,7 +308,7 @@ export const Sidebar = () => {
 
   const handleCBTClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!isCbtAllowedPlan) {
+    if (isCbtBlocked) {
       toast({ title: "Your current subscription plan does not include CBT", type: "error" });
       return;
     }

@@ -28,7 +28,10 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
   const assessmentHeaders = report.subjectReports[0]?.assessments.map(a => ({ id: a.assessmentId, name: a.assessmentName, weight: a.weight })) ?? [];
 
   return (
-    <div className="border-t-bg-basic-cyan-contrast border-x-border-default border-b-border-default mb-10 border-x border-t-2 border-b">
+    <div
+      id="midterm-report"
+      className="border-t-bg-basic-cyan-contrast border-x-border-default border-b-border-default mb-10 border-x border-t-2 border-b"
+    >
       <div className="flex flex-col items-center justify-center py-3">
         <h1 className="text-bg-basic-cyan-contrast text-xl font-semibold">{report.schoolName}</h1>
         <p className="text-text-muted text-sm font-normal capitalize">
@@ -159,10 +162,10 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
           <span className="text-text-subtle">Class Teacher&apos;s Mid-term Comment:</span>{" "}
           <span className="border-border-default block min-w-[150px] flex-1 border-b">{report.classTeacherComment?.trim() || "--"}</span>
         </div>
-        {/* <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
+        <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
           <span className="text-text-subtle">{report.principalCommentTitle ?? "Principal's Comment"}:</span>{" "}
           <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{report.principalComment?.toWellFormed() || "--"}</span>
-        </div> */}
+        </div>
       </div>
     </div>
   );
