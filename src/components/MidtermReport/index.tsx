@@ -3,6 +3,10 @@
 import { MidtermClassOverviewRow } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { toast } from "@/components/Toast";
+import { exportToImage, exportToPDF } from "@/lib/export-utils";
+import { ShareBox } from "@digenty/icons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetMidtermClassOverview, useGetMidtermStudentReport } from "@/hooks/queryHooks/useMidterm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
@@ -37,20 +41,53 @@ export const MidtermReportScreen = () => {
     error: reportError,
   } = useGetMidtermStudentReport({ studentId: activeStudentId ?? undefined, armId });
 
+  const handleExport = async (format: "pdf" | "png") => {
+    const report = reportData?.data;
+    if (!report) return;
+    const baseName = `MidtermReport_${(report.studentName || "Student").replaceAll(" ", "_")}`;
+    try {
+      if (format === "png") {
+        await exportToImage("midterm-report", `${baseName}.png`);
+      } else {
+        await exportToPDF("midterm-report", `${baseName}.pdf`);
+      }
+    } catch (error) {
+      console.error("Error exporting mid-term report:", error);
+      toast({ title: "Export failed", description: "Could not export the report card. Please try again.", type: "error" });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 px-4 py-6 md:px-8 md:py-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col-reverse gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-col gap-1">
           <h2 className="text-text-default text-lg font-semibold md:text-xl">Mid-term Report</h2>
           {classArmName && <span className="text-text-subtle text-sm">{classArmName}</span>}
         </div>
         {activeStudentId && (
-          <Button
-            onClick={() => setActiveStudentId(null)}
-            className="border-border-darker bg-bg-state-secondary text-text-default h-8! rounded-md border px-3! text-sm font-medium"
-          >
-            Back to class overview
-          </Button>
+          <div className="flex flex-row-reverse items-center justify-between gap-2 md:flex-row md:justify-end">
+            {reportData?.data && (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="border-border-darker bg-bg-state-secondary text-text-default flex h-8 cursor-pointer items-center gap-1 rounded-md border px-3 text-sm font-medium focus-visible:ring-0 focus-visible:outline-none">
+                  <ShareBox fill="var(--color-icon-default-muted)" /> Export
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-bg-card border-border-default text-text-default py-2.5 shadow-sm">
+                  <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer px-3 py-0.5" onClick={() => handleExport("pdf")}>
+                    Export as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-bg-basic-gray-alpha-2! cursor-pointer px-3 py-0.5" onClick={() => handleExport("png")}>
+                    Export as PNG
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            <Button
+              onClick={() => setActiveStudentId(null)}
+              className="border-border-darker bg-bg-state-secondary text-text-default h-8! rounded-md border px-3! text-sm font-medium"
+            >
+              Back to class overview
+            </Button>
+          </div>
         )}
       </div>
 

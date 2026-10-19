@@ -11,6 +11,7 @@ export const Modal = ({
   ActionButton,
   children,
   className,
+  contentClassName,
   cancelButton,
   showCloseButton = true,
   showFooter = true,
@@ -21,6 +22,7 @@ export const Modal = ({
   ActionButton?: ReactNode;
   children: ReactNode;
   className?: string;
+  contentClassName?: string;
   cancelButton?: ReactNode;
   showCloseButton?: boolean;
   showFooter?: boolean;
@@ -47,7 +49,7 @@ export const Modal = ({
           </DialogHeader>
         )}
 
-        <div className="">{children}</div>
+        <div className={cn("min-h-0", contentClassName)}>{children}</div>
 
         {showFooter && (
           <DialogFooter className="border-border-default justify-between border-t p-4">
