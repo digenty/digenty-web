@@ -5,10 +5,9 @@ import { WebsiteConfig } from "../types";
 
 const FALLBACK_YEAR = 2025;
 
-// Fixed destination, never school-editable — see WebsiteConfigDto, which has no field for this.
-// Absolute on purpose: this component also renders on a school's own custom domain (unilag.com),
-// where a relative href would resolve against that domain instead of the main app.
-const PARENT_LOGIN_HREF = `${(process.env.NEXT_PUBLIC_FRONTEND_BASE_URL || "").replace(/\/$/, "")}/auth/parents/login`;
+// Fixed destination, never school-editable. Relative on purpose: a connected custom domain
+// (unilag.com) serves the parent portal itself and identifies the school from the host.
+const PARENT_LOGIN_HREF = "/auth/parents/login";
 
 const PlaceholderImage = ({ className }: { className?: string }) => (
   <div className={`flex items-center justify-center bg-zinc-100 ${className ?? ""}`}>
@@ -31,6 +30,18 @@ interface WebsitePreviewProps {
 export const WebsitePreview = ({ config, interactive = false }: WebsitePreviewProps) => {
   const { schoolIdentity, theme, hero, about, gallery, news, admissions, contact, footer } = config;
   const primary = theme.primaryColor || "#437dfc";
+
+  // Every call-to-action on the site leads to the parent portal login. A static mockup in the editor.
+  const CtaButton = ({ className, style, children }: { className?: string; style?: React.CSSProperties; children: React.ReactNode }) =>
+    interactive ? (
+      <a href={PARENT_LOGIN_HREF} className={`inline-block ${className ?? ""}`} style={style}>
+        {children}
+      </a>
+    ) : (
+      <button type="button" className={className} style={style}>
+        {children}
+      </button>
+    );
 
   const navLinks = [
     about.visible && { label: "About", href: "#about" },
@@ -85,9 +96,9 @@ export const WebsitePreview = ({ config, interactive = false }: WebsitePreviewPr
           ) : (
             <span className="hidden text-xs font-medium text-zinc-600 @2xl:inline">Parent Login</span>
           )}
-          <button className="rounded-md px-3 py-2 text-xs font-medium text-white @2xl:px-4 @2xl:text-sm" style={{ backgroundColor: primary }}>
+          <CtaButton className="rounded-md px-3 py-2 text-xs font-medium text-white @2xl:px-4 @2xl:text-sm" style={{ backgroundColor: primary }}>
             {hero.buttonText || "Apply Now"}
-          </button>
+          </CtaButton>
         </div>
       </header>
 
@@ -105,12 +116,12 @@ export const WebsitePreview = ({ config, interactive = false }: WebsitePreviewPr
               <h1 className="text-2xl leading-tight font-bold @md:text-3xl @2xl:text-5xl">{hero.headline || "Welcome to our school"}</h1>
               {hero.subtitle && <p className="max-w-xl text-sm text-white/85 @2xl:text-base">{hero.subtitle}</p>}
               {hero.buttonText && (
-                <button
+                <CtaButton
                   className="mt-1 rounded-md px-5 py-2.5 text-sm font-medium text-white @2xl:mt-2 @2xl:px-6 @2xl:py-3"
                   style={{ backgroundColor: primary }}
                 >
                   {hero.buttonText}
-                </button>
+                </CtaButton>
               )}
             </div>
           </section>
@@ -120,12 +131,12 @@ export const WebsitePreview = ({ config, interactive = false }: WebsitePreviewPr
               <h1 className="text-2xl leading-tight font-bold @md:text-3xl @2xl:text-5xl">{hero.headline || "Welcome to our school"}</h1>
               {hero.subtitle && <p className="text-sm text-zinc-600 @2xl:text-base">{hero.subtitle}</p>}
               {hero.buttonText && (
-                <button
+                <CtaButton
                   className="mt-1 w-fit rounded-md px-5 py-2.5 text-sm font-medium text-white @2xl:mt-2 @2xl:px-6 @2xl:py-3"
                   style={{ backgroundColor: primary }}
                 >
                   {hero.buttonText}
-                </button>
+                </CtaButton>
               )}
             </div>
             {hero.backgroundImageUrl ? (
@@ -257,9 +268,9 @@ export const WebsitePreview = ({ config, interactive = false }: WebsitePreviewPr
 
           {admissions.buttonText && (
             <div className="mt-7 text-center @2xl:mt-8">
-              <button className="rounded-md px-5 py-2.5 text-sm font-medium text-white @2xl:px-6 @2xl:py-3" style={{ backgroundColor: primary }}>
+              <CtaButton className="rounded-md px-5 py-2.5 text-sm font-medium text-white @2xl:px-6 @2xl:py-3" style={{ backgroundColor: primary }}>
                 {admissions.buttonText}
-              </button>
+              </CtaButton>
             </div>
           )}
         </section>
