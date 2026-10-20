@@ -14,7 +14,6 @@ import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { AllClassesMain } from "./Classes/AllClasses";
 import { Button } from "../ui/button";
 import { AllBranches } from "./AllBranches/AllBranch";
-
 const tabs = [
   { id: "classes", label: "My Classes" },
   { id: "subjects", label: "My Subjects" },

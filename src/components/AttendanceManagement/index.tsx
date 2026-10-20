@@ -15,6 +15,7 @@ import { AttendanceHeader } from "./AttendanceHeader";
 import useDebounce from "@/hooks/useDebounce";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { AttendanceMgtWrapper } from "./AttendanceMgtWrapper";
+import { canViewAttendance } from "@/lib/permissions/attendance";
 
 export const AttendanceManagement = () => {
   useBreadcrumb([{ label: "Attendance Management", url: "/staff/attendance" }]);
@@ -26,7 +27,15 @@ export const AttendanceManagement = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const user = useLoggedInUser();
 
-  const { data, isPending, isError, isLoading } = useGetAllAttendance(branchSelected?.id, termSelected?.termId, debouncedSearchQuery);
+  // Non-admins with the view permission see every class, but only in the branch they belong to.
+  const isBranchScoped = !user.isAdmin && !user.isMain && !(user.adminBranchIds?.length ?? 0) && canViewAttendance(user.permissions);
+  const scopedBranchId = isBranchScoped ? user.branchIds?.[0] : undefined;
+
+  const { data, isPending, isError, isLoading } = useGetAllAttendance(
+    branchSelected?.id ?? scopedBranchId,
+    termSelected?.termId,
+    debouncedSearchQuery,
+  );
 
   const levels: AttendanceLevel[] = data?.data.levels ?? [];
   const hasNoClasses = levels.every(level => level.classArms.length === 0);
