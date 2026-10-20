@@ -1,6 +1,7 @@
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { canViewClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export const SubjectReportPermissionWrapper = ({
   children,
@@ -15,7 +16,7 @@ export const SubjectReportPermissionWrapper = ({
 }) => {
   const { isUserLoading, ...user } = useLoggedInUser();
   const adminEditAccess = user.isMain && type === "edit";
-  const adminViewAccess = (user.isMain || user.isAdmin) && type === "view";
+  const adminViewAccess = (user.isMain || user.isAdmin || canViewClassesAndSubjects(user.permissions)) && type === "view";
   const hasSubjectAccess = user.subjectIds?.includes(Number(subjectId));
 
   return (

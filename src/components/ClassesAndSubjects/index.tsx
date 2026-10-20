@@ -14,7 +14,7 @@ import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { AllClassesMain } from "./Classes/AllClasses";
 import { Button } from "../ui/button";
 import { AllBranches } from "./AllBranches/AllBranch";
-
+import { canViewClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 const tabs = [
   { id: "classes", label: "My Classes" },
   { id: "subjects", label: "My Subjects" },
@@ -62,6 +62,11 @@ const ClassesAndSubjects = () => {
 
   if (user && user?.isMain && !hasClasses && !hasSubjects) {
     return <AllBranches />;
+  }
+
+  // Has module access but nothing assigned: show the full class list instead of an empty page.
+  if (user && canViewClassesAndSubjects(user.permissions) && !hasClasses && !hasSubjects) {
+    return <AllClassesMain />;
   }
 
   return (

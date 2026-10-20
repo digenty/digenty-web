@@ -1,12 +1,13 @@
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { canViewAttendance } from "@/lib/permissions/attendance";
 
 export const ClassAttendanceWrapper = ({ children, armId, isLoading }: { children: React.ReactNode; armId: number; isLoading: boolean }) => {
   const { isUserLoading, ...user } = useLoggedInUser();
   const userExists = user && Object.keys(user).length > 0;
   const hasArmAccess = userExists && user.armIds?.includes(armId);
-  const isAdmin = userExists && (user.isAdmin || user.isMain || (user?.adminBranchIds?.length ?? 0) > 0);
+  const isAdmin = userExists && (user.isAdmin || user.isMain || (user?.adminBranchIds?.length ?? 0) > 0 || canViewAttendance(user.permissions));
 
   return (
     <>

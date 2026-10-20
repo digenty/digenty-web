@@ -1,10 +1,12 @@
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { canViewClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export const ClassesAndSubjectsPermissionWrapper = ({ children, isLoading }: { children: React.ReactNode; isLoading: boolean }) => {
   const { isUserLoading, ...user } = useLoggedInUser();
-  const hasAccess = user.subjectIds && user.armIds && (user.subjectIds?.length > 0 || user?.armIds?.length > 0);
+  const isTeacher = user.subjectIds && user.armIds && (user.subjectIds?.length > 0 || user?.armIds?.length > 0);
+  const hasAccess = canViewClassesAndSubjects(user.permissions) || isTeacher;
 
   return (
     <>
