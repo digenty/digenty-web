@@ -13,6 +13,7 @@ import {
   verifySubscription,
 } from "@/api/subscription";
 import { subscriptionKeys } from "@/queries/subscription";
+import { isSubscriptionError } from "@/lib/apiError";
 
 export const useGetCurrentSubscription = () => {
   return useQuery({
@@ -22,9 +23,18 @@ export const useGetCurrentSubscription = () => {
   });
 };
 
+// Only a definite "no subscription" answer hides subscription-gated actions. Staff without access to
+// the subscription endpoint (e.g. a non-admin with manage permissions) get a failed or empty response
+// even when the school is subscribed, so that must not read as "not subscribed" — the same rule
+// SubscriptionGate applies. The backend still enforces the subscription on the actual action.
 export const useHasActiveSubscription = () => {
-  const { data } = useGetCurrentSubscription();
-  return data?.data?.status === "ACTIVE";
+  const { data, isLoading, isError, error } = useGetCurrentSubscription();
+
+  if (isLoading) return false;
+  if (isError) return !((error as { status?: number } | null)?.status === 404 || isSubscriptionError(error));
+
+  const status = data?.data?.status;
+  return status ? status === "ACTIVE" : true;
 };
 
 export const useGetActiveSubscription = () => {
