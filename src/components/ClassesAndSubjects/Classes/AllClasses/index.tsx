@@ -39,11 +39,15 @@ export const AllClassesMain = () => {
         ],
   );
 
-  const hasBranchRestriction = (user?.adminBranchIds?.length ?? 0) > 0;
-  const userBranchIds = useMemo(
-    () => (hasBranchRestriction ? (user!.adminBranchIds! as number[]) : (branchesData?.data?.map((b: BranchWithClassLevels) => b.branch.id) ?? [])),
-    [hasBranchRestriction, user, branchesData],
-  );
+  // Branch admins are limited to their admin branches; plain permission holders (not admin, not main)
+  // are limited to the branches they belong to. Main users and admins without a branch list see all.
+  const hasAdminBranches = (user?.adminBranchIds?.length ?? 0) > 0;
+  const isPlainStaff = !user?.isMain && !user?.isAdmin && (user?.branchIds?.length ?? 0) > 0;
+  const userBranchIds = useMemo(() => {
+    if (hasAdminBranches) return user!.adminBranchIds as number[];
+    if (isPlainStaff) return user!.branchIds as number[];
+    return branchesData?.data?.map((b: BranchWithClassLevels) => b.branch.id) ?? [];
+  }, [hasAdminBranches, isPlainStaff, user, branchesData]);
   const userBranches = branchesData?.data?.filter((b: BranchWithClassLevels) => userBranchIds.includes(b.branch.id)) || [];
 
   // Sync from the URL only when the URL's branchId itself changes (e.g. navigation) —
