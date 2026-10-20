@@ -1,9 +1,11 @@
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { canViewClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export const ClassPermissionWrapper = ({ children, armId, isLoading }: { children: React.ReactNode; armId: number; isLoading: boolean }) => {
   const { isUserLoading, ...user } = useLoggedInUser();
+  const hasAccess = canViewClassesAndSubjects(user.permissions) || user.armIds?.includes(Number(armId));
 
   return (
     <>
@@ -13,13 +15,13 @@ export const ClassPermissionWrapper = ({ children, armId, isLoading }: { childre
         </div>
       )}
 
-      {!isUserLoading && !user.armIds?.includes(Number(armId)) && !isLoading && (
+      {!isUserLoading && !hasAccess && !isLoading && (
         <div className="flex h-80 items-center justify-center pt-15">
           <PageEmptyState title="Unauthorized" description="You are not authorized to view this page" buttonText="Go to Home page" url="/staff/" />
         </div>
       )}
 
-      {!isUserLoading && user.armIds?.includes(Number(armId)) && children}
+      {!isUserLoading && hasAccess && children}
     </>
   );
 };

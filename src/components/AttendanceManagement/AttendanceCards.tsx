@@ -2,6 +2,7 @@ import { NumStudentIcon } from "@digenty/icons";
 import { useEffect, useState } from "react";
 import { AttendanceLevel } from "@/api/types";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { canViewAttendance } from "@/lib/permissions/attendance";
 import { LEVEL_ORDER } from "@/lib/utils";
 import { AttendanceLevelTabs } from "./AttendanceLevelTabs";
 import { Card } from "./Card";
@@ -9,7 +10,7 @@ import { Card } from "./Card";
 export const AttendanceCards = ({ levels }: { levels: AttendanceLevel[] }) => {
   const user = useLoggedInUser();
 
-  const hasFullAccess = user.isAdmin || user.isMain || (user?.adminBranchIds?.length ?? 0) > 0;
+  const hasFullAccess = user.isAdmin || user.isMain || (user?.adminBranchIds?.length ?? 0) > 0 || canViewAttendance(user.permissions);
 
   const visibleLevels = levels
     .map(level => ({
