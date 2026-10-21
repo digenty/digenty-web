@@ -32,17 +32,22 @@ function isOwnPlatformHost(hostname: string): boolean {
 
 // Unauthenticated host -> slug lookup for a school's connected custom domain. Plain fetch (not
 // the axios-public client) since middleware runs on the Edge runtime. A 404 or network failure
-// both mean "not a recognized school domain" — fall through to normal app routing either way.
-async function resolveConnectedDomain(host: string): Promise<{ slug: string; live: boolean } | null> {
+// 404 means "not a recognized school domain" — fall through to normal app routing. Any other failure
+// (network, 5xx) is "unavailable": we can't tell, so the root must not bounce a school's visitors to
+// the staff login.
+const RESOLVE_UNAVAILABLE = "unavailable" as const;
+
+async function resolveConnectedDomain(host: string): Promise<{ slug: string; live: boolean } | typeof RESOLVE_UNAVAILABLE | null> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/public/website/resolve?host=${encodeURIComponent(host)}`, {
       next: { revalidate: 60 },
     });
-    if (!res.ok) return null;
+    if (res.status === 404) return null;
+    if (!res.ok) return RESOLVE_UNAVAILABLE;
     const body = await res.json();
-    return body.data ?? body ?? null;
+    return body.data ?? body ?? RESOLVE_UNAVAILABLE;
   } catch {
-    return null;
+    return RESOLVE_UNAVAILABLE;
   }
 }
 
@@ -55,8 +60,15 @@ export default async function middleware(req: NextRequest) {
 
   // A school's own connected custom domain (e.g. unilag.com). Its root serves the customized public
   // website; every other path (parent auth, /parents) still works, and the staff app is blocked.
-  const resolution = !isOwnPlatformHost(hostname) ? await resolveConnectedDomain(host) : null;
+  const resolved = !isOwnPlatformHost(hostname) ? await resolveConnectedDomain(host) : null;
+  const resolution = resolved && resolved !== RESOLVE_UNAVAILABLE ? resolved : null;
   const isCustomSchoolDomain = !!resolution;
+
+  // Custom-domain root comes first — before the cookie read and the "/" redirects below.
+  if (path === "/" && resolved) {
+    url.pathname = resolution && resolution.live ? `/site/${resolution.slug}` : "/site/coming-soon";
+    return NextResponse.rewrite(url);
+  }
 
   // Temporarily disabled finance routes
   // const disabledRoutes = [
@@ -89,11 +101,6 @@ export default async function middleware(req: NextRequest) {
   ];
 
   const isAuthRoute = authRoutes.includes(path);
-
-  if (path === "/" && resolution) {
-    url.pathname = resolution.live ? `/site/${resolution.slug}` : "/site/coming-soon";
-    return NextResponse.rewrite(url);
-  }
 
   if (path === "/") {
     // Real parent-portal subdomains (e.g. greenwood.axisbydigenty.com) still land on the

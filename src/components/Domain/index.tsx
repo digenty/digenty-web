@@ -10,6 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { EmailSetupSection } from "@/components/Domain/EmailSetup";
+import { SubdomainCard } from "@/components/Domain/SubdomainCard";
+import { useGetSubdomain } from "@/hooks/queryHooks/useSchool";
 import { useDomainPurchase, useDomainPurchases, usePurchaseAndConnectDomain } from "@/hooks/queryHooks/useDomain";
 import { DomainPurchaseDto, DomainPurchaseType } from "@/api/domain";
 import { canManageDomain } from "@/lib/permissions/domain";
@@ -68,7 +71,39 @@ const DnsRecordsTable = ({ records }: { records: DomainPurchaseDto["requiredDnsR
   </div>
 );
 
-const DomainProgressCard = ({ purchase, onStartOver }: { purchase: DomainPurchaseDto; onStartOver: () => void }) => {
+// The purchase DTO doesn't echo the registrant details, so keep what the school submitted to pre-fill a retry.
+interface CheckoutValues {
+  city: string;
+  state: string;
+  postcode: string;
+}
+
+const checkoutStorageKey = (domainName: string) => `domain-checkout:${domainName}`;
+
+const saveCheckout = (domainName: string, values: CheckoutValues) => {
+  try {
+    localStorage.setItem(checkoutStorageKey(domainName), JSON.stringify(values));
+  } catch {}
+};
+
+const loadCheckout = (domainName: string): CheckoutValues | null => {
+  try {
+    const raw = localStorage.getItem(checkoutStorageKey(domainName));
+    return raw ? (JSON.parse(raw) as CheckoutValues) : null;
+  } catch {
+    return null;
+  }
+};
+
+const DomainProgressCard = ({
+  purchase,
+  onStartOver,
+  onRetry,
+}: {
+  purchase: DomainPurchaseDto;
+  onStartOver: () => void;
+  onRetry: (purchase: DomainPurchaseDto) => void;
+}) => {
   const { data, isStalled } = useDomainPurchase(purchase.purchaseId);
   const current = data ?? purchase;
   const statusConfig = DOMAIN_STATUS_CONFIG[current.status];
@@ -108,16 +143,25 @@ const DomainProgressCard = ({ purchase, onStartOver }: { purchase: DomainPurchas
               )}
             </div>
             <p className="text-text-muted text-xs">{current.message}</p>
-            {current.requiresManualReview && <p className="text-text-muted text-xs">Our team has been notified and is on this.</p>}
+            {current.requiresManualReview && current.status !== "REJECTED" && (
+              <p className="text-text-muted text-xs">Our team has been notified and is on this.</p>
+            )}
             {failure && <p className="text-text-muted text-xs">{failure.description}</p>}
           </div>
         </div>
 
         {(live || failure?.allowRetry) && (
           <PermissionCheck permissionUtility={canManageDomain}>
-            <Button variant="outline" className="border-border-default! h-8 shrink-0 px-4 text-xs" onClick={onStartOver}>
-              {live ? "Change domain" : "Try a different domain"}
-            </Button>
+            <div className="flex shrink-0 gap-2">
+              {current.status === "REJECTED" && (
+                <Button className="bg-bg-state-primary! text-text-white-default! h-8 px-4 text-xs" onClick={() => onRetry(current)}>
+                  Try again
+                </Button>
+              )}
+              <Button variant="outline" className="border-border-default! h-8 px-4 text-xs" onClick={onStartOver}>
+                {live ? "Change domain" : "Try a different domain"}
+              </Button>
+            </div>
           </PermissionCheck>
         )}
       </div>
@@ -135,11 +179,14 @@ const DomainProgressCard = ({ purchase, onStartOver }: { purchase: DomainPurchas
   );
 };
 
-const DomainConnectForm = ({ onPurchased }: { onPurchased: (purchase: DomainPurchaseDto) => void }) => {
-  const [mode, setMode] = useState<DomainPurchaseType>("PURCHASE");
-  const [purchaseLabel, setPurchaseLabel] = useState("");
-  const [connectDomain, setConnectDomain] = useState("");
-  const [registrant, setRegistrant] = useState<Record<RegistrantField, string>>({ city: "", state: "", postcode: "" });
+const DomainConnectForm = ({ onPurchased, retryOf }: { onPurchased: (purchase: DomainPurchaseDto) => void; retryOf?: DomainPurchaseDto | null }) => {
+  const retryIsPurchase = !!retryOf && retryOf.purchaseType === "PURCHASE" && retryOf.domainName.endsWith(PURCHASE_TLD);
+  const [mode, setMode] = useState<DomainPurchaseType>(retryOf?.purchaseType ?? "PURCHASE");
+  const [purchaseLabel, setPurchaseLabel] = useState(retryIsPurchase ? retryOf.domainName.slice(0, -PURCHASE_TLD.length) : "");
+  const [connectDomain, setConnectDomain] = useState(retryOf && !retryIsPurchase ? retryOf.domainName : "");
+  const [registrant, setRegistrant] = useState<Record<RegistrantField, string>>(
+    () => (retryOf && loadCheckout(retryOf.domainName)) || { city: "", state: "", postcode: "" },
+  );
   const [serverErrors, setServerErrors] = useState<Partial<Record<RegistrantField, string>>>({});
   const { mutate: purchaseAndConnect, isPending } = usePurchaseAndConnectDomain();
   const router = useRouter();
@@ -161,6 +208,8 @@ const DomainConnectForm = ({ onPurchased }: { onPurchased: (purchase: DomainPurc
   const handleSubmit = () => {
     if (!isValid) return;
 
+    if (isPurchase) saveCheckout(domainName, { city: registrant.city.trim(), state: registrant.state.trim(), postcode: registrant.postcode.trim() });
+
     purchaseAndConnect(
       {
         domainName,
@@ -170,14 +219,16 @@ const DomainConnectForm = ({ onPurchased }: { onPurchased: (purchase: DomainPurc
       {
         onSuccess: purchase => {
           toast.success(mode === "PURCHASE" ? "Domain purchase started" : "Domain connection started", {
-            description: "Setting up a domain usually takes up to 2 hours.",
+            description: purchase.message,
           });
           onPurchased(purchase);
         },
         onError: (error: unknown) => {
           const code = getApiErrorCode(error);
           const details = getApiErrorDetails(error);
-          if (code === "DUPLICATE_RECORD_REQUEST") {
+          if (code === "SUBDOMAIN_REQUIRED") {
+            toast.error(getApiErrorMessage(error, "Choose your school's subdomain before connecting a domain"));
+          } else if (code === "DUPLICATE_RECORD_REQUEST") {
             toast.error("That domain is already taken.");
           } else if (code === "SUBSCRIPTION_REQUIRED") {
             toast.error("Your current plan doesn't include custom domains.");
@@ -311,6 +362,11 @@ export const DomainMain = () => {
   const { data: purchases, isLoading } = useDomainPurchases();
   const [startedOver, setStartedOver] = useState(false);
   const [justPurchased, setJustPurchased] = useState<DomainPurchaseDto | null>(null);
+  const [retryOf, setRetryOf] = useState<DomainPurchaseDto | null>(null);
+  const { data: subdomainResponse, isLoading: isSubdomainLoading } = useGetSubdomain();
+  const subdomain: string | null = subdomainResponse?.data?.subdomain ?? subdomainResponse?.subdomain ?? null;
+  const liveDomain = purchases?.find(p => isDomainPurchaseLive(p.status));
+  const hasConnectedDomain = !!purchases?.some(p => isDomainPurchaseLive(p.status));
 
   useBreadcrumb([{ label: "Domain", url: "/staff/domain" }]);
 
@@ -324,26 +380,47 @@ export const DomainMain = () => {
         <h2 className="text-text-default text-xl font-semibold">Domain</h2>
       </div>
 
-      {isLoading ? (
+      {isLoading || isSubdomainLoading ? (
         <div className="flex flex-col gap-3">
           <Skeleton className="bg-bg-input-soft h-16 w-full rounded-lg" />
           <Skeleton className="bg-bg-input-soft h-40 w-full rounded-xl" />
         </div>
+      ) : showForm && !subdomain ? (
+        <SubdomainCard subdomain={null} hasConnectedDomain={false} />
       ) : showForm ? (
-        <DomainConnectForm
-          onPurchased={purchase => {
-            setJustPurchased(purchase);
-            setStartedOver(false);
-          }}
-        />
+        <>
+          <DomainConnectForm
+            retryOf={retryOf}
+            onPurchased={purchase => {
+              setJustPurchased(purchase);
+              setRetryOf(null);
+              setStartedOver(false);
+            }}
+          />
+          <SubdomainCard subdomain={subdomain} hasConnectedDomain={hasConnectedDomain} />
+        </>
       ) : (
-        <DomainProgressCard
-          purchase={activePurchase}
-          onStartOver={() => {
-            setJustPurchased(null);
-            setStartedOver(true);
-          }}
-        />
+        <>
+          <DomainProgressCard
+            purchase={activePurchase}
+            onStartOver={() => {
+              setJustPurchased(null);
+              setRetryOf(null);
+              setStartedOver(true);
+            }}
+            onRetry={purchase => {
+              setRetryOf(purchase);
+              setStartedOver(true);
+            }}
+          />
+          {liveDomain &&
+            (liveDomain.manageDns ? (
+              <EmailSetupSection purchaseId={liveDomain.purchaseId} domain={liveDomain.domainName} />
+            ) : (
+              <p className="text-text-muted text-xs">Add your email records at your DNS provider.</p>
+            ))}
+          <SubdomainCard subdomain={subdomain} hasConnectedDomain={hasConnectedDomain} />
+        </>
       )}
     </div>
   );

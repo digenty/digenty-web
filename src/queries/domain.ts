@@ -5,6 +5,12 @@ export const domainKeys = {
   purchaseAndConnect: ["purchaseAndConnectDomain"] as const,
   purchase: (purchaseId: string) => ["domainPurchase", purchaseId] as const,
   purchases: ["domainPurchases"] as const,
+  emailSetup: (purchaseId: string) => ["domainEmailSetup", purchaseId] as const,
+  emailSetupSubmit: ["domainEmailSetupSubmit"] as const,
+  dnsRecords: (purchaseId: string) => ["domainDnsRecords", purchaseId] as const,
+  createDnsRecord: ["createDnsRecord"] as const,
+  deleteDnsRecord: ["deleteDnsRecord"] as const,
+  addSpfInclude: ["addSpfInclude"] as const,
 };
 
 // In-flight: middleware keeps polling. Terminal success: LIVE. Everything else terminal is a
@@ -46,7 +52,7 @@ export const DOMAIN_STATUS_CONFIG: Record<DomainPurchaseStatus, { label: string;
 // it just isn't working yet. Only REJECTED means nothing was charged; only REJECTED and
 // REGISTRATION_INDETERMINATE should ever be framed as "try again" rather than "we're on it".
 export const DOMAIN_FAILURE_COPY: Partial<Record<DomainPurchaseStatus, { charged: boolean; description: string; allowRetry: boolean }>> = {
-  REJECTED: { charged: false, description: "Nothing was charged. Try a different domain.", allowRetry: true },
+  REJECTED: { charged: false, description: "Nothing was charged.", allowRetry: true },
   REGISTRATION_INDETERMINATE: {
     charged: false,
     description: "We're confirming this with the registrar. This can take a few minutes.",
