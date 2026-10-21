@@ -1,6 +1,7 @@
 import {
   addSchool,
   createSubdomain,
+  deleteSubdomain,
   getSchoolDetails,
   getSchools,
   getSubdomain,
@@ -75,6 +76,19 @@ export const useUpdateSubdomain = () => {
   return useMutation({
     mutationKey: schoolsKey.updateSubdomain,
     mutationFn: updateSubdomain,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: schoolsKey.getSchoolDetails });
+      queryClient.invalidateQueries({ queryKey: schoolsKey.getSubdomain });
+    },
+  });
+};
+
+export const useDeleteSubdomain = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: schoolsKey.deleteSubdomain,
+    mutationFn: deleteSubdomain,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: schoolsKey.getSchoolDetails });
       queryClient.invalidateQueries({ queryKey: schoolsKey.getSubdomain });

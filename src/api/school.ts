@@ -100,6 +100,18 @@ export const updateSubdomain = async (payload: { subdomain: string }) => {
   }
 };
 
+export const deleteSubdomain = async () => {
+  try {
+    const { data } = await api.delete("/schools/subdomain");
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const lookupSchoolByDomain = async (host: string) => {
   try {
     const { data } = await apiPublic.get("/parent/portal/lookup/schools/by-domain", { params: { host } });
