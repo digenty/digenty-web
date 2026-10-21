@@ -7,4 +7,5 @@ export const schoolsKey = {
   getSubdomain: ["getSubdomain"] as const,
   createSubdomain: ["createSubdomain"] as const,
   updateSubdomain: ["updateSubdomain"] as const,
+  deleteSubdomain: ["deleteSubdomain"] as const,
 };
