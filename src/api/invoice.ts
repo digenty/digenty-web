@@ -489,6 +489,28 @@ export type PendingPaymentsParams = {
   size?: number;
 };
 
+export type TerminalTransaction = {
+  id: number;
+  date: string;
+  amount: number;
+  reference: string;
+  terminal: string;
+};
+
+export const getTerminalTransactions = async (branchId: number, invoiceId?: string): Promise<TerminalTransaction[]> => {
+  try {
+    const params = new URLSearchParams({ branchId: String(branchId), status: "UNMATCHED" });
+    if (invoiceId) params.append("invoiceId", invoiceId);
+    const { data } = await api.get(`/payment-terminals/transactions?${params.toString()}`);
+    return data?.data ?? data ?? [];
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getPendingPayments = async ({
   branchId,
   termId,

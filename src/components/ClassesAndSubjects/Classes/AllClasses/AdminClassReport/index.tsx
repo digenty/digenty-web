@@ -11,6 +11,7 @@ import { ReportHeader } from "./ReportHeader";
 
 import { DataTable } from "@/components/DataTable";
 import { StudentResult } from "@/components/StudentResult";
+import { SignatureReminder } from "@/components/SignatureReminder";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -290,6 +291,7 @@ const ClassReport = () => {
                   ) : (
                     <div className="max-w-[678px] pt-6 pb-10">
                       {/* TODO: Pass active student here */}
+                      <SignatureReminder />
                       <StudentResult studentReport={studentReportData?.data} termSelected={termSelected} />
                     </div>
                   )}
