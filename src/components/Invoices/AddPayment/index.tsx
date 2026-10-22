@@ -13,9 +13,9 @@ import { Avatar } from "@/components/Avatar";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/Toast";
-import { useAddPayment, useGetInvoiceDetail } from "@/hooks/queryHooks/useInvoice";
+import { useAddPayment, useGetInvoiceDetail, useGetTerminalTransactions } from "@/hooks/queryHooks/useInvoice";
 import { useGetStudent } from "@/hooks/queryHooks/useStudent";
-import { InvoiceDetailResponse } from "@/components/Invoices/InvoiceId/invoiceIdTypes";
+import { InvoiceDetailResponse, invoiceBreakdownType } from "@/components/Invoices/InvoiceId/invoiceIdTypes";
 import { addPaymentSchema } from "@/schema/invoice";
 import { payMethod } from "@/components/Invoices/paymentMethods";
 import { getParent } from "@/api/parent";
@@ -27,12 +27,29 @@ import { useEffect, useRef, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 
+const roundMoney = (n: number) => Math.round(n * 100) / 100;
+
+// Fills fee lines in order until the payment amount runs out, so a part-payment never over-allocates.
+const autoAllocate = (amount: number, items: invoiceBreakdownType[]) => {
+  let left = amount;
+  return Object.fromEntries(
+    items.map(item => {
+      const allocated = roundMoney(Math.min(item.total, Math.max(left, 0)));
+      left -= allocated;
+      return [item.id, allocated];
+    }),
+  ) as Record<number, number>;
+};
+
 export const AddPAyment = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const invoiceId = searchParams.get("invoiceId") ?? undefined;
 
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [terminalOpen, setTerminalOpen] = useState(false);
+  // Namespaced because a student and a parent can share the same numeric id
+  const [payerKey, setPayerKey] = useState("");
 
   const { mutate, isPending } = useAddPayment(invoiceId);
   const { data: invoiceData } = useGetInvoiceDetail(invoiceId);
@@ -53,15 +70,19 @@ export const AddPAyment = () => {
   const linkedParents = parentQueries.map(q => (q.data as { data: Parent } | undefined)?.data).filter(Boolean) as Parent[];
 
   const invoiceItems = invoiceDetail?.items ?? [];
-  const [allocations, setAllocations] = useState<Record<number, number>>({});
-  const allocationsSeeded = useRef(false);
-  useEffect(() => {
-    if (!allocationsSeeded.current && invoiceItems.length > 0) {
-      setAllocations(Object.fromEntries(invoiceItems.map(item => [item.id, item.total])));
-      allocationsSeeded.current = true;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [invoiceItems.length]);
+  const outstandingBalance = invoiceDetail?.outstandingBalance;
+  // null = follow the amount automatically; set once the user edits a line by hand
+  const [manualAllocations, setManualAllocations] = useState<Record<number, number> | null>(null);
+
+  const {
+    data: terminalData,
+    isLoading: loadingTerminal,
+    isFetching: fetchingTerminal,
+    refetch: refetchTerminal,
+  } = useGetTerminalTransactions(invoiceDetail?.branchId, invoiceId);
+  const terminalTransactions = Array.isArray(terminalData) ? terminalData : [];
+
+  const getAllocations = (amount: number) => manualAllocations ?? autoAllocate(amount, invoiceItems);
 
   const formik = useFormik({
     initialValues: {
@@ -73,14 +94,33 @@ export const AddPAyment = () => {
       note: "",
     },
     validationSchema: addPaymentSchema,
+    validate: values => {
+      const errors: Record<string, string> = {};
+      const amount = Number(values.amount) || 0;
+      if (outstandingBalance !== undefined && amount > outstandingBalance + 0.001) {
+        errors.amount = `Amount cannot exceed the outstanding balance (₦${outstandingBalance.toLocaleString()})`;
+      }
+      const allocatedTotal = Object.values(getAllocations(amount)).reduce((sum, v) => sum + (v || 0), 0);
+      if (allocatedTotal > amount + 0.001) {
+        errors.allocations = "The allocation breakdown cannot add up to more than the amount being recorded";
+      }
+      return errors;
+    },
     onSubmit: values => {
+      const allocations = getAllocations(Number(values.amount) || 0);
       const allocationRows = invoiceItems
         .map(item => ({ studentFeeItemId: item.id, amount: allocations[item.id] ?? 0 }))
         .filter(row => row.amount > 0);
 
       mutate(
         {
-          transactionDate: (values.transactionDate as Date).toISOString(),
+          // Pin to local noon: local midnight converts to the previous day in UTC for zones ahead of GMT (e.g. Nigeria)
+          transactionDate: new Date(
+            (values.transactionDate as Date).getFullYear(),
+            (values.transactionDate as Date).getMonth(),
+            (values.transactionDate as Date).getDate(),
+            12,
+          ).toISOString(),
           method: values.method as (typeof payMethod)[number]["value"],
           terminalTransactionId: values.terminalTransactionId || null,
           paidById: values.paidById,
@@ -91,7 +131,7 @@ export const AddPAyment = () => {
         {
           onSuccess: () => {
             toast({ title: "Payment added successfully", type: "success" });
-            router.push(`/staff/invoices/${invoiceId}`);
+            router.replace(`/staff/invoices/${invoiceId}`);
           },
           onError: (error: unknown) => {
             const description =
@@ -102,6 +142,19 @@ export const AddPAyment = () => {
       );
     },
   });
+
+  const amountPrefilled = useRef(false);
+  useEffect(() => {
+    if (!amountPrefilled.current && outstandingBalance && outstandingBalance > 0) {
+      amountPrefilled.current = true;
+      formik.setFieldValue("amount", outstandingBalance);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [outstandingBalance]);
+
+  const allocations = getAllocations(Number(formik.values.amount) || 0);
+  const allocationsError = (formik.errors as Record<string, string>).allocations;
+  const allocatedTotal = Object.values(allocations).reduce((sum, v) => sum + (v || 0), 0);
 
   const selectedMethod = payMethod.find(m => m.value === formik.values.method) ?? payMethod[0];
 
@@ -202,11 +255,14 @@ export const AddPAyment = () => {
           {/* Terminal Payment */}
           <div className="space-y-2">
             <Label className="text-text-default tex-sm font-medium">Terminal Payment</Label>
-            <Sheet>
+            <Sheet open={terminalOpen} onOpenChange={setTerminalOpen}>
               <SheetTrigger asChild className="bg-bg-input-soft! hover:bg-bg-input-soft! flex h-9 w-full cursor-pointer rounded-md border-none">
                 <div className="flex items-center justify-between px-3">
                   <Button className="hover:bg-bg-none! text-text-muted border-none p-0 text-sm font-normal">
-                    {formik.values.terminalTransactionId ? formik.values.terminalTransactionId : "Select terminal payment"}
+                    {formik.values.terminalTransactionId
+                      ? (terminalTransactions.find(t => String(t.id) === formik.values.terminalTransactionId)?.reference ??
+                        formik.values.terminalTransactionId)
+                      : "Select terminal payment"}
                   </Button>
                   <ArrowRightS fill="var(--color-icon-default-muted)" />
                 </div>
@@ -215,25 +271,72 @@ export const AddPAyment = () => {
                 <SheetHeader className="border-border-darker bg-bg-card-subtle rounded-t-md border-b px-4 py-3">
                   <div className="flex items-center justify-between">
                     <div className="text-text-default text-md font-semibold">Select Terminal Payment</div>
-                    <Button className="text-text-default border-border-darker bg-bg-secondary h-7 w-23 rounded-sm border px-2 py-1 text-sm">
-                      <ResetLeft fill="var(--color-icon-default-muted)" /> Refresh
+                    <Button
+                      onClick={() => refetchTerminal()}
+                      disabled={fetchingTerminal}
+                      className="text-text-default border-border-darker bg-bg-secondary h-7 w-23 rounded-sm border px-2 py-1 text-sm"
+                    >
+                      <ResetLeft fill="var(--color-icon-default-muted)" className={cn(fetchingTerminal && "animate-spin")} /> Refresh
                     </Button>
                   </div>
                 </SheetHeader>
-                <div className="m-0 flex h-screen place-content-center items-center justify-center">
-                  <div className="flex flex-col items-center gap-4">
-                    <QuickReferenceAll fill="var(--color-icon-bg-default)" />
-                    <div className="flex flex-col items-center">
-                      <p className="text-text-default text-sm font-medium">No Terminal Transaction</p>
-                      <span className="text-text-muted text-xs font-normal">There are no transactions to match to payments</span>
-                    </div>
-                    <SheetClose asChild>
-                      <Button className="border-border-darker bg-bg-state-secondary! text-text-default h-7 w-14.5 rounded-sm border px-2 py-1 text-sm">
-                        Close
-                      </Button>
-                    </SheetClose>
+                {loadingTerminal ? (
+                  <div className="flex justify-center p-8">
+                    <Spinner className="size-5" />
                   </div>
-                </div>
+                ) : terminalTransactions.length > 0 ? (
+                  <div className="flex flex-col gap-2 overflow-y-auto p-4">
+                    {formik.values.terminalTransactionId && (
+                      <Button
+                        onClick={() => {
+                          formik.setFieldValue("terminalTransactionId", "");
+                          setTerminalOpen(false);
+                        }}
+                        className="text-text-subtle h-7 self-start rounded-sm px-2 text-xs"
+                      >
+                        Clear selection
+                      </Button>
+                    )}
+                    {terminalTransactions.map(tx => (
+                      <button
+                        type="button"
+                        key={tx.id}
+                        onClick={() => {
+                          formik.setFieldValue("terminalTransactionId", String(tx.id));
+                          formik.setFieldValue("amount", Math.min(tx.amount, outstandingBalance ?? tx.amount));
+                          setTerminalOpen(false);
+                        }}
+                        className={cn(
+                          "border-border-default hover:bg-bg-input-soft flex cursor-pointer flex-col gap-1 rounded-md border p-3 text-left",
+                          String(tx.id) === formik.values.terminalTransactionId && "border-border-informative",
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-text-default text-sm font-medium">{tx.reference}</span>
+                          <span className="text-text-default text-sm font-medium">₦{tx.amount.toLocaleString()}</span>
+                        </div>
+                        <span className="text-text-muted text-xs">
+                          {tx.terminal} · {new Date(tx.date).toLocaleString()}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="m-0 flex h-screen place-content-center items-center justify-center">
+                    <div className="flex flex-col items-center gap-4">
+                      <QuickReferenceAll fill="var(--color-icon-bg-default)" />
+                      <div className="flex flex-col items-center">
+                        <p className="text-text-default text-sm font-medium">No Terminal Transaction</p>
+                        <span className="text-text-muted text-xs font-normal">There are no transactions to match to payments</span>
+                      </div>
+                      <SheetClose asChild>
+                        <Button className="border-border-darker bg-bg-state-secondary! text-text-default h-7 w-14.5 rounded-sm border px-2 py-1 text-sm">
+                          Close
+                        </Button>
+                      </SheetClose>
+                    </div>
+                  </div>
+                )}
               </SheetContent>
             </Sheet>
           </div>
@@ -281,30 +384,27 @@ export const AddPAyment = () => {
                         type="number"
                         min={0}
                         value={allocations[item.id] ?? ""}
-                        onChange={e => setAllocations(a => ({ ...a, [item.id]: Number(e.target.value) || 0 }))}
+                        onChange={e => setManualAllocations({ ...allocations, [item.id]: Number(e.target.value) || 0 })}
                         className="h-full border-none bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
                       />
                     </div>
                   </div>
                 ))}
-                {(() => {
-                  const allocatedTotal = Object.values(allocations).reduce((sum, v) => sum + (v || 0), 0);
-                  const amount = Number(formik.values.amount) || 0;
-                  const overAllocated = allocatedTotal > amount + 0.001;
-                  return (
-                    <div
-                      className={cn(
-                        "border-border-default flex items-center justify-between border-t pt-2 text-sm",
-                        overAllocated && "text-text-destructive",
-                      )}
-                    >
-                      <span>Allocated</span>
-                      <span className="font-medium">
-                        ₦{allocatedTotal.toLocaleString()} {overAllocated && "— exceeds the amount above"}
-                      </span>
-                    </div>
-                  );
-                })()}
+                <div
+                  className={cn(
+                    "border-border-default flex items-center justify-between border-t pt-2 text-sm",
+                    allocationsError && "text-text-destructive",
+                  )}
+                >
+                  <span>Allocated</span>
+                  <span className="font-medium">₦{allocatedTotal.toLocaleString()}</span>
+                </div>
+                {allocationsError && <p className="text-text-destructive text-xs font-light">{allocationsError}</p>}
+                {manualAllocations && (
+                  <Button onClick={() => setManualAllocations(null)} className="text-text-informative h-6 self-start px-0 text-xs">
+                    Auto-fill from amount
+                  </Button>
+                )}
               </div>
             </div>
           )}
@@ -315,9 +415,10 @@ export const AddPAyment = () => {
               Paid By <span className="text-text-destructive">*</span>
             </Label>
             <Select
-              value={formik.values.paidById ? String(formik.values.paidById) : ""}
+              value={payerKey}
               onValueChange={value => {
-                formik.setFieldValue("paidById", Number(value));
+                setPayerKey(value);
+                formik.setFieldValue("paidById", Number(value.split(":")[1]));
                 formik.setFieldTouched("paidById", true);
               }}
             >
@@ -332,13 +433,13 @@ export const AddPAyment = () => {
               <SelectContent className="bg-bg-card border-border-default text-text-default border">
                 <SelectGroup>
                   {issuedTo && (
-                    <SelectItem value={String(issuedTo.id)}>
+                    <SelectItem value={`student:${issuedTo.id}`}>
                       <Avatar className="size-4" url={issuedTo.avatar} />
                       <span>{issuedTo.name}</span>
                     </SelectItem>
                   )}
                   {linkedParents.map(parent => (
-                    <SelectItem key={parent.id} value={String(parent.id)}>
+                    <SelectItem key={parent.id} value={`parent:${parent.id}`}>
                       <Avatar className="size-4" url={parent.image ?? undefined} />
                       <span>
                         {parent.firstName} {parent.lastName}
@@ -378,7 +479,7 @@ export const AddPAyment = () => {
           </Button>
           <Button
             onClick={() => formik.handleSubmit()}
-            disabled={isPending || Object.values(allocations).reduce((sum, v) => sum + (v || 0), 0) > (Number(formik.values.amount) || 0) + 0.001}
+            disabled={isPending}
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover/90! text-text-white-default h-7 rounded-md px-2.5 py-1.5 text-sm"
           >
             {isPending && <Spinner className="text-text-white-default mr-1 size-4" />}

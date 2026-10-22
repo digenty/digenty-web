@@ -24,6 +24,7 @@ export const invoiceKeys = {
   byStudent: (studentId?: number, page?: number, size?: number) => ["invoices", "student", studentId, page, size] as const,
   paymentById: (invoiceId?: string, paymentId?: string) => ["invoices", "payment", invoiceId, paymentId] as const,
   preview: (invoiceId?: string) => ["invoices", "preview", invoiceId] as const,
+  terminalTransactions: (branchId?: number, invoiceId?: string) => ["invoices", "terminalTransactions", branchId, invoiceId] as const,
   settings: () => ["invoices-setting"] as const,
   pendingPayments: (branchId?: number, termId?: number, search?: string, page?: number, size?: number) =>
     ["invoices", "payments", "pending", branchId, termId, search, page, size] as const,
