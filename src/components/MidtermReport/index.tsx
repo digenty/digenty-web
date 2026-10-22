@@ -13,6 +13,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { TriangleAlert } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { SignatureReminder } from "../SignatureReminder";
 import { MidtermReportView } from "./MidtermReportView";
 
 const errorMessage = (error: unknown, fallback: string) => (error as { message?: string } | null)?.message || fallback;
@@ -165,6 +166,7 @@ export const MidtermReportScreen = () => {
               {!reportData.data.published && (
                 <p className="text-text-subtle mb-3 text-xs">Preview only. Parents cannot see this until the branch publishes the mid-term report.</p>
               )}
+              <SignatureReminder />
               <MidtermReportView report={reportData.data} />
             </>
           )}

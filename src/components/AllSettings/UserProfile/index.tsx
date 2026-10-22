@@ -13,6 +13,7 @@ import { useGetUserProfile, useUpdateUserProfile } from "@/hooks/queryHooks/useP
 import { useGetSecuritySettings } from "@/hooks/queryHooks/useSecurity";
 import { useSendChangePasswordOtp } from "@/hooks/queryHooks/useAuth";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import React, { useEffect, useRef, useState } from "react";
 
 import { uploadImage } from "@/app/actions/upload-image";
@@ -20,6 +21,7 @@ import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect
 import { Country } from "@/components/StudentAndParent/types";
 import { useGetCountries } from "@/hooks/queryHooks/useCountry";
 import { ChangePasswordDialog } from "../SecuritySettings/ChangePasswordDialog";
+import { SignatureSection } from "./SignatureSection";
 
 type Timezone = {
   abbreviation: string;
@@ -65,6 +67,10 @@ export const UserProfile = () => {
 
   const { data } = useGetUserProfile();
   const profileData = data?.data;
+
+  // Only people who sign report cards need a signature: the principal/admin, or a class teacher (assigned arms). Subject-only teachers don't.
+  const { isMain, isAdmin, armIds } = useLoggedInUser();
+  const canSign = !!isMain || !!isAdmin || (armIds?.length ?? 0) > 0;
 
   const { mutate, isPending } = useUpdateUserProfile();
 
@@ -132,7 +138,7 @@ export const UserProfile = () => {
       if (data?.url) {
         setImage(data.url);
         mutate(
-          { image: data.url, firstName, middleName, lastName, phoneNumber, timezone: timeZone },
+          { image: data.url, firstName, middleName, lastName, phoneNumber, timezone: timeZone, signature: profileData?.signature || undefined },
           {
             onSuccess: () => toast({ title: "Avatar updated", description: "Your profile picture has been updated.", type: "success" }),
             onError: () => toast({ title: "Failed to update", description: "Could not update profile picture.", type: "error" }),
@@ -163,9 +169,19 @@ export const UserProfile = () => {
     });
   };
 
+  const handleSaveSignature = (url: string) => {
+    mutate(
+      { image, firstName, middleName, lastName, phoneNumber, timezone: timeZone, signature: url },
+      {
+        onSuccess: () => toast({ title: "Signature saved", description: "Your signature will appear on your report cards.", type: "success" }),
+        onError: () => toast({ title: "Failed to save", description: "Could not save your signature.", type: "error" }),
+      },
+    );
+  };
+
   const handleSaveProfile = (overrides: { firstName?: string; lastName?: string; middleName?: string; phoneNumber?: string; timezone?: string }) => {
     mutate(
-      { image, firstName, middleName, lastName, phoneNumber, timezone: timeZone, ...overrides },
+      { image, firstName, middleName, lastName, phoneNumber, timezone: timeZone, signature: profileData?.signature || undefined, ...overrides },
       {
         onSuccess: () => {
           toast({ title: "Saved", description: "Profile updated successfully.", type: "success" });
@@ -369,6 +385,8 @@ export const UserProfile = () => {
             className="border-border-darker h-8! w-full rounded-md border md:w-auto"
           />
         </div>
+
+        {canSign && <SignatureSection signature={profileData?.signature} isSaving={isPending} onSave={handleSaveSignature} />}
 
         <div className="border-border-default flex flex-col gap-3 border-b py-4 md:flex-row md:items-center md:justify-between md:gap-4">
           <Label className="text-text-default text-sm font-medium">Password</Label>

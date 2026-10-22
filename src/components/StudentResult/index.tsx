@@ -5,6 +5,8 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { DataTable } from "../DataTable";
 import { ErrorComponent } from "../Error/ErrorComponent";
+import { ReportHeader } from "../ReportHeader";
+import { ReportSignatures } from "../ReportSignatures";
 
 import { Button } from "../ui/button";
 import { EditTeacherInputModal } from "./EditTeacherInputModal";
@@ -145,12 +147,11 @@ export const StudentResult = ({
       id="student-report"
       className="border-t-bg-basic-cyan-contrast border-x-border-default border-b-border-default mb-10 border-x border-t-2 border-b"
     >
-      <div className="flex flex-col items-center justify-center py-3">
-        <h1 className="text-bg-basic-cyan-contrast text-xl font-semibold">{studentReport.schoolName}</h1>
+      <ReportHeader schoolName={studentReport.schoolName} schoolLogo={studentReport.schoolLogo}>
         <p className="text-text-muted text-sm font-normal capitalize">
           {studentReport.sessionName} {termSelected?.term.toLowerCase()}
         </p>
-      </div>
+      </ReportHeader>
 
       <div className="border-border-default text-text-default flex justify-between border-y px-4 py-2.5 text-sm font-normal">
         <span>
@@ -274,6 +275,13 @@ export const StudentResult = ({
           </span>
         </div>
       </div>
+
+      <ReportSignatures
+        signers={[
+          { label: "Class Teacher", name: studentReport.classTeacherName, signature: studentReport.classTeacherSignature },
+          { label: studentReport.principalCommentTitle ?? "Principal", name: studentReport.principalName, signature: studentReport.principalSignature },
+        ]}
+      />
       <EditTeacherInputModal open={isEditModalOpen} setIsOpen={setIsEditModalOpen} studentId={studentReport?.studentId} armId={armId} />
     </div>
   );
