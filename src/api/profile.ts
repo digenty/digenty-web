@@ -20,6 +20,7 @@ export interface UpdateUserProfilePayload {
   lastName?: string;
   phoneNumber?: string;
   timezone?: string;
+  signature?: string;
 }
 
 export const updateUserProfile = async (payload: UpdateUserProfilePayload) => {

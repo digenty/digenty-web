@@ -370,6 +370,11 @@ export interface MidtermSubjectReport {
 
 export interface MidtermReport {
   schoolName: string;
+  schoolLogo?: string | null;
+  classTeacherName?: string | null;
+  classTeacherSignature?: string | null;
+  principalName?: string | null;
+  principalSignature?: string | null;
   sessionName: string;
   termName: string;
   studentId: number;
@@ -418,6 +423,11 @@ export interface ArmTeacherInputResponse {
 
 export interface StudentReport {
   schoolName: string;
+  schoolLogo?: string | null;
+  classTeacherName?: string | null;
+  classTeacherSignature?: string | null;
+  principalName?: string | null;
+  principalSignature?: string | null;
   sessionName: string;
   studentId: number;
   studentName: string;

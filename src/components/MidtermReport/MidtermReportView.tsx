@@ -2,6 +2,8 @@ import { MidtermReport } from "@/api/types";
 import { format } from "date-fns";
 import { useState } from "react";
 import { DataTable } from "../DataTable";
+import { ReportHeader } from "../ReportHeader";
+import { ReportSignatures } from "../ReportSignatures";
 import { DevelopmentResult, developmentColumns } from "../StudentResult";
 
 const formatDate = (value?: string | null) => {
@@ -32,12 +34,11 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
       id="midterm-report"
       className="border-t-bg-basic-cyan-contrast border-x-border-default border-b-border-default mb-10 border-x border-t-2 border-b"
     >
-      <div className="flex flex-col items-center justify-center py-3">
-        <h1 className="text-bg-basic-cyan-contrast text-xl font-semibold">{report.schoolName}</h1>
+      <ReportHeader schoolName={report.schoolName} schoolLogo={report.schoolLogo}>
         <p className="text-text-muted text-sm font-normal capitalize">
           {report.sessionName} {report.termName?.toLowerCase()} · Mid-term report
         </p>
-      </div>
+      </ReportHeader>
 
       <div className="border-border-default text-text-default flex flex-wrap justify-between gap-2 border-y px-4 py-2.5 text-sm font-normal">
         <span>
@@ -167,6 +168,13 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
           <span className="border-border-default inline-block min-w-[150px] flex-1 border-b">{report.principalComment?.toWellFormed() || "--"}</span>
         </div>
       </div>
+
+      <ReportSignatures
+        signers={[
+          { label: "Class Teacher", name: report.classTeacherName, signature: report.classTeacherSignature },
+          { label: report.principalCommentTitle ?? "Principal", name: report.principalName, signature: report.principalSignature },
+        ]}
+      />
     </div>
   );
 };
