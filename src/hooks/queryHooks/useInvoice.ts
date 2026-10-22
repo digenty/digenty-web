@@ -17,6 +17,7 @@ import {
   getNextInvoiceNumber,
   getPaymentById,
   getPaymentHistory,
+  getTerminalTransactions,
   getPendingPayments,
   PendingPaymentsParams,
   rejectPendingPayment,
@@ -73,10 +74,21 @@ export const useAddPayment = (invoiceId?: string) => {
     mutationKey: invoiceKeys.addPayment(invoiceId),
     mutationFn: (payload: AddPaymentPayload) => addPayment(invoiceId as string, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) });
+      // Detail, payment history, lists and terminal matches all change when a payment lands. Mark them stale
+      // without refetching: the page that records the payment is about to navigate away, and refetching from
+      // it fires server actions (token lookup) that can land after the redirect and pull the URL back.
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.all, refetchType: "none" });
     },
   });
 };
+
+export const useGetTerminalTransactions = (branchId?: number, invoiceId?: string) =>
+  useQuery({
+    queryKey: invoiceKeys.terminalTransactions(branchId, invoiceId),
+    queryFn: () => getTerminalTransactions(branchId as number, invoiceId),
+    enabled: !!branchId,
+    retry: false,
+  });
 
 export const useCreateInvoice = () => {
   const queryClient = useQueryClient();
@@ -198,7 +210,7 @@ export const useUpdatePayment = (invoiceId?: string, paymentId?: string) => {
     mutationKey: invoiceKeys.updatePayment(invoiceId, paymentId),
     mutationFn: (payload: AddPaymentPayload) => updatePayment(invoiceId as string, paymentId as string, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
     },
   });
 };
