@@ -81,6 +81,7 @@ const AddExpenseForm = () => {
   const isPending = creating || editing;
 
   const [uploading, setUploading] = useState(false);
+  const [savingAnother, setSavingAnother] = useState(false);
 
   // Guards against "Save & Add Another" and the form submit both firing on a fast double click.
   const submittingRef = useRef(false);
@@ -150,6 +151,7 @@ const AddExpenseForm = () => {
       return;
     }
     submittingRef.current = true;
+    setSavingAnother(true);
     try {
       await createExpense(toCreatePayload(formik.values));
       toast({ title: "Expense created successfully", type: "success" });
@@ -159,6 +161,7 @@ const AddExpenseForm = () => {
       toast({ title: message, type: "error" });
     } finally {
       submittingRef.current = false;
+      setSavingAnother(false);
     }
   };
 
@@ -509,7 +512,7 @@ const AddExpenseForm = () => {
                   disabled={isPending || uploading}
                   className="bg-bg-state-soft! text-text-subtle h-8!"
                 >
-                  {isPending ? <Spinner /> : "Save & Add Another"}
+                  {savingAnother ? <Spinner /> : "Save & Add Another"}
                 </Button>
               )}
               <Button
@@ -517,7 +520,7 @@ const AddExpenseForm = () => {
                 disabled={isPending || uploading}
                 className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default h-8!"
               >
-                {isPending ? <Spinner /> : isEdit ? "Save" : "Add Expense"}
+                {isPending && !savingAnother ? <Spinner /> : isEdit ? "Save" : "Add Expense"}
               </Button>
             </div>
           </div>
