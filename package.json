@@ -64,6 +64,15 @@
     "yup": "^1.7.1",
     "zustand": "^5.0.8"
   },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,css,json}": [
+      "prettier --write"
+    ]
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@serwist/turbopack": "^9.5.12",
@@ -78,6 +87,7 @@
     "esbuild": "^0.28.2",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
+    "lint-staged": "^17.6.0",
     "orval": "^7.17.2",
     "serwist": "^9.5.12",
     "tailwindcss": "^4",
