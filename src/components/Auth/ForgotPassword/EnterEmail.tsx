@@ -10,6 +10,7 @@ import { useFormik } from "formik";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type EnterEmailProps = {
   userType: "staff" | "parent";
@@ -42,8 +43,8 @@ export const EnterEmail = ({ userType }: EnterEmailProps) => {
           },
           onError: error => {
             toast({
-              title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-              description: "Could not process your request",
+              title: "Could not process your request",
+              description: getApiErrorReason(error),
               type: "error",
             });
           },

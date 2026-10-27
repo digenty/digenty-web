@@ -60,7 +60,7 @@ export const getBranchDetails = async (branchId: number, termId?: number, search
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {
-      throw error.message;
+      throw error.response?.data;
     }
 
     throw error;

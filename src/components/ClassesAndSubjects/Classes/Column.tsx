@@ -16,6 +16,7 @@ import { AllClassesMainTableProps, ClassProps } from "./types";
 import { toast } from "@/components/Toast";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => {
   const router = useRouter();
@@ -42,7 +43,7 @@ const RenderOptions = (row: Row<AllClassesMainTableProps>, branchId: number) => 
         onError: error => {
           toast({
             title: "Failed to approve submission",
-            description: error?.message || "Failed to approve submission",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

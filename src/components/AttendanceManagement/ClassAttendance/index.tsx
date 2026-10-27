@@ -14,6 +14,7 @@ import { AttendanceTable } from "./AttendanceTable";
 import { ClassAttendanceHeader } from "./ClassAttendanceHeader";
 import { ClassAttendanceWrapper } from "./ClassAttendanceWrapper";
 import { toast } from "@/components/Toast";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export type AttendanceMarkList = { studentId: number; isPresent: boolean }[];
 
@@ -94,9 +95,11 @@ export const ClassAttendance = () => {
             // The roster fetch below now returns the sheet's id directly (attendanceId on
             // GetAttendanceByArmDto), so a sheet that already exists isn't a real failure —
             // only surface genuinely unexpected errors here.
-            if (error?.message?.toLowerCase().includes("already exist")) return;
+            const reason = getApiErrorReason(error);
+            if (reason?.toLowerCase().includes("already exist")) return;
             toast({
-              title: error?.message ?? `Could not prepare the ${session === "FULL_DAY" ? "" : session.toLowerCase() + " "}attendance sheet`,
+              title: `Could not prepare the ${session === "FULL_DAY" ? "" : session.toLowerCase() + " "}attendance sheet`,
+              description: reason,
               type: "error",
             });
           },

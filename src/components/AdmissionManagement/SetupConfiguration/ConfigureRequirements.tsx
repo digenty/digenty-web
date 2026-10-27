@@ -21,6 +21,7 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { getApiErrorReason } from "@/lib/apiError";
 
 interface Props {
   scope: "level" | "class";
@@ -128,7 +129,7 @@ export const ConfigureRequirements = ({ scope, name, cycleId, levelId, classId, 
               toast.success(isFirstTimeConfig ? "Level requirements configured" : "Level requirements saved");
               router.back();
             },
-            onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to save requirements"),
+            onError: (error: unknown) => toast.error("Failed to save requirements", { description: getApiErrorReason(error) }),
           },
         );
       } else {
@@ -141,7 +142,7 @@ export const ConfigureRequirements = ({ scope, name, cycleId, levelId, classId, 
               toast.success(isFirstTimeConfig ? "Class requirements configured" : "Class requirements saved");
               router.back();
             },
-            onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to save requirements"),
+            onError: (error: unknown) => toast.error("Failed to save requirements", { description: getApiErrorReason(error) }),
           },
         );
       }

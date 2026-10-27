@@ -25,6 +25,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { SearchInput } from "../SearchInput";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageFeeCollection } from "@/lib/permissions/fee-collection";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const AVATAR_COLORS = ["bg-orange-400", "bg-blue-500", "bg-green-500", "bg-purple-500", "bg-pink-500", "bg-teal-500"];
 
@@ -60,21 +61,20 @@ export const ConfiguredView = ({ config }: Props) => {
   const { data: branchesData } = useGetBranches();
   const branches: BranchWithClassLevels[] = branchesData?.data ?? [];
 
-
   const firstBranchId = branches[0]?.branch?.id ?? 0;
   const routingBranchId = config.mode === "BRANCH_ACCOUNTS" ? (selectedBranchId ?? firstBranchId) : firstBranchId;
 
-   const { data: allSchoolRoutes = [] } = useGetFeeRoutes();
+  const { data: allSchoolRoutes = [] } = useGetFeeRoutes();
   const { data: branchRoutes = [] } = useGetFeeRoutesByBranch(routingBranchId);
   const allRoutes: FeeRouteResponseDto[] = config.mode === "BRANCH_ACCOUNTS" ? branchRoutes : allSchoolRoutes;
   const filteredRoutes = allRoutes.filter(r => r.feeClassName.toLowerCase().includes(routeSearch.toLowerCase()));
   const hasFeeStats = (config.totalFees ?? 0) > 0;
- const branchAccountsToShow =
+  const branchAccountsToShow =
     config.mode === "BRANCH_ACCOUNTS" && (config.branchAccounts?.length ?? 0) === 0 && config.defaultAccount
       ? [{ branchId: 0, branchName: "All branches", account: config.defaultAccount }]
       : (config.branchAccounts ?? []);
 
-      const routingBranchTabs =
+  const routingBranchTabs =
     config.mode === "BRANCH_ACCOUNTS"
       ? (config.branchAccounts?.length ?? 0) > 0
         ? config.branchAccounts!.map(b => ({ id: b.branchId, name: b.branchName }))
@@ -216,7 +216,7 @@ export const ConfiguredView = ({ config }: Props) => {
                 setEditAccount(null);
               },
               onError: (err: unknown) => {
-                toast.error((err as { message?: string })?.message ?? "Failed to update account");
+                toast.error("Failed to update account", { description: getApiErrorReason(err) });
               },
             },
           );
@@ -304,7 +304,7 @@ const ChangeModeModal = ({ open, setOpen, currentMode }: { open: boolean; setOpe
           setOpen(false);
         },
         onError: (err: unknown) => {
-          toast.error((err as { message?: string })?.message ?? "Failed to update mode");
+          toast.error("Failed to update mode", { description: getApiErrorReason(err) });
         },
       },
     );

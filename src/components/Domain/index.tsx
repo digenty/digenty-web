@@ -227,7 +227,9 @@ const DomainConnectForm = ({ onPurchased, retryOf }: { onPurchased: (purchase: D
           const code = getApiErrorCode(error);
           const details = getApiErrorDetails(error);
           if (code === "SUBDOMAIN_REQUIRED") {
-            toast.error(getApiErrorMessage(error, "Choose your school's subdomain before connecting a domain"));
+            toast.error("Could not connect that domain", {
+              description: getApiErrorMessage(error, "Choose your school's subdomain before connecting a domain"),
+            });
           } else if (code === "DUPLICATE_RECORD_REQUEST") {
             toast.error("That domain is already taken.");
           } else if (code === "SUBSCRIPTION_REQUIRED") {
@@ -239,7 +241,7 @@ const DomainConnectForm = ({ onPurchased, retryOf }: { onPurchased: (purchase: D
               if ((REGISTRANT_FIELDS as string[]).includes(field)) fieldErrors[field as RegistrantField] = String(message);
             }
             if (Object.keys(fieldErrors).length > 0) setServerErrors(fieldErrors);
-            else toast.error(getApiErrorMessage(error, "Please check the details you entered."));
+            else toast.error("Could not connect that domain", { description: getApiErrorMessage(error, "Please check the details you entered.") });
           } else if (Array.isArray(details) && details.length > 0) {
             // Key off each details entry, not the message: registrant fields are fixable here, school.* / admin.* are not.
             const fields = details.map(String);
@@ -256,10 +258,10 @@ const DomainConnectForm = ({ onPurchased, retryOf }: { onPurchased: (purchase: D
                 action: { label: "Open profile", onClick: () => router.push("/staff/settings/general") },
               });
             } else if (inline.length === 0) {
-              toast.error(getApiErrorMessage(error, "Could not connect that domain. Please try again."));
+              toast.error("Could not connect that domain", { description: getApiErrorMessage(error, "Please try again.") });
             }
           } else {
-            toast.error(getApiErrorMessage(error, "Could not connect that domain. Please try again."));
+            toast.error("Could not connect that domain", { description: getApiErrorMessage(error, "Please try again.") });
           }
         },
       },

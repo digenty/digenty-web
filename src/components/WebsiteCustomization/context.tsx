@@ -7,6 +7,7 @@ import { useCreateWebsiteConfig, useGetWebsiteConfig, usePublishWebsite, useUpda
 import { websiteCustomizationSchema } from "@/schema/website";
 import { configToDto, dtoToConfig, WebsiteMeta } from "./mapping";
 import { WebsiteConfig } from "./types";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 type SectionKey = keyof WebsiteConfig;
 
@@ -37,14 +38,6 @@ interface WebsiteCustomizationContextValue {
 
 const WebsiteCustomizationContext = createContext<WebsiteCustomizationContextValue | null>(null);
 
-const getErrorMessage = (error: unknown, fallback: string): string => {
-  if (error && typeof error === "object") {
-    const e = error as { message?: string; error?: string; detail?: string };
-    return e.message || e.error || e.detail || fallback;
-  }
-  return fallback;
-};
-
 export const WebsiteCustomizationProvider = ({ children }: { children: React.ReactNode }) => {
   const { data, isLoading, isError, error, refetch } = useGetWebsiteConfig();
   const createMutation = useCreateWebsiteConfig();
@@ -52,7 +45,7 @@ export const WebsiteCustomizationProvider = ({ children }: { children: React.Rea
   const publishMutation = usePublishWebsite();
 
   const hasData = !!data?.id;
-  const errorMessage = getErrorMessage(error, "Could not load your website configuration. Please try again.");
+  const errorMessage = getApiErrorMessage(error, "Could not load your website configuration. Please try again.");
 
   useEffect(() => {
     if (isError) toast({ title: "Could not load website", description: errorMessage, type: "error" });
@@ -94,7 +87,7 @@ export const WebsiteCustomizationProvider = ({ children }: { children: React.Rea
       } catch (error) {
         toast({
           title: "Could not save",
-          description: getErrorMessage(error, "Something went wrong while saving. Please try again."),
+          description: getApiErrorMessage(error, "Something went wrong while saving. Please try again."),
           type: "error",
         });
       }
@@ -137,7 +130,7 @@ export const WebsiteCustomizationProvider = ({ children }: { children: React.Rea
         type: "success",
       });
     } catch (error) {
-      toast({ title: "Action failed", description: getErrorMessage(error, "Could not update publish status."), type: "error" });
+      toast({ title: "Action failed", description: getApiErrorMessage(error, "Could not update publish status."), type: "error" });
     }
   };
 

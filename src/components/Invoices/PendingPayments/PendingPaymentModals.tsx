@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { toast } from "@/components/Toast";
 import { PendingPaymentEntry } from "@/api/invoice";
 import { useApprovePendingPayment, useRejectPendingPayment } from "@/hooks/queryHooks/useInvoice";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const PaymentSummary = ({ payment }: { payment: PendingPaymentEntry }) => (
   <div className="border-border-default m-2 flex flex-col gap-3 rounded-sm border p-4">
@@ -66,8 +67,7 @@ export const ApprovePaymentModal = ({
           setOpen(false);
         },
         onError: (error: unknown) => {
-          const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-          toast({ title: "Failed to approve payment", description, type: "error" });
+          toast({ title: "Failed to approve payment", description: getApiErrorReason(error), type: "error" });
         },
       },
     );
@@ -116,15 +116,7 @@ export const ApprovePaymentModal = ({
   );
 };
 
-export const RejectPaymentModal = ({
-  payment,
-  open,
-  setOpen,
-}: {
-  payment: PendingPaymentEntry;
-  open: boolean;
-  setOpen: (open: boolean) => void;
-}) => {
+export const RejectPaymentModal = ({ payment, open, setOpen }: { payment: PendingPaymentEntry; open: boolean; setOpen: (open: boolean) => void }) => {
   const isMobile = useIsMobile();
   const [note, setNote] = useState("");
   const [touched, setTouched] = useState(false);
@@ -142,8 +134,7 @@ export const RejectPaymentModal = ({
           setOpen(false);
         },
         onError: (error: unknown) => {
-          const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-          toast({ title: "Failed to reject payment", description, type: "error" });
+          toast({ title: "Failed to reject payment", description: getApiErrorReason(error), type: "error" });
         },
       },
     );

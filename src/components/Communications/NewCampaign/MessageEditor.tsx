@@ -9,6 +9,7 @@ import { useSmsCount } from "@/hooks/queryHooks/useCampaign";
 import { RichEditorContent, useRichEditor } from "@/components/ui/rich-text-editor";
 import { CampaignChannel } from "../types";
 import { Label } from "../../ui/label";
+import { toast } from "@/components/Toast";
 
 type MessageEditorProps = {
   value: string;
@@ -107,7 +108,7 @@ export const MessageEditor = ({ value, onChange, error, channel }: MessageEditor
       const url = await uploadFile(file);
       editor.insertImage(url, file.name);
     } catch {
-      // silent — production would show a toast here
+      toast({ title: "Image upload failed", type: "error" });
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -122,7 +123,7 @@ export const MessageEditor = ({ value, onChange, error, channel }: MessageEditor
       const url = await uploadFile(file);
       editor.insertHTML(`<a href="${url}" target="_blank" rel="noopener noreferrer">${file.name}</a> `);
     } catch {
-      // silent
+      toast({ title: "Attachment upload failed", type: "error" });
     } finally {
       setUploading(false);
       e.target.value = "";

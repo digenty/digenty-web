@@ -25,6 +25,7 @@ import { DeleteCampaignModal } from "./DeleteCampaignModal";
 import { getCampaignStatusBadge } from "./StatusBadge";
 import { extractPaymentUrl, formatCampaignDate } from "./types";
 import { PageEmptyState } from "../Error/PageEmptyState";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 const PAGE_SIZE = 20;
 
@@ -80,7 +81,7 @@ export const CampaignsTable = ({ search, status, channel, termId, page, onPageCh
         setCampaignToDelete(null);
       },
       onError: (error: unknown) =>
-        toast({ title: "Failed to delete campaign", description: (error as { message?: string })?.message ?? "Please try again.", type: "error" }),
+        toast({ title: "Failed to delete campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" }),
     });
   };
 
@@ -88,7 +89,7 @@ export const CampaignsTable = ({ search, status, channel, termId, page, onPageCh
     duplicateMutation.mutate(campaign.id, {
       onSuccess: () => toast({ title: "Campaign duplicated", description: campaign.title, type: "success" }),
       onError: (error: unknown) =>
-        toast({ title: "Failed to duplicate campaign", description: (error as { message?: string })?.message ?? "Please try again.", type: "error" }),
+        toast({ title: "Failed to duplicate campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" }),
     });
   };
 
@@ -105,7 +106,7 @@ export const CampaignsTable = ({ search, status, channel, termId, page, onPageCh
           toast({ title: "Campaign resent", description: campaign.title, type: "success" });
         },
         onError: (error: unknown) =>
-          toast({ title: "Failed to resend campaign", description: (error as { message?: string })?.message ?? "Please try again.", type: "error" }),
+          toast({ title: "Failed to resend campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" }),
       },
     );
   };

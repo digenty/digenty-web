@@ -7,17 +7,10 @@ import { toast } from "@/components/Toast";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { getApiErrorMessage } from "@/lib/apiError";
 import { canManageWebsiteCustomization } from "@/lib/permissions/website-customization";
 import { cn } from "@/lib/utils";
 import { SquareIconButton } from "./common";
-
-const getUploadErrorMessage = (error: unknown) => {
-  if (error && typeof error === "object") {
-    const e = error as { message?: string; error?: string };
-    return e.message || e.error || "Could not upload image. Please try again.";
-  }
-  return "Could not upload image. Please try again.";
-};
 
 const useUploader = (onChange: (url: string) => void, type?: string) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -35,7 +28,7 @@ const useUploader = (onChange: (url: string) => void, type?: string) => {
       if (result?.url) onChange(result.url);
       else toast({ title: "Upload failed", description: "Could not upload image.", type: "error" });
     } catch (error) {
-      toast({ title: "Upload failed", description: getUploadErrorMessage(error), type: "error" });
+      toast({ title: "Upload failed", description: getApiErrorMessage(error, "Could not upload image. Please try again."), type: "error" });
     } finally {
       setIsUploading(false);
       if (inputRef.current) inputRef.current.value = "";

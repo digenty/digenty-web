@@ -14,6 +14,7 @@ import { useDeleteFee } from "@/hooks/queryHooks/useFee";
 import { toast } from "sonner";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canDeleteFees } from "@/lib/permissions/fees";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const RenderOptions = ({ row }: { row: Row<ClassFeeTypes> }) => {
   const [open, setOpen] = useState(false);
@@ -29,7 +30,7 @@ const RenderOptions = ({ row }: { row: Row<ClassFeeTypes> }) => {
         toast.success("Class fee deleted");
         setDeleteOpen(false);
       },
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to delete class fee"),
+      onError: (error: unknown) => toast.error("Failed to delete class fee", { description: getApiErrorReason(error) }),
     });
   };
 

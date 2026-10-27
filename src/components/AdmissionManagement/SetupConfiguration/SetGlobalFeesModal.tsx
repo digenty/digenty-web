@@ -12,6 +12,7 @@ import { AddFill, Bill, BookOpen, DeleteBin, Information } from "@digenty/icons"
 import { useState } from "react";
 import { toast } from "sonner";
 import { AddExamSubjectModal, ExamSubject } from "./AddExamSubjectModal";
+import { getApiErrorReason } from "@/lib/apiError";
 
 interface Props {
   open: boolean;
@@ -57,7 +58,7 @@ export const SetGlobalFeesModal = ({ open, setOpen, cycleId, branchId }: Props) 
           toast.success("Global fees applied to all levels");
           handleOpenChange(false);
         },
-        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to apply global fees"),
+        onError: (error: unknown) => toast.error("Failed to apply global fees", { description: getApiErrorReason(error) }),
       },
     );
   };

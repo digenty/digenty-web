@@ -19,6 +19,7 @@ import type { UpdateFeeItemDto, FeeItemDetailResponse, FeePaymentMode, FeeInstal
 import { emptyInstallmentRow, PaymentModeFields, type InstallmentRowInput } from "@/components/Fees/PaymentMode/PaymentModeFields";
 import { buildInstallmentsPayload } from "@/components/Fees/AddFee/useFeeForm";
 import { AlertFill } from "@digenty/icons";
+import { getApiErrorReason } from "@/lib/apiError";
 
 interface EditFeeItemFormValues {
   name: string;
@@ -157,11 +158,11 @@ export const EditFeeItem = () => {
             router.push(`/staff/fees/fee-item/${id}`);
           },
           onError: (error: unknown) => {
-            const message = (error as { message?: string })?.message;
-            if (message?.toLowerCase().includes(SCHEDULE_LOCKED_MESSAGE)) {
+            const reason = getApiErrorReason(error);
+            if (reason?.toLowerCase().includes(SCHEDULE_LOCKED_MESSAGE)) {
               setLocked(true);
             }
-            toast.error(message ?? "Failed to update fee item");
+            toast.error("Failed to update fee item", { description: reason });
           },
         });
       }}

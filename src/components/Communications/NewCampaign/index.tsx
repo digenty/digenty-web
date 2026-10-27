@@ -17,8 +17,7 @@ import { CampaignFormFields } from "./CampaignFormFields";
 import { NewCampaignHeader } from "./NewCampaignHeader";
 import { ScheduleDialog } from "./ScheduleDialog";
 import { SummaryCard } from "./SummaryCard";
-
-const getErrorMessage = (error: unknown) => (error as { message?: string })?.message ?? "Please try again.";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export const NewCampaign = () => {
   const { data: profile } = useGetUserProfile();
@@ -45,7 +44,7 @@ export const NewCampaign = () => {
       try {
         created = await createCampaign(mapFormToCampaignRequest(values));
       } catch (error: unknown) {
-        toast({ title: "Failed to create campaign", description: getErrorMessage(error), type: "error" });
+        toast({ title: "Failed to create campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" });
         return;
       }
 
@@ -59,7 +58,7 @@ export const NewCampaign = () => {
         }
         router.push(`/staff/communications/${created.id}`);
       } catch (error: unknown) {
-        toast({ title: "Campaign saved — payment failed", description: getErrorMessage(error), type: "error" });
+        toast({ title: "Campaign saved — payment failed", description: getApiErrorMessage(error, "Please try again."), type: "error" });
         router.push(`/staff/communications/${created.id}`);
       }
     },
@@ -96,7 +95,7 @@ export const NewCampaign = () => {
       toast({ title: "Saved as draft", description: formik.values.title, type: "success" });
       router.push(`/staff/communications/${created.id}`);
     } catch (error: unknown) {
-      toast({ title: "Failed to save draft", description: getErrorMessage(error), type: "error" });
+      toast({ title: "Failed to save draft", description: getApiErrorMessage(error, "Please try again."), type: "error" });
     }
   };
 

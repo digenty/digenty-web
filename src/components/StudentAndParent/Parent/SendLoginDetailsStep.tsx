@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useParentInviteStatus, useSendParentInvites } from "@/hooks/queryHooks/useParent";
+import { getApiErrorReason } from "@/lib/apiError";
 
 // Matches the modal: the send is queued (202), so keep the counts refreshing for a minute.
 const POLL_INTERVAL = 5000;
@@ -66,8 +67,8 @@ export const SendLoginDetailsStep = ({
         },
         onError: error => {
           toast({
-            title: (error as { message?: string })?.message ?? "Something went wrong",
-            description: "Could not send login details",
+            title: "Could not send login details",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

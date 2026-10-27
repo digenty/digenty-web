@@ -1,5 +1,5 @@
 "use client";
-import { getRetryErrorProps } from "@/lib/apiError";
+import { getRetryErrorProps, getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 import { Edit, Eye, FileCopy } from "@digenty/icons";
 import React, { useEffect, useState } from "react";
 import { FeesHeader } from "../FeesHeader";
@@ -50,10 +50,10 @@ export const FeesGroup = () => {
 
   const { data, isPending, isError, error, refetch } = useGetFeeGroups(branchId, termId, search || undefined);
   const feesGroup: FeeGroupProp[] = (data as FeeGroupSummary[] | undefined) ?? [];
-  const errorMessage = (error as { message?: string } | null)?.message ?? "An error occurred while fetching fee groups.";
+  const errorMessage = getApiErrorMessage(error, "An error occurred while fetching fee groups.");
 
   useEffect(() => {
-    if (isError) toast.error(errorMessage);
+    if (isError) toast.error("Failed to load fee groups", { description: getApiErrorReason(error) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isError]);
 
@@ -76,7 +76,7 @@ export const FeesGroup = () => {
         setPendingDeleteId(null);
         setUnderstood(false);
       },
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to delete fee group"),
+      onError: (error: unknown) => toast.error("Failed to delete fee group", { description: getApiErrorReason(error) }),
     });
   };
 
@@ -255,7 +255,7 @@ export const FeesGroup = () => {
                         toast.success("Fee group duplicated");
                         router.push(`/staff/fees/fee-group/${result.feeGroupId}`);
                       },
-                      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to duplicate fee group"),
+                      onError: (error: unknown) => toast.error("Failed to duplicate fee group", { description: getApiErrorReason(error) }),
                     });
                   }}
                   className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm disabled:opacity-50"

@@ -107,7 +107,7 @@ export const PublishedReport = ({ armId, reportId }: { armId: number; reportId: 
       <div className="flex flex-col gap-5 px-4 pt-5 pb-10 md:px-8 md:pb-12">
         <div className="flex flex-col gap-3 md:flex-row">
           {loadingStats || !stats ? (
-            Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="bg-bg-input-soft h-28 flex-1 rounded" />)
+            Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="bg-bg-input-soft h-28 flex-1 rounded-xl" />)
           ) : (
             <>
               <StatCard label="Sent to" value={`${stats.recipientCount} parents`} swatch="blue" />

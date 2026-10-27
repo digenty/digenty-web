@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
+import { StatCard } from "../StatCard";
 
 type OverviewCardProps = {
   title: ReactNode;
@@ -8,31 +8,25 @@ type OverviewCardProps = {
   className?: string;
 };
 
+/**
+ * Legacy API (icon passed as a render function that draws its own tile). New code should use `StatCard` directly.
+ * Call sites size their own tile differently (w-6, h-5 w-5, rounded-xs), so the tile and its glyph are forced
+ * to the same 32px / rounded-lg / 14px that `StatCard` uses, keeping every card consistent.
+ */
 export const OverviewCard = ({ title, Icon, value, className }: OverviewCardProps) => {
   const isZeroValue = value === "₦0" || value === "0";
 
   return (
-    <div className={cn("border-border-default box flex w-full flex-col gap-4 rounded-md border px-3 py-4 md:gap-5 md:p-6", className)}>
-      <div className="flex items-center gap-2">
-        <Icon />
-        <div className="text-text-muted text-xs font-medium capitalize">{title}</div>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <h3 className={`text-lg font-medium md:text-2xl md:font-semibold ${isZeroValue ? "text-text-muted" : "text-text-default"}`}>{value}</h3>
-
-        {/* {percentage && (
-          <small
-            className="border-border-default rounded-sm border px-1.5 py-0.5 text-xs"
-            style={{
-              color,
-              backgroundColor: bg,
-            }}
-          >
-            {percentage}
-          </small>
-        )} */}
-      </div>
-    </div>
+    <StatCard
+      title={title}
+      icon={
+        <span className="flex shrink-0 [&_svg]:size-3.5! [&>div]:size-8! [&>div]:rounded-lg! [&>div]:p-0!">
+          <Icon />
+        </span>
+      }
+      value={value}
+      isEmpty={isZeroValue}
+      className={className}
+    />
   );
 };

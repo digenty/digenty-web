@@ -20,6 +20,7 @@ import { DeleteCampaignModal } from "./DeleteCampaignModal";
 import { getCampaignStatusBadge } from "./StatusBadge";
 import { extractPaymentUrl, formatCampaignDate } from "./types";
 import { useDeleteCampaign, useDuplicateCampaign, useResendCampaign } from "@/hooks/queryHooks/useCampaign";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
   const router = useRouter();
@@ -40,7 +41,7 @@ const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
         setDeleteOpen(false);
       },
       onError: (error: unknown) => {
-        toast({ title: "Failed to delete campaign", description: (error as { message?: string })?.message ?? "Please try again.", type: "error" });
+        toast({ title: "Failed to delete campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" });
       },
     });
   };
@@ -49,7 +50,7 @@ const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
     duplicateMutation.mutate(id, {
       onSuccess: () => toast({ title: "Campaign duplicated", description: row.original.title, type: "success" }),
       onError: (error: unknown) =>
-        toast({ title: "Failed to duplicate campaign", description: (error as { message?: string })?.message ?? "Please try again.", type: "error" }),
+        toast({ title: "Failed to duplicate campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" }),
     });
   };
 
@@ -66,7 +67,7 @@ const RowActions = ({ row }: { row: Row<CampaignResponseDto> }) => {
           toast({ title: "Campaign resent", description: row.original.title, type: "success" });
         },
         onError: (error: unknown) =>
-          toast({ title: "Failed to resend campaign", description: (error as { message?: string })?.message ?? "Please try again.", type: "error" }),
+          toast({ title: "Failed to resend campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" }),
       },
     );
   };

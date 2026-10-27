@@ -23,12 +23,11 @@ import { canDeleteCommunication, canManageCommunication } from "@/lib/permission
 import { Button } from "../../ui/button";
 import { DeleteCampaignModal } from "../DeleteCampaignModal";
 import { extractPaymentUrl } from "../types";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 type CampaignDetailHeaderProps = {
   campaign: CampaignDetailDto;
 };
-
-const getErrorMessage = (error: unknown) => (error as { message?: string })?.message ?? "Please try again.";
 
 export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) => {
   const router = useRouter();
@@ -55,7 +54,8 @@ export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) =>
         setDeleteOpen(false);
         router.push("/staff/communications");
       },
-      onError: (error: unknown) => toast({ title: "Failed to delete campaign", description: getErrorMessage(error), type: "error" }),
+      onError: (error: unknown) =>
+        toast({ title: "Failed to delete campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" }),
     });
   };
 
@@ -76,7 +76,7 @@ export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) =>
           toast({ title: "Payment initiated", description: campaign.title, type: "success" });
           refetchCampaign();
         },
-        onError: (error: unknown) => toast({ title: "Payment failed", description: getErrorMessage(error), type: "error" }),
+        onError: (error: unknown) => toast({ title: "Payment failed", description: getApiErrorMessage(error, "Please try again."), type: "error" }),
       },
     );
   };
@@ -93,7 +93,8 @@ export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) =>
           }
           toast({ title: "Campaign resent", description: campaign.title, type: "success" });
         },
-        onError: (error: unknown) => toast({ title: "Failed to resend campaign", description: getErrorMessage(error), type: "error" }),
+        onError: (error: unknown) =>
+          toast({ title: "Failed to resend campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" }),
       },
     );
   };
@@ -104,14 +105,16 @@ export const CampaignDetailHeader = ({ campaign }: CampaignDetailHeaderProps) =>
         toast({ title: "Campaign duplicated", description: campaign.title, type: "success" });
         if (created?.id) router.push(`/staff/communications/${created.id}/edit`);
       },
-      onError: (error: unknown) => toast({ title: "Failed to duplicate campaign", description: getErrorMessage(error), type: "error" }),
+      onError: (error: unknown) =>
+        toast({ title: "Failed to duplicate campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" }),
     });
   };
 
   const handleCancelSchedule = () => {
     cancelScheduleMutation.mutate(campaign.id, {
       onSuccess: () => toast({ title: "Schedule cancelled", description: campaign.title, type: "success" }),
-      onError: (error: unknown) => toast({ title: "Failed to cancel schedule", description: getErrorMessage(error), type: "error" }),
+      onError: (error: unknown) =>
+        toast({ title: "Failed to cancel schedule", description: getApiErrorMessage(error, "Please try again."), type: "error" }),
     });
   };
 

@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { useFormik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const EditPayment = () => {
   const router = useRouter();
@@ -82,9 +83,7 @@ export const EditPayment = () => {
             router.back();
           },
           onError: (error: unknown) => {
-            const description =
-              error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-            toast({ title: "Failed to update payment", description, type: "error" });
+            toast({ title: "Failed to update payment", description: getApiErrorReason(error), type: "error" });
           },
         },
       );

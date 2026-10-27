@@ -24,6 +24,7 @@ import { useFormik } from "formik";
 import { MailIcon, PlusIcon, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const AddStaff = () => {
   const router = useRouter();
@@ -130,8 +131,8 @@ export const AddStaff = () => {
           onError: error => {
             applyConflictFieldError(error, formik.setFieldError);
             toast({
-              title: error.message ?? "Something went wrong",
-              description: "Could not create staff",
+              title: "Could not create staff",
+              description: getApiErrorReason(error),
               type: "error",
             });
           },

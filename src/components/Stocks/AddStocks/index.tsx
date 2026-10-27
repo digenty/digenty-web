@@ -24,6 +24,7 @@ import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { editStockSchema, stockSchema } from "@/schema/stock";
 import { toast } from "@/components/Toast";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type StockCategory = { id: number; name: string };
 type StockUnit = { id: number; name: string };
@@ -98,8 +99,7 @@ export const AddStock = () => {
           router.push("/staff/stock");
         }
       } catch (error) {
-        const message = (error as { message?: string } | null)?.message ?? (isEdit ? "Could not update stock" : "Could not create stock");
-        toast({ title: message, type: "error" });
+        toast({ title: isEdit ? "Could not update stock" : "Could not create stock", description: getApiErrorReason(error), type: "error" });
       } finally {
         submittingRef.current = false;
       }
@@ -122,8 +122,7 @@ export const AddStock = () => {
       toast({ title: "Stock created successfully", type: "success" });
       formik.resetForm();
     } catch (error) {
-      const message = (error as { message?: string } | null)?.message ?? "Could not create stock";
-      toast({ title: message, type: "error" });
+      toast({ title: "Could not create stock", description: getApiErrorReason(error), type: "error" });
     } finally {
       submittingRef.current = false;
     }

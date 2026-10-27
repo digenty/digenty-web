@@ -22,6 +22,7 @@ import { BillingHistoryRow, billingStatusLabel, subscriptionStatusLabel } from "
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const PAGE_SIZE = 10;
 
@@ -83,10 +84,9 @@ const CancelSubscriptionModal = ({ open, setOpen, subscriptionId }: CancelSubscr
         setOpen(false);
       },
       onError: (error: unknown) => {
-        const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
         toast({
           title: "Failed to cancel subscription",
-          description: message || "Failed to cancel subscription",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },
@@ -217,10 +217,9 @@ export const SubscriptionDashboard = () => {
         window.location.href = authorizationUrl;
       },
       onError: (error: unknown) => {
-        const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
         toast({
           title: "Failed to initiate renewal",
-          description: message || "Failed to initiate renewal",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },

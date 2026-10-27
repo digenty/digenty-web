@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { MailIcon } from "lucide-react";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const AddRoleSettings = () => {
   const router = useRouter();
@@ -49,8 +50,8 @@ export const AddRoleSettings = () => {
           },
           onError: error => {
             toast({
-              title: error.message ?? "Something went wrong",
-              description: "Could not create role",
+              title: "Could not create role",
+              description: getApiErrorReason(error),
               type: "error",
             });
           },

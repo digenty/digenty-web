@@ -14,6 +14,7 @@ import { uploadImage } from "@/app/actions/upload-image";
 import { useGetUserProfile, useUpdateUserProfile } from "@/hooks/queryHooks/useProfile";
 import { useSendChangePasswordOtp } from "@/hooks/queryHooks/useAuth";
 import { ChangePasswordDialog } from "@/components/AllSettings/SecuritySettings/ChangePasswordDialog";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const ParentSettings = () => {
   const [editing, setEditing] = useState<string | null>(null);
@@ -68,7 +69,7 @@ export const ParentSettings = () => {
           { image: uploaded.url },
           {
             onSuccess: () => toast({ title: "Avatar updated", description: "Your profile picture has been updated.", type: "success" }),
-            onError: () => toast({ title: "Failed to update", description: "Could not update profile picture.", type: "error" }),
+            onError: error => toast({ title: "Could not update profile picture", description: getApiErrorReason(error), type: "error" }),
           },
         );
       }
@@ -87,7 +88,7 @@ export const ParentSettings = () => {
           toast({ title: "Saved", description: "Phone number updated successfully.", type: "success" });
           setEditing(null);
         },
-        onError: () => toast({ title: "Failed to save", description: "Could not update your phone number.", type: "error" }),
+        onError: error => toast({ title: "Could not update your phone number", description: getApiErrorReason(error), type: "error" }),
       },
     );
   };
@@ -100,8 +101,8 @@ export const ParentSettings = () => {
       },
       onError: error => {
         toast({
-          title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-          description: "Could not send OTP",
+          title: "Could not send OTP",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },

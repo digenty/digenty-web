@@ -4,7 +4,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 
 import { Assessment, Grading } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { getErrorStateProps } from "@/lib/apiError";
+import { getErrorStateProps, getApiErrorMessage } from "@/lib/apiError";
 import { ScoreViewBySubject } from "@/components/ScoreViewBySubject";
 import { ScoreType, SubmitScorePayload } from "@/components/ScoreViewBySubject/types";
 import { toast } from "@/components/Toast";
@@ -99,7 +99,7 @@ export default function Score() {
       onError: error => {
         toast({
           title: `Could not ${status === "SUBMITTED" ? "submit" : "save"}`,
-          description: error?.message || `Failed to ${status === "SUBMITTED" ? "submit" : "save"} scores`,
+          description: getApiErrorMessage(error, `Failed to ${status === "SUBMITTED" ? "submit" : "save"} scores`),
           type: "error",
         });
         closeModal(false);
@@ -162,7 +162,7 @@ export default function Score() {
           setDevelopmentEdits({});
         },
         onError: error => {
-          toast({ title: "Could not submit", description: error?.message || "Failed to submit development ratings", type: "error" });
+          toast({ title: "Could not submit", description: getApiErrorMessage(error, "Failed to submit development ratings"), type: "error" });
         },
       },
     );
@@ -183,7 +183,7 @@ export default function Score() {
           setMidtermCommentEdits({});
         },
         onError: error => {
-          toast({ title: "Could not submit", description: error?.message || "Failed to submit mid-term comments", type: "error" });
+          toast({ title: "Could not submit", description: getApiErrorMessage(error, "Failed to submit mid-term comments"), type: "error" });
         },
       },
     );

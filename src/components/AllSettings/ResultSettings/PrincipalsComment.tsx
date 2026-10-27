@@ -21,6 +21,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { CommentRow, LevelRowsState } from "./types";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const defaultRow = (): CommentRow => ({
   id: crypto.randomUUID(),
@@ -37,9 +38,9 @@ const AUTHOR_TITLE_LABELS: Record<CommentAuthorTitle, string> = {
   HEAD_TEACHER: "Head Teacher",
 };
 
-const AUTHOR_TITLE_OPTIONS: { value: CommentAuthorTitle; label: string }[] = (
-  Object.keys(AUTHOR_TITLE_LABELS) as CommentAuthorTitle[]
-).map(value => ({ value, label: AUTHOR_TITLE_LABELS[value] }));
+const AUTHOR_TITLE_OPTIONS: { value: CommentAuthorTitle; label: string }[] = (Object.keys(AUTHOR_TITLE_LABELS) as CommentAuthorTitle[]).map(
+  value => ({ value, label: AUTHOR_TITLE_LABELS[value] }),
+);
 
 const COMMENT_LABELS: Record<CommentAuthorTitle, string> = {
   PRINCIPAL: "Principal's Comment",
@@ -92,8 +93,8 @@ const CommentSetup = ({
           onChange(rows.filter(r => String(r.id) !== id));
           setDeletingId(null);
         },
-        onError: () => {
-          toast({ title: "Failed to delete comment", type: "error" });
+        onError: error => {
+          toast({ title: "Failed to delete comment", description: getApiErrorReason(error), type: "error" });
           setDeletingId(null);
         },
       });
@@ -335,7 +336,8 @@ export const PrincipalComment = () => {
             toast({ title: "Success", description: `Comments for ${activeLevel?.levelName} updated successfully`, type: "success" });
             setIsEditing(false);
           },
-          onError: () => toast({ title: "Error", description: `Failed to update comments for ${activeLevel?.levelName}`, type: "error" }),
+          onError: error =>
+            toast({ title: `Failed to update comments for ${activeLevel?.levelName}`, description: getApiErrorReason(error), type: "error" }),
         },
       );
     } else {
@@ -354,7 +356,8 @@ export const PrincipalComment = () => {
             toast({ title: "Success", description: `Comments for ${activeLevel?.levelName} saved successfully`, type: "success" });
             setIsEditing(false);
           },
-          onError: () => toast({ title: "Error", description: `Failed to save comments for ${activeLevel?.levelName}`, type: "error" }),
+          onError: error =>
+            toast({ title: `Failed to save comments for ${activeLevel?.levelName}`, description: getApiErrorReason(error), type: "error" }),
         },
       );
     }

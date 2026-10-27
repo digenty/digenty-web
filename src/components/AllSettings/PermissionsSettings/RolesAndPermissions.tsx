@@ -20,6 +20,7 @@ import { canManageSettings } from "@/lib/permissions/settings";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const RolesAndPermissions = () => {
   const router = useRouter();
@@ -48,7 +49,7 @@ export const RolesAndPermissions = () => {
       onError: error => {
         toast({
           title: "Could not delete role",
-          description: error.message,
+          description: getApiErrorReason(error),
           type: "error",
         });
       },

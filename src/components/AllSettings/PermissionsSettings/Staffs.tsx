@@ -26,6 +26,7 @@ import { DeactivateStaffModal } from "./StaffDetails/DeactivateStaffModal";
 import { MakeBranchAdminModal } from "./StaffMutation/MakeBranchAdminModal";
 import { StaffMobileCard } from "./StaffMobileCard";
 import { StaffColumns } from "./StaffTableColumns";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export type StaffProps = {
   id: number;
@@ -76,7 +77,7 @@ export const Staffs = () => {
       onError: error => {
         toast({
           title: "Failed to deactivate staff",
-          description: error?.message || "Something went wrong in deactivating staff",
+          description: getApiErrorMessage(error, "Something went wrong in deactivating staff"),
           type: "error",
         });
       },

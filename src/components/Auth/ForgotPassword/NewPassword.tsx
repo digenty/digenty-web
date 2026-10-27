@@ -16,6 +16,7 @@ import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const NewPassword = ({ userType }: { userType: "staff" | "parent" }) => {
   const router = useRouter();
@@ -51,8 +52,8 @@ export const NewPassword = ({ userType }: { userType: "staff" | "parent" }) => {
         },
         onError: error => {
           toast({
-            title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-            description: "Could not reset password",
+            title: "Could not reset password",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

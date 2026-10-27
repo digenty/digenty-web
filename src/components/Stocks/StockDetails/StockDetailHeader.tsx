@@ -15,6 +15,7 @@ import { canDeleteStock, canManageStock } from "@/lib/permissions/stock";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 
 import { StockDetailResponse } from "./type";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type Props = {
   stock?: StockDetailResponse | null;
@@ -38,8 +39,7 @@ export const StockDetailHeader = ({ stock }: Props) => {
         router.push("/staff/stock");
       },
       onError: (error: unknown) => {
-        const message = (error as { message?: string } | null)?.message ?? "Could not delete stock";
-        toast({ title: message, type: "error" });
+        toast({ title: "Could not delete stock", description: getApiErrorReason(error), type: "error" });
       },
     });
   };

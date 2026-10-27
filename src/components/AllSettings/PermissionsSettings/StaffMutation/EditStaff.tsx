@@ -26,6 +26,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Tabs } from "@/components/Tabs";
 import { TeacherAssignments } from "../StaffDetails/TeacherAssignments";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const EditStaff = () => {
   const router = useRouter();
@@ -157,8 +158,8 @@ export const EditStaff = () => {
           onError: error => {
             applyConflictFieldError(error, formik.setFieldError);
             toast({
-              title: error.message ?? "Something went wrong",
-              description: "Could not update staff",
+              title: "Could not update staff",
+              description: getApiErrorReason(error),
               type: "error",
             });
           },

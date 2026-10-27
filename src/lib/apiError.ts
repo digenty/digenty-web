@@ -1,6 +1,8 @@
 // Shape of an *unwrapped* error body — GlobalExceptionHandler sends 4xx/5xx without the
 // { success, data, ... } envelope that wraps every 2xx response. See api/domain.ts callers:
 // they rethrow `error.response?.data` directly, so that's what lands here.
+// The axios interceptors (lib/axios/normalize-error.ts) guarantee that object shape even when the
+// server sent no JSON (offline, timeout, gateway page, failed file download).
 export interface ApiErrorBody {
   status?: number;
   error?: string;
@@ -20,13 +22,30 @@ export const getApiErrorCode = (error: unknown): string | undefined => {
   return undefined;
 };
 
-export const getApiErrorMessage = (error: unknown, fallback: string): string => {
+// What axios says when it has nothing better ("Request failed with status code 400", "Network Error", ...).
+// It tells the user nothing, so it counts as "no message" and the caller's own fallback is shown instead.
+const GENERIC_TRANSPORT_MESSAGE = /^(request failed with status code \d+|network error|timeout of \d+ms exceeded|aborted|canceled)$/i;
+
+const usableMessage = (value: unknown): string | undefined => {
+  if (typeof value !== "string") return undefined;
+  const text = value.trim();
+  return text && !GENERIC_TRANSPORT_MESSAGE.test(text) ? text : undefined;
+};
+
+// The server's own explanation of a failure, or undefined when it gave none. Use it as an error toast's `description`
+// (under a title saying what failed) so the description is simply left out when there is nothing to add.
+export const getApiErrorReason = (error: unknown): string | undefined => {
+  if (typeof error === "string") return usableMessage(error);
+
   if (error && typeof error === "object") {
     const e = error as ApiErrorBody & { detail?: string };
-    return e.message || e.error || e.detail || fallback;
+    return usableMessage(e.message) ?? usableMessage(e.error) ?? usableMessage(e.detail);
   }
-  return fallback;
+  return undefined;
 };
+
+// Always returns something safe to put in a toast or an error state: the server's own message when there is one, otherwise `fallback`.
+export const getApiErrorMessage = (error: unknown, fallback: string): string => getApiErrorReason(error) ?? fallback;
 
 export const SUBSCRIPTION_PATH = "/staff/settings/subscription";
 

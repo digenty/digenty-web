@@ -76,8 +76,8 @@ export const StaffsUpload = () => {
               return;
             }
             toast({
-              title: getUploadErrorMessage(error, "Could not validate file"),
-              description: "Check that the file matches the template and try again.",
+              title: "Could not validate file",
+              description: getUploadErrorMessage(error, "Check that the file matches the template and try again."),
               type: "error",
             });
           },
@@ -125,8 +125,8 @@ export const StaffsUpload = () => {
           }
 
           toast({
-            title: getUploadErrorMessage(error, "Something went wrong"),
-            description: "Could not upload staff",
+            title: "Could not upload staff",
+            description: getUploadErrorMessage(error, "Something went wrong"),
             type: "error",
           });
         },

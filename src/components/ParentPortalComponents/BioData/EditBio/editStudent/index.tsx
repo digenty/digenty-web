@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/components/Toast";
 import { useGetParentPortalBranches } from "@/hooks/queryHooks/useParentLookup";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const EditStudentBiodata = ({ onSave, onCancel, data }: { data: { data: Student } | undefined; onSave: () => void; onCancel: () => void }) => {
   const student = data?.data;
@@ -78,7 +79,7 @@ export const EditStudentBiodata = ({ onSave, onCancel, data }: { data: { data: S
             onSave();
           },
           onError: error => {
-            toast({ title: error?.message ?? "Something went wrong", type: "error" });
+            toast({ title: "Could not update student", description: getApiErrorReason(error), type: "error" });
           },
         },
       );

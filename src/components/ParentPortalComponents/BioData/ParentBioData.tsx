@@ -18,6 +18,7 @@ import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Parent } from "@/api/types";
 
 import { Flag, GenderLess, Mail, MapPin, Phone, School } from "@digenty/icons";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const ViewBiodata = ({ onEdit, data, setAvatar }: { onEdit: () => void; data: Parent | undefined; setAvatar: (url?: string) => void }) => {
   return (
@@ -169,8 +170,8 @@ export const ParentBioData = () => {
           onError: error => {
             applyConflictFieldError(error, formik.setFieldError);
             toast({
-              title: error.message ?? "Something went wrong",
-              description: "Could not update parent' details",
+              title: "Could not update parent's details",
+              description: getApiErrorReason(error),
               type: "error",
             });
           },

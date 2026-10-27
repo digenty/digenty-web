@@ -1,6 +1,6 @@
 "use client";
 
-import { getRetryErrorProps } from "@/lib/apiError";
+import { getRetryErrorProps, getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 import { DeleteBin, Edit } from "@digenty/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,10 +24,10 @@ export const FeeGroup = () => {
   const { data, isPending, isError, error, refetch } = useGetFeeGroupById(id);
   const group = data as FeeGroupDetailResponse | undefined;
   const { mutate: deleteFeeGroup, isPending: deleting } = useDeleteFeeGroup();
-  const errorMessage = (error as { message?: string } | null)?.message ?? "Could not load this fee group.";
+  const errorMessage = getApiErrorMessage(error, "Could not load this fee group.");
 
   useEffect(() => {
-    if (isError) toast.error(errorMessage);
+    if (isError) toast.error("Could not load this fee group", { description: getApiErrorReason(error) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isError]);
 
@@ -43,7 +43,7 @@ export const FeeGroup = () => {
         toast.success("Fee group deleted");
         router.push("/staff/fees?tab=Fee Groups");
       },
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to delete fee group"),
+      onError: (error: unknown) => toast.error("Failed to delete fee group", { description: getApiErrorReason(error) }),
     });
   };
 

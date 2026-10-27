@@ -27,6 +27,7 @@ import { Country } from "@/components/StudentAndParent/types";
 import { Branch, BranchWithClassLevels } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type EditProps = "editName" | "editSchoolName" | "motto" | "editPhoneNum" | "editBranch" | "newBranch" | null;
 
@@ -118,8 +119,8 @@ export const General = () => {
         toast({ title: "Saved", description: "Settings updated.", type: "success" });
         setEdit(null);
       },
-      onError: () => {
-        toast({ title: "Error", description: "Could not save changes.", type: "error" });
+      onError: error => {
+        toast({ title: "Could not save changes", description: getApiErrorReason(error), type: "error" });
       },
     });
   };
@@ -133,8 +134,8 @@ export const General = () => {
             toast({ title: "Saved", description: "Branch updated.", type: "success" });
             resetBranchForm();
           },
-          onError: () => {
-            toast({ title: "Error", description: "Could not update branch.", type: "error" });
+          onError: error => {
+            toast({ title: "Could not update branch", description: getApiErrorReason(error), type: "error" });
           },
         },
       );
@@ -149,8 +150,8 @@ export const General = () => {
             setBranchList([...branchList, data.data[0].branch]);
             resetBranchForm();
           },
-          onError: () => {
-            toast({ title: "Error", description: "Could not add branch.", type: "error" });
+          onError: error => {
+            toast({ title: "Could not add branch", description: getApiErrorReason(error), type: "error" });
           },
         },
       );

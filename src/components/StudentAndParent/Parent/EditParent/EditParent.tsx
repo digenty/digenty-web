@@ -19,6 +19,7 @@ import { LinkStudents } from "./LinkStudents";
 import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "../../ProfilePicture";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const EditParent = () => {
   const router = useRouter();
@@ -84,8 +85,8 @@ export const EditParent = () => {
         onError: error => {
           applyConflictFieldError(error, formik.setFieldError);
           toast({
-            title: error.message ?? "Something went wrong",
-            description: "Could not update parent' details",
+            title: "Could not update parent's details",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

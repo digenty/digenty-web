@@ -1,13 +1,13 @@
 "use client";
 
-import { getRetryErrorProps } from "@/lib/apiError";
+import { getRetryErrorProps, getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 import { Eye, FileList3Fill, GraduationCapFill } from "@digenty/icons";
 import React, { useEffect, useState } from "react";
 import { ClassFeeTypes } from "./classTypes";
 import { DataTable } from "@/components/DataTable";
 import { columnsClassFees } from "./ClassColumns";
 import { useRouter } from "next/navigation";
-import { OverviewCard } from "@/components/OverviewCard";
+import { StatCard } from "@/components/StatCard";
 
 import { FeesHeader } from "../FeesHeader";
 import { Button } from "@/components/ui/button";
@@ -44,8 +44,9 @@ export const ClassFees = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const pageSize = 4;
 
-  const { branchOptions, termOptions, branchSelected, setBranchSelected, termSelected, setTermSelected, branchId, term, sessionId } =
-    useFeesFilters();
+  const { branchOptions, termOptions, branchSelected, setBranchSelected, termSelected, setTermSelected, branchId, term, sessionId } = useFeesFilters({
+    allowAllTerms: false,
+  });
 
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -57,10 +58,10 @@ export const ClassFees = () => {
   const { data, isPending, isError, error, refetch } = useGetFeeClassOverview(sessionId ?? 0, term ?? "FIRST", branchId, search || undefined);
   const overview = data as FeeClassOverviewResponse | undefined;
   const branchGroups: BranchFeeOverview[] = overview?.branches ?? [];
-  const errorMessage = (error as { message?: string } | null)?.message ?? "An error occurred while fetching class fees.";
+  const errorMessage = getApiErrorMessage(error, "An error occurred while fetching class fees.");
 
   useEffect(() => {
-    if (isError) toast.error(errorMessage);
+    if (isError) toast.error("Failed to load class fees", { description: getApiErrorReason(error) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isError]);
 
@@ -90,7 +91,7 @@ export const ClassFees = () => {
         setDeleteModalOpen(false);
         setPendingDeleteId(null);
       },
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to delete class fee"),
+      onError: (error: unknown) => toast.error("Failed to delete class fee", { description: getApiErrorReason(error) }),
     });
   };
 
@@ -142,7 +143,7 @@ export const ClassFees = () => {
       {isPending && (
         <div className="mt-4 flex flex-col gap-3 md:mt-6">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="bg-bg-input-soft h-12 w-full rounded-md" />
+            <Skeleton key={i} className="bg-bg-input-soft h-12 w-full rounded-xl" />
           ))}
         </div>
       )}
@@ -168,24 +169,25 @@ export const ClassFees = () => {
             const rows = toRows(group.classes);
             return (
               <div key={group.branchId} className="mb-10 flex flex-col gap-4">
-                <h2 className="text-text-default text-lg font-semibold">{group.branchName}</h2>
-                <div className="flex gap-3">
-                  <OverviewCard
+                <div className="flex items-center gap-2">
+                  <h2 className="text-text-default text-base font-semibold md:text-lg">{group.branchName}</h2>
+                  <span className="bg-bg-state-soft text-text-muted flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium">
+                    {group.classes.length}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 lg:max-w-3xl">
+                  <StatCard
                     title="Total Class Variations"
-                    Icon={() => (
-                      <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                        <GraduationCapFill fill="var(--color-icon-default)" className="size-3" />
-                      </div>
-                    )}
-                    value={String(group.totalClassVariations)}
+                    icon={<GraduationCapFill fill="var(--color-icon-default)" className="size-3.5" />}
+                    iconClassName="bg-bg-basic-sky-subtle border-bg-basic-sky-accent"
+                    isEmpty={!group.totalClassVariations}
+                    value={group.totalClassVariations.toLocaleString()}
                   />
-                  <OverviewCard
+                  <StatCard
                     title="Total Fees"
-                    Icon={() => (
-                      <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                        <FileList3Fill fill="var(--color-icon-default)" className="size-3" />
-                      </div>
-                    )}
+                    icon={<FileList3Fill fill="var(--color-icon-default)" className="size-3.5" />}
+                    iconClassName="bg-bg-basic-teal-subtle border-bg-basic-teal-accent"
+                    isEmpty={!group.totalFees}
                     value={`₦${group.totalFees.toLocaleString()}`}
                   />
                 </div>
@@ -213,7 +215,7 @@ export const ClassFees = () => {
                 <div className="flex flex-col gap-4 md:hidden">
                   {rows.slice(0, visibleCount).map(fee => {
                     return (
-                      <div key={fee.id} className="border-border-default bg-bg-subtle rounded-md border last:border-none">
+                      <div key={fee.id} className="border-border-default bg-bg-default shadow-light overflow-hidden rounded-xl border">
                         <div className="flex h-[38px] items-center justify-between px-3 py-1.5">
                           <span className="text-text-default text-sm font-medium">{fee.classname}</span>
                           <Button onClick={() => setActiveClassFeeId(fee.id)} className="text-text-muted cursor-pointer p-0! focus-visible:ring-0!">

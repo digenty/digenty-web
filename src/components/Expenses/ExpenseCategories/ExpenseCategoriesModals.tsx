@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { expenseCategorySchema } from "@/schema/expense";
 
 import { ExpenseCategoryItem } from "../types";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type AddProps = {
   openAdd: boolean;
@@ -52,8 +53,7 @@ export const AddExpenseCategoryModal = ({ openAdd, setOpenAdd }: AddProps) => {
         formik.resetForm();
         setOpenAdd(false);
       } catch (error) {
-        const message = (error as { message?: string } | null)?.message ?? "Could not create category";
-        toast({ title: message, type: "error" });
+        toast({ title: "Could not create category", description: getApiErrorReason(error), type: "error" });
       }
     },
   });
@@ -128,8 +128,7 @@ export const EditExpenseCategoryModal = ({ openEdit, setOpenEdit, category }: Ed
         toast({ title: "Category updated", type: "success" });
         setOpenEdit(false);
       } catch (error) {
-        const message = (error as { message?: string } | null)?.message ?? "Could not update category";
-        toast({ title: message, type: "error" });
+        toast({ title: "Could not update category", description: getApiErrorReason(error), type: "error" });
       }
     },
   });
@@ -201,8 +200,7 @@ export const DeleteExpenseCategoryModal = ({ openDelete, setOpenDelete, category
       setOpenDelete(false);
       onDeleted?.();
     } catch (error) {
-      const message = (error as { message?: string } | null)?.message ?? "Could not delete category";
-      toast({ title: message, type: "error" });
+      toast({ title: "Could not delete category", description: getApiErrorReason(error), type: "error" });
     }
   };
 

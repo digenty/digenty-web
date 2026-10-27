@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { LegalModal } from "@/components/Auth/LegalModal";
 import { PRIVACY_POLICY, TERMS_AND_CONDITIONS } from "@/constants/legal";
 import Link from "next/link";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const SignupPasswordForm = () => {
   const router = useRouter();
@@ -84,8 +85,8 @@ export const SignupPasswordForm = () => {
           },
           onError: error => {
             toast({
-              title: error?.message ?? "Something went wrong",
-              description: "Could not sign you up",
+              title: "Could not sign you up",
+              description: getApiErrorReason(error),
               type: "error",
             });
           },

@@ -15,6 +15,7 @@ import { useDeleteFeeGroup, useDuplicateFeeGroup } from "@/hooks/queryHooks/useF
 import { FeeGroupProp } from "./feeGroupType";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canDeleteFees, canManageFees } from "@/lib/permissions/fees";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
   const [open, setOpen] = useState(false);
@@ -33,7 +34,7 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
         setDeleteOpen(false);
       },
       onError: (error: unknown) => {
-        toast.error((error as { message?: string })?.message ?? "Failed to delete fee group");
+        toast.error("Failed to delete fee group", { description: getApiErrorReason(error) });
       },
     });
   };
@@ -113,7 +114,7 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
                   toast.success("Fee group duplicated");
                   router.push(`/staff/fees/fee-group/${result.feeGroupId}`);
                 },
-                onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to duplicate fee group"),
+                onError: (error: unknown) => toast.error("Failed to duplicate fee group", { description: getApiErrorReason(error) }),
               });
             }}
           >

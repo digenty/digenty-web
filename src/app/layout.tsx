@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { SerwistProvider } from "@serwist/turbopack/react";
 import { Toaster } from "sonner";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { SessionGuard } from "@/components/SessionGuard";
 import { inter } from "./fonts";
 import { TanstackProvider } from "./providers/Tanstack";
 import "./styles/globals.css";
@@ -31,10 +32,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <SerwistProvider swUrl="/serwist/sw.js">
+        {/* Off in dev: the service worker re-fetches every page you navigate to, which doubles the dev server's work. Test the PWA on a production build. */}
+        <SerwistProvider swUrl="/serwist/sw.js" disable={process.env.NODE_ENV === "development"}>
           <TanstackProvider>
             {children}
             <Toaster position="bottom-right" richColors closeButton />
+            <SessionGuard />
             <InstallPrompt />
           </TanstackProvider>
         </SerwistProvider>

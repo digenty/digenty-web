@@ -14,6 +14,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { LegalModal } from "../LegalModal";
 import { PRIVACY_POLICY, TERMS_AND_CONDITIONS } from "@/constants/legal";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const SignupPasswordForm = ({ email, userType }: { email: string; userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const router = useRouter();
@@ -55,8 +56,8 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
             },
             onError: error => {
               toast({
-                title: error?.message ?? "Something went wrong",
-                description: "Could not sign you up",
+                title: "Could not sign you up",
+                description: getApiErrorReason(error),
                 type: "error",
               });
             },
@@ -79,8 +80,8 @@ export const SignupPasswordForm = ({ email, userType }: { email: string; userTyp
             },
             onError: error => {
               toast({
-                title: error?.message ?? "Something went wrong",
-                description: "Could not sign you up",
+                title: "Could not sign you up",
+                description: getApiErrorReason(error),
                 type: "error",
               });
             },

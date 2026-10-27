@@ -1,4 +1,4 @@
-import { getRetryErrorProps } from "@/lib/apiError";
+import { getRetryErrorProps, getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 import { Edit, Eye, FileCopy, SendPlaneFill } from "@digenty/icons";
 import React, { useEffect, useState } from "react";
 import { FeesHeader } from "../FeesHeader";
@@ -57,10 +57,10 @@ export const FeesItem = () => {
 
   const { data, isPending, isError, error, refetch } = useGetFeeItems({ branchId, termId, search: search || undefined });
   const feesItems: FeeItemProp[] = (data as FeeItemDetail[] | undefined) ?? [];
-  const errorMessage = (error as { message?: string } | null)?.message ?? "An error occurred while fetching fee items.";
+  const errorMessage = getApiErrorMessage(error, "An error occurred while fetching fee items.");
 
   useEffect(() => {
-    if (isError) toast.error(errorMessage);
+    if (isError) toast.error("Failed to load fee items", { description: getApiErrorReason(error) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isError]);
 
@@ -93,7 +93,7 @@ export const FeesItem = () => {
           setBulkMode(null);
           clearSelection();
         },
-        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to publish fee items"),
+        onError: (error: unknown) => toast.error("Failed to publish fee items", { description: getApiErrorReason(error) }),
       });
       return;
     }
@@ -109,7 +109,7 @@ export const FeesItem = () => {
         setBulkMode(null);
         clearSelection();
       },
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to delete fee items"),
+      onError: (error: unknown) => toast.error("Failed to delete fee items", { description: getApiErrorReason(error) }),
     });
   };
 
@@ -307,7 +307,7 @@ export const FeesItem = () => {
                           }
                           setActiveItemId(null);
                         },
-                        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to publish fee"),
+                        onError: (error: unknown) => toast.error("Failed to publish fee", { description: getApiErrorReason(error) }),
                       });
                     }}
                     className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm disabled:opacity-50"
@@ -326,7 +326,7 @@ export const FeesItem = () => {
                         toast.success("Fee item duplicated");
                         router.push(`/staff/fees/fee-item/${result.feeItemId}`);
                       },
-                      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to duplicate fee item"),
+                      onError: (error: unknown) => toast.error("Failed to duplicate fee item", { description: getApiErrorReason(error) }),
                     });
                   }}
                   className="text-text-default hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm disabled:opacity-50"
@@ -343,7 +343,7 @@ export const FeesItem = () => {
                         setActiveItemId(null);
                         toast.success("Fee item deleted");
                       },
-                      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to delete fee item"),
+                      onError: (error: unknown) => toast.error("Failed to delete fee item", { description: getApiErrorReason(error) }),
                     });
                   }}
                   className="hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600 disabled:opacity-50"

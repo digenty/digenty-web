@@ -25,7 +25,7 @@ import { LinkedStudentsTable } from "./LinkedStudentsTable";
 import StatusBadge from "@/components/StatusBadge";
 import { Tooltip } from "@/components/Tooltip";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { getErrorStateProps } from "@/lib/apiError";
+import { getErrorStateProps, getApiErrorReason } from "@/lib/apiError";
 
 export const ParentProfile = () => {
   const pathname = usePathname();
@@ -61,8 +61,8 @@ export const ParentProfile = () => {
       },
       onError: error => {
         toast({
-          title: error.message ?? "Something went wrong",
-          description: "Could not delete parent",
+          title: "Could not delete parent",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },

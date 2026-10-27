@@ -4,7 +4,7 @@ import { Arm, Branch, BranchWithClassLevels, ClassType, Department, Parent } fro
 import { DataTable } from "@/components/DataTable";
 import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { getErrorStateProps } from "@/lib/apiError";
+import { getErrorStateProps, getApiErrorReason } from "@/lib/apiError";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
@@ -112,8 +112,8 @@ export const ParentsTable = () => {
       onError: error => {
         setOpenExportFilter(false);
         toast({
-          title: error.message ?? "Something went wrong",
-          description: "Could not export students",
+          title: "Could not export parents",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },
@@ -133,8 +133,8 @@ export const ParentsTable = () => {
       },
       onError: error => {
         toast({
-          title: error.message ?? "Something went wrong",
-          description: "Could not delete selected parents",
+          title: "Could not delete selected parents",
+          description: getApiErrorReason(error),
           type: "error",
         });
         setOpenDelete(false);

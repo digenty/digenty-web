@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectTrigger, SelectValue } from "../../ui/sele
 
 import { Term } from "@/api/types";
 import { SessionSlot } from ".";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const ClassAttendanceHeader = ({
   classArmName,
@@ -74,7 +75,8 @@ export const ClassAttendanceHeader = ({
       if (unsavedLabels.length === 0) {
         toast({ title: "Attendance saved successfully", type: "success" });
       } else if (failedSlots.length === readySlots.length) {
-        toast({ title: "Failed to save attendance", type: "error" });
+        const firstFailure = results.find((result): result is PromiseRejectedResult => result.status === "rejected");
+        toast({ title: "Failed to save attendance", description: getApiErrorReason(firstFailure?.reason), type: "error" });
       } else {
         toast({
           title: "Attendance partially saved",
@@ -104,8 +106,8 @@ export const ClassAttendanceHeader = ({
         ),
       );
       toast({ title: `All students marked as ${isPresent ? "Present" : "Absent"}`, type: "success" });
-    } catch {
-      toast({ title: `Failed to mark all students ${isPresent ? "Present" : "Absent"}`, type: "error" });
+    } catch (error) {
+      toast({ title: `Failed to mark all students ${isPresent ? "Present" : "Absent"}`, description: getApiErrorReason(error), type: "error" });
     } finally {
       setIsMarkingAll(false);
     }

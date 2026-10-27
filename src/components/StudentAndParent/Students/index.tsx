@@ -4,12 +4,12 @@ import { Arm, Branch, BranchWithClassLevels, ClassType, Student } from "@/api/ty
 import { DataTable } from "@/components/DataTable";
 import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { getErrorStateProps } from "@/lib/apiError";
+import { getErrorStateProps, getApiErrorReason } from "@/lib/apiError";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
-import { OverviewCard } from "@/components/OverviewCard";
+import { StatCard } from "@/components/StatCard";
 import { SearchInput } from "@/components/SearchInput";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { toast } from "@/components/Toast";
@@ -134,8 +134,8 @@ export const StudentsTable = () => {
       onError: error => {
         setOpenExportFilter(false);
         toast({
-          title: error.message ?? "Something went wrong",
-          description: "Could not export students",
+          title: "Could not export students",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },
@@ -155,8 +155,8 @@ export const StudentsTable = () => {
       },
       onError: error => {
         toast({
-          title: error.message ?? "Something went wrong",
-          description: "Could not withdraw selected students",
+          title: "Could not withdraw selected students",
+          description: getApiErrorReason(error),
           type: "error",
         });
         setOpenWithdraw(false);
@@ -178,8 +178,8 @@ export const StudentsTable = () => {
       },
       onError: error => {
         toast({
-          title: error.message ?? "Something went wrong",
-          description: "Could not delete selected students",
+          title: "Could not delete selected students",
+          description: getApiErrorReason(error),
           type: "error",
         });
         setOpenDelete(false);
@@ -389,43 +389,38 @@ export const StudentsTable = () => {
         />
 
         <PermissionCheck permissionUtility={canManageStudentParentRecords}>
-          <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            <OverviewCard
+          <div className="grid w-full grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
+            <StatCard
               title="Total Students"
-              Icon={() => (
-                <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                  <UserFill fill="var(--color-icon-default)" className="size-2.5" />
-                </div>
-              )}
-              value={`${studentDistribution?.total}`}
+              icon={<UserFill fill="var(--color-icon-default)" className="size-3.5" />}
+              iconClassName="bg-bg-basic-teal-subtle border-bg-basic-teal-accent"
+              loading={!distribution}
+              isEmpty={!studentDistribution.total}
+              value={studentDistribution.total.toLocaleString()}
             />
-            <OverviewCard
+            <StatCard
               title="Active Students"
-              Icon={() => (
-                <div className="bg-bg-basic-emerald-subtle border-bg-basic-emerald-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                  <UserFill fill="var(--color-icon-default)" className="size-2.5" />
-                </div>
-              )}
-              value={`${studentDistribution?.active}`}
+              icon={<UserFill fill="var(--color-icon-default)" className="size-3.5" />}
+              iconClassName="bg-bg-basic-emerald-subtle border-bg-basic-emerald-accent"
+              loading={!distribution}
+              isEmpty={!studentDistribution.active}
+              value={studentDistribution.active.toLocaleString()}
             />
-            <OverviewCard
+            <StatCard
               title="Withdrawn Students"
-              Icon={() => (
-                <div className="bg-bg-basic-yellow-subtle border-bg-basic-yellow-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                  <UserMinus fill="var(--color-icon-default)" className="size-2.5" />
-                </div>
-              )}
-              value={`${studentDistribution?.withdrawn}`}
+              icon={<UserMinus fill="var(--color-icon-default)" className="size-3.5" />}
+              iconClassName="bg-bg-basic-yellow-subtle border-bg-basic-yellow-accent"
+              loading={!distribution}
+              isEmpty={!studentDistribution.withdrawn}
+              value={studentDistribution.withdrawn.toLocaleString()}
             />
-
-            <OverviewCard
+            <StatCard
               title="Graduated Students"
-              Icon={() => (
-                <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex w-6 items-center justify-center rounded-xs border p-1">
-                  <GraduationCap fill="var(--color-icon-default)" className="size-2.5" />
-                </div>
-              )}
-              value={`${studentDistribution?.graduated}`}
+              icon={<GraduationCap fill="var(--color-icon-default)" className="size-3.5" />}
+              iconClassName="bg-bg-basic-sky-subtle border-bg-basic-sky-accent"
+              loading={!distribution}
+              isEmpty={!studentDistribution.graduated}
+              value={studentDistribution.graduated.toLocaleString()}
             />
           </div>
         </PermissionCheck>
@@ -433,7 +428,7 @@ export const StudentsTable = () => {
         {/* Search and Export */}
         <div className="mt-6 flex flex-col justify-between gap-3 md:mt-8 md:flex-row md:items-center">
           <SearchInput
-            className="bg-bg-input-soft! w-full rounded-lg border-none md:w-70.5"
+            className="bg-bg-input-soft! w-full rounded-xl border-none md:w-80"
             value={searchQuery}
             onChange={evt => {
               setSearchQuery(evt.target.value);

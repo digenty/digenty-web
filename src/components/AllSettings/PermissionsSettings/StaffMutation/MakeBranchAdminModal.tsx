@@ -13,6 +13,7 @@ import { useMakeBranchAdminStaff } from "@/hooks/queryHooks/useStaff";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useStaffStore } from "@/store/staff";
 import { useState } from "react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export const MakeBranchAdminModal = () => {
   const isMobile = useIsMobile();
@@ -56,7 +57,7 @@ export const MakeBranchAdminModal = () => {
         onError: error => {
           toast({
             title: "Error",
-            description: error?.message || "Failed to make staff branch admin",
+            description: getApiErrorMessage(error, "Failed to make staff branch admin"),
             type: "error",
           });
         },

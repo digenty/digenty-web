@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { FormikProps } from "formik";
 import { Wand2 } from "lucide-react";
 import { StudentInputValues } from "../types";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const AdmissionNumberField = ({
   formik,
@@ -58,8 +59,8 @@ export const AdmissionNumberField = ({
       },
       onError: error => {
         toast({
-          title: error?.message ?? "Something went wrong",
-          description: "Could not generate admission number",
+          title: "Could not generate admission number",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },

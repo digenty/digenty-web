@@ -46,6 +46,7 @@ import { DeactivateStaffModal } from "./DeactivateStaffModal";
 import { getStatusBadge } from "@/components/Status";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageSettings } from "@/lib/permissions/settings";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const permissionIcons = {
   "Student & Parent Records": Group,
@@ -102,7 +103,7 @@ export const StaffDetails = () => {
       onError: error => {
         toast({
           title: "Failed to deactivate staff",
-          description: error.message,
+          description: getApiErrorReason(error),
           type: "error",
         });
       },

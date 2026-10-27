@@ -6,6 +6,7 @@ import { departmentKeys } from "@/queries/department";
 import { useAssignArmToDepartment } from "@/hooks/queryHooks/useDepartment";
 import { useQueries } from "@tanstack/react-query";
 import { useEffect, useState, useMemo } from "react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export const AssignArmsToDepartments = ({
   arms,
@@ -109,7 +110,7 @@ const ArmDepartmentSelect = ({
         onError: err => {
           toast({
             title: "Failed to assign arm",
-            description: (err as { message?: string })?.message || "Could not assign arm to department",
+            description: getApiErrorMessage(err, "Could not assign arm to department"),
             type: "error",
           });
         },

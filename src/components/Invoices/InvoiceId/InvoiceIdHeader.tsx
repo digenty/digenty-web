@@ -10,6 +10,7 @@ import { useDeleteInvoice, useDownloadInvoicePdf } from "@/hooks/queryHooks/useI
 import { toast } from "@/components/Toast";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canDeleteInvoices, canManageInvoices } from "@/lib/permissions/invoices";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type InvoiceIdHeaderProps = {
   invoiceNumber?: string;
@@ -36,8 +37,7 @@ export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, urlInvoiceId, loadin
         router.push("/staff/invoices");
       },
       onError: (error: unknown) => {
-        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-        toast({ title: "Failed to delete invoice", description, type: "error" });
+        toast({ title: "Failed to delete invoice", description: getApiErrorReason(error), type: "error" });
       },
     });
   };
@@ -53,8 +53,7 @@ export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, urlInvoiceId, loadin
         window.open(url, "_blank", "noopener,noreferrer");
       },
       onError: (error: unknown) => {
-        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-        toast({ title: "Failed to download PDF", description, type: "error" });
+        toast({ title: "Failed to download PDF", description: getApiErrorReason(error), type: "error" });
       },
     });
   };

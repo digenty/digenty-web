@@ -2,6 +2,7 @@
 
 import { refreshSessionToken } from "@/app/actions/auth";
 import { useReAutheticateUser } from "@/hooks/queryHooks/useAuth";
+import { checkSession } from "@/lib/session-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -20,7 +21,15 @@ export const SessionRefresher = () => {
       onSuccess: async data => {
         const token = data?.data?.token;
         if (!token) return;
-        await refreshSessionToken(token);
+
+        const { applied } = await refreshSessionToken(token);
+        if (!applied) {
+          // The cookie no longer holds this tab's session (another tab signed in as someone else, or signed
+          // out), so writing this token would undo that. Leave it and let the session guard explain.
+          void checkSession();
+          return;
+        }
+
         queryClient.invalidateQueries({ queryKey: ["session-user"] });
       },
     });

@@ -38,6 +38,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { Spinner } from "@/components/ui/spinner";
 import { WizardStepFooter } from "../WizardStepFooter";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export type GradingAndAssessmentHandle = {
   submit: () => Promise<boolean>;
@@ -48,9 +49,6 @@ export type { LevelFormValues };
 const emptyAssessmentRow = (): AssessmentRow => ({ name: "", weight: "", includeInMidterm: false });
 const emptyGradeRow = (): GradeRow => ({ grade: "", upperLimit: "", lowerLimit: "", remark: "" });
 const emptyFormValues = (): LevelFormValues => ({ assessments: [emptyAssessmentRow()], grades: [emptyGradeRow()] });
-
-// Errors come back unwrapped from the API with a message written to be shown as-is.
-const getErrorMessage = (error: unknown, fallback = "Something went wrong") => (error as { message?: string } | null)?.message || fallback;
 
 const getTotalWeight = (assessments: AssessmentRow[]) => assessments.reduce((sum, a) => sum + (parseFloat(a.weight) || 0), 0);
 
@@ -90,7 +88,7 @@ const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, b
         },
         onError: error => {
           setFieldValue(`assessments.${index}.includeInMidterm`, !checked);
-          toast({ title: "Could not update mid-term report", description: getErrorMessage(error, "Please try again"), type: "error" });
+          toast({ title: "Could not update mid-term report", description: getApiErrorReason(error), type: "error" });
         },
       },
     );
@@ -122,7 +120,7 @@ const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, b
         onError: error => {
           toast({
             title: "Failed to update assessment",
-            description: getErrorMessage(error),
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
@@ -138,7 +136,7 @@ const AssessmentFields = ({ values, handleChange, handleBlur, level, branchId, b
         onError: error => {
           toast({
             title: "Failed to save assessment",
-            description: getErrorMessage(error),
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
@@ -266,9 +264,10 @@ const GradingFields = ({ values, handleChange, handleBlur, level, branchId, bran
             type: "success",
           });
         },
-        onError: () => {
+        onError: error => {
           toast({
             title: "Failed to update assessment",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
@@ -281,9 +280,10 @@ const GradingFields = ({ values, handleChange, handleBlur, level, branchId, bran
             type: "success",
           });
         },
-        onError: () => {
+        onError: error => {
           toast({
             title: "Failed to save grading",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
