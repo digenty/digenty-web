@@ -11,6 +11,7 @@ import { toast } from "../Toast";
 import { Spinner } from "../ui/spinner";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageAttendance } from "@/lib/permissions/attendance";
+import { getApiErrorReason } from "@/lib/apiError";
 
 interface CardProps {
   classname: string;
@@ -38,8 +39,8 @@ export function Card({ classname, totalStudents, teacherName, lastUpdate, attend
       {
         onError: error => {
           toast({
-            title: error.message ?? "Something went wrong",
-            description: "Could not create or update attendance sheet",
+            title: "Could not create or update attendance sheet",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

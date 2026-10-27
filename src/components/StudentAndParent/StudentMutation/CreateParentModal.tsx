@@ -15,6 +15,7 @@ import { ProfilePicture } from "../ProfilePicture";
 import { ContactInformation } from "../Parent/AddParent/ContactInformation";
 import { PersonalInformation } from "../Parent/AddParent/PersonalInformation";
 import { ParentInputValues } from "../types";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const CreateParentModal = ({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) => {
   const isMobile = useIsMobile();
@@ -57,7 +58,7 @@ export const CreateParentModal = ({ open, setOpen }: { open: boolean; setOpen: (
         },
         onError: error => {
           applyConflictFieldError(error, formik.setFieldError);
-          toast({ title: error.message ?? "Something went wrong", description: "Could not add parent", type: "error" });
+          toast({ title: "Could not add parent", description: getApiErrorReason(error), type: "error" });
         },
       },
     );

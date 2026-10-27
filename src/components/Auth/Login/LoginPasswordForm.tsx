@@ -1,5 +1,5 @@
 "use client";
-import { createSession } from "@/app/actions/auth";
+import { login } from "@/lib/session-client";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { LegalModal } from "../LegalModal";
 import { PRIVACY_POLICY, TERMS_AND_CONDITIONS } from "@/constants/legal";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const LoginPasswordForm = ({ email, userType }: { email: string; userType: "SCHOOL_STAFF" | "PARENT" }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -55,12 +56,12 @@ export const LoginPasswordForm = ({ email, userType }: { email: string; userType
             // one that just expired) so the new token's data is fetched fresh instead of the
             // old, now-invalid `exp` being read for an instant before the refetch lands.
             queryClient.removeQueries({ queryKey: ["session-user"] });
-            createSession(data.data.token, userType);
+            login(data.data.token, userType);
           },
           onError: error => {
             toast({
-              title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-              description: "Could not log you in",
+              title: "Could not log you in",
+              description: getApiErrorReason(error),
               type: "error",
             });
           },

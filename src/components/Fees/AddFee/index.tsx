@@ -16,6 +16,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { feeSchema } from "@/schema/fees";
 import { useCreateFeeItem } from "@/hooks/queryHooks/useFee";
 import { buildFeeItemPayload, initialFeeItemValues, useFeeFormData, type FeeItemFormValues } from "./useFeeForm";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const AddFee = () => {
   useBreadcrumb([
@@ -51,8 +52,7 @@ export const AddFee = () => {
         }
       },
       onError: (error: unknown) => {
-        const message = (error as { message?: string })?.message ?? "Failed to create fee";
-        toast.error(message);
+        toast.error("Failed to create fee", { description: getApiErrorReason(error) });
       },
       onSettled: () => {
         addAnotherRef.current = false;

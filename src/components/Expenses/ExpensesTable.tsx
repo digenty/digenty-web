@@ -1,7 +1,7 @@
 "use client";
 
 import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
-import { getRetryErrorProps } from "@/lib/apiError";
+import { getRetryErrorProps, getApiErrorMessage, getApiErrorReason } from "@/lib/apiError";
 import { DeleteBin, Edit, Eye } from "@digenty/icons";
 import { Ellipsis } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -65,11 +65,11 @@ export const ExpensesTable = ({ filters, page, setPage, showCategory = true, sho
 
   const { items, total } = useMemo(() => extractExpenseList<ExpenseListItem>(query.data), [query.data]);
 
-  const errorMessage = (query.error as { message?: string } | null)?.message ?? "Could not load expenses";
+  const errorMessage = getApiErrorMessage(query.error, "Could not load expenses");
 
   useEffect(() => {
     if (query.isError) {
-      toast({ title: errorMessage, type: "error" });
+      toast({ title: "Could not load expenses", description: getApiErrorReason(query.error), type: "error" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query.isError]);

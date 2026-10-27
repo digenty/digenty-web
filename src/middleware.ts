@@ -19,9 +19,15 @@ function getSubdomain(host: string): string | null {
 // though /public/website/resolve would technically resolve a *.axisbydigenty.com host too, that
 // pattern is already owned by the parent-onboarding subdomain flow above (getSubdomain). Custom-
 // domain detection below only applies to hosts outside this set.
+//
+// A bare IP address (127.0.0.1, a LAN address) can never be a school's domain. It is also what lets a
+// second person be signed in side by side while testing: each host has its own cookie jar.
+const IPV4_HOST = /^\d{1,3}(\.\d{1,3}){3}$/;
+
 function isOwnPlatformHost(hostname: string): boolean {
   return (
     hostname === "localhost" ||
+    IPV4_HOST.test(hostname) ||
     hostname.endsWith(".localhost") ||
     hostname === "axisbydigenty.com" ||
     hostname.endsWith(".axisbydigenty.com") ||

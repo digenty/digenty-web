@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { deleteSession } from "@/app/actions/auth";
+import { logout as logoutSession } from "@/lib/session-client";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useSendChangePasswordOtp } from "@/hooks/queryHooks/useAuth";
 import { useGetSecuritySettings, useLogoutAllSessions } from "@/hooks/queryHooks/useSecurity";
@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { ChangePasswordDialog } from "./ChangePasswordDialog";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const PASSWORD_DOTS = 10;
 
@@ -54,8 +55,8 @@ export const SecuritySettings = () => {
       },
       onError: error => {
         toast({
-          title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-          description: "Could not send OTP",
+          title: "Could not send OTP",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },
@@ -67,12 +68,12 @@ export const SecuritySettings = () => {
       onSuccess: async () => {
         toast({ title: "Signed out", description: "You have been logged out of all sessions", type: "success" });
         queryClient.clear();
-        await deleteSession();
+        await logoutSession();
       },
       onError: error => {
         toast({
-          title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-          description: "Could not log out of all sessions",
+          title: "Could not log out of all sessions",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },

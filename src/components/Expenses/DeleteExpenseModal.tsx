@@ -14,6 +14,7 @@ import { useDeleteExpense } from "@/hooks/queryHooks/useExpense";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 import { ExpenseListItem, expenseTitleOf } from "./types";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type Props = {
   open: boolean;
@@ -35,8 +36,7 @@ export const DeleteExpenseModal = ({ open, setOpen, expense, onDeleted }: Props)
       setOpen(false);
       onDeleted?.();
     } catch (error) {
-      const message = (error as { message?: string } | null)?.message ?? "Could not delete expense";
-      toast({ title: message, type: "error" });
+      toast({ title: "Could not delete expense", description: getApiErrorReason(error), type: "error" });
     }
   };
 

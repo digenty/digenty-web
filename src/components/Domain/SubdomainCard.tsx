@@ -37,7 +37,7 @@ export const SubdomainCard = ({ subdomain, hasConnectedDomain }: SubdomainCardPr
         toast.success(subdomain ? "Subdomain updated" : "Subdomain saved");
         setEditing(false);
       },
-      onError: (error: unknown) => toast.error(getApiErrorMessage(error, "Could not save the subdomain. Please try again.")),
+      onError: (error: unknown) => toast.error("Could not save the subdomain", { description: getApiErrorMessage(error, "Please try again.") }),
     };
     if (subdomain) updateSubdomain({ subdomain: label }, options);
     else createSubdomain({ subdomain: label }, options);
@@ -50,7 +50,7 @@ export const SubdomainCard = ({ subdomain, hasConnectedDomain }: SubdomainCardPr
         setValue("");
       },
       // SUBDOMAIN_IN_USE carries a message written for display.
-      onError: (error: unknown) => toast.error(getApiErrorMessage(error, "Could not delete the subdomain. Please try again.")),
+      onError: (error: unknown) => toast.error("Could not delete the subdomain", { description: getApiErrorMessage(error, "Please try again.") }),
     });
   };
 

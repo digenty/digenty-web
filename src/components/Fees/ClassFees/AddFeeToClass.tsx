@@ -22,6 +22,7 @@ import { useSearchStocks } from "@/hooks/queryHooks/useStock";
 import type { SingleArmFeeItemDto, FeeTermType, FeePaymentMode } from "@/api/fee";
 import { Spinner } from "@/components/ui/spinner";
 import { emptyInstallmentRow, PaymentModeFields, type InstallmentRowInput } from "@/components/Fees/PaymentMode/PaymentModeFields";
+import { getApiErrorReason } from "@/lib/apiError";
 
 interface AddFeeToClassValues {
   armIds: number[];
@@ -82,7 +83,7 @@ const AddFeeToClass = () => {
       paymentMode: "FULL",
       installments: [{ ...emptyInstallmentRow }, { ...emptyInstallmentRow }],
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [arms, sessionId, isArmMode],
   );
 
@@ -109,7 +110,7 @@ const AddFeeToClass = () => {
         router.push("/staff/fees?tab=Fee Items");
       }
     } catch (error: unknown) {
-      toast.error((error as { message?: string })?.message ?? "Failed to add fee");
+      toast.error("Failed to add fee", { description: getApiErrorReason(error) });
     } finally {
       addAnotherRef.current = false;
     }

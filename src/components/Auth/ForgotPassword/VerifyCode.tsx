@@ -9,6 +9,7 @@ import { verifyOtpSchema } from "@/schema/auth";
 import { useFormik } from "formik";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const DIGITS = 6;
 
@@ -69,8 +70,8 @@ export const VerifyCode = () => {
           },
           onError: error => {
             toast({
-              title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-              description: "Could not verify OTP",
+              title: "Could not verify OTP",
+              description: getApiErrorReason(error),
               type: "error",
             });
           },
@@ -87,8 +88,8 @@ export const VerifyCode = () => {
       },
       onError: error => {
         toast({
-          title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-          description: "Could not resend OTP",
+          title: "Could not resend OTP",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },

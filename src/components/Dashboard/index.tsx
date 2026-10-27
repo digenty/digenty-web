@@ -10,8 +10,8 @@ import { useEffect, useState } from "react";
 import { Alerts } from "../Alert";
 
 import { Skeleton } from "../ui/skeleton";
-import { OverviewCard } from "../OverviewCard";
 import { Chart } from "./Chart";
+import { StatCard } from "../StatCard";
 import DashboardHeader from "./DashboardHeader";
 import { QuickActions } from "./QuickActions";
 
@@ -39,63 +39,59 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6 px-4 py-6 md:space-y-8 md:px-8">
+    <div className="mx-auto w-full max-w-350 space-y-6 px-4 py-6 md:space-y-8 md:px-8">
       <DashboardHeader
+        userName={user.name}
         branchSelected={branchSelected}
         setBranchSelected={setBranchSelected}
         termSelected={termSelected}
         setTermSelected={setTermSelected}
       />
 
-      <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-        <OverviewCard
+      <div className="grid w-full grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
+        <StatCard
           title="Fees collected"
-          Icon={() => (
-            <div className="bg-bg-basic-teal-subtle border-bg-basic-teal-accent flex w-6 items-center justify-center rounded-xs border p-1">
-              <CashFill fill="var(--color-icon-default)" className="size-[10px]" />
-            </div>
-          )}
-          value={isLoading ? "0" : `₦${dashboardInfo?.totalFeesCollected?.toLocaleString() || 0}`}
+          icon={<CashFill fill="var(--color-icon-default)" className="size-3.5" />}
+          iconClassName="bg-bg-basic-teal-subtle border-bg-basic-teal-accent"
+          loading={isLoading}
+          isEmpty={!dashboardInfo?.totalFeesCollected}
+          value={`₦${dashboardInfo?.totalFeesCollected?.toLocaleString() || 0}`}
         />
-        <OverviewCard
-          title="outstanding fees"
-          Icon={() => (
-            <div className="bg-bg-basic-yellow-subtle border-bg-basic-yellow-accent flex w-6 items-center justify-center rounded-xs border p-1">
-              <AlertFill fill="var(--color-icon-default)" className="size-[10px]" />
-            </div>
-          )}
-          value={isLoading ? "0" : `₦${dashboardInfo?.outstandingFees?.toLocaleString() || 0}`}
+        <StatCard
+          title="Outstanding fees"
+          icon={<AlertFill fill="var(--color-icon-default)" className="size-3.5" />}
+          iconClassName="bg-bg-basic-yellow-subtle border-bg-basic-yellow-accent"
+          loading={isLoading}
+          isEmpty={!dashboardInfo?.outstandingFees}
+          value={`₦${dashboardInfo?.outstandingFees?.toLocaleString() || 0}`}
         />
-        <OverviewCard
-          title="students"
-          Icon={() => (
-            <div className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent flex w-6 items-center justify-center rounded-xs border p-1">
-              <UserFill fill="var(--color-icon-default)" className="size-[10px]" />
-            </div>
-          )}
-          value={isLoading ? "0" : dashboardInfo?.totalStudents?.toLocaleString() || 0}
+        <StatCard
+          title="Students"
+          icon={<UserFill fill="var(--color-icon-default)" className="size-3.5" />}
+          iconClassName="bg-bg-basic-sky-subtle border-bg-basic-sky-accent"
+          loading={isLoading}
+          isEmpty={!dashboardInfo?.totalStudents}
+          value={dashboardInfo?.totalStudents?.toLocaleString() || 0}
         />
-
-        <OverviewCard
+        <StatCard
           title="Expenses"
-          Icon={() => (
-            <div className="bg-bg-basic-pink-subtle border-bg-basic-pink-accent flex w-6 items-center justify-center rounded-xs border p-1">
-              <IndeterminateCircleFill fill="var(--color-icon-default)" className="size-[10px]" />
-            </div>
-          )}
-          value={isLoading ? "0" : `₦${dashboardInfo?.totalExpenses?.toLocaleString() || 0}`}
+          icon={<IndeterminateCircleFill fill="var(--color-icon-default)" className="size-3.5" />}
+          iconClassName="bg-bg-basic-pink-subtle border-bg-basic-pink-accent"
+          loading={isLoading}
+          isEmpty={!dashboardInfo?.totalExpenses}
+          value={`₦${dashboardInfo?.totalExpenses?.toLocaleString() || 0}`}
         />
       </div>
 
       <QuickActions />
 
-      <div className="base:flex-row flex flex-col items-stretch gap-3">
-        <div className="border-border-default bg-bg-default base:w-[65%] w-full min-w-0 flex-col rounded-md border text-sm">
+      <div className="base:flex-row flex flex-col items-stretch gap-4">
+        <div className="border-border-default bg-bg-default shadow-light base:w-[65%] w-full min-w-0 flex-col rounded-xl border text-sm">
           <div className="h-full min-w-0 flex-1">
             <Chart branchSelected={branchSelected} />
           </div>
         </div>
-        <div className="border-border-default bg-bg-default base:w-[35%] w-full min-w-0 flex-col overflow-hidden rounded-md border text-sm">
+        <div className="border-border-default bg-bg-default shadow-light base:w-[35%] w-full min-w-0 flex-col overflow-hidden rounded-xl border text-sm">
           <div className="h-full min-w-0 flex-1">
             <Alerts termId={termSelected?.termId ?? null} branchId={branchSelected?.id ?? null} />
           </div>

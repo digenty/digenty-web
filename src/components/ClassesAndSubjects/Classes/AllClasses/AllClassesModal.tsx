@@ -19,6 +19,7 @@ import { notifyBranchHeadSchema } from "@/schema/notification";
 import { useFormik } from "formik";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type NotifyModalProps = {
   openNotifyModal: boolean;
@@ -58,7 +59,7 @@ export const NotifyTeacherModal = ({ openNotifyModal, setOpenNotifyModal, classT
             setOpenNotifyModal(false);
           },
           onError: error => {
-            toast({ title: error.message ?? "Something went wrong", description: "Could not send notification.", type: "error" });
+            toast({ title: "Could not send notification", description: getApiErrorReason(error), type: "error" });
           },
         },
       );
@@ -254,7 +255,7 @@ export const EditModal = ({ openEditRequestModal, setEditRequestModal, subjectId
         onError: error => {
           toast({
             title: `Failed to ${isApproved ? "approve" : "reject"} request`,
-            description: error?.message || `Failed to ${isApproved ? "approve" : "reject"} request`,
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

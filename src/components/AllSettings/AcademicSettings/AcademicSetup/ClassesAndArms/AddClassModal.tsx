@@ -8,6 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useCreateClass } from "@/hooks/queryHooks/useClass";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { canManageSettings } from "@/lib/permissions/settings";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export const AddClassModal = ({
   open,
@@ -36,7 +37,7 @@ export const AddClassModal = ({
         onError: error => {
           toast({
             title: "Failed to add class",
-            description: (error as { message?: string })?.message || `Could not create "${nextClassName}"`,
+            description: getApiErrorMessage(error, `Could not create "${nextClassName}"`),
             type: "error",
           });
         },

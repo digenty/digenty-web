@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { PillTabs } from "@/components/PillTabs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { ParentsTable } from "./Parent";
@@ -10,7 +10,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "@digenty/icons";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
-const tabs = ["Students", "Parents"];
+const tabs = [
+  { id: "Students", label: "Students" },
+  { id: "Parents", label: "Parents" },
+];
 
 const StudentAndParentRecord = () => {
   const router = useRouter();
@@ -39,26 +42,7 @@ const StudentAndParentRecord = () => {
         )}
 
         {/* Tabs */}
-        <div className="border-border-default flex w-auto max-w-105 items-center gap-3 border-b">
-          {tabs.map(tab => {
-            const isActive = activeTab === tab;
-            return (
-              <div
-                role="button"
-                onClick={() => {
-                  router.push(`/staff/student-and-parent-record?tab=${tab}`);
-                }}
-                key={tab}
-                className={cn(
-                  "w-1/2 cursor-pointer py-2.5 text-center transition-all duration-150",
-                  isActive && "border-border-informative border-b-[1.5px]",
-                )}
-              >
-                <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{tab}</span>
-              </div>
-            );
-          })}
-        </div>
+        <PillTabs tabs={tabs} activeId={activeTab} onChange={tab => router.push(`/staff/student-and-parent-record?tab=${tab}`)} />
 
         {/* Separate the table components into two different files with their separate states, then render conditionally here */}
         <div>{activeTab === "Students" ? <StudentsTable /> : <ParentsTable />}</div>

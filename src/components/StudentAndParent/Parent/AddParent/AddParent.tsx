@@ -19,6 +19,7 @@ import { PersonalInformation } from "./PersonalInformation";
 import { ProfilePicture } from "../../ProfilePicture";
 import { SendLoginDetailsModal } from "../SendLoginDetailsModal";
 import { Gender, Relationship } from "@/types";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const AddParent = () => {
   const router = useRouter();
@@ -87,8 +88,8 @@ export const AddParent = () => {
         onError: error => {
           applyConflictFieldError(error, formik.setFieldError);
           toast({
-            title: error.message ?? "Something went wrong",
-            description: "Could not add parent",
+            title: "Could not add parent",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

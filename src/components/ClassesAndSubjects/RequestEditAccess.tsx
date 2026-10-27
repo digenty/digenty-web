@@ -14,6 +14,7 @@ import { useRequestEditAccess } from "@/hooks/queryHooks/useClass";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useState } from "react";
 import { RoundedCheckbox } from "../RoundedCheckbox";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type RequestEditProps = {
   open: boolean;
@@ -61,7 +62,7 @@ export default function RequestEdit({ open, onOpenChange, classId, armId, subjec
         onError: error => {
           toast({
             title: "Request failed",
-            description: error.message,
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

@@ -24,6 +24,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 
 import { DECREASE_REASONS, INCREASE_REASONS } from "./constants";
 import { StockTransactionRecord } from "./type";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type Qtyprops = {
   open: boolean;
@@ -110,8 +111,7 @@ export const StockDetailsAdjustQtyModal = ({
         setOpen(false);
         onAdjusted?.(tx);
       } catch (error) {
-        const message = (error as { message?: string } | null)?.message ?? "Could not adjust quantity";
-        toast({ title: message, type: "error" });
+        toast({ title: "Could not adjust quantity", description: getApiErrorReason(error), type: "error" });
       }
     },
   });

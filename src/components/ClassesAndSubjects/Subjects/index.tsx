@@ -22,16 +22,16 @@ export const Subjects = ({ subjectList, isLoading }: ClassTeacherSubjectProps) =
   ]);
 
   return (
-    <div className="space-y-4 pb-10">
+    <div className="space-y-3 pb-10">
       <SubjectHeader />
       {isLoading ? (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="bg-bg-input-soft h-30 w-full md:max-w-219" />
+            <Skeleton key={i} className="bg-bg-input-soft h-30 w-full rounded-xl" />
           ))}
         </div>
       ) : (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           {subjectList.map(subject => (
             <Subject key={subject.subjectId} subjectName={subject.subjectName} classes={subject.classArmReportDtos} subjectId={subject.subjectId} />
           ))}

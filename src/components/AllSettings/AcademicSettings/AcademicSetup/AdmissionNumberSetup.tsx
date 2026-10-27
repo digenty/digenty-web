@@ -12,6 +12,7 @@ import { DIGITS } from "@/store/admission";
 import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { WizardStepFooter } from "./WizardStepFooter";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 type FormValues = {
   prefix: string;
@@ -79,7 +80,7 @@ export const AdmissionNumberSetup = ({
         router.push("/staff/settings/academic");
       };
       const onError = (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Could not save admission number settings";
+        const message = getApiErrorMessage(error, "Could not save admission number settings");
         toast({ title: "Failed to save admission setup", description: message, type: "error" });
       };
 

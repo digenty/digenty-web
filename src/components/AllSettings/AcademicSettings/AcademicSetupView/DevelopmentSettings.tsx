@@ -25,6 +25,7 @@ import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { WizardStepFooter } from "../AcademicSetup/WizardStepFooter";
+import { getApiErrorReason } from "@/lib/apiError";
 
 // The flat /development-settings/categories list can't be trusted to carry a reliable levelId, so both the
 // category CRUD list and the skills-per-level dropdown read from the per-level endpoint's nested categories instead.
@@ -50,7 +51,7 @@ const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: num
           toast({ title: "Category added", type: "success" });
           setNewName("");
         },
-        onError: (error: Error) => toast({ title: "Could not add category", description: error?.message, type: "error" }),
+        onError: (error: Error) => toast({ title: "Could not add category", description: getApiErrorReason(error), type: "error" }),
       },
     );
   };
@@ -64,7 +65,7 @@ const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: num
           toast({ title: "Category updated", type: "success" });
           setEditingId(null);
         },
-        onError: (error: Error) => toast({ title: "Could not update category", description: error?.message, type: "error" }),
+        onError: (error: Error) => toast({ title: "Could not update category", description: getApiErrorReason(error), type: "error" }),
       },
     );
   };
@@ -77,7 +78,7 @@ const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: num
         setDeletingId(null);
       },
       onError: (error: Error) => {
-        toast({ title: "Could not delete category", description: error?.message, type: "error" });
+        toast({ title: "Could not delete category", description: getApiErrorReason(error), type: "error" });
         setDeletingId(null);
       },
     });
@@ -261,7 +262,7 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
           toast({ title: "Success", description: `Skills for ${level.levelName} saved`, type: "success" });
           setIsEditing(false);
         },
-        onError: (error: Error) => toast({ title: "Failed to save", description: error?.message, type: "error" }),
+        onError: (error: Error) => toast({ title: "Failed to save", description: getApiErrorReason(error), type: "error" }),
       },
     );
   };

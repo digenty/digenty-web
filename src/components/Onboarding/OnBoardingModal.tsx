@@ -1,7 +1,8 @@
 "use client";
 
 import { LogoMark } from "@digenty/icons";
-import { deleteSession, refreshSessionToken } from "@/app/actions/auth";
+import { refreshSessionToken } from "@/app/actions/auth";
+import { checkSession, endTabSession } from "@/lib/session-client";
 import { useReAutheticateUser } from "@/hooks/queryHooks/useAuth";
 import { useAddBranch } from "@/hooks/queryHooks/useBranch";
 import { useAddSchool } from "@/hooks/queryHooks/useSchool";
@@ -21,6 +22,7 @@ import { SchoolOverview } from "./SchoolOverview";
 import { CreateSchoolTypes } from "./types";
 import { WelcomeInputs } from "./WelcomeInputs";
 import { WelcomePlan } from "./WelcomePlan";
+import { getApiErrorReason } from "@/lib/apiError";
 
 interface OnboardingModalProps {
   initialShow: boolean;
@@ -109,8 +111,8 @@ const OnboardingModal = ({ initialShow, onClose }: OnboardingModalProps) => {
         },
         onError: error => {
           toast({
-            title: error.message ?? "Something went wrong",
-            description: "Could not create a school",
+            title: "Could not create a school",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
@@ -174,20 +176,25 @@ const OnboardingModal = ({ initialShow, onClose }: OnboardingModalProps) => {
         onError: error => {
           toast({
             title: "Could not create branch(es)",
-            description: error?.message || "Could not create branch(es)",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
         onSuccess: () => {
           reAuthUser(undefined, {
             onError: () => {
-              deleteSession();
+              endTabSession();
             },
             onSuccess: async data => {
               // clearDrafts();
               // createSession() would redirect immediately, unmounting this wizard before the
               // user ever sees the Welcome Plan step — just update the cookie in place instead.
-              await refreshSessionToken(data.data.token);
+              const { applied } = await refreshSessionToken(data.data.token);
+              if (!applied) {
+                // Another tab signed in as someone else meanwhile; the session guard explains.
+                void checkSession();
+                return;
+              }
               toast({ title: "Branch(es) created successfully", type: "success" });
               setStep(3);
             },

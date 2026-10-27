@@ -12,6 +12,7 @@ import { useSendInvoiceReminder, useDeleteInvoice } from "@/hooks/queryHooks/use
 import { useRouter } from "next/navigation";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canDeleteInvoices, canManageInvoices } from "@/lib/permissions/invoices";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
   const router = useRouter();
@@ -23,8 +24,7 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
     sendReminder(id, {
       onSuccess: () => toast({ title: "Reminder sent successfully", type: "success" }),
       onError: (error: unknown) => {
-        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-        toast({ title: "Failed to send reminder", description, type: "error" });
+        toast({ title: "Failed to send reminder", description: getApiErrorReason(error), type: "error" });
       },
     });
   };
@@ -33,8 +33,7 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
     deleteInvoice(id, {
       onSuccess: () => toast({ title: "Invoice deleted", type: "success" }),
       onError: (error: unknown) => {
-        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-        toast({ title: "Failed to delete invoice", description, type: "error" });
+        toast({ title: "Failed to delete invoice", description: getApiErrorReason(error), type: "error" });
       },
     });
   };

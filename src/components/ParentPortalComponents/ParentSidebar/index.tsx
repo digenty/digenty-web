@@ -17,7 +17,7 @@ import { useSidebarStore } from "@/store";
 import { Avatar } from "@/components/Avatar";
 import { CloseLarge, LeadIcon, Line, Logout } from "@digenty/icons";
 import { parentNav } from "./constants";
-import { deleteSession } from "@/app/actions/auth";
+import { logout as logoutSession } from "@/lib/session-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetUserProfile } from "@/hooks/queryHooks/useProfile";
 
@@ -38,7 +38,7 @@ export const ParentSidebar = () => {
 
   const logout = () => {
     queryClient.clear();
-    deleteSession("/auth/parents/login");
+    logoutSession("/auth/parents/login");
   };
 
   return (

@@ -16,6 +16,7 @@ import { NewInvoiceItem } from "./NewInvoiceItems/NewInvoiceItem";
 import { InvoicePreview } from "./NewInvoicePreview/InvoicePreview";
 import { NewInvoiceStatus } from "./NewInvoiceStatus";
 import { INVOICE_STEPS, useInvoiceStep } from "./step";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export type InvoiceFormValues = {
   billTo: Recipient[];
@@ -90,8 +91,7 @@ export const NewInvoice = () => {
           router.push("/staff/invoices");
         },
         onError: (error: unknown) => {
-          const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-          toast({ title: "Failed to send invoice", description, type: "error" });
+          toast({ title: "Failed to send invoice", description: getApiErrorReason(error), type: "error" });
         },
       });
     },
@@ -104,8 +104,7 @@ export const NewInvoice = () => {
         router.push("/staff/invoices");
       },
       onError: (error: unknown) => {
-        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-        toast({ title: "Failed to save draft", description, type: "error" });
+        toast({ title: "Failed to save draft", description: getApiErrorReason(error), type: "error" });
       },
     });
   };

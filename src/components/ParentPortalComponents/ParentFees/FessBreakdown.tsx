@@ -19,9 +19,9 @@ import { AlertFill, Bank, BankCard, CheckboxCircleFill, Download2, FileCopy } fr
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { getApiErrorReason } from "@/lib/apiError";
 
-const byFeeItemId = (pendingItems: PendingFeeItem[]): Map<number, PendingFeeItem> =>
-  new Map(pendingItems.map(item => [item.studentFeeItemId, item]));
+const byFeeItemId = (pendingItems: PendingFeeItem[]): Map<number, PendingFeeItem> => new Map(pendingItems.map(item => [item.studentFeeItemId, item]));
 
 const invoiceStatusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
   PAID: { label: "Paid", className: "bg-bg-badge-green text-bg-basic-green-strong" },
@@ -101,7 +101,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
             toast.error("Could not start payment. Please try again.");
           }
         },
-        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to start payment"),
+        onError: (error: unknown) => toast.error("Failed to start payment", { description: getApiErrorReason(error) }),
       },
     );
   };
@@ -148,9 +148,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
   }
 
   if (!overview && !invoice) {
-    return (
-      <PageEmptyState title="No Fees Found" description="There are no fees set up for this student yet" />
-    );
+    return <PageEmptyState title="No Fees Found" description="There are no fees set up for this student yet" />;
   }
 
   // Backend can report a negative outstandingAmount for fully-paid, optional-only fee terms
@@ -252,10 +250,7 @@ export const FeesBreakdown = ({ termId }: { termId?: number }) => {
                   const progressPercentage = fee.amount ? Math.min((fee.amountPaid / fee.amount) * 100, 100) : 0;
                   const pendingFee = pendingRequiredById.get(fee.studentFeeItemId);
                   return (
-                    <div
-                      key={fee.studentFeeItemId}
-                      className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4"
-                    >
+                    <div key={fee.studentFeeItemId} className="border-border-default flex w-full flex-col gap-3 rounded-sm border p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {!isPaid && pendingFee && pendingFee.balance > 0 && (

@@ -3,7 +3,7 @@ import { StudentInvoicesPage } from "@/api/invoice";
 import { Term } from "@/api/types";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { getErrorStateProps, isSubscriptionError } from "@/lib/apiError";
+import { getApiErrorMessage, getApiErrorReason, getErrorStateProps, isSubscriptionError } from "@/lib/apiError";
 import { formatInvoiceStatus, formatNaira } from "@/components/Invoices/types";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -121,12 +121,11 @@ export default function StudentInvoiceTable({ studentId }: { studentId?: number 
     refetch: refetchInvoices,
   } = useGetInvoicesByStudent(studentId, page - 1, pageSize);
 
-  const invoicesErrorMessage =
-    (invoicesErrorObj as { message?: string } | null)?.message ?? "We couldn't load this student's invoices. Please try again.";
+  const invoicesErrorMessage = getApiErrorMessage(invoicesErrorObj, "We couldn't load this student's invoices. Please try again.");
 
   useEffect(() => {
     if (invoicesError) {
-      toast({ title: invoicesErrorMessage, type: "error" });
+      toast({ title: "Failed to load invoices", description: getApiErrorReason(invoicesErrorObj), type: "error" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoicesError]);

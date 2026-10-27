@@ -19,6 +19,7 @@ import { ChevronDown, Loader2, Search, X } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { transformSubjectArmMap } from "../utils";
 import { Spinner } from "@/components/ui/spinner";
+import { getApiErrorReason } from "@/lib/apiError";
 
 interface SelectedArm {
   id: number;
@@ -326,7 +327,7 @@ export const TeacherAssignments = ({
       setIsEditing?.(false);
     };
     const onError = (error: Error) => {
-      toast({ title: "Failed to assign class(es)", description: error.message, type: "error" });
+      toast({ title: "Failed to assign class(es)", description: getApiErrorReason(error), type: "error" });
     };
 
     if (hasExistingClassAssignments) {
@@ -383,7 +384,7 @@ export const TeacherAssignments = ({
       setIsEditing?.(false);
     };
     const onError = (error: Error) => {
-      toast({ title: "Failed to assign subject(s)", description: error.message, type: "error" });
+      toast({ title: "Failed to assign subject(s)", description: getApiErrorReason(error), type: "error" });
     };
 
     if (hasExistingSubjectAssignments) {
@@ -585,7 +586,6 @@ export const TeacherAssignments = ({
                   Assign
                 </Button>
               </div> */}
-
             </div>
           )}
 

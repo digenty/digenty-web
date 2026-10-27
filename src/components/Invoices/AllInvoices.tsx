@@ -1,6 +1,6 @@
 "use client";
 
-import { getRetryErrorProps } from "@/lib/apiError";
+import { getApiErrorMessage, getApiErrorReason, getRetryErrorProps } from "@/lib/apiError";
 import { AlertFill, Approve, FileList3Fill } from "@digenty/icons";
 import { Branch, BranchWithClassLevels, ClassType, Term } from "@/api/types";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
@@ -90,11 +90,11 @@ export const AllInvoices = () => {
     status: statusFilter || undefined,
   });
 
-  const invoicesErrorMessage = (invoicesErrorObj as { message?: string } | null)?.message ?? "We couldn't load your invoices. Please try again.";
+  const invoicesErrorMessage = getApiErrorMessage(invoicesErrorObj, "We couldn't load your invoices. Please try again.");
 
   useEffect(() => {
     if (invoicesError) {
-      toast({ title: invoicesErrorMessage, type: "error" });
+      toast({ title: "Failed to load invoices", description: getApiErrorReason(invoicesErrorObj), type: "error" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [invoicesError]);

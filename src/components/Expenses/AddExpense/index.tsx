@@ -33,6 +33,7 @@ import { RECURRING_INTERVAL_CONFIG } from "@/queries/expense";
 import { editExpenseSchema, expenseSchema } from "@/schema/expense";
 
 import { ExpenseCategoryItem, ExpenseListItem, extractExpenseList, extractExpenseRecord, formatExpenseDate } from "../types";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const MAX_RECEIPT_BYTES = 5 * 1024 * 1024;
 const ACCEPTED_RECEIPTS = "application/pdf,image/png,image/jpeg";
@@ -135,8 +136,7 @@ const AddExpenseForm = () => {
           router.push("/staff/expense");
         }
       } catch (error) {
-        const message = (error as { message?: string } | null)?.message ?? (isEdit ? "Could not update expense" : "Could not create expense");
-        toast({ title: message, type: "error" });
+        toast({ title: isEdit ? "Could not update expense" : "Could not create expense", description: getApiErrorReason(error), type: "error" });
       } finally {
         submittingRef.current = false;
       }
@@ -157,8 +157,7 @@ const AddExpenseForm = () => {
       toast({ title: "Expense created successfully", type: "success" });
       formik.resetForm();
     } catch (error) {
-      const message = (error as { message?: string } | null)?.message ?? "Could not create expense";
-      toast({ title: message, type: "error" });
+      toast({ title: "Could not create expense", description: getApiErrorReason(error), type: "error" });
     } finally {
       submittingRef.current = false;
       setSavingAnother(false);

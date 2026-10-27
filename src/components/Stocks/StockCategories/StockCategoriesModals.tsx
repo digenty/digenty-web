@@ -15,6 +15,7 @@ import { useCreateStockCategory, useDeleteStockCategory, useEditStockCategory } 
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { stockCategorySchema } from "@/schema/stock";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export type CategoryItem = { id: number; name: string };
 
@@ -49,8 +50,7 @@ export const AddNewCategoryModal = ({ openAdd, setOpenAdd }: AddProps) => {
         formik.resetForm();
         setOpenAdd(false);
       } catch (error) {
-        const message = (error as { message?: string } | null)?.message ?? "Could not create category";
-        toast({ title: message, type: "error" });
+        toast({ title: "Could not create category", description: getApiErrorReason(error), type: "error" });
       }
     },
   });
@@ -125,8 +125,7 @@ export const EditCategoryModal = ({ openEdit, setOpenEdit, category }: EditProps
         toast({ title: "Category updated", type: "success" });
         setOpenEdit(false);
       } catch (error) {
-        const message = (error as { message?: string } | null)?.message ?? "Could not update category";
-        toast({ title: message, type: "error" });
+        toast({ title: "Could not update category", description: getApiErrorReason(error), type: "error" });
       }
     },
   });
@@ -196,8 +195,7 @@ export const DeleteCategoryModal = ({ openDelete, setOpenDelete, category }: Del
       toast({ title: "Category deleted", type: "success" });
       setOpenDelete(false);
     } catch (error) {
-      const message = (error as { message?: string } | null)?.message ?? "Could not delete category";
-      toast({ title: message, type: "error" });
+      toast({ title: "Could not delete category", description: getApiErrorReason(error), type: "error" });
     }
   };
 

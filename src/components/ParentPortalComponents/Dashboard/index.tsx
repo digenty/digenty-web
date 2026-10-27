@@ -12,6 +12,7 @@ import { PendingFees } from "./PendingFees";
 import { useGetStudentOverview } from "@/hooks/queryHooks/useParentStudents";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useStudentFilterStore } from "@/store/parent";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export const Overview = () => {
   const router = useRouter();
@@ -19,7 +20,7 @@ export const Overview = () => {
   const { selectedStudentId } = useStudentFilterStore();
 
   const { data: overview, isLoading, isError, error } = useGetStudentOverview(selectedStudentId);
-  const errorMessage = (error as { message?: string } | null)?.message ?? "This is our problem, we are looking into it so as to serve you better";
+  const errorMessage = getApiErrorMessage(error, "This is our problem, we are looking into it so as to serve you better");
 
   const welcomeName = overview?.parentName || user?.name || "";
 

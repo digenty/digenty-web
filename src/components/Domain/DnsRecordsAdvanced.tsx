@@ -136,7 +136,7 @@ export const DnsRecordsAdvanced = ({ purchaseId }: { purchaseId: string }) => {
       { purchaseId, recordId },
       {
         onSuccess: () => toast.success("Record deleted"),
-        onError: (err: unknown) => toast.error(getApiErrorMessage(err, "Could not delete the record. Please try again.")),
+        onError: (err: unknown) => toast.error("Could not delete the record", { description: getApiErrorMessage(err, "Please try again.") }),
       },
     );
   };

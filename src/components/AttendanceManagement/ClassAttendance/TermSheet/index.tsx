@@ -12,6 +12,7 @@ import { generateColumns } from "./TermSheetColumns";
 import { TermSheetHeader } from "./TermSheetHeader";
 import { ClassAttendanceWrapper } from "../ClassAttendanceWrapper";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export const TermSheet = () => {
   const path = usePathname();
@@ -51,7 +52,7 @@ export const TermSheet = () => {
         <div className="flex h-80 items-center justify-center pt-15">
           <ErrorComponent
             title="Could not get the Class' Term Sheet"
-            description={error?.message || "This is our problem, we are looking into it so as to serve you better"}
+            description={getApiErrorMessage(error, "This is our problem, we are looking into it so as to serve you better")}
             buttonText="Go to the Home page"
           />
         </div>

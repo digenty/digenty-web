@@ -14,6 +14,7 @@ import { canManageAdmissionManagement } from "@/lib/permissions/admission-manage
 import { AdmissonNewCycleSchema } from "@/schema/admission";
 import { useFormik } from "formik";
 import { toast } from "sonner";
+import { getApiErrorReason } from "@/lib/apiError";
 
 interface Props {
   open: boolean;
@@ -58,7 +59,7 @@ export const EditCycleModal = ({ open, setOpen, cycle }: Props) => {
             toast.success("Admission cycle updated");
             setOpen(false);
           },
-          onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to update admission cycle"),
+          onError: (error: unknown) => toast.error("Failed to update admission cycle", { description: getApiErrorReason(error) }),
         },
       );
     },

@@ -29,6 +29,7 @@ import { useGetMyParentProfile } from "@/hooks/queryHooks/useParent";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 import { PlusIcon } from "lucide-react";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type AccordionItem = { id: number; title: string; studentId?: number };
 
@@ -112,7 +113,7 @@ const StudentForm = ({
               onSaveSuccess(index);
             },
             onError: error => {
-              toast({ title: error.message ?? "Something went wrong", type: "error" });
+              toast({ title: "Could not update student", description: getApiErrorReason(error), type: "error" });
             },
           },
         );
@@ -134,7 +135,7 @@ const StudentForm = ({
               onSaveSuccess(index);
             },
             onError: error => {
-              toast({ title: error.message ?? "Something went wrong", type: "error" });
+              toast({ title: "Could not add student", description: getApiErrorReason(error), type: "error" });
             },
           },
         );

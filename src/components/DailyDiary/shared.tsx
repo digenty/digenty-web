@@ -1,6 +1,8 @@
 "use client";
 
 import { DiaryEntry, DiaryEntryType } from "@/api/diary";
+import { StatCard as SharedStatCard } from "@/components/StatCard";
+import { getApiErrorMessage } from "@/lib/apiError";
 import { cn } from "@/lib/utils";
 import { DIARY_ENTRY_TYPE_CONFIG } from "@/queries/diary";
 
@@ -83,13 +85,6 @@ export const sortEntries = <T extends Pick<DiaryEntry, "position">>(entries: T[]
 
 export type StatSwatch = "blue" | "green" | "amber" | "pink";
 
-const SWATCH: Record<StatSwatch, string> = {
-  blue: "border-border-blue bg-bg-badge-blue",
-  green: "border-border-green bg-bg-badge-green",
-  amber: "border-border-amber bg-bg-badge-amber",
-  pink: "border-border-pink bg-bg-badge-pink",
-};
-
 const ICON_SWATCH: Record<StatSwatch, string> = {
   blue: "bg-bg-basic-blue-subtle border-bg-basic-blue-accent",
   green: "bg-bg-basic-green-subtle border-bg-basic-green-accent",
@@ -98,19 +93,13 @@ const ICON_SWATCH: Record<StatSwatch, string> = {
 };
 
 export const StatCard = ({ label, value, swatch, Icon }: { label: string; value: string; swatch: StatSwatch; Icon?: () => React.ReactNode }) => (
-  <div className="border-border-default bg-bg-card flex flex-1 flex-col gap-4 rounded border p-4 md:p-6">
-    <div className="flex items-center gap-2">
-      {Icon ? (
-        <div className={cn("flex size-6 shrink-0 items-center justify-center rounded-xs border p-1", ICON_SWATCH[swatch])}>
-          <Icon />
-        </div>
-      ) : (
-        <span className={cn("size-[17px] shrink-0 rounded-sm border", SWATCH[swatch])} aria-hidden />
-      )}
-      <p className="text-text-muted text-xs leading-4 font-medium">{label}</p>
-    </div>
-    <p className="text-text-default text-2xl leading-8 font-medium">{value}</p>
-  </div>
+  <SharedStatCard
+    className="flex-1"
+    title={label}
+    value={value}
+    iconClassName={ICON_SWATCH[swatch]}
+    icon={<span className="flex size-3.5 items-center justify-center [&>svg]:size-full">{Icon ? <Icon /> : null}</span>}
+  />
 );
 
 export const ProgressBar = ({ value, total, tone = "bg-bg-basic-green-accent" }: { value: number; total: number; tone?: string }) => {
@@ -142,4 +131,4 @@ export const DiaryCardHeader = ({ title, description, action }: { title: string;
   </div>
 );
 
-export const getDiaryErrorMessage = (error: unknown) => (error as { message?: string })?.message ?? "Please try again.";
+export const getDiaryErrorMessage = (error: unknown) => getApiErrorMessage(error, "Please try again.");

@@ -1,6 +1,6 @@
 "use client";
 
-import { getErrorStateProps } from "@/lib/apiError";
+import { getErrorStateProps, getApiErrorReason } from "@/lib/apiError";
 import { Edit } from "@digenty/icons";
 import { Avatar } from "@/components/Avatar";
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -142,7 +142,7 @@ export const RoutingSheet = ({ feeItem, existingRoute, branchId }: RoutingSheetP
           if (created) setSelectedAccountId(created.id);
         },
         onError: (err: unknown) => {
-          toast.error((err as { message?: string })?.message ?? "Failed to add account");
+          toast.error("Failed to add account", { description: getApiErrorReason(err) });
         },
       },
     );
@@ -160,7 +160,7 @@ export const RoutingSheet = ({ feeItem, existingRoute, branchId }: RoutingSheetP
             setSheetOpen(false);
           },
           onError: (err: unknown) => {
-            toast.error((err as { message?: string })?.message ?? "Failed to update route");
+            toast.error("Failed to update route", { description: getApiErrorReason(err) });
           },
         },
       );
@@ -171,7 +171,7 @@ export const RoutingSheet = ({ feeItem, existingRoute, branchId }: RoutingSheetP
           setSheetOpen(false);
         },
         onError: (err: unknown) => {
-          toast.error((err as { message?: string })?.message ?? "Failed to create route");
+          toast.error("Failed to create route", { description: getApiErrorReason(err) });
         },
       });
     }

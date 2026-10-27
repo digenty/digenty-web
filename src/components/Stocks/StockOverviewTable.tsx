@@ -1,7 +1,7 @@
 "use client";
 
 import { useHasActiveSubscription } from "@/hooks/queryHooks/useSubscription";
-import { getRetryErrorProps } from "@/lib/apiError";
+import { getRetryErrorProps, getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 import { DeleteBin, Edit, Eye } from "@digenty/icons";
 import { Ellipsis } from "lucide-react";
 import Image from "next/image";
@@ -67,11 +67,11 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
   const activeQuery = statusFilter ? statusQ : categoryFilter ? categoryQ : searchQ;
   const { items, total } = useMemo(() => extractList(activeQuery.data), [activeQuery.data]);
 
-  const errorMessage = (activeQuery.error as { message?: string } | null)?.message ?? "Could not load stock";
+  const errorMessage = getApiErrorMessage(activeQuery.error, "Could not load stock");
 
   useEffect(() => {
     if (activeQuery.isError) {
-      toast({ title: errorMessage, type: "error" });
+      toast({ title: "Could not load stock", description: getApiErrorReason(activeQuery.error), type: "error" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeQuery.isError]);
@@ -86,8 +86,7 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
         setStockToDelete(null);
       },
       onError: (error: unknown) => {
-        const message = (error as { message?: string } | null)?.message ?? "Could not delete stock";
-        toast({ title: message, type: "error" });
+        toast({ title: "Could not delete stock", description: getApiErrorReason(error), type: "error" });
       },
     });
   };

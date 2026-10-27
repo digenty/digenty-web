@@ -23,7 +23,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import StatusBadge from "@/components/StatusBadge";
 import { Tooltip } from "@/components/Tooltip";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { getErrorStateProps } from "@/lib/apiError";
+import { getErrorStateProps, getApiErrorReason } from "@/lib/apiError";
 
 export const StudentProfile = () => {
   const pathname = usePathname();
@@ -66,8 +66,8 @@ export const StudentProfile = () => {
       },
       onError: error => {
         toast({
-          title: error.message ?? "Something went wrong",
-          description: "Could not withdraw selected students",
+          title: "Could not withdraw selected students",
+          description: getApiErrorReason(error),
           type: "error",
         });
         setOpenDelete(false);
@@ -88,8 +88,8 @@ export const StudentProfile = () => {
       },
       onError: error => {
         toast({
-          title: error.message ?? "Something went wrong",
-          description: "Could not delete selected students",
+          title: "Could not delete selected students",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },

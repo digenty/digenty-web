@@ -12,6 +12,7 @@ import { useAddSubmission, useGetSubmissionDeadline, useUpdateSubmissionDeadline
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useEffect, useState } from "react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 interface TermDeadlineState {
   openDate: Date | undefined;
@@ -159,7 +160,7 @@ export const Submission = () => {
     };
 
     const onError = (error: unknown) => {
-      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
       toast({
         title: `Failed to ${hasExistingDeadlines ? "update" : "save"} submission deadlines`,
         description: message,

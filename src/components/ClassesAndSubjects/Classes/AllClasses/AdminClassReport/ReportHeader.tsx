@@ -23,6 +23,7 @@ import { ReturnModal } from "./ClassReportModal";
 import { toast } from "@/components/Toast";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const ReportHeader = ({
   termSelected,
@@ -77,7 +78,7 @@ export const ReportHeader = ({
         onError: error => {
           toast({
             title: "Failed to approve result",
-            description: error?.message || "Failed to approve result",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
@@ -101,7 +102,7 @@ export const ReportHeader = ({
         onError: error => {
           toast({
             title: "Failed to return result",
-            description: error?.message || "Failed to return result",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
