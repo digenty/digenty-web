@@ -20,6 +20,7 @@ import { toast } from "@/components/Toast";
 import { useDeleteInvoice, useDeleteInvoices, useSendInvoiceReminder } from "@/hooks/queryHooks/useInvoice";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canDeleteInvoices, canManageInvoices } from "@/lib/permissions/invoices";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type InvoiceOverviewTableTableProps = {
   invoices: InvoicesOverviewTableProps[];
@@ -50,8 +51,7 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
         setSelectedInvoiceId(null);
       },
       onError: (error: unknown) => {
-        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-        toast({ title: "Failed to send reminder", description, type: "error" });
+        toast({ title: "Failed to send reminder", description: getApiErrorReason(error), type: "error" });
       },
     });
   };
@@ -63,8 +63,7 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
         setSelectedInvoiceId(null);
       },
       onError: (error: unknown) => {
-        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-        toast({ title: "Failed to delete invoice", description, type: "error" });
+        toast({ title: "Failed to delete invoice", description: getApiErrorReason(error), type: "error" });
       },
     });
   };
@@ -93,8 +92,7 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
         setRowSelection({});
       },
       onError: (error: unknown) => {
-        const description = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-        toast({ title: "Failed to delete invoices", description, type: "error" });
+        toast({ title: "Failed to delete invoices", description: getApiErrorReason(error), type: "error" });
         closeBulkDelete(false);
       },
     });

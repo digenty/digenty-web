@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "@/components/Toast";
 import { useVerifySubscription } from "@/hooks/queryHooks/useSubscription";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export const SubscriptionVerify = () => {
   useBreadcrumb([
@@ -44,8 +45,7 @@ export const SubscriptionVerify = () => {
   }
 
   if (isError) {
-    const message =
-      error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : "Payment verification failed.";
+    const message = getApiErrorMessage(error, "Payment verification failed.");
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-20">
         <p className="text-text-default text-sm font-medium">{message}</p>

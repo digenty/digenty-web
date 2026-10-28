@@ -12,6 +12,7 @@ import { useDeleteClass } from "@/hooks/queryHooks/useClass";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { canManageSettings } from "@/lib/permissions/settings";
 import React, { useState } from "react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 interface DeleteClassProps {
   setOpenDeleteModal: (open: boolean) => void;
@@ -37,7 +38,7 @@ export const DeleteClass = ({ setOpenDeleteModal, open, classId }: DeleteClassPr
       onError: error => {
         toast({
           title: "Failed to delete class",
-          description: error?.message || "Could not delete class",
+          description: getApiErrorMessage(error, "Could not delete class"),
           type: "error",
         });
       },

@@ -15,8 +15,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { SignatureReminder } from "../SignatureReminder";
 import { MidtermReportView } from "./MidtermReportView";
-
-const errorMessage = (error: unknown, fallback: string) => (error as { message?: string } | null)?.message || fallback;
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export const MidtermReportScreen = () => {
   const { armId: armIdParam } = useParams<{ armId: string }>();
@@ -98,7 +97,7 @@ export const MidtermReportScreen = () => {
         <div className="flex h-80 items-center justify-center">
           <ErrorComponent
             title="Mid-term report unavailable"
-            description={errorMessage(error, "This is our problem, we are looking into it so as to serve you better")}
+            description={getApiErrorMessage(error, "This is our problem, we are looking into it so as to serve you better")}
           />
         </div>
       )}
@@ -160,7 +159,9 @@ export const MidtermReportScreen = () => {
       {activeStudentId && (
         <div className="max-w-[678px]">
           {isLoadingReport && <Skeleton className="bg-bg-input-soft h-screen w-full" />}
-          {isErrorReport && <ErrorComponent title="Could not get mid-term report" description={errorMessage(reportError, "Please try again")} />}
+          {isErrorReport && (
+            <ErrorComponent title="Could not get mid-term report" description={getApiErrorMessage(reportError, "Please try again")} />
+          )}
           {reportData?.data && (
             <>
               {!reportData.data.published && (

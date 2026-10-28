@@ -1,6 +1,6 @@
 "use client";
 
-import { getRetryErrorProps } from "@/lib/apiError";
+import { getRetryErrorProps, getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 import { AddFill, DeleteBin } from "@digenty/icons";
 import { getStatusBadge } from "@/components/Status";
 import { Badge } from "@/components/ui/badge";
@@ -37,10 +37,10 @@ export const ClassFeeDetail = () => {
 
   const { data: items = [], isPending, isError, error, refetch } = useGetFeeItems({ classId });
   const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
-  const errorMessage = (error as { message?: string } | null)?.message ?? "Could not load fees for this class.";
+  const errorMessage = getApiErrorMessage(error, "Could not load fees for this class.");
 
   useEffect(() => {
-    if (isError) toast.error(errorMessage);
+    if (isError) toast.error("Could not load fees for this class", { description: getApiErrorReason(error) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isError]);
 
@@ -55,7 +55,7 @@ export const ClassFeeDetail = () => {
   const handleDelete = (feeItemId: number) => {
     deleteFeeItem(feeItemId, {
       onSuccess: () => toast.success("Fee removed from class"),
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to remove fee"),
+      onError: (error: unknown) => toast.error("Failed to remove fee", { description: getApiErrorReason(error) }),
     });
   };
 

@@ -27,6 +27,13 @@ import { Country } from "@/components/StudentAndParent/types";
 import { Branch, BranchWithClassLevels } from "@/api/types";
 import { Avatar } from "@/components/Avatar";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
+import { getApiErrorReason } from "@/lib/apiError";
+
+// An empty phone field must be omitted; Number("") would send 0 and the backend rejects it.
+const toPhonePayload = (value: string | number) => {
+  const trimmed = String(value ?? "").trim();
+  return trimmed ? Number(trimmed) : undefined;
+};
 
 type EditProps = "editName" | "editSchoolName" | "motto" | "editPhoneNum" | "editBranch" | "newBranch" | null;
 
@@ -98,7 +105,7 @@ export const General = () => {
     firstName,
     lastName,
     motto,
-    phoneNumber: Number(phoneNumber),
+    phoneNumber: toPhonePayload(phoneNumber),
     country: countryName,
     currency,
     timezone,
@@ -118,8 +125,8 @@ export const General = () => {
         toast({ title: "Saved", description: "Settings updated.", type: "success" });
         setEdit(null);
       },
-      onError: () => {
-        toast({ title: "Error", description: "Could not save changes.", type: "error" });
+      onError: error => {
+        toast({ title: "Could not save changes", description: getApiErrorReason(error), type: "error" });
       },
     });
   };
@@ -133,8 +140,8 @@ export const General = () => {
             toast({ title: "Saved", description: "Branch updated.", type: "success" });
             resetBranchForm();
           },
-          onError: () => {
-            toast({ title: "Error", description: "Could not update branch.", type: "error" });
+          onError: error => {
+            toast({ title: "Could not update branch", description: getApiErrorReason(error), type: "error" });
           },
         },
       );
@@ -149,8 +156,8 @@ export const General = () => {
             setBranchList([...branchList, data.data[0].branch]);
             resetBranchForm();
           },
-          onError: () => {
-            toast({ title: "Error", description: "Could not add branch.", type: "error" });
+          onError: error => {
+            toast({ title: "Could not add branch", description: getApiErrorReason(error), type: "error" });
           },
         },
       );
@@ -433,7 +440,7 @@ export const General = () => {
                   </Button>
                   <Button
                     className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-                    onClick={() => handleSaveSchool({ phoneNumber: Number(phoneNumber) })}
+                    onClick={() => handleSaveSchool({ phoneNumber: toPhonePayload(phoneNumber) })}
                     disabled={isSavingSchool}
                   >
                     {isSavingSchool && <Spinner className="text-text-white-default size-3" />} Save

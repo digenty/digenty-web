@@ -13,6 +13,7 @@ import { Avatar } from "@/components/Avatar";
 import { Pencil } from "lucide-react";
 import { FirstAidKit, Flag, Mail, MapPin, Phone } from "@digenty/icons";
 import { EditStudentBiodata } from "./EditBio/editStudent";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 const ViewBiodata = ({ onEdit, student }: { onEdit: () => void; student: { data: Student } }) => (
   <div className="bg-bg-muted rounded-xl p-4">
@@ -152,7 +153,7 @@ export const StudentBioData = ({ selectedStudentId }: StudentBioDataProps) => {
   const linkedStudent = parentData?.data?.linkedStudents?.find((s: Parent["linkedStudents"][number]) => s.id === selectedStudentId);
   const { data: studentData, isLoading, isError, error } = useGetStudent(linkedStudent?.id);
   const student = studentData;
-  const errorMessage = (error as { message?: string } | null)?.message ?? "This is our problem, we are looking into it so as to serve you better";
+  const errorMessage = getApiErrorMessage(error, "This is our problem, we are looking into it so as to serve you better");
 
   return (
     <div>

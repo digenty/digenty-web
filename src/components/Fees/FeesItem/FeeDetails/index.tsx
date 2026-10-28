@@ -1,6 +1,6 @@
 "use client";
 
-import { getRetryErrorProps } from "@/lib/apiError";
+import { getRetryErrorProps, getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 import { DeleteBin, Edit, SendPlaneFill } from "@digenty/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,10 +29,10 @@ export const FeeItemDetail = () => {
   const item = data as FeeItemDetailResponse | undefined;
   const { mutate: deleteFeeItem, isPending: deleting } = useDeleteFeeItem();
   const { mutate: duplicateFeeItem, isPending: duplicating } = useDuplicateFeeItem();
-  const errorMessage = (error as { message?: string } | null)?.message ?? "Failed to load fee item details. Please try again.";
+  const errorMessage = getApiErrorMessage(error, "Failed to load fee item details. Please try again.");
 
   useEffect(() => {
-    if (isError) toast.error(errorMessage);
+    if (isError) toast.error("Failed to load fee item details", { description: getApiErrorReason(error) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isError]);
 
@@ -53,7 +53,7 @@ export const FeeItemDetail = () => {
         }
         setJustPublished(true);
       },
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to publish fee"),
+      onError: (error: unknown) => toast.error("Failed to publish fee", { description: getApiErrorReason(error) }),
     });
   };
 
@@ -69,7 +69,7 @@ export const FeeItemDetail = () => {
         toast.success("Fee item deleted");
         router.push("/staff/fees?tab=Fee Items");
       },
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to delete fee item"),
+      onError: (error: unknown) => toast.error("Failed to delete fee item", { description: getApiErrorReason(error) }),
     });
   };
 
@@ -163,7 +163,7 @@ export const FeeItemDetail = () => {
                     toast.success("Fee item duplicated");
                     router.push(`/staff/fees/fee-item/${result.feeItemId}`);
                   },
-                  onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to duplicate fee item"),
+                  onError: (error: unknown) => toast.error("Failed to duplicate fee item", { description: getApiErrorReason(error) }),
                 })
               }
             >

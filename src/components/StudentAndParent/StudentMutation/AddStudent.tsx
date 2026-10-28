@@ -22,6 +22,7 @@ import { ProfilePicture } from "../ProfilePicture";
 import { Tags } from "./Tags";
 import { useGetAdmissionNumberDetails } from "@/hooks/queryHooks/useAdmisssion";
 import { formatToDynamicRegex } from "@/lib/utils";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const AddStudent = () => {
   const router = useRouter();
@@ -126,8 +127,8 @@ export const AddStudent = () => {
         onError: error => {
           applyConflictFieldError(error, formik.setFieldError);
           toast({
-            title: error.message ?? "Something went wrong",
-            description: "Could not add student",
+            title: "Could not add student",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

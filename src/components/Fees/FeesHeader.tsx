@@ -201,10 +201,10 @@ export const FeesHeader = ({
         </DrawerFooter>
       </MobileDrawer>
 
-      <div className="flex w-full justify-between align-middle">
-        <h2 className="text-text-default text-xl font-semibold">{title}</h2>
+      <div className="flex w-full items-center justify-between gap-4">
+        <h2 className="text-text-default text-base font-semibold md:text-lg">{title}</h2>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
             {/* {showToggle && <Toggle />} */}
 
@@ -323,7 +323,7 @@ export const FeesHeader = ({
         <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center">
           {showSearch && (
             <SearchInput
-              className="bg-bg-input-soft! w-full rounded-md border-none md:w-71"
+              className="bg-bg-input-soft! w-full rounded-xl border-none md:w-80"
               value={search}
               onChange={e => onSearchChange?.(e.target.value)}
             />

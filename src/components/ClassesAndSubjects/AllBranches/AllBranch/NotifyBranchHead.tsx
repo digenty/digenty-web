@@ -16,6 +16,7 @@ import { notifyBranchHeadSchema } from "@/schema/notification";
 import { useFormik } from "formik";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type NotifyBranchHeadProps = {
   open: boolean;
@@ -40,7 +41,7 @@ export const NotifyBranchHead = ({ open, setOpen, branchHeadId }: NotifyBranchHe
             setOpen(false);
           },
           onError: error => {
-            toast({ title: error.message ?? "Something went wrong", description: "Could not send notification.", type: "error" });
+            toast({ title: "Could not send notification", description: getApiErrorReason(error), type: "error" });
           },
         },
       );

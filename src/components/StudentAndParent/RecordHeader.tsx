@@ -50,7 +50,16 @@ export const RecordHeader = ({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
 
-  const { branchIds: assignedBranchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
+  const { branchIds: assignedBranchIds, isMain, isAdmin, adminBranchIds, permissions } = useLoggedInUser();
+  const canManage = canManageStudentParentRecords(permissions);
+  const subtitle =
+    tab === "Parents"
+      ? canManage
+        ? "View and manage parent and guardian records."
+        : "View parent and guardian records."
+      : canManage
+        ? "Browse, filter and manage student records."
+        : "Browse and filter student records.";
   const hasFullAccess = isMain || isAdmin || (adminBranchIds?.length ?? 0) > 0;
   const userBranchIds = useMemo(() => assignedBranchIds ?? [], [assignedBranchIds]);
   const restrictToAssignedBranches = !hasFullAccess && userBranchIds.length > 0;
@@ -67,17 +76,20 @@ export const RecordHeader = ({
 
   return (
     <div>
-      <div className="flex w-full justify-between align-middle">
-        <div className="flex items-center gap-2">
-          <h2 className="text-text-default text-lg font-semibold md:text-2xl">{tab === "Parents" ? "Parents" : "Students"}</h2>
-          {tab === "Parents" && (
-            <div className="bg-bg-badge-cyan border-border-default text-bg-basic-cyan-strong flex h-5 w-7 items-center justify-center rounded-md border text-xs">
-              {totalParents}
-            </div>
-          )}
+      <div className="flex w-full items-center justify-between gap-4">
+        <div className="min-w-0 space-y-1">
+          <div className="flex items-center gap-2">
+            <h2 className="text-text-default text-xl font-semibold tracking-tight md:text-2xl">{tab === "Parents" ? "Parents" : "Students"}</h2>
+            {tab === "Parents" && (
+              <div className="bg-bg-badge-cyan border-border-default text-bg-basic-cyan-strong flex h-5 min-w-7 items-center justify-center rounded-full border px-2 text-xs font-medium">
+                {totalParents}
+              </div>
+            )}
+          </div>
+          <p className="text-text-muted text-xs md:text-sm">{subtitle}</p>
         </div>
 
-        <div className="hidden gap-2 align-middle md:flex">
+        <div className="hidden items-center gap-2 md:flex">
           {!visibleBranches || loadingBranches ? (
             <Skeleton className="bg-bg-input-soft h-8 w-32" />
           ) : (

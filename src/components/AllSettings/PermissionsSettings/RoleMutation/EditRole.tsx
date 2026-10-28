@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { ModulePermission } from "./ModulePermission";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const EditRoleSettings = () => {
   const router = useRouter();
@@ -50,8 +51,8 @@ export const EditRoleSettings = () => {
           },
           onError: error => {
             toast({
-              title: error.message ?? "Something went wrong",
-              description: "Could not update role",
+              title: "Could not update role",
+              description: getApiErrorReason(error),
               type: "error",
             });
           },

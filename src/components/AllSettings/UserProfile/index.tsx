@@ -22,6 +22,7 @@ import { Country } from "@/components/StudentAndParent/types";
 import { useGetCountries } from "@/hooks/queryHooks/useCountry";
 import { ChangePasswordDialog } from "../SecuritySettings/ChangePasswordDialog";
 import { SignatureSection } from "./SignatureSection";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type Timezone = {
   abbreviation: string;
@@ -141,7 +142,7 @@ export const UserProfile = () => {
           { image: data.url, firstName, middleName, lastName, phoneNumber, timezone: timeZone, signature: profileData?.signature || undefined },
           {
             onSuccess: () => toast({ title: "Avatar updated", description: "Your profile picture has been updated.", type: "success" }),
-            onError: () => toast({ title: "Failed to update", description: "Could not update profile picture.", type: "error" }),
+            onError: error => toast({ title: "Could not update profile picture", description: getApiErrorReason(error), type: "error" }),
           },
         );
       }
@@ -161,8 +162,8 @@ export const UserProfile = () => {
       },
       onError: error => {
         toast({
-          title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-          description: "Could not send OTP",
+          title: "Could not send OTP",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },
@@ -174,7 +175,7 @@ export const UserProfile = () => {
       { image, firstName, middleName, lastName, phoneNumber, timezone: timeZone, signature: url },
       {
         onSuccess: () => toast({ title: "Signature saved", description: "Your signature will appear on your report cards.", type: "success" }),
-        onError: () => toast({ title: "Failed to save", description: "Could not save your signature.", type: "error" }),
+        onError: error => toast({ title: "Could not save your signature", description: getApiErrorReason(error), type: "error" }),
       },
     );
   };
@@ -187,7 +188,7 @@ export const UserProfile = () => {
           toast({ title: "Saved", description: "Profile updated successfully.", type: "success" });
           setEdit(null);
         },
-        onError: () => toast({ title: "Failed to save", description: "Could not update your profile.", type: "error" }),
+        onError: error => toast({ title: "Could not update your profile", description: getApiErrorReason(error), type: "error" }),
       },
     );
   };

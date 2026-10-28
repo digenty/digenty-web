@@ -20,6 +20,7 @@ import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
 import { Country, ParentInputValues, State } from "@/components/StudentAndParent/types";
 import { toast } from "@/components/Toast";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
   const router = useRouter();
@@ -73,8 +74,8 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
           onError: error => {
             applyConflictFieldError(error, formik.setFieldError);
             toast({
-              title: error.message ?? "Something went wrong",
-              description: "Could not add parent",
+              title: "Could not add parent",
+              description: getApiErrorReason(error),
               type: "error",
             });
           },
@@ -95,8 +96,8 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
             onError: error => {
               applyConflictFieldError(error, formik.setFieldError);
               toast({
-                title: error.message ?? "Something went wrong",
-                description: "Could not update parent",
+                title: "Could not update parent",
+                description: getApiErrorReason(error),
                 type: "error",
               });
             },

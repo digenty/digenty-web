@@ -16,12 +16,21 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+};
+
 export default function DashboardHeader({
+  userName,
   branchSelected,
   setBranchSelected,
   termSelected,
   setTermSelected,
 }: {
+  userName?: string;
   branchSelected: Branch | null;
   setBranchSelected: React.Dispatch<React.SetStateAction<Branch | null>>;
   termSelected: Term | null;
@@ -50,10 +59,16 @@ export default function DashboardHeader({
 
   return (
     <div>
-      <div className="flex w-full justify-between align-middle">
-        <h2 className="text-text-default text-lg font-semibold md:text-2xl">Overview</h2>
+      <div className="flex w-full items-center justify-between gap-4">
+        <div className="min-w-0 space-y-1">
+          <h2 className="text-text-default truncate text-xl font-semibold tracking-tight md:text-2xl">
+            {getGreeting()}
+            {userName ? `, ${userName.split(" ")[0]}` : ""}
+          </h2>
+          <p className="text-text-muted text-xs md:text-sm">Here&apos;s what&apos;s happening at your school.</p>
+        </div>
 
-        <div className="hidden gap-1 align-middle md:flex">
+        <div className="hidden items-center gap-2 md:flex">
           {!terms || loadingTerms ? (
             <Skeleton className="bg-bg-input-soft h-8 w-[140px]" />
           ) : (

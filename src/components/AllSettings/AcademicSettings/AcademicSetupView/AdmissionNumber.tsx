@@ -15,6 +15,7 @@ import { useGetAdmissionNumberDetails, useUpdateAdmissionNumber } from "@/hooks/
 import { canManageSettings } from "@/lib/permissions/settings";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 const DIGITS = [2, 3, 4];
 
@@ -93,7 +94,7 @@ export const AdmissionNumberSetupDone = () => {
       toast({ title: "Admission number updated", description: "Your admission number format has been saved.", type: "success" });
       setIsEditing(false);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
 
       toast({
         title: "Failed to update",

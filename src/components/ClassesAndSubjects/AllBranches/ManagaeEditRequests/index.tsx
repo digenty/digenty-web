@@ -4,7 +4,7 @@ import { EditRequestResponseTypes } from "@/api/types";
 import { BackButton } from "@/components/BackButton";
 import { DataTable } from "@/components/DataTable";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
-import { getErrorStateProps } from "@/lib/apiError";
+import { getErrorStateProps, getApiErrorReason } from "@/lib/apiError";
 import { SearchInput } from "@/components/SearchInput";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -83,8 +83,8 @@ export const ManageEditRequest = () => {
         },
         onError: error => {
           toast({
-            title: "Error",
-            description: error?.message || `Failed to ${isApproved ? "approve" : "reject"} request`,
+            title: `Failed to ${isApproved ? "approve" : "reject"} request`,
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
@@ -125,8 +125,8 @@ export const ManageEditRequest = () => {
         onError: error => {
           setBulkAction(null);
           toast({
-            title: "Error",
-            description: error?.message || "Failed to approve requests",
+            title: "Failed to approve requests",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
@@ -162,8 +162,8 @@ export const ManageEditRequest = () => {
         onError: error => {
           setBulkAction(null);
           toast({
-            title: "Error",
-            description: error?.message || "Failed to reject requests",
+            title: "Failed to reject requests",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

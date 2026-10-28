@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { ChevronRight } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -19,48 +20,50 @@ export const MyClasses = ({ isLoading, classes }: ClassProps) => {
   const uniqueClasses = classes?.filter((cl, index, self) => index === self.findIndex(c => c.armId === cl.armId));
 
   return (
-    <div className="">
-      <div className="flex-start bg-bg-muted flex w-full flex-col gap-1.5 rounded-lg pt-1 pr-1 pb-2 pl-1 md:max-w-219 md:gap-3 md:pt-1 md:pr-3 md:pb-3 md:pl-3">
-        <h2 className="text-text-default px-6 pt-1.5 text-base font-semibold md:px-5 md:pt-3">My Classes</h2>
-        {isLoading ? (
-          <div className="flex flex-col gap-6">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="bg-bg-input-soft h-30 w-full md:max-w-219" />
-            ))}
-          </div>
-        ) : (
-          <>
-            <ul className="bg-bg-card border-border-default w-full rounded-sm border shadow-sm md:max-w-213">
-              {uniqueClasses?.map(cl => {
-                return (
-                  <div key={cl.armId} className="border-border-default border-b">
-                    <div className="flex flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:justify-between md:gap-2 md:p-2 md:px-6 md:py-5">
-                      <div className="flex flex-col gap-1 md:gap-2">
-                        <p className="text-text-default text-md font-semibold">{cl.classArmName}</p>
-                      </div>
-
-                      <div>
-                        <Button
-                          // onClick={() => router.push(`/staff/classes-and-subjects/classes/${cl.armId}`)}
-                          // am doin this cuz i wan the classArmName on the nested page , if there is a better way ?
-                          onClick={() =>
-                            router.push(
-                              `/staff/classes-and-subjects/classes/overview/${cl.armId}?classArmName=${cl.classArmName.replaceAll(" ", "-")}`,
-                            )
-                          }
-                          className="bg-bg-state-primary hover:bg-bg-state-primary/90! text-text-white-default h-7 w-24 rounded-md px-2 py-1"
-                        >
-                          View Class
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </ul>
-          </>
+    <section className="space-y-3">
+      <div className="flex items-center gap-2">
+        <h2 className="text-text-default text-base font-semibold md:text-lg">My Classes</h2>
+        {!isLoading && (
+          <span className="bg-bg-state-soft text-text-muted flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium">
+            {uniqueClasses?.length ?? 0}
+          </span>
         )}
       </div>
-    </div>
+
+      {isLoading ? (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="bg-bg-input-soft h-20 w-full rounded-xl" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {uniqueClasses?.map(cl => (
+            <div
+              key={cl.armId}
+              className="border-border-default bg-bg-default shadow-light hover:border-border-darker group flex items-center justify-between gap-3 rounded-xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="bg-bg-basic-sky-subtle border-bg-basic-sky-accent text-text-default flex size-10 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold">
+                  {cl.classArmName.trim().charAt(0).toUpperCase()}
+                </span>
+                <p className="text-text-default text-md truncate font-semibold">{cl.classArmName}</p>
+              </div>
+
+              <Button
+                // The class arm name is passed as a query param so the nested page can show it without refetching.
+                onClick={() =>
+                  router.push(`/staff/classes-and-subjects/classes/overview/${cl.armId}?classArmName=${cl.classArmName.replaceAll(" ", "-")}`)
+                }
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 shrink-0 gap-1 rounded-lg px-3"
+              >
+                View Class
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 };

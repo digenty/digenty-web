@@ -18,6 +18,7 @@ import { EditInvoiceHeader } from "./EditInvoiceHeader";
 import { EditInvoiceItem } from "./EditInvoiceItems/EditInvoiceItem";
 import { EditStatus } from "./EditInvoiceStatus";
 import { InvoiceFormValues } from "../NewInvoice/context";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const EditInvoice = () => {
   const router = useRouter();
@@ -77,9 +78,7 @@ export const EditInvoice = () => {
             router.push(`/staff/invoices/${invoiceId}`);
           },
           onError: (error: unknown) => {
-            const description =
-              error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-            toast({ title: "Failed to update invoice", description, type: "error" });
+            toast({ title: "Failed to update invoice", description: getApiErrorReason(error), type: "error" });
           },
         },
       );

@@ -35,6 +35,7 @@ import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as yup from "yup";
 import { AssignArmsToDepartments } from "./AssignArmsToDepartments";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 const DepartmentSubjectsSection = ({
   dept,
@@ -78,7 +79,7 @@ const DepartmentSubjectsSection = ({
         onError: error => {
           toast({
             title: "Failed to add subjects",
-            description: (error as { message?: string })?.message || `Could not add subjects to ${dept.name}`,
+            description: getApiErrorMessage(error, `Could not add subjects to ${dept.name}`),
             type: "error",
           });
         },
@@ -104,7 +105,7 @@ const DepartmentSubjectsSection = ({
           setDeletingSubject(null);
           toast({
             title: "Failed to remove subject",
-            description: (error as { message?: string })?.message || `Could not remove "${subjectToRemove}"`,
+            description: getApiErrorMessage(error, `Could not remove "${subjectToRemove}"`),
             type: "error",
           });
         },
@@ -281,7 +282,7 @@ export const ClassEditSheet = ({
             onError: error => {
               toast({
                 title: "Failed to update class",
-                description: (error as { message?: string })?.message || "Could not update class",
+                description: getApiErrorMessage(error, "Could not update class"),
                 type: "error",
               });
             },
@@ -315,7 +316,7 @@ export const ClassEditSheet = ({
         onError: error => {
           toast({
             title: "Failed to add subjects",
-            description: (error as { message?: string })?.message || `Could not add subjects`,
+            description: getApiErrorMessage(error, `Could not add subjects`),
             type: "error",
           });
         },
@@ -344,7 +345,7 @@ export const ClassEditSheet = ({
           setDeletingSubjectName(null);
           toast({
             title: "Failed to delete subject",
-            description: (error as { message?: string })?.message || `Could not delete "${subjectToRemove}"`,
+            description: getApiErrorMessage(error, `Could not delete "${subjectToRemove}"`),
             type: "error",
           });
         },
@@ -370,7 +371,7 @@ export const ClassEditSheet = ({
           toast({ title: "Arms added", description: `Arm(s) have been added successfully`, type: "success" });
         },
         onError: error => {
-          toast({ title: "Failed to add arms", description: (error as { message?: string })?.message || `Could not add arms`, type: "error" });
+          toast({ title: "Failed to add arms", description: getApiErrorMessage(error, `Could not add arms`), type: "error" });
         },
       },
     );
@@ -398,7 +399,7 @@ export const ClassEditSheet = ({
             setDeletingArmName(null);
             toast({
               title: "Failed to delete arm",
-              description: (error as { message?: string })?.message || `Could not delete "${armToRemove}"`,
+              description: getApiErrorMessage(error, `Could not delete "${armToRemove}"`),
               type: "error",
             });
           },
@@ -429,7 +430,7 @@ export const ClassEditSheet = ({
         onError: error => {
           toast({
             title: "Failed to add department",
-            description: (error as { message?: string })?.message || "Could not add departments",
+            description: getApiErrorMessage(error, "Could not add departments"),
             type: "error",
           });
         },
@@ -454,7 +455,7 @@ export const ClassEditSheet = ({
           setDeletingDepartmentName(null);
           toast({
             title: "Failed to delete department",
-            description: (error as { message?: string })?.message || `Could not delete "${departmentToRemove}"`,
+            description: getApiErrorMessage(error, `Could not delete "${departmentToRemove}"`),
             type: "error",
           });
         },

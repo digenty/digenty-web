@@ -31,6 +31,7 @@ import { format, parseISO } from "date-fns";
 import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 export type SchoolStructureHandle = {
   submit: () => Promise<boolean>;
@@ -176,7 +177,7 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
             onError: error => {
               toast({
                 title: "Failed to update academic session",
-                description: error?.message || "Something went wrong. Please try again.",
+                description: getApiErrorMessage(error, "Something went wrong. Please try again."),
                 type: "error",
               });
             },
@@ -193,7 +194,7 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
           onError: error => {
             toast({
               title: "Failed to save school structure",
-              description: error?.message || "Something went wrong. Please try again.",
+              description: getApiErrorMessage(error, "Something went wrong. Please try again."),
               type: "error",
             });
           },
@@ -273,7 +274,7 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
       await refetchBranches();
       toast({ title: "Levels updated", description: `Levels updated for ${branch.branch.name}.`, type: "success" });
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
       toast({ title: "Failed to update levels", description: message, type: "error" });
     }
   };
@@ -318,7 +319,7 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
     } catch (error: unknown) {
       updateNewBranch(id, "isSubmitting", false);
 
-      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
       toast({ title: "Failed to create branch", description: message, type: "error" });
     }
   };

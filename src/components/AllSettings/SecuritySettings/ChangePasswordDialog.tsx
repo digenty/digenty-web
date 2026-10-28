@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { deleteSession } from "@/app/actions/auth";
+import { logout as logoutSession } from "@/lib/session-client";
 import { useChangePassword, useOtpCountdown, useSendChangePasswordOtp, useVerifyChangePasswordOtp } from "@/hooks/queryHooks/useAuth";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const DIGITS = 6;
 
@@ -104,8 +105,8 @@ const VerifyOtpStep = ({ onVerified }: { onVerified: () => void }) => {
         },
         onError: error => {
           toast({
-            title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-            description: "Could not verify OTP",
+            title: "Could not verify OTP",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
@@ -121,8 +122,8 @@ const VerifyOtpStep = ({ onVerified }: { onVerified: () => void }) => {
       },
       onError: error => {
         toast({
-          title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-          description: "Could not resend OTP",
+          title: "Could not resend OTP",
+          description: getApiErrorReason(error),
           type: "error",
         });
       },
@@ -196,8 +197,8 @@ const ChangePasswordStep = ({ onSuccess }: { onSuccess: () => void }) => {
         onSuccess: () => onSuccess(),
         onError: error => {
           toast({
-            title: typeof error === "string" ? error : (error?.message ?? "Something went wrong"),
-            description: "Could not change password",
+            title: "Could not change password",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },
@@ -327,7 +328,7 @@ const SuccessStep = () => {
   const handleBackToLogin = async () => {
     setIsPending(true);
     queryClient.clear();
-    await deleteSession();
+    await logoutSession();
   };
 
   return (

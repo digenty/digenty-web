@@ -36,6 +36,7 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import * as yup from "yup";
 import { AssignArmsToDepartments } from "./AssignArmsToDepartments";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 const startclasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 const endClasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
@@ -191,7 +192,7 @@ const DepartmentSubjectsSection = ({
         onError: error => {
           toast({
             title: "Failed to add subjects",
-            description: (error as { message?: string })?.message || "Could not add subjects",
+            description: getApiErrorMessage(error, "Could not add subjects"),
             type: "error",
           });
         },
@@ -214,7 +215,7 @@ const DepartmentSubjectsSection = ({
           setDeletingSubjectName(null);
           toast({
             title: "Failed to remove subject",
-            description: (error as { message?: string })?.message || "Could not remove subject",
+            description: getApiErrorMessage(error, "Could not remove subject"),
             type: "error",
           });
         },
@@ -384,7 +385,7 @@ export const ClassQuickSetupSheet = ({
             toast({ title: "Level updated successfully", description: "The level has been updated", type: "success" });
           },
           onError: error => {
-            toast({ title: "Failed to update level", description: error?.message || "Could not update level", type: "error" });
+            toast({ title: "Failed to update level", description: getApiErrorMessage(error, "Could not update level"), type: "error" });
           },
         },
       );
@@ -406,7 +407,7 @@ export const ClassQuickSetupSheet = ({
         onError: error => {
           toast({
             title: "Failed to add subjects",
-            description: (error as { message?: string })?.message || "Could not add subjects",
+            description: getApiErrorMessage(error, "Could not add subjects"),
             type: "error",
           });
         },
@@ -430,7 +431,7 @@ export const ClassQuickSetupSheet = ({
           setDeletingSubjectName(null);
           toast({
             title: "Failed to remove subject",
-            description: (error as { message?: string })?.message || "Could not remove subject",
+            description: getApiErrorMessage(error, "Could not remove subject"),
             type: "error",
           });
         },
@@ -449,7 +450,7 @@ export const ClassQuickSetupSheet = ({
           toast({ title: "Arm(s) added", description: "Arms have been updated successfully", type: "success" });
         },
         onError: error => {
-          toast({ title: "Failed to add arms", description: (error as { message?: string })?.message || "Could not add arms", type: "error" });
+          toast({ title: "Failed to add arms", description: getApiErrorMessage(error, "Could not add arms"), type: "error" });
         },
       },
     );
@@ -467,7 +468,7 @@ export const ClassQuickSetupSheet = ({
         },
         onError: error => {
           setDeletingArmName(null);
-          toast({ title: "Failed to remove arm", description: (error as { message?: string })?.message || "Could not remove arm", type: "error" });
+          toast({ title: "Failed to remove arm", description: getApiErrorMessage(error, "Could not remove arm"), type: "error" });
         },
       },
     );
@@ -487,7 +488,7 @@ export const ClassQuickSetupSheet = ({
         onError: error => {
           toast({
             title: "Failed to add departments",
-            description: (error as { message?: string })?.message || "Could not add departments",
+            description: getApiErrorMessage(error, "Could not add departments"),
             type: "error",
           });
         },
@@ -511,7 +512,7 @@ export const ClassQuickSetupSheet = ({
           setDeletingDepartmentName(null);
           toast({
             title: "Failed to remove department",
-            description: (error as { message?: string })?.message || "Could not remove department",
+            description: getApiErrorMessage(error, "Could not remove department"),
             type: "error",
           });
         },
@@ -664,7 +665,7 @@ export const ClassQuickSetupSheet = ({
                           setDepartmentsEnabled(!enable);
                           toast({
                             title: "Failed to update departments",
-                            description: (error as { message?: string })?.message || "Could not update department setting",
+                            description: getApiErrorMessage(error, "Could not update department setting"),
                             type: "error",
                           });
                         },

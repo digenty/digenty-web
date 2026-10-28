@@ -24,6 +24,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { InvoiceSettingsResponse, ResetRule, UpdateInvoiceSettingsPayload } from "@/api/invoice";
 import { useCreateInvoiceSettings, useGetInvoiceSettings, useUpdateInvoiceSettings } from "@/hooks/queryHooks/useInvoice";
 import { invoiceSettingsSchema } from "@/schema/invoice";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const digits = [3, 4, 5, 6, 7, 8, 9];
 
@@ -104,8 +105,7 @@ export const InvoiceSetting = () => {
         setIsEditing(false);
       };
       const onError = (error: unknown) => {
-        const message = error instanceof Error ? error.message : "Failed to save settings";
-        toast({ title: message, type: "error" });
+        toast({ title: "Failed to save settings", description: getApiErrorReason(error), type: "error" });
       };
 
       if (hasSettings) {

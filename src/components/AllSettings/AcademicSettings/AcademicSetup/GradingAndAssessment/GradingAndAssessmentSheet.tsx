@@ -20,6 +20,7 @@ import { schoolDefaultSchema, schoolDefaultUpdateSchema } from "@/schema/academi
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { FieldArray, FormikProvider, useFormik } from "formik";
 import { useEffect, useState } from "react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 type AssessmentRow = { id?: number; name: string; weight: string; includeInMidterm?: boolean };
 type GradeRow = { grade: string; upperLimit: string; lowerLimit: string; remark: string };
@@ -88,11 +89,11 @@ export const GradingAndAssessmentSheet = ({ branchId, branchSpecific }: { branch
           });
         } else {
           if (assessmentRes.status === "rejected") {
-            const message = (assessmentRes.reason as { message?: string } | null)?.message || "Failed to save assessment settings";
+            const message = getApiErrorMessage(assessmentRes.reason, "Failed to save assessment settings");
             toast({ title: "Assessment Save Failed", description: message, type: "error" });
           }
           if (gradingRes.status === "rejected") {
-            const message = (gradingRes.reason as { message?: string } | null)?.message || "Failed to save grading settings";
+            const message = getApiErrorMessage(gradingRes.reason, "Failed to save grading settings");
             toast({ title: "Grading Save Failed", description: message, type: "error" });
           }
         }

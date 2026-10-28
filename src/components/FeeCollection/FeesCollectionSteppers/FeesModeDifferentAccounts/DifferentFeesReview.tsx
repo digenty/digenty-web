@@ -21,6 +21,7 @@ import { BranchWithClassLevels } from "@/api/types";
 import { FeeItemDetail, FeeRouteResponseDto } from "@/api/fee";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageFeeCollection } from "@/lib/permissions/fee-collection";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type FlowType = "oneAccount" | "differentAccounts";
 
@@ -52,7 +53,7 @@ export const DifferentFeesReview = ({ selected, onSelect }: { selected: FlowType
         { accountId, payload: updated },
         {
           onSuccess: () => toast.success("Account updated"),
-          onError: (err: unknown) => toast.error((err as { message?: string })?.message ?? "Failed to update account"),
+          onError: (err: unknown) => toast.error("Failed to update account", { description: getApiErrorReason(err) }),
         },
       );
     }

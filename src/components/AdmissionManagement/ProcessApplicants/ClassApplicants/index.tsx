@@ -19,6 +19,7 @@ import { ApplicantSheet } from "./ApplicantSheet";
 import { createApplicantColumns } from "./columns";
 import { MobileCard } from "./MobileCard";
 import { AdmissionStatus, Applicant, DISPLAY_TO_API_STATUS, mapApplicant } from "./types";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const STATUS_FILTERS: Array<{ label: string; value: AdmissionStatus | "All" }> = [
   { label: "All Statuses", value: "All" },
@@ -85,7 +86,7 @@ export const ClassApplicants = () => {
           toast.success(`${selectedIds.length} applicant(s) ${status.toLowerCase()}`);
           setRowSelection({});
         },
-        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to update applicants"),
+        onError: (error: unknown) => toast.error("Failed to update applicants", { description: getApiErrorReason(error) }),
       },
     );
   };

@@ -6,7 +6,7 @@ import { useGetSessions } from "@/hooks/queryHooks/useAcademic";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export const ALL_BRANCHES = "All Branches";
 export const ALL_TERMS = "All Terms";
@@ -18,7 +18,7 @@ const branchLabel = (b: BranchWithClassLevels) => b.branch.name ?? `Branch ${b.b
  * Selection is stored as IDs (not display labels) to avoid label-matching race
  * conditions when sessionName arrives after termList.
  */
-export const useFeesFilters = () => {
+export const useFeesFilters = ({ allowAllTerms = true }: { allowAllTerms?: boolean } = {}) => {
   const { schoolId, branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
   const { data: branchesResp, isPending: loadingBranches } = useGetBranches();
   const { data: termsResp, isPending: loadingTerms } = useGetTerms(schoolId);
@@ -44,7 +44,11 @@ export const useFeesFilters = () => {
     () => (isBranchRestricted ? branchList.map(branchLabel) : [ALL_BRANCHES, ...branchList.map(branchLabel)]),
     [branchList, isBranchRestricted],
   );
-  const termOptions = useMemo(() => [ALL_TERMS, ...termList.map(termLabel)], [termList, termLabel]);
+  const termOptions = useMemo(() => {
+    const labels = termList.map(termLabel);
+    // Tabs backed by an endpoint that needs a concrete term can't offer "All Terms".
+    return allowAllTerms ? [ALL_TERMS, ...labels] : labels;
+  }, [termList, termLabel, allowAllTerms]);
 
   const [branchSelected, setBranchSelected] = useState(ALL_BRANCHES);
   const restrictedBranchId = isBranchRestricted ? userBranchIds[0] : undefined;
@@ -60,12 +64,15 @@ export const useFeesFilters = () => {
   // sessionName arrives asynchronously after termList.
   const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
 
-  // Default to the active term once the list resolves (only once per mount).
+  // Default to the active term once the list resolves (only once per mount), so that
+  // choosing "All Terms" afterwards isn't immediately overwritten by this effect.
+  const hasDefaultedTerm = useRef(false);
   useEffect(() => {
-    if (selectedTermId !== null || termList.length === 0) return;
+    if (hasDefaultedTerm.current || termList.length === 0) return;
+    hasDefaultedTerm.current = true;
     const active = termList.find(t => t.isActiveTerm) ?? termList[0];
     if (active) setSelectedTermId(active.termId);
-  }, [termList, selectedTermId]);
+  }, [termList]);
 
   // Derive the display label from the stored ID (re-computes when sessionName loads).
   const termSelected = useMemo(() => {

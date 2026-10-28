@@ -26,6 +26,7 @@ import { useFormik } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const roundMoney = (n: number) => Math.round(n * 100) / 100;
 
@@ -134,9 +135,7 @@ export const AddPAyment = () => {
             router.replace(`/staff/invoices/${invoiceId}`);
           },
           onError: (error: unknown) => {
-            const description =
-              error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : undefined;
-            toast({ title: "Failed to add payment", description, type: "error" });
+            toast({ title: "Failed to add payment", description: getApiErrorReason(error), type: "error" });
           },
         },
       );

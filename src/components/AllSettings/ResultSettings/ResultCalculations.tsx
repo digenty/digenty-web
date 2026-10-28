@@ -24,6 +24,7 @@ import { extractUniqueSubjectsByName, Subject } from "./utils";
 import { useGetGradingsByLevel } from "@/hooks/queryHooks/useLevel";
 import { useRouter } from "next/navigation";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 interface ResultCalculationRecord {
   id: number;
@@ -683,7 +684,7 @@ export const ResultCalculations = () => {
     const onError = (error: Error) => {
       toast({
         title: `Failed to ${existingRecord ? "update" : "save"}`,
-        description: error?.message || `Could not save result settings for ${levelName}`,
+        description: getApiErrorMessage(error, `Could not save result settings for ${levelName}`),
         type: "error",
       });
     };

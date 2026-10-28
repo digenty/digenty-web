@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { PillTabs } from "../PillTabs";
 import { useBreadcrumbStore } from "@/store/breadcrumb";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
@@ -71,33 +71,32 @@ const ClassesAndSubjects = () => {
 
   return (
     <ClassesAndSubjectsPermissionWrapper isLoading={isLoading}>
-      <div className="flex flex-col gap-4 px-4 py-4 md:px-8">
+      <div className="flex flex-col gap-6 px-4 py-6 md:px-8">
         <>
+          <div className="space-y-1">
+            <h1 className="text-text-default text-xl font-semibold tracking-tight md:text-2xl">Classes &amp; Subjects</h1>
+            <p className="text-text-muted text-xs md:text-sm">
+              {hasClasses && hasSubjects
+                ? "Your assigned classes and the subjects you teach."
+                : hasSubjects
+                  ? "The subjects you teach and their report status."
+                  : hasClasses
+                    ? "Your assigned classes."
+                    : "Nothing has been assigned to you yet."}
+            </p>
+          </div>
+
           {/* Case 1: Class teacher with subjects — show tabs */}
           {showTabs && (
             <>
-              <div className="flex w-full items-center justify-between">
-                <div className="border-border-default mb-0 flex w-auto max-w-105 flex-1 items-center gap-3 border-b">
-                  {tabs.map(tab => {
-                    const isActive = activeTab === tab.id;
-                    return (
-                      <div
-                        role="button"
-                        onClick={() => router.push(`/staff/classes-and-subjects?tab=${tab.id}`)}
-                        key={tab.id}
-                        className={cn(
-                          "w-1/2 cursor-pointer py-2.5 text-center transition-all duration-150",
-                          isActive && "border-border-informative border-b-[1.5px]",
-                        )}
-                      >
-                        <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{tab.label}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div>
+              <div className="flex w-full flex-wrap items-center justify-between gap-3">
+                <PillTabs tabs={tabs} activeId={activeTab} onChange={id => router.push(`/staff/classes-and-subjects?tab=${id}`)} />
+                <div className="flex items-center gap-2">
                   {user && user?.isAdmin && user?.adminBranchIds && user?.adminBranchIds?.length > 1 && (
-                    <Button onClick={() => router.push("/staff/classes-and-subjects/all-classes")} className="border-border-default border">
+                    <Button
+                      onClick={() => router.push("/staff/classes-and-subjects/all-classes")}
+                      className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-default shadow-light h-8 rounded-lg border px-3"
+                    >
                       View Branch Panel
                     </Button>
                   )}
@@ -105,7 +104,7 @@ const ClassesAndSubjects = () => {
                   {user && user?.isMain && (
                     <Button
                       onClick={() => router.push("/staff/classes-and-subjects/all-branches")}
-                      className="border-border-default text-text-default border"
+                      className="border-border-darker bg-bg-state-secondary hover:bg-bg-state-secondary-hover! text-text-default shadow-light h-8 rounded-lg border px-3"
                     >
                       View All Branches
                     </Button>
@@ -125,10 +124,7 @@ const ClassesAndSubjects = () => {
 
           {/* Case 3: Class teacher only */}
           {hasClasses && !hasSubjects && (
-            <div className="flex flex-col gap-4 pb-10">
-              <div className="flex items-center justify-between">
-                <h2 className="text-text-default hidden text-lg font-semibold md:inline md:text-xl">My Classes</h2>
-              </div>
+            <div className="pb-10">
               <MyClasses classes={classes} isLoading={isLoadingClasses} />
             </div>
           )}

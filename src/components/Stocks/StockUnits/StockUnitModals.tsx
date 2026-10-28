@@ -15,6 +15,7 @@ import { useCreateStockUnit } from "@/hooks/queryHooks/useStock";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import { stockUnitSchema } from "@/schema/stock";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type AddProps = {
   openAdd: boolean;
@@ -35,8 +36,7 @@ export const AddNewUnitModal = ({ openAdd, setOpenAdd }: AddProps) => {
         formik.resetForm();
         setOpenAdd(false);
       } catch (error) {
-        const message = (error as { message?: string } | null)?.message ?? "Could not create unit";
-        toast({ title: message, type: "error" });
+        toast({ title: "Could not create unit", description: getApiErrorReason(error), type: "error" });
       }
     },
   });

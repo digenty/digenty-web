@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { StatusBadge } from "./columns";
 import { API_TO_DISPLAY_STATUS, Applicant } from "./types";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const InfoItem = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="flex flex-col gap-1">
@@ -44,8 +45,8 @@ const ApplicantDetailsTab = ({ cycleId, applicantId }: { cycleId: number; applic
       const doc = await getApplicantDocument(cycleId, applicantId, docId);
       if (doc.fileUrl) window.open(doc.fileUrl, "_blank", "noopener,noreferrer");
       else toast.error("Document is not available");
-    } catch {
-      toast.error("Couldn't open document");
+    } catch (error) {
+      toast.error("Couldn't open document", { description: getApiErrorReason(error) });
     } finally {
       setViewingDocId(null);
     }
@@ -174,7 +175,7 @@ const ScoresStatusTab = ({ cycleId, applicantId }: { cycleId: number; applicantI
       },
       {
         onSuccess: () => toast.success("Scores saved"),
-        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to save scores"),
+        onError: (error: unknown) => toast.error("Failed to save scores", { description: getApiErrorReason(error) }),
       },
     );
   };
@@ -185,7 +186,7 @@ const ScoresStatusTab = ({ cycleId, applicantId }: { cycleId: number; applicantI
       { cycleId, applicantId, payload: { status: next } },
       {
         onSuccess: () => toast.success(`Applicant ${API_TO_DISPLAY_STATUS[next].toLowerCase()}`),
-        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to update status"),
+        onError: (error: unknown) => toast.error("Failed to update status", { description: getApiErrorReason(error) }),
       },
     );
   };

@@ -13,6 +13,7 @@ import { CheckoutResponseDto, PlanResponseDto } from "@/api/subscription";
 import { title } from "process";
 import { toast } from "@/components/Toast";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const REFERRAL_BALANCE = 0;
 
@@ -87,11 +88,10 @@ export const AddStudentsForm = () => {
           window.location.href = data?.authorizationUrl;
         },
         onError: (error: unknown) => {
-          const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
           toast({
             title: "Failed to initiate payment",
             type: "error",
-            description: message || "Failed to initiate payment",
+            description: getApiErrorReason(error),
           });
         },
       },

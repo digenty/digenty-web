@@ -26,6 +26,7 @@ import { BackLink } from "@/components/BackLink";
 import { useGetFeeGroupById, useUpdateFeeGroup } from "@/hooks/queryHooks/useFee";
 import { useFeeFormData } from "@/components/Fees/AddFee/useFeeForm";
 import type { FeeGroupDto, FeeTermType } from "@/api/fee";
+import { getApiErrorReason } from "@/lib/apiError";
 
 interface ItemRow {
   id: string;
@@ -135,7 +136,7 @@ export const EditFeeGroup = () => {
               router.push(`/staff/fees/fee-group/${id}`);
             },
             onError: (error: unknown) => {
-              toast.error((error as { message?: string })?.message ?? "Failed to update fee group");
+              toast.error("Failed to update fee group", { description: getApiErrorReason(error) });
             },
           },
         );

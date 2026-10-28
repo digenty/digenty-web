@@ -21,6 +21,7 @@ import { Decision } from ".";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
+import { getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 
 export const ClassReportHeader = ({
   students,
@@ -93,7 +94,7 @@ export const ClassReportHeader = ({
             setOpenModal(false);
           },
           onError: error => {
-            toast({ title: "Failed to submit", description: error?.message || "Failed to submit class report", type: "error" });
+            toast({ title: "Failed to submit", description: getApiErrorMessage(error, "Failed to submit class report"), type: "error" });
           },
         },
       );
@@ -118,7 +119,7 @@ export const ClassReportHeader = ({
         setOpenPromotionModal(false);
       },
       onError: error => {
-        toast({ title: "Error", description: error?.message || "Failed to save promotions", type: "error" });
+        toast({ title: "Failed to save promotions", description: getApiErrorReason(error), type: "error" });
       },
     });
   };

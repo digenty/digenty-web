@@ -63,7 +63,7 @@ export const DailyDiary = () => {
 
       <div className="flex flex-col gap-3 md:flex-row md:gap-3">
         {loadingOverview || !overview ? (
-          Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="bg-bg-input-soft h-28 flex-1 rounded" />)
+          Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="bg-bg-input-soft h-28 flex-1 rounded-xl" />)
         ) : (
           <>
             <StatCard

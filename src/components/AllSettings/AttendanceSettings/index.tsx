@@ -20,6 +20,7 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn, extractUniqueLevelsByType } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 interface LevelForm {
   sessionsPerDay: 1 | 2;
@@ -85,7 +86,7 @@ export const AttendanceSettings = () => {
         onError: (error: Error) => {
           toast({
             title: "Failed to save",
-            description: error?.message || `Could not save attendance settings for ${activeLevel.levelName}`,
+            description: getApiErrorMessage(error, `Could not save attendance settings for ${activeLevel.levelName}`),
             type: "error",
           });
         },

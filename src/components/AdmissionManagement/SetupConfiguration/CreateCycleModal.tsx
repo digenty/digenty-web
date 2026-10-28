@@ -14,6 +14,7 @@ import { AdmissonNewCycleSchema } from "@/schema/admission";
 import { useFormik } from "formik";
 import { toast } from "sonner";
 import { CycleResponse } from "@/api/admission";
+import { getApiErrorReason } from "@/lib/apiError";
 
 interface Props {
   open: boolean;
@@ -51,7 +52,7 @@ export const CreateCycleModal = ({ open, setOpen, onSuccess }: Props) => {
             resetForm();
             setOpen(false);
           },
-          onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to create admission cycle"),
+          onError: (error: unknown) => toast.error("Failed to create admission cycle", { description: getApiErrorReason(error) }),
         },
       );
     },

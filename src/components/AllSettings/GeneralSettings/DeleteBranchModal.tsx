@@ -12,6 +12,7 @@ import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Spinner } from "@/components/ui/spinner";
 import { useDeleteBranch } from "@/hooks/queryHooks/useBranch";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { getApiErrorReason } from "@/lib/apiError";
 
 type Props = {
   open: boolean;
@@ -38,8 +39,7 @@ export const DeleteBranchModal = ({ open, setOpen, branchId, branchName, onDelet
       setOpen(false);
       onDeleted?.();
     } catch (error) {
-      const message = (error as { message?: string } | null)?.message ?? "Could not delete branch";
-      toast({ title: "Error", description: message, type: "error" });
+      toast({ title: "Could not delete branch", description: getApiErrorReason(error), type: "error" });
     }
   };
 

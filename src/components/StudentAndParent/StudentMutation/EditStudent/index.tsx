@@ -23,6 +23,7 @@ import { ProfilePicture } from "../../ProfilePicture";
 import { Tags } from "./Tags";
 import { useGetAdmissionNumberDetails } from "@/hooks/queryHooks/useAdmisssion";
 import { formatToDynamicRegex } from "@/lib/utils";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export const EditStudent = () => {
   const router = useRouter();
@@ -135,8 +136,8 @@ export const EditStudent = () => {
         onError: error => {
           applyConflictFieldError(error, formik.setFieldError);
           toast({
-            title: error.message ?? "Something went wrong",
-            description: "Could not edit student details",
+            title: "Could not edit student details",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

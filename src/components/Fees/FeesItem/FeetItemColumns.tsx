@@ -15,6 +15,7 @@ import { useDeleteFeeItem, useDuplicateFeeItem, useGetFeeItemById, usePublishFee
 import { toast } from "sonner";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { canDeleteFees, canManageFees } from "@/lib/permissions/fees";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
   const [open, setOpen] = useState(false);
@@ -43,7 +44,7 @@ const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
         }
         setJustPublished(true);
       },
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to publish fee"),
+      onError: (error: unknown) => toast.error("Failed to publish fee", { description: getApiErrorReason(error) }),
     });
   };
 
@@ -54,7 +55,7 @@ const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
         toast.success("Fee item duplicated");
         router.push(`/staff/fees/fee-item/${result.feeItemId}`);
       },
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to duplicate fee item"),
+      onError: (error: unknown) => toast.error("Failed to duplicate fee item", { description: getApiErrorReason(error) }),
     });
   };
 
@@ -62,7 +63,7 @@ const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
     evt.stopPropagation();
     deleteFeeItem(id, {
       onSuccess: () => toast.success("Fee item deleted"),
-      onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to delete fee item"),
+      onError: (error: unknown) => toast.error("Failed to delete fee item", { description: getApiErrorReason(error) }),
     });
   };
 

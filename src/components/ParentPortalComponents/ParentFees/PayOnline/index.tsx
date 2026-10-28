@@ -22,6 +22,7 @@ import { InstallmentSchedule } from "@/components/ParentPortalComponents/ParentF
 import { TermLookup } from "@/api/parent-lookup";
 import { uploadImage } from "@/app/actions/upload-image";
 import { toast } from "sonner";
+import { getApiErrorReason } from "@/lib/apiError";
 
 const MAX_PROOF_BYTES = 5 * 1024 * 1024;
 const ACCEPTED_PROOF_TYPES = "application/pdf,image/png,image/jpeg";
@@ -258,7 +259,7 @@ export const PayInvoice = () => {
           setProofOfPaymentUrl("");
           setProofOfPaymentName("");
         },
-        onError: (error: unknown) => toast.error((error as { message?: string })?.message ?? "Failed to record payment"),
+        onError: (error: unknown) => toast.error("Failed to record payment", { description: getApiErrorReason(error) }),
       },
     );
   };

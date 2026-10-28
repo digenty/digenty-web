@@ -25,16 +25,20 @@ export default function Subject({ subjectName, classes, subjectId }: SubjectProp
     <div className="">
       {openRequest && <RequestEdit open={openRequest} onOpenChange={setOpenRequest} classId={classId} armId={armId} subjectId={subjectId} />}
 
-      <div className="flex-start bg-bg-muted flex w-full flex-col gap-1.5 rounded-lg pt-1 pr-1 pb-2 pl-1 md:max-w-219 md:gap-3 md:pt-1 md:pr-3 md:pb-3 md:pl-3">
-        <h2 className="text-text-default text-md px-3 pt-1.5 font-semibold md:px-5 md:pt-3">{subjectName}</h2>
-        <ul className="bg-bg-card border-border-default w-full rounded-sm border shadow-sm md:max-w-213">
+      <div className="border-border-default bg-bg-default shadow-light w-full overflow-hidden rounded-xl border">
+        <div className="bg-bg-muted border-border-default flex items-center justify-between gap-2 border-b px-4 py-3 md:px-6">
+          <h2 className="text-text-default text-md truncate font-semibold">{subjectName}</h2>
+          <span className="text-text-muted shrink-0 text-xs font-medium">
+            {classes.length} {classes.length === 1 ? "class" : "classes"}
+          </span>
+        </div>
+        <ul className="w-full">
           {classes.map(cl => {
-            console.log(classes, "###");
             const statusUpdate = REPORT_STATUS_CONFIG[cl.reportStatus];
 
             return (
-              <li key={cl.classArmName} className="border-border-default border-b">
-                <div className="flex flex-col gap-4 px-3 py-4 md:flex-row md:items-center md:justify-between md:gap-2 md:p-2 md:px-6 md:py-3">
+              <li key={cl.classArmName} className="border-border-default hover:bg-bg-muted/50 border-b transition-colors last:border-b-0">
+                <div className="flex flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between md:gap-2 md:px-6 md:py-3">
                   <div className="flex flex-col gap-1 md:gap-2">
                     <p className="text-text-default text-md font-semibold">{cl.classArmName}</p>
                     <Badge

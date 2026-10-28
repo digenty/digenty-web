@@ -26,14 +26,21 @@ This is a multi-tenant Next.js 16 App Router app (React 19, TypeScript strict) f
 
 Auth is cookie-based with a JWT stored in an `httpOnly` cookie named `token`. There is no NextAuth or client-side session store — session I/O is done through server actions in [src/app/actions/auth.ts](src/app/actions/auth.ts):
 
-- `createSession(token, userType)` — sets the cookie and `redirect`s to `/staff` or `/parents`.
-- `deleteSession()` — clears the cookie and redirects to `/auth/staff`.
-- `getSessionToken()` — server-side reader; **redirects to `/` if no token**, so only call from authenticated contexts.
+- `createSession(token, userType)` — sets the cookie (plus a `session_type` cookie recording the portal, since the JWT doesn't) and `redirect`s to `/staff` or `/parents`.
+- `deleteSession()` — clears the cookies and redirects to `/auth/staff`.
+- `deleteSessionIfCurrent(identity)` — same, but leaves the cookie alone if it now holds a *different* person's session. Use it for automatic sign-outs (expiry, 401).
+- `refreshSessionToken(token)` — re-issues the cookie in place; returns `{ applied }` and refuses to overwrite another person's session or revive a signed-out one.
+- `getSessionToken()` — server-side reader (returns `{ token, userType }`); **redirects to `/` if no token**, so only call from authenticated contexts.
 - `getSessionData()` — same but returns `{ user: null }` instead of redirecting; this is what layouts use.
 
 Decoded JWT shape is `JWTPayload` in [src/types.ts](src/types.ts) — includes `schoolId`, `permissions: string[]`, `branchIds`, `armIds`, `subjectIds`, `isMain`, `isAdmin`. Treat `permissions` as the source of truth for gating UI.
 
 Client-side, [src/hooks/useLoggedInUser.ts](src/hooks/useLoggedInUser.ts) fetches the token via the server action and decodes it locally. Permissions checks should go through this hook + the utilities in `src/lib/permissions/`, not by reading the cookie directly.
+
+**One cookie is shared by every tab of a browser on the same host** (cookies ignore the port), so signing in as someone else in another tab swaps the session under the first tab. Two things deal with that:
+
+- [src/lib/session-client.ts](src/lib/session-client.ts) remembers who each tab was started as. If the cookie later holds a different person, the axios request interceptor refuses to send (`SESSION_CHANGED`) instead of acting as the wrong user, and `SessionGuard` (mounted in the root layout) shows a "Your session changed" dialog. Sign in and out on purpose through its `login()` / `logout()` wrappers, not the raw actions, so the tab forgets its old identity at the right moment.
+- To be signed in as several people at once while testing, use a different host for each — each host has its own cookie jar: `localhost:8000` (admin), `127.0.0.1:8000` (teacher), `<school>.localhost:8000` (parent portal). `next.config.ts` allows `127.0.0.1` for the dev server's live reload.
 
 ### Middleware & multi-tenant subdomains
 

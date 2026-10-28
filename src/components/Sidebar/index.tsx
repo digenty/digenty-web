@@ -23,7 +23,7 @@ import {
   User,
   Wallet,
 } from "@digenty/icons";
-import { deleteSession } from "@/app/actions/auth";
+import { logout as logoutSession } from "@/lib/session-client";
 import { unregisterPush } from "@/lib/push";
 import { Sheet, SheetContent, SheetHeader, SheetOverlay, SheetTitle } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -303,7 +303,7 @@ export const Sidebar = () => {
   const logout = async () => {
     await unregisterPush();
     queryClient.clear();
-    deleteSession();
+    logoutSession();
   };
 
   const handleCBTClick = async (e: React.MouseEvent) => {

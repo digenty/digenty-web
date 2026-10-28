@@ -14,6 +14,7 @@ import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { PlanResponseDto, CheckoutResponseDto } from "@/api/subscription";
 import { toast } from "@/components/Toast";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 interface UpgradeOrSubscribeFormProps {
   isUpgrade?: boolean;
@@ -133,10 +134,9 @@ export const UpgradeOrSubscribeForm = ({ isUpgrade }: UpgradeOrSubscribeFormProp
           window.location.href = data?.authorizationUrl;
         },
         onError: (error: unknown) => {
-          const message = error && typeof error === "object" && "message" in error ? String((error as { message: unknown }).message) : null;
           toast({
             title: "Failed to initiate payment",
-            description: message || "Could not complete payment",
+            description: getApiErrorMessage(error, "Could not complete payment"),
             type: "error",
           });
         },

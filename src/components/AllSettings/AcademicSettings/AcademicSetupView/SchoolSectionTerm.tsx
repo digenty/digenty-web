@@ -27,6 +27,7 @@ import { LEVELS } from "@/store/classes";
 import { format, parseISO } from "date-fns";
 import { Edit2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 type ClassLevel = Level["classLevels"][number];
 type LevelType = ClassLevel["levelType"];
@@ -259,7 +260,7 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
       toast({ title: "Session updated", description: "Academic session updated successfully.", type: "success" });
       setIsEditing(false);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
       toast({ title: "Failed to update", description: message, type: "error" });
     } finally {
       setIsSaving(false);
@@ -293,7 +294,7 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
       await refetchBranches();
       toast({ title: "Levels updated", description: `Levels updated for ${level.branchName}.`, type: "success" });
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Something went wrong.";
+      const message = getApiErrorMessage(error, "Something went wrong.");
       toast({ title: "Failed to update levels", description: message, type: "error" });
     }
   };
@@ -333,7 +334,7 @@ export const SchoolSectionAndTerm = ({ session, isLoadingSession }: { session: A
       toast({ title: "Branch created", description: `${branch.branchName} has been added successfully.`, type: "success" });
     } catch (error: unknown) {
       updateNewBranch(id, "isSubmitting", false);
-      const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
       toast({ title: "Failed to create branch", description: message, type: "error" });
     }
   };

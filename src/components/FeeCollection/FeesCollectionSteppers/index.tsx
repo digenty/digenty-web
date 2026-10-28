@@ -27,6 +27,7 @@ import { BranchAccountDto, FeeCollectionMode, FeeRouteDto } from "@/api/fee-coll
 import { BranchWithClassLevels } from "@/api/types";
 import { FEE_COLLECTION_STEPS, useFeeCollectionStep } from "./FeesCollectionSteps";
 import { Spinner } from "@/components/ui/spinner";
+import { getApiErrorReason } from "@/lib/apiError";
 
 export type FeesSetupFormValues = {
   mode: FeeCollectionMode | "";
@@ -139,8 +140,7 @@ export const FeesSetup = () => {
       await refetchSetupStatus();
       return true;
     } catch (err: unknown) {
-      const msg = (err as { message?: string })?.message ?? "Failed to save fee collection setup";
-      toast.error(msg);
+      toast.error("Failed to save fee collection setup", { description: getApiErrorReason(err) });
       return false;
     }
   };

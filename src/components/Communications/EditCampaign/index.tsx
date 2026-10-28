@@ -19,12 +19,11 @@ import { SummaryCard } from "../NewCampaign/SummaryCard";
 import { RATE_PER_MESSAGE } from "../mockData";
 import { CampaignFormValues } from "../types";
 import { EditCampaignHeader } from "./EditCampaignHeader";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 type EditCampaignProps = {
   id: string;
 };
-
-const getErrorMessage = (error: unknown) => (error as { message?: string })?.message ?? "Please try again.";
 
 export const EditCampaign = ({ id }: EditCampaignProps) => {
   const router = useRouter();
@@ -58,7 +57,7 @@ export const EditCampaign = ({ id }: EditCampaignProps) => {
         toast({ title: "Campaign updated", description: values.title, type: "success" });
         router.push(`/staff/communications/${id}`);
       } catch (error: unknown) {
-        toast({ title: "Failed to update campaign", description: getErrorMessage(error), type: "error" });
+        toast({ title: "Failed to update campaign", description: getApiErrorMessage(error, "Please try again."), type: "error" });
       }
     },
   });

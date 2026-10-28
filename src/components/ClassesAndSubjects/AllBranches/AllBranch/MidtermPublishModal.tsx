@@ -16,6 +16,7 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { Term } from "@/api/types";
 import { useState } from "react";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 type MidtermPublishModalProps = {
   open: boolean;
@@ -27,8 +28,6 @@ type MidtermPublishModalProps = {
   report?: "midterm" | "term";
   termId?: number;
 };
-
-const errorMessage = (error: unknown, fallback: string) => (error as { message?: string } | null)?.message || fallback;
 
 // Publishes (or hides) the mid-term report for every class in a branch. It is separate from the term report:
 // neither action touches the other. Error messages from the API are written to be shown as they come.
@@ -68,7 +67,7 @@ export const MidtermPublishModal = ({ open, setOpen, branchId, branchName, mode,
           onError: error => {
             toast({
               title: isPublish ? "Could not publish" : "Could not unpublish",
-              description: errorMessage(error, "Something went wrong"),
+              description: getApiErrorMessage(error, "Something went wrong"),
               type: "error",
             });
           },
@@ -99,7 +98,7 @@ export const MidtermPublishModal = ({ open, setOpen, branchId, branchName, mode,
             setOpen(false);
           },
           onError: error => {
-            toast({ title: "Could not publish", description: errorMessage(error, "Failed to publish mid-term report"), type: "error" });
+            toast({ title: "Could not publish", description: getApiErrorMessage(error, "Failed to publish mid-term report"), type: "error" });
           },
         },
       );
@@ -114,7 +113,7 @@ export const MidtermPublishModal = ({ open, setOpen, branchId, branchName, mode,
           setOpen(false);
         },
         onError: error => {
-          toast({ title: "Could not unpublish", description: errorMessage(error, "Failed to unpublish mid-term report"), type: "error" });
+          toast({ title: "Could not unpublish", description: getApiErrorMessage(error, "Failed to unpublish mid-term report"), type: "error" });
         },
       },
     );

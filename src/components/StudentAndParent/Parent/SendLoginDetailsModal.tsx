@@ -18,6 +18,7 @@ import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useParentInviteStatus, useSendParentInvites } from "@/hooks/queryHooks/useParent";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { getApiErrorReason } from "@/lib/apiError";
 
 // The backend queues the send and returns 202, so the counts keep moving after the
 // request resolves. Poll the status endpoint for a minute, then stop.
@@ -128,8 +129,8 @@ export const SendLoginDetailsModal = ({
         },
         onError: error => {
           toast({
-            title: (error as { message?: string })?.message ?? "Something went wrong",
-            description: "Could not send login details",
+            title: "Could not send login details",
+            description: getApiErrorReason(error),
             type: "error",
           });
         },

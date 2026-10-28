@@ -14,6 +14,7 @@ import { useAddTeacherInput, useGetTeacherInputByStudentArm } from "@/hooks/quer
 import { useEffect, useState } from "react";
 import { Spinner } from "../ui/spinner";
 import { toast } from "../Toast";
+import { getApiErrorMessage } from "@/lib/apiError";
 
 type RatingsState = Record<number, number | null>;
 
@@ -138,7 +139,7 @@ export const EditTeacherInputModal = ({
         onError: error => {
           toast({
             title: "Could not update",
-            description: error?.message || "Failed to update teacher input",
+            description: getApiErrorMessage(error, "Failed to update teacher input"),
             type: "error",
           });
         },
