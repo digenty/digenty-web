@@ -29,6 +29,12 @@ import { Avatar } from "@/components/Avatar";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 import { getApiErrorReason } from "@/lib/apiError";
 
+// An empty phone field must be omitted; Number("") would send 0 and the backend rejects it.
+const toPhonePayload = (value: string | number) => {
+  const trimmed = String(value ?? "").trim();
+  return trimmed ? Number(trimmed) : undefined;
+};
+
 type EditProps = "editName" | "editSchoolName" | "motto" | "editPhoneNum" | "editBranch" | "newBranch" | null;
 
 type Timezone = {
@@ -99,7 +105,7 @@ export const General = () => {
     firstName,
     lastName,
     motto,
-    phoneNumber: Number(phoneNumber),
+    phoneNumber: toPhonePayload(phoneNumber),
     country: countryName,
     currency,
     timezone,
@@ -434,7 +440,7 @@ export const General = () => {
                   </Button>
                   <Button
                     className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-                    onClick={() => handleSaveSchool({ phoneNumber: Number(phoneNumber) })}
+                    onClick={() => handleSaveSchool({ phoneNumber: toPhonePayload(phoneNumber) })}
                     disabled={isSavingSchool}
                   >
                     {isSavingSchool && <Spinner className="text-text-white-default size-3" />} Save

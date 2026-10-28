@@ -30,7 +30,7 @@ export const DiaryFilters = ({ branchId, onBranchChange, termId, onTermChange }:
   const user = useLoggedInUser();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const { data: branchesData, isPending: loadingBranches } = useGetBranches();
+  const { data: branchesData, isPending: loadingBranches, isError: branchesFailed } = useGetBranches();
   const { data: termsData, isPending: loadingTerms } = useGetTerms(user.schoolId);
 
   // Memoised so the auto-select effects below do not re-run on every render.
@@ -40,11 +40,16 @@ export const DiaryFilters = ({ branchId, onBranchChange, termId, onTermChange }:
 
   // Default to the staff member's own branch, then the active term, so the page lands on today's work.
   useEffect(() => {
-    if (branchId || branches.length === 0) return;
+    if (branchId) return;
     const ownBranchId = user.branchIds?.[0];
+    if (branches.length === 0) {
+      // /branches is admin-only (403 for teachers), so fall back to the branch in their token.
+      if (branchesFailed && ownBranchId) onBranchChange(ownBranchId);
+      return;
+    }
     const match = branches.find(b => b.branch?.id === ownBranchId) ?? branches[0];
     if (match?.branch?.id) onBranchChange(match.branch.id);
-  }, [branches, branchId, user.branchIds, onBranchChange]);
+  }, [branches, branchesFailed, branchId, user.branchIds, onBranchChange]);
 
   useEffect(() => {
     if (termId || terms.length === 0) return;
@@ -61,7 +66,7 @@ export const DiaryFilters = ({ branchId, onBranchChange, termId, onTermChange }:
       <div className="hidden items-center gap-2 md:flex">
         {loadingBranches ? (
           <Skeleton className="bg-bg-input-soft h-8 w-32 rounded-md" />
-        ) : (
+        ) : branches.length === 0 ? null : (
           <Select value={branchId ? String(branchId) : undefined} onValueChange={value => onBranchChange(Number(value))}>
             <SelectTrigger className="border-border-darker h-8! w-auto border focus-visible:ring-0" aria-label="Filter by branch">
               <div className="flex items-center gap-1.5">
@@ -113,6 +118,8 @@ export const DiaryFilters = ({ branchId, onBranchChange, termId, onTermChange }:
             </div>
             {loadingBranches ? (
               <Skeleton className="bg-bg-input-soft h-9 w-full" />
+            ) : branches.length === 0 ? (
+              <p className="text-text-muted text-sm">Your branch</p>
             ) : (
               <Select value={branchId ? String(branchId) : undefined} onValueChange={value => onBranchChange(Number(value))}>
                 <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal!">
