@@ -528,7 +528,7 @@ export interface updateSchoolPayload {
   firstName: string;
   lastName: string;
   motto: string;
-  phoneNumber: number;
+  phoneNumber?: number;
   country: string;
   currency: string;
   timezone: string;
