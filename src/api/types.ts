@@ -1116,7 +1116,7 @@ export interface UpdatePrincipaleCommentPayload {
   levelId: number;
   authorTitle?: CommentAuthorTitle;
   rows: {
-    commentId: number;
+    commentId?: number;
     minPercentage: number;
     maxPercentage: number;
     comment: string;
