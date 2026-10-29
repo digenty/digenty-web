@@ -56,7 +56,6 @@ interface CommentSetupProps {
   isEditing: boolean;
   setIsEditing: (editing: boolean) => void;
   isLoading: boolean;
-  hasExistingData: boolean;
   authorTitle: CommentAuthorTitle;
   onAuthorTitleChange: (title: CommentAuthorTitle) => void;
   commentLabel: string;
@@ -68,17 +67,7 @@ interface PercentInputProps {
   onChange: (v: string) => void;
 }
 
-const CommentSetup = ({
-  rows,
-  onChange,
-  isEditing,
-  setIsEditing,
-  isLoading,
-  hasExistingData,
-  authorTitle,
-  onAuthorTitleChange,
-  commentLabel,
-}: CommentSetupProps) => {
+const CommentSetup = ({ rows, onChange, isEditing, setIsEditing, isLoading, authorTitle, onAuthorTitleChange, commentLabel }: CommentSetupProps) => {
   const { mutate: deleteComment, isPending: isDeleting } = useDeletePrincipalComment();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -214,7 +203,7 @@ const CommentSetup = ({
             ))}
         </div>
 
-        {isEditing && !hasExistingData && (
+        {isEditing && (
           <PermissionCheck permissionUtility={canManageSettings}>
             <Button className="text-text-subtle hover:bg-bg-none! mt-2 w-fit rounded-md bg-none! text-xs" onClick={addRow}>
               <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Row
@@ -325,7 +314,7 @@ export const PrincipalComment = () => {
           levelId: activeLevel!.id,
           authorTitle: getTitle(),
           rows: rows.map(row => ({
-            commentId: Number(row.id),
+            ...(isNaN(Number(row.id)) ? {} : { commentId: Number(row.id) }),
             minPercentage: Number(row.minPercentage),
             maxPercentage: Number(row.maxPercentage),
             comment: row.comment,
@@ -392,7 +381,6 @@ export const PrincipalComment = () => {
     isEditing,
     setIsEditing,
     isLoading: isLoadingComments,
-    hasExistingData,
   };
 
   if (isMobile) {
