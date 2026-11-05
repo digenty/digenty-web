@@ -5,49 +5,38 @@ import { useRouter } from "next/navigation";
 
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
-import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetDailyReport, useGetDailyReportStats, useRemindUnsignedParents } from "@/hooks/queryHooks/useDiary";
+import { useGetDiaryBatch, useGetDiaryBatchStats } from "@/hooks/queryHooks/useDiary";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { canManageDailyDiary } from "@/lib/permissions/daily-diary";
+import { DAILY_REPORT_STATUS_CONFIG } from "@/queries/diary";
 
-import { DotBadge, StatCard, formatShortDate, formatTime, getDiaryErrorMessage } from "../shared";
-import { AcknowledgementTable } from "./AcknowledgementTable";
-import { CommentThreads } from "./CommentThreads";
-import { ReportSummary } from "./ReportSummary";
+import { DotBadge, StatCard, formatShortDate, getDiaryErrorMessage } from "../shared";
+import { BatchInstancesTable } from "./BatchInstancesTable";
 
-export const PublishedReport = ({ armId, reportId }: { armId: number; reportId: number }) => {
+/** The teacher's view of one compose session - every pupil's independent report, rolled up. */
+export const PublishedReport = ({ armId, reportId: batchId }: { armId: number; reportId: number }) => {
   const router = useRouter();
 
-  const { data: report, isPending, isError, error, refetch } = useGetDailyReport(reportId);
-  const { data: stats, isPending: loadingStats } = useGetDailyReportStats(reportId);
-  const { mutate: remind, isPending: reminding } = useRemindUnsignedParents();
+  const { data: batch, isPending, isError, error, refetch } = useGetDiaryBatch(batchId);
+  const { data: stats, isPending: loadingStats } = useGetDiaryBatchStats(batchId);
 
   useBreadcrumb([
     { label: "Daily Diary", url: "/staff/daily-diary" },
-    { label: report?.armName ?? "Report", url: `/staff/daily-diary/${armId}/report/${reportId}` },
+    { label: batch?.armName ?? "Report", url: `/staff/daily-diary/${armId}/report/${batchId}` },
   ]);
-
-  const unsigned = stats ? stats.recipientCount - stats.signedCount : 0;
-
-  const handleRemind = () =>
-    remind(reportId, {
-      onSuccess: result => toast({ title: "Reminders sent", description: `${result?.remindedCount ?? unsigned} parents reminded.`, type: "success" }),
-      onError: err => toast({ title: "Could not send reminders", description: getDiaryErrorMessage(err), type: "error" }),
-    });
 
   if (isPending) {
     return (
       <div className="flex flex-col gap-5 px-4 pt-6 pb-10 md:px-8">
         <Skeleton className="bg-bg-input-soft h-28 w-full rounded" />
-        <Skeleton className="bg-bg-input-soft h-72 w-full rounded-lg" />
         <Skeleton className="bg-bg-input-soft h-96 w-full rounded-lg" />
       </div>
     );
   }
 
-  if (isError || !report) {
+  if (isError || !batch) {
     return (
       <div className="px-4 py-10 md:px-8">
         <ErrorComponent
@@ -59,6 +48,8 @@ export const PublishedReport = ({ armId, reportId }: { armId: number; reportId: 
       </div>
     );
   }
+
+  const statusConfig = DAILY_REPORT_STATUS_CONFIG[batch.status];
 
   return (
     <div className="flex flex-col">
@@ -73,27 +64,15 @@ export const PublishedReport = ({ armId, reportId }: { armId: number; reportId: 
             Back
           </Button>
           <h1 className="text-text-default truncate text-lg leading-7 font-semibold">
-            {report.armName} · {formatShortDate(report.date)}
+            {batch.armName} · {formatShortDate(batch.date)}
           </h1>
-          {report.publishedAt && (
-            <DotBadge label={`Published ${formatTime(report.publishedAt)}`} dot="bg-bg-basic-green-accent" className="bg-bg-badge-green" />
-          )}
+          <DotBadge label={statusConfig.label} dot={statusConfig.dot} className={statusConfig.badge} />
         </div>
 
         <div className="flex-1" />
 
         <div className="flex flex-wrap items-center gap-2">
           <PermissionCheck permissionUtility={canManageDailyDiary}>
-            {unsigned > 0 && (
-              <Button
-                variant="outline"
-                onClick={handleRemind}
-                disabled={reminding}
-                className="border-border-darker text-text-default bg-bg-card h-8 rounded-md"
-              >
-                {reminding ? "Sending…" : `Remind ${unsigned} parent${unsigned === 1 ? "" : "s"}`}
-              </Button>
-            )}
             <Button
               onClick={() => router.push(`/staff/daily-diary/${armId}/compose`)}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 rounded-md"
@@ -110,19 +89,15 @@ export const PublishedReport = ({ armId, reportId }: { armId: number; reportId: 
             Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="bg-bg-input-soft h-28 flex-1 rounded-xl" />)
           ) : (
             <>
-              <StatCard label="Sent to" value={`${stats.recipientCount} parents`} swatch="blue" />
-              <StatCard label="Opened" value={`${stats.openedCount} of ${stats.recipientCount}`} swatch="green" />
+              <StatCard label="Recipients" value={`${stats.includedCount} of ${batch.pupilCount}`} swatch="blue" />
+              <StatCard label="Published" value={`${stats.publishedCount} of ${stats.includedCount}`} swatch="green" />
               <StatCard label="Signed by parent" value={`${stats.signedCount} of ${stats.recipientCount}`} swatch="amber" />
               <StatCard label="Comments received" value={String(stats.commentCount)} swatch="pink" />
             </>
           )}
         </div>
 
-        <ReportSummary report={report} />
-
-        <AcknowledgementTable reportId={reportId} />
-
-        <CommentThreads reportId={reportId} />
+        <BatchInstancesTable armId={armId} batchId={batch.id} instances={batch.instances} />
       </div>
     </div>
   );

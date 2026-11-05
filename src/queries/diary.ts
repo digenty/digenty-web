@@ -5,6 +5,8 @@ export const diaryKeys = {
   overview: (params?: Record<string, unknown>) => ["diary", "overview", params ?? {}] as const,
   classes: (params?: DiaryClassListParams) => ["diary", "classes", params ?? {}] as const,
   weeklyClasses: (params?: DiaryClassListParams & { weekStart?: string }) => ["diary", "weekly-classes", params ?? {}] as const,
+  batch: (batchId: number) => ["diary", "batch", batchId] as const,
+  batchStats: (batchId: number) => ["diary", "batch", batchId, "stats"] as const,
   report: (reportId: number) => ["diary", "report", reportId] as const,
   reportStats: (reportId: number) => ["diary", "report", reportId, "stats"] as const,
   acknowledgements: (reportId: number, filter?: AcknowledgementFilter) => ["diary", "report", reportId, "acknowledgements", filter ?? "ALL"] as const,
@@ -13,9 +15,10 @@ export const diaryKeys = {
   learningAreas: (params?: Record<string, unknown>) => ["diary", "learning-areas", params ?? {}] as const,
   settings: ["diary", "settings"] as const,
 
-  openReport: ["openDiaryReport"] as const,
-  saveReport: ["saveDiaryReport"] as const,
-  publishReport: ["publishDiaryReport"] as const,
+  openBatch: ["openDiaryBatch"] as const,
+  saveBatch: ["saveDiaryBatch"] as const,
+  publishBatch: ["publishDiaryBatch"] as const,
+  applyTemplate: ["applyDiaryTemplate"] as const,
   replyComment: ["replyDiaryComment"] as const,
   replyAll: ["replyAllDiaryComments"] as const,
   remind: ["remindDiaryParents"] as const,
@@ -74,6 +77,7 @@ export const DIARY_ENTRY_TYPE_OPTIONS = (Object.keys(DIARY_ENTRY_TYPE_CONFIG) as
 
 export const DAILY_REPORT_STATUS_CONFIG: Record<DailyReportStatus, { label: string; dot: string; badge: string }> = {
   PUBLISHED: { label: "Published", dot: "bg-bg-basic-green-accent", badge: "bg-bg-badge-green text-text-default" },
+  PARTIALLY_PUBLISHED: { label: "Partially published", dot: "bg-bg-basic-blue-accent", badge: "bg-bg-badge-blue text-text-default" },
   DRAFT: { label: "Draft", dot: "bg-bg-basic-amber-accent", badge: "bg-bg-badge-amber text-text-default" },
   NOT_STARTED: { label: "Not started", dot: "bg-bg-basic-gray-accent", badge: "bg-bg-badge-white text-text-default" },
 };

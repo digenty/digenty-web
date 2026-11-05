@@ -2,20 +2,17 @@
 
 import { SnapshotField, SnapshotValues } from "@/api/diary";
 import { DiaryCard, DiaryCardHeader } from "@/components/DailyDiary/shared";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 type Props = {
   fields: SnapshotField[];
   values: SnapshotValues;
   onChange: (values: SnapshotValues) => void;
-  applyToClass: boolean;
-  onApplyToClassChange: (value: boolean) => void;
   disabled?: boolean;
 };
 
-/** Mood / meals / nap / toilet chips — configured per class in Diary settings. */
-export const SnapshotCard = ({ fields, values, onChange, applyToClass, onApplyToClassChange, disabled }: Props) => {
+/** Mood / meals / nap / toilet chips — configured per class in Diary settings, filled per pupil. */
+export const SnapshotCard = ({ fields, values, onChange, disabled }: Props) => {
   if (fields.length === 0) return null;
 
   const select = (key: SnapshotField["key"], option: string) => {
@@ -55,18 +52,6 @@ export const SnapshotCard = ({ fields, values, onChange, applyToClass, onApplyTo
             </div>
           </div>
         ))}
-
-        <label className="flex cursor-pointer items-start gap-2.5">
-          <Checkbox
-            checked={applyToClass}
-            onCheckedChange={checked => onApplyToClassChange(checked === true)}
-            disabled={disabled}
-            className="mt-px"
-          />
-          <span className="text-text-default text-[13px] leading-[18px] font-medium">
-            Apply this snapshot to the whole class, then edit individual pupils below
-          </span>
-        </label>
       </div>
     </DiaryCard>
   );
