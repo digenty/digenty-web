@@ -85,6 +85,7 @@ export type DiaryReportInstance = {
   studentId: number;
   studentName: string;
   studentImage: string | null;
+  /** Once `status` is PUBLISHED, setting this false has no effect - a sent report cannot be unpublished. */
   included: boolean;
   status: DiaryInstanceStatus;
   /** Set once this instance has been published at least once. */
@@ -125,6 +126,8 @@ export type DiaryReportBatch = {
   /** ISO date the report covers. */
   date: string;
   status: DailyReportStatus;
+  /** True for a batch migrated from before per-pupil reports existed - cannot be edited, re-published or have its recipients changed. */
+  readOnly: boolean;
   snapshotEnabled: boolean;
   snapshotFields: SnapshotField[];
   pupilCount: number;
@@ -420,7 +423,10 @@ export const getDiaryBatch = async (batchId: number): Promise<DiaryReportBatch> 
   }
 };
 
-/** Bulk-saves draft instances. Pupils omitted from the array keep their last saved state. */
+/**
+ * Bulk-saves draft instances. Pupils omitted from the array keep their last saved state.
+ * Does not touch instances that are already PUBLISHED - editing a sent report requires `publishDiaryBatch` again.
+ */
 export const saveDiaryBatch = async (batchId: number, payload: SaveDiaryBatchPayload): Promise<DiaryReportBatch> => {
   try {
     const { data } = await api.patch(`/diary/reports/${batchId}`, payload);

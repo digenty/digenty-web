@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 import { DiaryPupil } from "./SelectDiaryRecipientsModal";
 
-type PupilState = { included: boolean; edited: boolean };
+type PupilState = { included: boolean; edited: boolean; published: boolean };
 
 type Props = {
   pupils: DiaryPupil[];
@@ -40,6 +40,8 @@ export const PupilSwitcher = ({ pupils, activeStudentId, onSelect, stateByStuden
             <span className={cn(!state?.included && "line-through")}>{firstName}</span>
             {!state?.included ? (
               <span className="text-text-muted text-[11px] leading-4">Not sending</span>
+            ) : state?.published ? (
+              <span className="text-text-informative text-[11px] leading-4">Sent</span>
             ) : state?.edited ? (
               <span className="bg-bg-basic-green-accent size-1.5 shrink-0 rounded-full" aria-label="Edited" title="Edited" />
             ) : null}

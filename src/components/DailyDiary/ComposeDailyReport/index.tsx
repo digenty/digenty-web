@@ -76,7 +76,12 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
   const hydrate = (detail: DiaryReportBatch) => {
     setBatch(detail);
     setPupils(
-      detail.instances.map(instance => ({ studentId: instance.studentId, studentName: instance.studentName, studentImage: instance.studentImage })),
+      detail.instances.map(instance => ({
+        studentId: instance.studentId,
+        studentName: instance.studentName,
+        studentImage: instance.studentImage,
+        published: instance.status === "PUBLISHED",
+      })),
     );
     const payloads = detail.instances.map(toInstancePayload);
     setInstances(payloads);
@@ -226,13 +231,49 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
     );
   }
 
+  if (batch.readOnly) {
+    return (
+      <div className="flex flex-col">
+        <div className="border-border-default bg-bg-default flex items-center gap-3 border-b px-4 py-3 md:px-8">
+          <Button
+            onClick={() => router.push("/staff/daily-diary")}
+            className="border-border-default text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md border"
+          >
+            <ArrowLeftS fill="var(--color-icon-default)" className="size-4" />
+            Back
+          </Button>
+          <h1 className="text-text-default truncate text-lg leading-7 font-semibold">{batch.armName}</h1>
+        </div>
+
+        <div className="flex flex-col gap-4 px-4 py-10 md:px-8">
+          <div className="border-border-blue bg-bg-badge-blue flex flex-col items-start gap-3 rounded-lg border px-4 py-4">
+            <p className="text-text-default text-[13px] leading-[18px]">
+              This report predates per-pupil daily reports and can&apos;t be edited here — every pupil in it shares one published report.
+            </p>
+            <Button
+              onClick={() => router.push(`/staff/daily-diary/${armId}/report/${batch.id}`)}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 rounded-md"
+            >
+              View published report
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const statusConfig = DAILY_REPORT_STATUS_CONFIG[batch.status];
   // Includes opening so a session switch's re-fetch can't be raced by Save/Publish acting on stale form state.
   const busy = saving || publishing || opening || copying;
+  const publishedById = new Map(pupils.map(pupil => [pupil.studentId, pupil.published]));
   const pupilStateById = Object.fromEntries(
-    instances.map(instance => [instance.studentId, { included: instance.included, edited: touched.has(instance.studentId) }]),
+    instances.map(instance => [
+      instance.studentId,
+      { included: instance.included, edited: touched.has(instance.studentId), published: publishedById.get(instance.studentId) ?? false },
+    ]),
   );
-  const copyTargets = pupils.filter(pupil => pupil.studentId !== activeStudentId);
+  // Published pupils' content can only change via a re-publish, so copying a draft onto them would silently do nothing.
+  const copyTargets = pupils.filter(pupil => pupil.studentId !== activeStudentId && !pupil.published);
   const copyDefaultSelected = new Set(
     copyTargets.filter(pupil => pupilStateById[pupil.studentId]?.included && !touched.has(pupil.studentId)).map(pupil => pupil.studentId),
   );
@@ -327,7 +368,8 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
             <div className="flex flex-col gap-0.5">
               <p className="text-text-default text-sm leading-5 font-semibold">Recipients</p>
               <p className="text-text-muted text-xs leading-4">
-                Only parents left selected here receive anything when you publish. Each pupil below has their own, independent report.
+                Only parents left selected here receive anything when you publish. Each pupil below has their own, independent report. A parent who
+                has already been sent a report can&apos;t be removed.
               </p>
             </div>
             <Button
@@ -343,19 +385,28 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
           <PupilSwitcher pupils={pupils} activeStudentId={activeStudentId} onSelect={setActiveStudentId} stateByStudentId={pupilStateById} />
         </div>
 
-        {!activeInstance.included && (
-          <div className="border-border-amber bg-bg-badge-amber flex flex-wrap items-center gap-2 rounded-lg border px-4 py-2.5">
+        {activePupil.published ? (
+          <div className="border-border-blue bg-bg-badge-blue flex flex-wrap items-center gap-2 rounded-lg border px-4 py-2.5">
             <p className="text-text-default text-[13px] leading-[18px]">
-              {activePupil.studentName}&apos;s parent is not currently a recipient — anything saved here won&apos;t be sent.
+              {activePupil.studentName}&apos;s report has already been sent. &ldquo;Save draft&rdquo; won&apos;t change it — use Publish to send a
+              correction.
             </p>
-            <Button
-              variant="outline"
-              onClick={() => updateActive({ included: true })}
-              className="border-border-darker text-text-default bg-bg-card h-7 shrink-0 rounded-md px-2.5 text-xs"
-            >
-              Add back as a recipient
-            </Button>
           </div>
+        ) : (
+          !activeInstance.included && (
+            <div className="border-border-amber bg-bg-badge-amber flex flex-wrap items-center gap-2 rounded-lg border px-4 py-2.5">
+              <p className="text-text-default text-[13px] leading-[18px]">
+                {activePupil.studentName}&apos;s parent is not currently a recipient — anything saved here won&apos;t be sent.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => updateActive({ included: true })}
+                className="border-border-darker text-text-default bg-bg-card h-7 shrink-0 rounded-md px-2.5 text-xs"
+              >
+                Add back as a recipient
+              </Button>
+            </div>
+          )
         )}
 
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -413,7 +464,14 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
         onOpenChange={setRecipientsOpen}
         pupils={pupils}
         includedIds={new Set(instances.filter(instance => instance.included).map(instance => instance.studentId))}
-        onConfirm={includedIds => setInstances(prev => prev.map(instance => ({ ...instance, included: includedIds.has(instance.studentId) })))}
+        onConfirm={includedIds =>
+          setInstances(prev =>
+            prev.map(instance => ({
+              ...instance,
+              included: publishedById.get(instance.studentId) || includedIds.has(instance.studentId),
+            })),
+          )
+        }
       />
 
       <CopyToPupilsModal

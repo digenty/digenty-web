@@ -37,23 +37,44 @@ function isOwnPlatformHost(hostname: string): boolean {
 }
 
 // Unauthenticated host -> slug lookup for a school's connected custom domain. Plain fetch (not
-// the axios-public client) since middleware runs on the Edge runtime. A 404 or network failure
-// 404 means "not a recognized school domain" — fall through to normal app routing. Any other failure
-// (network, 5xx) is "unavailable": we can't tell, so the root must not bounce a school's visitors to
-// the staff login.
-const RESOLVE_UNAVAILABLE = "unavailable" as const;
+// the axios-public client) since middleware runs on the Edge runtime.
+// - "found": a real { slug, live } from the backend — only this one may ever render /site/coming-soon.
+// - "not_found": a clean 404, meaning no school owns this host — fall through to normal app routing.
+// - "unavailable": we couldn't get a trustworthy answer (network error, non-200/404 status, bad JSON
+//   body) — must NOT be treated as "found, not live", or a backend hiccup would masquerade as an
+//   unpublished site. Falls through like "not_found", but logged, since silently swallowing it would
+//   hide real outages behind the wrong page.
+type ResolveResult = { kind: "found"; slug: string; live: boolean } | { kind: "not_found" } | { kind: "unavailable" };
 
-async function resolveConnectedDomain(host: string): Promise<{ slug: string; live: boolean } | typeof RESOLVE_UNAVAILABLE | null> {
+async function resolveConnectedDomain(host: string): Promise<ResolveResult> {
+  let res: Response;
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/public/website/resolve?host=${encodeURIComponent(host)}`, {
+    res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/public/website/resolve?host=${encodeURIComponent(host)}`, {
       next: { revalidate: 60 },
     });
-    if (res.status === 404) return null;
-    if (!res.ok) return RESOLVE_UNAVAILABLE;
+  } catch (err) {
+    console.error(`[domain-resolve] network error resolving host=${host}:`, err);
+    return { kind: "unavailable" };
+  }
+
+  if (res.status === 404) return { kind: "not_found" };
+
+  if (!res.ok) {
+    console.error(`[domain-resolve] host=${host} returned status=${res.status}`);
+    return { kind: "unavailable" };
+  }
+
+  try {
     const body = await res.json();
-    return body.data ?? body ?? RESOLVE_UNAVAILABLE;
-  } catch {
-    return RESOLVE_UNAVAILABLE;
+    const data = body?.data ?? body;
+    if (typeof data?.slug === "string" && typeof data?.live === "boolean") {
+      return { kind: "found", slug: data.slug, live: data.live };
+    }
+    console.error(`[domain-resolve] host=${host} returned an unexpected body shape:`, body);
+    return { kind: "unavailable" };
+  } catch (err) {
+    console.error(`[domain-resolve] host=${host} failed to parse response JSON:`, err);
+    return { kind: "unavailable" };
   }
 }
 
@@ -66,13 +87,14 @@ export default async function middleware(req: NextRequest) {
 
   // A school's own connected custom domain (e.g. unilag.com). Its root serves the customized public
   // website; every other path (parent auth, /parents) still works, and the staff app is blocked.
-  const resolved = !isOwnPlatformHost(hostname) ? await resolveConnectedDomain(host) : null;
-  const resolution = resolved && resolved !== RESOLVE_UNAVAILABLE ? resolved : null;
-  const isCustomSchoolDomain = !!resolution;
+  const resolved: ResolveResult = !isOwnPlatformHost(hostname) ? await resolveConnectedDomain(host) : { kind: "not_found" };
+  const isCustomSchoolDomain = resolved.kind === "found";
 
-  // Custom-domain root comes first — before the cookie read and the "/" redirects below.
-  if (path === "/" && resolved) {
-    url.pathname = resolution && resolution.live ? `/site/${resolution.slug}` : "/site/coming-soon";
+  // Custom-domain root comes first — before the cookie read and the "/" redirects below. Only a
+  // trustworthy "found" result may route to /site/coming-soon — "not_found" and "unavailable" both
+  // fall through to normal app routing below instead.
+  if (path === "/" && resolved.kind === "found") {
+    url.pathname = resolved.live ? `/site/${resolved.slug}` : "/site/coming-soon";
     return NextResponse.rewrite(url);
   }
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Avatar } from "@/components/Avatar";
+import { DotBadge } from "@/components/DailyDiary/shared";
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { SearchInput } from "@/components/SearchInput";
@@ -11,7 +12,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
-export type DiaryPupil = { studentId: number; studentName: string; studentImage: string | null };
+/** `published: true` means this pupil's report has already gone out - they can no longer be removed as a recipient. */
+export type DiaryPupil = { studentId: number; studentName: string; studentImage: string | null; published: boolean };
 
 type Props = {
   open: boolean;
@@ -27,21 +29,25 @@ type Props = {
  */
 export const SelectDiaryRecipientsModal = ({ open, onOpenChange, pupils, includedIds, onConfirm }: Props) => {
   const isMobile = useIsMobile();
-  const [localIncluded, setLocalIncluded] = useState(includedIds);
+  const publishedIds = new Set(pupils.filter(pupil => pupil.published).map(pupil => pupil.studentId));
+  const [localIncluded, setLocalIncluded] = useState(new Set([...includedIds, ...publishedIds]));
   const [search, setSearch] = useState("");
 
-  const toggle = (studentId: number, checked: boolean) =>
+  const toggle = (studentId: number, checked: boolean) => {
+    // A published pupil's parent has already received this report - there's nothing to undo here.
+    if (!checked && publishedIds.has(studentId)) return;
     setLocalIncluded(prev => {
       const next = new Set(prev);
       if (checked) next.add(studentId);
       else next.delete(studentId);
       return next;
     });
+  };
 
   const visible = pupils.filter(pupil => pupil.studentName.toLowerCase().includes(search.trim().toLowerCase()));
 
   const handleConfirm = () => {
-    onConfirm(localIncluded);
+    onConfirm(new Set([...localIncluded, ...publishedIds]));
     onOpenChange(false);
   };
 
@@ -77,7 +83,7 @@ export const SelectDiaryRecipientsModal = ({ open, onOpenChange, pupils, include
         </Button>
         <Button
           className="border-border-darker bg-bg-state-secondary text-text-muted h-6 gap-1 rounded-full border px-2.5 text-xs"
-          onClick={() => setLocalIncluded(new Set())}
+          onClick={() => setLocalIncluded(new Set(publishedIds))}
         >
           ✕ Clear all
         </Button>
@@ -93,22 +99,25 @@ export const SelectDiaryRecipientsModal = ({ open, onOpenChange, pupils, include
         ) : (
           visible.map(pupil => {
             const isSelected = localIncluded.has(pupil.studentId);
+            const isLocked = pupil.published;
             return (
               <div
                 key={pupil.studentId}
-                className={`border-border-default flex cursor-pointer items-center gap-3 rounded-lg border p-3 ${
-                  isSelected ? "bg-bg-state-soft" : "hover:bg-bg-state-ghost-hover"
-                }`}
-                onClick={() => toggle(pupil.studentId, !isSelected)}
+                className={`border-border-default flex items-center gap-3 rounded-lg border p-3 ${
+                  isLocked ? "cursor-not-allowed" : "cursor-pointer"
+                } ${isSelected ? "bg-bg-state-soft" : "hover:bg-bg-state-ghost-hover"}`}
+                onClick={() => !isLocked && toggle(pupil.studentId, !isSelected)}
               >
                 <Checkbox
                   checked={isSelected}
+                  disabled={isLocked}
                   onCheckedChange={checked => toggle(pupil.studentId, checked === true)}
                   onClick={event => event.stopPropagation()}
                   className="shrink-0"
                 />
                 <Avatar className="size-8" url={pupil.studentImage ?? undefined} />
-                <p className="text-text-default text-sm font-medium">{pupil.studentName}</p>
+                <p className="text-text-default min-w-0 flex-1 truncate text-sm font-medium">{pupil.studentName}</p>
+                {isLocked && <DotBadge label="Already sent" dot="bg-bg-basic-green-accent" className="bg-bg-badge-green shrink-0" />}
               </div>
             );
           })

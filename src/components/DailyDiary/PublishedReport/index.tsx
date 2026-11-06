@@ -67,23 +67,34 @@ export const PublishedReport = ({ armId, reportId: batchId }: { armId: number; r
             {batch.armName} · {formatShortDate(batch.date)}
           </h1>
           <DotBadge label={statusConfig.label} dot={statusConfig.dot} className={statusConfig.badge} />
+          {batch.readOnly && <DotBadge label="Legacy report" dot="bg-bg-basic-gray-accent" className="bg-bg-badge-white" />}
         </div>
 
         <div className="flex-1" />
 
-        <div className="flex flex-wrap items-center gap-2">
-          <PermissionCheck permissionUtility={canManageDailyDiary}>
-            <Button
-              onClick={() => router.push(`/staff/daily-diary/${armId}/compose`)}
-              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 rounded-md"
-            >
-              Add follow-up note
-            </Button>
-          </PermissionCheck>
-        </div>
+        {!batch.readOnly && (
+          <div className="flex flex-wrap items-center gap-2">
+            <PermissionCheck permissionUtility={canManageDailyDiary}>
+              <Button
+                onClick={() => router.push(`/staff/daily-diary/${armId}/compose?date=${batch.date}`)}
+                className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 rounded-md"
+              >
+                Add follow-up note
+              </Button>
+            </PermissionCheck>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-5 px-4 pt-5 pb-10 md:px-8 md:pb-12">
+        {batch.readOnly && (
+          <div className="border-border-default bg-bg-sidebar-subtle rounded-lg border px-4 py-3">
+            <p className="text-text-default text-[13px] leading-[18px]">
+              This report predates per-pupil daily reports — every pupil below shares the same combined report.
+            </p>
+          </div>
+        )}
+
         <div className="flex flex-col gap-3 md:flex-row">
           {loadingStats || !stats ? (
             Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="bg-bg-input-soft h-28 flex-1 rounded-xl" />)

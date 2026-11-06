@@ -97,7 +97,7 @@ export const InstanceReport = ({ armId, batchId, reportId }: { armId: number; ba
               </Button>
             )}
             <Button
-              onClick={() => router.push(`/staff/daily-diary/${armId}/compose`)}
+              onClick={() => router.push(`/staff/daily-diary/${armId}/compose?date=${report.date}`)}
               className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 rounded-md"
             >
               Add follow-up note
