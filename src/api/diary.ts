@@ -5,7 +5,8 @@ import { isAxiosError } from "axios";
 /* ---------------------------------- Enums --------------------------------- */
 
 export type DiaryEntryType = "HOMEWORK" | "REMINDER" | "CLASS_NOTE";
-export type DailyReportStatus = "NOT_STARTED" | "DRAFT" | "PUBLISHED";
+export type DailyReportStatus = "NOT_STARTED" | "DRAFT" | "PARTIALLY_PUBLISHED" | "PUBLISHED";
+export type DiaryInstanceStatus = "DRAFT" | "PUBLISHED";
 export type WeeklyReportStatus = "DRAFT" | "PENDING_APPROVAL" | "APPROVED" | "PUBLISHED" | "REJECTED";
 export type LearningProgress = "EMERGING" | "DEVELOPING" | "SECURE";
 export type AcknowledgementFilter = "ALL" | "NOT_SIGNED" | "COMMENTED" | "NOT_OPENED";
@@ -38,22 +39,6 @@ export type SnapshotField = {
 /** Selected snapshot values keyed by SnapshotFieldKey, e.g. { MOOD: "Happy" }. */
 export type SnapshotValues = Partial<Record<SnapshotFieldKey, string | null>>;
 
-export type PupilNote = {
-  studentId: number;
-  studentName: string;
-  studentImage: string | null;
-  /** Private note visible only to that pupil's parents. */
-  note: string | null;
-  /** Per-pupil snapshot override; falls back to the class snapshot when null. */
-  snapshot: SnapshotValues | null;
-};
-
-export type PupilNotePayload = {
-  studentId: number;
-  note: string | null;
-  snapshot?: SnapshotValues | null;
-};
-
 export type ClassDiarySummary = {
   armId: number;
   armName: string;
@@ -65,8 +50,13 @@ export type ClassDiarySummary = {
   branchName: string;
   teacherName: string | null;
   pupilCount: number;
-  reportId: number | null;
+  /** The compose session for this arm + date. Null until a teacher opens one. */
+  batchId: number | null;
   status: DailyReportStatus;
+  /** How many pupils are currently marked as recipients - may be less than pupilCount. */
+  includedCount: number;
+  /** How many of those recipients have actually been published to so far. */
+  publishedCount: number;
   publishedAt: string | null;
   lastSavedAt: string | null;
   lastSavedBy: string | null;
@@ -87,7 +77,46 @@ export type DiaryOverview = {
   parentResponseRate: number;
 };
 
-export type DailyReportDetail = {
+/**
+ * One pupil's fully independent report within a batch. Only `included` instances are sent on publish -
+ * everyone else's parent sees nothing for this round, not even the shared entries.
+ */
+export type DiaryReportInstance = {
+  studentId: number;
+  studentName: string;
+  studentImage: string | null;
+  /** Once `status` is PUBLISHED, setting this false has no effect - a sent report cannot be unpublished. */
+  included: boolean;
+  status: DiaryInstanceStatus;
+  /** Set once this instance has been published at least once. */
+  reportId: number | null;
+  entries: DiaryEntry[];
+  snapshot: SnapshotValues;
+  /** Shown only to this pupil's parent - the "note just for you" box in the parent portal. */
+  note: string | null;
+  requireAcknowledgement: boolean;
+  requestComment: boolean;
+  sendPushSms: boolean;
+  publishedAt: string | null;
+  lastSavedAt: string | null;
+  /** Number of guardian accounts linked to this pupil - how many people this instance reaches. */
+  recipientCount: number;
+  signedCount: number;
+};
+
+export type DiaryReportInstancePayload = {
+  studentId: number;
+  included: boolean;
+  entries: DiaryEntryPayload[];
+  snapshot?: SnapshotValues;
+  note?: string | null;
+  requireAcknowledgement?: boolean;
+  requestComment?: boolean;
+  sendPushSms?: boolean;
+};
+
+/** The teacher's compose session for one arm + date (+session) - one shared snapshot config, many independent instances. */
+export type DiaryReportBatch = {
   id: number;
   armId: number;
   armName: string;
@@ -97,26 +126,52 @@ export type DailyReportDetail = {
   /** ISO date the report covers. */
   date: string;
   status: DailyReportStatus;
-  entries: DiaryEntry[];
+  /** True for a batch migrated from before per-pupil reports existed - cannot be edited, re-published or have its recipients changed. */
+  readOnly: boolean;
   snapshotEnabled: boolean;
   snapshotFields: SnapshotField[];
-  snapshot: SnapshotValues;
-  applySnapshotToClass: boolean;
-  pupilNotes: PupilNote[];
-  pupilNoteCount: number;
   pupilCount: number;
-  recipientCount: number;
+  includedCount: number;
+  publishedCount: number;
   /** Null when no register was taken for this arm and date - distinct from "0 present". */
   attendancePresent: number | null;
   attendanceAbsent: number | null;
-  requireAcknowledgement: boolean;
-  requestComment: boolean;
-  sendPushSms: boolean;
-  publishedAt: string | null;
-  publishedByName: string | null;
-  publishedByRole: string | null;
   lastSavedAt: string | null;
   lastSavedBy: string | null;
+  instances: DiaryReportInstance[];
+};
+
+export type DiaryReportInstanceDetail = DiaryReportInstance & {
+  armId: number;
+  armName: string;
+  className: string;
+  branchName: string;
+  levelType: LevelType;
+  date: string;
+  snapshotFields: SnapshotField[];
+  publishedByName: string | null;
+  publishedByRole: string | null;
+};
+
+export type PublishBatchResult = {
+  studentId: number;
+  status: "PUBLISHED" | "SKIPPED" | "FAILED";
+  reportId?: number;
+  errors?: string[];
+};
+
+export type PublishBatchResponse = {
+  batch: DiaryReportBatch;
+  results: PublishBatchResult[];
+};
+
+export type DiaryBatchStats = {
+  includedCount: number;
+  publishedCount: number;
+  recipientCount: number;
+  openedCount: number;
+  signedCount: number;
+  commentCount: number;
 };
 
 export type DailyReportStats = {
@@ -277,15 +332,9 @@ export type DiarySettingsPayload = Partial<
 /** Only required for a level with two attendance sessions a day - see AttendanceLevelSettings.sessionsPerDay. */
 export type OpenDailyReportRequest = { armId: number; date: string; session?: AttendanceSession };
 
-export type SaveDailyReportPayload = {
-  entries: DiaryEntryPayload[];
-  snapshot?: SnapshotValues;
-  applySnapshotToClass?: boolean;
-  pupilNotes?: PupilNotePayload[];
-  requireAcknowledgement?: boolean;
-  requestComment?: boolean;
-  sendPushSms?: boolean;
-};
+export type SaveDiaryBatchPayload = { instances: DiaryReportInstancePayload[] };
+
+export type ApplyDiaryTemplateRequest = { sourceStudentId: number; targetStudentIds: number[] };
 
 export type OpenWeeklyReportRequest = { armId: number; weekStart: string };
 
@@ -353,18 +402,8 @@ export const getDiaryClasses = async (params: DiaryClassListParams = {}): Promis
   }
 };
 
-export const getDailyReport = async (reportId: number): Promise<DailyReportDetail> => {
-  try {
-    const { data } = await api.get(`/diary/reports/${reportId}`);
-    return data?.data ?? data;
-  } catch (error: unknown) {
-    if (isAxiosError(error)) throw error.response?.data;
-    throw error;
-  }
-};
-
-/** Returns the report for the arm + date, creating a draft when none exists yet. */
-export const openDailyReport = async (payload: OpenDailyReportRequest): Promise<DailyReportDetail> => {
+/** Opens (or creates) the compose batch for the arm + date, seeding one instance per pupil on the roster. */
+export const openDiaryBatch = async (payload: OpenDailyReportRequest): Promise<DiaryReportBatch> => {
   try {
     const { data } = await api.post("/diary/reports", payload);
     return data?.data ?? data;
@@ -374,9 +413,9 @@ export const openDailyReport = async (payload: OpenDailyReportRequest): Promise<
   }
 };
 
-export const saveDailyReport = async (reportId: number, payload: SaveDailyReportPayload): Promise<DailyReportDetail> => {
+export const getDiaryBatch = async (batchId: number): Promise<DiaryReportBatch> => {
   try {
-    const { data } = await api.patch(`/diary/reports/${reportId}`, payload);
+    const { data } = await api.get(`/diary/reports/${batchId}`);
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -384,9 +423,56 @@ export const saveDailyReport = async (reportId: number, payload: SaveDailyReport
   }
 };
 
-export const publishDailyReport = async (reportId: number, payload: SaveDailyReportPayload): Promise<DailyReportDetail> => {
+/**
+ * Bulk-saves draft instances. Pupils omitted from the array keep their last saved state.
+ * Does not touch instances that are already PUBLISHED - editing a sent report requires `publishDiaryBatch` again.
+ */
+export const saveDiaryBatch = async (batchId: number, payload: SaveDiaryBatchPayload): Promise<DiaryReportBatch> => {
   try {
-    const { data } = await api.post(`/diary/reports/${reportId}/publish`, payload);
+    const { data } = await api.patch(`/diary/reports/${batchId}`, payload);
+    return data?.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+/** Publishes per instance - included pupils that validate go out, excluded ones are skipped, invalid ones fail without blocking the rest. */
+export const publishDiaryBatch = async (batchId: number, payload: SaveDiaryBatchPayload): Promise<PublishBatchResponse> => {
+  try {
+    const { data } = await api.post(`/diary/reports/${batchId}/publish`, payload);
+    return data?.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+/** Copies one pupil's draft entries/snapshot/note/sign-off onto other pupils' drafts - saves round trips for a large class. */
+export const applyDiaryTemplate = async (batchId: number, payload: ApplyDiaryTemplateRequest): Promise<DiaryReportBatch> => {
+  try {
+    const { data } = await api.post(`/diary/reports/${batchId}/apply-template`, payload);
+    return data?.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+export const getDiaryBatchStats = async (batchId: number): Promise<DiaryBatchStats> => {
+  try {
+    const { data } = await api.get(`/diary/reports/${batchId}/stats`);
+    return data?.data ?? data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) throw error.response?.data;
+    throw error;
+  }
+};
+
+/** One pupil's published instance - backs the teacher's report-detail, acknowledgement and comment views. */
+export const getDiaryReportInstance = async (reportId: number): Promise<DiaryReportInstanceDetail> => {
+  try {
+    const { data } = await api.get(`/diary/reports/instances/${reportId}`);
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -396,7 +482,7 @@ export const publishDailyReport = async (reportId: number, payload: SaveDailyRep
 
 export const getDailyReportStats = async (reportId: number): Promise<DailyReportStats> => {
   try {
-    const { data } = await api.get(`/diary/reports/${reportId}/stats`);
+    const { data } = await api.get(`/diary/reports/instances/${reportId}/stats`);
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -406,7 +492,7 @@ export const getDailyReportStats = async (reportId: number): Promise<DailyReport
 
 export const getReportAcknowledgements = async (reportId: number, filter?: AcknowledgementFilter): Promise<AcknowledgementResponse> => {
   try {
-    const { data } = await api.get(`/diary/reports/${reportId}/acknowledgements${buildQuery({ filter })}`);
+    const { data } = await api.get(`/diary/reports/instances/${reportId}/acknowledgements${buildQuery({ filter })}`);
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -416,7 +502,7 @@ export const getReportAcknowledgements = async (reportId: number, filter?: Ackno
 
 export const getReportComments = async (reportId: number): Promise<DiaryComment[]> => {
   try {
-    const { data } = await api.get(`/diary/reports/${reportId}/comments`);
+    const { data } = await api.get(`/diary/reports/instances/${reportId}/comments`);
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -426,7 +512,7 @@ export const getReportComments = async (reportId: number): Promise<DiaryComment[
 
 export const replyToComment = async (reportId: number, commentId: number, message: string): Promise<DiaryComment> => {
   try {
-    const { data } = await api.post(`/diary/reports/${reportId}/comments/${commentId}/reply`, { message });
+    const { data } = await api.post(`/diary/reports/instances/${reportId}/comments/${commentId}/reply`, { message });
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -436,7 +522,7 @@ export const replyToComment = async (reportId: number, commentId: number, messag
 
 export const replyToAllComments = async (reportId: number, message: string): Promise<{ repliedCount: number }> => {
   try {
-    const { data } = await api.post(`/diary/reports/${reportId}/comments/reply-all`, { message });
+    const { data } = await api.post(`/diary/reports/instances/${reportId}/comments/reply-all`, { message });
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -446,7 +532,7 @@ export const replyToAllComments = async (reportId: number, message: string): Pro
 
 export const remindUnsignedParents = async (reportId: number): Promise<{ remindedCount: number }> => {
   try {
-    const { data } = await api.post(`/diary/reports/${reportId}/remind`, {});
+    const { data } = await api.post(`/diary/reports/instances/${reportId}/remind`, {});
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -456,7 +542,7 @@ export const remindUnsignedParents = async (reportId: number): Promise<{ reminde
 
 export const exportDailyReportPdf = async (reportId: number): Promise<{ url: string }> => {
   try {
-    const { data } = await api.get(`/diary/reports/${reportId}/export`);
+    const { data } = await api.get(`/diary/reports/instances/${reportId}/export`);
     return data?.data ?? data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;

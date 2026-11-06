@@ -1,24 +1,27 @@
 "use client";
 
-import { ArrowLeftS, Eye, Save, SendPlaneFill } from "@digenty/icons";
+import { ArrowLeftS, Eye, Save, SendPlaneFill, UserFill } from "@digenty/icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-import { DailyReportDetail, DiaryEntryPayload, PupilNote, SaveDailyReportPayload, SnapshotValues } from "@/api/diary";
+import { DiaryEntryPayload, DiaryReportBatch, DiaryReportInstancePayload, SnapshotValues } from "@/api/diary";
 import { AttendanceSession } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetDiarySettings, useOpenDailyReport, usePublishDailyReport, useSaveDailyReport } from "@/hooks/queryHooks/useDiary";
+import { useApplyDiaryTemplate, useGetDiarySettings, useOpenDiaryBatch, usePublishDiaryBatch, useSaveDiaryBatch } from "@/hooks/queryHooks/useDiary";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { DAILY_REPORT_STATUS_CONFIG } from "@/queries/diary";
 
 import { DotBadge, formatLongDate, formatTime, getDiaryErrorMessage, sortEntries, toISODate } from "../shared";
+import { CopyToPupilsModal } from "./CopyToPupilsModal";
 import { EntriesTable } from "./EntriesTable";
 import { ParentPreviewModal } from "./ParentPreviewModal";
-import { PupilNotesCard } from "./PupilNotesCard";
+import { PersonalNoteCard } from "./PersonalNoteCard";
+import { PupilSwitcher } from "./PupilSwitcher";
+import { DiaryPupil, SelectDiaryRecipientsModal } from "./SelectDiaryRecipientsModal";
 import { SignOffCard, SignOffOptions } from "./SignOffCard";
 import { SnapshotCard } from "./SnapshotCard";
 
@@ -30,46 +33,68 @@ const ComposeSkeleton = () => (
   </div>
 );
 
+const toInstancePayload = (instance: DiaryReportBatch["instances"][number]): DiaryReportInstancePayload => ({
+  studentId: instance.studentId,
+  included: instance.included,
+  entries: sortEntries(instance.entries),
+  snapshot: instance.snapshot ?? {},
+  note: instance.note ?? "",
+  requireAcknowledgement: instance.requireAcknowledgement,
+  requestComment: instance.requestComment,
+  sendPushSms: instance.sendPushSms,
+});
+
+const hasContent = (instance: DiaryReportBatch["instances"][number]) =>
+  instance.entries.length > 0 || !!instance.note?.trim() || Object.values(instance.snapshot ?? {}).some(Boolean);
+
 export const ComposeDailyReport = ({ armId, date, session: initialSession }: { armId: number; date?: string; session?: AttendanceSession }) => {
   const router = useRouter();
   const user = useLoggedInUser();
 
   const reportDate = date ?? toISODate(new Date());
   // Undefined for a class whose level takes one register a day. Set for a two-session level,
-  // where the diary keys a separate report to each of the morning and afternoon registers.
+  // where the diary keys a separate batch to each of the morning and afternoon registers.
   const [session, setSession] = useState<AttendanceSession | undefined>(initialSession);
 
-  const [report, setReport] = useState<DailyReportDetail | null>(null);
-  const [entries, setEntries] = useState<DiaryEntryPayload[]>([]);
-  const [snapshot, setSnapshot] = useState<SnapshotValues>({});
-  const [applySnapshotToClass, setApplySnapshotToClass] = useState(true);
-  const [pupilNotes, setPupilNotes] = useState<PupilNote[]>([]);
-  const [signOff, setSignOff] = useState<SignOffOptions>({ requireAcknowledgement: true, requestComment: true, sendPushSms: false });
+  const [batch, setBatch] = useState<DiaryReportBatch | null>(null);
+  const [pupils, setPupils] = useState<DiaryPupil[]>([]);
+  const [instances, setInstances] = useState<DiaryReportInstancePayload[]>([]);
+  const [touched, setTouched] = useState<Set<number>>(new Set());
+  const [activeStudentId, setActiveStudentId] = useState<number | null>(null);
+
+  const [recipientsOpen, setRecipientsOpen] = useState(false);
+  const [copyToOpen, setCopyToOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewStudentId, setPreviewStudentId] = useState<number | null>(null);
 
   const { data: settings } = useGetDiarySettings();
-  const { mutate: openReport, isPending: opening, isError: openFailed, error: openError, reset: resetOpen } = useOpenDailyReport();
-  const { mutate: saveDraft, isPending: saving } = useSaveDailyReport();
-  const { mutate: publish, isPending: publishing } = usePublishDailyReport();
+  const { mutate: openBatch, isPending: opening, isError: openFailed, error: openError, reset: resetOpen } = useOpenDiaryBatch();
+  const { mutate: saveDraft, isPending: saving } = useSaveDiaryBatch();
+  const { mutate: publish, isPending: publishing } = usePublishDiaryBatch();
+  const { mutate: applyTemplate, isPending: copying } = useApplyDiaryTemplate();
 
-  const hydrate = (detail: DailyReportDetail) => {
-    setReport(detail);
-    setEntries(sortEntries(detail.entries));
-    setSnapshot(detail.snapshot ?? {});
-    setApplySnapshotToClass(detail.applySnapshotToClass);
-    setPupilNotes(detail.pupilNotes ?? []);
-    setSignOff({
-      requireAcknowledgement: detail.requireAcknowledgement,
-      requestComment: detail.requestComment,
-      sendPushSms: detail.sendPushSms,
-    });
+  const hydrate = (detail: DiaryReportBatch) => {
+    setBatch(detail);
+    setPupils(
+      detail.instances.map(instance => ({
+        studentId: instance.studentId,
+        studentName: instance.studentName,
+        studentImage: instance.studentImage,
+        published: instance.status === "PUBLISHED",
+      })),
+    );
+    const payloads = detail.instances.map(toInstancePayload);
+    setInstances(payloads);
+    setTouched(new Set(detail.instances.filter(hasContent).map(instance => instance.studentId)));
+    setActiveStudentId(prev => (prev && payloads.some(i => i.studentId === prev) ? prev : (payloads[0]?.studentId ?? null)));
+    setPreviewStudentId(prev => (prev && payloads.some(i => i.studentId === prev) ? prev : (payloads[0]?.studentId ?? null)));
   };
 
-  // The composer is reached straight from the class card, so open (or create) the draft on mount,
-  // and again whenever the Morning/Afternoon toggle switches which session's report is being edited.
+  // The composer is reached straight from the class card, so open (or create) the batch on mount,
+  // and again whenever the Morning/Afternoon toggle switches which session's batch is being edited.
   useEffect(() => {
     if (!armId) return;
-    openReport({ armId, date: reportDate, session }, { onSuccess: hydrate });
+    openBatch({ armId, date: reportDate, session }, { onSuccess: hydrate });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [armId, reportDate, session]);
 
@@ -81,32 +106,44 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
 
   useBreadcrumb([
     { label: "Daily Diary", url: "/staff/daily-diary" },
-    { label: report?.armName ?? "Report", url: `/staff/daily-diary/${armId}/compose` },
+    { label: batch?.armName ?? "Report", url: `/staff/daily-diary/${armId}/compose` },
   ]);
 
   const template = useMemo(() => {
-    if (!settings || !report) return undefined;
-    const section = report.levelType === "PRIMARY" ? "PRIMARY" : "EARLY_YEARS";
+    if (!settings || !batch) return undefined;
+    const section = batch.levelType === "PRIMARY" ? "PRIMARY" : "EARLY_YEARS";
     return settings.templates?.find(item => item.section === section);
-  }, [settings, report]);
+  }, [settings, batch]);
 
   const allowedTypes = template?.allowedEntryTypes ?? ["HOMEWORK", "REMINDER", "CLASS_NOTE"];
-  const snapshotFields = report?.snapshotEnabled ? (report?.snapshotFields ?? []) : [];
+  const snapshotFields = batch?.snapshotEnabled ? (batch?.snapshotFields ?? []) : [];
   const signatureConfigurable = settings?.parentResponseRule !== "TRACK_OPENS_ONLY";
 
-  const buildPayload = (): SaveDailyReportPayload => ({
-    // Persist the visible order rather than whatever order the rows were created in.
-    entries: entries.filter(entry => entry.activity.trim() || entry.note.trim()).map((entry, index) => ({ ...entry, position: index })),
-    snapshot,
-    applySnapshotToClass,
-    pupilNotes: pupilNotes.map(pupil => ({ studentId: pupil.studentId, note: pupil.note?.trim() ? pupil.note : null, snapshot: pupil.snapshot })),
-    ...signOff,
+  const activeInstance = instances.find(instance => instance.studentId === activeStudentId);
+  const activePupil = pupils.find(pupil => pupil.studentId === activeStudentId);
+  const includedCount = instances.filter(instance => instance.included).length;
+
+  const updateActive = (patch: Partial<DiaryReportInstancePayload>) => {
+    if (activeStudentId === null) return;
+    setInstances(prev => prev.map(instance => (instance.studentId === activeStudentId ? { ...instance, ...patch } : instance)));
+    setTouched(prev => new Set(prev).add(activeStudentId));
+  };
+
+  const pupilNameById = useMemo(() => new Map(pupils.map(pupil => [pupil.studentId, pupil.studentName])), [pupils]);
+
+  const buildPayload = (): { instances: DiaryReportInstancePayload[] } => ({
+    instances: instances.map(instance => ({
+      ...instance,
+      // Persist the visible order rather than whatever order the rows were created in.
+      entries: instance.entries.filter(entry => entry.activity.trim() || entry.note.trim()).map((entry, index) => ({ ...entry, position: index })),
+      note: instance.note?.trim() ? instance.note : null,
+    })),
   });
 
   const handleSaveDraft = () => {
-    if (!report) return;
+    if (!batch) return;
     saveDraft(
-      { reportId: report.id, payload: buildPayload() },
+      { batchId: batch.id, payload: buildPayload() },
       {
         onSuccess: detail => {
           hydrate(detail);
@@ -118,39 +155,59 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
   };
 
   const handlePublish = () => {
-    if (!report) return;
-    const filled = entries.filter(entry => entry.activity.trim() || entry.note.trim());
-    if (filled.length === 0) {
-      toast({
-        title: "Add at least one entry",
-        description: "A report needs one activity, note or reminder before it can go to parents.",
-        type: "warning",
-      });
-      return;
-    }
-    const missingDueDate = filled.find(entry => (entry.type === "HOMEWORK" || entry.type === "REMINDER") && !entry.dueDate);
-    if (missingDueDate) {
-      toast({
-        title: "A due date is missing",
-        description: `"${missingDueDate.activity || missingDueDate.note}" is a ${missingDueDate.type === "HOMEWORK" ? "homework" : "reminder"} row and needs a due date.`,
-        type: "warning",
-      });
+    if (!batch) return;
+    if (includedCount === 0) {
+      toast({ title: "Select at least one parent", description: "Pick who this report should go to before publishing.", type: "warning" });
       return;
     }
 
     publish(
-      { reportId: report.id, payload: buildPayload() },
+      { batchId: batch.id, payload: buildPayload() },
       {
-        onSuccess: detail => {
-          toast({ title: "Report published", description: `Sent to ${detail.recipientCount} parents.`, type: "success" });
-          router.push(`/staff/daily-diary/${armId}/report/${detail.id}`);
+        onSuccess: ({ batch: nextBatch, results }) => {
+          hydrate(nextBatch);
+          const publishedCount = results.filter(result => result.status === "PUBLISHED").length;
+          const failed = results.filter(result => result.status === "FAILED");
+
+          if (failed.length === 0) {
+            toast({ title: "Report published", description: `Sent to ${publishedCount} parent${publishedCount === 1 ? "" : "s"}.`, type: "success" });
+            router.push(`/staff/daily-diary/${armId}/report/${nextBatch.id}`);
+            return;
+          }
+
+          const names = failed.map(result => pupilNameById.get(result.studentId) ?? "A pupil").join(", ");
+          toast({
+            title: `Sent to ${publishedCount}, ${failed.length} need fixing`,
+            description: `${names}: ${failed[0]?.errors?.[0] ?? "check their entries before publishing again."}`,
+            type: "warning",
+          });
         },
         onError: error => toast({ title: "Could not publish report", description: getDiaryErrorMessage(error), type: "error" }),
       },
     );
   };
 
-  if (opening && !report) {
+  const handleCopyTo = (targetStudentIds: number[]) => {
+    if (!batch || activeStudentId === null) return;
+    applyTemplate(
+      { batchId: batch.id, payload: { sourceStudentId: activeStudentId, targetStudentIds } },
+      {
+        onSuccess: detail => {
+          hydrate(detail);
+          setTouched(prev => new Set([...prev, ...targetStudentIds]));
+          setCopyToOpen(false);
+          toast({
+            title: "Copied",
+            description: `Applied to ${targetStudentIds.length} pupil${targetStudentIds.length === 1 ? "" : "s"}.`,
+            type: "success",
+          });
+        },
+        onError: error => toast({ title: "Could not copy", description: getDiaryErrorMessage(error), type: "error" }),
+      },
+    );
+  };
+
+  if (opening && !batch) {
     return (
       <div className="flex flex-col gap-5 px-4 pt-4 pb-10 md:px-8 md:pt-6">
         <ComposeSkeleton />
@@ -158,7 +215,7 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
     );
   }
 
-  if (openFailed || !report) {
+  if (openFailed || !batch || !activeInstance || !activePupil) {
     return (
       <div className="px-4 py-10 md:px-8">
         <ErrorComponent
@@ -167,16 +224,61 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
           buttonText="Try again"
           onClick={() => {
             resetOpen();
-            openReport({ armId, date: reportDate, session }, { onSuccess: hydrate });
+            openBatch({ armId, date: reportDate, session }, { onSuccess: hydrate });
           }}
         />
       </div>
     );
   }
 
-  const statusConfig = DAILY_REPORT_STATUS_CONFIG[report.status];
+  if (batch.readOnly) {
+    return (
+      <div className="flex flex-col">
+        <div className="border-border-default bg-bg-default flex items-center gap-3 border-b px-4 py-3 md:px-8">
+          <Button
+            onClick={() => router.push("/staff/daily-diary")}
+            className="border-border-default text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md border"
+          >
+            <ArrowLeftS fill="var(--color-icon-default)" className="size-4" />
+            Back
+          </Button>
+          <h1 className="text-text-default truncate text-lg leading-7 font-semibold">{batch.armName}</h1>
+        </div>
+
+        <div className="flex flex-col gap-4 px-4 py-10 md:px-8">
+          <div className="border-border-blue bg-bg-badge-blue flex flex-col items-start gap-3 rounded-lg border px-4 py-4">
+            <p className="text-text-default text-[13px] leading-[18px]">
+              This report predates per-pupil daily reports and can&apos;t be edited here — every pupil in it shares one published report.
+            </p>
+            <Button
+              onClick={() => router.push(`/staff/daily-diary/${armId}/report/${batch.id}`)}
+              className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 rounded-md"
+            >
+              View published report
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const statusConfig = DAILY_REPORT_STATUS_CONFIG[batch.status];
   // Includes opening so a session switch's re-fetch can't be raced by Save/Publish acting on stale form state.
-  const busy = saving || publishing || opening;
+  const busy = saving || publishing || opening || copying;
+  const publishedById = new Map(pupils.map(pupil => [pupil.studentId, pupil.published]));
+  const pupilStateById = Object.fromEntries(
+    instances.map(instance => [
+      instance.studentId,
+      { included: instance.included, edited: touched.has(instance.studentId), published: publishedById.get(instance.studentId) ?? false },
+    ]),
+  );
+  // Published pupils' content can only change via a re-publish, so copying a draft onto them would silently do nothing.
+  const copyTargets = pupils.filter(pupil => pupil.studentId !== activeStudentId && !pupil.published);
+  const copyDefaultSelected = new Set(
+    copyTargets.filter(pupil => pupilStateById[pupil.studentId]?.included && !touched.has(pupil.studentId)).map(pupil => pupil.studentId),
+  );
+  const previewInstance = instances.find(instance => instance.studentId === previewStudentId) ?? activeInstance;
+  const previewPupil = pupils.find(pupil => pupil.studentId === previewStudentId) ?? activePupil;
 
   return (
     <div className="flex flex-col">
@@ -189,15 +291,21 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
             <ArrowLeftS fill="var(--color-icon-default)" className="size-4" />
             Back
           </Button>
-          <h1 className="text-text-default truncate text-lg leading-7 font-semibold">{report.armName}</h1>
+          <h1 className="text-text-default truncate text-lg leading-7 font-semibold">{batch.armName}</h1>
           <DotBadge label={statusConfig.label} dot={statusConfig.dot} className={statusConfig.badge} />
-          {report.lastSavedAt && <span className="text-text-muted hidden text-xs lg:inline">Autosaved {formatTime(report.lastSavedAt)}</span>}
+          {batch.lastSavedAt && <span className="text-text-muted hidden text-xs lg:inline">Autosaved {formatTime(batch.lastSavedAt)}</span>}
         </div>
 
         <div className="flex-1" />
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={() => setPreviewOpen(true)} className="border-border-default text-text-default bg-bg-card h-8 gap-1.5 rounded-md border">
+          <Button
+            onClick={() => {
+              setPreviewStudentId(activeStudentId);
+              setPreviewOpen(true);
+            }}
+            className="border-border-default text-text-default bg-bg-card h-8 gap-1.5 rounded-md border"
+          >
             <Eye fill="var(--color-icon-default)" className="size-4" />
             Preview as parent
           </Button>
@@ -215,7 +323,7 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
             className="bg-bg-state-primary hover:bg-bg-state-primary-hover! text-text-white-default h-8 gap-1.5 rounded-md"
           >
             <SendPlaneFill fill="var(--color-icon-white-default)" className="size-4" />
-            {publishing ? "Publishing…" : "Publish to parents"}
+            {publishing ? "Publishing…" : `Publish to ${includedCount} parent${includedCount === 1 ? "" : "s"}`}
           </Button>
         </div>
       </div>
@@ -242,54 +350,159 @@ export const ComposeDailyReport = ({ armId, date, session: initialSession }: { a
               <span className="text-text-muted text-[13px]">•</span>
             </>
           )}
-          <p className="text-text-default text-[13px] leading-[18px] font-medium">{formatLongDate(report.date)}</p>
+          <p className="text-text-default text-[13px] leading-[18px] font-medium">{formatLongDate(batch.date)}</p>
           <span className="text-text-muted text-[13px]">•</span>
           <p className="text-text-muted text-[13px] leading-[18px]">
-            {report.attendancePresent === null || report.attendanceAbsent === null
+            {batch.attendancePresent === null || batch.attendanceAbsent === null
               ? "Register has not been taken for this class yet"
-              : `Attendance pulled from register: ${report.attendancePresent} present, ${report.attendanceAbsent} absent`}
+              : `Attendance pulled from register: ${batch.attendancePresent} present, ${batch.attendanceAbsent} absent`}
           </p>
           <div className="hidden flex-1 lg:block" />
-          <p className="text-text-default text-xs leading-4 font-medium">Goes to {report.recipientCount} parents</p>
+          <p className="text-text-default text-xs leading-4 font-medium">
+            Sending to {includedCount} of {pupils.length} parents
+          </p>
         </div>
 
-        <EntriesTable entries={entries} onChange={setEntries} allowedTypes={allowedTypes} disabled={busy} />
+        <div className="border-border-default bg-bg-card flex flex-col gap-3 rounded-lg border p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-col gap-0.5">
+              <p className="text-text-default text-sm leading-5 font-semibold">Recipients</p>
+              <p className="text-text-muted text-xs leading-4">
+                Only parents left selected here receive anything when you publish. Each pupil below has their own, independent report. A parent who
+                has already been sent a report can&apos;t be removed.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setRecipientsOpen(true)}
+              className="border-border-darker text-text-default bg-bg-card h-8 shrink-0 gap-1.5 rounded-md"
+            >
+              <UserFill fill="var(--color-icon-default)" className="size-4" />
+              Edit recipients
+            </Button>
+          </div>
 
-        <SnapshotCard
-          fields={snapshotFields}
-          values={snapshot}
-          onChange={setSnapshot}
-          applyToClass={applySnapshotToClass}
-          onApplyToClassChange={setApplySnapshotToClass}
+          <PupilSwitcher pupils={pupils} activeStudentId={activeStudentId} onSelect={setActiveStudentId} stateByStudentId={pupilStateById} />
+        </div>
+
+        {activePupil.published ? (
+          <div className="border-border-blue bg-bg-badge-blue flex flex-wrap items-center gap-2 rounded-lg border px-4 py-2.5">
+            <p className="text-text-default text-[13px] leading-[18px]">
+              {activePupil.studentName}&apos;s report has already been sent. &ldquo;Save draft&rdquo; won&apos;t change it — use Publish to send a
+              correction.
+            </p>
+          </div>
+        ) : (
+          !activeInstance.included && (
+            <div className="border-border-amber bg-bg-badge-amber flex flex-wrap items-center gap-2 rounded-lg border px-4 py-2.5">
+              <p className="text-text-default text-[13px] leading-[18px]">
+                {activePupil.studentName}&apos;s parent is not currently a recipient — anything saved here won&apos;t be sent.
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => updateActive({ included: true })}
+                className="border-border-darker text-text-default bg-bg-card h-7 shrink-0 rounded-md px-2.5 text-xs"
+              >
+                Add back as a recipient
+              </Button>
+            </div>
+          )
+        )}
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-text-default text-sm leading-5 font-semibold">Editing {activePupil.studentName}&apos;s report</p>
+          {pupils.length > 1 && (
+            <Button
+              variant="outline"
+              onClick={() => setCopyToOpen(true)}
+              disabled={busy}
+              className="border-border-darker text-text-default bg-bg-card h-8 rounded-md"
+            >
+              Copy to other pupils
+            </Button>
+          )}
+        </div>
+
+        <EntriesTable
+          entries={activeInstance.entries}
+          onChange={(entries: DiaryEntryPayload[]) => updateActive({ entries })}
+          allowedTypes={allowedTypes}
           disabled={busy}
         />
 
-        <PupilNotesCard pupilNotes={pupilNotes} onChange={setPupilNotes} recipientCount={report.recipientCount} disabled={busy} />
+        <SnapshotCard
+          fields={snapshotFields}
+          values={activeInstance.snapshot ?? {}}
+          onChange={(snapshot: SnapshotValues) => updateActive({ snapshot })}
+          disabled={busy}
+        />
+
+        <PersonalNoteCard
+          studentName={activePupil.studentName}
+          note={activeInstance.note ?? ""}
+          onChange={note => updateActive({ note })}
+          disabled={busy}
+        />
 
         <SignOffCard
-          value={signOff}
-          onChange={setSignOff}
+          value={{
+            requireAcknowledgement: activeInstance.requireAcknowledgement ?? true,
+            requestComment: activeInstance.requestComment ?? true,
+            sendPushSms: activeInstance.sendPushSms ?? false,
+          }}
+          onChange={(value: SignOffOptions) => updateActive(value)}
           teacherName={user.name ?? "you"}
           teacherRole="Class teacher"
-          armName={report.armName}
+          armName={batch.armName}
           signatureConfigurable={signatureConfigurable}
           disabled={busy}
         />
       </div>
 
-      <ParentPreviewModal
-        open={previewOpen}
-        setOpen={setPreviewOpen}
-        date={report.date}
-        teacherName={user.name ?? "Your teacher"}
-        teacherRole="Class teacher"
-        armName={report.armName}
-        entries={sortEntries(entries)}
-        snapshotFields={snapshotFields}
-        snapshot={snapshot}
-        requireAcknowledgement={signOff.requireAcknowledgement}
-        requestComment={signOff.requestComment}
+      <SelectDiaryRecipientsModal
+        open={recipientsOpen}
+        onOpenChange={setRecipientsOpen}
+        pupils={pupils}
+        includedIds={new Set(instances.filter(instance => instance.included).map(instance => instance.studentId))}
+        onConfirm={includedIds =>
+          setInstances(prev =>
+            prev.map(instance => ({
+              ...instance,
+              included: publishedById.get(instance.studentId) || includedIds.has(instance.studentId),
+            })),
+          )
+        }
       />
+
+      <CopyToPupilsModal
+        open={copyToOpen}
+        onOpenChange={setCopyToOpen}
+        sourceName={activePupil.studentName}
+        targets={copyTargets}
+        defaultSelectedIds={copyDefaultSelected}
+        onConfirm={handleCopyTo}
+        isPending={copying}
+      />
+
+      {previewInstance && previewPupil && (
+        <ParentPreviewModal
+          open={previewOpen}
+          setOpen={setPreviewOpen}
+          date={batch.date}
+          teacherName={user.name ?? "Your teacher"}
+          teacherRole="Class teacher"
+          armName={batch.armName}
+          entries={sortEntries(previewInstance.entries)}
+          snapshotFields={snapshotFields}
+          snapshot={previewInstance.snapshot ?? {}}
+          note={previewInstance.note ?? null}
+          requireAcknowledgement={previewInstance.requireAcknowledgement ?? true}
+          requestComment={previewInstance.requestComment ?? true}
+          pupils={pupils}
+          activeStudentId={previewStudentId}
+          onSelectStudent={setPreviewStudentId}
+        />
+      )}
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import {
   AcknowledgementFilter,
+  ApplyDiaryTemplateRequest,
+  applyDiaryTemplate,
   approveWeeklyReport,
   DiaryClassListParams,
   DiaryOverviewParams,
@@ -7,26 +9,28 @@ import {
   exportDailyReportPdf,
   ExportTermDiaryRequest,
   exportTermDiaryPdf,
-  getDailyReport,
-  getDailyReportStats,
+  getDiaryBatch,
+  getDiaryBatchStats,
   getDiaryClasses,
   getDiaryOverview,
+  getDiaryReportInstance,
   getDiarySettings,
+  getDailyReportStats,
   getLearningAreas,
   getReportAcknowledgements,
   getReportComments,
   getWeeklyDiaryClasses,
   getWeeklyReport,
   LearningAreaParams,
-  openDailyReport,
+  openDiaryBatch,
   openWeeklyReport,
-  publishDailyReport,
+  publishDiaryBatch,
   rejectWeeklyReport,
   remindUnsignedParents,
   replyToAllComments,
   replyToComment,
-  SaveDailyReportPayload,
-  saveDailyReport,
+  SaveDiaryBatchPayload,
+  saveDiaryBatch,
   SaveWeeklyReportPayload,
   saveWeeklyReport,
   submitWeeklyReport,
@@ -65,10 +69,28 @@ export const useGetWeeklyDiaryClasses = (params: WeeklyDiaryClassListParams, ena
   });
 };
 
-export const useGetDailyReport = (reportId?: number) => {
+export const useGetDiaryBatch = (batchId?: number) => {
+  return useQuery({
+    queryKey: diaryKeys.batch(batchId ?? 0),
+    queryFn: () => getDiaryBatch(batchId as number),
+    enabled: !!batchId,
+    retry: false,
+  });
+};
+
+export const useGetDiaryBatchStats = (batchId?: number) => {
+  return useQuery({
+    queryKey: diaryKeys.batchStats(batchId ?? 0),
+    queryFn: () => getDiaryBatchStats(batchId as number),
+    enabled: !!batchId,
+    retry: false,
+  });
+};
+
+export const useGetDiaryReportInstance = (reportId?: number) => {
   return useQuery({
     queryKey: diaryKeys.report(reportId ?? 0),
-    queryFn: () => getDailyReport(reportId as number),
+    queryFn: () => getDiaryReportInstance(reportId as number),
     enabled: !!reportId,
     retry: false,
   });
@@ -127,43 +149,52 @@ export const useGetDiarySettings = () => {
   });
 };
 
-const useInvalidateReport = () => {
+const useInvalidateBatch = () => {
   const queryClient = useQueryClient();
-  return (reportId?: number) => {
+  return (batchId?: number) => {
     queryClient.invalidateQueries({ queryKey: ["diary", "classes"] });
     queryClient.invalidateQueries({ queryKey: ["diary", "weekly-classes"] });
     queryClient.invalidateQueries({ queryKey: ["diary", "overview"] });
-    if (reportId) {
-      queryClient.invalidateQueries({ queryKey: diaryKeys.report(reportId) });
-      queryClient.invalidateQueries({ queryKey: diaryKeys.reportStats(reportId) });
+    if (batchId) {
+      queryClient.invalidateQueries({ queryKey: diaryKeys.batch(batchId) });
+      queryClient.invalidateQueries({ queryKey: diaryKeys.batchStats(batchId) });
     }
   };
 };
 
-export const useOpenDailyReport = () => {
-  const invalidate = useInvalidateReport();
+export const useOpenDiaryBatch = () => {
+  const invalidate = useInvalidateBatch();
   return useMutation({
-    mutationKey: diaryKeys.openReport,
-    mutationFn: openDailyReport,
-    onSuccess: report => invalidate(report?.id),
+    mutationKey: diaryKeys.openBatch,
+    mutationFn: openDiaryBatch,
+    onSuccess: batch => invalidate(batch?.id),
   });
 };
 
-export const useSaveDailyReport = () => {
-  const invalidate = useInvalidateReport();
+export const useSaveDiaryBatch = () => {
+  const invalidate = useInvalidateBatch();
   return useMutation({
-    mutationKey: diaryKeys.saveReport,
-    mutationFn: ({ reportId, payload }: { reportId: number; payload: SaveDailyReportPayload }) => saveDailyReport(reportId, payload),
-    onSuccess: report => invalidate(report?.id),
+    mutationKey: diaryKeys.saveBatch,
+    mutationFn: ({ batchId, payload }: { batchId: number; payload: SaveDiaryBatchPayload }) => saveDiaryBatch(batchId, payload),
+    onSuccess: batch => invalidate(batch?.id),
   });
 };
 
-export const usePublishDailyReport = () => {
-  const invalidate = useInvalidateReport();
+export const usePublishDiaryBatch = () => {
+  const invalidate = useInvalidateBatch();
   return useMutation({
-    mutationKey: diaryKeys.publishReport,
-    mutationFn: ({ reportId, payload }: { reportId: number; payload: SaveDailyReportPayload }) => publishDailyReport(reportId, payload),
-    onSuccess: report => invalidate(report?.id),
+    mutationKey: diaryKeys.publishBatch,
+    mutationFn: ({ batchId, payload }: { batchId: number; payload: SaveDiaryBatchPayload }) => publishDiaryBatch(batchId, payload),
+    onSuccess: result => invalidate(result?.batch?.id),
+  });
+};
+
+export const useApplyDiaryTemplate = () => {
+  const invalidate = useInvalidateBatch();
+  return useMutation({
+    mutationKey: diaryKeys.applyTemplate,
+    mutationFn: ({ batchId, payload }: { batchId: number; payload: ApplyDiaryTemplateRequest }) => applyDiaryTemplate(batchId, payload),
+    onSuccess: batch => invalidate(batch?.id),
   });
 };
 
@@ -273,6 +304,7 @@ export const useUpdateDiarySettings = () => {
       queryClient.setQueryData(diaryKeys.settings, settings);
       // Templates and the response rule change what the composer renders, so drop cached reports too.
       queryClient.invalidateQueries({ queryKey: ["diary", "report"] });
+      queryClient.invalidateQueries({ queryKey: ["diary", "batch"] });
     },
   });
 };
