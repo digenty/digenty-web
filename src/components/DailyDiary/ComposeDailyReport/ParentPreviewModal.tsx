@@ -6,10 +6,12 @@ import { MobileDrawer } from "@/components/MobileDrawer";
 import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 import { DiaryCard, DiaryCardHeader, DotBadge, EntryTypeBadge, formatDayAndMonth } from "../shared";
+import { DiaryPupil } from "./SelectDiaryRecipientsModal";
 
 type Props = {
   open: boolean;
@@ -21,8 +23,13 @@ type Props = {
   entries: DiaryEntryPayload[];
   snapshotFields: SnapshotField[];
   snapshot: SnapshotValues;
+  note: string | null;
   requireAcknowledgement: boolean;
   requestComment: boolean;
+  /** Only included pupils - lets the teacher check exactly what a specific parent will receive. */
+  pupils: DiaryPupil[];
+  activeStudentId: number | null;
+  onSelectStudent: (studentId: number) => void;
 };
 
 export const ParentPreviewModal = ({
@@ -35,8 +42,12 @@ export const ParentPreviewModal = ({
   entries,
   snapshotFields,
   snapshot,
+  note,
   requireAcknowledgement,
   requestComment,
+  pupils,
+  activeStudentId,
+  onSelectStudent,
 }: Props) => {
   const isMobile = useIsMobile();
 
@@ -51,6 +62,27 @@ export const ParentPreviewModal = ({
         <div className="border-border-blue bg-bg-badge-blue rounded-lg border px-3 py-2.5">
           <p className="text-text-default text-xs leading-4">This is how parents will see this report. Nothing here can be changed or signed.</p>
         </div>
+
+        {pupils.length > 1 && (
+          <div className="flex items-center gap-2.5">
+            <p className="text-text-muted shrink-0 text-xs leading-4 font-medium">Previewing as</p>
+            <Select value={activeStudentId ? String(activeStudentId) : undefined} onValueChange={value => onSelectStudent(Number(value))}>
+              <SelectTrigger
+                className="border-border-default bg-bg-card h-8 w-full border text-[13px] focus-visible:ring-0"
+                aria-label="Previewing as"
+              >
+                <SelectValue placeholder="Select a pupil" />
+              </SelectTrigger>
+              <SelectContent className="bg-bg-card border-border-default border">
+                {pupils.map(pupil => (
+                  <SelectItem key={pupil.studentId} value={String(pupil.studentId)} className="text-text-default text-sm">
+                    {pupil.studentName}&apos;s parent
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <h2 className="text-text-default text-base leading-6 font-semibold">{formatDayAndMonth(date)}</h2>
 
@@ -109,6 +141,16 @@ export const ParentPreviewModal = ({
               ))}
             </div>
           </DiaryCard>
+        )}
+
+        {note && note.trim() && (
+          <div className="border-border-blue bg-bg-badge-blue flex flex-col gap-1.5 rounded-lg border p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-text-default text-[13px] leading-4.5 font-semibold">A note just for you</p>
+              <DotBadge label="Private" dot="bg-bg-basic-blue-accent" className="bg-bg-card" />
+            </div>
+            <p className="text-text-default text-[13px] leading-4.5">{note}</p>
+          </div>
         )}
 
         {requestComment && (

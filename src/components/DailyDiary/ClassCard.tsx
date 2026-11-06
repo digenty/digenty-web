@@ -13,6 +13,7 @@ import { DotBadge, formatTime, ProgressBar } from "./shared";
 
 const statusTone = (status: ClassDiarySummary["status"]) => {
   if (status === "PUBLISHED") return "bg-bg-basic-green-accent";
+  if (status === "PARTIALLY_PUBLISHED") return "bg-bg-basic-blue-accent";
   if (status === "DRAFT") return "bg-bg-basic-amber-accent";
   return "bg-bg-basic-gray-accent";
 };
@@ -38,10 +39,15 @@ export const ClassCard = ({ item }: { item: ClassDiarySummary }) => {
   const { data: attendanceSettings } = useGetAttendanceSettingsByLevel(item.levelId);
   const takesTwoSessions = (attendanceSettings?.data?.sessionsPerDay ?? 1) === 2;
 
-  const statusLabel = item.status === "PUBLISHED" && item.publishedAt ? `Published ${formatTime(item.publishedAt)}` : config.label;
+  const statusLabel =
+    item.status === "PUBLISHED" && item.publishedAt
+      ? `Published ${formatTime(item.publishedAt)}`
+      : item.status === "PARTIALLY_PUBLISHED"
+        ? `Sent to ${item.publishedCount} of ${item.includedCount} selected`
+        : config.label;
 
   const subLabel = (() => {
-    if (item.status === "PUBLISHED") return `${item.signedCount} of ${item.totalParents} parents signed`;
+    if (item.status === "PUBLISHED" || item.status === "PARTIALLY_PUBLISHED") return `${item.signedCount} of ${item.totalParents} parents signed`;
     if (item.status === "DRAFT") {
       const saved = item.lastSavedAt ? `Saved ${formatTime(item.lastSavedAt)}` : "Draft saved";
       return item.lastSavedBy ? `${saved} by ${item.lastSavedBy}` : saved;
@@ -49,8 +55,8 @@ export const ClassCard = ({ item }: { item: ClassDiarySummary }) => {
     return "No entry for today";
   })();
 
-  const isPublished = item.status === "PUBLISHED";
-  const openReport = () => router.push(`/staff/daily-diary/${item.armId}/report/${item.reportId}`);
+  const hasBeenPublished = item.status === "PUBLISHED" || item.status === "PARTIALLY_PUBLISHED";
+  const openReport = () => router.push(`/staff/daily-diary/${item.armId}/report/${item.batchId}`);
 
   const writeReport = () => router.push(`/staff/daily-diary/${item.armId}/compose${takesTwoSessions ? "?session=MORNING" : ""}`);
 
@@ -61,10 +67,10 @@ export const ClassCard = ({ item }: { item: ClassDiarySummary }) => {
       <div className="flex flex-col gap-3">
         <DotBadge label={statusLabel} dot={config.dot} className={config.badge} />
         <p className="text-text-muted text-xs leading-4">{subLabel}</p>
-        <ProgressBar value={isPublished ? item.signedCount : 0} total={item.totalParents} tone={statusTone(item.status)} />
+        <ProgressBar value={hasBeenPublished ? item.signedCount : 0} total={item.totalParents} tone={statusTone(item.status)} />
       </div>
 
-      {isPublished && item.reportId ? (
+      {hasBeenPublished && item.batchId ? (
         <Button variant="outline" onClick={openReport} className="border-border-darker text-text-default bg-bg-card w-full rounded-md">
           Open →
         </Button>

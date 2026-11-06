@@ -1,11 +1,11 @@
 "use client";
 
-import { DailyReportDetail } from "@/api/diary";
+import { DiaryReportInstanceDetail } from "@/api/diary";
 import { DiaryCard, DotBadge, EntryTypeBadge, formatDateTime, formatLongDate, sortEntries } from "@/components/DailyDiary/shared";
 import { Button } from "@/components/ui/button";
 
 type Props = {
-  report: DailyReportDetail;
+  report: DiaryReportInstanceDetail;
   onViewFullReport?: () => void;
 };
 
