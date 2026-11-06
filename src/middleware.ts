@@ -46,10 +46,15 @@ function isOwnPlatformHost(hostname: string): boolean {
 //   hide real outages behind the wrong page.
 type ResolveResult = { kind: "found"; slug: string; live: boolean } | { kind: "not_found" } | { kind: "unavailable" };
 
+// Unlike the axios clients (which normalize a trailing slash on baseURL for us), this is a raw
+// template literal — a trailing slash on the env var would silently produce a double slash, which
+// the backend rejects with an empty 403 rather than routing it, masquerading as "unavailable".
+const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/+$/, "");
+
 async function resolveConnectedDomain(host: string): Promise<ResolveResult> {
   let res: Response;
   try {
-    res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/public/website/resolve?host=${encodeURIComponent(host)}`, {
+    res = await fetch(`${API_BASE}/public/website/resolve?host=${encodeURIComponent(host)}`, {
       next: { revalidate: 60 },
     });
   } catch (err) {
