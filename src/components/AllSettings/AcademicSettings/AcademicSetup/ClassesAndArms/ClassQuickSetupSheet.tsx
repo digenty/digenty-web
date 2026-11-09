@@ -1,3 +1,4 @@
+import { Lock } from "@digenty/icons";
 import { ArmDetails, ClassLevel, DepartmentWithSubjects } from "@/api/types";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
@@ -22,138 +23,24 @@ import {
   useToggleDepartmentForLevel,
 } from "@/hooks/queryHooks/useDepartment";
 import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
-import { useAddSubject, useDeleteSubject, useGetAllSubjects, useGetSubjectsByLevel } from "@/hooks/queryHooks/useSubject";
+import { useAddSubject, useDeleteSubject, useGetAllSubjects, useGetSubjectsByLevel, useUpdateSubjectByLevel } from "@/hooks/queryHooks/useSubject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { canManageSettings } from "@/lib/permissions/settings";
-import { cn } from "@/lib/utils";
+import { cn, toTitleCase } from "@/lib/utils";
 import { armKeys } from "@/queries/arm";
 import { departmentKeys } from "@/queries/department";
 import { subjectKeys } from "@/queries/subject";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
-import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as yup from "yup";
 import { AssignArmsToDepartments } from "./AssignArmsToDepartments";
+import { LevelItemsSection } from "./LevelItemsSection";
 import { getApiErrorMessage } from "@/lib/apiError";
 
 const startclasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 const endClasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
-
-const LevelItemsSection = ({
-  existingItems,
-  globalOptions,
-  isLoadingOptions,
-  onAdd,
-  onDelete,
-  isAdding,
-  deletingName,
-  placeholder,
-}: {
-  existingItems: string[];
-  globalOptions: string[];
-  isLoadingOptions: boolean;
-  onAdd: (names: string[]) => void;
-  onDelete: (name: string) => void;
-  isAdding: boolean;
-  deletingName: string | null;
-  placeholder: string;
-}) => {
-  const [inputValue, setInputValue] = useState("");
-
-  const handleAdd = () => {
-    const names = inputValue
-      .split(",")
-      .map(s => s.trim())
-      .filter(s => s !== "" && !existingItems.includes(s));
-    if (!names.length) {
-      setInputValue("");
-      return;
-    }
-    onAdd(names);
-    setInputValue("");
-  };
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-        <Input
-          type="text"
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          onKeyDown={e => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              handleAdd();
-            }
-          }}
-          placeholder={placeholder}
-          className="text-text-default h-7! w-full rounded-md border-none text-sm font-normal"
-        />
-        {inputValue.trim() && (
-          <PermissionCheck permissionUtility={canManageSettings}>
-            <Button
-              type="button"
-              onClick={handleAdd}
-              disabled={isAdding}
-              className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! shrink-0 rounded-md px-2 text-xs"
-            >
-              {isAdding ? <Spinner className="text-text-white-default size-3" /> : "Add"}
-            </Button>
-          </PermissionCheck>
-        )}
-      </div>
-
-      {existingItems.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {existingItems.map(name => (
-            <div key={name} className="bg-bg-state-primary/10 border-border-default flex items-center gap-3 rounded-md border px-1.5 py-0.5">
-              <PermissionCheck permissionUtility={canManageSettings}>
-                <button
-                  type="button"
-                  onClick={() => onDelete(name)}
-                  disabled={deletingName === name}
-                  className="text-text-destructive shrink-0 cursor-pointer transition-colors disabled:opacity-50"
-                >
-                  {deletingName === name ? <Spinner className="text-text-muted size-3" /> : <X size={11} />}
-                </button>
-              </PermissionCheck>
-              <span className="text-text-default text-xs capitalize">{name.toLowerCase()}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {isLoadingOptions ? (
-        <div className="flex items-center gap-2">
-          <Spinner className="text-text-muted size-3" />
-          <span className="text-text-muted text-xs">Loading suggestions...</span>
-        </div>
-      ) : globalOptions.length > 0 ? (
-        <div className="flex flex-col gap-2">
-          <span className="text-text-muted text-xs">Suggestions — click to add</span>
-          <div className="flex flex-wrap gap-2">
-            {globalOptions.map(name => (
-              <PermissionCheck key={name} permissionUtility={canManageSettings}>
-                <button
-                  type="button"
-                  onClick={() => onAdd([name])}
-                  disabled={isAdding || !!deletingName}
-                  className="border-border-default text-text-default hover:bg-bg-state-soft cursor-pointer rounded-md border px-1.5 py-0.5 text-xs capitalize transition-colors disabled:opacity-50"
-                >
-                  {name.toLowerCase()}
-                </button>
-              </PermissionCheck>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      <div className="text-text-muted text-xs">Click a suggestion to add, or type above. Comma-separate multiple entries.</div>
-    </div>
-  );
-};
 
 const DepartmentSubjectsSection = ({
   dept,
@@ -225,7 +112,7 @@ const DepartmentSubjectsSection = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <Label className="text-text-default text-sm font-medium capitalize">{dept.name.toLowerCase()} Subjects</Label>
+      <Label className="text-text-default text-sm font-medium">{toTitleCase(dept.name)} Subjects</Label>
       <LevelItemsSection
         existingItems={existingSubjectNames}
         globalOptions={availableSubjects}
@@ -234,7 +121,8 @@ const DepartmentSubjectsSection = ({
         onDelete={handleDelete}
         isAdding={isAddingSubject}
         deletingName={deletingSubjectName}
-        placeholder={`Search or add subjects to ${dept.name.toLowerCase()}`}
+        placeholder={`Search or add subjects to ${toTitleCase(dept.name)}`}
+        twoPerRow
       />
     </div>
   );
@@ -271,6 +159,7 @@ export const ClassQuickSetupSheet = ({
   // level. Closing should only be blocked once the user has actually saved in *this* sheet.
   const [hasSavedLevelDetailsThisSession, setHasSavedLevelDetailsThisSession] = useState(false);
   const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
+  const [renamingSubjectName, setRenamingSubjectName] = useState<string | null>(null);
   const [deletingArmName, setDeletingArmName] = useState<string | null>(null);
   const [deletingDepartmentName, setDeletingDepartmentName] = useState<string | null>(null);
 
@@ -280,6 +169,7 @@ export const ClassQuickSetupSheet = ({
   const { mutate, isPending } = useUpdateLevel();
   const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubject();
   const { mutate: deleteSubject } = useDeleteSubject();
+  const { mutate: renameSubject } = useUpdateSubjectByLevel();
   const { mutate: mutateArm, isPending: isAddingArm } = useAddArm();
   const { mutate: deleteArm } = useDeleteArm();
   const { mutate: mutateDepartment, isPending: isAddingDepartment } = useAddDepartmentsToLevel();
@@ -439,6 +329,26 @@ export const ClassQuickSetupSheet = ({
     );
   };
 
+  const handleRenameSubject = (oldName: string, newName: string) => {
+    const subject = subjectsDetails.find(s => s.name === oldName);
+    if (!subject) return;
+    setRenamingSubjectName(oldName);
+    renameSubject(
+      { subjectId: subject.id, levelId: level.id, name: newName },
+      {
+        onSuccess: () => {
+          setRenamingSubjectName(null);
+          queryClient.refetchQueries({ queryKey: subjectKeys.subjectsByLevel(level.levelType, branchId) });
+          toast({ title: "Subject renamed", description: `"${toTitleCase(oldName)}" renamed to "${toTitleCase(newName)}"`, type: "success" });
+        },
+        onError: error => {
+          setRenamingSubjectName(null);
+          toast({ title: "Failed to rename subject", description: getApiErrorMessage(error, "Could not rename subject"), type: "error" });
+        },
+      },
+    );
+  };
+
   const handleAddArm = (names: string[]) => {
     const newNames = names.filter(n => !arms.includes(n));
     if (!newNames.length) return;
@@ -520,70 +430,91 @@ export const ClassQuickSetupSheet = ({
     );
   };
 
+  const previewClassNames = useMemo(() => {
+    const prefix = values.classNamePrefix.trim();
+    const start = Number(values.startClass);
+    const end = Number(values.endClass);
+    if (!prefix || !values.startClass || !values.endClass || Number.isNaN(start) || Number.isNaN(end) || start > end) return [];
+    const names: string[] = [];
+    for (let n = start; n <= end; n++) names.push(`${toTitleCase(prefix)} ${n}`);
+    return names;
+  }, [values.classNamePrefix, values.startClass, values.endClass]);
+
+  const exampleArmPrefix = values.classNamePrefix.trim() ? `${toTitleCase(values.classNamePrefix.trim())} 1` : "Primary 1";
+
   const contentNode = (
-    <div className={cn("flex w-full flex-col gap-6 py-6", isMobile ? "px-4" : "px-6")}>
+    <div className={cn("flex w-full flex-col gap-8 py-6", isMobile ? "px-4" : "px-6")}>
       <div className="text-text-default flex flex-col gap-2 text-xl font-semibold">
         <span>Customize Level</span>
         <p className="text-text-muted text-sm font-normal">
-          This level setup establishes default class labels, ranges, subjects, and arms for all classes in the level. Once created, each individual
-          class can still be customized as needed
+          This sets up how classes in this level are named, and what subjects and groups they have. You can still fine-tune each individual class
+          afterwards.
         </p>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="levelName" className="text-text-default text-sm font-medium">
-          Level name<small className="text-text-destructive text-xs">*</small>
-        </Label>
-        <Input
-          id="levelName"
-          onChange={handleChange}
-          placeholder={`${level?.levelName.replaceAll("_", " ").toLowerCase()}`}
-          onBlur={handleBlur}
-          value={values.levelName.replaceAll("_", " ").toLowerCase()}
-          type="text"
-          className={cn(
-            "text-text-muted bg-bg-input-soft! border-none text-sm font-normal capitalize",
-            errors.levelName && touched.levelName && "border-border-destructive border",
-          )}
-        />
-        {touched.levelName && errors.levelName && typeof errors.levelName === "string" && (
-          <p className="text-text-destructive text-xs font-light">{errors.levelName}</p>
-        )}
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="classNamePrefix" className="text-text-default text-sm font-medium">
-          Class Label<small className="text-text-destructive text-xs">*</small>
-        </Label>
-        <Input
-          id="classNamePrefix"
-          onChange={handleChange}
-          placeholder="Enter class label"
-          onBlur={handleBlur}
-          value={values.classNamePrefix}
-          type="text"
-          className={cn(
-            "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
-            errors.classNamePrefix && touched.classNamePrefix && "border-border-destructive border",
-          )}
-        />
-        {touched.classNamePrefix && errors.classNamePrefix && typeof errors.classNamePrefix === "string" && (
-          <p className="text-text-destructive text-xs font-light">{errors.classNamePrefix}</p>
-        )}
-        <small className="text-text-muted text-xs">Enter the label that appears before the class number</small>
-        <br />
-        <small className="text-text-muted text-xs">(eg: Creche, Nursery, Grade, Primary, Form, JSS, SSS etc.)</small>
-      </div>
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center gap-3">
+          <span className="bg-bg-state-soft text-text-default flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+            1
+          </span>
+          <span className="text-text-default text-xl font-semibold">Level Basics</span>
+        </div>
 
-      <div className="border-border-default flex flex-col gap-6 border-b pb-6">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-2">
+          <Label htmlFor="levelName" className="text-text-default text-sm font-medium">
+            Level name<small className="text-text-destructive text-xs">*</small>
+          </Label>
+          <Input
+            id="levelName"
+            onChange={handleChange}
+            placeholder={toTitleCase(level?.levelName ?? "")}
+            onBlur={handleBlur}
+            value={values.levelName.replaceAll("_", " ").toLowerCase()}
+            type="text"
+            className={cn(
+              "text-text-muted bg-bg-input-soft! border-none text-sm font-normal capitalize",
+              errors.levelName && touched.levelName && "border-border-destructive border",
+            )}
+          />
+          {touched.levelName && errors.levelName && typeof errors.levelName === "string" && (
+            <p className="text-text-destructive text-xs font-light">{errors.levelName}</p>
+          )}
+          <span className="text-text-muted text-xs">What this stage of schooling is called throughout the app, e.g. &quot;Primary&quot;.</span>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="classNamePrefix" className="text-text-default text-sm font-medium">
+            Class Label<small className="text-text-destructive text-xs">*</small>
+          </Label>
+          <Input
+            id="classNamePrefix"
+            onChange={handleChange}
+            placeholder="e.g Primary, JSS, SSS"
+            onBlur={handleBlur}
+            value={values.classNamePrefix}
+            type="text"
+            className={cn(
+              "text-text-muted bg-bg-input-soft! border-none text-sm font-normal",
+              errors.classNamePrefix && touched.classNamePrefix && "border-border-destructive border",
+            )}
+          />
+          {touched.classNamePrefix && errors.classNamePrefix && typeof errors.classNamePrefix === "string" && (
+            <p className="text-text-destructive text-xs font-light">{errors.classNamePrefix}</p>
+          )}
+          <span className="text-text-muted text-xs">
+            The word that comes before the class number (e.g. Creche, Nursery, Grade, Primary, Form, JSS, SSS).
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="flex w-full flex-col gap-2">
-            <Label className="text-text-default text-sm font-medium">Start level</Label>
+            <Label className="text-text-default text-sm font-medium">First class number</Label>
             <Select
               value={values.startClass != null ? `${values.startClass}` : undefined}
               onValueChange={startClass => formik.setFieldValue("startClass", startClass)}
             >
               <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
-                <SelectValue placeholder="Select start level e.g 1" />
+                <SelectValue placeholder="e.g. 1" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 {startclasses.map(str => (
@@ -593,16 +524,18 @@ export const ClassQuickSetupSheet = ({
                 ))}
               </SelectContent>
             </Select>
-            <span className="text-text-muted text-xs">The first class number in this level</span>
+            <span className="text-text-muted text-xs">
+              The number of the first class in this level — not a separate level (e.g. 1 for Primary 1).
+            </span>
           </div>
           <div className="flex w-full flex-col gap-2">
-            <Label className="text-text-default text-sm font-medium">End level</Label>
+            <Label className="text-text-default text-sm font-medium">Last class number</Label>
             <Select
               value={values.endClass != null ? `${values.endClass}` : undefined}
               onValueChange={endClass => formik.setFieldValue("endClass", endClass)}
             >
               <SelectTrigger className="bg-bg-input-soft! h-9! w-full border-none">
-                <SelectValue placeholder="Select end level e.g 6" />
+                <SelectValue placeholder="e.g. 6" />
               </SelectTrigger>
               <SelectContent className="bg-bg-card border-border-default">
                 {endClasses.map(str => (
@@ -612,134 +545,163 @@ export const ClassQuickSetupSheet = ({
                 ))}
               </SelectContent>
             </Select>
-            <span className="text-text-muted text-xs">The last class number in this level</span>
+            <span className="text-text-muted text-xs">The number of the last class in this level (e.g. 6 for Primary 6).</span>
           </div>
         </div>
 
-        <PermissionCheck permissionUtility={canManageSettings}>
-          <Button
-            disabled={!formik.dirty || isPending}
-            type="button"
-            onClick={() => formik.handleSubmit()}
-            className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 self-end rounded-sm px-2 py-1"
-          >
-            {isPending && <Spinner className="text-text-white-default" />}
-            Save
-          </Button>
-        </PermissionCheck>
+        {previewClassNames.length > 0 && (
+          <div className="bg-bg-input-soft border-border-default flex flex-col gap-2 rounded-md border p-3">
+            <span className="text-text-default text-xs font-medium">This will create these classes:</span>
+            <div className="flex flex-wrap gap-2">
+              {previewClassNames.map(name => (
+                <span key={name} className="bg-bg-badge-gray text-text-default rounded-md px-2 py-1 text-xs">
+                  {name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="border-border-default flex border-b pb-6">
+          <PermissionCheck permissionUtility={canManageSettings}>
+            <Button
+              disabled={!formik.dirty || isPending}
+              type="button"
+              onClick={() => formik.handleSubmit()}
+              className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-fit items-center gap-1 self-end rounded-sm px-3 py-1"
+            >
+              {isPending && <Spinner className="text-text-white-default" />}
+              Save Level Basics
+            </Button>
+          </PermissionCheck>
+        </div>
       </div>
 
-      {!isLevelDetailsSaved && (
-        <div className="bg-bg-subtle border-border-default rounded-md border p-3">
-          <p className="text-text-subtle text-xs">Save the level details above to unlock departments, subjects, and arms.</p>
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center gap-3">
+          <span className="bg-bg-state-soft text-text-default flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+            2
+          </span>
+          <span className="text-text-default text-xl font-semibold">Subjects &amp; Departments</span>
+          {!isLevelDetailsSaved && <Lock fill="var(--color-icon-default-muted)" className="size-3.5" />}
         </div>
-      )}
 
-      <fieldset
-        disabled={!isLevelDetailsSaved}
-        className={cn("m-0 flex flex-col gap-6 border-0 p-0", !isLevelDetailsSaved && "pointer-events-none opacity-50")}
-      >
-        {/* Departments */}
-        {(level?.levelType === "JUNIOR_SECONDARY" || level?.levelType === "SENIOR_SECONDARY") && (
-          <div className="flex flex-col gap-6">
-            <div className="text-text-default text-xl font-semibold">Departments</div>
-            <div className="flex items-start justify-between gap-2">
-              <div className="">
-                <div className="text-text-default text-sm font-medium">Enable Departments</div>
-                <div className="text-text-subtle text-sm">
-                  Departments let you organize students within the same level into different academic paths. This way, classes under the same level
-                  can offer different sets of subjects or focus areas.
+        {!isLevelDetailsSaved ? (
+          <p className="text-text-subtle text-xs">Save Level Basics above first to unlock this step.</p>
+        ) : (
+          <fieldset className="m-0 flex flex-col gap-6 border-0 p-0">
+            {/* Departments */}
+            {(level?.levelType === "JUNIOR_SECONDARY" || level?.levelType === "SENIOR_SECONDARY") && (
+              <div className="flex flex-col gap-6">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="">
+                    <div className="text-text-default text-sm font-medium">Enable Departments</div>
+                    <div className="text-text-subtle text-sm">
+                      Departments split this level into separate academic paths, each with its own subjects. Example: Science and Arts classes under
+                      Senior Secondary.
+                    </div>
+                  </div>
+                  <PermissionCheck permissionUtility={canManageSettings}>
+                    <Toggle
+                      withBorder={false}
+                      checked={departmentsEnabled}
+                      onChange={e => {
+                        const enable = (e.target as HTMLInputElement).checked;
+                        setDepartmentsEnabled(enable);
+                        toggleDepartment(
+                          { levelId: level.id, enable },
+                          {
+                            onError: (error: unknown) => {
+                              setDepartmentsEnabled(!enable);
+                              toast({
+                                title: "Failed to update departments",
+                                description: getApiErrorMessage(error, "Could not update department setting"),
+                                type: "error",
+                              });
+                            },
+                          },
+                        );
+                      }}
+                    />
+                  </PermissionCheck>
                 </div>
-              </div>
-              <PermissionCheck permissionUtility={canManageSettings}>
-                <Toggle
-                  withBorder={false}
-                  checked={departmentsEnabled}
-                  onChange={e => {
-                    const enable = (e.target as HTMLInputElement).checked;
-                    setDepartmentsEnabled(enable);
-                    toggleDepartment(
-                      { levelId: level.id, enable },
-                      {
-                        onError: (error: unknown) => {
-                          setDepartmentsEnabled(!enable);
-                          toast({
-                            title: "Failed to update departments",
-                            description: getApiErrorMessage(error, "Could not update department setting"),
-                            type: "error",
-                          });
-                        },
-                      },
-                    );
-                  }}
-                />
-              </PermissionCheck>
-            </div>
-            {departmentsEnabled && (
-              <>
-                <div className="border-border-default flex flex-col gap-4 border-b pb-6">
-                  <div className="text-text-default text-sm font-medium">Departments</div>
-                  <LevelItemsSection
-                    existingItems={departments}
-                    globalOptions={availableDepts}
-                    isLoadingOptions={isLoadingAllDepts}
-                    onAdd={handleAddDepartment}
-                    onDelete={handleDeleteDepartment}
-                    isAdding={isAddingDepartment}
-                    deletingName={deletingDepartmentName}
-                    placeholder="Search or type new departments e.g Science, Arts"
-                  />
-                </div>
-
-                {departmentsDetails.length > 0 && (
+                {departmentsEnabled && (
                   <>
-                    <div className="text-text-default text-xl font-semibold">Department Subjects</div>
-                    {departmentsDetails.map((dept, index) => (
-                      <DepartmentSubjectsSection
-                        key={`${dept.departmentId}-${index}`}
-                        dept={dept}
-                        levelId={level.id}
-                        branchId={branchId}
-                        branchSpecific={branchSpecific}
+                    <div className="border-border-default flex flex-col gap-4 border-b pb-6">
+                      <div className="text-text-default text-sm font-medium">Departments</div>
+                      <LevelItemsSection
+                        existingItems={departments}
+                        globalOptions={availableDepts}
+                        isLoadingOptions={isLoadingAllDepts}
+                        onAdd={handleAddDepartment}
+                        onDelete={handleDeleteDepartment}
+                        isAdding={isAddingDepartment}
+                        deletingName={deletingDepartmentName}
+                        placeholder="Search or type new departments e.g Science, Arts"
                       />
-                    ))}
+                    </div>
+
+                    {departmentsDetails.length > 0 && (
+                      <>
+                        <div className="text-text-default text-sm font-medium">Department Subjects</div>
+                        {departmentsDetails.map((dept, index) => (
+                          <DepartmentSubjectsSection
+                            key={`${dept.departmentId}-${index}`}
+                            dept={dept}
+                            levelId={level.id}
+                            branchId={branchId}
+                            branchSpecific={branchSpecific}
+                          />
+                        ))}
+                      </>
+                    )}
                   </>
                 )}
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Subjects */}
-        {!departmentsEnabled && (
-          <div className="flex flex-col gap-4">
-            <div className="text-text-default text-xl font-semibold">Subjects</div>
-            <LevelItemsSection
-              existingItems={subjects}
-              globalOptions={availableSubjects}
-              isLoadingOptions={isLoadingAllSubjects}
-              onAdd={handleAddSubject}
-              onDelete={handleDeleteSubject}
-              isAdding={isAddingSubject}
-              deletingName={deletingSubjectName}
-              placeholder="Search or type new subjects e.g Mathematics, English"
-            />
-          </div>
-        )}
-
-        <div>
-          {/* Arms */}
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <div className="text-text-default text-xl font-semibold">
-                Arms<small className="text-text-destructive text-xs">*</small>
               </div>
-              <span className="text-text-subtle text-sm">
-                Arms let you split a class or department into smaller groups while still keeping them under the same level &mdash; parallel sections
-                of the same class. Name them however your school does: letters (A, B), colours (Gold, Silver), numbers (1, 2), or anything else your
-                structure uses. At least one arm is required.
-              </span>
-            </div>
+            )}
+
+            {/* Subjects */}
+            {!departmentsEnabled && (
+              <div className="flex flex-col gap-4">
+                <div className="text-text-default text-sm font-medium">Subjects taught in this level</div>
+                <LevelItemsSection
+                  existingItems={subjects}
+                  globalOptions={availableSubjects}
+                  isLoadingOptions={isLoadingAllSubjects}
+                  onAdd={handleAddSubject}
+                  onDelete={handleDeleteSubject}
+                  onRename={handleRenameSubject}
+                  isAdding={isAddingSubject}
+                  deletingName={deletingSubjectName}
+                  renamingName={renamingSubjectName}
+                  placeholder="Search or type new subjects e.g Mathematics, English"
+                  twoPerRow
+                />
+              </div>
+            )}
+          </fieldset>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center gap-3">
+          <span className="bg-bg-state-soft text-text-default flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+            3
+          </span>
+          <span className="text-text-default text-xl font-semibold">
+            Arms<small className="text-text-destructive text-xs">*</small>
+          </span>
+          {!isLevelDetailsSaved && <Lock fill="var(--color-icon-default-muted)" className="size-3.5" />}
+        </div>
+
+        {!isLevelDetailsSaved ? (
+          <p className="text-text-subtle text-xs">Save Level Basics above first to unlock this step.</p>
+        ) : (
+          <fieldset className="m-0 flex flex-col gap-6 border-0 p-0">
+            <span className="text-text-subtle text-sm">
+              Arms split a class into smaller parallel groups. Example: {exampleArmPrefix}A, {exampleArmPrefix}B. Name them however your school does —
+              letters, colours, numbers, or anything else. At least one arm is required.
+            </span>
             <LevelItemsSection
               existingItems={arms}
               globalOptions={availableArms}
@@ -751,13 +713,13 @@ export const ClassQuickSetupSheet = ({
               placeholder="Search or type new arms e.g A, B or Gold, Silver"
             />
             {arms.length === 0 && <p className="text-text-destructive text-xs font-light">Add at least one arm before you can close this setup.</p>}
-          </div>
-        </div>
 
-        {departmentsEnabled && armsDetails.length > 0 && departmentsDetails.length > 0 && (
-          <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} levelId={level.id} branchId={branchId} />
+            {departmentsEnabled && armsDetails.length > 0 && departmentsDetails.length > 0 && (
+              <AssignArmsToDepartments arms={armsDetails} departments={departmentsDetails} levelId={level.id} branchId={branchId} />
+            )}
+          </fieldset>
         )}
-      </fieldset>
+      </div>
     </div>
   );
 
@@ -779,10 +741,10 @@ export const ClassQuickSetupSheet = ({
             <SheetContent className="bg-bg-card border-border-default mt-4 mr-4 hidden overflow-y-auto rounded-md border md:block md:min-w-130">
               <SheetHeader className="border-border-darker bg-bg-card-subtle rounded-t-md border-b px-4 py-3">
                 <VisuallyHidden>
-                  <SheetTitle>Quick Setup</SheetTitle>
+                  <SheetTitle>Set Up Classes</SheetTitle>
                 </VisuallyHidden>
                 <div className="flex items-center justify-between">
-                  <div className="text-text-default text-md font-semibold">Quick Setup</div>
+                  <div className="text-text-default text-md font-semibold">Set Up Classes</div>
                 </div>
               </SheetHeader>
 
@@ -815,7 +777,7 @@ export const ClassQuickSetupSheet = ({
         <MobileDrawer
           open={sheetOpen}
           setIsOpen={handleSheetOpenChange}
-          title="Quick Setup"
+          title="Set Up Classes"
           showCloseButton={true}
           className="flex max-h-[85vh] flex-col overflow-hidden"
         >

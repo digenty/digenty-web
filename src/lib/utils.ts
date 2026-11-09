@@ -140,6 +140,14 @@ export const formatRelativeDate = (date: Date) => {
   return `${months} months ago`;
 };
 
+export const toTitleCase = (value: string) =>
+  value
+    .replaceAll("_", " ")
+    .split(" ")
+    .filter(Boolean)
+    .map(word => (word.length <= 4 && word === word.toUpperCase() ? word : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()))
+    .join(" ");
+
 export const LEVEL_ORDER: Record<string, number> = {
   CRECHE: 0,
   NURSERY: 1,
