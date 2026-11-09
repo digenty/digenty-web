@@ -9,7 +9,7 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { StudentRow } from "./students";
 import { SubmitClassReportModal } from "./SubmitClassReportModal";
@@ -67,8 +67,9 @@ export const ClassReportHeader = ({
 
   useEffect(() => {
     if (terms) {
+      const thirdTerm = terms.data.terms.find((term: Term) => term.term === "THIRD");
       const activeTerm = terms.data.terms.find((term: Term) => term.isActiveTerm);
-      setTermSelected(activeTerm);
+      setTermSelected(thirdTerm ?? activeTerm);
       setActiveSession(terms.data.academicSessionName);
     }
   }, [setActiveSession, setTermSelected, terms]);

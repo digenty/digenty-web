@@ -2,16 +2,19 @@
 
 import { AddFill, DeleteBin2, Edit, Information } from "@digenty/icons";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import { ClassLevel, DevelopmentCategory, DevelopmentSkill } from "@/api/types";
+import { Branch, ClassLevel, DevelopmentCategory, DevelopmentSkill } from "@/api/types";
 
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
+import { Toggle } from "@/components/Toggle";
+import { Tooltip } from "@/components/Tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { useGetClassLevel } from "@/hooks/queryHooks/useClass";
+import { useGetBranches } from "@/hooks/queryHooks/useBranch";
+import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import {
   useAddDevelopmentCategory,
   useDeleteDevelopmentCategory,
@@ -21,9 +24,10 @@ import {
 } from "@/hooks/queryHooks/useDevelopmentSettings";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { canManageSettings } from "@/lib/permissions/settings";
-import { cn, extractUniqueLevelsByType } from "@/lib/utils";
+import { cn, extractUniqueLevelsByType, toTitleCase } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { BranchTabs } from "../BranchTabs";
 import { WizardStepFooter } from "../AcademicSetup/WizardStepFooter";
 import { getApiErrorReason } from "@/lib/apiError";
 
@@ -39,6 +43,7 @@ const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: num
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editingName, setEditingName] = useState("");
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<DevelopmentCategory | null>(null);
 
   const categories: DevelopmentCategory[] = levelSettingsData?.data?.categories ?? [];
 
@@ -70,12 +75,15 @@ const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: num
     );
   };
 
-  const handleDelete = (categoryId: number) => {
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    const categoryId = pendingDelete.categoryId;
     setDeletingId(categoryId);
     deleteCategory(categoryId, {
       onSuccess: () => {
         toast({ title: "Category deleted", type: "success" });
         setDeletingId(null);
+        setPendingDelete(null);
       },
       onError: (error: Error) => {
         toast({ title: "Could not delete category", description: getApiErrorReason(error), type: "error" });
@@ -94,63 +102,99 @@ const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: num
       <div className="bg-bg-card border-border-default flex flex-col gap-3 rounded-md border p-4 md:px-5 md:py-6">
         {isLoading && <Skeleton className="h-20 w-full" />}
 
-        {!isLoading && categories.length === 0 && <div className="text-text-muted py-4 text-center text-sm">No categories yet</div>}
+        {!isLoading && categories.length === 0 && (
+          <div className="text-text-muted py-4 text-center text-sm">No categories yet — add one below to get started.</div>
+        )}
 
         {!isLoading &&
           categories.map(category => (
-            <div key={category.categoryId} className="bg-bg-input-soft flex items-center gap-2 rounded-md px-3 py-1">
-              {editingId === category.categoryId ? (
-                <>
-                  <Input
-                    className="bg-bg-input-soft! text-text-default h-9! flex-1 border-none"
-                    value={editingName}
-                    onChange={e => setEditingName(e.target.value)}
-                  />
-                  <PermissionCheck permissionUtility={canManageSettings}>
-                    <Button
-                      onClick={() => handleUpdate(category.categoryId)}
-                      disabled={isUpdating}
-                      className="bg-bg-state-primary! text-text-white-default! h-8! rounded-md"
-                    >
-                      {isUpdating && <Spinner className="size-3" />} Save
+            <div key={category.categoryId} className="flex flex-col gap-2">
+              <div className="bg-bg-input-soft flex items-center gap-2 rounded-md px-3 py-1">
+                {editingId === category.categoryId ? (
+                  <>
+                    <Input
+                      className="bg-bg-input-soft! text-text-default h-9! flex-1 border-none"
+                      value={editingName}
+                      onChange={e => setEditingName(e.target.value)}
+                      autoFocus
+                    />
+                    <PermissionCheck permissionUtility={canManageSettings}>
+                      <Button
+                        onClick={() => handleUpdate(category.categoryId)}
+                        disabled={isUpdating}
+                        className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-8! rounded-md"
+                      >
+                        {isUpdating && <Spinner className="text-text-white-default size-3" />} Save
+                      </Button>
+                    </PermissionCheck>
+                    <Button onClick={() => setEditingId(null)} className="bg-bg-state-soft! text-text-subtle h-8! rounded-md">
+                      Cancel
                     </Button>
-                  </PermissionCheck>
-                  <Button onClick={() => setEditingId(null)} className="bg-bg-state-soft! text-text-subtle h-8! rounded-md">
-                    Cancel
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <span className="text-text-default flex-1 text-sm">{category.categoryName}</span>
-                  {canEdit && (
-                    <>
-                      <PermissionCheck permissionUtility={canManageSettings}>
-                        <Button
-                          onClick={() => {
-                            setEditingId(category.categoryId);
-                            setEditingName(category.categoryName);
-                          }}
-                          className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
-                        >
-                          <Edit fill="var(--color-icon-default-subtle)" />
-                        </Button>
-                      </PermissionCheck>
-                      <PermissionCheck permissionUtility={canManageSettings}>
-                        <Button
-                          onClick={() => handleDelete(category.categoryId)}
-                          disabled={isDeleting && deletingId === category.categoryId}
-                          className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
-                        >
-                          {isDeleting && deletingId === category.categoryId ? (
-                            <Spinner className="size-4" />
-                          ) : (
-                            <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-                          )}
-                        </Button>
-                      </PermissionCheck>
-                    </>
-                  )}
-                </>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-text-default flex-1 text-sm">{category.categoryName}</span>
+                    {canEdit && (
+                      <>
+                        <PermissionCheck permissionUtility={canManageSettings}>
+                          <Tooltip
+                            description="Edit category"
+                            Trigger={
+                              <Button
+                                onClick={() => {
+                                  setEditingId(category.categoryId);
+                                  setEditingName(category.categoryName);
+                                }}
+                                className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
+                              >
+                                <Edit fill="var(--color-icon-default-subtle)" />
+                              </Button>
+                            }
+                          />
+                        </PermissionCheck>
+                        <PermissionCheck permissionUtility={canManageSettings}>
+                          <Tooltip
+                            description="Delete category"
+                            Trigger={
+                              <Button
+                                onClick={() => setPendingDelete(category)}
+                                disabled={isDeleting && deletingId === category.categoryId}
+                                className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
+                              >
+                                {isDeleting && deletingId === category.categoryId ? (
+                                  <Spinner className="size-4" />
+                                ) : (
+                                  <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                                )}
+                              </Button>
+                            }
+                          />
+                        </PermissionCheck>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {pendingDelete?.categoryId === category.categoryId && (
+                <div className="bg-bg-basic-orange-subtle border-bg-basic-orange-accent flex flex-col gap-3 rounded-md border p-3">
+                  <p className="text-text-default text-sm">
+                    Deleting &quot;{category.categoryName}&quot; removes all its skills and any ratings recorded under them from this level going
+                    forward. Existing report cards are not affected. This cannot be undone.
+                  </p>
+                  <div className="flex justify-end gap-2">
+                    <Button onClick={() => setPendingDelete(null)} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={confirmDelete}
+                      disabled={isDeleting}
+                      className="bg-bg-state-destructive! hover:bg-bg-state-destructive-hover! text-text-white-default! h-7! rounded-md"
+                    >
+                      {isDeleting && <Spinner className="size-3" />} Delete category
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
           ))}
@@ -164,13 +208,18 @@ const CategoriesSetup = ({ canEdit, levelId }: { canEdit: boolean; levelId?: num
               onChange={e => setNewName(e.target.value)}
             />
             <PermissionCheck permissionUtility={canManageSettings}>
-              <Button
-                onClick={handleAdd}
-                disabled={isAdding || !newName.trim() || !levelId}
-                className="text-text-subtle hover:bg-bg-none! rounded-md bg-none! text-xs"
-              >
-                {isAdding ? <Spinner className="size-3" /> : <AddFill fill="var(--color-icon-default-muted)" className="size-3" />} Add
-              </Button>
+              <Tooltip
+                description="Add category"
+                Trigger={
+                  <Button
+                    onClick={handleAdd}
+                    disabled={isAdding || !newName.trim() || !levelId}
+                    className="text-text-subtle hover:bg-bg-none! rounded-md bg-none! text-xs"
+                  >
+                    {isAdding ? <Spinner className="size-3" /> : <AddFill fill="var(--color-icon-default-muted)" className="size-3" />} Add
+                  </Button>
+                }
+              />
             </PermissionCheck>
           </div>
         )}
@@ -183,15 +232,22 @@ interface EditableSkill extends DevelopmentSkill {
   key: string;
 }
 
-const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolean }) => {
+const SkillsForLevel = ({
+  level,
+  canEdit,
+  branchSpecific,
+  isDirty,
+  setIsDirty,
+}: {
+  level: ClassLevel;
+  canEdit: boolean;
+  branchSpecific: boolean;
+  isDirty: boolean;
+  setIsDirty: (dirty: boolean) => void;
+}) => {
   const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(undefined);
   const [skills, setSkills] = useState<EditableSkill[]>([]);
-  const [isEditing, setIsEditing] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<EditableSkill | null>(null);
-
-  useEffect(() => {
-    if (!canEdit) setIsEditing(false);
-  }, [canEdit]);
 
   const { data: levelSettingsData, isFetching: isLoadingLevelSettings } = useGetDevelopmentSettingsByLevel(level.id);
   const { mutate: saveSkills, isPending } = useUpdateLevelSkills();
@@ -210,13 +266,20 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
     if (isLoadingLevelSettings) return;
     const current = levelCategories.find(c => c.categoryId === activeCategoryId)?.skills ?? [];
     setSkills(current.map((s, index) => ({ ...s, key: s.id ? String(s.id) : `new-${index}-${s.name}` })));
-    setIsEditing(false);
+    setPendingDelete(null);
+    setIsDirty(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [levelSettingsData, activeCategoryId, isLoadingLevelSettings]);
 
-  const addSkill = () => setSkills(prev => [...prev, { id: null, name: "", key: `new-${Date.now()}` }]);
+  const addSkill = () => {
+    setSkills(prev => [...prev, { id: null, name: "", key: `new-${Date.now()}` }]);
+    setIsDirty(true);
+  };
 
-  const updateSkillName = (key: string, name: string) => setSkills(prev => prev.map(s => (s.key === key ? { ...s, name } : s)));
+  const updateSkillName = (key: string, name: string) => {
+    setSkills(prev => prev.map(s => (s.key === key ? { ...s, name } : s)));
+    setIsDirty(true);
+  };
 
   const move = (index: number, direction: -1 | 1) => {
     setSkills(prev => {
@@ -226,6 +289,7 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
       [next[index], next[target]] = [next[target], next[index]];
       return next;
     });
+    setIsDirty(true);
   };
 
   const requestRemove = (skill: EditableSkill) => {
@@ -233,6 +297,7 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
       setPendingDelete(skill);
     } else {
       setSkills(prev => prev.filter(s => s.key !== skill.key));
+      setIsDirty(true);
     }
   };
 
@@ -240,6 +305,7 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
     if (!pendingDelete) return;
     setSkills(prev => prev.filter(s => s.key !== pendingDelete.key));
     setPendingDelete(null);
+    setIsDirty(true);
   };
 
   const handleSave = () => {
@@ -253,14 +319,15 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
     saveSkills(
       {
         categoryId: activeCategoryId,
-        branchSpecific: false,
+        branchSpecific,
+        levelId: level.id,
         levelType: level.levelType,
         skills: cleaned.map(s => ({ id: s.id, name: s.name.trim() })),
       },
       {
         onSuccess: () => {
-          toast({ title: "Success", description: `Skills for ${level.levelName} saved`, type: "success" });
-          setIsEditing(false);
+          toast({ title: "Success", description: `Skills for ${toTitleCase(level.levelName)} saved`, type: "success" });
+          setIsDirty(false);
         },
         onError: (error: Error) => toast({ title: "Failed to save", description: getApiErrorReason(error), type: "error" }),
       },
@@ -270,7 +337,8 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
   const handleCancel = () => {
     const current = activeLevelCategory?.skills ?? [];
     setSkills(current.map((s, index) => ({ ...s, key: s.id ? String(s.id) : `new-${index}-${s.name}` })));
-    setIsEditing(false);
+    setPendingDelete(null);
+    setIsDirty(false);
   };
 
   if (isLoadingLevelSettings) {
@@ -287,7 +355,7 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
         <Select
           value={activeCategoryId ? String(activeCategoryId) : ""}
           onValueChange={value => setActiveCategoryId(Number(value))}
-          disabled={isEditing}
+          disabled={isDirty}
         >
           <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-fit min-w-48 rounded-md border-none px-3 py-2 text-left text-sm font-normal">
             <SelectValue />
@@ -300,15 +368,6 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
             ))}
           </SelectContent>
         </Select>
-        {isEditing && <span className="text-text-muted text-xs">Save or cancel before switching category</span>}
-
-        {canEdit && !isEditing && (
-          <PermissionCheck permissionUtility={canManageSettings}>
-            <Button onClick={() => setIsEditing(true)} className="text-text-default border-border-darker h-8! rounded-md border">
-              <Edit fill="var(--color-icon-default-muted)" /> Edit
-            </Button>
-          </PermissionCheck>
-        )}
       </div>
 
       <div className="bg-bg-card border-border-default flex flex-col gap-3 rounded-md border p-4 md:px-5 md:py-6">
@@ -318,48 +377,68 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
           skills.map((skill, index) => (
             <div key={skill.key} className="flex items-center gap-2">
               <div className="flex flex-col">
-                <button
-                  type="button"
-                  disabled={!isEditing || index === 0}
-                  onClick={() => move(index, -1)}
-                  className="text-text-muted disabled:opacity-30"
-                >
-                  <ChevronUpIcon className="size-4" />
-                </button>
-                <button
-                  type="button"
-                  disabled={!isEditing || index === skills.length - 1}
-                  onClick={() => move(index, 1)}
-                  className="text-text-muted disabled:opacity-30"
-                >
-                  <ChevronDownIcon className="size-4" />
-                </button>
+                <Tooltip
+                  description="Move up"
+                  Trigger={
+                    <button
+                      type="button"
+                      disabled={!canEdit || index === 0}
+                      onClick={() => move(index, -1)}
+                      className="text-text-muted disabled:opacity-30"
+                    >
+                      <ChevronUpIcon className="size-4" />
+                    </button>
+                  }
+                />
+                <Tooltip
+                  description="Move down"
+                  Trigger={
+                    <button
+                      type="button"
+                      disabled={!canEdit || index === skills.length - 1}
+                      onClick={() => move(index, 1)}
+                      className="text-text-muted disabled:opacity-30"
+                    >
+                      <ChevronDownIcon className="size-4" />
+                    </button>
+                  }
+                />
               </div>
               <Input
-                readOnly={!isEditing}
+                readOnly={!canEdit}
                 className="bg-bg-input-soft! text-text-default h-9! flex-1 border-none"
                 value={skill.name}
                 onChange={e => updateSkillName(skill.key, e.target.value)}
               />
-              {isEditing && (
+              {canEdit && (
                 <PermissionCheck permissionUtility={canManageSettings}>
-                  <Button
-                    onClick={() => requestRemove(skill)}
-                    className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
-                  >
-                    <DeleteBin2 fill="var(--color-icon-default-subtle)" />
-                  </Button>
+                  <Tooltip
+                    description="Remove skill"
+                    Trigger={
+                      <Button
+                        onClick={() => requestRemove(skill)}
+                        className="text-text-subtle bg-bg-state-soft! hover:bg-bg-state-soft-hover! rounded-md text-sm"
+                      >
+                        <DeleteBin2 fill="var(--color-icon-default-subtle)" />
+                      </Button>
+                    }
+                  />
                 </PermissionCheck>
               )}
             </div>
           ))
         )}
 
-        {isEditing && (
+        {canEdit && (
           <PermissionCheck permissionUtility={canManageSettings}>
-            <Button onClick={addSkill} className="text-text-subtle hover:bg-bg-none! mt-1 w-fit rounded-md bg-none! text-xs">
-              <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Skill
-            </Button>
+            <Tooltip
+              description="Add skill"
+              Trigger={
+                <Button onClick={addSkill} className="text-text-subtle hover:bg-bg-none! mt-1 w-fit rounded-md bg-none! text-xs">
+                  <AddFill fill="var(--color-icon-default-muted)" className="size-3" /> Add Skill
+                </Button>
+              }
+            />
           </PermissionCheck>
         )}
       </div>
@@ -374,14 +453,17 @@ const SkillsForLevel = ({ level, canEdit }: { level: ClassLevel; canEdit: boolea
             <Button onClick={() => setPendingDelete(null)} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
               Cancel
             </Button>
-            <Button onClick={confirmRemove} className="bg-bg-state-primary! text-text-white-default! h-7! rounded-md">
+            <Button
+              onClick={confirmRemove}
+              className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7! rounded-md"
+            >
               Remove skill
             </Button>
           </div>
         </div>
       )}
 
-      {isEditing && (
+      {canEdit && (
         <div className="flex justify-end gap-2">
           <Button onClick={handleCancel} disabled={isPending} className="bg-bg-state-soft! text-text-subtle h-7! rounded-md">
             Cancel
@@ -412,32 +494,46 @@ export const DevelopmentSettings = ({
   const router = useRouter();
   const pathname = usePathname();
   const isMobile = useIsMobile();
-  const { data: classLevel, isFetching: isLoadingLevels } = useGetClassLevel();
-  const levels = extractUniqueLevelsByType(classLevel?.data || []);
+
+  const [branchSpecific, setBranchSpecific] = useState(false);
+  const [activeBranch, setActiveBranch] = useState<Branch | null>(null);
+  const { data: branchesData, isPending: isLoadingBranches } = useGetBranches();
+  const defaultBranchId = branchesData?.data?.[0]?.branch?.id;
+  const { data: branchLevels, isPending: isLoadingBranchLevels } = useGetLevels(branchSpecific ? activeBranch?.id : defaultBranchId);
+  const levels = useMemo(() => extractUniqueLevelsByType(branchLevels?.data || []), [branchLevels?.data]);
+  const isLoadingLevels = isLoadingBranches || isLoadingBranchLevels;
 
   const [activeLevel, setActiveLevel] = useState<ClassLevel>();
   const [isEditing, setIsEditing] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    if (levels.length > 0 && !activeLevel) {
-      setActiveLevel(levels[0]);
+    if (levels.length === 0) {
+      setActiveLevel(undefined);
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [classLevel]);
+    setActiveLevel(prev => {
+      if (prev) {
+        const updated = levels.find(l => l.id === prev.id);
+        if (updated) return updated;
+      }
+      return levels[0];
+    });
+  }, [levels]);
 
   const levelSwitcher = isLoadingLevels ? (
     <Skeleton className="bg-bg-input-soft h-9 w-64 rounded-3xl" />
   ) : isMobile ? (
-    <Select value={String(activeLevel?.id)} onValueChange={value => setActiveLevel(levels.find(l => l.id === Number(value)))}>
+    <Select value={String(activeLevel?.id)} onValueChange={value => setActiveLevel(levels.find(l => l.id === Number(value)))} disabled={isDirty}>
       <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
         <SelectValue>
-          <span className="text-text-default text-sm capitalize">{activeLevel?.levelName.replaceAll("_", " ").toLowerCase()}</span>
+          <span className="text-text-default text-sm">{activeLevel ? toTitleCase(activeLevel.levelName) : ""}</span>
         </SelectValue>
       </SelectTrigger>
       <SelectContent className="bg-bg-default border-border-default">
         {levels.map(level => (
-          <SelectItem key={level.levelName} value={String(level.id)} className="text-text-default text-sm capitalize">
-            {level.levelName.replaceAll("_", " ").toLowerCase()}
+          <SelectItem key={level.levelName} value={String(level.id)} className="text-text-default text-sm">
+            {toTitleCase(level.levelName)}
           </SelectItem>
         ))}
       </SelectContent>
@@ -449,15 +545,17 @@ export const DevelopmentSettings = ({
         return (
           <button
             key={level.id}
+            type="button"
+            disabled={isDirty}
             onClick={() => setActiveLevel(level)}
             className={cn(
-              "flex justify-center px-4 py-2 text-sm font-medium whitespace-nowrap capitalize transition-all",
+              "flex justify-center px-4 py-2 text-sm font-medium whitespace-nowrap transition-all disabled:cursor-not-allowed disabled:opacity-50",
               isActive
                 ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center gap-1 rounded-full border shadow-sm"
                 : "text-text-muted flex h-8 items-center gap-1",
             )}
           >
-            {level.levelName.replaceAll("_", " ").toLowerCase()}
+            {toTitleCase(level.levelName)}
           </button>
         );
       })}
@@ -469,23 +567,29 @@ export const DevelopmentSettings = ({
       <div className="flex items-start justify-between">
         <div className="text-text-default text-xl font-semibold">Development Skills</div>
         <PermissionCheck permissionUtility={canManageSettings}>
-          <Button
-            onClick={() => setIsEditing(prev => !prev)}
-            className={cn(
-              "flex h-7! items-center justify-center rounded-md border p-2",
-              isEditing
-                ? "bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! border-transparent"
-                : "bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default",
-            )}
-          >
-            {isEditing ? (
-              "Done"
-            ) : (
-              <>
-                <Edit fill="var(--color-icon-default-muted)" /> Edit
-              </>
-            )}
-          </Button>
+          <Tooltip
+            description={isEditing && isDirty ? "Save or cancel your changes below first" : isEditing ? "Done editing" : "Edit"}
+            Trigger={
+              <Button
+                onClick={() => setIsEditing(prev => !prev)}
+                disabled={isEditing && isDirty}
+                className={cn(
+                  "flex h-7! items-center justify-center rounded-md border p-2",
+                  isEditing
+                    ? "bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! border-transparent"
+                    : "bg-bg-state-secondary! border-border-darker hover:bg-bg-none! text-text-default",
+                )}
+              >
+                {isEditing ? (
+                  "Done"
+                ) : (
+                  <>
+                    <Edit fill="var(--color-icon-default-muted)" /> Edit
+                  </>
+                )}
+              </Button>
+            }
+          />
         </PermissionCheck>
       </div>
 
@@ -497,19 +601,56 @@ export const DevelopmentSettings = ({
         </div>
       </div>
 
+      {isDirty && (
+        <div className="bg-bg-basic-orange-subtle border-bg-basic-orange-accent rounded-md border p-3">
+          <p className="text-text-default text-sm">
+            You have unsaved changes to the skills below. Save or cancel them before switching category, level, or clicking Done above.
+          </p>
+        </div>
+      )}
+
+      <div className="bg-bg-subtle border-border-default flex w-full items-start justify-between rounded-md border p-4">
+        <div className="">
+          <div className="text-text-default text-md font-semibold">Do academic structures differ by school branch?</div>
+          <div className="text-text-subtle text-sm font-normal">Turn ON for branch-specific structures. Keep OFF to share one setup.</div>
+        </div>
+        <Toggle
+          withBorder={false}
+          checked={branchSpecific}
+          onChange={evt => {
+            setBranchSpecific(!branchSpecific);
+            if (!evt.target.checked) setActiveBranch(null);
+          }}
+        />
+      </div>
+      {branchSpecific && (
+        <div className="border-border-default flex w-full items-center gap-3">
+          <BranchTabs activeBranch={activeBranch} setActiveBranch={setActiveBranch} />
+        </div>
+      )}
+
       <div className="flex flex-col gap-2">
         <div className="text-text-muted text-sm">Select a level to configure its skill list.</div>
         {levelSwitcher}
       </div>
 
-      <CategoriesSetup canEdit={isEditing} levelId={activeLevel?.id} />
+      <CategoriesSetup key={activeLevel?.id} canEdit={isEditing} levelId={activeLevel?.id} />
 
       <div className="flex flex-col gap-1">
         <div className="text-text-default text-md font-semibold">Skills per level</div>
-        <div className="text-text-muted text-sm">Each class level can have its own skill list per category.</div>
+        <div className="text-text-muted text-sm">Choose a category above, then add, rename, reorder or remove its skills below.</div>
       </div>
 
-      {activeLevel && <SkillsForLevel key={activeLevel.id} level={activeLevel} canEdit={isEditing} />}
+      {activeLevel && (
+        <SkillsForLevel
+          key={activeLevel.id}
+          level={activeLevel}
+          canEdit={isEditing}
+          branchSpecific={branchSpecific}
+          isDirty={isDirty}
+          setIsDirty={setIsDirty}
+        />
+      )}
 
       {completedSteps && setCompletedSteps && (
         <WizardStepFooter

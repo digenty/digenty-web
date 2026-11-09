@@ -12,6 +12,8 @@ import {
   getSubjectStudents,
   getTeacherSubjects,
   updateAssignSubjectTeacher,
+  updateSubjectByClass,
+  updateSubjectByLevel,
 } from "@/api/subject";
 import { LevelType } from "@/api/types";
 import { classKeys } from "@/queries/class";
@@ -109,6 +111,30 @@ export const useAddSubjectToClass = () => {
     mutationFn: addSubjectToClass,
     onSuccess: () => {
       // queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
+      queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+    },
+  });
+};
+
+export const useUpdateSubjectByLevel = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subjectKeys.updateSubject,
+    mutationFn: updateSubjectByLevel,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
+      queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
+    },
+  });
+};
+
+export const useUpdateSubjectByClass = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: subjectKeys.updateSubject,
+    mutationFn: updateSubjectByClass,
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
       queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
     },

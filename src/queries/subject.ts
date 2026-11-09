@@ -7,6 +7,7 @@ export const subjectKeys = {
   branchClassSubjects: [" branchClassSubjects"],
   addSubject: ["addSubject"] as const,
   deleteSubject: ["deleteSubject"] as const,
+  updateSubject: ["updateSubject"] as const,
   subjectsByLevel: (levelType?: LevelType, branchId?: number) => ["subjectsByLevel", levelType, branchId] as const,
   subjectsByClass: (className?: string, levelType?: string, branchId?: number) => ["subjectsByClass", className, levelType, branchId] as const,
   subjectsByClassId: ["subjectsByClassId"] as const,

@@ -33,7 +33,7 @@ export default function SubmitScoreModal({ open, onOpenChange, onSubmit, isSubmi
             className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! h-7! rounded-md px-2 py-1 text-sm"
           >
             {isSubmitting && <Spinner className="text-text-white-default" />}
-            Submit Request
+            Submit Scores
           </Button>
         }
       >

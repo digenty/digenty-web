@@ -137,8 +137,9 @@ export const ReportHeader = ({
 
   useEffect(() => {
     if (terms) {
+      const thirdTerm = terms.data.terms.find((term: Term) => term.term === "THIRD");
       const activeTerm = terms.data.terms.find((term: Term) => term.isActiveTerm);
-      setTermSelected(activeTerm);
+      setTermSelected(thirdTerm ?? activeTerm);
       setActiveSession(terms.data.academicSessionName);
     }
   }, [setActiveSession, setTermSelected, terms]);
