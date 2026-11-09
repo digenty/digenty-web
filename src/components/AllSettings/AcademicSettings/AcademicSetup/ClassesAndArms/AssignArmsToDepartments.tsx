@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getAssignedDepartments } from "@/api/department";
 import { departmentKeys } from "@/queries/department";
 import { useAssignArmToDepartment } from "@/hooks/queryHooks/useDepartment";
+import { toTitleCase } from "@/lib/utils";
 import { useQueries } from "@tanstack/react-query";
 import { useEffect, useState, useMemo } from "react";
 import { getApiErrorMessage } from "@/lib/apiError";
@@ -32,18 +33,9 @@ export const AssignArmsToDepartments = ({
   const armToDepartmentMap = useMemo(() => {
     const map: Record<number, number> = {};
     departmentQueries.forEach((query, index) => {
-      // Handle various response structures
-      const data = query.data;
       const assignedArms = query.data?.data || [];
-      // const assignedArms = Array.isArray(data?.data)
-      //   ? data.data
-      //   : Array.isArray(data)
-      //     ? data
-      //     : [];
-
       const deptId = departments[index].departmentId;
       assignedArms.forEach((assignment: AssignedArm) => {
-        // Handle both armId and id
         const armId = assignment.id;
         if (armId) {
           map[armId] = deptId;
@@ -53,11 +45,12 @@ export const AssignArmsToDepartments = ({
     return map;
   }, [departmentQueries, departments]);
 
-  // if (!arms?.length || !departments?.length) return null;
-
   return (
-    <div className="flex flex-col gap-6">
-      <div className="text-text-default text-xl font-semibold">Assign Arms to Departments</div>
+    <div className="border-border-default flex flex-col gap-6 border-t pt-6">
+      <div className="flex flex-col gap-1">
+        <div className="text-text-default text-sm font-medium">Assign Arms to Departments</div>
+        <div className="text-text-subtle text-sm">Choose which department each arm belongs to, so its students get the right subjects.</div>
+      </div>
 
       <div className="flex flex-col gap-6">
         {arms.map(arm => (
@@ -118,26 +111,28 @@ const ArmDepartmentSelect = ({
     );
   };
 
+  const selectedDeptName = selectedDept ? toTitleCase(departments.find(dept => dept.departmentId === selectedDept)?.name ?? "") : undefined;
+
   return (
     <div className="flex flex-col gap-2">
-      <div className="text-text-default text-sm font-medium capitalize">{arm.name}</div>
+      <div className="text-text-default text-sm font-medium">{toTitleCase(arm.name)}</div>
       <Select value={selectedDept?.toString()} onValueChange={handleAssign} disabled={isPending || isLoadingInitial}>
         <SelectTrigger className="bg-bg-input-soft! hover:bg-bg-input-soft! text-text-default h-11 w-full rounded-md border-none">
-          <SelectValue placeholder="Assign to a department" className="capitalize">
-            <span className="text-text-default capitalize">
-              {selectedDept ? departments.find(dept => dept.departmentId === selectedDept)?.name.toLowerCase() : "Assign to a department"}
-            </span>
+          <SelectValue placeholder="Assign to a department">
+            <span className="text-text-default">{selectedDeptName ?? "Assign to a department"}</span>
           </SelectValue>
         </SelectTrigger>
         <SelectContent className="bg-bg-card border-border-default">
           {departments.map(dept => (
-            <SelectItem key={dept.departmentId} value={dept.departmentId.toString()} className="text-text-default text-sm font-medium capitalize">
-              {dept.name.toLowerCase()}
+            <SelectItem key={dept.departmentId} value={dept.departmentId.toString()} className="text-text-default text-sm font-medium">
+              {toTitleCase(dept.name)}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      <div className="text-text-muted text-xs">Students in this arm will do the assigned department subjects</div>
+      <div className="text-text-muted text-xs">
+        Students in {toTitleCase(arm.name)} will take the {selectedDeptName ?? "assigned department's"} subjects.
+      </div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 "use client";
 
-import { BookFill, BookOpen, DeleteBin, Edit, GitMergeFill, GraduationCapFill, Loader2Fill, School, Settings4 } from "@digenty/icons";
-import { Branch, BranchWithClassLevels, ClassInLevel, ClassInLevelDetails, ClassLevel } from "@/api/types";
+import { BookFill, BookOpen, DeleteBin, Edit, GitMergeFill, GraduationCapFill, Loader2Fill, Settings4 } from "@digenty/icons";
+import { Branch, ClassInLevelDetails, ClassLevel } from "@/api/types";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
@@ -16,9 +16,10 @@ import { useGetClassesByLevel } from "@/hooks/queryHooks/useClass";
 import { useGetLevels } from "@/hooks/queryHooks/useLevel";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { canManageSettings } from "@/lib/permissions/settings";
-import { cn, extractUniqueLevelsByType } from "@/lib/utils";
+import { cn, extractUniqueLevelsByType, toTitleCase } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
+import { BranchTabs } from "../../BranchTabs";
 import { AddClassModal } from "./AddClassModal";
 import { ClassEditSheet } from "./ClassEditSheet";
 import { ClassQuickSetupSheet } from "./ClassQuickSetupSheet";
@@ -26,76 +27,6 @@ import { DeleteClass } from "./ClassesAndArmsModals";
 import { LevelAgeRangeNote } from "./LevelAgeRangeNote";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { WizardStepFooter } from "../WizardStepFooter";
-
-function BranchTabs({ activeBranch, setActiveBranch }: { activeBranch: Branch | null; setActiveBranch: (t: Branch | null) => void }) {
-  const { data: branchesData, isFetching: isLoadingBranches, refetch: refetchBranches, isError } = useGetBranches();
-  const isMobile = useIsMobile();
-
-  useEffect(() => {
-    if (branchesData?.data?.length > 0) {
-      setActiveBranch(branchesData?.data[0].branch);
-    }
-  }, [branchesData]);
-
-  if (isMobile) {
-    return (
-      <div className="w-full">
-        {isLoadingBranches || !branchesData ? (
-          <Skeleton />
-        ) : (
-          <Select
-            value={activeBranch?.name || ""}
-            onValueChange={value => {
-              const branch = branchesData?.data?.find((branch: BranchWithClassLevels) => branch?.branch?.name === value);
-              setActiveBranch(branch?.branch || null);
-            }}
-          >
-            <Label className="text-text-default mb-2 text-sm font-medium">
-              {" "}
-              <School fill="var(--color-icon-default-muted)" /> Select Branch
-            </Label>
-            <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
-              <SelectValue>
-                <span className="text-text-default text-sm">{activeBranch?.name}</span>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent className="bg-bg-default border-border-default">
-              {branchesData?.data?.map((branch: BranchWithClassLevels) => (
-                <SelectItem key={branch.branch.name} value={branch.branch.name || ""} className="text-text-default text-sm">
-                  {branch.branch.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex w-auto max-w-64 items-center gap-3">
-      {isLoadingBranches && <Skeleton className="h-9 w-1/2" />}
-      {branchesData?.data?.map((branch: BranchWithClassLevels) => {
-        const isActive = activeBranch?.name === branch.branch.name;
-
-        return (
-          <Button
-            key={branch.branch.name}
-            type="button"
-            onClick={() => setActiveBranch(branch?.branch)}
-            className={cn(
-              "hover:bg-bg-none! w-1/2 cursor-pointer rounded-none py-2.5 text-center transition-all duration-150",
-              isActive && "border-border-informative border-b-[1.5px]",
-            )}
-          >
-            <span className={cn("text-sm font-medium", isActive ? "text-text-informative" : "text-text-muted")}>{branch.branch.name}</span>
-            {isActive ? <Loader2Fill fill="var(--color-icon-informative)" /> : <Loader2Fill fill="var(--color-icon-default-muted)" />}
-          </Button>
-        );
-      })}
-    </div>
-  );
-}
 
 function ClassesResponsiveTabs({
   levels,
@@ -124,7 +55,7 @@ function ClassesResponsiveTabs({
         {isPending && !classesByLevelData && <Skeleton className="bg-bg-state-soft h-80 w-full" />}
         {!isPending && classesByLevelData && classesByLevelData?.data?.content?.length === 0 && (
           <div className="flex w-full items-center justify-center pt-15">
-            <ErrorComponent title="No Classes added yet" description="Use the Quick Setup to add classes" />
+            <ErrorComponent title="No classes added yet" description='Click "Set Up Classes for This Level" to get started' />
           </div>
         )}
         {!isPending && classesByLevelData && activeLevel?.levelType !== "SENIOR_SECONDARY" && activeLevel?.levelType !== "JUNIOR_SECONDARY" && (
@@ -132,7 +63,7 @@ function ClassesResponsiveTabs({
             {classesByLevelData?.data?.content?.map((clss: ClassInLevelDetails) => (
               <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
                 <div className="flex items-center justify-between px-5 py-2">
-                  <div className="text-text-default text-sm font-medium capitalize">{clss.className} </div>
+                  <div className="text-text-default text-sm font-medium">{toTitleCase(clss.className)} </div>
                   <div className="flex items-center gap-2">
                     <PermissionCheck permissionUtility={canManageSettings}>
                       <Button
@@ -171,9 +102,9 @@ function ClassesResponsiveTabs({
                           {clss.subjects.map(subject => (
                             <Badge
                               key={subject.id}
-                              className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                              className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs"
                             >
-                              {subject.name.toLowerCase()}
+                              {toTitleCase(subject.name)}
                             </Badge>
                           ))}
                         </div>
@@ -191,8 +122,8 @@ function ClassesResponsiveTabs({
                           {clss.arms.length === 0 && <p className="text-text-subtle text-sm">No arms added yet</p>}
                           {clss.arms.map(arm => (
                             <div key={arm.id} className="">
-                              <Badge className="text-text-subtle bg-bg-badge-gray flex h-6! items-center justify-center rounded-md px-1 text-xs font-medium capitalize">
-                                {arm.name.toLowerCase()}
+                              <Badge className="text-text-subtle bg-bg-badge-gray flex h-6! items-center justify-center rounded-md px-1 text-xs font-medium">
+                                {toTitleCase(arm.name)}
                               </Badge>
                             </div>
                           ))}
@@ -217,7 +148,7 @@ function ClassesResponsiveTabs({
             {classesByLevelData?.data?.content?.map((clss: ClassInLevelDetails) => (
               <div key={clss.classId} className="bg-bg-state-soft rounded-md p-1">
                 <div className="flex items-center justify-between px-5 py-2">
-                  <div className="text-text-default text-sm font-medium">{clss.className} </div>
+                  <div className="text-text-default text-sm font-medium">{toTitleCase(clss.className)} </div>
                   <div className="flex items-center gap-2">
                     <PermissionCheck permissionUtility={canManageSettings}>
                       <Button
@@ -255,25 +186,25 @@ function ClassesResponsiveTabs({
                           {clss.departments.map(dept => (
                             <Badge
                               key={dept.departmentId}
-                              className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                              className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs"
                             >
-                              {dept.departmentName.toLowerCase()}
+                              {toTitleCase(dept.departmentName)}
                             </Badge>
                           ))}
                         </div>
                         {clss.departments.map(dept => (
                           <div key={dept.departmentId}>
-                            <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium capitalize">
+                            <div className="text-text-default my-3 flex items-center gap-2 text-sm font-medium">
                               <BookFill fill="var(--color-bg-basic-blue-accent)" />
-                              {dept.departmentName.toLowerCase()} Subjects
+                              {toTitleCase(dept.departmentName)} Subjects
                             </div>
                             <div className="border-border-default flex flex-wrap gap-3 border-b pb-4">
                               {dept.subjects.map(sub => (
                                 <Badge
                                   key={sub.id}
-                                  className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                                  className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs"
                                 >
-                                  {sub.name.toLowerCase()}
+                                  {toTitleCase(sub.name)}
                                 </Badge>
                               ))}
                             </div>
@@ -292,9 +223,9 @@ function ClassesResponsiveTabs({
                           {clss.subjects.map(subject => (
                             <Badge
                               key={subject.id}
-                              className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs capitalize"
+                              className="bg-bg-badge-gray! text-text-default flex h-6! items-center gap-3 rounded-md p-1 text-xs"
                             >
-                              {subject.name.toLowerCase()}
+                              {toTitleCase(subject.name)}
                             </Badge>
                           ))}
                         </div>
@@ -310,8 +241,8 @@ function ClassesResponsiveTabs({
                         <div className="flex flex-wrap gap-1">
                           {clss.arms.map(arm => (
                             <div key={arm.id} className="">
-                              <Badge className="text-text-subtle bg-bg-badge-gray flex h-6! items-center justify-center rounded-md px-1 text-xs font-medium capitalize">
-                                {arm.name.toLowerCase()}
+                              <Badge className="text-text-subtle bg-bg-badge-gray flex h-6! items-center justify-center rounded-md px-1 text-xs font-medium">
+                                {toTitleCase(arm.name)}
                               </Badge>
                             </div>
                           ))}
@@ -366,13 +297,13 @@ function ClassesResponsiveTabs({
         >
           <SelectTrigger className="bg-bg-input-soft! text-text-default h-9 w-full rounded-md border-none px-3 py-2 text-left text-sm font-normal">
             <SelectValue>
-              <span className="text-text-default text-sm capitalize">{levels[activeIndex].levelName.replaceAll("_", " ").toLowerCase()}</span>
+              <span className="text-text-default text-sm">{toTitleCase(levels[activeIndex].levelName)}</span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent className="bg-bg-default border-border-default">
             {levels.map((level, idx) => (
-              <SelectItem key={level.levelName} value={String(idx)} className="text-text-default text-sm capitalize">
-                {level.levelName.replaceAll("_", " ").toLowerCase()}
+              <SelectItem key={level.levelName} value={String(idx)} className="text-text-default text-sm">
+                {toTitleCase(level.levelName)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -399,13 +330,13 @@ function ClassesResponsiveTabs({
                 key={level.levelName}
                 onClick={() => setActiveLevel(level)}
                 className={cn(
-                  "transit flex shrink-0 justify-center px-4 py-2 text-sm font-medium whitespace-nowrap capitalize",
+                  "transit flex shrink-0 justify-center px-4 py-2 text-sm font-medium whitespace-nowrap",
                   isActive
                     ? "bg-bg-state-secondary border-border-darker text-text-default flex h-8 items-center justify-center gap-1 rounded-full border shadow-sm"
                     : "text-text-muted flex h-8 items-center gap-1",
                 )}
               >
-                <span>{level.levelName.replaceAll("_", " ").toLowerCase()}</span>
+                <span>{toTitleCase(level.levelName)}</span>
                 {isActive ? (
                   <Loader2Fill fill="var(--color-icon-informative)" className="size-4" />
                 ) : (
@@ -536,7 +467,7 @@ export const ClassesAndArms = ({
                         onClick={() => setAddClassOpen(true)}
                         className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
                       >
-                        + Add Class
+                        + Add Another Class
                       </Button>
                     </PermissionCheck>
                   ) : (
@@ -545,7 +476,7 @@ export const ClassesAndArms = ({
                         onClick={() => setSheetOpen(true)}
                         className="bg-bg-state-secondary! border-border-darker! text-text-default rounded-md! border shadow-sm lg:ml-[-149]"
                       >
-                        <Settings4 fill="var(--color-icon-default-muted)" /> Quick Setup
+                        <Settings4 fill="var(--color-icon-default-muted)" /> Set Up Classes for This Level
                       </Button>
                     </PermissionCheck>
                   )}
@@ -554,52 +485,6 @@ export const ClassesAndArms = ({
             </div>
           </div>
         </div>
-
-        {/* {hasClasses && (
-        <div className="border-border-default bg-bg-default mx-auto flex w-full items-center justify-between border-t px-4 py-3 lg:px-40">
-          <Button
-            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
-            onClick={() => {
-              setIsEditing?.(false);
-            }}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            type="button"
-            onClick={() => {
-              setIsEditing?.(false);
-            }}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-          >
-            Save Changes
-          </Button>
-        </div>
-      )} */}
-
-        {/* <div className="border-border-default bg-bg-default  border-t right-0 -z-1 left-0 fixed bottom-0 flex justify-center  ">
-        <div className="w-3/4 justify-between  items-center flex  px-4 py-3 lg:px-40 mx-auto">
-          <Button
-            className="bg-bg-state-soft! hover:bg-bg-state-soft-hover! text-text-subtle h-7!"
-            onClick={() => {
-              setIsEditing?.(false);
-            }}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            type="button"
-            onClick={() => {
-              setIsEditing?.(false);
-            }}
-            className="bg-bg-state-primary! hover:bg-bg-state-primary-hover! text-text-white-default! h-7!"
-          >
-            Save Changes
-          </Button>
-        </div>
-      </div> */}
 
         {completedSteps && setCompletedSteps && (
           <WizardStepFooter
@@ -630,12 +515,6 @@ export const ClassesSetup = ({
   branchSpecific: boolean;
   isLoadingLevels?: boolean;
 }) => {
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
-
-  const openDelete = () => {
-    setOpenDeleteModal(true);
-  };
-
   return (
     <div>
       {isLoadingLevels && levels.length === 0 && (

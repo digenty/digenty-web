@@ -36,14 +36,14 @@ export const MidtermComments = ({
             onClick={onSubmit}
             disabled={isSubmitting || !hasEdits}
             size="sm"
-            className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 w-30 items-center gap-1 text-sm font-normal"
+            className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 w-fit items-center gap-1 text-sm font-normal"
           >
             {isSubmitting ? (
               <Spinner className="text-text-white-default size-3" />
             ) : (
               <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
             )}
-            Submit
+            Submit Mid-term Comments
           </Button>
         </div>
       )}

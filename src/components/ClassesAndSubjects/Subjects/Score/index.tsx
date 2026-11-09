@@ -189,10 +189,26 @@ export default function Score() {
     );
   };
 
+  const tabDescription =
+    activeScoreTab === "Standard"
+      ? "Enter each student's score for every assessment below. Use “Save Scores as Draft” to keep editing later, or “Submit Scores” once you're done."
+      : activeScoreTab === MIDTERM_COMMENTS_TAB
+        ? "Write a short mid-term comment for each student below, then click “Submit Mid-term Comments” when you're done."
+        : activeDevelopmentCategory
+          ? `Rate each student on ${activeDevelopmentCategory.categoryName} using the scale below, then click “Submit ${activeDevelopmentCategory.categoryName} Ratings” when you're done.`
+          : "";
+
   return (
     <SubjectReportPermissionWrapper subjectId={Number(subjectId)} isLoading={isLoading} type="edit">
       <div className="flex w-full flex-col gap-5">
-        <ScoresHeader onSubmit={handleSubmit} isSubmitting={isSubmitting} isError={isError} onExport={handleExport} status={status} />
+        <ScoresHeader
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          isError={isError}
+          onExport={handleExport}
+          status={status}
+          showScoreActions={activeScoreTab === "Standard"}
+        />
 
         <div className="border-border-default hide-scrollbar flex w-full max-w-full min-w-0 items-center overflow-x-auto overscroll-x-contain border-b px-4 [-webkit-overflow-scrolling:touch] md:px-8">
           {scoreTabs.map(tab => {
@@ -215,6 +231,10 @@ export default function Score() {
             );
           })}
         </div>
+
+        {tabDescription && !isLoading && !isError && studentsData.length > 0 && (
+          <p className="text-text-muted px-4 text-sm md:px-8">{tabDescription}</p>
+        )}
 
         {/* Kept mounted (just hidden) on other tabs so unsaved score inputs aren't lost when switching tabs. */}
         <div className={cn("flex flex-col gap-5", activeScoreTab !== "Standard" && "hidden")}>

@@ -101,6 +101,18 @@ export const addSubject = async (payload: AddSubjectPayload) => {
   }
 };
 
+export const updateSubjectByLevel = async (payload: { subjectId: number; levelId: number; name: string }) => {
+  try {
+    const { data } = await api.put("/subjects/level", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const deleteSubjectByLevel = async (subjectId: number, levelId: number) => {
   try {
     const { data } = await api.delete(`/subjects/level?subjectId=${subjectId}&levelId=${levelId}`);
@@ -140,6 +152,18 @@ export const getSubjectsByClassAndLevel = async (className?: string, levelType?:
 export const getSubjectsByClassId = async (classId: number) => {
   try {
     const { data } = await api.get(`/subjects/class/${classId}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
+export const updateSubjectByClass = async (payload: { subjectId: number; classId: number; name: string }) => {
+  try {
+    const { data } = await api.put("/subjects/class", payload);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) {

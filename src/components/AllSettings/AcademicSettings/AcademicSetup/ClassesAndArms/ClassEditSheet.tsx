@@ -1,40 +1,45 @@
-import { CloseFill } from "@digenty/icons";
 import { ArmDetails, ClassLevel, DepartmentWithSubjects } from "@/api/types";
 
 import { MobileDrawer } from "@/components/MobileDrawer";
 import { PermissionCheck } from "@/components/ModulePermissionsWrapper/PermissionCheck";
 import { toast } from "@/components/Toast";
 import { Toggle } from "@/components/Toggle";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import { useAddArmToClass, useDeleteArmFromClass, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
+import { useAddArmToClass, useDeleteArmFromClass, useGetAllArms, useGetArmsByClass } from "@/hooks/queryHooks/useArm";
 import { useGetClassDetails, useUpdateClass } from "@/hooks/queryHooks/useClass";
 import {
   useAddDepartmentToClass,
   useCreateDepartmentSubjects,
   useDeleteDepartmentFromClass,
   useDeleteDepartmentSubjects,
+  useGetDepartments,
   useGetDepartmentsByClass,
   useGetDepartmentSubjectsByClass,
 } from "@/hooks/queryHooks/useDepartment";
-import { useUpdateLevel } from "@/hooks/queryHooks/useLevel";
-import { useAddSubjectToClass, useDeleteSubjectFromClass, useGetSubjectsByClass } from "@/hooks/queryHooks/useSubject";
+import {
+  useAddSubjectToClass,
+  useDeleteSubjectFromClass,
+  useGetAllSubjects,
+  useGetSubjectsByClass,
+  useUpdateSubjectByClass,
+} from "@/hooks/queryHooks/useSubject";
 import { armKeys } from "@/queries/arm";
 import { departmentKeys } from "@/queries/department";
 import { subjectKeys } from "@/queries/subject";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { canManageSettings } from "@/lib/permissions/settings";
-import { cn } from "@/lib/utils";
+import { cn, toTitleCase } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import * as yup from "yup";
 import { AssignArmsToDepartments } from "./AssignArmsToDepartments";
+import { LevelItemsSection } from "./LevelItemsSection";
 import { getApiErrorMessage } from "@/lib/apiError";
 
 const DepartmentSubjectsSection = ({
@@ -48,38 +53,32 @@ const DepartmentSubjectsSection = ({
   branchId?: number;
   branchSpecific: boolean;
 }) => {
-  const [subjects, setSubjects] = useState<string[]>([]);
-  const [subjectInput, setSubjectInput] = useState("");
-  const [deletingSubject, setDeletingSubject] = useState<string | null>(null);
-  const { data: deptSubjectsData, isLoading } = useGetDepartmentSubjectsByClass(dept.departmentId, levelId);
-  const { mutate: mutateCreateDeptSubjects, isPending: isSaving } = useCreateDepartmentSubjects();
-  const { mutate: mutateDeleteDeptSubject, isPending: isDeleting } = useDeleteDepartmentSubjects();
+  const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
+  const { data: deptSubjectsData } = useGetDepartmentSubjectsByClass(dept.departmentId, levelId);
+  const { data: allSubjectsData, isFetching: isLoadingAllSubjects } = useGetAllSubjects();
+  const { mutate: mutateCreateDeptSubjects, isPending: isAddingSubject } = useCreateDepartmentSubjects();
+  const { mutate: mutateDeleteDeptSubject } = useDeleteDepartmentSubjects();
 
-  useEffect(() => {
-    if (deptSubjectsData?.data) {
-      setSubjects(deptSubjectsData.data.map((s: { subjectName: string }) => s.subjectName));
-    }
-  }, [deptSubjectsData]);
+  const existingSubjects = (deptSubjectsData?.data as { subjectId: number; subjectName: string }[] | undefined) ?? [];
+  const existingSubjectNames = existingSubjects.map(s => s.subjectName);
 
-  const addSubject = (subjectString: string) => {
-    if (!subjectString.trim()) return;
-    const newSubjectNames = subjectString
-      .split(",")
-      .map(str => str.trim())
-      .filter(str => str !== "" && !subjects.includes(str));
-    if (newSubjectNames.length === 0) return;
-    setSubjectInput("");
+  const allSubjectNames: string[] = (
+    Array.isArray(allSubjectsData) ? allSubjectsData : Array.isArray(allSubjectsData?.data) ? allSubjectsData.data : []
+  ).map((s: { name: string }) => s.name);
+
+  const availableSubjects = allSubjectNames.filter(n => !existingSubjectNames.includes(n));
+
+  const handleAdd = (names: string[]) => {
     mutateCreateDeptSubjects(
-      { departmentName: dept.name, subjectNames: newSubjectNames, branchId, branchSpecific },
+      { departmentName: dept.name, subjectNames: names, branchId, branchSpecific },
       {
         onSuccess: () => {
-          setSubjects(prev => [...prev, ...newSubjectNames]);
-          toast({ title: "Subjects added", description: `Subjects for ${dept.name} updated successfully`, type: "success" });
+          toast({ title: "Subjects added", description: `Subjects for ${toTitleCase(dept.name)} updated successfully`, type: "success" });
         },
         onError: error => {
           toast({
             title: "Failed to add subjects",
-            description: getApiErrorMessage(error, `Could not add subjects to ${dept.name}`),
+            description: getApiErrorMessage(error, `Could not add subjects to ${toTitleCase(dept.name)}`),
             type: "error",
           });
         },
@@ -87,25 +86,22 @@ const DepartmentSubjectsSection = ({
     );
   };
 
-  const removeSubject = (subjectToRemove: string) => {
-    const subjectData = (deptSubjectsData?.data as { subjectId: number; subjectName: string }[] | undefined)?.find(
-      s => s.subjectName === subjectToRemove,
-    );
-    if (!subjectData) return;
-    setDeletingSubject(subjectToRemove);
+  const handleDelete = (name: string) => {
+    const subject = existingSubjects.find(s => s.subjectName === name);
+    if (!subject) return;
+    setDeletingSubjectName(name);
     mutateDeleteDeptSubject(
-      { departmentId: dept.departmentId, subjectId: subjectData.subjectId },
+      { departmentId: dept.departmentId, subjectId: subject.subjectId },
       {
         onSuccess: () => {
-          setSubjects(prev => prev.filter(s => s !== subjectToRemove));
-          setDeletingSubject(null);
-          toast({ title: "Subject removed", description: `"${subjectToRemove}" removed from ${dept.name}`, type: "success" });
+          setDeletingSubjectName(null);
+          toast({ title: "Subject removed", description: `"${toTitleCase(name)}" removed from ${toTitleCase(dept.name)}`, type: "success" });
         },
         onError: error => {
-          setDeletingSubject(null);
+          setDeletingSubjectName(null);
           toast({
             title: "Failed to remove subject",
-            description: getApiErrorMessage(error, `Could not remove "${subjectToRemove}"`),
+            description: getApiErrorMessage(error, `Could not remove "${toTitleCase(name)}"`),
             type: "error",
           });
         },
@@ -115,63 +111,18 @@ const DepartmentSubjectsSection = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <Label className="text-text-default text-sm font-medium capitalize">{dept.name.toLowerCase()} Subjects</Label>
-      <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-        <Input
-          type="text"
-          value={subjectInput}
-          onChange={evt => setSubjectInput(evt.target.value)}
-          onKeyDown={e => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              addSubject(subjectInput);
-            }
-          }}
-          className="text-text-default h-7! w-full rounded-md border-none bg-none! text-sm"
-          placeholder={`Add subjects to ${dept.name.toLowerCase()}`}
-        />
-        <PermissionCheck permissionUtility={canManageSettings}>
-          <Button
-            type="button"
-            className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-            onClick={() => addSubject(subjectInput)}
-            disabled={isSaving || isLoading || isDeleting}
-          >
-            {(isSaving || isLoading) && <Spinner className="text-text-white-default size-3" />}
-            Add
-          </Button>
-        </PermissionCheck>
-      </div>
-      <div className="flex flex-wrap items-center gap-1">
-        {subjects.map(subject => (
-          <Badge
-            key={subject}
-            className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-          >
-            <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>
-            <PermissionCheck permissionUtility={canManageSettings}>
-              <button
-                type="button"
-                disabled={deletingSubject === subject || isDeleting}
-                className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-                onClick={e => {
-                  e.preventDefault();
-                  removeSubject(subject);
-                }}
-              >
-                {deletingSubject === subject ? (
-                  <Spinner className="text-text-subtle size-2" />
-                ) : (
-                  <CloseFill fill="var(--color-icon-default-muted)" className="size-2! cursor-pointer" />
-                )}
-              </button>
-            </PermissionCheck>
-          </Badge>
-        ))}
-      </div>
-      <div className="text-text-muted text-xs">
-        You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.
-      </div>
+      <Label className="text-text-default text-sm font-medium">{toTitleCase(dept.name)} Subjects</Label>
+      <LevelItemsSection
+        existingItems={existingSubjectNames}
+        globalOptions={availableSubjects}
+        isLoadingOptions={isLoadingAllSubjects}
+        onAdd={handleAdd}
+        onDelete={handleDelete}
+        isAdding={isAddingSubject}
+        deletingName={deletingSubjectName}
+        placeholder={`Search or add subjects to ${toTitleCase(dept.name)}`}
+        twoPerRow
+      />
     </div>
   );
 };
@@ -199,23 +150,28 @@ export const ClassEditSheet = ({
   const [departmentsEnabled, setDepartmentsEnabled] = useState(false);
   const [armsEnabled, setArmsEnabled] = useState(false);
   const [deletingSubjectName, setDeletingSubjectName] = useState<string | null>(null);
+  const [renamingSubjectName, setRenamingSubjectName] = useState<string | null>(null);
   const [deletingArmName, setDeletingArmName] = useState<string | null>(null);
   const [deletingDepartmentName, setDeletingDepartmentName] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
 
-  const { mutate, isPending } = useUpdateLevel();
   const { mutate: updateClass, isPending: isUpdatingClass } = useUpdateClass();
   const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubjectToClass();
   const { mutate: deleteSubject } = useDeleteSubjectFromClass();
+  const { mutate: renameSubject } = useUpdateSubjectByClass();
   const { mutate: deleteArm } = useDeleteArmFromClass();
   const { mutate: mutateArm, isPending: isAddingArm } = useAddArmToClass();
   const { mutate: mutateDepartment, isPending: isAddingDepartment } = useAddDepartmentToClass();
   const { mutate: deleteDepartment } = useDeleteDepartmentFromClass();
-  const { data: classData, isLoading: isLoadingClass } = useGetClassDetails(classId);
-  const { data: subjectsData, isFetching: isLoadingSubjects } = useGetSubjectsByClass(classData?.data?.name, level?.levelType, branchId);
-  const { data: armsData, isFetching: isLoadingArms } = useGetArmsByClass(classId);
+  const { data: classData } = useGetClassDetails(classId);
+  const { data: subjectsData } = useGetSubjectsByClass(classData?.data?.name, level?.levelType, branchId);
+  const { data: armsData } = useGetArmsByClass(classId);
   const { data: departmentsData } = useGetDepartmentsByClass(classData?.data?.name, level?.levelType, branchId);
+
+  const { data: allSubjectsData, isFetching: isLoadingAllSubjects } = useGetAllSubjects();
+  const { data: allArmsData, isFetching: isLoadingAllArms } = useGetAllArms(branchId);
+  const { data: allDepartmentsData, isFetching: isLoadingAllDepts } = useGetDepartments();
 
   useEffect(() => {
     if (subjectsData) {
@@ -241,26 +197,43 @@ export const ClassEditSheet = ({
 
   useEffect(() => {
     if (departmentsData) {
-      const departmentsDetails = Array.isArray(departmentsData?.data[0]?.departments)
+      const departmentsList = Array.isArray(departmentsData?.data[0]?.departments)
         ? departmentsData?.data[0]?.departments
         : (departmentsData?.data ?? []);
 
-      const names = departmentsDetails.map((dept: { name: string }) => dept.name);
+      const names = departmentsList.map((dept: { name: string }) => dept.name);
 
       if (names.length > 0) {
         setDepartments(names);
-        setDepartmentsDetails(departmentsDetails);
+        setDepartmentsDetails(departmentsList);
         setDepartmentsEnabled(true);
       }
     }
   }, [departmentsData]);
 
+  const allSubjectNames: string[] = (
+    Array.isArray(allSubjectsData) ? allSubjectsData : Array.isArray(allSubjectsData?.data) ? allSubjectsData.data : []
+  ).map((s: { name: string }) => s.name);
+
+  const allArmNames: string[] = [
+    ...new Set<string>(
+      (Array.isArray(allArmsData) ? allArmsData : Array.isArray(allArmsData?.data) ? allArmsData.data : []).map(
+        (a: { armName: string }) => a.armName,
+      ),
+    ),
+  ];
+
+  const allDeptNames: string[] = (
+    Array.isArray(allDepartmentsData) ? allDepartmentsData : Array.isArray(allDepartmentsData?.data) ? allDepartmentsData.data : []
+  ).map((d: { name: string }) => d.name);
+
+  const availableSubjects = allSubjectNames.filter(n => !subjects.includes(n));
+  const availableArms = allArmNames.filter(n => !arms.includes(n));
+  const availableDepts = allDeptNames.filter(n => !departments.includes(n));
+
   const formik = useFormik({
     initialValues: {
       className: classData?.data?.name || "",
-      subject: "",
-      arm: "",
-      department: "",
     },
     enableReinitialize: true,
     validationSchema: yup.object({
@@ -296,15 +269,9 @@ export const ClassEditSheet = ({
 
   const { values, errors, touched, handleChange, handleBlur } = formik;
 
-  const addSubject = (subjectString: string) => {
-    if (!subjectString.trim()) return;
-    const newSubjects = subjectString
-      .split(",")
-      .map(str => str.trim().replace(/^,+|,+$/g, ""))
-      .filter(str => str !== "" && !subjects.includes(str));
-
+  const addSubject = (names: string[]) => {
+    const newSubjects = names.filter(n => !subjects.includes(n));
     if (!newSubjects.length) return;
-    formik.setFieldValue("subject", "");
 
     mutateSubject(
       { names: newSubjects, className: classData?.data?.name, levelType: level?.levelType || "" },
@@ -339,13 +306,13 @@ export const ClassEditSheet = ({
         onSuccess: () => {
           setDeletingSubjectName(null);
           queryClient.refetchQueries({ queryKey: subjectKeys.subjectsByClass(classData?.data?.name, level?.levelType, branchId) });
-          toast({ title: "Subject deleted", description: `"${subjectToRemove}" has been deleted successfully`, type: "success" });
+          toast({ title: "Subject deleted", description: `"${toTitleCase(subjectToRemove)}" has been deleted successfully`, type: "success" });
         },
         onError: error => {
           setDeletingSubjectName(null);
           toast({
             title: "Failed to delete subject",
-            description: getApiErrorMessage(error, `Could not delete "${subjectToRemove}"`),
+            description: getApiErrorMessage(error, `Could not delete "${toTitleCase(subjectToRemove)}"`),
             type: "error",
           });
         },
@@ -353,15 +320,34 @@ export const ClassEditSheet = ({
     );
   };
 
-  const addArm = (armString: string) => {
-    if (!armString.trim()) return;
-    const newArms = armString
-      .split(",")
-      .map(str => str.trim().replace(/^,+|,+$/g, ""))
-      .filter(str => str !== "" && !arms.includes(str));
+  const handleRenameSubject = (oldName: string, newName: string) => {
+    const subjectsList: { id: number; name: string }[] = Array.isArray(subjectsData?.data[0]?.subjects)
+      ? subjectsData.data[0].subjects
+      : (subjectsData?.content ?? subjectsData?.data ?? []);
 
+    const subjectObj = subjectsList.find(s => s.name === oldName);
+    if (!subjectObj || !classId) return;
+
+    setRenamingSubjectName(oldName);
+    renameSubject(
+      { subjectId: subjectObj.id, classId, name: newName },
+      {
+        onSuccess: () => {
+          setRenamingSubjectName(null);
+          queryClient.refetchQueries({ queryKey: subjectKeys.subjectsByClass(classData?.data?.name, level?.levelType, branchId) });
+          toast({ title: "Subject renamed", description: `"${toTitleCase(oldName)}" renamed to "${toTitleCase(newName)}"`, type: "success" });
+        },
+        onError: error => {
+          setRenamingSubjectName(null);
+          toast({ title: "Failed to rename subject", description: getApiErrorMessage(error, "Could not rename subject"), type: "error" });
+        },
+      },
+    );
+  };
+
+  const addArm = (names: string[]) => {
+    const newArms = names.filter(n => !arms.includes(n));
     if (!newArms.length) return;
-    formik.setFieldValue("arm", "");
 
     mutateArm(
       { names: newArms, className: classData?.data?.name, levelType: level?.levelType || "" },
@@ -391,7 +377,7 @@ export const ClassEditSheet = ({
             queryClient.refetchQueries({ queryKey: armKeys.armsByClass(classId) });
             toast({
               title: "Arm deleted",
-              description: `"${armToRemove}" has been deleted successfully`,
+              description: `"${toTitleCase(armToRemove)}" has been deleted successfully`,
               type: "success",
             });
           },
@@ -399,7 +385,7 @@ export const ClassEditSheet = ({
             setDeletingArmName(null);
             toast({
               title: "Failed to delete arm",
-              description: getApiErrorMessage(error, `Could not delete "${armToRemove}"`),
+              description: getApiErrorMessage(error, `Could not delete "${toTitleCase(armToRemove)}"`),
               type: "error",
             });
           },
@@ -410,15 +396,10 @@ export const ClassEditSheet = ({
     }
   };
 
-  const addDepartment = (departmentString: string) => {
-    if (!departmentString.trim() || !level?.levelType || !classData?.data?.name) return;
-    const newDepartments = departmentString
-      .split(",")
-      .map(str => str.trim().replace(/^,+|,+$/g, ""))
-      .filter(str => str !== "" && !departments.includes(str));
-
+  const addDepartment = (names: string[]) => {
+    if (!level?.levelType || !classData?.data?.name) return;
+    const newDepartments = names.filter(n => !departments.includes(n));
     if (!newDepartments.length) return;
-    formik.setFieldValue("department", "");
 
     mutateDepartment(
       { names: newDepartments, className: classData.data.name, levelType: level.levelType, branchId, branchSpecific },
@@ -449,13 +430,17 @@ export const ClassEditSheet = ({
         onSuccess: () => {
           setDeletingDepartmentName(null);
           queryClient.refetchQueries({ queryKey: departmentKeys.departmentsByClass(classData?.data?.name, level?.levelType, branchId) });
-          toast({ title: "Department deleted", description: `"${departmentToRemove}" has been deleted successfully`, type: "success" });
+          toast({
+            title: "Department deleted",
+            description: `"${toTitleCase(departmentToRemove)}" has been deleted successfully`,
+            type: "success",
+          });
         },
         onError: error => {
           setDeletingDepartmentName(null);
           toast({
             title: "Failed to delete department",
-            description: getApiErrorMessage(error, `Could not delete "${departmentToRemove}"`),
+            description: getApiErrorMessage(error, `Could not delete "${toTitleCase(departmentToRemove)}"`),
             type: "error",
           });
         },
@@ -463,10 +448,14 @@ export const ClassEditSheet = ({
     );
   };
 
+  const className = toTitleCase(classData?.data?.name ?? "");
+  const exampleArmPrefix = className || "this class";
+
   const contentNode = (
     <div className={cn("flex w-full flex-col gap-6 py-6", isMobile ? "px-4" : "px-6")}>
       <div className="text-text-default flex flex-col gap-2 text-xl font-semibold">
         <span>Customize Class</span>
+        {level && <span className="text-text-muted text-sm font-normal">Level: {toTitleCase(level.levelName)}</span>}
       </div>
 
       <div className="border-border-default border-b pb-6">
@@ -501,8 +490,7 @@ export const ClassEditSheet = ({
               <div className="">
                 <div className="text-text-default text-sm font-medium">Enable Departments</div>
                 <div className="text-text-subtle text-sm">
-                  Departments let you organize students within the same level into different academic paths. This way, classes under the same level
-                  can offer different sets of subjects or focus areas.
+                  Departments split this class into separate academic paths, each with its own subjects. Example: Science and Arts.
                 </div>
               </div>
               <Toggle withBorder={false} checked={departmentsEnabled} onChange={e => setDepartmentsEnabled((e.target as HTMLInputElement).checked)} />
@@ -511,67 +499,21 @@ export const ClassEditSheet = ({
               <>
                 <div className="border-border-default flex flex-col gap-3 border-b pb-6">
                   <div className="text-text-default text-sm font-medium">Departments</div>
-                  <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-                    <Input
-                      id="department"
-                      onChange={formik.handleChange}
-                      placeholder="Enter Departments"
-                      value={formik.values.department}
-                      type="text"
-                      onKeyDown={e => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          addDepartment(formik.values.department);
-                        }
-                      }}
-                      className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
-                    />
-                    <PermissionCheck permissionUtility={canManageSettings}>
-                      <Button
-                        type="button"
-                        onClick={() => addDepartment(formik.values.department)}
-                        className="text-text-white-default! bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                      >
-                        {isAddingDepartment && <Spinner className="text-text-white-default size-3" />}
-                        Add
-                      </Button>
-                    </PermissionCheck>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-1">
-                    {departments.map(department => (
-                      <Badge
-                        key={department}
-                        className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                      >
-                        <span className="text-text-subtle text-xs capitalize">{department?.toLowerCase()}</span>
-                        <PermissionCheck permissionUtility={canManageSettings}>
-                          <button
-                            type="button"
-                            disabled={deletingDepartmentName === department}
-                            className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-                            onClick={e => {
-                              e.preventDefault();
-                              removeDepartment(department);
-                            }}
-                          >
-                            {deletingDepartmentName === department ? (
-                              <Spinner className="text-text-subtle size-2" />
-                            ) : (
-                              <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
-                            )}
-                          </button>
-                        </PermissionCheck>
-                      </Badge>
-                    ))}
-                  </div>
-                  <small className="text-text-muted text-xs">
-                    You can add multiple departments at once by separating with a comma e.g Art, Commercial, Science
-                  </small>
+                  <LevelItemsSection
+                    existingItems={departments}
+                    globalOptions={availableDepts}
+                    isLoadingOptions={isLoadingAllDepts}
+                    onAdd={addDepartment}
+                    onDelete={removeDepartment}
+                    isAdding={isAddingDepartment}
+                    deletingName={deletingDepartmentName}
+                    placeholder="Search or type new departments e.g Science, Arts"
+                  />
                 </div>
 
                 {departmentsDetails.length > 0 && (
                   <>
-                    <div className="text-text-default text-xl font-semibold">Department Subjects</div>
+                    <div className="text-text-default text-sm font-medium">Department Subjects</div>
                     {departmentsDetails.map((dept, index) => (
                       <DepartmentSubjectsSection
                         key={`${dept.departmentId}-${index}`}
@@ -590,152 +532,49 @@ export const ClassEditSheet = ({
 
         {/* Subjects */}
         {!departmentsEnabled && (
-          <div className="">
-            <div className="text-text-default mb-6 text-xl font-semibold">Subjects</div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-text-default text-sm font-medium">Subjects</Label>
-              <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-                <Input
-                  id="subject"
-                  onChange={formik.handleChange}
-                  placeholder="Enter Subjects"
-                  value={formik.values.subject}
-                  type="text"
-                  onKeyDown={e => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      addSubject(formik.values.subject);
-                    }
-                  }}
-                  className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
-                />
-
-                <PermissionCheck permissionUtility={canManageSettings}>
-                  <Button
-                    type="button"
-                    onClick={() => addSubject(formik.values.subject)}
-                    className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                  >
-                    {isAddingSubject && <Spinner className="text-text-white-default size-3" />}
-                    Add
-                  </Button>
-                </PermissionCheck>
-              </div>
-
-              <div className="flex flex-wrap gap-1">
-                {" "}
-                {subjects.map(subject => (
-                  <Badge
-                    key={subject}
-                    className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                  >
-                    <span className="text-text-subtle text-xs capitalize">{subject.toLowerCase()}</span>{" "}
-                    <PermissionCheck permissionUtility={canManageSettings}>
-                      <button
-                        type="button"
-                        className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-                        disabled={deletingSubjectName === subject}
-                        onClick={e => {
-                          e.preventDefault();
-                          removeSubject(subject);
-                        }}
-                      >
-                        {deletingSubjectName === subject ? (
-                          <Spinner className="text-text-subtle size-2" />
-                        ) : (
-                          <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
-                        )}
-                      </button>
-                    </PermissionCheck>
-                  </Badge>
-                ))}
-                <div className="text-text-muted mt-1 text-xs">
-                  You can add multiple subjects at once by separating with a comma e.g English Language, Mathematics etc.
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-col gap-4">
+            <div className="text-text-default text-xl font-semibold">Subjects</div>
+            <LevelItemsSection
+              existingItems={subjects}
+              globalOptions={availableSubjects}
+              isLoadingOptions={isLoadingAllSubjects}
+              onAdd={addSubject}
+              onDelete={removeSubject}
+              onRename={handleRenameSubject}
+              isAdding={isAddingSubject}
+              deletingName={deletingSubjectName}
+              renamingName={renamingSubjectName}
+              placeholder="Search or type new subjects e.g Mathematics, English"
+              twoPerRow
+            />
           </div>
         )}
 
         <div>
           {/* Arms */}
           <div className="space-y-6">
-            <div className="space-y-6">
-              <div className="text-text-default text-xl font-semibold">Arms</div>
-              <div className={cn("border-border-default flex justify-between border-b pb-6", !armsEnabled && "border-none")}>
-                <div>
-                  <Label className="text-text-default text-sm font-medium">Enable Arms</Label>
-                  <span className="text-text-subtle text-sm">
-                    Arms let you split a class or department into smaller groups while still keeping them under the same level &mdash; parallel
-                    sections of the same class. Name them however your school does: letters (A, B), colours (Gold, Silver), numbers (1, 2), or
-                    anything else your structure uses.
-                  </span>
-                </div>
-                <Toggle withBorder={false} checked={armsEnabled} onChange={e => setArmsEnabled((e.target as HTMLInputElement).checked)} />
+            <div className={cn("border-border-default flex justify-between border-b pb-6", !armsEnabled && "border-none")}>
+              <div>
+                <div className="text-text-default text-sm font-medium">Enable Arms</div>
+                <span className="text-text-subtle text-sm">
+                  Arms split this class into smaller parallel groups. Example: {exampleArmPrefix}A, {exampleArmPrefix}B.
+                </span>
               </div>
+              <Toggle withBorder={false} checked={armsEnabled} onChange={e => setArmsEnabled((e.target as HTMLInputElement).checked)} />
             </div>
             {armsEnabled && (
               <div className="flex flex-col gap-2">
                 <Label className="text-text-default text-sm font-medium">Arms</Label>
-                <div className="bg-bg-input-soft flex h-9 items-center gap-2 rounded-md p-2">
-                  <Input
-                    id="arm"
-                    onChange={formik.handleChange}
-                    placeholder="Enter Arms"
-                    value={formik.values.arm}
-                    type="text"
-                    onKeyDown={e => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addArm(formik.values.arm);
-                      }
-                    }}
-                    className={cn("text-text-default h-7! w-full rounded-md border-none text-sm font-normal")}
-                  />
-
-                  <PermissionCheck permissionUtility={canManageSettings}>
-                    <Button
-                      type="button"
-                      onClick={() => addArm(formik.values.arm)}
-                      className="text-text-white-default bg-bg-state-primary! hover:bg-bg-state-primary-hover! h-6! rounded-md px-2 text-xs"
-                    >
-                      {isAddingArm && <Spinner className="text-text-white-default size-3" />}
-                      Add
-                    </Button>
-                  </PermissionCheck>
-                </div>
-
-                <div className="flex flex-wrap gap-1">
-                  {" "}
-                  {arms.map(arm => (
-                    <Badge
-                      key={arm}
-                      className="bg-bg-badge-default border-border-default flex h-5 items-center justify-between gap-3 rounded-md border p-1"
-                    >
-                      <span className="text-text-subtle text-xs capitalize">{arm.toLowerCase()}</span>{" "}
-                      <PermissionCheck permissionUtility={canManageSettings}>
-                        <button
-                          type="button"
-                          className="m-0 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 disabled:opacity-50"
-                          disabled={deletingArmName === arm}
-                          onClick={e => {
-                            e.preventDefault();
-                            removeArm(arm);
-                          }}
-                        >
-                          {deletingArmName === arm ? (
-                            <Spinner className="text-text-subtle size-2" />
-                          ) : (
-                            <CloseFill fill="var(--color-icon-default-muted)" className="size-2!" />
-                          )}
-                        </button>
-                      </PermissionCheck>
-                    </Badge>
-                  ))}
-                  <div className="text-text-muted mt-1 text-xs">
-                    You can add multiple arms at once by separating with a comma e.g A, B or Gold, Silver etc.
-                  </div>
-                </div>
+                <LevelItemsSection
+                  existingItems={arms}
+                  globalOptions={availableArms}
+                  isLoadingOptions={isLoadingAllArms}
+                  onAdd={addArm}
+                  onDelete={removeArm}
+                  isAdding={isAddingArm}
+                  deletingName={deletingArmName}
+                  placeholder="Search or type new arms e.g A, B or Gold, Silver"
+                />
               </div>
             )}
           </div>
@@ -755,10 +594,10 @@ export const ClassEditSheet = ({
             <SheetContent className="bg-bg-card border-border-default mt-4 mr-4 hidden overflow-y-auto rounded-md border md:block md:min-w-130">
               <SheetHeader className="border-border-darker bg-bg-card-subtle rounded-t-md border-b px-4 py-3">
                 <VisuallyHidden>
-                  <SheetTitle>Edit {classData?.data?.name}</SheetTitle>
+                  <SheetTitle>Edit {className}</SheetTitle>
                 </VisuallyHidden>
                 <div className="flex items-center justify-between">
-                  <div className="text-text-default text-md font-semibold capitalize">Edit {classData?.data?.name?.toLowerCase()}</div>
+                  <div className="text-text-default text-md font-semibold">Edit {className}</div>
                 </div>
               </SheetHeader>
 
@@ -780,7 +619,7 @@ export const ClassEditSheet = ({
                       onClick={() => formik.handleSubmit()}
                       className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
                     >
-                      {(isPending || isUpdatingClass) && <Spinner className="text-text-white-default" />}
+                      {isUpdatingClass && <Spinner className="text-text-white-default" />}
                       Save
                     </Button>
                   </PermissionCheck>
@@ -793,7 +632,7 @@ export const ClassEditSheet = ({
 
       {/* Mobile */}
       {isMobile && (
-        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title={`Edit ${classData?.data?.name ?? ""}`}>
+        <MobileDrawer open={sheetOpen} setIsOpen={setSheetOpen} title={`Edit ${className}`}>
           {contentNode}
           <SheetFooter className="border-border-default border-t">
             <div className="flex items-center justify-between">
@@ -810,7 +649,7 @@ export const ClassEditSheet = ({
                 onClick={() => formik.handleSubmit()}
                 className="bg-bg-state-primary text-text-white-default hover:bg-bg-state-primary/90! flex h-7 w-17 items-center gap-1 rounded-sm px-2 py-1"
               >
-                {(isPending || isUpdatingClass) && <Spinner className="text-text-white-default" />}
+                {isUpdatingClass && <Spinner className="text-text-white-default" />}
                 Save
               </Button>
             </div>

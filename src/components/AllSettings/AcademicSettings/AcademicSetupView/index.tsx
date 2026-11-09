@@ -7,6 +7,7 @@ import { PermissionCheck } from "@/components/ModulePermissionsWrapper/Permissio
 import { Button } from "@/components/ui/button";
 import { useGetActiveSession } from "@/hooks/queryHooks/useAcademic";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
+import { useScrollEdges } from "@/hooks/useScrollEdges";
 import { canManageSettings } from "@/lib/permissions/settings";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -17,20 +18,17 @@ import { DevelopmentSettings } from "./DevelopmentSettings";
 import { AcademicAssAndGradeSetupDone } from "./GradingAndAssessment";
 import { SchoolSectionAndTerm } from "./SchoolSectionTerm";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ClassesAndArms } from "../AcademicSetup/ClassesAndArms";
-const termsOptions = ["24/25 Session", "24/25 Session", "24/25 Session"];
 const tabs = ["School, Session & Term", "Classes & Arms", "Assessment & Grading", "Development Skills", "Admission Number"] as const;
 type Tab = (typeof tabs)[number];
 
 export const AcademicSetupView = () => {
   const router = useRouter();
+  const { ref: tabsScrollRef, atStart: tabsAtStart, atEnd: tabsAtEnd } = useScrollEdges<HTMLDivElement>();
   useBreadcrumb([
     { label: "Settings", url: "/staff/settings" },
     { label: "Academic", url: "/staff/settings/academic" },
   ]);
   const [activeTab, setActiveTab] = useState<Tab>("School, Session & Term");
-  const [termSelected, setTermSelected] = useState(termsOptions[0]);
-  const [isEditingClasses, setIsEditingClasses] = useState(false);
 
   const { data: academicResponse, isLoading: isLoadingSession } = useGetActiveSession();
   const session: AcademicSession | undefined = academicResponse?.data;
@@ -76,32 +74,41 @@ export const AcademicSetupView = () => {
               </div>
             </div>
             <div className="w-full min-w-0">
-              <div className="relative w-full max-w-full overflow-hidden py-4">
-                <div className="border-border-default hide-scrollbar mb-10 flex w-full items-center gap-4 overflow-x-auto overscroll-x-contain border-b py-2 [-webkit-overflow-scrolling:touch] md:p-0">
-                  {tabs.map(tab => {
-                    const isActive = activeTab === tab;
+              <div className="w-full max-w-full py-4">
+                <div className="relative mb-10">
+                  <div
+                    ref={tabsScrollRef}
+                    className="hide-scrollbar border-border-default flex w-full items-center gap-4 overflow-x-auto overscroll-x-contain border-b pt-2 [-webkit-overflow-scrolling:touch]"
+                    style={{ scrollbarWidth: "none" }}
+                  >
+                    {tabs.map(tab => {
+                      const isActive = activeTab === tab;
 
-                    return (
-                      <Button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={cn(
-                          "hover:bg-bg-none! shrink-0 rounded-none text-center transition-all",
-                          isActive && "md:border-border-informative md:border-b-[1.5px]",
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "h-8 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap transition-all",
-                            isActive && ["bg-bg-state-soft text-text-default", "md:text-text-informative md:rounded-none md:bg-transparent"],
-                            !isActive && "text-text-muted",
-                          )}
+                      return (
+                        <div
+                          key={tab}
+                          className={cn("shrink-0 border-b-[1.5px] border-transparent pb-2 transition-all", isActive && "border-border-informative")}
                         >
-                          {tab}
-                        </span>
-                      </Button>
-                    );
-                  })}
+                          <Button onClick={() => setActiveTab(tab)} className="hover:bg-bg-none! rounded-none text-center transition-all">
+                            <span
+                              className={cn(
+                                "h-8 rounded-none px-3 py-2 text-sm font-medium whitespace-nowrap transition-all",
+                                isActive ? "text-text-informative bg-transparent" : "text-text-muted",
+                              )}
+                            >
+                              {tab}
+                            </span>
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {!tabsAtStart && (
+                    <div className="from-bg-default pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r to-transparent" />
+                  )}
+                  {!tabsAtEnd && (
+                    <div className="from-bg-default pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l to-transparent" />
+                  )}
                 </div>
               </div>
             </div>

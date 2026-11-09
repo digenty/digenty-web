@@ -8,6 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useCreateClass } from "@/hooks/queryHooks/useClass";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { canManageSettings } from "@/lib/permissions/settings";
+import { toTitleCase } from "@/lib/utils";
 import { getApiErrorMessage } from "@/lib/apiError";
 
 export const AddClassModal = ({
@@ -48,8 +49,8 @@ export const AddClassModal = ({
   const content = (
     <div className="flex flex-col gap-4 px-3 py-4">
       <p className="text-text-subtle text-sm">
-        The next class <span className="text-text-default font-medium capitalize">{nextClassName.toLowerCase()}</span> will be added to the{" "}
-        <span className="text-text-default font-medium capitalize">{level.levelName.replaceAll("_", " ").toLowerCase()}</span> level.
+        The next class <span className="text-text-default font-medium">{toTitleCase(nextClassName)}</span> will be added to the{" "}
+        <span className="text-text-default font-medium">{toTitleCase(level.levelName)}</span> level.
       </p>
       <div className="flex items-center justify-between gap-2 pt-2">
         <Button

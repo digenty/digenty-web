@@ -17,12 +17,15 @@ export default function ScoresHeader({
   isError,
   onExport,
   status,
+  showScoreActions = true,
 }: {
   onSubmit: (status: "SUBMITTED" | "IN_PROGRESS", closeModal: (bool: boolean) => void) => void;
   isSubmitting: boolean;
   isError: boolean;
   onExport?: () => void;
   status: string;
+  /** False on tabs other than "Standard" — those have their own submit button below, so the score actions here don't apply and would just add confusing extra buttons. */
+  showScoreActions?: boolean;
 }) {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openRequest, setOpenRequest] = useState<boolean>(false);
@@ -60,67 +63,69 @@ export default function ScoresHeader({
             {classArm}, {subjectName}
           </h2>
 
-          <div className="border-border-default overflow-x-auto border-t px-4 py-2 md:border-none md:p-0">
-            <div className="flex items-center gap-2 md:gap-1">
-              <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
-                <Button
-                  disabled={isError}
-                  onClick={onExport}
-                  size="sm"
-                  className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-22 items-center gap-1 border text-sm"
-                >
-                  <ShareBox fill="var(--color-icon-default-muted)" /> Export
-                </Button>
-              </PermissionCheck>
-
-              {(status === "NOT_SUBMITTED" || status === "IN_PROGRESS" || status === "APPROVED_EDIT_ACCESS") && (
-                <div className="flex items-center gap-2 md:gap-1">
-                  <Button
-                    disabled={isError}
-                    size="sm"
-                    onClick={() => onSubmit("IN_PROGRESS", setOpenModal)}
-                    className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-33 items-center justify-between gap-1 border text-sm"
-                  >
-                    {isSubmitting ? <Spinner /> : <Save fill="var(--color-icon-default-muted)" className="size-3" />}
-                    Save as Draft
-                  </Button>
-
-                  <Button
-                    disabled={isError}
-                    onClick={() => setOpenModal(true)}
-                    size="sm"
-                    className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 w-30 items-center gap-1 text-sm font-normal md:w-23"
-                  >
-                    <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
-                    Submit
-                  </Button>
-                </div>
-              )}
-
-              {status === "SUBMITTED" && (
+          {showScoreActions && (
+            <div className="border-border-default overflow-x-auto border-t px-4 py-2 md:border-none md:p-0">
+              <div className="flex items-center gap-2 md:gap-1">
                 <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
                   <Button
                     disabled={isError}
+                    onClick={onExport}
                     size="sm"
-                    onClick={() => setOpenRequest(true)}
-                    className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm"
+                    className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-fit items-center gap-1 border text-sm"
                   >
-                    <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
+                    <ShareBox fill="var(--color-icon-default-muted)" /> Export Scores
                   </Button>
                 </PermissionCheck>
-              )}
 
-              {status === "REQUESTED_EDIT_ACCESS" && (
-                <Button
-                  disabled={isError}
-                  size="sm"
-                  className="border-border-default bg-bg-state-disabled! text-text-hint flex h-8 w-auto cursor-not-allowed items-center justify-between gap-1 border text-sm"
-                >
-                  <Question fill="var(--color-icon-default-muted)" /> Requested Edit Access
-                </Button>
-              )}
+                {(status === "NOT_SUBMITTED" || status === "IN_PROGRESS" || status === "APPROVED_EDIT_ACCESS") && (
+                  <div className="flex items-center gap-2 md:gap-1">
+                    <Button
+                      disabled={isError}
+                      size="sm"
+                      onClick={() => onSubmit("IN_PROGRESS", setOpenModal)}
+                      className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-fit items-center justify-between gap-1 border text-sm"
+                    >
+                      {isSubmitting ? <Spinner /> : <Save fill="var(--color-icon-default-muted)" className="size-3" />}
+                      Save Scores as Draft
+                    </Button>
+
+                    <Button
+                      disabled={isError}
+                      onClick={() => setOpenModal(true)}
+                      size="sm"
+                      className="text-text-white-default bg-bg-state-primary hover:bg-bg-state-primary/90! flex h-8 w-fit items-center gap-1 text-sm font-normal"
+                    >
+                      <CheckboxCircleFill fill="var(--color-icon-white-default)" className="size-3" />
+                      Submit Scores
+                    </Button>
+                  </div>
+                )}
+
+                {status === "SUBMITTED" && (
+                  <PermissionCheck permissionUtility={canManageClassesAndSubjects}>
+                    <Button
+                      disabled={isError}
+                      size="sm"
+                      onClick={() => setOpenRequest(true)}
+                      className="border-border-default bg-bg-state-secondary text-text-default flex h-8 w-auto items-center justify-between gap-1 border text-sm"
+                    >
+                      <Question fill="var(--color-icon-default-muted)" /> Request Edit Access
+                    </Button>
+                  </PermissionCheck>
+                )}
+
+                {status === "REQUESTED_EDIT_ACCESS" && (
+                  <Button
+                    disabled={isError}
+                    size="sm"
+                    className="border-border-default bg-bg-state-disabled! text-text-hint flex h-8 w-auto cursor-not-allowed items-center justify-between gap-1 border text-sm"
+                  >
+                    <Question fill="var(--color-icon-default-muted)" /> Requested Edit Access
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </>

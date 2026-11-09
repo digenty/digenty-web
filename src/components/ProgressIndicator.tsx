@@ -1,8 +1,8 @@
 import { CheckboxCircleFill, Loader2Fill } from "@digenty/icons";
-import { ChevronDown } from "lucide-react";
+import { useEffect, useRef } from "react";
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useScrollEdges } from "@/hooks/useScrollEdges";
 import { cn } from "@/lib/utils";
 
 export type Step = {
@@ -31,34 +31,56 @@ export const ProgressIndicator = ({
     0,
     steps.findIndex(step => step.id === currentStep),
   );
-  const nextStep = steps[currentIndex + 1];
+
+  const { ref: scrollRef, atStart, atEnd } = useScrollEdges<HTMLDivElement>();
+  const activeChipRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    activeChipRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [currentStep]);
 
   if (isMobile && compactOnMobile) {
     return (
       <div className={cn("bg-bg-card border-border-default flex w-full flex-col gap-3 rounded-md border p-3", className)}>
-        <div className="flex items-center justify-between">
-          <span className="text-text-muted text-sm">
-            Step {currentIndex + 1} of {steps.length}
-          </span>
+        <span className="text-text-muted text-sm">
+          Step {currentIndex + 1} of {steps.length}: <span className="text-text-default font-medium">{steps[currentIndex]?.label}</span>
+        </span>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button type="button" className="text-text-default flex items-center gap-1 text-sm font-medium">
-                All steps <ChevronDown className="size-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-bg-card border-border-default text-text-default w-56">
-              {steps.map((step, index) => (
-                <DropdownMenuItem
+        <div className="relative">
+          <div ref={scrollRef} className="hide-scrollbar flex items-center gap-2 overflow-x-auto scroll-smooth" style={{ scrollbarWidth: "none" }}>
+            {steps.map((step, index) => {
+              const isActive = step.id === currentStep;
+
+              return (
+                <button
                   key={step.id}
+                  ref={isActive ? activeChipRef : undefined}
+                  type="button"
                   onClick={() => onSelectStep?.(step.id)}
-                  className={cn("text-sm", step.id === currentStep && "text-text-informative font-medium")}
+                  className={cn(
+                    "flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-all",
+                    isActive ? "bg-bg-state-secondary border-border-darker text-text-default" : "border-border-default text-text-muted",
+                  )}
                 >
-                  {index + 1}. {step.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  {completedSteps.includes(step.id) ? (
+                    <CheckboxCircleFill fill="var(--color-icon-success)" className="size-3.5 shrink-0" />
+                  ) : (
+                    <span
+                      className={cn(
+                        "flex size-4 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold",
+                        isActive ? "border-border-informative text-text-informative" : "bg-bg-subtle border-border-darker",
+                      )}
+                    >
+                      {index + 1}
+                    </span>
+                  )}
+                  {step.label}
+                </button>
+              );
+            })}
+          </div>
+          {!atStart && <div className="from-bg-card pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r to-transparent" />}
+          {!atEnd && <div className="from-bg-card pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l to-transparent" />}
         </div>
 
         <div className="bg-bg-subtle h-1 w-full overflow-hidden rounded-full">
@@ -66,11 +88,6 @@ export const ProgressIndicator = ({
             className="bg-bg-state-primary h-full rounded-full transition-all"
             style={{ width: `${((currentIndex + 1) / steps.length) * 100}%` }}
           />
-        </div>
-
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-text-default text-sm font-semibold">{steps[currentIndex]?.label}</span>
-          {nextStep && <span className="text-text-muted line-clamp-1 text-sm">Next: {nextStep.label}</span>}
         </div>
       </div>
     );
