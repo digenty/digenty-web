@@ -634,7 +634,7 @@ export const DevelopmentSettings = ({
         {levelSwitcher}
       </div>
 
-      <CategoriesSetup key={activeLevel?.id} canEdit={isEditing} levelId={activeLevel?.id} />
+      <CategoriesSetup key={`categories-${activeLevel?.id}`} canEdit={isEditing} levelId={activeLevel?.id} />
 
       <div className="flex flex-col gap-1">
         <div className="text-text-default text-md font-semibold">Skills per level</div>
@@ -643,7 +643,7 @@ export const DevelopmentSettings = ({
 
       {activeLevel && (
         <SkillsForLevel
-          key={activeLevel.id}
+          key={`skills-${activeLevel.id}`}
           level={activeLevel}
           canEdit={isEditing}
           branchSpecific={branchSpecific}
