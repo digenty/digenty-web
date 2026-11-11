@@ -15,7 +15,11 @@ export const addStudent = async (payload: StudentInputType) => {
   }
 };
 
-export const addStudentByParent = async (payload: StudentInputType) => {
+// StudentOnboardingDto (the backend contract for both onboarding endpoints below) has no
+// linkedParents field - the backend links the student to the authenticated parent itself.
+export type StudentOnboardingInput = Omit<StudentInputType, "linkedParents">;
+
+export const addStudentByParent = async (payload: StudentOnboardingInput) => {
   try {
     const { data } = await api.post("/students/onboarding", payload);
     return data;
@@ -184,6 +188,22 @@ export const editStudent = async (payload: StudentInputType & { studentId: numbe
     throw error;
   }
 };
+
+// Self-service equivalent of editStudent for the parent portal onboarding flow -
+// PUT /students is staff-permission-gated; this lets a parent update their own
+// linked student instead, matching updateParentOnboarding.
+export const updateStudentOnboarding = async (payload: StudentOnboardingInput & { studentId: number }) => {
+  try {
+    const { data } = await api.put("/students/onboarding", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getStudentReport = async ({ studentId, termId, armId }: { studentId?: number; termId?: number; armId?: number | null }) => {
   try {
     const { data } = await api.get(`/report-card/student/${studentId}/arm/${armId}?termId=${termId}`);

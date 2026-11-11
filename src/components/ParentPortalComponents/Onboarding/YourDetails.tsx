@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetParentPortalBranches } from "@/hooks/queryHooks/useParentLookup";
-import { useAddParentOnParentPortal, useEditParent, useGetMyParentProfile } from "@/hooks/queryHooks/useParent";
+import { useAddParentOnParentPortal, useGetMyParentProfile, useUpdateParentOnboarding } from "@/hooks/queryHooks/useParent";
 import { applyConflictFieldError } from "@/lib/formErrors";
 import { cn } from "@/lib/utils";
 import { parentSchema } from "@/schema/parent";
@@ -15,9 +15,9 @@ import { Gender, genders, Relationship, relationships } from "@/types";
 import { BranchLookup } from "@/api/parent-lookup";
 import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
-import { Country, ParentInputValues, State } from "@/components/StudentAndParent/types";
+import { Country, ParentInputValues } from "@/components/StudentAndParent/types";
 import { toast } from "@/components/Toast";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 import { getApiErrorReason } from "@/lib/apiError";
@@ -32,7 +32,7 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
   const { data: branches, isPending: loadingBranches } = useGetParentPortalBranches(schoolId);
   const { mutate: createParent, isPending: creating } = useAddParentOnParentPortal();
   const { data: parentData, isLoading: loadingParent } = useGetMyParentProfile();
-  const { mutate: editParent, isPending: updating } = useEditParent();
+  const { mutate: updateParentOnboarding, isPending: updating } = useUpdateParentOnboarding();
 
   const formik = useFormik<ParentInputValues>({
     initialValues: {
@@ -81,28 +81,25 @@ export const YourDetails = ({ schoolId }: { schoolId?: number }) => {
           },
         });
       } else {
-        editParent(
-          { id: parentId, ...payload },
-          {
-            onSuccess: () => {
-              toast({
-                title: "Updated successfully",
-                description: "Parent details updated",
-                type: "success",
-              });
+        updateParentOnboarding(payload, {
+          onSuccess: () => {
+            toast({
+              title: "Updated successfully",
+              description: "Parent details updated",
+              type: "success",
+            });
 
-              router.push(`${pathname}?step=student`);
-            },
-            onError: error => {
-              applyConflictFieldError(error, formik.setFieldError);
-              toast({
-                title: "Could not update parent",
-                description: getApiErrorReason(error),
-                type: "error",
-              });
-            },
+            router.push(`${pathname}?step=student`);
           },
-        );
+          onError: error => {
+            applyConflictFieldError(error, formik.setFieldError);
+            toast({
+              title: "Could not update parent",
+              description: getApiErrorReason(error),
+              type: "error",
+            });
+          },
+        });
       }
     },
   });
