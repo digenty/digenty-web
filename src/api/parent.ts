@@ -27,6 +27,21 @@ export const addParentOnParentPortal = async (payload: ParentInputType) => {
   }
 };
 
+// Self-service equivalent of editParent for the parent portal onboarding flow -
+// PUT /parents is staff-permission-gated and requires an `id`; this endpoint
+// identifies the parent from the auth token instead, matching addParentOnParentPortal.
+export const updateParentOnboarding = async (payload: ParentInputType) => {
+  try {
+    const { data } = await api.put("/parents/onboarding", payload);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};
+
 export const getParents = async ({
   limit,
   pageParam,

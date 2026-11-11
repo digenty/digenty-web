@@ -5,6 +5,7 @@ export const parentKeys = {
   addParent: ["addParent"] as const,
   addParentOnParentPortal: ["addParentOnParentPortal"] as const,
   editParent: ["editParent"] as const,
+  updateParentOnboarding: ["updateParentOnboarding"] as const,
   parentsValidateUpload: ["parentsValidateUpload"] as const,
   parentsCommitUpload: ["parentsCommitUpload"] as const,
   exportParents: ["exportParents"] as const,

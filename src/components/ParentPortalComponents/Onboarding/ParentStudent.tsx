@@ -4,8 +4,9 @@ import { ArrowUpS, CalendarIcon } from "@digenty/icons";
 import { Parent } from "@/api/types";
 import { ArmLookup, BranchLookup, ClassLookup } from "@/api/parent-lookup";
 import { getCountries } from "@/app/actions/country";
+import { AdmissionNumberField } from "@/components/StudentAndParent/StudentMutation/AdmissionNumberField";
 import { ProfilePicture } from "@/components/StudentAndParent/ProfilePicture";
-import { Country, State, StudentInputValues } from "@/components/StudentAndParent/types";
+import { Country, StudentInputValues } from "@/components/StudentAndParent/types";
 import { toast } from "@/components/Toast";
 
 import { Button } from "@/components/ui/button";
@@ -17,16 +18,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetParentPortalArms, useGetParentPortalBranches, useGetParentPortalClasses } from "@/hooks/queryHooks/useParentLookup";
-import { useAddStudent, useAddStudentByParent, useEditStudent, useGetStudent } from "@/hooks/queryHooks/useStudent";
+import { useAddStudentByParent, useGetStudent, useUpdateStudentOnboarding } from "@/hooks/queryHooks/useStudent";
 import { cn, getAcademicYears } from "@/lib/utils";
 import { studentSchema } from "@/schema/student";
 import { admissions, AdmissionStatus, boardings, BoardingStatus, Gender, genders, terms } from "@/types";
 import { format, formatDate } from "date-fns";
 import { useFormik } from "formik";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetMyParentProfile } from "@/hooks/queryHooks/useParent";
-import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 import { PlusIcon } from "lucide-react";
 import { getApiErrorReason } from "@/lib/apiError";
@@ -52,14 +52,20 @@ const StudentForm = ({
   const [branchId, setBranchId] = useState<number | undefined>();
   const [classId, setClassId] = useState<number | null>(null);
 
-  const { data: branches, isPending: loadingBranches } = useGetParentPortalBranches(schoolId);
+  const { data: allBranches, isPending: loadingBranches } = useGetParentPortalBranches(schoolId);
   const { data: classes, isPending: loadingClasses } = useGetParentPortalClasses(schoolId, branchId);
   const { data: arms, isPending: loadingArms } = useGetParentPortalArms(classId ?? undefined);
   const { data: studentData } = useGetStudent(studentId);
+  const { data: parentData } = useGetMyParentProfile();
   const { mutate: addStudent, isPending: isAddingStudent } = useAddStudentByParent();
-  const { mutate: updateStudentData, isPending: isUpdatingStudentData } = useEditStudent();
-  const { id: parentId } = useLoggedInUser();
+  const { mutate: updateStudentData, isPending: isUpdatingStudentData } = useUpdateStudentOnboarding();
   const student = studentData?.data;
+  // A child can only be added to the branch the parent themselves registered under (set as a
+  // required field on the "Your Details" step), so the picker offers that one branch, not the school's.
+  const parentBranchId: number | undefined = parentData?.data?.branchId;
+  // Stays undefined (not an empty array) until parentBranchId itself is known, so the Branch field's
+  // loading check below doesn't flash an empty list while the parent's own profile is still loading.
+  const branches = parentBranchId ? allBranches?.filter((br: BranchLookup) => br.id === parentBranchId) : undefined;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,7 +110,6 @@ const StudentForm = ({
             studentId,
             dateOfBirth: formatDate(new Date(values.dateOfBirth), "yyyy-MM-dd"),
             image: avatar,
-            linkedParents: parentId ? [parentId] : [],
             tags: [],
           },
           {
@@ -123,7 +128,6 @@ const StudentForm = ({
             ...values,
             dateOfBirth: formatDate(new Date(values.dateOfBirth), "yyyy-MM-dd"),
             tags: [],
-            linkedParents: parentId ? [parentId] : [],
             image: avatar,
           },
           {
@@ -205,6 +209,15 @@ const StudentForm = ({
       }
     }
   }, [student, branches, classes]);
+
+  // For a new student, there's only ever one selectable branch (the parent's own), so pick it as
+  // soon as it's known instead of making the parent choose from a list of one.
+  useEffect(() => {
+    if (student || branchId || !parentBranchId) return;
+
+    setBranchId(parentBranchId);
+    setFieldValue("branchId", parentBranchId);
+  }, [student, branchId, parentBranchId, setFieldValue]);
 
   // const handleCountryChange = (countryName: string) => {
   //   const selected = countries.find(c => c.name === countryName);
@@ -586,27 +599,6 @@ const StudentForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={`admissionNumber-${index}`} className="text-text-default text-sm font-medium">
-              Admission Number
-            </Label>
-            <Input
-              id={`admissionNumber-${index}`}
-              name="admissionNumber"
-              value={values.admissionNumber}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="GFA/2023/01045"
-              className={cn(
-                "text-text-muted bg-bg-input-soft! h-9 border-none text-sm font-normal",
-                touched.admissionNumber && errors.admissionNumber && "border-border-destructive border",
-              )}
-            />
-            {touched.admissionNumber && errors.admissionNumber && (
-              <p className="text-text-destructive text-xs font-light">{errors.admissionNumber}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
             <Label className="text-text-default text-sm font-medium">
               Branch <small className="text-text-destructive text-xs">*</small>
             </Label>
@@ -645,7 +637,7 @@ const StudentForm = ({
           <div className="space-y-2">
             <Label className="text-text-default text-sm font-medium">
               Class <small className="text-text-destructive text-xs">*</small>
-              {!classId && <span className="text-text-default text-xs font-light">(Select a branch first)</span>}
+              {!branchId && <span className="text-text-default text-xs font-light">(Select a branch first)</span>}
             </Label>
             {!classes || loadingClasses ? (
               <Skeleton className="bg-bg-input-soft h-9 w-full" />
@@ -717,6 +709,8 @@ const StudentForm = ({
             )}
             {touched.armId && errors.armId && <p className="text-text-destructive text-xs font-light">{errors.armId}</p>}
           </div>
+
+          <AdmissionNumberField formik={formik} />
 
           <div className="space-y-2">
             <Label className="text-text-default text-sm font-medium">Boarding Status</Label>

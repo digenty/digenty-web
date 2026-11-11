@@ -13,6 +13,7 @@ import {
   getStudentsDistribution,
   getTeacherInputByStudentArm,
   submitArmTeacherInput,
+  updateStudentOnboarding,
   validateStudentsUpload,
   withdrawStudents,
 } from "@/api/student";
@@ -36,14 +37,18 @@ export const useAddStudent = () => {
 };
 
 export const useAddStudentByParent = () => {
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: studentKeys.addStudentByParent,
     mutationFn: addStudentByParent,
-    // onSuccess: () => {
-    //   queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
-    //   queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
-    // },
+    onSuccess: data => {
+      // GET /students/{id} is staff-only and 403s a parent, and there is no parent-portal
+      // equivalent that returns full student fields - so seed useGetStudent's cache straight
+      // from this response instead of ever refetching it for the Review step to read.
+      if (data?.data?.id) {
+        queryClient.setQueryData([studentKeys.getStudent, data.data.id], data);
+      }
+    },
   });
 };
 
@@ -168,6 +173,19 @@ export const useEditStudent = () => {
       queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
       queryClient.invalidateQueries({ queryKey: [studentKeys.getStudent, variables.studentId] });
       queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
+    },
+  });
+};
+
+export const useUpdateStudentOnboarding = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: studentKeys.updateStudentOnboarding,
+    mutationFn: updateStudentOnboarding,
+    onSuccess: (data, variables) => {
+      // Same reasoning as useAddStudentByParent - seed the cache from the response rather than
+      // invalidating, since invalidating would trigger a refetch against the staff-only endpoint.
+      queryClient.setQueryData([studentKeys.getStudent, variables.studentId], data);
     },
   });
 };
