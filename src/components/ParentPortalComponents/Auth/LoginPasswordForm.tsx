@@ -172,14 +172,12 @@ export const LoginPasswordForm = () => {
               Log In
             </Button>
 
-            {/* Parent self-signup is disabled for now - commented out, not removed, so it's easy to bring back.
             <div className="flex items-center justify-center gap-2 text-sm">
               <p className="text-text-muted">Don&apos;t have an account?</p>
               <Link href={`/auth/parents/signup`} className="text-text-informative text-sm font-medium">
                 Sign Up
               </Link>
             </div>
-            */}
 
             <p className="text-text-muted text-center text-xs">
               <button
