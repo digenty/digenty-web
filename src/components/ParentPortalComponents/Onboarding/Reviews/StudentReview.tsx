@@ -3,15 +3,15 @@
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { useGetStudent } from "@/hooks/queryHooks/useStudent";
-import { useGetParent } from "@/hooks/queryHooks/useParent";
 import { Pencil } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { Parent } from "@/api/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageEmptyState } from "@/components/Error/PageEmptyState";
-import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { cn } from "@/lib/utils";
+
+type LinkedStudent = Parent["linkedStudents"][number];
 
 const Row = ({ label, value }: { label: string; value?: string }) => (
   <div className="border-border-default flex items-center border-b pb-2">
@@ -22,6 +22,7 @@ const Row = ({ label, value }: { label: string; value?: string }) => (
 
 const StudentItem = ({
   studentId,
+  linked,
   index,
   openId,
   setOpenId,
@@ -29,6 +30,11 @@ const StudentItem = ({
   router,
 }: {
   studentId: number;
+  // The parent's own profile (GET /parent/portal/me) already carries this lightweight record for
+  // every linked child, reliably. useGetStudent below is a bonus for full detail - there is no
+  // parent-permitted endpoint for a student's full record, so that fetch can legitimately fail;
+  // this is what keeps the row showing something real instead of an error when it does.
+  linked: LinkedStudent;
   index: number;
   openId: number | null;
   setOpenId: (id: number | null) => void;
@@ -44,7 +50,7 @@ const StudentItem = ({
     <div className="border-border-default flex flex-col gap-4 rounded-md border">
       <div className={cn(isOpen ? "border-border-default border-b" : "")}>
         <div className="flex cursor-pointer items-center justify-between px-4 py-2" onClick={() => setOpenId(isOpen ? null : studentId)}>
-          <div className="text-text-default text-lg font-medium">Student {index + 1} Details</div>
+          <div className="text-text-default text-lg font-medium">{linked.fullName || `Student ${index + 1}`} Details</div>
 
           <Button
             onClick={e => {
@@ -61,11 +67,19 @@ const StudentItem = ({
 
       {isOpen && (
         <div className="flex flex-col gap-6 p-4">
+          <Avatar className="size-8" url={student?.image ?? linked.image ?? undefined} />
+
           {isLoading && <Skeleton className="bg-bg-input-soft h-100 w-full" />}
-          {isError && <ErrorComponent title="Error" description="Failed to load student details." />}
-          {!isError && !isLoading && (
+
+          {isError && !student && (
+            <p className="text-text-muted text-sm">
+              We couldn&apos;t load {linked.fullName || "this student"}&apos;s full details right now
+              {linked.relationship ? ` (${linked.relationship.toLowerCase()})` : ""}.
+            </p>
+          )}
+
+          {!isLoading && student && (
             <>
-              <Avatar className="size-8" url={student?.image} />
               <div className="text-text-default text-lg font-semibold">Personal Information</div>
               <div className="flex flex-col gap-3">
                 <Row label="First Name" value={student?.firstName} />
@@ -132,7 +146,7 @@ export const StudentReview = ({ data }: { data?: Parent }) => {
   return (
     <div className="flex flex-col gap-4">
       {students.map((s, index) => (
-        <StudentItem key={s.id} studentId={s.id} index={index} openId={openId} setOpenId={setOpenId} pathname={pathname} router={router} />
+        <StudentItem key={s.id} studentId={s.id} linked={s} index={index} openId={openId} setOpenId={setOpenId} pathname={pathname} router={router} />
       ))}
     </div>
   );

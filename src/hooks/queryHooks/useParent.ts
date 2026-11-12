@@ -10,6 +10,7 @@ import {
   getParentInviteStatus,
   getParents,
   sendParentInvites,
+  updateParentOnboarding,
   validateParentsUpload,
 } from "@/api/parent";
 import { parentKeys } from "@/queries/parent";
@@ -34,6 +35,17 @@ export const useAddParentOnParentPortal = () => {
     // onSuccess: () => {
     //   queryClient.invalidateQueries({ queryKey: [parentKeys.all] });
     // },
+  });
+};
+
+export const useUpdateParentOnboarding = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: parentKeys.updateParentOnboarding,
+    mutationFn: updateParentOnboarding,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: parentKeys.getMyProfile });
+    },
   });
 };
 
