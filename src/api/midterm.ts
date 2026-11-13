@@ -1,12 +1,31 @@
 import api from "@/lib/axios/axios-auth";
 import { isAxiosError } from "axios";
-import { MidtermClassOverviewRow, MidtermPublishPayload, MidtermPublishResponse, MidtermReport } from "./types";
+import { MidtermClassOverviewRow, MidtermFormat, MidtermPublishPayload, MidtermPublishResponse, MidtermReport } from "./types";
 
 const termQuery = (termId?: number) => (termId ? `?termId=${termId}` : "");
 
-export const getMidtermStudentReport = async ({ studentId, armId, termId }: { studentId: number; armId: number; termId?: number }) => {
+// `view` is left out to get the class's configured format; staff on a COMMENT class can pass "SCORE" to see the scores.
+const reportQuery = (termId?: number, view?: MidtermFormat) => {
+  const params = new URLSearchParams();
+  if (termId) params.set("termId", String(termId));
+  if (view) params.set("view", view);
+  const query = params.toString();
+  return query ? `?${query}` : "";
+};
+
+export const getMidtermStudentReport = async ({
+  studentId,
+  armId,
+  termId,
+  view,
+}: {
+  studentId: number;
+  armId: number;
+  termId?: number;
+  view?: MidtermFormat;
+}) => {
   try {
-    const { data } = await api.get(`/report/midterm/student/${studentId}/arm/${armId}${termQuery(termId)}`);
+    const { data } = await api.get(`/report/midterm/student/${studentId}/arm/${armId}${reportQuery(termId, view)}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
@@ -14,9 +33,9 @@ export const getMidtermStudentReport = async ({ studentId, armId, termId }: { st
   }
 };
 
-export const getMidtermClassOverview = async ({ armId, termId }: { armId: number; termId?: number }) => {
+export const getMidtermClassOverview = async ({ armId, termId, view }: { armId: number; termId?: number; view?: MidtermFormat }) => {
   try {
-    const { data } = await api.get(`/report/midterm/arm/${armId}${termQuery(termId)}`);
+    const { data } = await api.get(`/report/midterm/arm/${armId}${reportQuery(termId, view)}`);
     return data;
   } catch (error: unknown) {
     if (isAxiosError(error)) throw error.response?.data;
