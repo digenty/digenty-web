@@ -16,9 +16,17 @@ import { AdmissionNumberSetupDone } from "./AdmissionNumber";
 import { AcademicDoneClassAndArms } from "./ClassesAndArms";
 import { DevelopmentSettings } from "./DevelopmentSettings";
 import { AcademicAssAndGradeSetupDone } from "./GradingAndAssessment";
+import { MidtermFormatSettings } from "./MidtermFormatSettings";
 import { SchoolSectionAndTerm } from "./SchoolSectionTerm";
 import { Skeleton } from "@/components/ui/skeleton";
-const tabs = ["School, Session & Term", "Classes & Arms", "Assessment & Grading", "Development Skills", "Admission Number"] as const;
+const tabs = [
+  "School, Session & Term",
+  "Classes & Arms",
+  "Assessment & Grading",
+  "Development Skills",
+  "Mid-term Report",
+  "Admission Number",
+] as const;
 type Tab = (typeof tabs)[number];
 
 export const AcademicSetupView = () => {
@@ -130,6 +138,7 @@ export const AcademicSetupView = () => {
                   <DevelopmentSettings />
                 </div>
               )}
+              {activeTab === "Mid-term Report" && <MidtermFormatSettings />}
               {activeTab === "Admission Number" && (
                 <div className="">
                   <AdmissionNumberSetupDone />
