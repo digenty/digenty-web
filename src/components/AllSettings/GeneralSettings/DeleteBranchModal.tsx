@@ -13,6 +13,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { useDeleteBranch } from "@/hooks/queryHooks/useBranch";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { getApiErrorReason } from "@/lib/apiError";
+import { isNotFoundError, viewStudentsAction } from "@/lib/academicStructureCache";
+import { useRouter } from "next/navigation";
 
 type Props = {
   open: boolean;
@@ -26,6 +28,7 @@ export const DeleteBranchModal = ({ open, setOpen, branchId, branchName, onDelet
   const isMobile = useIsMobile();
   const [acknowledged, setAcknowledged] = useState(false);
   const { mutateAsync: removeBranch, isPending } = useDeleteBranch();
+  const router = useRouter();
 
   useEffect(() => {
     if (!open) setAcknowledged(false);
@@ -39,7 +42,14 @@ export const DeleteBranchModal = ({ open, setOpen, branchId, branchName, onDelet
       setOpen(false);
       onDeleted?.();
     } catch (error) {
-      toast({ title: "Could not delete branch", description: getApiErrorReason(error), type: "error" });
+      // Already deleted elsewhere: the hook refreshes the lists, so just close.
+      if (isNotFoundError(error)) setOpen(false);
+      toast({
+        title: "Could not delete branch",
+        description: getApiErrorReason(error),
+        type: "error",
+        button: viewStudentsAction(error, router.push, { branchId }),
+      });
     }
   };
 

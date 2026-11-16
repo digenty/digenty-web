@@ -41,6 +41,8 @@ import * as yup from "yup";
 import { AssignArmsToDepartments } from "./AssignArmsToDepartments";
 import { LevelItemsSection } from "./LevelItemsSection";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { viewStudentsAction } from "@/lib/academicStructureCache";
+import { useRouter } from "next/navigation";
 
 const DepartmentSubjectsSection = ({
   dept,
@@ -155,6 +157,7 @@ export const ClassEditSheet = ({
   const [deletingDepartmentName, setDeletingDepartmentName] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const { mutate: updateClass, isPending: isUpdatingClass } = useUpdateClass();
   const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubjectToClass();
@@ -387,6 +390,7 @@ export const ClassEditSheet = ({
               title: "Failed to delete arm",
               description: getApiErrorMessage(error, `Could not delete "${toTitleCase(armToRemove)}"`),
               type: "error",
+              button: viewStudentsAction(error, router.push, { classId, armId: armObj.id }),
             });
           },
         },

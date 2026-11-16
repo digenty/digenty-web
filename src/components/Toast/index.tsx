@@ -51,18 +51,22 @@ const Toast = (props: ToastProps) => {
             {description && <p className="text-text-inverted-subtle mt-1 text-xs">{description}</p>}
           </div>
 
-          {button && <Button className="bg-bg-default text-text-muted h-7 text-xs">{button?.label}</Button>}
+          {button && (
+            <Button
+              className="bg-bg-default text-text-muted h-7 text-xs"
+              onClick={() => {
+                button.onClick();
+                sonnerToast.dismiss(id);
+              }}
+            >
+              {button.label}
+            </Button>
+          )}
         </div>
       </div>
 
       <div>
-        <Button
-          className="bg-transparent hover:bg-transparent!"
-          onClick={() => {
-            button?.onClick();
-            sonnerToast.dismiss(id);
-          }}
-        >
+        <Button className="bg-transparent hover:bg-transparent!" onClick={() => sonnerToast.dismiss(id)}>
           <XIcon className="text-text-inverted-subtle size-4" />
         </Button>
       </div>

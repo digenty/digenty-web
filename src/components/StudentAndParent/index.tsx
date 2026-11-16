@@ -31,7 +31,7 @@ const StudentAndParentRecord = () => {
   return (
     <ModulePermissionsWrapper permissionUtility={canViewStudentParentRecords}>
       <div className="space-y-4.5 px-3 py-6 md:space-y-8 md:px-8">
-        {hasFullAccess && (
+        {/* {hasFullAccess && (
           <Button
             onClick={() => router.push("/staff")}
             className="border-border-darker text-text-default bg-bg-state-secondary hover:bg-bg-state-secondary-hover! flex w-fit shrink-0 items-center gap-1.5 border text-sm font-medium transition-colors md:hidden"
@@ -39,7 +39,7 @@ const StudentAndParentRecord = () => {
             <ArrowLeft fill="var(--color-icon-default-subtle)" className="size-4 shrink-0" />
             Back to Dashboard
           </Button>
-        )}
+        )} */}
 
         {/* Tabs */}
         <PillTabs tabs={tabs} activeId={activeTab} onChange={tab => router.push(`/staff/student-and-parent-record?tab=${tab}`)} />

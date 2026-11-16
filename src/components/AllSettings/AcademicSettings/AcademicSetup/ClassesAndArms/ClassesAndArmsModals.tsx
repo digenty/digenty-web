@@ -13,6 +13,8 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 import { canManageSettings } from "@/lib/permissions/settings";
 import React, { useState } from "react";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { isNotFoundError, viewStudentsAction } from "@/lib/academicStructureCache";
+import { useRouter } from "next/navigation";
 
 interface DeleteClassProps {
   setOpenDeleteModal: (open: boolean) => void;
@@ -23,6 +25,7 @@ export const DeleteClass = ({ setOpenDeleteModal, open, classId }: DeleteClassPr
   const isMobile = useIsMobile();
   const [confirmed, setConfirmed] = useState(false);
   const { mutate, isPending } = useDeleteClass();
+  const router = useRouter();
 
   const handleDelete = () => {
     if (!classId) return;
@@ -36,10 +39,13 @@ export const DeleteClass = ({ setOpenDeleteModal, open, classId }: DeleteClassPr
         });
       },
       onError: error => {
+        // Already deleted elsewhere: the hook refreshes the lists, so just close.
+        if (isNotFoundError(error)) setOpenDeleteModal(false);
         toast({
           title: "Failed to delete class",
           description: getApiErrorMessage(error, "Could not delete class"),
           type: "error",
+          button: viewStudentsAction(error, router.push, { classId }),
         });
       },
     });
