@@ -17,6 +17,7 @@ import {
 import { classKeys } from "@/queries/class";
 import { departmentKeys } from "@/queries/department";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidateAcademicStructure, refreshIfStale } from "@/lib/academicStructureCache";
 
 export const useGetDepartments = () => {
   return useQuery({
@@ -99,12 +100,9 @@ export const useDeleteDepartmentSubjects = () => {
   return useMutation({
     mutationKey: departmentKeys.deleteDepartmentSubjects,
     mutationFn: ({ departmentId, subjectId }: { departmentId: number; subjectId: number }) => deleteDepartmentSubjects(departmentId, subjectId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: departmentKeys.departments });
-      queryClient.invalidateQueries({ queryKey: [departmentKeys.departmentSubjectsByClass] });
-      queryClient.invalidateQueries({ queryKey: [departmentKeys.departmentSubjectsByLevel] });
-      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
-    },
+    // Also unassigns the subject's teachers in that department's arms, so more than the department lists change.
+    onSuccess: () => invalidateAcademicStructure(queryClient),
+    onError: refreshIfStale(queryClient),
   });
 };
 

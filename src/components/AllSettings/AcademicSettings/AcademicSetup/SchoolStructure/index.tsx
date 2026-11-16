@@ -32,6 +32,8 @@ import { useFormik } from "formik";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { viewStudentsAction } from "@/lib/academicStructureCache";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
 
 export type SchoolStructureHandle = {
   submit: () => Promise<boolean>;
@@ -87,7 +89,9 @@ const mapApiToFormik = (data: Terms): FormValues => {
 export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setCompletedSteps: (step: string[]) => void; completedSteps: string[] }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const schoolID = useLoggedInUser()?.schoolId;
+  const loggedInUser = useLoggedInUser();
+  const schoolID = loggedInUser?.schoolId;
+  const canRemoveLevels = canManageClassesAndSubjects(loggedInUser?.permissions);
 
   useBreadcrumb([
     {
@@ -246,6 +250,16 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
 
   const toggleExistingBranchLevel = (branchId: number, level: string) => {
     const current = formik.values.branchLevels[branchId] ?? [];
+    const isSavedLevel = existingBranches.find(b => b.branch.id === branchId)?.classLevels.some(l => l.levelType === level);
+    // Unticking a saved level deletes it, which the server only allows with manage_classes_subjects.
+    if (current.includes(level) && isSavedLevel && !canRemoveLevels) {
+      toast({
+        title: "You can't remove this level",
+        description: "Removing a level needs permission to manage classes and subjects.",
+        type: "warning",
+      });
+      return;
+    }
     const updated = current.includes(level) ? current.filter(l => l !== level) : [...current, level];
     formik.setFieldValue("branchLevels", {
       ...formik.values.branchLevels,
@@ -274,8 +288,15 @@ export const SchoolStructure = ({ setCompletedSteps, completedSteps }: { setComp
       await refetchBranches();
       toast({ title: "Levels updated", description: `Levels updated for ${branch.branch.name}.`, type: "success" });
     } catch (error: unknown) {
+      // Some of the changes may have gone through; re-sync the ticks with what the server now has.
+      refetchBranches();
       const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
-      toast({ title: "Failed to update levels", description: message, type: "error" });
+      toast({
+        title: "Failed to update levels",
+        description: message,
+        type: "error",
+        button: viewStudentsAction(error, router.push, { branchId: branch.branch.id }),
+      });
     }
   };
 

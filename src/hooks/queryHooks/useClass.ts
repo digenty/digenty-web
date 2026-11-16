@@ -24,6 +24,7 @@ import { classKeys } from "@/queries/class";
 import { staffKeys } from "@/queries/staff";
 import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidateAcademicStructure, refreshIfStale } from "@/lib/academicStructureCache";
 
 export const useGetClasses = (branchId?: number) => {
   return useQuery({
@@ -102,12 +103,8 @@ export const useDeleteClass = () => {
   return useMutation({
     mutationKey: classKeys.deleteClass,
     mutationFn: (classroomId: number) => deleteClass(classroomId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
-      queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
-      queryClient.invalidateQueries({ queryKey: ["armsByLevel"] });
-      queryClient.invalidateQueries({ queryKey: ["departmentsByLevel"] });
-    },
+    onSuccess: () => invalidateAcademicStructure(queryClient),
+    onError: refreshIfStale(queryClient),
   });
 };
 

@@ -9,6 +9,7 @@ import {
 } from "@/api/branch";
 import { branchKeys } from "@/queries/branch";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidateAcademicStructure, refreshIfStale } from "@/lib/academicStructureCache";
 
 export const useGetBranches = () => {
   return useQuery({
@@ -66,9 +67,7 @@ export const useDeleteBranch = () => {
   return useMutation({
     mutationKey: branchKeys.delete,
     mutationFn: (branchId: number) => deleteBranch(branchId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: branchKeys.branches });
-      queryClient.invalidateQueries({ queryKey: ["allbranches"] });
-    },
+    onSuccess: () => invalidateAcademicStructure(queryClient),
+    onError: refreshIfStale(queryClient),
   });
 };

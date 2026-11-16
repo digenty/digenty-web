@@ -26,7 +26,8 @@ export const StudentFilter = ({ onSelect }: StudentFilterProps) => {
   const students: LinkedStudent[] = parentData?.data?.linkedStudents ?? [];
 
   useEffect(() => {
-    if (students.length && !selectedId) {
+    // Also when the selected child is no longer linked (e.g. the school deleted them): move to the first remaining child.
+    if (students.length && !students.some(s => String(s.id) === selectedId)) {
       const first = students[0];
       setSelectedId(String(first.id));
 

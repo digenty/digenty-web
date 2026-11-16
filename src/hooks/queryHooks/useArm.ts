@@ -3,6 +3,7 @@ import { LevelType } from "@/api/types";
 import { armKeys } from "@/queries/arm";
 import { classKeys } from "@/queries/class";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidateAcademicStructure, refreshIfStale } from "@/lib/academicStructureCache";
 
 export const useGetArmsByClass = (classId: number | null) => {
   return useQuery({
@@ -34,10 +35,8 @@ export const useDeleteArm = () => {
   return useMutation({
     mutationKey: armKeys.deleteArm,
     mutationFn: ({ armName, levelId }: { armName: string; levelId: number }) => deleteArmByLevel(armName, levelId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
-      queryClient.invalidateQueries({ queryKey: ["armsByLevel"] });
-    },
+    onSuccess: () => invalidateAcademicStructure(queryClient),
+    onError: refreshIfStale(queryClient),
   });
 };
 
@@ -70,9 +69,7 @@ export const useDeleteArmFromClass = () => {
   return useMutation({
     mutationKey: armKeys.deleteArm,
     mutationFn: ({ armId, classId }: { armId: number; classId: number }) => deleteArmFromClass(armId, classId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["arms"] });
-      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
-    },
+    onSuccess: () => invalidateAcademicStructure(queryClient),
+    onError: refreshIfStale(queryClient),
   });
 };
