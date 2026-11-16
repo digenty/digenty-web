@@ -5,6 +5,7 @@ import {
   publishMidtermReport,
   unpublishMidtermReport,
 } from "@/api/midterm";
+import { MidtermFormat } from "@/api/types";
 import { midtermKeys } from "@/queries/midterm";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -12,25 +13,37 @@ export const useGetMidtermStudentReport = ({
   studentId,
   armId,
   termId,
+  view,
   enabled = true,
 }: {
   studentId?: number;
   armId?: number;
   termId?: number;
+  view?: MidtermFormat;
   enabled?: boolean;
 }) => {
   return useQuery({
-    queryKey: midtermKeys.studentReport(studentId, armId, termId),
-    queryFn: () => getMidtermStudentReport({ studentId: studentId!, armId: armId!, termId }),
+    queryKey: midtermKeys.studentReport(studentId, armId, termId, view),
+    queryFn: () => getMidtermStudentReport({ studentId: studentId!, armId: armId!, termId, view }),
     enabled: enabled && !!studentId && !!armId,
     retry: false,
   });
 };
 
-export const useGetMidtermClassOverview = ({ armId, termId, enabled = true }: { armId?: number; termId?: number; enabled?: boolean }) => {
+export const useGetMidtermClassOverview = ({
+  armId,
+  termId,
+  view,
+  enabled = true,
+}: {
+  armId?: number;
+  termId?: number;
+  view?: MidtermFormat;
+  enabled?: boolean;
+}) => {
   return useQuery({
-    queryKey: midtermKeys.classOverview(armId, termId),
-    queryFn: () => getMidtermClassOverview({ armId: armId!, termId }),
+    queryKey: midtermKeys.classOverview(armId, termId, view),
+    queryFn: () => getMidtermClassOverview({ armId: armId!, termId, view }),
     enabled: enabled && !!armId,
     retry: false,
   });

@@ -20,6 +20,7 @@ import { classKeys } from "@/queries/class";
 import { staffKeys } from "@/queries/staff";
 import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidateAcademicStructure, refreshIfStale } from "@/lib/academicStructureCache";
 
 export const useGetTeacherSubjects = () => {
   return useQuery({
@@ -45,6 +46,7 @@ export const useAssignSubjectTeacher = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: staffKeys.staffDetails(variables.teacherId) });
     },
+    onError: refreshIfStale(queryClient),
   });
 };
 
@@ -146,10 +148,8 @@ export const useDeleteSubject = () => {
   return useMutation({
     mutationKey: subjectKeys.deleteSubject,
     mutationFn: ({ subjectId, levelId }: { subjectId: number; levelId: number }) => deleteSubjectByLevel(subjectId, levelId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
-      queryClient.invalidateQueries({ queryKey: ["subjectsByLevel"] });
-    },
+    onSuccess: () => invalidateAcademicStructure(queryClient),
+    onError: refreshIfStale(queryClient),
   });
 };
 export const useDeleteSubjectFromClass = () => {
@@ -157,10 +157,8 @@ export const useDeleteSubjectFromClass = () => {
   return useMutation({
     mutationKey: subjectKeys.deleteSubject,
     mutationFn: ({ subjectId, classId }: { subjectId: number; classId: number }) => deleteSubjectFromClass(subjectId, classId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subjectsByClass"] });
-      queryClient.invalidateQueries({ queryKey: [classKeys.classesByLevel] });
-    },
+    onSuccess: () => invalidateAcademicStructure(queryClient),
+    onError: refreshIfStale(queryClient),
   });
 };
 
@@ -173,5 +171,6 @@ export const useUpdateAssignSubjectTeacher = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: staffKeys.staffDetails(variables.teacherId) });
     },
+    onError: refreshIfStale(queryClient),
   });
 };

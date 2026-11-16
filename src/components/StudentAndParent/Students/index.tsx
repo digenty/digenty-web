@@ -30,8 +30,8 @@ import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { useStudentStore } from "@/store/student";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
 import { columns } from "./Columns";
@@ -201,6 +201,39 @@ export const StudentsTable = () => {
     }
   }, [restrictedBranchId, filter.branchSelected, branches]);
 
+  // ?branchId=&classId=&armId= pre-select the filters — used by "View students" when a branch, level, class or arm can't be
+  // deleted because students are still placed in it (see studentListHref). Each one is applied once, so clearing it sticks.
+  const searchParams = useSearchParams();
+  const linkedBranchId = Number(searchParams.get("branchId")) || undefined;
+  const linkedClassId = Number(searchParams.get("classId")) || undefined;
+  const linkedArmId = Number(searchParams.get("armId")) || undefined;
+  const appliedLinkFilters = useRef(new Set<string>());
+
+  useEffect(() => {
+    const applied = appliedLinkFilters.current;
+    const linkedClass = linkedClassId ? classes?.data?.content?.find((c: ClassType) => c.id === linkedClassId) : undefined;
+    const branchId = linkedBranchId ?? linkedClass?.branchId;
+
+    if (branchId && !applied.has("branch") && branches?.data) {
+      const branch = branches.data.find((b: BranchWithClassLevels) => b.branch.id === branchId)?.branch;
+      if (branch) {
+        applied.add("branch");
+        setFilter(prev => ({ ...prev, branchSelected: branch }));
+      }
+    }
+    if (linkedClass && !applied.has("class")) {
+      applied.add("class");
+      setFilter(prev => ({ ...prev, classSelected: linkedClass }));
+    }
+    if (linkedArmId && !applied.has("arm") && applied.has("class") && arms?.data) {
+      const arm = arms.data.find((a: Arm) => a.id === linkedArmId);
+      if (arm) {
+        applied.add("arm");
+        setFilter(prev => ({ ...prev, armSelected: arm }));
+      }
+    }
+  }, [linkedBranchId, linkedClassId, linkedArmId, branches, classes, arms]);
+
   useEffect(() => {
     if (distribution) {
       const studentDistr = {
@@ -330,7 +363,7 @@ export const StudentsTable = () => {
 
           <div className="bg-bg-basic-orange-subtle border-border-default text-text-subtle shadow-light flex items-center gap-3 rounded-sm border px-2.5 py-2.5 text-sm font-normal">
             <WarningIcon />
-            <p>Deleting will remove the student’s profile and records. This cannot be undone.</p>
+            <p>The student will be removed from every list and their class. Their scores, report cards and invoices are kept in your records.</p>
           </div>
 
           <div className="flex items-center gap-3">

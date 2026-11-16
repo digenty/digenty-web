@@ -2,6 +2,7 @@ import { getLevelResultSettings, getLevels, updateLevel, getAssessmentsByLevel, 
 import { classKeys } from "@/queries/class";
 import { levelKeys } from "@/queries/level";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidateAcademicStructure, refreshIfStale } from "@/lib/academicStructureCache";
 
 export const useGetLevels = (branchId?: number) => {
   return useQuery({
@@ -59,8 +60,7 @@ export const useDeleteLevel = () => {
   return useMutation({
     mutationKey: levelKeys.deleteLevel,
     mutationFn: (levelId: number) => deleteLevel(levelId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [levelKeys.levels] });
-    },
+    onSuccess: () => invalidateAcademicStructure(queryClient),
+    onError: refreshIfStale(queryClient),
   });
 };

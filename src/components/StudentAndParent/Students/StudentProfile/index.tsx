@@ -247,7 +247,7 @@ export const StudentProfile = () => {
 
             <div className="bg-bg-basic-orange-subtle border-border-default text-text-subtle shadow-light flex items-center gap-3 rounded-sm border px-2.5 py-2.5 text-sm font-normal">
               <WarningIcon />
-              <p>Deleting will remove the student’s profile and records. This cannot be undone.</p>
+              <p>The student will be removed from every list and their class. Their scores, report cards and invoices are kept in your records.</p>
             </div>
 
             <div className="flex items-center gap-3">

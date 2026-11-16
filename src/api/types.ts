@@ -393,6 +393,19 @@ export interface MidtermReport {
   ratingLegend?: RatingLegendEntry[];
   principalComment?: string | null;
   principalCommentTitle?: string | null;
+  /** Render by this, never by the settings. On COMMENT, subjectReports/developments/ratingLegend are empty and overallPercentage is null. */
+  format?: MidtermFormat;
+  age?: string | null;
+  academicProgress?: MidtermCommentRow[] | null;
+  personalQualities?: MidtermCommentRow[] | null;
+}
+
+export type MidtermFormat = "SCORE" | "COMMENT";
+
+export interface MidtermCommentRow {
+  id: number;
+  name: string;
+  comment: string | null;
 }
 
 export interface MidtermClassOverviewRow {
@@ -401,6 +414,56 @@ export interface MidtermClassOverviewRow {
   subjectsWithScores: number;
   totalSubjects: number;
   overallPercentage: number | null;
+  /** Null on the score view. */
+  commentsFilled?: number | null;
+  commentsExpected?: number | null;
+}
+
+export interface MidtermSettingClass {
+  classId: number;
+  className: string;
+  /** What the class actually uses. */
+  format: MidtermFormat;
+  overridden: boolean;
+}
+
+export interface LevelMidtermSetting {
+  levelId: number;
+  levelName: string;
+  branchId: number;
+  /** The level's own setting. */
+  format: MidtermFormat;
+  configured: boolean;
+  classes: MidtermSettingClass[];
+}
+
+export interface ArmCommentsStudent {
+  studentId: number;
+  studentName: string;
+  subjects: MidtermCommentRow[];
+  categories: MidtermCommentRow[];
+}
+
+export interface ArmCommentsResponse {
+  armId: number;
+  termId: number;
+  published: boolean;
+  students: ArmCommentsStudent[];
+}
+
+export interface CommentEntry {
+  id: number;
+  /** null = untouched, "" = cleared. */
+  comment: string | null;
+}
+
+export interface StudentCommentsPayload {
+  subjects: CommentEntry[];
+  categories: CommentEntry[];
+}
+
+export interface ArmCommentsPayload {
+  students: ({ studentId: number } & StudentCommentsPayload)[];
 }
 
 export interface MidtermPublishPayload {

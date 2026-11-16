@@ -2,6 +2,7 @@ import { addScoreToStudent, viewStudentScore } from "@/api/score";
 import { scoresKey } from "@/queries/score";
 import { subjectKeys } from "@/queries/subject";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { refreshIfStale } from "@/lib/academicStructureCache";
 
 export const useAddScore = () => {
   const queryClient = useQueryClient();
@@ -13,6 +14,8 @@ export const useAddScore = () => {
         queryKey: [subjectKeys.studentsBySubjectClass],
       });
     },
+    // "Subject '…' is not taught in this class" / 404: the subject was removed from the class, so refresh the subject list.
+    onError: refreshIfStale(queryClient),
   });
 };
 

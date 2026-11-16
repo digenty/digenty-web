@@ -38,6 +38,8 @@ import * as yup from "yup";
 import { AssignArmsToDepartments } from "./AssignArmsToDepartments";
 import { LevelItemsSection } from "./LevelItemsSection";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { viewStudentsAction } from "@/lib/academicStructureCache";
+import { useRouter } from "next/navigation";
 
 const startclasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 const endClasses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
@@ -165,6 +167,7 @@ export const ClassQuickSetupSheet = ({
 
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const { mutate, isPending } = useUpdateLevel();
   const { mutate: mutateSubject, isPending: isAddingSubject } = useAddSubject();
@@ -378,7 +381,12 @@ export const ClassQuickSetupSheet = ({
         },
         onError: error => {
           setDeletingArmName(null);
-          toast({ title: "Failed to remove arm", description: getApiErrorMessage(error, "Could not remove arm"), type: "error" });
+          toast({
+            title: "Failed to remove arm",
+            description: getApiErrorMessage(error, "Could not remove arm"),
+            type: "error",
+            button: viewStudentsAction(error, router.push, { branchId }),
+          });
         },
       },
     );

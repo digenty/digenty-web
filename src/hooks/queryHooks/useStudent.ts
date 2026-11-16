@@ -23,6 +23,7 @@ import { staffKeys } from "@/queries/staff";
 import { studentKeys } from "@/queries/student";
 import { subjectKeys } from "@/queries/subject";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidateAcademicStructure } from "@/lib/academicStructureCache";
 
 export const useAddStudent = () => {
   const queryClient = useQueryClient();
@@ -141,10 +142,8 @@ export const useDeleteStudents = (studentIds: number[]) => {
   return useMutation({
     mutationKey: studentKeys.deleteStudents,
     mutationFn: () => deleteStudents(studentIds),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [studentKeys.all] });
-      queryClient.invalidateQueries({ queryKey: [studentKeys.studentsDistributionByBranch] });
-    },
+    // Deleting ends the student's class placement, so arm rosters and dashboard counts change too.
+    onSuccess: () => invalidateAcademicStructure(queryClient),
   });
 };
 

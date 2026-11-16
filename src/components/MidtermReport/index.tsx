@@ -11,11 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useGetMidtermClassOverview, useGetMidtermStudentReport } from "@/hooks/queryHooks/useMidterm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { TriangleAlert } from "lucide-react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { SignatureReminder } from "../SignatureReminder";
 import { MidtermReportView } from "./MidtermReportView";
 import { getApiErrorMessage } from "@/lib/apiError";
+import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { canManageClassesAndSubjects } from "@/lib/permissions/classes-and-subjects";
+import Link from "next/link";
 
 export const MidtermReportScreen = () => {
   const { armId: armIdParam } = useParams<{ armId: string }>();
@@ -30,16 +33,26 @@ export const MidtermReportScreen = () => {
     { label: "Mid-term Report", url: "" },
   ]);
 
+  const pathname = usePathname();
+  const { permissions } = useLoggedInUser();
+  const canEditComments = canManageClassesAndSubjects(permissions ?? []);
+
   const { data: overviewData, isLoading, isError, error } = useGetMidtermClassOverview({ armId });
   const rows: MidtermClassOverviewRow[] = overviewData?.data ?? [];
-  const missingCount = rows.filter(row => row.subjectsWithScores < row.totalSubjects).length;
+  const isCommentClass = rows.some(row => row.commentsExpected != null);
+  const missingCount = rows.filter(row =>
+    isCommentClass ? (row.commentsFilled ?? 0) < (row.commentsExpected ?? 0) : row.subjectsWithScores < row.totalSubjects,
+  ).length;
+
+  // Staff on a COMMENT class can flip to the scores behind the report; parents never can.
+  const [showScores, setShowScores] = useState(false);
 
   const {
     data: reportData,
     isLoading: isLoadingReport,
     isError: isErrorReport,
     error: reportError,
-  } = useGetMidtermStudentReport({ studentId: activeStudentId ?? undefined, armId });
+  } = useGetMidtermStudentReport({ studentId: activeStudentId ?? undefined, armId, view: isCommentClass && showScores ? "SCORE" : undefined });
 
   const handleExport = async (format: "pdf" | "png") => {
     const report = reportData?.data;
@@ -64,8 +77,24 @@ export const MidtermReportScreen = () => {
           <h2 className="text-text-default text-lg font-semibold md:text-xl">Mid-term Report</h2>
           {classArmName && <span className="text-text-subtle text-sm">{classArmName}</span>}
         </div>
+        {!activeStudentId && isCommentClass && canEditComments && (
+          <Link
+            href={`${pathname.replace(/midterm-report\/?$/, "midterm-comments")}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`}
+            className="bg-bg-state-primary text-text-white-default flex h-8 w-fit items-center rounded-md px-3 text-sm font-medium"
+          >
+            Write comments
+          </Link>
+        )}
         {activeStudentId && (
           <div className="flex flex-row-reverse items-center justify-between gap-2 md:flex-row md:justify-end">
+            {isCommentClass && (
+              <Button
+                onClick={() => setShowScores(prev => !prev)}
+                className="border-border-darker bg-bg-state-secondary text-text-default h-8! rounded-md border px-3! text-sm font-medium"
+              >
+                {showScores ? "Show comments" : "Show scores"}
+              </Button>
+            )}
             {reportData?.data && (
               <DropdownMenu>
                 <DropdownMenuTrigger className="border-border-darker bg-bg-state-secondary text-text-default flex h-8 cursor-pointer items-center gap-1 rounded-md border px-3 text-sm font-medium focus-visible:ring-0 focus-visible:outline-none">
@@ -113,7 +142,8 @@ export const MidtermReportScreen = () => {
               {missingCount > 0 && (
                 <div className="bg-bg-state-soft text-text-default flex items-center gap-2 rounded-md px-3 py-2 text-sm">
                   <TriangleAlert className="size-4 shrink-0" />
-                  {missingCount} {missingCount === 1 ? "student has" : "students have"} missing scores. Check before publishing.
+                  {missingCount} {missingCount === 1 ? "student has" : "students have"} missing {isCommentClass ? "comments" : "scores"}. Check before
+                  publishing.
                 </div>
               )}
 
@@ -122,14 +152,16 @@ export const MidtermReportScreen = () => {
                   <thead>
                     <tr className="text-text-muted border-border-default bg-bg-subtle border-b text-left">
                       <th className="px-4 py-3 font-medium">Student</th>
-                      <th className="px-4 py-3 font-medium">Subjects with scores</th>
-                      <th className="px-4 py-3 font-medium">Overall %</th>
+                      <th className="px-4 py-3 font-medium">{isCommentClass ? "Comments written" : "Subjects with scores"}</th>
+                      {!isCommentClass && <th className="px-4 py-3 font-medium">Overall %</th>}
                       <th className="px-4 py-3" />
                     </tr>
                   </thead>
                   <tbody className="text-text-default">
                     {rows.map(row => {
-                      const incomplete = row.subjectsWithScores < row.totalSubjects;
+                      const filled = isCommentClass ? (row.commentsFilled ?? 0) : row.subjectsWithScores;
+                      const expected = isCommentClass ? (row.commentsExpected ?? 0) : row.totalSubjects;
+                      const incomplete = filled < expected;
                       return (
                         <tr
                           key={row.studentId}
@@ -139,11 +171,13 @@ export const MidtermReportScreen = () => {
                           <td className="px-4 py-3 font-medium">{row.studentName}</td>
                           <td className="px-4 py-3">
                             <span className={incomplete ? "text-text-destructive font-medium" : ""}>
-                              {row.subjectsWithScores}/{row.totalSubjects}
+                              {filled}/{expected}
                             </span>
-                            {incomplete && <span className="text-text-destructive ml-2 text-xs">Scores missing</span>}
+                            {incomplete && (
+                              <span className="text-text-destructive ml-2 text-xs">{isCommentClass ? "Comments missing" : "Scores missing"}</span>
+                            )}
                           </td>
-                          <td className="px-4 py-3">{row.overallPercentage != null ? `${row.overallPercentage}%` : "--"}</td>
+                          {!isCommentClass && <td className="px-4 py-3">{row.overallPercentage != null ? `${row.overallPercentage}%` : "--"}</td>}
                           <td className="text-text-informative px-4 py-3 text-right text-xs font-medium">View report</td>
                         </tr>
                       );

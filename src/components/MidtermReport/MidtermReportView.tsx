@@ -1,4 +1,4 @@
-import { MidtermReport } from "@/api/types";
+import { MidtermCommentRow, MidtermReport } from "@/api/types";
 import { format } from "date-fns";
 import { useState } from "react";
 import { DataTable } from "../DataTable";
@@ -12,9 +12,35 @@ const formatDate = (value?: string | null) => {
   return Number.isNaN(date.getTime()) ? value : format(date, "d MMMM, yyyy");
 };
 
+const CommentSection = ({ title, rows }: { title: string; rows: MidtermCommentRow[] }) => {
+  if (rows.length === 0) return null;
+  return (
+    <div className="mt-3 w-full overflow-x-auto">
+      <table className="border-border-default bg-bg-card w-full border text-xs md:text-sm">
+        <thead>
+          <tr className="text-text-muted border-border-default border-b">
+            <th className="border-border-default w-1/3 border-r px-2 py-2 text-left font-medium">{title}</th>
+            <th className="px-2 py-2 text-left font-medium">Comment</th>
+          </tr>
+        </thead>
+        <tbody className="text-text-default">
+          {rows.map(row => (
+            <tr key={row.id} className="border-border-default border-b align-top last:border-b-0">
+              <td className="border-border-default border-r px-2 py-2 capitalize">{row.name?.toLowerCase()}</td>
+              <td className="px-2 py-2 whitespace-pre-wrap">{row.comment?.trim() || ""}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 // Shared by the staff preview and the parent portal. Rules from the API contract: a CA without a score is
 // blank (never 0), and a subject with scoresEntered: false reads "Not entered" across its total columns.
+// A report renders by its own `format`: on COMMENT the score fields are empty and the comment rows are shown instead.
 export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
+  const isComment = report.format === "COMMENT";
   const unit = report.sessionsPerDay === 2 ? "Sessions" : "Days";
   const [page, setPage] = useState(1);
   const developmentSkills = (report.developments ?? []).flatMap(category => category.skills);
@@ -47,6 +73,11 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
         <span>
           Class: <span className="font-medium">{report.className}</span>
         </span>
+        {isComment && report.age && (
+          <span>
+            Age: <span className="font-medium">{report.age}</span>
+          </span>
+        )}
         <span>
           As of: <span className="font-medium">{formatDate(report.asOf)}</span>
         </span>
@@ -77,7 +108,15 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
       <div className="bg-bg-subtle border-border-default flex flex-col border-t p-4">
         <h3 className="text-bg-basic-cyan-contrast text-center text-xs font-semibold md:text-sm">MID-TERM ACADEMIC REPORT</h3>
 
-        {report.subjectReports.length === 0 ? (
+        {isComment ? (
+          <>
+            <CommentSection title="Academic Progress" rows={report.academicProgress ?? []} />
+            <CommentSection title="Personal Qualities" rows={report.personalQualities ?? []} />
+            {(report.academicProgress ?? []).length === 0 && (report.personalQualities ?? []).length === 0 && (
+              <p className="text-text-muted my-10 text-center text-sm">No comments to show for this mid-term yet.</p>
+            )}
+          </>
+        ) : report.subjectReports.length === 0 ? (
           <p className="text-text-muted my-10 text-center text-sm">No subjects to show for this mid-term yet.</p>
         ) : (
           <div className="mt-3 w-full overflow-x-auto">
@@ -155,10 +194,12 @@ export const MidtermReportView = ({ report }: { report: MidtermReport }) => {
       )}
 
       <div className="text-text-default flex flex-col gap-4 px-4 py-5 text-sm font-normal">
-        <div>
-          <span>OVERALL PERCENTAGE:</span>{" "}
-          <span className="font-medium">{report.overallPercentage != null ? `${Math.round(report.overallPercentage * 100) / 100}%` : "--"}</span>
-        </div>
+        {!isComment && (
+          <div>
+            <span>OVERALL PERCENTAGE:</span>{" "}
+            <span className="font-medium">{report.overallPercentage != null ? `${Math.round(report.overallPercentage * 100) / 100}%` : "--"}</span>
+          </div>
+        )}
         <div className="flex flex-col gap-2.5 md:flex-row md:gap-1">
           <span className="text-text-subtle">Class Teacher&apos;s Mid-term Comment:</span>{" "}
           <span className="border-border-default block min-w-[150px] flex-1 border-b">{report.classTeacherComment?.trim() || "--"}</span>
