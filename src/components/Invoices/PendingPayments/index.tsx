@@ -1,7 +1,8 @@
 "use client";
 
 import { getRetryErrorProps } from "@/lib/apiError";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { BillFill, QuickReferenceAll } from "@digenty/icons";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,12 +23,25 @@ import { ApprovePaymentModal, RejectPaymentModal } from "./PendingPaymentModals"
 
 const PAGE_SIZE = 10;
 
+type SavedView = { page: number; branchId?: number; termId?: number; searchQuery: string };
+
+const STORAGE_KEY = "invoices:pending-payments-view";
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored filters.
 export const PendingPayments = () => {
+  const { loaded, value } = usePersistedLoad<SavedView>(STORAGE_KEY);
+  if (!loaded) return <Skeleton className="bg-bg-input-soft! h-screen w-full" />;
+  return <PendingPaymentsView saved={value} />;
+};
+
+const PendingPaymentsView = ({ saved }: { saved?: SavedView }) => {
   const { schoolId, branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
-  const [page, setPage] = useState(1);
-  const [branchId, setBranchId] = useState<number | undefined>(undefined);
-  const [termId, setTermId] = useState<number | undefined>(undefined);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(saved?.page ?? 1);
+  const [branchId, setBranchId] = useState<number | undefined>(saved?.branchId);
+  const [termId, setTermId] = useState<number | undefined>(saved?.termId);
+  const [searchQuery, setSearchQuery] = useState(saved?.searchQuery ?? "");
+  const view = useMemo(() => ({ page, branchId, termId, searchQuery }), [page, branchId, termId, searchQuery]);
+  usePersistValue(STORAGE_KEY, view);
   const debouncedSearch = useDebounce(searchQuery, 500);
 
   const [approving, setApproving] = useState<PendingPaymentEntry | null>(null);

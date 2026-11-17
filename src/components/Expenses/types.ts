@@ -88,10 +88,20 @@ export const expenseAddedByOf = (expense?: ExpenseListItem | null) => ({
 
 export const formatNaira = (amount?: number | string | null) => `₦${Number(amount ?? 0).toLocaleString()}`;
 
+/** `yyyy-MM-dd` from the user's local calendar day. `toISOString()` converts to UTC and shifts the day back for zones ahead of GMT. */
+export const toLocalIsoDate = (date: Date) =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+
+/** Inverse of `toLocalIsoDate`: a bare `yyyy-MM-dd` becomes local midnight, not UTC midnight. */
+export const parseLocalIsoDate = (value: string) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : new Date(value);
+};
+
 /** Dates come back ISO (`2024-10-22`) but the design shows `22/10/2024` everywhere. */
 export const formatExpenseDate = (value?: string | null) => {
   if (!value) return "-";
-  const date = new Date(value);
+  const date = parseLocalIsoDate(value);
   if (Number.isNaN(date.getTime())) return value;
   return `${String(date.getDate()).padStart(2, "0")}/${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
 };

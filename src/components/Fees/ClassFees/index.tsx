@@ -2,7 +2,8 @@
 
 import { getRetryErrorProps, getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 import { Eye, FileList3Fill, GraduationCapFill } from "@digenty/icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { ClassFeeTypes } from "./classTypes";
 import { DataTable } from "@/components/DataTable";
 import { columnsClassFees } from "./ClassColumns";
@@ -29,13 +30,24 @@ import { toast } from "sonner";
 const toRows = (classes: ClassFeeOverview[] = []): ClassFeeTypes[] =>
   classes.map(c => ({ id: c.classId, classname: c.className, feeNames: c.feeNames ?? [], totalAmount: c.totalAmount }));
 
+type SavedView = { page: number; searchInput: string };
+
+const STORAGE_KEY = "fees:class-fees-view";
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored search.
 export const ClassFees = () => {
+  const { loaded, value } = usePersistedLoad<SavedView>(STORAGE_KEY);
+  if (!loaded) return null;
+  return <ClassFeesView saved={value} />;
+};
+
+const ClassFeesView = ({ saved }: { saved?: SavedView }) => {
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
     { label: "Class Fees", url: "/staff/fees?tab=Class Fees" },
   ]);
   const router = useRouter();
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(saved?.page ?? 1);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<ClassFeeTypes[]>([]);
   const [visibleCount, setVisibleCount] = useState(3);
@@ -48,8 +60,10 @@ export const ClassFees = () => {
     allowAllTerms: false,
   });
 
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState(saved?.searchInput ?? "");
+  const [search, setSearch] = useState(saved?.searchInput ?? "");
+  const view = useMemo(() => ({ page, searchInput }), [page, searchInput]);
+  usePersistValue(STORAGE_KEY, view);
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput), 300);
     return () => clearTimeout(t);

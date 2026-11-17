@@ -32,6 +32,7 @@ import {
   expenseTitleOf,
   extractExpenseList,
   formatExpenseDate,
+  toLocalIsoDate,
 } from "./types";
 
 type Props = {
@@ -39,7 +40,7 @@ type Props = {
   setOpen: (open: boolean) => void;
 };
 
-const toIsoDate = (date?: Date) => (date ? date.toISOString().slice(0, 10) : undefined);
+const toIsoDate = (date?: Date) => (date ? toLocalIsoDate(date) : undefined);
 
 export const ExpenseExportModal = ({ open, setOpen }: Props) => {
   const isMobile = useIsMobile();

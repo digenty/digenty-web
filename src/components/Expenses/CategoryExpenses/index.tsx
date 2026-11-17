@@ -16,13 +16,26 @@ import { ExpensesHeader } from "../ExpensesHeader";
 import { ExpensesSearchAndFilter } from "../ExpensesSearchAndFilter";
 import { ExpensesTable } from "../ExpensesTable";
 import { ExpenseCategoryItem, extractExpenseRecord, extractExpenseSummary, formatNaira } from "../types";
-import { useExpenseFilters } from "../useExpenseFilters";
+import { SavedExpenseView, useExpenseFilters, useSavedExpenseView } from "../useExpenseFilters";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const CategoryExpenses = () => {
   const params = useParams();
   const categoryId = Number(params?.id);
+  const storageKey = `expenses:category-view:${categoryId}`;
 
-  const { filters, setFilters, page, setPage, isBranchRestricted, userBranchIds } = useExpenseFilters({ categoryId: categoryId || undefined });
+  // Wait for the saved filters to be read, so the first fetch already uses them.
+  const { loaded, value } = useSavedExpenseView(storageKey);
+  if (!loaded) return <Skeleton className="bg-bg-input-soft! m-4 h-screen md:m-8" />;
+  return <CategoryExpensesView categoryId={categoryId} saved={value} storageKey={storageKey} />;
+};
+
+const CategoryExpensesView = ({ categoryId, saved, storageKey }: { categoryId: number; saved?: SavedExpenseView; storageKey: string }) => {
+  const { filters, setFilters, page, setPage, isBranchRestricted, userBranchIds } = useExpenseFilters(
+    { categoryId: categoryId || undefined },
+    saved,
+    storageKey,
+  );
 
   const { data: categoryResp } = useGetExpenseCategoryById(categoryId || undefined);
   const category = useMemo(() => extractExpenseRecord<ExpenseCategoryItem>(categoryResp), [categoryResp]);

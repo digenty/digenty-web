@@ -27,6 +27,7 @@ import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { useParentStore } from "@/store/useParentStore";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { useEffect, useMemo, useState } from "react";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
@@ -36,7 +37,23 @@ import { PermissionCheck } from "@/components/ModulePermissionsWrapper/Permissio
 import { canManageStudentParentRecords } from "@/lib/permissions/students-and-parents";
 import { SendLoginDetailsModal } from "./SendLoginDetailsModal";
 
+type SavedView<F> = { page: number; searchQuery: string; filter: F };
+
+type ViewFilter = {
+  branchSelected?: Branch;
+  classSelected?: ClassType;
+};
+
+const STORAGE_KEY = "student-parent-record:parents-view";
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored filters.
 export const ParentsTable = () => {
+  const { loaded, value } = usePersistedLoad<SavedView<ViewFilter>>(STORAGE_KEY);
+  if (!loaded) return <Skeleton className="bg-bg-input-soft! h-screen w-full" />;
+  return <ParentsView saved={value} />;
+};
+
+const ParentsView = ({ saved }: { saved?: SavedView<ViewFilter> }) => {
   const hasActiveSubscription = useHasActiveSubscription();
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -53,7 +70,7 @@ export const ParentsTable = () => {
     { label: "Parents", url: `/staff/student-and-parent-record?tab=Parents` },
   ]);
 
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(saved?.page ?? 1);
   const [isChecked, setIsChecked] = useState(false);
   const [openExportFilter, setOpenExportFilter] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
@@ -62,12 +79,12 @@ export const ParentsTable = () => {
   const [selectedRows, setSelectedRows] = useState<Parent[]>([]);
   const pageSize = 30;
 
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>(saved?.searchQuery ?? "");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-  const [filter, setFilter] = useState<{
-    branchSelected?: Branch;
-    classSelected?: ClassType;
-  }>({});
+  const [filter, setFilter] = useState<ViewFilter>(saved?.filter ?? {});
+
+  const view = useMemo(() => ({ page, searchQuery, filter }), [page, searchQuery, filter]);
+  usePersistValue(STORAGE_KEY, view);
 
   const effectiveBranchId = filter?.branchSelected?.id ?? restrictedBranchId;
 

@@ -16,17 +16,31 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import useDebounce from "@/hooks/useDebounce";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { AllBranchesTable } from "./AllBranchesTable";
 import { OverviewStats } from "./OverviewStats";
 
+type SavedView = { termSelected: Term | null; activeSession: string | null; searchQuery: string };
+
+const STORAGE_KEY = "classes-subjects:all-branches-view";
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored term and search.
 export const AllBranches = () => {
+  const { loaded, value } = usePersistedLoad<SavedView>(STORAGE_KEY);
+  if (!loaded) return <Skeleton className="bg-bg-input-soft! m-4 h-screen md:mx-8" />;
+  return <AllBranchesView saved={value} />;
+};
+
+const AllBranchesView = ({ saved }: { saved?: SavedView }) => {
   const user = useLoggedInUser();
   const schoolId = user?.schoolId;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [termSelected, setTermSelected] = useState<Term | null>(null);
-  const [activeSession, setActiveSession] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [termSelected, setTermSelected] = useState<Term | null>(saved?.termSelected ?? null);
+  const [activeSession, setActiveSession] = useState<string | null>(saved?.activeSession ?? null);
+  const [searchQuery, setSearchQuery] = useState<string>(saved?.searchQuery ?? "");
+  const view = useMemo(() => ({ termSelected, activeSession, searchQuery }), [termSelected, activeSession, searchQuery]);
+  usePersistValue(STORAGE_KEY, view);
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const { data: terms, isFetching: isLoadingTerm } = useGetTerms(schoolId!);
@@ -42,7 +56,7 @@ export const AllBranches = () => {
   useEffect(() => {
     if (terms) {
       const activeTerm = terms.data.terms.find((term: Term) => term.isActiveTerm);
-      setTermSelected(activeTerm);
+      setTermSelected(prev => prev ?? activeTerm);
       setActiveSession(terms.data.academicSessionName);
     }
   }, [setActiveSession, setTermSelected, terms]);
