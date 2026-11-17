@@ -11,20 +11,40 @@ import { useBreadcrumb } from "@/hooks/useBreadcrumb";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AllClassesMainTableProps } from "../types";
 import { AllClassesHeader } from "./AllClassesHeader";
 import { AllClassesMainTable } from "./AllClassesMainTable";
 import { useParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+type SavedView = {
+  activeBranchId: number | null;
+  termSelected: Term | null;
+  activeSession: string | null;
+  levelSelected: ClassLevel | null;
+  searchQuery: string;
+};
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored filters.
 export const AllClassesMain = () => {
+  const params = useParams<{ branchId?: string }>();
+  // The per-branch route (/all-branches/[branchId]) and the plain one keep separate views.
+  const storageKey = `classes-subjects:all-classes-view:${params?.branchId ?? "own"}`;
+  const { loaded, value } = usePersistedLoad<SavedView>(storageKey);
+  if (!loaded) return <Skeleton className="bg-bg-input-soft! m-4 h-screen md:mx-8" />;
+  return <AllClassesMainView saved={value} storageKey={storageKey} />;
+};
+
+const AllClassesMainView = ({ saved, storageKey }: { saved?: SavedView; storageKey: string }) => {
   const user = useLoggedInUser();
 
   const { data: branchesData, isPending: loadingBranches } = useGetBranches();
   const params = useParams<{ branchId?: string }>();
   const branchId = params?.branchId;
 
-  const [activeBranchId, setActiveBranchId] = useState<number | null>(branchId ? Number(branchId) : null);
+  const [activeBranchId, setActiveBranchId] = useState<number | null>(branchId ? Number(branchId) : (saved?.activeBranchId ?? null));
 
   useBreadcrumb(
     branchId
@@ -59,15 +79,21 @@ export const AllClassesMain = () => {
   }, [branchId]);
 
   useEffect(() => {
-    if (!branchId && !activeBranchId && userBranchIds.length > 0) {
+    // Also replaces a remembered branch this user can no longer see.
+    if (!branchId && userBranchIds.length > 0 && (!activeBranchId || !userBranchIds.includes(activeBranchId))) {
       setActiveBranchId(userBranchIds[0]);
     }
   }, [branchId, activeBranchId, userBranchIds]);
 
-  const [termSelected, setTermSelected] = useState<Term | null>(null);
-  const [activeSession, setActiveSession] = useState<string | null>(null);
-  const [levelSelected, setLevelSelected] = useState<ClassLevel | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [termSelected, setTermSelected] = useState<Term | null>(saved?.termSelected ?? null);
+  const [activeSession, setActiveSession] = useState<string | null>(saved?.activeSession ?? null);
+  const [levelSelected, setLevelSelected] = useState<ClassLevel | null>(saved?.levelSelected ?? null);
+  const [searchQuery, setSearchQuery] = useState<string>(saved?.searchQuery ?? "");
+  const view = useMemo(
+    () => ({ activeBranchId, termSelected, activeSession, levelSelected, searchQuery }),
+    [activeBranchId, termSelected, activeSession, levelSelected, searchQuery],
+  );
+  usePersistValue(storageKey, view);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 

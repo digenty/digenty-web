@@ -9,7 +9,8 @@ import { useGetInvoices } from "@/hooks/queryHooks/useInvoice";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import useDebounce from "@/hooks/useDebounce";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { OverviewCard } from "../OverviewCard";
 import { InvoiceOverviewTable } from "./InvoiceOverviewTable";
 import { InvoicesHeader } from "./InvoicesHeader";
@@ -25,16 +26,30 @@ type InvoiceFilter = {
   termSelected?: Term;
 };
 
+type SavedInvoiceView = { page: number; searchQuery: string; statusFilter: string; filter: InvoiceFilter };
+
+const STORAGE_KEY = "invoices:all-view";
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored filters.
 export const AllInvoices = () => {
+  const { loaded, value } = usePersistedLoad<SavedInvoiceView>(STORAGE_KEY);
+  if (!loaded) return <Skeleton className="bg-bg-input-soft! h-screen w-full" />;
+  return <AllInvoicesView saved={value} />;
+};
+
+const AllInvoicesView = ({ saved }: { saved?: SavedInvoiceView }) => {
   const { schoolId, branchIds, isMain, isAdmin, adminBranchIds } = useLoggedInUser();
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(saved?.page ?? 1);
   const pageSize = 10;
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(saved?.searchQuery ?? "");
   const debouncedSearch = useDebounce(searchQuery, 500);
 
-  const [statusFilter, setStatusFilter] = useState("");
-  const [filter, setFilter] = useState<InvoiceFilter>({});
+  const [statusFilter, setStatusFilter] = useState(saved?.statusFilter ?? "");
+  const [filter, setFilter] = useState<InvoiceFilter>(saved?.filter ?? {});
+
+  const view = useMemo(() => ({ page, searchQuery, statusFilter, filter }), [page, searchQuery, statusFilter, filter]);
+  usePersistValue(STORAGE_KEY, view);
 
   // A staff member with no branch-admin/main access is restricted to their own assigned
   // branch(es) — they shouldn't default to, or be able to pick, another branch's invoices.
@@ -67,12 +82,14 @@ export const AllInvoices = () => {
     setFilter(prev => ({ ...prev, [key]: value }));
   };
 
+  // Reset to page 1 when search/status change, but not on mount (that would throw away the restored page).
+  const lastCriteria = useRef(`${debouncedSearch}|${statusFilter}`);
   useEffect(() => {
+    const criteria = `${debouncedSearch}|${statusFilter}`;
+    if (criteria === lastCriteria.current) return;
+    lastCriteria.current = criteria;
     setPage(1);
-  }, [debouncedSearch]);
-  useEffect(() => {
-    setPage(1);
-  }, [statusFilter]);
+  }, [debouncedSearch, statusFilter]);
 
   const {
     data,

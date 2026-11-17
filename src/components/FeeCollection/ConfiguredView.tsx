@@ -1,7 +1,9 @@
 "use client";
 
 import { Edit, GroupWorkT } from "@digenty/icons";
-import React, { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import React, { useMemo, useState } from "react";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Building2 } from "lucide-react";
@@ -44,17 +46,34 @@ interface Props {
   config: FeeCollectionConfigResponse;
 }
 
+type SavedView = { selectedBranchId: number | null; routeSearch: string };
+
+const STORAGE_KEY = "fee-collection:view";
+
+// Wait for the saved view to be read before mounting, so the fee routes load for the branch you were on.
 export const ConfiguredView = ({ config }: Props) => {
+  const { loaded, value } = usePersistedLoad<SavedView>(STORAGE_KEY);
+  if (!loaded) return <Skeleton className="bg-bg-input-soft m-2 h-100 w-full" />;
+  return <ConfiguredViewContent config={config} saved={value} />;
+};
+
+const ConfiguredViewContent = ({ config, saved }: Props & { saved?: SavedView }) => {
   useBreadcrumb([{ label: "Fee Collection", url: "/staff/fee-collection" }]);
   const router = useRouter();
 
   const [modeOpen, setModeOpen] = useState(false);
   const [editAccount, setEditAccount] = useState<BankAccountInfo | null>(null);
   // Track selected branch ID for the fee routing tabs
-  const [selectedBranchId, setSelectedBranchId] = useState<number | null>(
-    config.mode === "BRANCH_ACCOUNTS" ? (config.branchAccounts?.[0]?.branchId ?? null) : null,
-  );
-  const [routeSearch, setRouteSearch] = useState("");
+  const [selectedBranchId, setSelectedBranchId] = useState<number | null>(() => {
+    if (config.mode !== "BRANCH_ACCOUNTS") return null;
+    const savedId = saved?.selectedBranchId;
+    // Ignore a remembered branch that no longer has an account (or when the mode has since changed).
+    if (savedId != null && config.branchAccounts?.some(a => a.branchId === savedId)) return savedId;
+    return config.branchAccounts?.[0]?.branchId ?? null;
+  });
+  const [routeSearch, setRouteSearch] = useState(saved?.routeSearch ?? "");
+  const view = useMemo(() => ({ selectedBranchId, routeSearch }), [selectedBranchId, routeSearch]);
+  usePersistValue(STORAGE_KEY, view);
 
   const { data: bankOptions = [] } = useGetAllBanks();
   const { mutate: updateAccount } = useUpdateFeeCollectionBankAccount();

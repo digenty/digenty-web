@@ -20,7 +20,8 @@ import { useStaffStore } from "@/store/staff";
 import { Ellipsis, PlusIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { SettingPermissionModalExport } from "./SettingPermissionModalExport";
 import { DeactivateStaffModal } from "./StaffDetails/DeactivateStaffModal";
 import { MakeBranchAdminModal } from "./StaffMutation/MakeBranchAdminModal";
@@ -38,16 +39,29 @@ export type StaffProps = {
   lastLogin: string;
 };
 
+type SavedView = { page: number; searchQuery: string; branchSelected?: Branch };
+
+const STORAGE_KEY = "settings:staffs-view";
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored filters.
 export const Staffs = () => {
-  const [page, setPage] = useState(1);
+  const { loaded, value } = usePersistedLoad<SavedView>(STORAGE_KEY);
+  if (!loaded) return <Skeleton className="bg-bg-input-soft! mt-6 h-screen w-full" />;
+  return <StaffsView saved={value} />;
+};
+
+const StaffsView = ({ saved }: { saved?: SavedView }) => {
+  const [page, setPage] = useState(saved?.page ?? 1);
   const isMobile = useIsMobile();
   const router = useRouter();
   const [openExport, setOpenExport] = useState(false);
   const [openFilter, setOpenFilter] = useState(false);
   const [openAddAdmin, setOpenAddAdmin] = useState(false);
   const [openActions, setOpenAction] = useState(false);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [branchSelected, setBranchSelected] = useState<Branch | undefined>();
+  const [searchQuery, setSearchQuery] = useState<string>(saved?.searchQuery ?? "");
+  const [branchSelected, setBranchSelected] = useState<Branch | undefined>(saved?.branchSelected);
+  const view = useMemo(() => ({ page, searchQuery, branchSelected }), [page, searchQuery, branchSelected]);
+  usePersistValue(STORAGE_KEY, view);
   const [rowSelection, setRowSelection] = useState({});
   const [selectedRows, setSelectedRows] = useState<Staff[]>([]);
   const debouncedSearchQuery = useDebounce(searchQuery, 500);

@@ -42,7 +42,8 @@ export const AttendanceHeader = ({
   useEffect(() => {
     if (terms) {
       const activeTerm = terms.data.terms.find((term: Term) => term.isActiveTerm);
-      setTermSelected(activeTerm);
+      // Keep a term restored from the saved view (or picked by the user); only default when none is set.
+      setTermSelected(prev => prev ?? activeTerm);
       setActiveSession(terms.data.academicSessionName);
     }
   }, [setActiveSession, setTermSelected, terms]);

@@ -14,10 +14,20 @@ import { ExpensesHeader } from "./ExpensesHeader";
 import { ExpensesSearchAndFilter } from "./ExpensesSearchAndFilter";
 import { ExpensesTable } from "./ExpensesTable";
 import { extractExpenseSummary, formatNaira } from "./types";
-import { useExpenseFilters } from "./useExpenseFilters";
+import { SavedExpenseView, useExpenseFilters, useSavedExpenseView } from "./useExpenseFilters";
+import { Skeleton } from "@/components/ui/skeleton";
 
+const STORAGE_KEY = "expenses:list-view";
+
+// Wait for the saved filters to be read, so the first fetch already uses them.
 export const ExpensesMain = () => {
-  const { filters, setFilters, page, setPage, isBranchRestricted, userBranchIds } = useExpenseFilters();
+  const { loaded, value } = useSavedExpenseView(STORAGE_KEY);
+  if (!loaded) return <Skeleton className="bg-bg-input-soft! m-4 h-screen md:m-8" />;
+  return <ExpensesMainView saved={value} />;
+};
+
+const ExpensesMainView = ({ saved }: { saved?: SavedExpenseView }) => {
+  const { filters, setFilters, page, setPage, isBranchRestricted, userBranchIds } = useExpenseFilters({}, saved, STORAGE_KEY);
 
   useBreadcrumb([{ label: "Expenses", url: "/staff/expense" }]);
 

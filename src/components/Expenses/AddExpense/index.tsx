@@ -32,7 +32,15 @@ import { canManageExpenses } from "@/lib/permissions/expenses";
 import { RECURRING_INTERVAL_CONFIG } from "@/queries/expense";
 import { editExpenseSchema, expenseSchema } from "@/schema/expense";
 
-import { ExpenseCategoryItem, ExpenseListItem, extractExpenseList, extractExpenseRecord, formatExpenseDate } from "../types";
+import {
+  ExpenseCategoryItem,
+  ExpenseListItem,
+  extractExpenseList,
+  extractExpenseRecord,
+  formatExpenseDate,
+  parseLocalIsoDate,
+  toLocalIsoDate,
+} from "../types";
 import { getApiErrorReason } from "@/lib/apiError";
 
 const MAX_RECEIPT_BYTES = 5 * 1024 * 1024;
@@ -297,8 +305,8 @@ const AddExpenseForm = () => {
                 Date <span className="text-text-destructive">*</span>
               </Label>
               <DateRangePicker
-                date={formik.values.date ? new Date(formik.values.date) : undefined}
-                setDate={date => formik.setFieldValue("date", date ? date.toISOString().slice(0, 10) : "")}
+                date={formik.values.date ? parseLocalIsoDate(formik.values.date) : undefined}
+                setDate={date => formik.setFieldValue("date", date ? toLocalIsoDate(date) : "")}
               />
               {fieldError("date")}
             </div>

@@ -1,5 +1,6 @@
 import { NumStudentIcon } from "@digenty/icons";
 import { useEffect, useState } from "react";
+import { readPersisted, usePersistValue } from "@/hooks/usePersistedState";
 import { AttendanceLevel } from "@/api/types";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { canViewAttendance } from "@/lib/permissions/attendance";
@@ -20,7 +21,12 @@ export const AttendanceCards = ({ levels }: { levels: AttendanceLevel[] }) => {
     .filter(level => level.classArms.length > 0)
     .sort((a, b) => (LEVEL_ORDER[a.levelName] ?? 99) - (LEVEL_ORDER[b.levelName] ?? 99));
 
-  const [activeLevelId, setActiveLevelId] = useState<number | null>(visibleLevels[0]?.levelId ?? null);
+  // Cards only mount once the data has loaded on the client, so the remembered level tab can be read straight away.
+  const [activeLevelId, setActiveLevelId] = useState<number | null>(() => {
+    const saved = readPersisted<number>("attendance:level-tab");
+    return visibleLevels.some(level => level.levelId === saved) ? (saved as number) : (visibleLevels[0]?.levelId ?? null);
+  });
+  usePersistValue("attendance:level-tab", activeLevelId);
   const visibleLevelIds = visibleLevels.map(level => level.levelId).join(",");
 
   useEffect(() => {
