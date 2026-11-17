@@ -1,7 +1,8 @@
 "use client";
 import { getRetryErrorProps, getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 import { Edit, Eye, FileCopy } from "@digenty/icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { FeesHeader } from "../FeesHeader";
 import { DataTable } from "@/components/DataTable";
 import { FeeGroupProp } from "./feeGroupType";
@@ -23,7 +24,18 @@ import type { FeeGroupSummary } from "@/api/fee";
 import { ErrorComponent } from "@/components/Error/ErrorComponent";
 import { toast } from "sonner";
 
+type SavedView = { page: number; searchInput: string };
+
+const STORAGE_KEY = "fees:fee-groups-view";
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored search.
 export const FeesGroup = () => {
+  const { loaded, value } = usePersistedLoad<SavedView>(STORAGE_KEY);
+  if (!loaded) return null;
+  return <FeesGroupView saved={value} />;
+};
+
+const FeesGroupView = ({ saved }: { saved?: SavedView }) => {
   const router = useRouter();
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
@@ -38,11 +50,13 @@ export const FeesGroup = () => {
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [understood, setUnderstood] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(saved?.page ?? 1);
   const pageSize = 5;
 
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState(saved?.searchInput ?? "");
+  const [search, setSearch] = useState(saved?.searchInput ?? "");
+  const view = useMemo(() => ({ page, searchInput }), [page, searchInput]);
+  usePersistValue(STORAGE_KEY, view);
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput), 300);
     return () => clearTimeout(t);

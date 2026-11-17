@@ -17,6 +17,7 @@ import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 
 import { ExpenseFilters } from "./useExpenseFilters";
+import { toLocalIsoDate } from "./types";
 
 type Props = {
   title?: string;
@@ -180,12 +181,12 @@ export const ExpensesHeader = ({
             <DateRangePicker
               label="From"
               date={filters.startDate ? new Date(filters.startDate) : undefined}
-              setDate={date => setFilters({ startDate: date ? date.toISOString().slice(0, 10) : undefined })}
+              setDate={date => setFilters({ startDate: date ? toLocalIsoDate(date) : undefined })}
             />
             <DateRangePicker
               label="To"
               date={filters.endDate ? new Date(filters.endDate) : undefined}
-              setDate={date => setFilters({ endDate: date ? date.toISOString().slice(0, 10) : undefined })}
+              setDate={date => setFilters({ endDate: date ? toLocalIsoDate(date) : undefined })}
             />
           </div>
         </div>

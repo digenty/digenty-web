@@ -6,7 +6,11 @@ import { useGetSessions } from "@/hooks/queryHooks/useAcademic";
 import { useGetBranches } from "@/hooks/queryHooks/useBranch";
 import { useGetTerms } from "@/hooks/queryHooks/useTerm";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { readPersisted } from "@/hooks/usePersistedState";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+type SavedFilters = { branchSelected: string; selectedTermId: number | null };
+const FILTERS_KEY = "fees:filters";
 
 export const ALL_BRANCHES = "All Branches";
 export const ALL_TERMS = "All Terms";
@@ -64,15 +68,38 @@ export const useFeesFilters = ({ allowAllTerms = true }: { allowAllTerms?: boole
   // sessionName arrives asynchronously after termList.
   const [selectedTermId, setSelectedTermId] = useState<number | null>(null);
 
+  // Branch/term picks are shared by the three tabs and survive opening a fee and coming back.
+  // Restored after mount (not in the initializers) so server and client markup agree.
+  const hasDefaultedTerm = useRef(false);
+  const [restored, setRestored] = useState(false);
+  useEffect(() => {
+    const saved = readPersisted<SavedFilters>(FILTERS_KEY);
+    if (saved) {
+      setBranchSelected(saved.branchSelected);
+      // Tabs that can't show "All Terms" fall through to the active-term default below.
+      if (saved.selectedTermId !== null || allowAllTerms) {
+        setSelectedTermId(saved.selectedTermId);
+        hasDefaultedTerm.current = true;
+      }
+    }
+    setRestored(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      sessionStorage.setItem(FILTERS_KEY, JSON.stringify({ branchSelected, selectedTermId }));
+    } catch {}
+  }, [restored, branchSelected, selectedTermId]);
+
   // Default to the active term once the list resolves (only once per mount), so that
   // choosing "All Terms" afterwards isn't immediately overwritten by this effect.
-  const hasDefaultedTerm = useRef(false);
   useEffect(() => {
-    if (hasDefaultedTerm.current || termList.length === 0) return;
+    if (!restored || hasDefaultedTerm.current || termList.length === 0) return;
     hasDefaultedTerm.current = true;
     const active = termList.find(t => t.isActiveTerm) ?? termList[0];
     if (active) setSelectedTermId(active.termId);
-  }, [termList]);
+  }, [termList, restored]);
 
   // Derive the display label from the stored ID (re-computes when sessionName loads).
   const termSelected = useMemo(() => {

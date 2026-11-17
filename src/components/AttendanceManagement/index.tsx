@@ -4,7 +4,8 @@ import { Approve, BarChartIcon, GraduationCapFill, NumStudentIcon } from "@digen
 import { AttendanceLevel, Branch, Term } from "@/api/types";
 import { useGetAllAttendance } from "@/hooks/queryHooks/useAttendance";
 import { useBreadcrumb } from "@/hooks/useBreadcrumb";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { ErrorComponent } from "../Error/ErrorComponent";
 
 import { OverviewCard } from "../OverviewCard";
@@ -17,13 +18,29 @@ import { useLoggedInUser } from "@/hooks/useLoggedInUser";
 import { AttendanceMgtWrapper } from "./AttendanceMgtWrapper";
 import { canViewAttendance } from "@/lib/permissions/attendance";
 
+type SavedView = { branchSelected: Branch | null; termSelected: Term | null; activeSession: string | null; searchQuery: string };
+
+const STORAGE_KEY = "attendance:overview-view";
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored filters.
 export const AttendanceManagement = () => {
+  const { loaded, value } = usePersistedLoad<SavedView>(STORAGE_KEY);
+  if (!loaded) return <Skeleton className="bg-bg-input-soft! m-4 h-screen md:mx-8" />;
+  return <AttendanceManagementView saved={value} />;
+};
+
+const AttendanceManagementView = ({ saved }: { saved?: SavedView }) => {
   useBreadcrumb([{ label: "Attendance Management", url: "/staff/attendance" }]);
 
-  const [branchSelected, setBranchSelected] = useState<Branch | null>(null);
-  const [termSelected, setTermSelected] = useState<Term | null>(null);
-  const [activeSession, setActiveSession] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [branchSelected, setBranchSelected] = useState<Branch | null>(saved?.branchSelected ?? null);
+  const [termSelected, setTermSelected] = useState<Term | null>(saved?.termSelected ?? null);
+  const [activeSession, setActiveSession] = useState<string | null>(saved?.activeSession ?? null);
+  const [searchQuery, setSearchQuery] = useState<string>(saved?.searchQuery ?? "");
+  const view = useMemo(
+    () => ({ branchSelected, termSelected, activeSession, searchQuery }),
+    [branchSelected, termSelected, activeSession, searchQuery],
+  );
+  usePersistValue(STORAGE_KEY, view);
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const user = useLoggedInUser();
 

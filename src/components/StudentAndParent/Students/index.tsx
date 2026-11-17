@@ -31,13 +31,35 @@ import { canManageStudentParentRecords } from "@/lib/permissions/students-and-pa
 import { useStudentStore } from "@/store/student";
 import { MoreHorizontal, PlusIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { RecordHeader } from "../RecordHeader";
 import { TableExportFilter } from "../TableExportFilter";
 import { columns } from "./Columns";
 import { MobileCard } from "./MobileCard";
 
+type SavedView<F> = { page: number; searchQuery: string; filter: F };
+
+type ViewFilter = {
+  branchSelected?: Branch;
+  classSelected?: ClassType;
+  armSelected?: Arm;
+  statusSelected?: { value: StudentsStatus; label: string };
+};
+
+const STORAGE_KEY = "student-parent-record:students-view";
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored filters.
 export const StudentsTable = () => {
+  const { loaded, value } = usePersistedLoad<SavedView<ViewFilter>>(STORAGE_KEY);
+  // Arriving from a "View students" link pre-selects its own filters, so a remembered view must not fight them.
+  const searchParams = useSearchParams();
+  const fromLink = Boolean(searchParams.get("branchId") || searchParams.get("classId") || searchParams.get("armId"));
+  if (!loaded) return <Skeleton className="bg-bg-input-soft! h-screen w-full" />;
+  return <StudentsView saved={fromLink ? undefined : value} />;
+};
+
+const StudentsView = ({ saved }: { saved?: SavedView<ViewFilter> }) => {
   const hasActiveSubscription = useHasActiveSubscription();
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -64,7 +86,7 @@ export const StudentsTable = () => {
     { label: "Students", url: `/staff/student-and-parent-record?tab=Students` },
   ]);
 
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(saved?.page ?? 1);
   const [openExportFilter, setOpenExportFilter] = useState(false);
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const [rowSelection, setRowSelection] = useState({});
@@ -78,14 +100,12 @@ export const StudentsTable = () => {
   });
   const pageSize = 30;
 
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>(saved?.searchQuery ?? "");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-  const [filter, setFilter] = useState<{
-    branchSelected?: Branch;
-    classSelected?: ClassType;
-    armSelected?: Arm;
-    statusSelected?: { value: StudentsStatus; label: string };
-  }>({});
+  const [filter, setFilter] = useState<ViewFilter>(saved?.filter ?? {});
+
+  const view = useMemo(() => ({ page, searchQuery, filter }), [page, searchQuery, filter]);
+  usePersistValue(STORAGE_KEY, view);
 
   const effectiveBranchId = filter?.branchSelected?.id ?? restrictedBranchId;
 

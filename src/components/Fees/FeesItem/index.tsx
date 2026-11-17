@@ -1,6 +1,7 @@
 import { getRetryErrorProps, getApiErrorReason, getApiErrorMessage } from "@/lib/apiError";
 import { Edit, Eye, FileCopy, SendPlaneFill } from "@digenty/icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { usePersistedLoad, usePersistValue } from "@/hooks/usePersistedState";
 import { FeesHeader } from "../FeesHeader";
 import { FeeItemProp } from "./feeItemType";
 import { DataTable } from "@/components/DataTable";
@@ -34,7 +35,18 @@ import { PermissionCheck } from "@/components/ModulePermissionsWrapper/Permissio
 import { canDeleteFees, canManageFees } from "@/lib/permissions/fees";
 import { BulkFeeItemsModal } from "./BulkFeeItemsModal";
 
+type SavedView = { page: number; searchInput: string };
+
+const STORAGE_KEY = "fees:fee-items-view";
+
+// Wait for the saved view to be read before mounting, so the first fetch already uses the restored search.
 export const FeesItem = () => {
+  const { loaded, value } = usePersistedLoad<SavedView>(STORAGE_KEY);
+  if (!loaded) return null;
+  return <FeesItemView saved={value} />;
+};
+
+const FeesItemView = ({ saved }: { saved?: SavedView }) => {
   const router = useRouter();
   useBreadcrumb([
     { label: "Fees", url: "/staff/fees" },
@@ -45,11 +57,13 @@ export const FeesItem = () => {
   const [selectedRows, setSelectedRows] = useState<FeeItemProp[]>([]);
   const [visibleCount, setVisibleCount] = useState(3);
   const [activeItemId, setActiveItemId] = useState<number | null>(null);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(saved?.page ?? 1);
   const pageSize = 6;
 
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState(saved?.searchInput ?? "");
+  const [search, setSearch] = useState(saved?.searchInput ?? "");
+  const view = useMemo(() => ({ page, searchInput }), [page, searchInput]);
+  usePersistValue(STORAGE_KEY, view);
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput), 300);
     return () => clearTimeout(t);
