@@ -25,13 +25,11 @@ import { admissions, AdmissionStatus, boardings, BoardingStatus, Gender, genders
 import { format, formatDate } from "date-fns";
 import { useFormik } from "formik";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGetMyParentProfile } from "@/hooks/queryHooks/useParent";
 import { SearchableSelect } from "@/components/StudentAndParent/SearchableSelect";
 import { PlusIcon } from "lucide-react";
 import { getApiErrorReason } from "@/lib/apiError";
-
-type AccordionItem = { id: number; title: string; studentId?: number };
 
 const StudentForm = ({
   index,
@@ -40,7 +38,8 @@ const StudentForm = ({
   schoolId,
 }: {
   index: number;
-  onSaveSuccess: (id: number) => void;
+  // Called with the saved student's id.
+  onSaveSuccess: (studentId: number) => void;
   studentId?: number;
   schoolId?: number;
 }) => {
@@ -115,7 +114,7 @@ const StudentForm = ({
           {
             onSuccess: () => {
               toast({ title: "Updated successfully", type: "success" });
-              onSaveSuccess(index);
+              onSaveSuccess(studentId);
             },
             onError: error => {
               toast({ title: "Could not update student", description: getApiErrorReason(error), type: "error" });
@@ -136,7 +135,7 @@ const StudentForm = ({
                 title: `Successfully added ${data.data.firstName} ${data.data.lastName}`,
                 type: "success",
               });
-              onSaveSuccess(index);
+              onSaveSuccess(data.data.id);
             },
             onError: error => {
               toast({ title: "Could not add student", description: getApiErrorReason(error), type: "error" });
@@ -771,6 +770,11 @@ const StudentForm = ({
   );
 };
 
+// One accordion row. A row starts as a blank draft; saving it gives it a studentId, but it stays the same row
+// (same key) so the form the parent just filled in is not torn down and rebuilt. A row that comes from the
+// parent's profile (a child saved in an earlier visit) starts with its studentId already set.
+type StudentRow = { key: string; rowId: number | null; studentId?: number };
+
 export const ParentStudent = ({ schoolId }: { schoolId?: number }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -778,38 +782,57 @@ export const ParentStudent = ({ schoolId }: { schoolId?: number }) => {
   const editingStudentId = searchParams.get("id") ? Number(searchParams.get("id")) : undefined;
   const isEditing = editingStudentId != null;
 
-  const [items, setItems] = useState<AccordionItem[]>([{ id: 1, title: "Student" }]);
-  const [openId, setOpenId] = useState<number | null>(1);
-  const [savedIds, setSavedIds] = useState<Set<number>>(new Set());
   const { data: parentData } = useGetMyParentProfile();
+  const linkedStudents: Parent["linkedStudents"] = parentData?.data?.linkedStudents ?? [];
 
-  const handleSaveSuccess = (id: number) => {
-    setSavedIds(prev => new Set(prev).add(id));
-  };
+  // Rows the parent created in this visit: blank forms, and the ones that have since been saved.
+  const [localRows, setLocalRows] = useState<{ id: number; studentId?: number }[]>([]);
+  const nextRowId = useRef(1);
+  // undefined = nothing opened or closed yet, so the first row is the open one.
+  const [openKey, setOpenKey] = useState<string | null | undefined>(undefined);
+  // A closed row stays mounted (just hidden) once opened, so collapsing it never throws away what was typed.
+  const [visited, setVisited] = useState<Set<string>>(new Set());
 
-  const allSaved = items.every(item => savedIds.has(item.id));
+  // Children from the profile come first (they are still here after Back from the Review step); skip any
+  // that a local row already represents so a child just saved is not listed twice while the profile catches up.
+  const savedLocally = new Set(localRows.map(r => r.studentId).filter((id): id is number => id != null));
+  const rows: StudentRow[] = [
+    ...linkedStudents.filter(s => !savedLocally.has(s.id)).map(s => ({ key: `student-${s.id}`, rowId: null, studentId: s.id })),
+    ...localRows.map(r => ({ key: `row-${r.id}`, rowId: r.id, studentId: r.studentId })),
+  ];
+  // Wait for the profile before offering the blank first form, or it flashes up for a parent who already has children.
+  if (rows.length === 0 && parentData) rows.push({ key: "row-0", rowId: 0 });
 
-  function addItem() {
-    const newId = items.length + 1;
-    setItems(prev => [...prev, { id: newId, title: "Student" }]);
-    setOpenId(newId);
-  }
-
-  function toggle(id: number) {
-    setOpenId(prev => (prev === id ? null : id));
-  }
+  const activeKey = openKey === undefined ? (rows[0]?.key ?? null) : openKey;
+  // Continue needs at least one child, and no half-filled "Add Student" form left behind.
+  const allSaved = rows.length > 0 && rows.every(r => r.studentId != null);
 
   useEffect(() => {
-    if (parentData?.data?.linkedStudents?.length) {
-      const students = parentData.data.linkedStudents.map((s: Parent["linkedStudents"][number]) => ({
-        id: s.id,
-        title: "Student",
-        studentId: s.id,
-      }));
-      setItems(students);
-      setOpenId(students[0].id);
-    }
-  }, [parentData]);
+    if (activeKey) setVisited(prev => (prev.has(activeKey) ? prev : new Set(prev).add(activeKey)));
+  }, [activeKey]);
+
+  const handleSaveSuccess = (row: StudentRow, savedStudentId: number) => {
+    if (row.rowId === null) return;
+    // The blank first form (row-0) is not in localRows yet, so add it in its saved state.
+    setLocalRows(prev =>
+      prev.some(r => r.id === row.rowId)
+        ? prev.map(r => (r.id === row.rowId ? { ...r, studentId: savedStudentId } : r))
+        : [...prev, { id: row.rowId as number, studentId: savedStudentId }],
+    );
+  };
+
+  const addItem = () => {
+    const id = nextRowId.current++;
+    // With no children yet, the blank first form (row-0) is only implied, so make it a real row first
+    // or adding a second form would silently drop it.
+    const keepFirstBlank = linkedStudents.length === 0 && localRows.length === 0;
+    setLocalRows(prev => [...(keepFirstBlank ? [{ id: 0 }] : []), ...prev, { id }]);
+    setOpenKey(`row-${id}`);
+  };
+
+  const toggle = (key: string) => {
+    setOpenKey(activeKey === key ? null : key);
+  };
 
   if (isEditing) {
     return (
@@ -836,29 +859,38 @@ export const ParentStudent = ({ schoolId }: { schoolId?: number }) => {
       </div>
 
       <div className="flex flex-col gap-2">
-        {items.map((item, index) => (
-          <div key={item.id} className="border-border-default rounded-md border">
-            <div
-              role="button"
-              onClick={() => toggle(item.id)}
-              className="border-border-default flex w-full items-center justify-between border-b p-4"
-            >
-              <div className="flex items-center gap-2">
-                <span className="bg-bg-state-gray text-text-inverted-default flex h-6 w-6 items-center justify-center rounded-full text-sm font-medium">
-                  {index + 1}
-                </span>
-                <span className="text-text-default text-lg font-medium">
-                  {item.title} {index + 1}
-                </span>
-              </div>
-              <ArrowUpS fill="var(--color-icon-default-muted)" className={`transition-transform ${openId === item.id ? "rotate-180" : ""}`} />
-            </div>
+        {rows.map((row, index) => {
+          const isActive = activeKey === row.key;
 
-            {openId === item.id && (
-              <StudentForm index={index} onSaveSuccess={() => handleSaveSuccess(item.id)} studentId={item.studentId} schoolId={schoolId} />
-            )}
-          </div>
-        ))}
+          return (
+            <div key={row.key} className="border-border-default rounded-md border">
+              <div
+                role="button"
+                onClick={() => toggle(row.key)}
+                className="border-border-default flex w-full items-center justify-between border-b p-4"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="bg-bg-state-gray text-text-inverted-default flex h-6 w-6 items-center justify-center rounded-full text-sm font-medium">
+                    {index + 1}
+                  </span>
+                  <span className="text-text-default text-lg font-medium">Student {index + 1}</span>
+                </div>
+                <ArrowUpS fill="var(--color-icon-default-muted)" className={`transition-transform ${isActive ? "rotate-180" : ""}`} />
+              </div>
+
+              {(isActive || visited.has(row.key)) && (
+                <div className={isActive ? undefined : "hidden"}>
+                  <StudentForm
+                    index={index}
+                    onSaveSuccess={savedStudentId => handleSaveSuccess(row, savedStudentId)}
+                    studentId={row.studentId}
+                    schoolId={schoolId}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
 
         <Button onClick={addItem} className="text-text-default border-border-default w-full border border-dashed text-center">
           <PlusIcon className="text-text-default size-4" />

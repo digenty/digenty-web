@@ -9,6 +9,7 @@ import { canViewStudentParentRecords } from "@/lib/permissions/students-and-pare
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "@digenty/icons";
 import { useLoggedInUser } from "@/hooks/useLoggedInUser";
+import { SignupLinkButton } from "./SignupLink";
 
 const tabs = [
   { id: "Students", label: "Students" },
@@ -42,7 +43,10 @@ const StudentAndParentRecord = () => {
         )} */}
 
         {/* Tabs */}
-        <PillTabs tabs={tabs} activeId={activeTab} onChange={tab => router.push(`/staff/student-and-parent-record?tab=${tab}`)} />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <PillTabs tabs={tabs} activeId={activeTab} onChange={tab => router.push(`/staff/student-and-parent-record?tab=${tab}`)} />
+          <SignupLinkButton />
+        </div>
 
         {/* Separate the table components into two different files with their separate states, then render conditionally here */}
         <div>{activeTab === "Students" ? <StudentsTable /> : <ParentsTable />}</div>
