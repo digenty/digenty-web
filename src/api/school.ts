@@ -123,3 +123,17 @@ export const lookupSchoolByDomain = async (host: string) => {
     throw error;
   }
 };
+
+// Unauthenticated — anyone holding a school's parent signup link may look the school up by its token.
+// Returns the same school info as lookupSchoolByDomain.
+export const lookupSchoolBySignupToken = async (token: string) => {
+  try {
+    const { data } = await apiPublic.get(`/parent/portal/lookup/schools/by-signup-token/${encodeURIComponent(token)}`);
+    return data;
+  } catch (error: unknown) {
+    if (isAxiosError(error)) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+};

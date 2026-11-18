@@ -157,6 +157,13 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL(target, req.nextUrl));
   }
 
+  // A school's shareable parent signup link ({app}/parent/signup/{token}) — for schools with no custom
+  // domain. It must be reachable without a token, so it is handled before the "/parent" gate below, which
+  // would otherwise bounce it to login. A parent who is already signed in goes straight to the portal.
+  if (path.startsWith("/parent/signup/")) {
+    return token ? NextResponse.redirect(new URL("/parents", req.nextUrl)) : NextResponse.next();
+  }
+
   if (!token && !isAuthRoute) {
     if (path.startsWith("/staff")) {
       return NextResponse.redirect(new URL("/auth/staff", req.url));

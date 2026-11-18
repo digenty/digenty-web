@@ -1,5 +1,5 @@
 "use client";
-import { setSchoolFromHost } from "@/app/actions/school";
+import { setSchoolFromHost, setSchoolFromSignupToken } from "@/app/actions/school";
 import { toast } from "@/components/Toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,11 +18,14 @@ import { PRIVACY_POLICY, TERMS_AND_CONDITIONS } from "@/constants/legal";
 import Link from "next/link";
 import { getApiErrorReason } from "@/lib/apiError";
 
-export const SignupPasswordForm = () => {
+// `signupToken` is set on a school's shared parent signup link (for schools without a custom domain); the
+// token then decides the school instead of the host. Without it the school is looked up from the host.
+export const SignupPasswordForm = ({ signupToken }: { signupToken?: string }) => {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [schoolId, setSchoolId] = useState<number>();
   const [schoolLookupFailed, setSchoolLookupFailed] = useState(false);
+  const [schoolLookupReason, setSchoolLookupReason] = useState<string>();
 
   const { mutate, isPending } = useSignup();
   const { mutate: parentMutate, isPending: parentIsPending } = useParentSignup();
@@ -34,19 +37,23 @@ export const SignupPasswordForm = () => {
   });
 
   useEffect(() => {
-    setSchoolFromHost(window.location.host)
-      .then(school => {
+    const lookup: Promise<{ school: { id?: number } | null; reason?: string }> = signupToken
+      ? setSchoolFromSignupToken(signupToken)
+      : setSchoolFromHost(window.location.host).then(school => ({ school }));
+    lookup
+      .then(({ school, reason }) => {
         if (school?.id) {
           setSchoolId(school.id);
         } else {
           setSchoolLookupFailed(true);
+          setSchoolLookupReason(reason);
         }
       })
       .catch(e => {
         console.error("School lookup failed", e);
         setSchoolLookupFailed(true);
       });
-  }, []);
+  }, [signupToken]);
 
   const toggleShowPassword = () => {
     setShowPassword(prev => !prev);
@@ -72,7 +79,8 @@ export const SignupPasswordForm = () => {
         {
           email: values.email.toLowerCase(),
           password: values.password,
-          schoolId,
+          // The token wins on the backend anyway, so send only one of the two.
+          ...(signupToken ? { signupToken } : { schoolId }),
         },
         {
           onSuccess: data => {
@@ -105,7 +113,8 @@ export const SignupPasswordForm = () => {
       <div className="mt-7 w-full">
         {schoolLookupFailed && (
           <p className="text-text-destructive mb-4 text-center text-xs">
-            We couldn&apos;t determine your school from this link. Please use your school&apos;s signup link.
+            {schoolLookupReason ? `${schoolLookupReason}. ` : "We couldn't determine your school from this link. "}
+            Please ask your school for a new signup link.
           </p>
         )}
         <form noValidate onSubmit={formik.handleSubmit} className="w-full space-y-6">
