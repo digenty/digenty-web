@@ -12,6 +12,8 @@ type SignupPayload = {
   email: string;
   password: string;
   schoolId?: number;
+  // From a school's parent signup link. When sent, the backend uses it to pick the school (over schoolId).
+  signupToken?: string;
 };
 
 type VerifyOtpPayload = {

@@ -20,6 +20,7 @@ import {
 import { updateAssignSubjectTeacher } from "@/api/subject";
 import { StudentsStatus } from "@/components/StudentAndParent/types";
 import { staffKeys } from "@/queries/staff";
+import { parentKeys } from "@/queries/parent";
 import { studentKeys } from "@/queries/student";
 import { subjectKeys } from "@/queries/subject";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -48,6 +49,23 @@ export const useAddStudentByParent = () => {
       // from this response instead of ever refetching it for the Review step to read.
       if (data?.data?.id) {
         queryClient.setQueryData([studentKeys.getStudent, data.data.id], data);
+
+        // The onboarding Review step and the Back-to-student step both read the child list from the
+        // parent's own profile (GET /parent/portal/me), which is cached for minutes. Without this they
+        // keep showing "no student" for a child that was just added. Append the child straight away so
+        // nothing flickers, then refetch to pick up whatever the backend adds (e.g. the relationship).
+        const added = data.data;
+        queryClient.setQueryData(parentKeys.getMyProfile, (profile: { data?: { linkedStudents?: { id: number }[] } } | null | undefined) => {
+          if (!profile?.data) return profile;
+          const linked = profile.data.linkedStudents ?? [];
+          if (linked.some(s => s.id === added.id)) return profile;
+          const fullName = [added.firstName, added.lastName].filter(Boolean).join(" ");
+          return {
+            ...profile,
+            data: { ...profile.data, linkedStudents: [...linked, { id: added.id, fullName, image: added.image ?? null, relationship: null }] },
+          };
+        });
+        queryClient.invalidateQueries({ queryKey: parentKeys.getMyProfile });
       }
     },
   });
@@ -185,6 +203,8 @@ export const useUpdateStudentOnboarding = () => {
       // Same reasoning as useAddStudentByParent - seed the cache from the response rather than
       // invalidating, since invalidating would trigger a refetch against the staff-only endpoint.
       queryClient.setQueryData([studentKeys.getStudent, variables.studentId], data);
+      // The child's name may have changed, and the profile's linkedStudents list carries it.
+      queryClient.invalidateQueries({ queryKey: parentKeys.getMyProfile });
     },
   });
 };
