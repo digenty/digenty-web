@@ -168,7 +168,7 @@ const FeesItemView = ({ saved }: { saved?: SavedView }) => {
                   Publish ({selectedRows.length})
                 </Button>
               </PermissionCheck>
-              <PermissionCheck permissionUtility={canDeleteFees}>
+              {/* <PermissionCheck permissionUtility={canDeleteFees}>
                 <Button
                   onClick={() => setBulkMode("delete")}
                   className="text-text-white-default bg-bg-state-destructive hover:bg-bg-state-destructive-hover! h-7 rounded-md text-sm md:h-8"
@@ -176,7 +176,7 @@ const FeesItemView = ({ saved }: { saved?: SavedView }) => {
                   <Trash2 className="size-4" />
                   Delete ({selectedRows.length})
                 </Button>
-              </PermissionCheck>
+              </PermissionCheck> */}
             </>
           ) : null
         }
@@ -348,7 +348,7 @@ const FeesItemView = ({ saved }: { saved?: SavedView }) => {
                   <FileCopy className="size-4" fill="var(--color-icon-default-subtle)" />
                   {duplicating ? "Duplicating..." : "Duplicate fee item"}
                 </button>
-                <button
+                {/* <button
                   disabled={deleting}
                   onClick={() => {
                     if (!activeItemId) return;
@@ -363,7 +363,7 @@ const FeesItemView = ({ saved }: { saved?: SavedView }) => {
                   className="hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600 disabled:opacity-50"
                 >
                   <Trash2 className="size-4" /> {deleting ? "Deleting..." : "Delete fee item"}
-                </button>
+                </button> */}
               </div>
             </div>
           </MobileDrawer>

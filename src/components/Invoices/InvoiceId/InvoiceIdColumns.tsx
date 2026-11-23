@@ -36,14 +36,14 @@ const RenderOptions = (row: Row<paymentHistoryType>) => {
               <span>Edit payment</span>
             </DropdownMenuItem>
           </PermissionCheck>
-          <PermissionCheck permissionUtility={canDeleteInvoices}>
+          {/* <PermissionCheck permissionUtility={canDeleteInvoices}>
             <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
             <DropdownMenuItem className="gap-2.5 px-3" onClick={() => setDeletePayment(true)}>
               <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
               <span className="text-icon-destructive">Delete payment</span>
             </DropdownMenuItem>
-          </PermissionCheck>
+          </PermissionCheck> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

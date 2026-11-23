@@ -109,14 +109,14 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
 
           {/* The bulk-delete endpoint is guarded by manage_invoices, not delete_invoices —
               delete_invoices is admin-only and would 403 every bursar using this button. */}
-          <PermissionCheck permissionUtility={canManageInvoices}>
+          {/* <PermissionCheck permissionUtility={canManageInvoices}>
             <Button
               onClick={() => setOpenBulkDelete(true)}
               className="bg-bg-state-secondary border-border-darker text-text-default h-7 border px-2.5 text-sm font-medium"
             >
               <span>Delete Invoice{selectedRows.length !== 1 && "s"}</span>
             </Button>
-          </PermissionCheck>
+          </PermissionCheck> */}
         </div>
       )}
 
@@ -256,7 +256,7 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
                         <span>{sendingReminder ? "Sending..." : "Send reminder"}</span>
                       </div>
 
-                      <PermissionCheck permissionUtility={canDeleteInvoices}>
+                      {/* <PermissionCheck permissionUtility={canDeleteInvoices}>
                         <div
                           role="button"
                           onClick={() => handleDelete(invoice.invoiceId)}
@@ -265,7 +265,7 @@ export const InvoiceOverviewTable = ({ invoices, loading, page, setPage, pageSiz
                           <Trash2 className="size-4" />
                           <span>{deletingInvoice ? "Deleting..." : "Delete invoice"}</span>
                         </div>
-                      </PermissionCheck>
+                      </PermissionCheck> */}
                     </div>
                   </div>
                 </MobileDrawer>

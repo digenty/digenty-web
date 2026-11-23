@@ -111,7 +111,7 @@ const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
           <span>{duplicating ? "Duplicating..." : "Duplicate fee item"}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator className="border-border-default bg-border-default" />
-        <PermissionCheck permissionUtility={canDeleteFees}>
+        {/* <PermissionCheck permissionUtility={canDeleteFees}>
           <DropdownMenuItem
             onClick={handleDelete}
             disabled={deleting}
@@ -120,7 +120,7 @@ const RenderOptions = ({ row }: { row: Row<FeeItemProp> }) => {
             <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
             <span className="text-icon-destructive">{deleting ? "Deleting..." : "Delete fee item"}</span>
           </DropdownMenuItem>
-        </PermissionCheck>
+        </PermissionCheck> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
