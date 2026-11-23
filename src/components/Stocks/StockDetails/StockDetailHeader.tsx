@@ -86,14 +86,14 @@ export const StockDetailHeader = ({ stock }: Props) => {
         </div>
 
         <div className="border-border-default flex items-center gap-3 border-t pt-4 md:border-none md:p-0">
-          <PermissionCheck permissionUtility={canDeleteStock}>
+          {/* <PermissionCheck permissionUtility={canDeleteStock}>
             <Button
               onClick={() => setConfirmDelete(true)}
               className="border-border-darker bg-bg-state-secondary! hover:bg-bg-state-secondary-hover! h-8! rounded-md border"
             >
               <DeleteBin fill="var(--color-icon-destructive)" />
             </Button>
-          </PermissionCheck>
+          </PermissionCheck> */}
           <PermissionCheck permissionUtility={canManageStock}>
             <Button
               onClick={() => stock?.id && router.push(`/staff/stock/add-stock?id=${stock.id}`)}

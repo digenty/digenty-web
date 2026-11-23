@@ -89,11 +89,11 @@ export const StockCategories = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-4">
-                    <PermissionCheck permissionUtility={canDeleteStock}>
+                    {/* <PermissionCheck permissionUtility={canDeleteStock}>
                       <Button onClick={() => setDeletingCategory({ id: cat.id, name: cat.name })}>
                         <DeleteBin fill="var(--color-icon-default)" />
                       </Button>
-                    </PermissionCheck>
+                    </PermissionCheck> */}
 
                     <PermissionCheck permissionUtility={canManageStock}>
                       <Button

@@ -58,7 +58,7 @@ const RenderOptions = ({
           </DropdownMenuItem>
         </PermissionCheck>
 
-        <DropdownMenuSeparator className="border-border-default bg-border-default" />
+        {/* <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
         <PermissionCheck permissionUtility={canDeleteStock}>
           <DropdownMenuItem
@@ -71,7 +71,7 @@ const RenderOptions = ({
             <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
             <span className="text-icon-destructive">Delete stock</span>
           </DropdownMenuItem>
-        </PermissionCheck>
+        </PermissionCheck> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

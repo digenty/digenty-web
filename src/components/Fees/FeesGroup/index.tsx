@@ -277,12 +277,12 @@ const FeesGroupView = ({ saved }: { saved?: SavedView }) => {
                   <FileCopy className="size-4" fill="var(--color-icon-default-subtle)" />
                   {duplicating ? "Duplicating..." : "Duplicate fee group"}
                 </button>
-                <button
+                {/* <button
                   onClick={openDeleteModal}
                   className="hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600"
                 >
                   <Trash2 className="size-4" /> Delete fee group
-                </button>
+                </button> */}
               </div>
             </div>
           </MobileDrawer>

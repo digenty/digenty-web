@@ -289,12 +289,12 @@ const ClassFeesView = ({ saved }: { saved?: SavedView }) => {
                 >
                   <Eye className="size-4" fill="var(--color-icon-default-subtle)" /> View class fee
                 </button>
-                <button
+                {/* <button
                   onClick={() => activeClassFeeId && openDeleteModal(activeClassFeeId)}
                   className="hover:bg-bg-muted border-border-darker flex h-8 w-full items-center justify-center gap-2 rounded-md border p-2 text-sm text-red-600"
                 >
                   <Trash2 className="size-4" /> Delete class fee
-                </button>
+                </button> */}
               </div>
             </div>
           </MobileDrawer>

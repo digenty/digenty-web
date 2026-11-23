@@ -75,7 +75,7 @@ export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, urlInvoiceId, loadin
           </>
         ) : (
           <>
-            <PermissionCheck permissionUtility={canDeleteInvoices}>
+            {/* <PermissionCheck permissionUtility={canDeleteInvoices}>
               <Button
                 onClick={handleDelete}
                 disabled={deleting}
@@ -84,7 +84,7 @@ export const InvoiceIdHeader = ({ invoiceNumber, invoiceId, urlInvoiceId, loadin
                 {deleting ? <Spinner className="text-text-white-default size-4" /> : <DeleteBin fill="var(--color-icon-white-default)" />}
                 {deleting ? "Deleting..." : "Delete"}
               </Button>
-            </PermissionCheck>
+            </PermissionCheck> */}
             <PermissionCheck permissionUtility={canManageInvoices}>
               <Button
                 onClick={() => router.push(`/staff/invoices/edit-invoice?id=${invoiceId}`)}

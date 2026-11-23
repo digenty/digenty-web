@@ -144,7 +144,7 @@ export const FeeItemDetail = () => {
               {isPublished ? <Check className="size-4" /> : <SendPlaneFill fill="var(--color-icon-white-default)" />}
               {isPublished ? "Published" : publishing ? "Publishing..." : "Publish Fee"}
             </Button>
-            <PermissionCheck permissionUtility={canDeleteFees}>
+            {/* <PermissionCheck permissionUtility={canDeleteFees}>
               <Button
                 onClick={handleDelete}
                 disabled={deleting}
@@ -153,7 +153,7 @@ export const FeeItemDetail = () => {
                 <DeleteBin fill="var(--color-icon-white-default)" />
                 {deleting ? "Deleting..." : "Delete"}
               </Button>
-            </PermissionCheck>
+            </PermissionCheck> */}
             <Button
               disabled={duplicating}
               className="text-text-default bg-bg-state-default hover:bg-bg-state-default-hover border-border-darker h-8! rounded-md border"

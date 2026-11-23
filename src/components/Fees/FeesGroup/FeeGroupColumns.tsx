@@ -122,7 +122,7 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
             <span>{duplicating ? "Duplicating..." : "Duplicate fee group"}</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator className="border-border-default bg-border-default" />
-          <PermissionCheck permissionUtility={canDeleteFees}>
+          {/* <PermissionCheck permissionUtility={canDeleteFees}>
             <DropdownMenuItem
               className="gap-2.5 px-3"
               onClick={() => {
@@ -133,7 +133,7 @@ const RenderOptions = ({ row }: { row: Row<FeeGroupProp> }) => {
               <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
               <span className="text-icon-destructive">Delete fee group</span>
             </DropdownMenuItem>
-          </PermissionCheck>
+          </PermissionCheck> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

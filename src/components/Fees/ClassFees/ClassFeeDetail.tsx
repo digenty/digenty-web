@@ -123,13 +123,13 @@ export const ClassFeeDetail = () => {
                 </div>
                 <div className="flex items-center gap-7">
                   <div className="text-text-default text-base font-semibold">₦{itm.amount.toLocaleString()}</div>
-                  <PermissionCheck permissionUtility={canDeleteFees}>
+                  {/* <PermissionCheck permissionUtility={canDeleteFees}>
                     <DeleteBin
                       onClick={() => !deleting && handleDelete(itm.feeItemId)}
                       fill="var(--color-icon-default-subtle)"
                       className="cursor-pointer"
                     />
-                  </PermissionCheck>
+                  </PermissionCheck> */}
                 </div>
               </div>
             ))}
