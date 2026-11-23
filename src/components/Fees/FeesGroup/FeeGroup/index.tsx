@@ -100,7 +100,7 @@ export const FeeGroup = () => {
                 Edit
               </Button>
             </PermissionCheck>
-            <PermissionCheck permissionUtility={canDeleteFees}>
+            {/* <PermissionCheck permissionUtility={canDeleteFees}>
               <Button
                 onClick={handleDelete}
                 disabled={deleting}
@@ -108,7 +108,7 @@ export const FeeGroup = () => {
               >
                 <DeleteBin fill="var(--color-bg-state-destructive)" className="size-4" />
               </Button>
-            </PermissionCheck>
+            </PermissionCheck> */}
           </div>
         </div>
 

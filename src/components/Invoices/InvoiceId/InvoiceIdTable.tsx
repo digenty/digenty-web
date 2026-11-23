@@ -168,7 +168,7 @@ export const InvoiceIdPaymentHistoryTable = ({ invoiceId }: { invoiceId?: string
                   <span className="text-text-default text-sm">Edit payment</span>
                 </div>
               </PermissionCheck>
-              <PermissionCheck permissionUtility={canDeleteInvoices}>
+              {/* <PermissionCheck permissionUtility={canDeleteInvoices}>
                 <div
                   className="border-border-darker bg-bg-state-secondary flex items-center justify-center gap-1 rounded-md border px-2.5 py-1.5"
                   onClick={() => setDeletePayment(true)}
@@ -176,7 +176,7 @@ export const InvoiceIdPaymentHistoryTable = ({ invoiceId }: { invoiceId?: string
                   <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
                   <span className="text-icon-destructive text-sm">Delete payment</span>
                 </div>
-              </PermissionCheck>
+              </PermissionCheck> */}
             </div>
           </MobileDrawer>
         )}

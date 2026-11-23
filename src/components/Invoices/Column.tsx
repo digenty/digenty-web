@@ -90,7 +90,7 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
           <span>{sendingReminder ? "Sending..." : "Send reminder"}</span>
         </DropdownMenuItem>
 
-        <PermissionCheck permissionUtility={canDeleteInvoices}>
+        {/* <PermissionCheck permissionUtility={canDeleteInvoices}>
           <DropdownMenuSeparator className="border-border-default bg-border-default" />
 
           <DropdownMenuItem
@@ -104,7 +104,7 @@ const RenderOptions = (row: Row<InvoicesOverviewTableProps>) => {
             <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
             <span className="text-icon-destructive">{deletingInvoice ? "Deleting..." : "Delete invoice"}</span>
           </DropdownMenuItem>
-        </PermissionCheck>
+        </PermissionCheck> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

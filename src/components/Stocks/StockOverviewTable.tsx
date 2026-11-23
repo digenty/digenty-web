@@ -188,7 +188,7 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
                             <Edit fill="var(--color-icon-default-subtle)" className="size-4" /> Edit stock
                           </div>
                         </PermissionCheck>
-                        <PermissionCheck permissionUtility={canDeleteStock}>
+                        {/* <PermissionCheck permissionUtility={canDeleteStock}>
                           <div
                             role="button"
                             onClick={() => {
@@ -200,7 +200,7 @@ export const StockOverviewTable = ({ branchId, search, statusFilter, categoryFil
                             <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
                             <span>Delete stock</span>
                           </div>
-                        </PermissionCheck>
+                        </PermissionCheck> */}
                       </div>
                     </div>
                   </MobileDrawer>

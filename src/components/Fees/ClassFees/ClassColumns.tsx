@@ -81,7 +81,7 @@ const RenderOptions = ({ row }: { row: Row<ClassFeeTypes> }) => {
             <span>View class fee</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator className="border-border-default bg-border-default" />
-          <PermissionCheck permissionUtility={canDeleteFees}>
+          {/* <PermissionCheck permissionUtility={canDeleteFees}>
             <DropdownMenuItem
               onClick={evt => {
                 evt.stopPropagation();
@@ -93,7 +93,7 @@ const RenderOptions = ({ row }: { row: Row<ClassFeeTypes> }) => {
               <DeleteBin fill="var(--color-icon-destructive)" className="size-4" />
               <span className="text-icon-destructive">Delete class fee</span>
             </DropdownMenuItem>
-          </PermissionCheck>
+          </PermissionCheck> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </>
