@@ -172,7 +172,6 @@ export const PersonalInformation = ({ formik, modal = false }: { formik: FormikP
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (
             <Select
-              disabled={isBranchRestricted && visibleBranches.data.length === 1}
               value={visibleBranches.data?.find((b: BranchWithClassLevels) => b.branch.id === values.branchId)?.branch.uuid || ""}
               onValueChange={value => {
                 const branch = visibleBranches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
