@@ -45,7 +45,7 @@ const StudentAndParentRecord = () => {
         {/* Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <PillTabs tabs={tabs} activeId={activeTab} onChange={tab => router.push(`/staff/student-and-parent-record?tab=${tab}`)} />
-          <SignupLinkButton />
+          {hasFullAccess && <SignupLinkButton />}
         </div>
 
         {/* Separate the table components into two different files with their separate states, then render conditionally here */}
