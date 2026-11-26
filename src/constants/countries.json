@@ -367,7 +367,7 @@
         "tzName": "Vostok Station Time"
       }
     ],
-    "states": []
+    "states": ["Antarctica"]
   },
   {
     "name": "Antigua and Barbuda",
@@ -1166,7 +1166,7 @@
         "tzName": "Central European Time"
       }
     ],
-    "states": []
+    "states": ["Bouvet Island"]
   },
   {
     "name": "Brazil",
@@ -1335,7 +1335,7 @@
         "tzName": "Indian Ocean Time"
       }
     ],
-    "states": []
+    "states": ["British Indian Ocean Territory"]
   },
   {
     "name": "Brunei",
@@ -2070,7 +2070,7 @@
         "tzName": "Christmas Island Time"
       }
     ],
-    "states": []
+    "states": ["Christmas Island"]
   },
   {
     "name": "Cocos (Keeling) Islands",
@@ -2088,7 +2088,7 @@
         "tzName": "Cocos Islands Time"
       }
     ],
-    "states": []
+    "states": ["Home Island", "West Island"]
   },
   {
     "name": "Colombia",
@@ -2207,7 +2207,23 @@
         "tzName": "Cook Island Time"
       }
     ],
-    "states": []
+    "states": [
+      "Aitutaki",
+      "Atiu",
+      "Mangaia",
+      "Manihiki",
+      "Manuae",
+      "Mauke",
+      "Mitiaro",
+      "Nassau",
+      "Palmerston",
+      "Penrhyn",
+      "Pukapuka",
+      "Rakahanga",
+      "Rarotonga",
+      "Suwarrow",
+      "Takutea"
+    ]
   },
   {
     "name": "Costa Rica",
@@ -2317,7 +2333,7 @@
         "tzName": "Atlantic Standard Time"
       }
     ],
-    "states": []
+    "states": ["Curaçao"]
   },
   {
     "name": "Cyprus",
@@ -2975,7 +2991,7 @@
         "tzName": "Falkland Islands Summer Time"
       }
     ],
-    "states": []
+    "states": ["East Falkland", "West Falkland"]
   },
   {
     "name": "Faroe Islands",
@@ -3229,7 +3245,7 @@
         "tzName": "French Guiana Time"
       }
     ],
-    "states": []
+    "states": ["Cayenne", "Saint-Laurent-du-Maroni"]
   },
   {
     "name": "French Polynesia",
@@ -3279,7 +3295,7 @@
         "tzName": "French Southern and Antarctic Time"
       }
     ],
-    "states": []
+    "states": ["Adélie Land", "Amsterdam Island", "Crozet Islands", "Kerguelen Islands", "Saint-Paul Island", "Scattered Islands"]
   },
   {
     "name": "Gabon",
@@ -3423,7 +3439,7 @@
         "tzName": "Central European Time"
       }
     ],
-    "states": []
+    "states": ["Gibraltar"]
   },
   {
     "name": "Greece",
@@ -3785,7 +3801,7 @@
         "tzName": "French Southern and Antarctic Time"
       }
     ],
-    "states": []
+    "states": ["Heard Island", "McDonald Islands"]
   },
   {
     "name": "Honduras",
@@ -5232,7 +5248,7 @@
         "tzName": "China Standard Time"
       }
     ],
-    "states": []
+    "states": ["Nossa Senhora de Fátima", "Nossa Senhora do Carmo", "Santo António", "São Francisco Xavier", "São Lázaro", "São Lourenço", "Sé"]
   },
   {
     "name": "Madagascar",
@@ -6532,7 +6548,7 @@
         "tzName": "Norfolk Time"
       }
     ],
-    "states": []
+    "states": ["Norfolk Island"]
   },
   {
     "name": "North Korea",
@@ -6681,7 +6697,7 @@
         "tzName": "Chamorro Standard Time"
       }
     ],
-    "states": []
+    "states": ["Northern Islands", "Rota", "Saipan", "Tinian"]
   },
   {
     "name": "Norway",
@@ -7148,7 +7164,7 @@
         "tzName": "Pacific Standard Time (North America)"
       }
     ],
-    "states": []
+    "states": ["Ducie Island", "Henderson Island", "Oeno Island", "Pitcairn Island"]
   },
   {
     "name": "Poland",
@@ -7814,7 +7830,7 @@
         "tzName": "Pierre & Miquelon Daylight Time"
       }
     ],
-    "states": []
+    "states": ["Miquelon-Langlade", "Saint-Pierre"]
   },
   {
     "name": "Saint Vincent and the Grenadines",
@@ -7850,7 +7866,7 @@
         "tzName": "Atlantic Standard Time"
       }
     ],
-    "states": []
+    "states": ["Saint-Barthélemy"]
   },
   {
     "name": "Saint-Martin (French part)",
@@ -7868,7 +7884,7 @@
         "tzName": "Atlantic Standard Time"
       }
     ],
-    "states": []
+    "states": ["Saint-Martin"]
   },
   {
     "name": "Samoa",
@@ -8150,7 +8166,7 @@
         "tzName": "Atlantic Standard Time"
       }
     ],
-    "states": []
+    "states": ["Sint Maarten"]
   },
   {
     "name": "Slovakia",
@@ -8490,7 +8506,7 @@
         "tzName": "South Georgia and the South Sandwich Islands Time"
       }
     ],
-    "states": []
+    "states": ["South Georgia", "South Sandwich Islands"]
   },
   {
     "name": "South Korea",
@@ -8783,7 +8799,7 @@
         "tzName": "Central European Time"
       }
     ],
-    "states": []
+    "states": ["Jan Mayen", "Svalbard"]
   },
   {
     "name": "Sweden",
@@ -9244,7 +9260,7 @@
         "tzName": "Tokelau Time"
       }
     ],
-    "states": []
+    "states": ["Atafu", "Fakaofo", "Nukunonu"]
   },
   {
     "name": "Tonga",
@@ -10399,7 +10415,7 @@
         "tzName": "Central European Time"
       }
     ],
-    "states": []
+    "states": ["Vatican City"]
   },
   {
     "name": "Venezuela",
@@ -10514,7 +10530,7 @@
         "tzName": "Atlantic Standard Time"
       }
     ],
-    "states": []
+    "states": ["Anegada", "Jost Van Dyke", "Tortola", "Virgin Gorda"]
   },
   {
     "name": "Virgin Islands (US)",
@@ -10568,7 +10584,7 @@
         "tzName": "Western European Summer Time"
       }
     ],
-    "states": []
+    "states": ["Western Sahara"]
   },
   {
     "name": "Yemen",

@@ -63,7 +63,6 @@ export const AcademicInformation = ({
             <Skeleton className="bg-bg-input-soft h-9 w-full" />
           ) : (
             <Select
-              disabled={isBranchRestricted && visibleBranches.data.length === 1}
               value={branches?.data.find((branch: BranchWithClassLevels) => branch.branch.id === branchId)?.branch.uuid}
               onValueChange={value => {
                 const branch = visibleBranches.data?.find((branch: BranchWithClassLevels) => branch.branch.uuid === value);
