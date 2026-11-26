@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Country, StudentInputValues } from "../types";
 import { SearchableSelect } from "../SearchableSelect";
 import { FormikProps } from "formik";
-import { getCountries } from "@/app/actions/country";
+import { findCountryByName, getCountries } from "@/app/actions/country";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GenderValues } from "../constants";
@@ -40,7 +40,7 @@ export const PersonalInformation = ({
 
   useEffect(() => {
     if (countries.length > 0 && values.nationality) {
-      const selectedCountry = countries.find(c => c.name === values.nationality);
+      const selectedCountry = findCountryByName(countries, values.nationality);
       if (selectedCountry) {
         setAvailableStates(selectedCountry.states || []);
       } else {
